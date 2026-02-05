@@ -6,7 +6,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nodus</title>
   <link rel="icon" type="image/png" href="/faviconlink.png" />
-
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#effcf4',
+              100: '#dcf9e6',
+              200: '#bdf2d2',
+              300: '#8fe6b8',
+              400: '#58d39a',
+              500: '#21bf63',
+              600: '#169c4f',
+              700: '#137c40',
+              800: '#136336',
+              900: '#11512e',
+              950: '#062d1b',
+            },
+            keyframes: {
+              shake: {
+                '0%, 100%': { transform: 'translateX(0)' },
+                '25%': { transform: 'translateX(-4px)' },
+                '75%': { transform: 'translateX(4px)' },
+              },
+              glow: {
+                '0%, 100%': { filter: 'drop-shadow(0 0 2px rgba(33, 191, 99, 0.3))' },
+                '50%': { filter: 'drop-shadow(0 0 10px rgba(33, 191, 99, 0.6))' },
+              }
+            },
+            animation: {
+              shake: 'shake 0.5s ease-in-out infinite',
+              glow: 'glow 2s ease-in-out infinite',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <!-- Google Fonts Import -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
