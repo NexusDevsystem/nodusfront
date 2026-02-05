@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nodus</title>
+  <link rel="icon" type="image/png" href="/faviconlink.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#effcf4',
+              100: '#dcf9e6',
+              200: '#bdf2d2',
+              300: '#8fe6b8',
+              400: '#58d39a',
+              500: '#21bf63',
+              600: '#169c4f',
+              700: '#137c40',
+              800: '#136336',
+              900: '#11512e',
+              950: '#062d1b',
+            },
+            keyframes: {
+              shake: {
+                '0%, 100%': { transform: 'translateX(0)' },
+                '25%': { transform: 'translateX(-4px)' },
+                '75%': { transform: 'translateX(4px)' },
+              },
+              glow: {
+                '0%, 100%': { filter: 'drop-shadow(0 0 2px rgba(33, 191, 99, 0.3))' },
+                '50%': { filter: 'drop-shadow(0 0 10px rgba(33, 191, 99, 0.6))' },
+              }
+            },
+            animation: {
+              shake: 'shake 0.5s ease-in-out infinite',
+              glow: 'glow 2s ease-in-out infinite',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts Import -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bangers&family=Cinzel:wght@400;700&family=Dancing+Script:wght@700&family=DM+Sans:ital,opsz,wght@0,9..40,400..1000;1,9..40,400..1000&family=Fira+Code:wght@300..700&family=Inter:wght@100..900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Oswald:wght@200..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Righteous&family=Space+Grotesk:wght@300..700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* Custom Scrollbar for a cleaner look in main app */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Hide scrollbar for Preview component (Chrome, Safari and Opera) */
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      /* IE and Edge */
+      scrollbar-width: none;
+      /* Firefox */
+    }
+
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fade-in 0.5s ease-out forwards;
+    }
+  </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.39.0"
+  }
+}
+</script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+  <div id="root"></div>
+  <script type="module" src="/src/index.tsx"></script>
+</body>
+
+</html>
