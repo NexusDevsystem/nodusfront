@@ -127,7 +127,7 @@ export default function EditorPage() {
         <div className="h-screen bg-slate-50 flex overflow-hidden">
 
             {/* Sidebar - Desktop (Fixed) */}
-            <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} userProfile={profile} />
+            <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} userProfile={profile} className="fixed left-0 top-0 z-40 hidden md:flex" />
 
             {/* Main Layout */}
             <main className="flex-1 md:ml-64 flex flex-col md:flex-row w-full h-full relative transition-all duration-300">
@@ -161,7 +161,7 @@ export default function EditorPage() {
                 {isMobileMenuOpen && (
                     <div className="fixed inset-0 z-50 md:hidden flex">
                         <div className="w-64 h-full bg-white shadow-xl">
-                            <Sidebar activeTab={activeTab} setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }} userProfile={profile} />
+                            <Sidebar activeTab={activeTab} setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }} userProfile={profile} className="flex" />
                         </div>
                         <div className="flex-1 bg-black/50" onClick={() => setIsMobileMenuOpen(false)}></div>
                     </div>

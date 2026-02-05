@@ -22,6 +22,7 @@ interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   userProfile: UserProfile;
+  className?: string;
 }
 
 interface MenuItem {
@@ -62,7 +63,7 @@ const MENU_GROUPS: MenuGroup[] = [
   }
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile, className }) => {
   // State to track which groups are expanded
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
     'my-linktree': true,
@@ -77,7 +78,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile 
   };
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 h-screen fixed left-0 top-0 overflow-y-auto z-40 hidden md:flex flex-col select-none">
+    <aside className={`w-64 bg-white border-r border-slate-200 h-screen overflow-y-auto flex flex-col select-none ${className || ''}`}>
 
       {/* User Header */}
       <div className="p-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
