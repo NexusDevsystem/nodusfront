@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { UserProfile } from '../types';
-import { Upload, Camera, Sparkles, X, User, FileText, Image as ImageIcon, Trash2 } from 'lucide-react';
-import { generateCreativeBio } from '../services/geminiService';
+import { Upload, Camera, X, User, FileText, Image as ImageIcon, Trash2 } from 'lucide-react';
 
 interface ProfileEditorProps {
   profile: UserProfile;
@@ -9,7 +8,6 @@ interface ProfileEditorProps {
 }
 
 const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
-  const [isGenerating, setIsGenerating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (field: keyof UserProfile, value: string | boolean | undefined) => {
@@ -33,22 +31,6 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
 
   const handleRemoveImage = () => {
     handleChange('avatarUrl', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix');
-  };
-
-
-  const handleGenerateBio = async () => {
-    if (!profile.name) return;
-
-    setIsGenerating(true);
-    try {
-      // We use the name and current bio (as keywords) to generate something new
-      const newBio = await generateCreativeBio(profile.name, profile.bio || "Cafe, Lifestyle, Tech");
-      handleChange('bio', newBio);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsGenerating(false);
-    }
   };
 
   return (
@@ -113,23 +95,9 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
 
           {/* Bio Field */}
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Biografia
-              </label>
-
-              <button
-                onClick={handleGenerateBio}
-                disabled={isGenerating || !profile.name}
-                className="text-[10px] text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1 transition-colors disabled:opacity-50"
-              >
-                {isGenerating ? 'Gerando...' : (
-                  <>
-                    <Sparkles size={10} /> Criar com IA
-                  </>
-                )}
-              </button>
-            </div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+              Biografia
+            </label>
 
             <div className="relative">
               <textarea
