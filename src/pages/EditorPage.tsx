@@ -121,7 +121,7 @@ export default function EditorPage() {
     const [showMobilePreview, setShowMobilePreview] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
-    const shareUrl = `https://noduscc.com/${profile.name.toLowerCase().replace(/\s/g, '')}`;
+    const shareUrl = `${window.location.origin}/${profile.name.toLowerCase().replace(/\s/g, '')}`;
 
     return (
         <div className="h-screen bg-slate-50 flex overflow-hidden">
