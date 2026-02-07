@@ -28,8 +28,11 @@ const safeSetItem = (key: string, value: string) => {
  * OnboardingPage v2.1.2 - Color consistency and icon fix
  */
 export default function OnboardingPage() {
-    const { user } = useAuth();
+    const { user, setProfile } = useAuth();
+    const [step, setStep] = useState(1);
     const [username, setUsername] = useState('');
+    const [userCategory, setUserCategory] = useState<'creator' | 'corporate' | 'personal' | null>(null);
+    const [referralSource, setReferralSource] = useState('');
     const [loading, setLoading] = useState(false);
     const [checking, setChecking] = useState(false);
     const [available, setAvailable] = useState<boolean | null>(null);
@@ -64,26 +67,35 @@ export default function OnboardingPage() {
         return () => clearTimeout(timer);
     }, [username]);
 
+    const handleNextStep = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (step === 1 && !available) return;
+        if (step === 2 && !userCategory) return;
+        setStep(step + 1);
+    };
+
     const handleFinalize = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!available || !user?.email) return;
+        if (!available || !user?.email || !userCategory) return;
 
         setLoading(true);
         setError('');
 
         try {
-            // 1. Update Profile with chosen username
+            // 1. Update Profile with all onboarding data
             const { error: updateError } = await supabase
                 .from('users')
                 .update({
                     username: username.toLowerCase(),
-                    onboarding_completed: true
+                    onboarding_completed: true,
+                    user_category: userCategory,
+                    referral_source: referralSource || 'Não informado'
                 })
                 .eq('email', user.email);
 
             if (updateError) throw updateError;
 
-            // 2. Fetch fresh profile data to update local state AND cache
+            // 2. Fetch fresh profile data
             const { data: updatedProfile, error: fetchError } = await supabase
                 .from('users')
                 .select('*')
@@ -92,7 +104,10 @@ export default function OnboardingPage() {
 
             if (fetchError) throw fetchError;
 
-            // 3. Navigate to admin - AuthContext will fetch fresh profile
+            // 3. Update Global Context
+            setProfile(updatedProfile);
+
+            // 4. Navigate to admin
             navigate('/admin');
 
         } catch (err: any) {
@@ -115,68 +130,151 @@ export default function OnboardingPage() {
             <div className="flex-1 flex flex-col items-center justify-center p-8 lg:p-24 relative z-10">
                 <div className="w-full max-w-sm">
                     {/* Logo Section */}
-                    <div className="flex items-center gap-3 mb-12">
-                        <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center p-2 shadow-lg shadow-black/10">
-                            <img src="/faviconlink.png" alt="Nodus" className="w-full h-full object-contain invert" />
+                    <div className="flex items-center gap-2 mb-12">
+                        <div className="h-10 relative flex items-center justify-start min-w-[200px]">
+                            <img
+                                src="/icons/logo sem fundo.png"
+                                alt="Nodus Logo"
+                                className="absolute top-1/2 -translate-y-1/2 left-0 h-40 w-auto object-contain max-w-none"
+                            />
                         </div>
-                        <span className="text-xl font-black tracking-tighter text-slate-900">NODUS</span>
                     </div>
 
                     <div className="space-y-2 mb-10">
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">Escolha seu link único.</h1>
-                        <p className="text-slate-500 font-medium">Você poderá alterá-lo depois se precisar.</p>
+                        {step === 1 && <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">Escolha seu link único.</h1>}
+                        {step === 2 && <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">Como você pretende usar o Nodus?</h1>}
+                        {step === 3 && <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">Por onde nos conheceu?</h1>}
+                        <p className="text-slate-500 font-medium">
+                            {step === 1 && "Você poderá alterá-lo depois se precisar."}
+                            {step === 2 && "Isso nos ajuda a personalizar sua experiência."}
+                            {step === 3 && "Sua resposta é fundamental para nosso crescimento."}
+                        </p>
                     </div>
 
-                    <form onSubmit={handleFinalize} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Claim your username</label>
-                            <div className="relative group">
-                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg select-none group-focus-within:text-[#acc8a2] transition-colors">
-                                    noduscc/
-                                </span>
-                                <input
-                                    type="text"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9._]/g, ''))}
-                                    className={`
-                                        w-full bg-white border-2 rounded-[22px] py-5 pl-[100px] pr-12 text-lg font-bold
-                                        focus:outline-none focus:ring-4 transition-all duration-300
-                                        ${available === true ? 'border-[#acc8a2] focus:ring-[#acc8a2]/10' :
-                                            available === false ? 'border-red-400 focus:ring-red-400/10' :
-                                                'border-slate-100 hover:border-slate-200 focus:border-[#acc8a2] focus:ring-[#acc8a2]/10'}
-                                    `}
-                                    placeholder="voce"
-                                    required
-                                />
-                                <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center gap-3">
-                                    {checking && <Loader2 className="animate-spin text-slate-300" size={20} />}
-                                    {!checking && available === true && <Check className="text-[#acc8a2]" size={22} strokeWidth={3} />}
-                                    {!checking && available === false && <X className="text-red-400" size={22} strokeWidth={3} />}
+                    {step === 1 && (
+                        <form onSubmit={handleNextStep} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Claim your username</label>
+                                <div className="relative group">
+                                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg select-none group-focus-within:text-[#acc8a2] transition-colors">
+                                        noduscc/
+                                    </span>
+                                    <input
+                                        type="text"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9._]/g, ''))}
+                                        className={`
+                                            w-full bg-white border-2 rounded-[22px] py-5 pl-[100px] pr-12 text-lg font-bold
+                                            focus:outline-none focus:ring-4 transition-all duration-300
+                                            ${available === true ? 'border-[#acc8a2] focus:ring-[#acc8a2]/10' :
+                                                available === false ? 'border-red-400 focus:ring-red-400/10' :
+                                                    'border-slate-100 hover:border-slate-200 focus:border-[#acc8a2] focus:ring-[#acc8a2]/10'}
+                                        `}
+                                        placeholder="voce"
+                                        required
+                                    />
+                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center gap-3">
+                                        {checking && <Loader2 className="animate-spin text-slate-300" size={20} />}
+                                        {!checking && available === true && <Check className="text-[#acc8a2]" size={22} strokeWidth={3} />}
+                                        {!checking && available === false && <X className="text-red-400" size={22} strokeWidth={3} />}
+                                    </div>
+                                </div>
+                                <div className="h-6">
+                                    {available === true && (
+                                        <p className="text-[#acc8a2] text-xs font-bold mt-2 ml-4 animate-in fade-in slide-in-from-top-1">Link de usuário disponível!</p>
+                                    )}
+                                    {available === false && username && !checking && (
+                                        <p className="text-red-400 text-xs font-bold mt-2 ml-4 animate-in fade-in slide-in-from-top-1">Este link já está sendo usado.</p>
+                                    )}
                                 </div>
                             </div>
-                            <div className="h-6">
-                                {available === true && (
-                                    <p className="text-[#acc8a2] text-xs font-bold mt-2 ml-4 animate-in fade-in slide-in-from-top-1">Link de usuário disponível!</p>
-                                )}
-                                {available === false && username && !checking && (
-                                    <p className="text-red-400 text-xs font-bold mt-2 ml-4 animate-in fade-in slide-in-from-top-1">Este link já está sendo usado.</p>
-                                )}
-                            </div>
-                        </div>
 
-                        <button
-                            type="submit"
-                            disabled={!available || loading}
-                            className={`
-                                w-full h-16 rounded-[22px] font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300
-                                ${available && !loading
-                                    ? 'bg-slate-900 text-white shadow-xl shadow-black/10 hover:bg-black hover:-translate-y-0.5 active:translate-y-0'
-                                    : 'bg-slate-100 text-slate-300 cursor-not-allowed'}
-                            `}
-                        >
-                            {loading ? <Loader2 className="animate-spin" size={24} /> : 'Finalizar Perfil'}
-                        </button>
-                    </form>
+                            <button
+                                type="submit"
+                                disabled={!available || loading}
+                                className={`
+                                    w-full h-16 rounded-[22px] font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300
+                                    ${available && !loading
+                                        ? 'bg-slate-900 text-white shadow-xl shadow-black/10 hover:bg-black hover:-translate-y-0.5 active:translate-y-0'
+                                        : 'bg-slate-100 text-slate-300 cursor-not-allowed'}
+                                `}
+                            >
+                                Continuar
+                            </button>
+                        </form>
+                    )}
+
+                    {step === 2 && (
+                        <div className="space-y-4">
+                            {[
+                                { id: 'creator', label: 'Criador de Conteúdo', description: 'Influenciadores, YouTubers e Criadores.' },
+                                { id: 'corporate', label: 'Corporativo / Negócio', description: 'Empresas, Agências e Marcas.' },
+                                { id: 'personal', label: 'Uso Pessoal', description: 'Agrupar links e projetos pessoais.' }
+                            ].map((cat) => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => setUserCategory(cat.id as any)}
+                                    className={`
+                                        w-full p-6 rounded-[24px] border-2 text-left transition-all duration-300 relative group
+                                        ${userCategory === cat.id
+                                            ? 'border-[#acc8a2] bg-[#f4f6f3]'
+                                            : 'border-slate-100 hover:border-slate-200 bg-white shadow-sm'}
+                                    `}
+                                >
+                                    <h3 className={`font-bold text-lg ${userCategory === cat.id ? 'text-slate-900' : 'text-slate-700'}`}>{cat.label}</h3>
+                                    <p className="text-sm text-slate-400 font-medium">{cat.description}</p>
+                                    {userCategory === cat.id && (
+                                        <div className="absolute right-6 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#acc8a2] rounded-full flex items-center justify-center">
+                                            <Check className="text-white" size={14} strokeWidth={3} />
+                                        </div>
+                                    )}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => setStep(3)}
+                                disabled={!userCategory}
+                                className={`
+                                    w-full h-16 rounded-[22px] font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300 mt-6
+                                    ${userCategory
+                                        ? 'bg-slate-900 text-white shadow-xl shadow-black/10 hover:bg-black hover:-translate-y-0.5 active:translate-y-0'
+                                        : 'bg-slate-100 text-slate-300 cursor-not-allowed'}
+                                `}
+                            >
+                                Continuar
+                            </button>
+                            <button onClick={() => setStep(1)} className="w-full text-slate-400 text-sm font-bold hover:text-slate-600 transition-colors">Voltar</button>
+                        </div>
+                    )}
+
+                    {step === 3 && (
+                        <form onSubmit={handleFinalize} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Sua resposta</label>
+                                <input
+                                    type="text"
+                                    value={referralSource}
+                                    onChange={(e) => setReferralSource(e.target.value)}
+                                    className="w-full bg-white border-2 border-slate-100 rounded-[22px] py-5 px-6 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-[#acc8a2]/10 focus:border-[#acc8a2] transition-all duration-300"
+                                    placeholder="Ex: Instagram, Amigo, Google..."
+                                    required
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={!referralSource || loading}
+                                className={`
+                                    w-full h-16 rounded-[22px] font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300
+                                    ${referralSource && !loading
+                                        ? 'bg-slate-900 text-white shadow-xl shadow-black/10 hover:bg-black hover:-translate-y-0.5 active:translate-y-0'
+                                        : 'bg-slate-100 text-slate-300 cursor-not-allowed'}
+                                `}
+                            >
+                                {loading ? <Loader2 className="animate-spin" size={24} /> : 'Finalizar Perfil'}
+                            </button>
+                            <button type="button" onClick={() => setStep(2)} className="w-full text-slate-400 text-sm font-bold hover:text-slate-600 transition-colors">Voltar</button>
+                        </form>
+                    )}
 
                     {error && <p className="mt-4 text-red-500 text-sm font-medium text-center">{error}</p>}
                 </div>

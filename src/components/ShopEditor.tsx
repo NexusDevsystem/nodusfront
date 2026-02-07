@@ -20,8 +20,8 @@ export default function ShopEditor({ products, onChange }: ShopEditorProps) {
 
         const product: Product = {
             id: crypto.randomUUID(),
-            name: newProduct.name,
-            url: newProduct.url,
+            name: newProduct.name as string,
+            url: newProduct.url as string,
             image,
             clicks: 0
         };

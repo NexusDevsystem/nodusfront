@@ -7,9 +7,10 @@ export interface LinkItem {
   layout: 'classic' | 'social';
   type?: 'link' | 'collection';
   children?: LinkItem[];
+  subtitle?: string;
   image?: string;
   highlight?: 'none' | 'pulse' | 'bounce' | 'shake' | 'glow' | 'wobble';
-  embedType?: 'none' | 'youtube' | 'spotify' | 'twitch';
+  embedType?: 'none' | 'youtube' | 'spotify' | 'twitch' | 'deezer';
   clicks?: number;
 }
 
@@ -39,6 +40,8 @@ export interface UserProfile {
   customCSS?: string;
   supportType?: 'pix' | 'paypal';
   supportKey?: string;
+  userCategory?: 'creator' | 'corporate' | 'personal' | null;
+  referralSource?: string | null;
 }
 
 export interface Theme {
@@ -48,6 +51,7 @@ export interface Theme {
   buttonClass: string;
   textClass: string;
   avatarBorder: string;
+  isPro?: boolean;
 }
 
 
@@ -58,6 +62,7 @@ export interface Product {
   url: string;
   price?: string;
   discountCode?: string;
+  clicks?: number;
 }
 
 export interface FontOption {

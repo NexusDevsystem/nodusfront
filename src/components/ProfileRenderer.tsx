@@ -17,7 +17,13 @@ import GlassSurface from './GlassSurface';
 
 // @ts-ignore
 import NewsletterWidget from './NewsletterWidget';
+import AuroraBackground from './AuroraBackground';
+import ParticlesBackground from './ParticlesBackground';
+import MatrixBackground from './MatrixBackground';
+import Prism from './Prism';
 import { apiClient } from '../services/apiClient';
+import { Play, Plus, Music } from 'lucide-react';
+import { SiSpotify } from 'react-icons/si';
 
 interface ProfileRendererProps {
     profile: UserProfile;
@@ -30,6 +36,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
     const activeLinks = links.filter(l => l.isActive);
 
+    // Track view on mount (only if not in preview/editor mode)
+    React.useEffect(() => {
+        if (!isPreview && profile.id) {
+            apiClient.trackPageView(profile.id);
+        }
+    }, [profile.id, isPreview]);
+
     // Top level social links
     const socialLinks = activeLinks.filter(l => l.layout === 'social' && l.type !== 'collection');
 
@@ -39,9 +52,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const isDarkTheme =
         currentTheme.id.includes('dark') ||
         currentTheme.id.includes('black') ||
-        currentTheme.id === 'luxury-gold' ||
-        currentTheme.id === 'vampire' ||
-        currentTheme.id === 'leafy';
+        currentTheme.id.includes('midnight') ||
+        currentTheme.id.includes('vampire') ||
+        currentTheme.id.includes('animated-') ||
+        ['luxury-gold', 'leafy', 'evergreen', 'golden-hour', 'berry-blast', 'steel-blue'].includes(currentTheme.id) ||
+        currentTheme.id === 'solaris';
 
     const getHighlightClass = (type?: string) => {
         switch (type) {
@@ -63,6 +78,77 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         }
     };
 
+    // Utility to detect Music links (Spotify/Deezer)
+    const isMusicLink = (link: LinkItem) => {
+        if (link.embedType === 'spotify' || link.embedType === 'deezer') return true;
+        const lowerUrl = link.url.toLowerCase();
+        return (lowerUrl.includes('spotify.com') || lowerUrl.includes('deezer.com') || lowerUrl.includes('deezer.page.link')) && (
+            lowerUrl.includes('/track/') ||
+            lowerUrl.includes('/album/') ||
+            lowerUrl.includes('/playlist/')
+        );
+    };
+
+    const MusicRichCard: React.FC<{ link: LinkItem, handleLinkClick: (id: string) => void }> = ({ link, handleLinkClick }) => {
+        const musicTitle = link.title || 'Música';
+        const musicArtist = link.subtitle || 'Artista';
+        const isDeezer = link.embedType === 'deezer' || link.url.includes('deezer');
+        const platformColor = isDeezer ? '#a238ff' : '#a49a2a'; // Deezer purple vs Spotify yellowish-olive
+
+        const DeezerIcon = ({ size }: { size: number }) => (
+            <svg width={size} height={size} viewBox="0 0 1433 1431" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" fillRule="evenodd" d="M1201.8 218.3c13.2-76.7 32.7-125 54.2-125.1h.1c40.2.2 72.7 167.5 72.7 374.1 0 206.7-32.6 374.1-72.8 374.1-16.5 0-31.7-28.4-44-76.1-19.3 174.5-59.5 294.4-106 294.4-36 0-68.3-72-90-185.6-14.8 216-52.1 369.3-95.6 369.3-27.3 0-52.3-60.7-70.7-159.6-22.2 204.1-73.5 347.2-133.2 347.2-59.8 0-111.1-143-133.2-347.2-18.3 98.9-43.3 159.6-70.7 159.6-43.6 0-80.8-153.3-95.6-369.3-21.7 113.6-53.9 185.6-90 185.6-46.5 0-86.7-119.9-106.1-294.4-12.1 47.8-27.4 76.1-43.9 76.1-40.3 0-72.9-167.4-72.9-374.1 0-206.6 32.6-374.1 72.9-374.1 21.6 0 40.9 48.4 54.3 125.1C252.7 86 287.6 0 327 0c46.8 0 87.3 121.6 106.5 298.2 18.8-128.5 47.2-210.4 79.1-210.4 44.7 0 82.7 161.1 96.8 385.9 26.4-115.2 64.8-187.5 107.2-187.5s80.7 72.3 107.1 187.5c14.1-224.8 52.1-385.9 96.8-385.9 31.8 0 60.2 81.9 79.1 210.4C1018.7 121.6 1059.3 0 1106.1 0c39.2 0 74.2 86 95.7 218.3M41.3 597.8C18.5 597.8 0 523 0 430.5s18.5-167.2 41.3-167.2c22.9 0 41.4 74.7 41.4 167.2S64.2 597.8 41.3 597.8m1350.3 0c-22.9 0-41.3-74.8-41.3-167.3s18.4-167.2 41.3-167.2c22.8 0 41.3 74.7 41.3 167.2s-18.5 167.3-41.3 167.3" />
+            </svg>
+        );
+
+        return (
+            <div className={`rounded-[16px] p-2.5 flex items-center relative overflow-hidden group shadow-md border border-white/5 min-h-[64px] w-full ${isDeezer ? 'bg-[#1a1c3b]' : 'bg-[#5c540d]'}`}>
+                {/* Album Art */}
+                <div className="relative z-10 w-[42px] h-[42px] rounded-md overflow-hidden shadow-sm mr-2.5 shrink-0 transition-transform duration-500 group-hover:scale-105">
+                    <img
+                        src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
+                        alt={musicTitle}
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+
+                {/* Text Info */}
+                <div className="relative z-10 flex-1 min-w-0 pr-6">
+                    <h3 className="text-white text-[13px] truncate leading-tight opacity-95">{musicTitle}</h3>
+                    <p style={{ color: platformColor }} className="text-[10px] truncate leading-tight mt-0.5 opacity-80">{musicArtist}</p>
+
+                    {/* Badge - even smaller */}
+                    <div className="inline-block bg-[#1a1804]/40 px-1 py-0.5 rounded text-[8px] text-white uppercase tracking-tighter mt-1">
+                        Prév<span className={isDeezer ? 'text-pink-400' : 'text-cyan-400'}>i</span>a
+                    </div>
+                </div>
+
+                {/* Top Right Icon - smaller */}
+                <div className="absolute top-2.5 right-2.5 z-10 text-white/60">
+                    {isDeezer ? <DeezerIcon size={14} /> : <SiSpotify size={14} />}
+                </div>
+
+                {/* Bottom Action Controls - Tiny Play Button Only */}
+                <div className="absolute bottom-2 right-2 z-10">
+                    <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleLinkClick(link.id);
+                        }}
+                        className="w-[30px] h-[30px] bg-white rounded-full flex items-center justify-center text-black hover:scale-110 active:scale-95 transition-all shadow-sm hover:bg-slate-50"
+                    >
+                        <Play size={12} fill="currentColor" className="ml-0.5" />
+                    </a>
+                </div>
+
+                {/* Background Grain/Noise Overlay */}
+                <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay" />
+            </div>
+        );
+    };
 
     const isSoftRect = profile.buttonStyle === 'soft-rect';
     const isRounded = profile.buttonStyle === 'rounded';
@@ -129,6 +215,49 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     />
                     <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
                 </div>
+            ) : currentTheme.id === 'animated-hologram' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden bg-black">
+                    <Prism
+                        animationType="3drotate"
+                        glow={1.5}
+                        scale={4}
+                        hueShift={0}
+                        colorFrequency={0.8}
+                        transparent={true}
+                    />
+                    <div className="absolute inset-0 bg-black/40" />
+                </div>
+            ) : currentTheme.id === 'animated-aurora' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                    <AuroraBackground />
+                </div>
+            ) : currentTheme.id === 'animated-starfield' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden bg-[#020617]">
+                    <ParticlesBackground color="#ffffff" count={80} />
+                </div>
+            ) : currentTheme.id === 'animated-matrix' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                    <MatrixBackground />
+                </div>
+            ) : currentTheme.id === 'animated-glitch' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden bg-[#050505]">
+                    <style>{`
+                        @keyframes glitch-bg {
+                            0% { background: #050505; }
+                            95% { background: #050505; }
+                            96% { background: #1a001a; }
+                            97% { background: #051a1a; }
+                            98% { background: #050505; }
+                        }
+                        @keyframes scanline {
+                            0% { transform: translateY(-100%); }
+                            100% { transform: translateY(100%); }
+                        }
+                    `}</style>
+                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ animation: 'glitch-bg 4s infinite' }} />
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none" />
+                    <div className="absolute top-0 left-0 w-full h-[100px] bg-white/5 opacity-10 pointer-events-none" style={{ animation: 'scanline 8s linear infinite' }} />
+                </div>
             ) : (
                 <div className={`absolute inset-0 z-0 ${currentTheme.backgroundClass}`}></div>
             )}
@@ -166,9 +295,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 </div>
                 {/* Menu / Options Button */}
                 <div className="absolute top-6 left-6 z-20">
-                    <button className={`p-2 rounded-full transition-colors ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'bg-black/20 text-white hover:bg-black/30' : 'bg-transparent text-slate-800 hover:bg-black/5'}`}>
+                    <div className="p-2">
                         <img src="/icons/logo sem fundo.png" alt="Logo" className="w-10 h-10 object-contain" />
-                    </button>
+                    </div>
                 </div>
 
 
@@ -184,7 +313,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {/* Profile Section */}
                     <div className="flex flex-col items-center text-center mb-6 animate-fade-in mt-8">
                         <div className={`w-32 h-32 mb-4 rounded-full overflow-hidden border-4 ${currentTheme.avatarBorder} shadow-lg`}>
-                            <img src={profile.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'} alt={profile.name || 'Avatar'} className="w-full h-full object-cover bg-white" />
+                            <img src={profile.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'} alt={profile.name || 'Avatar'} className="w-full h-full object-cover" />
                         </div>
                         <h3 className="text-2xl font-bold mb-2 tracking-tight">{profile.name}</h3>
                         <p className="text-base font-medium opacity-90 leading-relaxed max-w-[300px]">{profile.bio}</p>
@@ -293,57 +422,67 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         </div>
 
                                         <div className="space-y-4">
-                                            {activeChildren.map(child => (
-                                                <a
-                                                    key={child.id}
-                                                    href={child.url}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    onClick={() => handleLinkClick(child.id)}
-                                                    className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(child.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
-                                                    style={!profile.customButtonColor ? {} : {
-                                                        backgroundColor: profile.customButtonColor,
-                                                        color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
-                                                    }}
-                                                >
-                                                    {currentTheme.id === 'glass' ? (
-                                                        <GlassSurface
-                                                            width="100%"
-                                                            height="auto"
-                                                            borderRadius={borderRadius}
-                                                            displace={0.5}
-                                                            distortionScale={-180}
-                                                            redOffset={0}
-                                                            greenOffset={10}
-                                                            blueOffset={20}
-                                                            brightness={50}
-                                                            opacity={0.93}
-                                                            mixBlendMode="screen"
-                                                            className={`${getHighlightClass(child.highlight)}`}
-                                                        >
-                                                            <div className="w-full flex items-center justify-between py-3 px-5">
+                                            {activeChildren.map(child => {
+                                                // Special handling for Spotify/Deezer - custom mini player
+                                                if (isMusicLink(child)) {
+                                                    return (
+                                                        <div key={child.id} className="w-full">
+                                                            <MusicRichCard link={child} handleLinkClick={handleLinkClick} />
+                                                        </div>
+                                                    );
+                                                }
+                                                return (
+                                                    <a
+                                                        key={child.id}
+                                                        href={child.url}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        onClick={() => handleLinkClick(child.id)}
+                                                        className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(child.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
+                                                        style={!profile.customButtonColor ? {} : {
+                                                            backgroundColor: profile.customButtonColor,
+                                                            color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
+                                                        }}
+                                                    >
+                                                        {currentTheme.id === 'glass' ? (
+                                                            <GlassSurface
+                                                                width="100%"
+                                                                height="auto"
+                                                                borderRadius={borderRadius}
+                                                                displace={0.5}
+                                                                distortionScale={-180}
+                                                                redOffset={0}
+                                                                greenOffset={10}
+                                                                blueOffset={20}
+                                                                brightness={50}
+                                                                opacity={0.93}
+                                                                mixBlendMode="screen"
+                                                                className={`${getHighlightClass(child.highlight)}`}
+                                                            >
+                                                                <div className="w-full flex items-center justify-between py-3 px-5">
+                                                                    {child.image ? (
+                                                                        <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
+                                                                    ) : (
+                                                                        <span className="w-8"></span>
+                                                                    )}
+                                                                    <span className="truncate flex-1 px-3 text-white text-lg">{child.title}</span>
+                                                                    <span className="w-8 shrink-0"></span>
+                                                                </div>
+                                                            </GlassSurface>
+                                                        ) : (
+                                                            <div className="relative z-10 w-full flex items-center justify-between">
                                                                 {child.image ? (
                                                                     <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
                                                                 ) : (
                                                                     <span className="w-8"></span>
                                                                 )}
-                                                                <span className="truncate flex-1 px-3 text-white text-lg">{child.title}</span>
+                                                                <span className="truncate flex-1 px-3">{child.title}</span>
                                                                 <span className="w-8 shrink-0"></span>
                                                             </div>
-                                                        </GlassSurface>
-                                                    ) : (
-                                                        <div className="relative z-10 w-full flex items-center justify-between">
-                                                            {child.image ? (
-                                                                <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
-                                                            ) : (
-                                                                <span className="w-8"></span>
-                                                            )}
-                                                            <span className="truncate flex-1 px-3">{child.title}</span>
-                                                            <span className="w-8 shrink-0"></span>
-                                                        </div>
-                                                    )}
-                                                </a>
-                                            ))}
+                                                        )}
+                                                    </a>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 );
@@ -369,25 +508,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 }
                             }
 
-                            if (link.embedType === 'spotify') {
-                                const match = link.url.match(/open\.spotify\.com\/(track|album|playlist|episode)\/([a-zA-Z0-9]+)/);
-                                if (match) {
-                                    const [_, type, id] = match;
-                                    return (
-                                        <div key={link.id} className="w-full mb-4">
-                                            <iframe
-                                                style={{ borderRadius: '12px' }}
-                                                src={`https://open.spotify.com/embed/${type}/${id}`}
-                                                width="100%"
-                                                height="152"
-                                                frameBorder="0"
-                                                allowFullScreen
-                                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                                                loading="lazy"
-                                            ></iframe>
-                                        </div>
-                                    );
-                                }
+                            if (isMusicLink(link)) {
+                                return (
+                                    <div key={link.id} className="w-full mb-5">
+                                        <MusicRichCard link={link} handleLinkClick={handleLinkClick} />
+                                    </div>
+                                );
                             }
 
                             // STANDARD LINK
@@ -516,12 +642,21 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         </div>
                     )}
 
-                    {/* Footer Text */}
-                    <div className="mt-8 mb-6 flex flex-col items-center gap-3 w-full px-4">
-                        <a href="https://nodus.cc" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg">
-                            <span className="text-sm font-bold text-black text-center">Junte-se a {profile.name} no Nodus</span>
+                    {/* Footer / Join Nodus Badge */}
+                    <div className="mt-auto pt-20 mb-12 flex flex-col items-center gap-3 w-full px-4">
+                        <a
+                            href="https://nodus.cc"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`group flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md hover:scale-[1.02] ${isDarkTheme
+                                ? 'bg-white text-slate-900'
+                                : 'bg-slate-900 text-white'
+                                }`}
+                        >
+                            <span className="text-[13px] font-semibold tracking-tight">
+                                Junte-se a {profile.name} no Nodus
+                            </span>
                         </a>
-
                     </div>
                 </div>
             </div>

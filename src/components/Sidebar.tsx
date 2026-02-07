@@ -18,7 +18,10 @@ import {
   Settings,
   LogOut,
   ExternalLink,
-  HelpCircle
+  HelpCircle,
+  CreditCard,
+  CalendarDays,
+  ReceiptText
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -27,6 +30,7 @@ interface SidebarProps {
   setActiveTab: (tab: string) => void;
   userProfile: UserProfile;
   className?: string;
+  onUpgradeClick?: () => void;
 }
 
 interface MenuItem {
@@ -60,14 +64,24 @@ const MENU_GROUPS: MenuGroup[] = [
     label: 'Insights',
     groupIcon: BarChart2,
     items: [
-      { id: 'analytics', label: 'Analytics', icon: BarChart2, disabled: false },
-      { id: 'audience', label: 'Audience (CRM)', icon: Users, disabled: false },
+      {
+        id: 'analytics',
+        label: 'Analytics',
+        icon: BarChart2,
+        disabled: false
+      },
+      {
+        id: 'audience',
+        label: 'Audience (CRM)',
+        icon: Users,
+        disabled: false
+      },
       { id: 'settings', label: 'Settings & SEO', icon: Settings, disabled: false },
     ]
   }
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile, className }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile, className, onUpgradeClick }) => {
   const { user, signOut } = useAuth();
 
   // State to track which groups are expanded
@@ -135,22 +149,38 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
               {/* Group Items (Collapsible) */}
               {isOpen && (
                 <div className="mt-1 ml-4 pl-4 border-l border-slate-200 space-y-0.5 animate-fade-in">
-                  {group.items.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => !item.disabled && setActiveTab(item.id)}
-                      disabled={item.disabled}
-                      className={`
-                        w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all
-                        ${activeTab === item.id
-                          ? 'bg-brand-50 text-brand-700'
-                          : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}
-                        ${item.disabled ? 'opacity-40 cursor-not-allowed hover:bg-transparent hover:text-slate-500' : ''}
-                      `}
-                    >
-                      <span className="truncate">{item.label}</span>
-                    </button>
-                  ))}
+                  {group.items.map((item) => {
+                    const isLocked = (item.id === 'earn' || item.id === 'audience') && (userProfile.planType === 'free' || !userProfile.planType);
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          if (isLocked) {
+                            onUpgradeClick?.();
+                          } else if (!item.disabled) {
+                            setActiveTab(item.id);
+                          }
+                        }}
+                        disabled={item.disabled}
+                        className={`
+                              w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all group
+                              ${activeTab === item.id
+                            ? 'bg-brand-50 text-brand-700'
+                            : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}
+                              ${item.disabled ? 'opacity-40 cursor-not-allowed hover:bg-transparent' : ''}
+                              ${isLocked ? 'cursor-not-allowed' : ''}
+                            `}
+                      >
+                        <span className="truncate">{item.label}</span>
+                        {isLocked && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] bg-brand-100 text-brand-600 px-1.5 py-0.5 rounded-md font-bold">PRO</span>
+                            <Zap size={12} className="text-brand-400" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -160,35 +190,37 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
 
       {/* Logged-in Account Footer */}
       <div className="p-4 border-t border-slate-100 bg-slate-50/50 mt-auto">
-        <div className="flex items-center gap-3 p-2 rounded-xl bg-white border border-slate-100 shadow-sm mb-3">
+
+
+
+        {/* Subscription Info Card removed from here as per user request */}
+
+
+        <div className="flex flex-col gap-1 px-1 mb-4">
+          <button
+            onClick={() => setActiveTab('billing')}
+            className={`flex items-center gap-2 text-[11px] font-bold transition-colors py-2 px-1 w-fit ${activeTab === 'billing' ? 'text-brand-600' : 'text-slate-500 hover:text-brand-600'}`}
+          >
+            <CreditCard size={14} className="opacity-70" />
+            Billing (Faturamento)
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3 p-2 rounded-xl bg-white border border-slate-100 shadow-sm group/account relative transition-all duration-300 hover:border-brand-100 hover:shadow-md">
           <div className="w-10 h-10 rounded-full border border-slate-100 overflow-hidden shadow-inner shrink-0">
             <img src={user?.picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'} alt="Account" className="w-full h-full object-cover" />
           </div>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden pr-8">
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter leading-none mb-0.5">Conta Logada</p>
             <h3 className="text-xs font-bold text-slate-800 truncate leading-tight">{user?.name || 'Usuário'}</h3>
             <p className="text-[10px] text-slate-500 truncate leading-none">{user?.email || 'email@exemplo.com'}</p>
           </div>
-        </div>
-
-        <div className="flex flex-col gap-1 px-1">
-          <button
-            onClick={() => setActiveTab('billing')}
-            className={`flex items-center gap-2 text-[11px] font-bold transition-colors py-2 px-1 rounded-lg ${activeTab === 'billing' ? 'text-brand-600 bg-brand-50' : 'text-slate-500 hover:text-brand-600'}`}
-          >
-            <Zap size={14} className="opacity-70" />
-            Planos
-          </button>
-          <button className="flex items-center gap-2 text-[11px] font-bold text-slate-500 hover:text-brand-600 transition-colors py-2 px-1">
-            <HelpCircle size={14} className="opacity-70" />
-            Ajuda e Suporte
-          </button>
           <button
             onClick={() => signOut()}
-            className="flex items-center gap-2 text-[11px] font-bold text-red-400 hover:text-red-600 transition-colors py-2 px-1"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover/account:opacity-100"
+            title="Sair da Conta"
           >
-            <LogOut size={14} className="opacity-70" />
-            Sair da Conta
+            <LogOut size={16} />
           </button>
         </div>
       </div>

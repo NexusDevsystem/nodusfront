@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UserProfile, LinkItem, Product } from '../types';
 import { THEMES, FONTS } from '../constants';
+import ThemeSelector from '../components/ThemeSelector';
 import ProfileEditor from '../components/ProfileEditor';
 import LinkEditor from '../components/LinkEditor';
 import ShopEditor from '../components/ShopEditor';
@@ -12,7 +13,8 @@ import AnalyticsView from '../components/AnalyticsView';
 import AudienceView from '../components/AudienceView';
 import SettingsView from '../components/SettingsView';
 import MonetizationView from '../components/MonetizationView';
-import BillingView from '../components/BillingView';
+import ManageBillingView from '../components/ManageBillingView';
+import BillingModal from '../components/BillingModal';
 import QRCodeModal from '../components/QRCodeModal';
 import UpgradeBanner from '../components/UpgradeBanner';
 import { compressImage } from '../utils/imageUtils';
@@ -192,6 +194,7 @@ export default function EditorPage() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showMobilePreview, setShowMobilePreview] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
 
     const shareUrl = `https://www.noduscc.com.br/${profile.username || profile.name.toLowerCase().replace(/\s/g, '')}`;
 
@@ -199,7 +202,7 @@ export default function EditorPage() {
         <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
             {/* Top Banner for Free Users */}
             {profile.planType === 'free' && (
-                <UpgradeBanner onUpgradeClick={() => setActiveTab('billing')} />
+                <UpgradeBanner onUpgradeClick={() => setIsBillingModalOpen(true)} />
             )}
 
             <div className="flex-1 flex overflow-hidden relative">
@@ -240,6 +243,7 @@ export default function EditorPage() {
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
                     userProfile={profile}
+                    onUpgradeClick={() => setIsBillingModalOpen(true)}
                     className={`fixed left-0 z-40 hidden md:flex ${profile.planType === 'free' ? 'top-10 h-[calc(100vh-40px)]' : 'top-0 h-screen'}`}
                 />
 
@@ -281,7 +285,7 @@ export default function EditorPage() {
                     {isMobileMenuOpen && (
                         <div className="fixed inset-0 z-50 md:hidden flex">
                             <div className="w-64 h-full bg-white shadow-xl">
-                                <Sidebar activeTab={activeTab} setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }} userProfile={profile} className="flex" />
+                                <Sidebar activeTab={activeTab} setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }} userProfile={profile} onUpgradeClick={() => { setIsBillingModalOpen(true); setIsMobileMenuOpen(false); }} className="flex" />
                             </div>
                             <div className="flex-1 bg-black/50" onClick={() => setIsMobileMenuOpen(false)}></div>
                         </div>
@@ -345,6 +349,7 @@ export default function EditorPage() {
                                     {activeTab === 'links' && 'Gerencie seus links e informações do perfil.'}
                                     {activeTab === 'appearance' && 'Personalize as cores e o tema do seu Nodus.'}
                                     {activeTab === 'shop' && 'Gerencie os produtos da sua vitrine.'}
+                                    {activeTab === 'billing' && 'Gerencie sua assinatura, visualize recibos e detalhes de pagamento.'}
                                 </p>
                             </div>
 
@@ -358,7 +363,7 @@ export default function EditorPage() {
                                     <div className="space-y-6">
                                         <ProfileEditor profile={profile} onChange={setProfile} />
                                         <SocialLinksEditor links={links} onChange={setLinks} />
-                                        <LinkEditor links={links} onChange={setLinks} />
+                                        <LinkEditor links={links} onChange={setLinks} profile={profile} />
                                     </div>
                                 )}
 
@@ -385,112 +390,14 @@ export default function EditorPage() {
                                 )}
 
                                 {activeTab === 'billing' && (
-                                    <BillingView profile={profile} onChange={setProfile} />
+                                    <ManageBillingView profile={profile} />
                                 )}
+
 
                                 {activeTab === 'appearance' && (
                                     <div className="space-y-8">
                                         {/* Theme Section */}
-                                        <div className="bg-white rounded-[20px] shadow-sm border border-slate-200 p-6 lg:p-8">
-                                            <h2 className="text-xl font-bold text-slate-800 mb-6">Temas</h2>
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4">
-
-                                                {/* Custom Theme Card */}
-                                                <div className="relative group rounded-xl overflow-hidden aspect-[3/5] border-[3px] transition-all duration-200 border-dashed border-slate-300 hover:border-brand-400 bg-slate-50 flex flex-col">
-                                                    <input
-                                                        type="file"
-                                                        id="bg-upload-theme"
-                                                        className="hidden"
-                                                        accept="image/*"
-                                                        onChange={async (e) => {
-                                                            if (e.target.files && e.target.files[0]) {
-                                                                try {
-                                                                    // Compress and set as custom background
-                                                                    const compressed = await compressImage(e.target.files[0], 800, 0.7);
-                                                                    setProfile({ ...profile, customBackground: compressed });
-                                                                } catch (error) {
-                                                                    console.error(error);
-                                                                    alert('Erro ao processar imagem.');
-                                                                }
-                                                            }
-                                                        }}
-                                                    />
-
-                                                    {profile.customBackground ? (
-                                                        <>
-                                                            {/* Preview of Custom Bg */}
-                                                            <div className="absolute inset-0 z-0">
-                                                                <img src={profile.customBackground} className="w-full h-full object-cover blur-[2px] scale-105" alt="Custom" />
-                                                                <div className="absolute inset-0 bg-black/20"></div>
-                                                            </div>
-
-                                                            {/* Mock UI over custom bg */}
-                                                            <div className="relative z-10 w-full h-full p-3 flex flex-col items-center justify-center gap-2">
-                                                                <div className="w-6 h-6 rounded-full border border-white/50 bg-white/20"></div>
-                                                                <div className="w-12 h-1.5 rounded-full bg-white/30 backdrop-blur-md"></div>
-                                                                <div className="w-12 h-1.5 rounded-full bg-white/30 backdrop-blur-md"></div>
-                                                            </div>
-
-                                                            {/* Actions */}
-                                                            <div className={`absolute bottom-0 left-0 right-0 py-2 px-1 text-center text-xs font-semibold border-t bg-white/90 backdrop-blur text-brand-700 border-brand-200 ${profile.customBackground ? 'ring-4 ring-brand-100 border-brand-600' : ''}`}>
-                                                                Pesonalizado
-                                                            </div>
-
-                                                            {/* Hover Overlay to Edit/Delete */}
-                                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 z-20">
-                                                                <button
-                                                                    onClick={() => document.getElementById('bg-upload-theme')?.click()}
-                                                                    className="px-3 py-1.5 bg-white text-slate-900 text-xs font-bold rounded-full hover:scale-105 transition-transform"
-                                                                >
-                                                                    Trocar
-                                                                </button>
-                                                                <button
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        setProfile({ ...profile, customBackground: null });
-                                                                    }}
-                                                                    className="p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                                                                >
-                                                                    <Trash2 size={16} />
-                                                                </button>
-                                                            </div>
-                                                        </>
-                                                    ) : (
-                                                        /* Empty State */
-                                                        <button
-                                                            onClick={() => document.getElementById('bg-upload-theme')?.click()}
-                                                            className="w-full h-full flex flex-col items-center justify-center gap-3 hover:bg-brand-50/30 transition-colors"
-                                                        >
-                                                            <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500">
-                                                                <ImageIcon size={20} />
-                                                            </div>
-                                                            <span className="text-xs font-bold text-slate-500">Criar Novo</span>
-                                                        </button>
-                                                    )}
-                                                </div>
-
-                                                {/* Standard Themes */}
-                                                {THEMES.map((theme) => (
-                                                    <button
-                                                        key={theme.id}
-                                                        onClick={() => setProfile({ ...profile, themeId: theme.id, customBackground: null })}
-                                                        className={`relative group rounded-xl overflow-hidden aspect-[3/5] border-[3px] transition-all duration-200 ${profile.themeId === theme.id && !profile.customBackground ? 'border-brand-600 scale-[1.02] shadow-lg ring-4 ring-brand-100' : 'border-slate-100 hover:border-slate-300'
-                                                            }`}
-                                                    >
-                                                        <div className={`w-full h-full ${theme.backgroundClass} p-3 flex flex-col items-center justify-center gap-2`}>
-                                                            <div className={`w-6 h-6 rounded-full border ${theme.avatarBorder} bg-white/20`}></div>
-                                                            <div className={`w-12 h-1.5 rounded-full ${theme.buttonClass}`}></div>
-                                                            <div className={`w-12 h-1.5 rounded-full ${theme.buttonClass}`}></div>
-                                                            <div className={`w-12 h-1.5 rounded-full ${theme.buttonClass}`}></div>
-                                                        </div>
-                                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors"></div>
-                                                        <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm py-2 px-1 text-center text-xs font-semibold text-slate-700 border-t border-slate-100">
-                                                            {theme.name}
-                                                        </div>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
+                                        <ThemeSelector profile={profile} links={links} products={products} onChange={setProfile} />
 
                                         {/* Custom Colors Section */}
                                         <div className="bg-white rounded-[20px] shadow-sm border border-slate-200 p-6 lg:p-8">
@@ -663,13 +570,14 @@ export default function EditorPage() {
                                     </div>
                                 )}
 
-                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'audience' && activeTab !== 'settings' && activeTab !== 'earn' && (
+                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'audience' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && (
                                     <div className="bg-white p-12 rounded-[20px] border border-dashed border-slate-300 text-center">
                                         <div className="text-4xl mb-4 text-slate-300 flex justify-center"><Construction size={48} /></div>
                                         <h3 className="text-lg font-medium text-slate-700">Em Desenvolvimento</h3>
                                         <p className="text-slate-500 mt-2">Esta funcionalidade estará disponível em breve.</p>
                                     </div>
                                 )}
+
                             </div>
                         </div>
                     </div>
@@ -710,6 +618,15 @@ export default function EditorPage() {
                         url={shareUrl}
                         profileName={profile.name}
                         onClose={() => setIsShareModalOpen(false)}
+                    />
+                )}
+
+                {/* Billing Modal */}
+                {isBillingModalOpen && (
+                    <BillingModal
+                        profile={profile}
+                        onChange={setProfile}
+                        onClose={() => setIsBillingModalOpen(false)}
                     />
                 )}
 

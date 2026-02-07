@@ -9,7 +9,7 @@ import {
 
 interface SocialLinksEditorProps {
     links: LinkItem[];
-    onChange: (links: LinkItem[]) => void;
+    onChange: (links: LinkItem[] | ((prev: LinkItem[]) => LinkItem[])) => void;
 }
 
 
@@ -71,12 +71,14 @@ const SocialLinksEditor: React.FC<SocialLinksEditorProps> = ({ links, onChange }
             layout: 'social'
         };
 
-        onChange([...links, newLink]);
+        // @ts-ignore
+        onChange((prev: LinkItem[]) => [...prev, newLink]);
         setIsModalOpen(false);
     };
 
     const handleRemoveLink = (id: string) => {
-        onChange(links.filter(l => l.id !== id));
+        // @ts-ignore
+        onChange((prev: LinkItem[]) => prev.filter(l => l.id !== id));
     };
 
     const filteredNetworks = SOCIAL_NETWORKS.filter(n =>

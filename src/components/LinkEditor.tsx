@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { LinkItem } from '../types';
+import { LinkItem, UserProfile } from '../types';
 import { compressImage } from '../utils/imageUtils';
+import { fetchMusicMetadata } from '../utils/musicUtils';
 import {
   Trash2,
   GripVertical,
@@ -21,14 +22,17 @@ import {
 
 interface LinkEditorProps {
   links: LinkItem[];
-  onChange: (links: LinkItem[]) => void;
+  onChange: (links: LinkItem[] | ((prev: LinkItem[]) => LinkItem[])) => void;
   level?: number; // For nesting control
+  profile: UserProfile;
 }
 
-const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0 }) => {
+const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0, profile }) => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [expandedCollections, setExpandedCollections] = useState<Record<string, boolean>>({});
   const [openAnimationMenu, setOpenAnimationMenu] = useState<string | null>(null);
+
+  const isLimitReached = (profile.planType === 'free' || !profile.planType) && links.length >= 5;
 
   const toggleCollection = (id: string) => {
     setExpandedCollections(prev => ({
@@ -47,7 +51,8 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0 }) =
       layout: 'classic',
       type: 'link'
     };
-    onChange([newLink, ...links]);
+    // @ts-ignore
+    onChange(prev => [newLink, ...prev]);
   };
 
   const addCollection = () => {
@@ -63,15 +68,44 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0 }) =
     };
     // Auto-expand the new collection
     setExpandedCollections(prev => ({ ...prev, [newCollection.id]: true }));
-    onChange([newCollection, ...links]);
+    // @ts-ignore
+    onChange(prev => [newCollection, ...prev]);
   };
 
   const updateLink = (id: string, field: keyof LinkItem, value: any) => {
-    onChange(links.map(link => link.id === id ? { ...link, [field]: value } : link));
+    // @ts-ignore - Handle both array and functional update
+    onChange((prev: LinkItem[]) => prev.map(link => {
+      if (link.id !== id) return link;
+
+      // If a child (like a nested LinkEditor) passed a functional update, 
+      // we need to evaluate it against the CURRENT value of this link's field.
+      const newValue = typeof value === 'function' ? value(link[field] || []) : value;
+      return { ...link, [field]: newValue };
+    }));
+  };
+
+  const updateLinkFields = (id: string, updates: Partial<LinkItem>) => {
+    // @ts-ignore - Handle both array and functional update
+    onChange((prev: LinkItem[]) => prev.map(link => {
+      if (link.id !== id) return link;
+
+      const resolvedUpdates = { ...updates };
+      // Check if any field update is actually a functional updater
+      Object.keys(resolvedUpdates).forEach((key) => {
+        const field = key as keyof LinkItem;
+        if (typeof resolvedUpdates[field] === 'function') {
+          // @ts-ignore
+          resolvedUpdates[field] = resolvedUpdates[field](link[field] || []);
+        }
+      });
+
+      return { ...link, ...resolvedUpdates };
+    }));
   };
 
   const removeLink = (id: string) => {
-    onChange(links.filter(link => link.id !== id));
+    // @ts-ignore
+    onChange(prev => prev.filter(link => link.id !== id));
   };
 
   // Drag and Drop Handlers
@@ -111,17 +145,39 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0 }) =
       <div className="space-y-4">
         {level === 0 ? (
           <>
-            <button
-              onClick={addLink}
-              className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-6 rounded-full transition-all shadow-sm flex items-center justify-center gap-2 text-base"
-            >
-              <Plus size={20} strokeWidth={3} /> Add URL
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={addLink}
+                disabled={isLimitReached}
+                className={`w-full h-14 rounded-[22px] font-bold text-lg flex items-center justify-center gap-2 transition-all duration-300 shadow-lg ${isLimitReached
+                  ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                  : 'bg-slate-950 text-white hover:bg-black hover:-translate-y-0.5 active:translate-y-0 shadow-black/10'
+                  }`}
+              >
+                <Plus size={22} /> Adicionar Link
+              </button>
+              {isLimitReached && (
+                <div className="bg-brand-50 border border-brand-100 rounded-xl p-3 flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
+                  <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 shrink-0">
+                    <Zap size={16} fill="currentColor" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-brand-900 leading-tight">Limite de links atingido (5/5)</p>
+                    <p className="text-[10px] text-brand-600 font-medium">Faça upgrade para adicionar links ilimitados.</p>
+                  </div>
+                  <button className="text-[10px] font-bold text-white bg-brand-600 px-3 py-1.5 rounded-full hover:bg-brand-700 transition-colors">PRO</button>
+                </div>
+              )}
+            </div>
 
             <div className="flex items-center justify-between px-1">
               <button
                 onClick={addCollection}
-                className="flex items-center gap-2 text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-full text-sm font-semibold transition-colors border border-slate-200"
+                disabled={isLimitReached}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors border ${isLimitReached
+                  ? 'bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed'
+                  : 'text-slate-600 bg-white hover:bg-slate-100 border-slate-200'
+                  }`}
               >
                 <span className="text-lg"><FolderHeart size={18} /></span> Add collection
               </button>
@@ -226,6 +282,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0 }) =
                       links={link.children || []}
                       onChange={(newChildren) => updateLink(link.id, 'children', newChildren)}
                       level={level + 1}
+                      profile={profile}
                     />
                   </div>
                 )}
@@ -271,13 +328,51 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0 }) =
                   <div className="mb-4 group/input">
                     <div className="relative flex items-center">
                       <input
-                        type="url"
+                        type="text"
                         value={link.url}
-                        onChange={(e) => updateLink(link.id, 'url', e.target.value)}
+                        onChange={(e) => {
+                          const newUrl = e.target.value;
+                          const updates: Partial<LinkItem> = { url: newUrl };
+
+                          // Auto-detect Spotify/Deezer and fetch metadata
+                          const isSpotify = newUrl.includes('open.spotify.com/') && (newUrl.includes('/track/') || newUrl.includes('/album/') || newUrl.includes('/playlist/'));
+                          const isDeezer = newUrl.includes('deezer.com/') || newUrl.includes('deezer.page.link/');
+
+                          if (isSpotify || isDeezer) {
+                            updates.embedType = isSpotify ? 'spotify' : 'deezer';
+                            fetchMusicMetadata(newUrl).then(metadata => {
+                              if (metadata) {
+                                updateLinkFields(link.id, {
+                                  title: metadata.title,
+                                  subtitle: metadata.artist,
+                                  image: metadata.thumbnailUrl,
+                                  embedType: isSpotify ? 'spotify' : 'deezer',
+                                  url: newUrl // Explicitly keep the new URL to avoid race condition clobbering
+                                });
+                              }
+                            });
+                          }
+
+                          updateLinkFields(link.id, updates);
+                        }}
                         className="w-full text-sm text-slate-600 bg-transparent border border-transparent hover:border-slate-200 focus:border-slate-300 focus:bg-slate-50 rounded px-2 py-1 outline-none transition-all placeholder:text-slate-400"
                         placeholder="http://url..."
                       />
                       <Pencil size={12} className="absolute right-2 text-slate-400 opacity-0 group-hover/input:opacity-100 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Subtitle Row (Artist/Secondary info) */}
+                  <div className="mb-4 group/input">
+                    <div className="relative flex items-center">
+                      <input
+                        type="text"
+                        value={link.subtitle || ''}
+                        onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)}
+                        className="w-full text-[10px] uppercase font-bold text-slate-400 bg-transparent border border-transparent hover:border-slate-200 focus:border-slate-300 focus:bg-slate-50 rounded px-2 py-1 outline-none transition-all placeholder:text-slate-300"
+                        placeholder="SUBTÍTULO / ARTISTA"
+                      />
+                      <Pencil size={10} className="absolute right-2 text-slate-300 opacity-0 group-hover/input:opacity-100 pointer-events-none" />
                     </div>
                   </div>
 
@@ -318,6 +413,12 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0 }) =
                         className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors border ${link.embedType === 'spotify' ? 'bg-green-50 text-green-600 border-green-200' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                       >
                         Spotify
+                      </button>
+                      <button
+                        onClick={() => updateLink(link.id, 'embedType', 'deezer')}
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors border ${link.embedType === 'deezer' ? 'bg-pink-50 text-pink-600 border-pink-200' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                      >
+                        Deezer
                       </button>
                     </div>
                   </div>
@@ -427,21 +528,6 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0 }) =
         ))}
       </div>
 
-      {/* Footer Banner - Only at Root Level */}
-      {level === 0 && (
-        <div className="bg-white rounded-2xl p-4 border border-slate-200 flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">LINK footer</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-full bg-slate-500 flex items-center justify-center text-white text-[10px]"><Zap size={14} fill="white" /></div>
-            <label className="relative inline-flex items-center cursor-pointer shrink-0">
-              <input type="checkbox" checked readOnly className="sr-only peer" />
-              <div className="w-11 h-6 bg-green-500 rounded-full peer after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-            </label>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

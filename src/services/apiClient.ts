@@ -33,7 +33,8 @@ class ApiClient {
             throw new Error(errorMessage);
         }
 
-        return response.json();
+        const text = await response.text();
+        return text ? JSON.parse(text) : {};
     }
 
     // Profile
@@ -103,8 +104,15 @@ class ApiClient {
     }
 
     // Analytics
-    async getAnalytics(): Promise<any[]> {
+    async getAnalytics(): Promise<any> {
         return this.request('/api/analytics/summary');
+    }
+
+    async trackPageView(profileId: string): Promise<void> {
+        return this.request('/api/analytics/track-view', {
+            method: 'POST',
+            body: JSON.stringify({ profileId })
+        });
     }
 
     // Leads
@@ -116,6 +124,24 @@ class ApiClient {
         return this.request(`/api/leads/${id}`, {
             method: 'DELETE'
         });
+    }
+
+    // Billing
+    async initiateCheckout(planId: string): Promise<{ url: string }> {
+        return this.request('/api/billing/checkout', {
+            method: 'POST',
+            body: JSON.stringify({ planId })
+        });
+    }
+
+    async createPortalSession(): Promise<{ url: string }> {
+        return this.request('/api/billing/portal', {
+            method: 'POST'
+        });
+    }
+
+    async getInvoices(): Promise<any> {
+        return this.request('/api/billing/invoices');
     }
 }
 

@@ -8,6 +8,7 @@ interface AuthContextType {
     onboardingCompleted: boolean;
     signInWithProfile: (googleUser: any, token: string) => Promise<{ error: any }>;
     signOut: () => void;
+    setProfile: React.Dispatch<React.SetStateAction<any | null>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -78,8 +79,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .from('users')
                 .insert({
                     email: userData.email,
-                    name: userData.name || 'Usuário',
-                    avatar_url: userData.picture,
+                    name: '',
+                    avatar_url: null,
                     auth_provider: 'google',
                     onboarding_completed: false
                 })
@@ -176,7 +177,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             loading,
             onboardingCompleted: !!profile?.onboarding_completed,
             signInWithProfile,
-            signOut
+            signOut,
+            setProfile
         }}>
             {children}
         </AuthContext.Provider>
