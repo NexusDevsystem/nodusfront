@@ -101,10 +101,10 @@ export const THEMES: Theme[] = [
   {
     id: 'leafy',
     name: 'Forest',
-    backgroundClass: 'bg-[#1a3c30]',
-    buttonClass: 'bg-[#2d5a49] text-[#e8f5e9] border border-[#407a63] hover:bg-[#407a63] font-serif italic',
-    textClass: 'text-[#e8f5e9]',
-    avatarBorder: 'border-[#407a63]'
+    backgroundClass: 'bg-[#1a2517]',
+    buttonClass: 'bg-[#acc8a2] text-[#1a2517] font-bold hover:scale-[1.02] shadow-lg transition-all',
+    textClass: 'text-[#acc8a2]',
+    avatarBorder: 'border-[#acc8a2]'
   },
   {
     id: 'cyberpunk',

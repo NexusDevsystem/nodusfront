@@ -21,7 +21,10 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
 
         try {
             // Save to API
-            await apiClient.createLead(email);
+            if (!profile.id) {
+                throw new Error('Profile ID is required');
+            }
+            await apiClient.createLead(profile.id, email);
 
             setStatus('success');
             setEmail('');

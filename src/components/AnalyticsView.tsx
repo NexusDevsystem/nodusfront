@@ -13,7 +13,7 @@ export default function AnalyticsView() {
             try {
                 setIsLoading(true);
                 const [linksData, analyticsData] = await Promise.all([
-                    apiClient.getLinks(),
+                    apiClient.getMyLinks(),
                     apiClient.getAnalytics()
                 ]);
                 setLinks(linksData);
@@ -46,7 +46,7 @@ export default function AnalyticsView() {
     const topLinks = [...allLinks].sort((a, b) => (b.clicks || 0) - (a.clicks || 0)).slice(0, 5);
 
     return (
-        <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
+        <div className="space-y-6 animate-fade-in w-full">
             {/* Header */}
             <div className="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 flex justify-between items-center">
                 <div>

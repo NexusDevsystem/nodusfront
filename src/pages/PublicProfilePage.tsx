@@ -21,10 +21,13 @@ export default function PublicProfilePage() {
             try {
                 setLoading(true);
                 // Fetch data from backend API
+                if (!username) {
+                    throw new Error('Username is required');
+                }
                 const [profileData, linksData, productsData] = await Promise.all([
-                    apiClient.getProfile(),
-                    apiClient.getLinks(),
-                    apiClient.getProducts()
+                    apiClient.getPublicProfile(username),
+                    apiClient.getPublicLinks(username),
+                    apiClient.getPublicProducts(username)
                 ]);
 
                 setProfile(profileData);

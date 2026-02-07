@@ -12,7 +12,7 @@ export default function AudienceView() {
         const loadLeads = async () => {
             try {
                 setIsLoading(true);
-                const data = await apiClient.getLeads();
+                const data = await apiClient.getMyLeads();
                 setLeads(data);
             } catch (error) {
                 console.error('Failed to load leads:', error);
@@ -52,7 +52,7 @@ export default function AudienceView() {
     const filteredLeads = leads.filter(l => l.email.toLowerCase().includes(search.toLowerCase()));
 
     return (
-        <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
+        <div className="space-y-6 animate-fade-in w-full">
             {/* Header */}
             <div className="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>

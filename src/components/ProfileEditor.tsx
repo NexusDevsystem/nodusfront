@@ -43,7 +43,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
           <div className="relative group cursor-pointer shrink-0" onClick={() => fileInputRef.current?.click()}>
             <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-100 ring-1 ring-slate-200">
               <img
-                src={profile.avatarUrl}
+                src={profile.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'}
                 alt="Avatar"
                 className="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
               />

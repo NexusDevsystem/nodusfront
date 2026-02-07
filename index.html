@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nodus</title>
-  <link rel="icon" type="image/png" href="/faviconlink.png" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -13,17 +14,17 @@
         extend: {
           colors: {
             brand: {
-              50: '#effcf4',
-              100: '#dcf9e6',
-              200: '#bdf2d2',
-              300: '#8fe6b8',
-              400: '#58d39a',
-              500: '#21bf63',
-              600: '#169c4f',
-              700: '#137c40',
-              800: '#136336',
-              900: '#11512e',
-              950: '#062d1b',
+              50: '#f4f6f3',
+              100: '#e7ece5',
+              200: '#cfdacd',
+              300: '#acc8a2',
+              400: '#88a77d',
+              500: '#65855a',
+              600: '#4c6643',
+              700: '#3a4d33',
+              800: '#293624',
+              900: '#1a2517',
+              950: '#0f150d',
             },
             keyframes: {
               shake: {
@@ -32,13 +33,19 @@
                 '75%': { transform: 'translateX(4px)' },
               },
               glow: {
-                '0%, 100%': { filter: 'drop-shadow(0 0 2px rgba(33, 191, 99, 0.3))' },
-                '50%': { filter: 'drop-shadow(0 0 10px rgba(33, 191, 99, 0.6))' },
+                '0%, 100%': { filter: 'drop-shadow(0 0 2px rgba(172, 200, 162, 0.3))' },
+                '50%': { filter: 'drop-shadow(0 0 10px rgba(172, 200, 162, 0.6))' },
+              },
+              loading: {
+                '0%': { transform: 'translateX(-100%)' },
+                '50%': { transform: 'translateX(100%)' },
+                '100%': { transform: 'translateX(-100%)' },
               }
             },
             animation: {
               shake: 'shake 0.5s ease-in-out infinite',
               glow: 'glow 2s ease-in-out infinite',
+              loading: 'loading 1.5s ease-in-out infinite',
             }
           }
         }

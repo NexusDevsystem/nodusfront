@@ -104,7 +104,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0 }) =
   };
 
   return (
-    <div className={`space-y-4 ${level === 0 ? 'max-w-3xl' : ''}`}>
+    <div className={`space-y-4 ${level === 0 ? 'w-full' : ''}`}>
 
       {/* Top Actions Area - Only at root level or inside collection (but simpler) */}
       {/* We want "Add URL" everywhere, but "Add Collection" only at root (level 0) to avoid deep nesting complexity for now */}

@@ -15,8 +15,12 @@ import {
   ChevronRight,
   Sparkles,
   Layers,
-  Settings
+  Settings,
+  LogOut,
+  ExternalLink,
+  HelpCircle
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface SidebarProps {
   activeTab: string;
@@ -64,6 +68,8 @@ const MENU_GROUPS: MenuGroup[] = [
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile, className }) => {
+  const { user, signOut } = useAuth();
+
   // State to track which groups are expanded
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
     'my-linktree': true,
@@ -80,14 +86,22 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
   return (
     <aside className={`w-64 bg-white border-r border-slate-200 h-screen overflow-y-auto flex flex-col select-none ${className || ''}`}>
 
-      {/* User Header */}
-      <div className="p-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
-        <div className="w-10 h-10 rounded-full border border-slate-200 overflow-hidden shadow-sm">
-          <img src={userProfile.avatarUrl} alt="User" className="w-full h-full object-cover" />
+      {/* Public Profile Header */}
+      <div className="p-5 border-b border-slate-100 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Página Pública</span>
+          <div className="w-2 h-2 rounded-full bg-[#acc8a2] animate-pulse"></div>
         </div>
-        <div className="flex-1 overflow-hidden">
-          <h3 className="text-sm font-bold text-slate-800 truncate">{userProfile.name}</h3>
-          <p className="text-xs text-slate-500 truncate">@{userProfile.name.toLowerCase().replace(/\s/g, '')}</p>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl border-2 border-slate-100 overflow-hidden shadow-sm shrink-0">
+            <img src={userProfile.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'} alt="Public" className="w-full h-full object-cover" />
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <h3 className="text-sm font-bold text-slate-800 truncate leading-none mb-1">{userProfile.name}</h3>
+            <div className="flex items-center gap-1 text-xs text-slate-400">
+              <span className="truncate">noduscc/{userProfile.username || userProfile.name.toLowerCase().replace(/\s/g, '')}</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -134,8 +148,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                         ${item.disabled ? 'opacity-40 cursor-not-allowed hover:bg-transparent hover:text-slate-500' : ''}
                       `}
                     >
-                      {/* We don't necessarily need the icon for sub-items to keep it clean, 
-                          but can add it back if requested. Using text only for cleaner tree look similar to reference. */}
                       <span className="truncate">{item.label}</span>
                     </button>
                   ))}
@@ -146,15 +158,38 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
         })}
       </div>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-slate-100 bg-slate-50/30">
-        <div className="flex flex-col gap-2">
-          <button className="text-xs font-semibold text-slate-500 hover:text-slate-800 text-left">
+      {/* Logged-in Account Footer */}
+      <div className="p-4 border-t border-slate-100 bg-slate-50/50 mt-auto">
+        <div className="flex items-center gap-3 p-2 rounded-xl bg-white border border-slate-100 shadow-sm mb-3">
+          <div className="w-10 h-10 rounded-full border border-slate-100 overflow-hidden shadow-inner shrink-0">
+            <img src={user?.picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'} alt="Account" className="w-full h-full object-cover" />
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter leading-none mb-0.5">Conta Logada</p>
+            <h3 className="text-xs font-bold text-slate-800 truncate leading-tight">{user?.name || 'Usuário'}</h3>
+            <p className="text-[10px] text-slate-500 truncate leading-none">{user?.email || 'email@exemplo.com'}</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1 px-1">
+          <button
+            onClick={() => setActiveTab('billing')}
+            className={`flex items-center gap-2 text-[11px] font-bold transition-colors py-2 px-1 rounded-lg ${activeTab === 'billing' ? 'text-brand-600 bg-brand-50' : 'text-slate-500 hover:text-brand-600'}`}
+          >
+            <Zap size={14} className="opacity-70" />
+            Planos
+          </button>
+          <button className="flex items-center gap-2 text-[11px] font-bold text-slate-500 hover:text-brand-600 transition-colors py-2 px-1">
+            <HelpCircle size={14} className="opacity-70" />
             Ajuda e Suporte
           </button>
-          <div className="text-[10px] text-slate-400 mt-2">
-            Nodus v2.1.0 • © 2024
-          </div>
+          <button
+            onClick={() => signOut()}
+            className="flex items-center gap-2 text-[11px] font-bold text-red-400 hover:text-red-600 transition-colors py-2 px-1"
+          >
+            <LogOut size={14} className="opacity-70" />
+            Sair da Conta
+          </button>
         </div>
       </div>
     </aside>

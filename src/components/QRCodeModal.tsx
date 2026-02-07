@@ -55,11 +55,11 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                             fgColor={"#000000"}
                             level={"H"}
                             imageSettings={{
-                                src: "/logo preto.png",
+                                src: "/icons/logo sem fundo.png",
                                 x: undefined,
                                 y: undefined,
-                                height: 40,
-                                width: 40,
+                                height: 50,
+                                width: 50,
                                 excavate: true,
                             }}
                         />

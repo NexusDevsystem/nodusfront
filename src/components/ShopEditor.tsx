@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Product } from '../types';
-import { Plus, Trash2, GripVertical, Image as ImageIcon, ExternalLink, DollarSign, Tag } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Image as ImageIcon, ExternalLink, DollarSign, Tag, Upload, X, Pencil } from 'lucide-react';
+import { compressImage } from '../utils/imageUtils';
 
 interface ShopEditorProps {
     products: Product[];
@@ -117,25 +118,56 @@ export default function ShopEditor({ products, onChange }: ShopEditorProps) {
                                 </div>
                             </div>
 
-                            <div>
-                                <label className="block text-xs font-medium text-slate-500 mb-1">URL da Imagem</label>
-                                <div className="flex gap-2">
-                                    <div className="flex items-center justify-center w-10 bg-slate-100 rounded-lg border border-slate-200">
-                                        <ImageIcon size={16} className="text-slate-500" />
+                            <div className="space-y-3">
+                                <label className="block text-xs font-medium text-slate-500 mb-1">Imagem do Produto</label>
+                                <div className="flex items-center gap-4">
+                                    <div className="relative group/upload shrink-0">
+                                        <div className={`w-24 h-24 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center transition-all overflow-hidden bg-slate-50 ${newProduct.image ? 'border-brand-200 ring-2 ring-brand-50' : 'border-slate-300 hover:border-brand-400'}`}>
+                                            {newProduct.image ? (
+                                                <>
+                                                    <img src={newProduct.image} alt="Preview" className="w-full h-full object-cover" />
+                                                    <button
+                                                        onClick={() => setNewProduct({ ...newProduct, image: undefined })}
+                                                        className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity text-white"
+                                                    >
+                                                        <X size={20} />
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center gap-1 text-slate-400">
+                                                    <ImageIcon size={24} />
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider">Subir</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <input
+                                            type="file"
+                                            className="absolute inset-0 opacity-0 cursor-pointer"
+                                            accept="image/*"
+                                            onChange={async (e) => {
+                                                if (e.target.files?.[0]) {
+                                                    try {
+                                                        const base64 = await compressImage(e.target.files[0], 400, 0.8);
+                                                        setNewProduct({ ...newProduct, image: base64 });
+                                                    } catch (err) {
+                                                        console.error('Error uploading image:', err);
+                                                    }
+                                                }
+                                            }}
+                                        />
                                     </div>
-                                    <input
-                                        type="url"
-                                        placeholder="https://..."
-                                        className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none transition"
-                                        value={newProduct.image || ''}
-                                        onChange={e => setNewProduct({ ...newProduct, image: e.target.value })}
-                                    />
+                                    <div className="flex-1">
+                                        <p className="text-[11px] text-slate-400 leading-relaxed mb-2">
+                                            Recomendado: Quadrado (400x400). PNG ou JPG. Tamanho máx: 5MB.
+                                        </p>
+                                        {!newProduct.image && (
+                                            <div className="flex items-center gap-2 text-brand-600">
+                                                <Upload size={14} />
+                                                <span className="text-xs font-bold uppercase tracking-widest">Clique para selecionar</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                {newProduct.image && (
-                                    <div className="mt-2 w-20 h-20 rounded-lg overflow-hidden border border-slate-200">
-                                        <img src={newProduct.image} alt="Preview" className="w-full h-full object-cover" />
-                                    </div>
-                                )}
                             </div>
                         </div>
 
@@ -166,8 +198,28 @@ export default function ShopEditor({ products, onChange }: ShopEditorProps) {
                                 <GripVertical size={20} />
                             </div>
 
-                            <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-100 shrink-0 bg-slate-50">
-                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                            <div className="relative group/edit shrink-0">
+                                <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-100 bg-slate-50">
+                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                </div>
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/edit:opacity-100 transition-opacity rounded-lg">
+                                    <Pencil size={14} className="text-white" />
+                                </div>
+                                <input
+                                    type="file"
+                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                    accept="image/*"
+                                    onChange={async (e) => {
+                                        if (e.target.files?.[0]) {
+                                            try {
+                                                const base64 = await compressImage(e.target.files[0], 400, 0.8);
+                                                updateProduct(product.id, 'image', base64);
+                                            } catch (err) {
+                                                console.error('Error updating image:', err);
+                                            }
+                                        }
+                                    }}
+                                />
                             </div>
 
                             <div className="flex-1 min-w-0 space-y-2">

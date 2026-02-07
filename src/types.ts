@@ -2,33 +2,43 @@ export interface LinkItem {
   id: string;
   title: string;
   url: string;
+  icon?: string;
   isActive: boolean;
-  clicks: number;
   layout: 'classic' | 'social';
   type?: 'link' | 'collection';
   children?: LinkItem[];
   image?: string;
   highlight?: 'none' | 'pulse' | 'bounce' | 'shake' | 'glow' | 'wobble';
   embedType?: 'none' | 'youtube' | 'spotify' | 'twitch';
+  clicks?: number;
 }
 
 export interface UserProfile {
+  id?: string;
+  email?: string;
+  username?: string;
   name: string;
   bio: string;
   avatarUrl: string;
-  customBackground?: string; // Base64 or URL
   themeId: string;
   fontFamily: string;
   buttonStyle?: 'rounded' | 'soft-rect';
   showNewsletter?: boolean;
+  customBackground?: string | null;
+  customTextColor?: string | null;
+  customSolidColor?: string | null;
+  customButtonColor?: string | null;
+  authProvider?: string;
+  planType?: 'free' | 'monthly' | 'annual';
+  subscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid';
+  subscriptionExpiryDate?: string | null;
+  stripeCustomerId?: string | null;
+  onboardingCompleted?: boolean;
   seoTitle?: string;
   seoDescription?: string;
   customCSS?: string;
   supportType?: 'pix' | 'paypal';
   supportKey?: string;
-  customTextColor?: string;
-  customSolidColor?: string;
-  customButtonColor?: string;
 }
 
 export interface Theme {
@@ -48,7 +58,6 @@ export interface Product {
   url: string;
   price?: string;
   discountCode?: string;
-  clicks: number;
 }
 
 export interface FontOption {

@@ -1,132 +1,120 @@
-import { UserProfile, LinkItem, Product, AnalyticsEvent, NewsletterLead } from '../types';
+import { UserProfile, LinkItem, Product } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 class ApiClient {
-    private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-        const response = await fetch(`${API_URL}${endpoint}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                ...options?.headers,
-            },
+    private async getHeaders() {
+        const token = localStorage.getItem('nodus_access_token');
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+        };
+    }
+
+    private async request(path: string, options: RequestInit = {}) {
+        const headers = await this.getHeaders();
+        const response = await fetch(`${API_URL}${path}`, {
             ...options,
+            headers: {
+                ...headers,
+                ...(options.headers || {})
+            }
         });
 
         if (!response.ok) {
-            throw new Error(`API Error: ${response.statusText}`);
-        }
-
-        // Handle 204 No Content
-        if (response.status === 204) {
-            return {} as T;
+            const errorText = await response.text();
+            let errorMessage = `Request failed with status ${response.status}`;
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.error || errorMessage;
+            } catch (e) {
+                errorMessage = errorText || errorMessage;
+            }
+            throw new Error(errorMessage);
         }
 
         return response.json();
     }
 
     // Profile
-    async getProfile(): Promise<UserProfile> {
-        return this.request<UserProfile>('/api/profile');
+    async getMyProfile(): Promise<UserProfile> {
+        return this.request('/api/profile/me');
+    }
+
+    async getPublicProfile(username: string): Promise<UserProfile> {
+        const response = await fetch(`${API_URL}/api/profile/public/${username}`);
+        if (!response.ok) throw new Error('Perfil não encontrado');
+        return response.json();
     }
 
     async updateProfile(profile: Partial<UserProfile>): Promise<UserProfile> {
-        return this.request<UserProfile>('/api/profile', {
+        return this.request('/api/profile/me', {
             method: 'PUT',
-            body: JSON.stringify(profile),
+            body: JSON.stringify(profile)
         });
+    }
+
+    async checkUsername(username: string): Promise<{ available: boolean }> {
+        const response = await fetch(`${API_URL}/api/profile/check-username/${username}`);
+        if (!response.ok) throw new Error('Erro ao verificar username');
+        return response.json();
     }
 
     // Links
-    async getLinks(): Promise<LinkItem[]> {
-        return this.request<LinkItem[]>('/api/links');
+    async getMyLinks(): Promise<LinkItem[]> {
+        return this.request('/api/links/me');
     }
 
-    async createLink(link: Omit<LinkItem, 'id'>): Promise<LinkItem> {
-        return this.request<LinkItem>('/api/links', {
-            method: 'POST',
-            body: JSON.stringify(link),
-        });
-    }
-
-    async updateLink(id: string, updates: Partial<LinkItem>): Promise<LinkItem> {
-        return this.request<LinkItem>(`/api/links/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(updates),
-        });
-    }
-
-    async deleteLink(id: string): Promise<void> {
-        return this.request<void>(`/api/links/${id}`, {
-            method: 'DELETE',
-        });
+    async getPublicLinks(username: string): Promise<LinkItem[]> {
+        const response = await fetch(`${API_URL}/api/links/public/${username}`);
+        if (!response.ok) return [];
+        return response.json();
     }
 
     async replaceAllLinks(links: LinkItem[]): Promise<LinkItem[]> {
-        return this.request<LinkItem[]>('/api/links/bulk', {
+        return this.request('/api/links/bulk', {
             method: 'PUT',
-            body: JSON.stringify(links),
+            body: JSON.stringify({ links })
+        });
+    }
+
+    async trackClick(id: string): Promise<void> {
+        return this.request(`/api/links/track/${id}`, {
+            method: 'POST'
         });
     }
 
     // Products
-    async getProducts(): Promise<Product[]> {
-        return this.request<Product[]>('/api/products');
+    async getMyProducts(): Promise<Product[]> {
+        return this.request('/api/products/me');
     }
 
-    async createProduct(product: Omit<Product, 'id'>): Promise<Product> {
-        return this.request<Product>('/api/products', {
-            method: 'POST',
-            body: JSON.stringify(product),
-        });
-    }
-
-    async updateProduct(id: string, updates: Partial<Product>): Promise<Product> {
-        return this.request<Product>(`/api/products/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(updates),
-        });
-    }
-
-    async deleteProduct(id: string): Promise<void> {
-        return this.request<void>(`/api/products/${id}`, {
-            method: 'DELETE',
-        });
+    async getPublicProducts(username: string): Promise<Product[]> {
+        const response = await fetch(`${API_URL}/api/products/public/${username}`);
+        if (!response.ok) return [];
+        return response.json();
     }
 
     async replaceAllProducts(products: Product[]): Promise<Product[]> {
-        return this.request<Product[]>('/api/products/bulk', {
+        return this.request('/api/products/bulk', {
             method: 'PUT',
-            body: JSON.stringify(products),
+            body: JSON.stringify({ products })
         });
     }
 
     // Analytics
-    async getAnalytics(): Promise<AnalyticsEvent[]> {
-        return this.request<AnalyticsEvent[]>('/api/analytics');
-    }
-
-    async trackClick(linkId: string): Promise<void> {
-        return this.request<void>('/api/analytics/track', {
-            method: 'POST',
-            body: JSON.stringify({ linkId }),
-        });
+    async getAnalytics(): Promise<any[]> {
+        return this.request('/api/analytics/summary');
     }
 
     // Leads
-    async getLeads(): Promise<NewsletterLead[]> {
-        return this.request<NewsletterLead[]>('/api/leads');
-    }
-
-    async createLead(email: string, name?: string): Promise<NewsletterLead> {
-        return this.request<NewsletterLead>('/api/leads', {
-            method: 'POST',
-            body: JSON.stringify({ email, name }),
-        });
+    async getMyLeads(): Promise<any[]> {
+        return this.request('/api/leads/me');
     }
 
     async deleteLead(id: string): Promise<void> {
-        return this.request<void>(`/api/leads/${id}`, {
-            method: 'DELETE',
+        return this.request(`/api/leads/${id}`, {
+            method: 'DELETE'
         });
     }
 }

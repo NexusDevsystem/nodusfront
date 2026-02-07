@@ -65,8 +65,17 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
     const isSoftRect = profile.buttonStyle === 'soft-rect';
+    const isRounded = profile.buttonStyle === 'rounded';
+
     const borderRadius = isSoftRect ? 14 : 50;
-    const roundedClass = isSoftRect ? 'rounded-2xl' : 'rounded-full';
+
+    // Determine rounding class: if user explicitly chose a style AND it's not a theme that overrides it
+    // Actually, let's make it smarter: only apply if the theme doesn't already specify rounding
+    const hasThemeRounding = currentTheme.buttonClass.includes('rounded-');
+    const roundedClass = hasThemeRounding ? '' : (isSoftRect ? 'rounded-2xl' : 'rounded-full');
+
+    // Check if theme has its own shadow
+    const hasThemeShadow = currentTheme.buttonClass.includes('shadow-');
 
     return (
         <div className="relative w-full h-full flex flex-col overflow-hidden">
@@ -150,15 +159,15 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             For now putting the mock one but maybe enabling it? 
             Let's keep it mock/visual for now as per original.
         */}
-                <div className="absolute top-4 right-4 z-20">
+                <div className="absolute top-[34px] right-6 z-20">
                     <button className={`p-2 rounded-full transition-colors ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'bg-black/20 text-white hover:bg-black/30' : 'bg-transparent text-slate-800 hover:bg-black/5'}`}>
                         <Share2 size={20} />
                     </button>
                 </div>
                 {/* Menu / Options Button */}
-                <div className="absolute top-4 left-4 z-20">
+                <div className="absolute top-6 left-6 z-20">
                     <button className={`p-2 rounded-full transition-colors ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'bg-black/20 text-white hover:bg-black/30' : 'bg-transparent text-slate-800 hover:bg-black/5'}`}>
-                        <img src="/logo preto.png" alt="Logo" className="w-6 h-6 object-contain" />
+                        <img src="/icons/logo sem fundo.png" alt="Logo" className="w-10 h-10 object-contain" />
                     </button>
                 </div>
 
@@ -175,7 +184,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {/* Profile Section */}
                     <div className="flex flex-col items-center text-center mb-6 animate-fade-in mt-8">
                         <div className={`w-32 h-32 mb-4 rounded-full overflow-hidden border-4 ${currentTheme.avatarBorder} shadow-lg`}>
-                            <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover bg-white" />
+                            <img src={profile.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'} alt={profile.name || 'Avatar'} className="w-full h-full object-cover bg-white" />
                         </div>
                         <h3 className="text-2xl font-bold mb-2 tracking-tight">{profile.name}</h3>
                         <p className="text-base font-medium opacity-90 leading-relaxed max-w-[300px]">{profile.bio}</p>
@@ -291,7 +300,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     target="_blank"
                                                     rel="noreferrer"
                                                     onClick={() => handleLinkClick(child.id)}
-                                                    className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(child.highlight)} overflow-hidden shadow-sm`}`}
+                                                    className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(child.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
                                                     style={!profile.customButtonColor ? {} : {
                                                         backgroundColor: profile.customButtonColor,
                                                         color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
@@ -319,7 +328,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     <span className="w-8"></span>
                                                                 )}
                                                                 <span className="truncate flex-1 px-3 text-white text-lg">{child.title}</span>
-                                                                <span className="w-8 opacity-50 text-white flex justify-end"><MoreHorizontal size={20} className="rotate-90" /></span>
+                                                                <span className="w-8 shrink-0"></span>
                                                             </div>
                                                         </GlassSurface>
                                                     ) : (
@@ -330,7 +339,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 <span className="w-8"></span>
                                                             )}
                                                             <span className="truncate flex-1 px-3">{child.title}</span>
-                                                            <span className="w-8 opacity-50 flex justify-end"><MoreHorizontal size={20} className="rotate-90" /></span>
+                                                            <span className="w-8 shrink-0"></span>
                                                         </div>
                                                     )}
                                                 </a>
@@ -389,7 +398,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     target="_blank"
                                     rel="noreferrer"
                                     onClick={() => handleLinkClick(link.id)}
-                                    className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(link.highlight)} overflow-hidden shadow-sm`}`}
+                                    className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(link.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
                                     style={!profile.customButtonColor ? {} : {
                                         backgroundColor: profile.customButtonColor,
                                         color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000') // Fallback or override
@@ -416,7 +425,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 <span className="w-8"></span>
                                             )}
                                             <span className="truncate flex-1 px-3 text-white text-lg">{link.title}</span>
-                                            <span className="w-8 opacity-50 text-white flex justify-end"><MoreHorizontal size={20} className="rotate-90" /></span>
+                                            <span className="w-8 shrink-0"></span>
                                         </div>
                                     </GlassSurface>
                                         : (
@@ -428,7 +437,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         <span className="w-8"></span>
                                                     )}
                                                     <span className="truncate flex-1 px-3">{link.title}</span>
-                                                    <span className="w-8 opacity-50 flex justify-end"><MoreHorizontal size={20} className="rotate-90" /></span>
+                                                    <span className="w-8 shrink-0"></span>
                                                 </div>
                                             </>
                                         )}
@@ -453,7 +462,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         navigator.clipboard.writeText(profile.supportKey);
                                     }
                                 }}
-                                className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} shadow-sm overflow-hidden`}`}
+                                className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${hasThemeShadow ? '' : 'shadow-sm'} overflow-hidden`}`}
                                 style={!profile.customButtonColor ? {} : {
                                     backgroundColor: profile.customButtonColor,
                                     color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
@@ -509,7 +518,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                     {/* Footer Text */}
                     <div className="mt-8 mb-6 flex flex-col items-center gap-3 w-full px-4">
-                        <a href="https://www.noduscc.com.br" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg">
+                        <a href="https://nodus.cc" target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg">
                             <span className="text-sm font-bold text-black text-center">Junte-se a {profile.name} no Nodus</span>
                         </a>
 
