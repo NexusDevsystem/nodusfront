@@ -301,6 +301,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             ) : currentTheme.id === 'animated-nodus-official' ? (
                 <div className="absolute inset-0 z-0 overflow-hidden">
                     <NodusOfficialBackground />
+                    {/* Gradient Fade Overlay - Top transparent, Bottom Solid */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0f1f1a]/80 to-[#0f1f1a] z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(15, 31, 26, 0.4) 40%, rgba(15, 31, 26, 1) 90%)' }}></div>
+                    {/* Backdrop Blur for the transition area */}
+                    <div className="absolute inset-0 backdrop-blur-[2px] z-10 pointer-events-none mask-image-b-gradient" style={{ maskImage: 'linear-gradient(to bottom, transparent, black)' }}></div>
                 </div>
             ) : (
                 <div className={`absolute inset-0 z-0 ${currentTheme.backgroundClass}`}></div>
