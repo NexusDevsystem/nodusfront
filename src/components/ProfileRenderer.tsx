@@ -836,13 +836,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         </div>
                     )}
 
-                    {/* Footer / Join Nodus Badge */}
-                    <div className="mt-auto pt-20 mb-12 flex flex-col items-center gap-3 w-full px-4">
+                    <div className="mt-auto pt-20 mb-12 flex flex-col items-center gap-1 w-full px-4">
                         <a
                             href="https://www.noduscc.com.br"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`group flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md hover:scale-[1.02] ${isDarkTheme
+                            className={`group flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md hover:scale-[1.02] mb-2 ${isDarkTheme
                                 ? 'bg-white text-slate-900'
                                 : 'bg-slate-900 text-white'
                                 }`}
@@ -851,6 +850,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 Junte-se a {profile.name} no Nodus
                             </span>
                         </a>
+
+                        {/* Legal Links (Minimalist) */}
+                        <div className={`flex items-center gap-2 text-[10px] font-medium transition-opacity duration-300 ${isDarkTheme ? 'text-white/40 hover:text-white/80' : 'text-slate-400 hover:text-slate-600'}`}>
+                            <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:underline">Termos</a>
+                            <span>•</span>
+                            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline">Privacidade</a>
+                        </div>
                     </div>
                 </div>
             </div>
