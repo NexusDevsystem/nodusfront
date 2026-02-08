@@ -300,6 +300,15 @@ export const THEMES: Theme[] = [
     isPro: true
   },
   {
+    id: 'animated-nodus-official',
+    name: 'Nodus Official',
+    backgroundClass: 'bg-[#0f1f1a]',
+    buttonClass: 'bg-[#acc8a2]/10 backdrop-blur-md border border-[#acc8a2]/30 text-[#e8f5e9] hover:bg-[#acc8a2]/20 font-medium shadow-[0_0_15px_rgba(172,200,162,0.1)]',
+    textClass: 'text-[#e8f5e9]',
+    avatarBorder: 'border-[#acc8a2] shadow-[0_0_20px_rgba(172,200,162,0.4)]',
+    isPro: true
+  },
+  {
     id: 'animated-mesh',
     name: 'Liquid Mesh',
     backgroundClass: 'bg-slate-900',

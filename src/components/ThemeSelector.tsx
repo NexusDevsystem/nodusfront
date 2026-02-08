@@ -136,6 +136,11 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
 
                 {/* Standard Themes */}
                 {THEMES.map((theme) => {
+                    // Exclusive Theme Logic: Only show 'animated-nodus-official' if username is 'noduscc'
+                    if (theme.id === 'animated-nodus-official' && profile.username !== 'noduscc') {
+                        return null;
+                    }
+
                     const isSelected = profile.themeId === theme.id && !profile.customBackground;
 
                     return (

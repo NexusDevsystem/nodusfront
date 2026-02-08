@@ -30,6 +30,7 @@ import NeonCityBackground from './NeonCityBackground';
 import GeometricFlowBackground from './GeometricFlowBackground';
 import SpaceWarpBackground from './SpaceWarpBackground';
 import AbstractWavesBackground from './AbstractWavesBackground';
+import NodusOfficialBackground from './NodusOfficialBackground';
 import Prism from './Prism';
 import { apiClient } from '../services/apiClient';
 import { Play, Plus, Music } from 'lucide-react';
@@ -296,6 +297,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             ) : currentTheme.id === 'animated-waves' ? (
                 <div className="absolute inset-0 z-0 overflow-hidden">
                     <AbstractWavesBackground />
+                </div>
+            ) : currentTheme.id === 'animated-nodus-official' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                    <NodusOfficialBackground />
                 </div>
             ) : (
                 <div className={`absolute inset-0 z-0 ${currentTheme.backgroundClass}`}></div>
