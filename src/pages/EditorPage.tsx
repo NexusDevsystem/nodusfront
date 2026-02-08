@@ -151,12 +151,9 @@ export default function EditorPage() {
                 await apiClient.replaceAllLinks(links);
             } catch (error) {
                 console.error('Failed to save links:', error);
-            } catch (error) {
-                console.error('Failed to save links:', error);
                 // Do not use alert, it interrupts flow. Just log. 
                 // Maybe a toast would be better but for now let's be silent as requested "always save"
                 // The backend fixes should prevent data loss.
-            } finally {
             } finally {
                 setIsSavingLinks(false);
             }
