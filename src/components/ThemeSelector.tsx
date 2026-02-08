@@ -41,9 +41,22 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                     <h2 className="text-xl font-bold text-slate-800">Temas</h2>
                     <p className="text-sm text-slate-400 mt-1">Selecione um estilo para aplicar ao seu perfil</p>
                 </div>
-                <span className="text-[10px] font-black text-brand-600 bg-brand-50 px-3 py-1.5 rounded-full border border-brand-100 uppercase tracking-[0.1em]">
-                    {THEMES.length} Estilos
-                </span>
+                <div className="flex items-center gap-4">
+                    {/* Blur Toggle */}
+                    <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Blur Fade</span>
+                        <button
+                            onClick={() => onChange({ ...profile, enableBlur: !profile.enableBlur })}
+                            className={`relative w-8 h-4 rounded-full transition-colors duration-300 ${profile.enableBlur ? 'bg-brand-500' : 'bg-slate-300'}`}
+                        >
+                            <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow-sm transition-transform duration-300 ${profile.enableBlur ? 'translate-x-4' : 'translate-x-0'}`} />
+                        </button>
+                    </div>
+
+                    <span className="text-[10px] font-black text-brand-600 bg-brand-50 px-3 py-1.5 rounded-full border border-brand-100 uppercase tracking-[0.1em]">
+                        {THEMES.length} Estilos
+                    </span>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">

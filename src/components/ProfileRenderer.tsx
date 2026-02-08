@@ -202,58 +202,55 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 }
             `}</style>
             {/* Background Layer */}
-            {profile.customSolidColor ? (
-                <div className="absolute inset-0 z-0 overflow-hidden" style={{ backgroundColor: profile.customSolidColor }}></div>
-            ) : profile.customBackground ? (
-                <div className="absolute inset-0 z-0 overflow-hidden">
-                    <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/20"></div>
-                </div>
-            ) : currentTheme.id === 'glass' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden bg-black">
-                    <LightPillar
-                        topColor="#5227FF"
-                        bottomColor="#FF9FFC"
-                        intensity={1}
-                        rotationSpeed={0.3}
-                        glowAmount={0.002}
-                        pillarWidth={3}
-                        pillarHeight={0.4}
-                        noiseIntensity={0.5}
-                        pillarRotation={25}
-                        interactive={false}
-                        mixBlendMode="screen"
-                        quality="high"
-                    />
-                    <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
-                </div>
-            ) : currentTheme.id === 'animated-hologram' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden bg-black">
-                    <Prism
-                        animationType="3drotate"
-                        glow={1.5}
-                        scale={4}
-                        hueShift={0}
-                        colorFrequency={0.8}
-                        transparent={true}
-                    />
-                    <div className="absolute inset-0 bg-black/40" />
-                </div>
-            ) : currentTheme.id === 'animated-aurora' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden">
+            <div className="absolute inset-0 z-0 overflow-hidden">
+                {profile.customSolidColor ? (
+                    <div className="absolute inset-0" style={{ backgroundColor: profile.customSolidColor }}></div>
+                ) : profile.customBackground ? (
+                    <div className="absolute inset-0">
+                        <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/20"></div>
+                    </div>
+                ) : currentTheme.id === 'glass' ? (
+                    <div className="absolute inset-0 bg-black">
+                        <LightPillar
+                            topColor="#5227FF"
+                            bottomColor="#FF9FFC"
+                            intensity={1}
+                            rotationSpeed={0.3}
+                            glowAmount={0.002}
+                            pillarWidth={3}
+                            pillarHeight={0.4}
+                            noiseIntensity={0.5}
+                            pillarRotation={25}
+                            interactive={false}
+                            mixBlendMode="screen"
+                            quality="high"
+                        />
+                        <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
+                    </div>
+                ) : currentTheme.id === 'animated-hologram' ? (
+                    <div className="absolute inset-0 bg-black">
+                        <Prism
+                            animationType="3drotate"
+                            glow={1.5}
+                            scale={4}
+                            hueShift={0}
+                            colorFrequency={0.8}
+                            transparent={true}
+                        />
+                        <div className="absolute inset-0 bg-black/40" />
+                    </div>
+                ) : currentTheme.id === 'animated-aurora' ? (
                     <AuroraBackground />
-                </div>
-            ) : currentTheme.id === 'animated-starfield' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden bg-[#020617]">
-                    <ParticlesBackground color="#ffffff" count={80} />
-                </div>
-            ) : currentTheme.id === 'animated-matrix' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden">
+                ) : currentTheme.id === 'animated-starfield' ? (
+                    <div className="absolute inset-0 bg-[#020617]">
+                        <ParticlesBackground color="#ffffff" count={80} />
+                    </div>
+                ) : currentTheme.id === 'animated-matrix' ? (
                     <MatrixBackground />
-                </div>
-            ) : currentTheme.id === 'animated-glitch' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden bg-[#050505]">
-                    <style>{`
+                ) : currentTheme.id === 'animated-glitch' ? (
+                    <div className="absolute inset-0 bg-[#050505]">
+                        <style>{`
                         @keyframes glitch-bg {
                             0% { background: #050505; }
                             95% { background: #050505; }
@@ -266,53 +263,54 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             100% { transform: translateY(100%); }
                         }
                     `}</style>
-                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ animation: 'glitch-bg 4s infinite' }} />
-                    <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none" />
-                    <div className="absolute top-0 left-0 w-full h-[100px] bg-white/5 opacity-10 pointer-events-none" style={{ animation: 'scanline 8s linear infinite' }} />
-                </div>
-            ) : currentTheme.id === 'animated-mesh' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden">
+                        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ animation: 'glitch-bg 4s infinite' }} />
+                        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none" />
+                        <div className="absolute top-0 left-0 w-full h-[100px] bg-white/5 opacity-10 pointer-events-none" style={{ animation: 'scanline 8s linear infinite' }} />
+                    </div>
+                ) : currentTheme.id === 'animated-mesh' ? (
                     <GradientMeshBackground />
-                </div>
-            ) : currentTheme.id === 'animated-cybergrid' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden">
+                ) : currentTheme.id === 'animated-cybergrid' ? (
                     <CyberGridBackground />
-                </div>
-            ) : currentTheme.id === 'animated-shapes' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden">
+                ) : currentTheme.id === 'animated-shapes' ? (
                     <FloatingShapesBackground />
-                </div>
-            ) : currentTheme.id === 'animated-neon-city' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden">
+                ) : currentTheme.id === 'animated-neon-city' ? (
                     <NeonCityBackground />
-                </div>
-            ) : currentTheme.id === 'animated-geo-flow' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden block">
+                ) : currentTheme.id === 'animated-geo-flow' ? (
                     <GeometricFlowBackground />
-                </div>
-            ) : currentTheme.id === 'animated-space-warp' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden">
+                ) : currentTheme.id === 'animated-space-warp' ? (
                     <SpaceWarpBackground />
-                </div>
-            ) : currentTheme.id === 'animated-waves' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden">
+                ) : currentTheme.id === 'animated-waves' ? (
                     <AbstractWavesBackground />
-                </div>
-            ) : currentTheme.id === 'animated-nodus-official' ? (
-                <div className="absolute inset-0 z-0 overflow-hidden">
+                ) : currentTheme.id === 'animated-nodus-official' ? (
                     <NodusOfficialBackground />
-                    {/* Gradient Fade Overlay - Top transparent, Bottom Solid */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0f1f1a]/80 to-[#0f1f1a] z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(15, 31, 26, 0.4) 40%, rgba(15, 31, 26, 1) 90%)' }}></div>
-                    {/* Backdrop Blur for the transition area */}
-                    <div className="absolute inset-0 backdrop-blur-[2px] z-10 pointer-events-none mask-image-b-gradient" style={{ maskImage: 'linear-gradient(to bottom, transparent, black)' }}></div>
-                </div>
-            ) : (
-                <div className={`absolute inset-0 z-0 ${currentTheme.backgroundClass}`}></div>
-            )}
+                ) : (
+                    <div className={`absolute inset-0 ${currentTheme.backgroundClass}`}></div>
+                )}
+
+                {/* GLOBAL BLUR FADE OVERLAY */}
+                {profile.enableBlur && (
+                    <>
+                        {/* Gradient Fade Overlay - Top transparent, Bottom Solid Matching Background */}
+                        {/* Note: We try to match the theme background color. If it's a gradient or image, we fallback to a dark overlay or try to derive it. 
+                            For now, we use a generic dark fade for dark themes and light for light themes, or specific overrides.
+                         */}
+                        <div
+                            className={`absolute inset-0 z-10 pointer-events-none ${isDarkTheme ? 'bg-gradient-to-b from-transparent via-black/60 to-black' : 'bg-gradient-to-b from-transparent via-white/60 to-white'}`}
+                            style={{
+                                background: isDarkTheme
+                                    ? `linear-gradient(to bottom, transparent 0%, ${currentTheme.id === 'animated-nodus-official' ? '#0f1f1a' : '#000000'}99 45%, ${currentTheme.id === 'animated-nodus-official' ? '#0f1f1a' : '#000000'} 100%)`
+                                    : 'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.6) 45%, #ffffff 100%)'
+                            }}
+                        ></div>
+                        {/* Backdrop Blur */}
+                        <div className="absolute inset-0 backdrop-blur-[2px] z-10 pointer-events-none" style={{ maskImage: 'linear-gradient(to bottom, transparent 10%, black 60%)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 10%, black 60%)' }}></div>
+                    </>
+                )}
+            </div>
 
             {/* Content Container */}
             <div
-                className={`w-full h-full overflow-y-auto scrollbar-hide flex flex-col relative z-10 ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}
+                className={`w-full h-full overflow-y-auto scrollbar-hide flex flex-col relative z-20 ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}
                 style={{
                     fontFamily: profile.fontFamily,
                     color: profile.customTextColor || undefined

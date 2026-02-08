@@ -43,6 +43,7 @@ export interface UserProfile {
   userCategory?: 'creator' | 'corporate' | 'personal' | null;
   referralSource?: string | null;
   isVerified?: boolean;
+  enableBlur?: boolean;
 }
 
 export interface Theme {
