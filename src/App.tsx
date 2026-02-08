@@ -7,6 +7,8 @@ import PublicProfilePage from './pages/PublicProfilePage';
 import LoginPage from './pages/LoginPage';
 import OnboardingPage from './pages/OnboardingPage';
 import IntegrationCallback from './pages/IntegrationCallback';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsPage from './pages/TermsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
@@ -46,6 +48,8 @@ export default function App() {
 
           {/* Landing Page */}
           <Route path="/" element={<LandingPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/admin" replace />} />

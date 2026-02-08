@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
     ArrowRight,
     Check,
@@ -281,8 +281,8 @@ export default function LandingPage() {
                     </div>
 
                     <div className="flex gap-8 text-sm font-medium text-slate-500">
-                        <a href="#" className="hover:text-brand-600 transition-colors">Termos</a>
-                        <a href="#" className="hover:text-brand-600 transition-colors">Privacidade</a>
+                        <Link to="/terms" className="hover:text-brand-600 transition-colors">Termos</Link>
+                        <Link to="/privacy" className="hover:text-brand-600 transition-colors">Privacidade</Link>
                         <a href="#" className="hover:text-brand-600 transition-colors">Twitter</a>
                     </div>
                 </div>
