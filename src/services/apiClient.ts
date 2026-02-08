@@ -39,7 +39,8 @@ class ApiClient {
 
     // Profile
     async getMyProfile(): Promise<UserProfile> {
-        return this.request('/api/profile/me');
+        const response = await this.request('/api/profile/me');
+        return response;
     }
 
     async getPublicProfile(username: string): Promise<UserProfile> {

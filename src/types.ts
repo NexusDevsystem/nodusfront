@@ -42,6 +42,7 @@ export interface UserProfile {
   supportKey?: string;
   userCategory?: 'creator' | 'corporate' | 'personal' | null;
   referralSource?: string | null;
+  isVerified?: boolean;
 }
 
 export interface Theme {

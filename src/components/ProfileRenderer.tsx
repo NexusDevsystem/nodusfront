@@ -9,8 +9,10 @@ import {
     Globe,
     ShoppingBag,
     MoreHorizontal,
-    Coffee
+    Coffee,
+    BadgeCheck
 } from 'lucide-react';
+import YouTubeEmbed from './YouTubeEmbed';
 // @ts-ignore
 import LightPillar from './LightPillar';
 import GlassSurface from './GlassSurface';
@@ -354,7 +356,17 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <div className={`w-24 h-24 mb-3 rounded-full overflow-hidden shadow-lg`}>
                             <img src={profile.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'} alt={profile.name || 'Avatar'} className="w-full h-full object-cover" />
                         </div>
-                        <h3 className="text-2xl font-bold mb-2 tracking-tight">{profile.name}</h3>
+                        <h3 className="text-2xl font-bold mb-2 tracking-tight flex items-center justify-center gap-2">
+                            {profile.name}
+                            {profile.isVerified && (
+                                <img
+                                    src="/icons/icons8-verificado.gif"
+                                    alt="Verificado"
+                                    className="w-6 h-6 object-contain"
+                                    title="Conta Verificada"
+                                />
+                            )}
+                        </h3>
                         <p className="text-base font-medium opacity-90 leading-relaxed max-w-[300px]">{profile.bio}</p>
                     </div>
 
@@ -470,6 +482,15 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         </div>
                                                     );
                                                 }
+
+                                                // YOUTUBE EMBED IN COLLECTION
+                                                if (child.embedType === 'youtube') {
+                                                    return (
+                                                        <div key={child.id} className="mb-4">
+                                                            <YouTubeEmbed url={child.url} title={child.title} className="rounded-2xl" />
+                                                        </div>
+                                                    );
+                                                }
                                                 return (
                                                     <a
                                                         key={child.id}
@@ -529,22 +550,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                             // EMBED HANDLING
                             if (link.embedType === 'youtube') {
-                                const videoId = link.url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
-                                if (videoId) {
-                                    return (
-                                        <div key={link.id} className="w-full rounded-2xl overflow-hidden shadow-lg aspect-video mb-4">
-                                            <iframe
-                                                width="100%"
-                                                height="100%"
-                                                src={`https://www.youtube.com/embed/${videoId}`}
-                                                title={link.title}
-                                                frameBorder="0"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                allowFullScreen
-                                            ></iframe>
-                                        </div>
-                                    );
-                                }
+                                return (
+                                    <div key={link.id} className="mb-4">
+                                        <YouTubeEmbed url={link.url} title={link.title} className="rounded-2xl" />
+                                    </div>
+                                );
                             }
 
                             if (isMusicLink(link)) {
