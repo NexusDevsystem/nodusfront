@@ -312,7 +312,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <div
                             className="absolute inset-0 z-10 pointer-events-none"
                             style={{
-                                background: `linear-gradient(to bottom, transparent 0%, ${profile.customSolidColor || currentTheme.solidColor || (isDarkTheme ? '#000000' : '#ffffff')}99 45%, ${profile.customSolidColor || currentTheme.solidColor || (isDarkTheme ? '#000000' : '#ffffff')} 100%)`
+                                background: `linear-gradient(to bottom, transparent 0%, ${profile.customSolidColor || currentTheme.solidColor || (isDarkTheme ? '#000000' : '#ffffff')}F2 45%, ${profile.customSolidColor || currentTheme.solidColor || (isDarkTheme ? '#000000' : '#ffffff')} 100%)`
                             }}
                         ></div>
                         {/* Backdrop Blur */}
