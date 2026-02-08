@@ -13,6 +13,7 @@ import {
     BadgeCheck
 } from 'lucide-react';
 import YouTubeEmbed from './YouTubeEmbed';
+import verifiedBadge from '../assets/verified-badge.png';
 // @ts-ignore
 import LightPillar from './LightPillar';
 import GlassSurface from './GlassSurface';
@@ -360,7 +361,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             {profile.name}
                             {profile.isVerified && (
                                 <img
-                                    src="/icons/icons8-verificado.gif"
+                                    src={verifiedBadge}
                                     alt="Verificado"
                                     className="w-6 h-6 object-contain"
                                     title="Conta Verificada"
