@@ -30,17 +30,21 @@ export default function TermsPage() {
 
                     <h3>2. Uso de Licença</h3>
                     <p>
-                        É concedida permissão para baixar temporariamente uma cópia dos materiais (informações ou software) no site Nodus, apenas para visualização transitória pessoal e não comercial. Esta é a concessão de uma licença, não uma transferência de título e, sob esta licença, você não pode:
+                        O Nodus é um software as a service (SaaS) proprietário. O acesso concedido é estritamente para o uso da plataforma através de um navegador web.
+                        <strong>Não é concedido nenhum direito de acesso ao código-fonte</strong>, download do software ou propriedade intelectual subjacente.
+                    </p>
+                    <p>
+                        Sob estes termos, você concorda expressamente que <strong>NÃO</strong> pode:
                     </p>
                     <ul>
-                        <li>modificar ou copiar os materiais;</li>
-                        <li>usar os materiais para qualquer finalidade comercial ou para exibição pública (comercial ou não comercial);</li>
-                        <li>tentar descompilar ou fazer engenharia reversa de qualquer software contido no site Nodus;</li>
-                        <li>remover quaisquer direitos autorais ou outras notações de propriedade dos materiais; ou</li>
-                        <li>transferir os materiais para outra pessoa ou 'espelhe' os materiais em qualquer outro servidor.</li>
+                        <li>Tentar baixar, copiar, modificar, criar obras derivadas, fazer engenharia reversa, descompilar ou tentar extrair o código-fonte do Nodus;</li>
+                        <li>Usar qualquer robô, spider, scraper ou outros meios automatizados para acessar o serviço;</li>
+                        <li>Revender, sublicenciar ou redistribuir o acesso ao serviço sem autorização por escrito;</li>
+                        <li>Usar o serviço para qualquer finalidade ilegal ou não autorizada;</li>
+                        <li>Remover quaisquer direitos autorais ou outras notações de propriedade dos materiais exibidos.</li>
                     </ul>
                     <p>
-                        Esta licença será automaticamente rescindida se você violar alguma dessas restrições e poderá ser rescindida pelo Nodus a qualquer momento. Ao encerrar a visualização desses materiais ou após o término desta licença, você deve apagar todos os materiais baixados em sua posse, seja em formato eletrônico ou impresso.
+                        Esta licença será automaticamente rescindida se você violar alguma dessas restrições e sua conta poderá ser banida permanentemente pelo Nodus a qualquer momento, sem direito a reembolso.
                     </p>
 
                     <h3>3. Isenção de responsabilidade</h3>
