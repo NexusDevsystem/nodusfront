@@ -333,7 +333,7 @@ export const THEMES: Theme[] = [
     id: 'animated-nodus-official',
     name: 'Nodus Official',
     backgroundClass: 'bg-[#0f1f1a]',
-    buttonClass: 'bg-white text-slate-900 border border-white hover:bg-slate-50 font-bold shadow-[0_0_20px_rgba(172,200,162,0.2)]',
+    buttonClass: 'bg-[#acc8a2] text-[#0f1f1a] border border-[#acc8a2] hover:bg-[#9ab691] font-bold shadow-[0_0_20px_rgba(172,200,162,0.4)]',
     textClass: 'text-[#e8f5e9]',
     avatarBorder: 'border-[#acc8a2] shadow-[0_0_20px_rgba(172,200,162,0.4)]',
     isPro: true,
