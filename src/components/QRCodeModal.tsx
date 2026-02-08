@@ -49,7 +49,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
 
                     <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm mb-6" ref={canvasRef}>
                         <QRCodeCanvas
-                            value={url}
+                            value={url.startsWith('http') ? url : `https://${url}`}
                             size={200}
                             bgColor={"#ffffff"}
                             fgColor={"#000000"}

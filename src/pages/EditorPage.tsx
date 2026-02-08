@@ -196,7 +196,8 @@ export default function EditorPage() {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
 
-    const shareUrl = `https://www.noduscc.com.br/${profile.username || profile.name.toLowerCase().replace(/\s/g, '')}`;
+    const shareUrl = `nodus.cc/${profile.username || profile.name.toLowerCase().replace(/\s/g, '')}`;
+    const fullShareUrl = `https://${shareUrl}`;
 
     return (
         <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
@@ -326,7 +327,7 @@ export default function EditorPage() {
                                     Compartilhar
                                 </button>
                                 <a
-                                    href={shareUrl}
+                                    href={fullShareUrl}
                                     target="_blank"
                                     className="flex items-center gap-2 px-4 py-2 text-brand-700 bg-brand-50 hover:bg-brand-100 rounded-lg border border-brand-200 transition-colors text-sm font-medium"
                                 >
