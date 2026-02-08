@@ -151,7 +151,12 @@ export default function EditorPage() {
                 await apiClient.replaceAllLinks(links);
             } catch (error) {
                 console.error('Failed to save links:', error);
-                alert('Erro ao salvar links. Verifique sua conexão.');
+            } catch (error) {
+                console.error('Failed to save links:', error);
+                // Do not use alert, it interrupts flow. Just log. 
+                // Maybe a toast would be better but for now let's be silent as requested "always save"
+                // The backend fixes should prevent data loss.
+            } finally {
             } finally {
                 setIsSavingLinks(false);
             }
@@ -240,22 +245,18 @@ export default function EditorPage() {
                     </div>
                 )}
 
-                {/* Error State - Block access to prevent data loss */}
+                {/* Error State - Non-intrusive Banner */}
                 {loadError && (
-                    <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center p-6 text-center">
-                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4">
-                            <Construction size={32} />
+                    <div className="absolute top-0 left-0 w-full bg-red-50 border-b border-red-200 z-[100] px-4 py-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-red-700 text-sm">
+                            <Construction size={16} />
+                            <span className="font-medium">Erro de sincronização. As alterações não serão salvas automaticamente.</span>
                         </div>
-                        <h2 className="text-2xl font-bold text-slate-800 mb-2">Erro ao carregar dados</h2>
-                        <p className="text-slate-500 mb-6 max-w-md">
-                            Não foi possível sincronizar suas informações. Para evitar perda de dados, o editor foi pausado.
-                            Isso pode ser causado por problemas de conexão ou bloqueadores de anúncio.
-                        </p>
                         <button
                             onClick={() => window.location.reload()}
-                            className="px-6 py-3 bg-slate-900 text-white rounded-xl font-medium hover:scale-105 transition-transform"
+                            className="px-3 py-1 bg-red-600 text-white rounded-md text-xs font-bold hover:bg-red-700 transition-colors"
                         >
-                            Tentar Novamente
+                            RECARREGAR
                         </button>
                     </div>
                 )}
