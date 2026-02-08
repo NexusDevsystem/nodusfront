@@ -66,6 +66,7 @@ export interface Product {
   price?: string;
   discountCode?: string;
   clicks?: number;
+  collection?: string;
 }
 
 export interface FontOption {

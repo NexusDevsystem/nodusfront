@@ -10,7 +10,8 @@ import {
     ShoppingBag,
     MoreHorizontal,
     Coffee,
-    BadgeCheck
+    BadgeCheck,
+    ChevronDown
 } from 'lucide-react';
 import YouTubeEmbed from './YouTubeEmbed';
 import verifiedBadge from '../assets/verified-badge.png';
@@ -47,6 +48,23 @@ interface ProfileRendererProps {
 const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], isPreview = false, onShare }) => {
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
     const activeLinks = links.filter(l => l.isActive);
+    const [activeTab, setActiveTab] = useState<'links' | 'shop'>('links');
+    const [activeCollection, setActiveCollection] = useState<string | null>(null);
+
+    // Group products
+    const collections = React.useMemo(() => {
+        const groups: Record<string, Product[]> = {};
+        products.forEach(p => {
+            const col = p.collection || 'Geral';
+            if (!groups[col]) groups[col] = [];
+            groups[col].push(p);
+        });
+        return groups;
+    }, [products]);
+
+    const handleCollectionClick = (colName: string) => {
+        setActiveCollection(colName);
+    };
 
     // Track view on mount (only if not in preview/editor mode)
     React.useEffect(() => {
@@ -392,194 +410,369 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         </div>
                     )}
 
-                    {/* Shop Carousel */}
+                    {/* TABS (Links / Shop) - Only if products exist */}
                     {products.length > 0 && (
-                        <div className="mb-6 w-full animate-fade-in">
-                            <div className={`flex items-center gap-2 mb-3 text-base font-bold opacity-80 ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass} px-1`}>
-                                <ShoppingBag size={18} />
-                                <span>Vitrine</span>
-                            </div>
-                            <div className="flex gap-3 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide snap-x">
-                                {products.map(product => (
-                                    <a key={product.id} href={product.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(product.id)} className={`snap-start shrink-0 w-36 flex flex-col gap-2 group relative rounded-2xl ${currentTheme.id === 'glass' ? '' : 'p-3'}`}>
-                                        {currentTheme.id === 'glass' ? (
-                                            <GlassSurface
-                                                width="100%"
-                                                height="auto"
-                                                borderRadius={16}
-                                                displace={0.5}
-                                                distortionScale={-180}
-                                                redOffset={0}
-                                                greenOffset={10}
-                                                blueOffset={20}
-                                                brightness={50}
-                                                opacity={0.93}
-                                                mixBlendMode="screen"
-                                            >
-                                                <div className="flex flex-col gap-2 w-full p-2">
-                                                    <div className={`aspect-square rounded-xl overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative w-full`}>
-                                                        <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                                                        {product.discountCode && (
-                                                            <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-sm">
-                                                                {product.discountCode}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex flex-col gap-0.5 w-full">
-                                                        <span className="text-sm font-medium truncate text-center text-white opacity-90">{product.name}</span>
-                                                        {product.price && (
-                                                            <span className="text-xs font-bold truncate text-center text-white">{product.price}</span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </GlassSurface>
-
-                                        ) : (
-                                            <div className="relative z-10 flex flex-col gap-2">
-                                                <div className={`aspect-square rounded-xl overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative`}>
-                                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                                                    {product.discountCode && (
-                                                        <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-sm">
-                                                            {product.discountCode}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="text-sm font-medium truncate text-center opacity-90">{product.name}</span>
-                                                    {product.price && (
-                                                        <span className="text-xs font-bold truncate text-center">{product.price}</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </a>
-                                ))}
+                        <div className="w-full mb-6 px-1">
+                            <div className={`w-full p-1 rounded-full flex relative ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'bg-white/10' : 'bg-slate-200/60'}`}>
+                                {/* Sliding background could be complex, sticking to simple conditional classes for now */}
+                                <button
+                                    onClick={() => setActiveTab('links')}
+                                    className={`flex-1 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeTab === 'links'
+                                        ? 'bg-white text-slate-900 shadow-sm'
+                                        : `${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white/70' : 'text-slate-600'} hover:opacity-100`
+                                        }`}
+                                >
+                                    Links
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('shop')}
+                                    className={`flex-1 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeTab === 'shop'
+                                        ? 'bg-white text-slate-900 shadow-sm'
+                                        : `${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white/70' : 'text-slate-600'} hover:opacity-100`
+                                        }`}
+                                >
+                                    Loja
+                                </button>
                             </div>
                         </div>
                     )}
 
-                    {/* Button Links List */}
-                    <div className="space-y-4 w-full flex-1">
-                        {buttonLinks.map(link => {
+                    {/* SHOP VIEW (Collections or Grid) */}
+                    {products.length > 0 && activeTab === 'shop' && (
+                        <div className="w-full animate-fade-in space-y-4">
 
-                            // COLLECTION
-                            if (link.type === 'collection') {
-                                const hasChildren = link.children && link.children.length > 0;
-                                const activeChildren = link.children ? link.children.filter(c => c.isActive) : [];
+                            {/* Collection List View */}
+                            {!activeCollection ? (
+                                <div className="space-y-4">
+                                    <div className={`flex items-center gap-2 mb-2 text-base font-bold opacity-80 ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass} px-1`}>
+                                        <ShoppingBag size={18} />
+                                        <span>Coleções</span>
+                                    </div>
 
-                                if (!hasChildren && !activeChildren.length) return null;
-
-                                return (
-                                    <div key={link.id} className="w-full pt-2 pb-1">
-                                        <div className="text-center mb-3 font-bold opacity-90 text-lg">
-                                            {link.title}
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            {activeChildren.map(child => {
-                                                // Special handling for Spotify/Deezer - custom mini player
-                                                if (isMusicLink(child)) {
-                                                    return (
-                                                        <div key={child.id} className="w-full">
-                                                            <MusicRichCard link={child} handleLinkClick={handleLinkClick} />
+                                    {Object.entries(collections).map(([name, items]) => (
+                                        <button
+                                            key={name}
+                                            onClick={() => handleCollectionClick(name)}
+                                            className={`w-full group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ${currentTheme.id === 'glass' ? '' : 'bg-white'}`}
+                                        >
+                                            {currentTheme.id === 'glass' ? (
+                                                <GlassSurface
+                                                    width="100%"
+                                                    height="auto"
+                                                    borderRadius={16}
+                                                    displace={0.5}
+                                                    distortionScale={-180}
+                                                    redOffset={0}
+                                                    greenOffset={10}
+                                                    blueOffset={20}
+                                                    brightness={50}
+                                                    opacity={0.93}
+                                                    mixBlendMode="screen"
+                                                >
+                                                    <div className="p-1">
+                                                        {/* Preview Images Collage */}
+                                                        <div className="flex h-48 w-full gap-0.5 rounded-t-xl overflow-hidden bg-slate-100">
+                                                            {items.slice(0, 3).map((item, i) => (
+                                                                <div key={item.id} className="flex-1 h-full relative">
+                                                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                                                </div>
+                                                            ))}
+                                                            {/* Fill empty slots if less than 3? No, flex-1 handles it */}
                                                         </div>
-                                                    );
-                                                }
-
-                                                // YOUTUBE EMBED IN COLLECTION
-                                                if (child.embedType === 'youtube') {
-                                                    return (
-                                                        <div key={child.id} className="mb-4">
-                                                            <YouTubeEmbed url={child.url} title={child.title} className="rounded-2xl" />
+                                                        <div className="p-3 text-left">
+                                                            <h3 className="text-lg font-bold text-white">{name}</h3>
+                                                            <div className="flex items-center gap-1 text-xs text-white/70 font-medium">
+                                                                <span>{items.length} produtos</span>
+                                                            </div>
                                                         </div>
-                                                    );
-                                                }
-                                                return (
-                                                    <a
-                                                        key={child.id}
-                                                        href={child.url}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        onClick={() => handleLinkClick(child.id)}
-                                                        className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(child.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
-                                                        style={!profile.customButtonColor ? {} : {
-                                                            backgroundColor: profile.customButtonColor,
-                                                            color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
-                                                        }}
+                                                    </div>
+                                                </GlassSurface>
+                                            ) : (
+                                                <div className="p-1">
+                                                    {/* Preview Images Collage */}
+                                                    <div className="flex h-48 w-full gap-0.5 rounded-t-xl overflow-hidden bg-slate-100">
+                                                        {items.slice(0, 3).map((item, i) => (
+                                                            <div key={item.id} className="flex-1 h-full relative border-r border-white/20 last:border-0">
+                                                                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <div className="p-3 text-left">
+                                                        <h3 className="text-lg font-bold text-slate-800">{name}</h3>
+                                                        <div className="flex items-center gap-1 text-xs text-slate-500 font-medium uppercase tracking-wide">
+                                                            <span>{items.length} produtos</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            ) : (
+                                /* Filtered Product Grid */
+                                <div className="animate-fade-in">
+                                    <button
+                                        onClick={() => setActiveCollection(null)}
+                                        className={`flex items-center gap-2 mb-4 text-sm font-bold opacity-80 hover:opacity-100 transition ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass} px-1`}
+                                    >
+                                        <ChevronDown size={16} className="rotate-90" />
+                                        <span>Voltar para Coleções</span>
+                                    </button>
+
+                                    <div className={`flex items-center gap-2 mb-4 text-xl font-bold ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass} px-1`}>
+                                        <span>{activeCollection}</span>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3 pb-8">
+                                        {collections[activeCollection].map(product => (
+                                            <a key={product.id} href={product.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(product.id)} className={`flex flex-col gap-2 group relative rounded-2xl w-full ${currentTheme.id === 'glass' ? '' : 'p-2'}`}>
+                                                {currentTheme.id === 'glass' ? (
+                                                    <GlassSurface
+                                                        width="100%"
+                                                        height="auto"
+                                                        borderRadius={16}
+                                                        displace={0.5}
+                                                        distortionScale={-180}
+                                                        redOffset={0}
+                                                        greenOffset={10}
+                                                        blueOffset={20}
+                                                        brightness={50}
+                                                        opacity={0.93}
+                                                        mixBlendMode="screen"
                                                     >
-                                                        {currentTheme.id === 'glass' ? (
-                                                            <GlassSurface
-                                                                width="100%"
-                                                                height="auto"
-                                                                borderRadius={borderRadius}
-                                                                displace={0.5}
-                                                                distortionScale={-180}
-                                                                redOffset={0}
-                                                                greenOffset={10}
-                                                                blueOffset={20}
-                                                                brightness={50}
-                                                                opacity={0.93}
-                                                                mixBlendMode="screen"
-                                                                className={`${getHighlightClass(child.highlight)}`}
-                                                            >
-                                                                <div className="w-full flex items-center justify-between py-3 px-5">
+                                                        <div className="flex flex-col gap-2 w-full p-2">
+                                                            <div className={`aspect-square rounded-xl overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative w-full`}>
+                                                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                                                {product.discountCode && (
+                                                                    <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-sm">
+                                                                        {product.discountCode}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex flex-col gap-0.5 w-full">
+                                                                <span className="text-sm font-medium truncate text-center text-white opacity-90">{product.name}</span>
+                                                                {product.price && (
+                                                                    <span className="text-xs font-bold truncate text-center text-white">{product.price}</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </GlassSurface>
+
+                                                ) : (
+                                                    <div className="relative z-10 flex flex-col gap-2">
+                                                        <div className={`aspect-square rounded-xl overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative`}>
+                                                            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                                            {product.discountCode && (
+                                                                <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-sm">
+                                                                    {product.discountCode}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <span className="text-sm font-medium truncate text-center opacity-90">{product.name}</span>
+                                                            {product.price && (
+                                                                <span className="text-xs font-bold truncate text-center">{product.price}</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+
+
+                    {/* Button Links List - Show if activeTab matches OR no products */}
+                    {(products.length === 0 || activeTab === 'links') && (
+                        <div className="space-y-4 w-full flex-1 animate-fade-in">
+                            {buttonLinks.map(link => {
+
+                                // COLLECTION
+                                if (link.type === 'collection') {
+                                    const hasChildren = link.children && link.children.length > 0;
+                                    const activeChildren = link.children ? link.children.filter(c => c.isActive) : [];
+
+                                    if (!hasChildren && !activeChildren.length) return null;
+
+                                    return (
+                                        <div key={link.id} className="w-full pt-2 pb-1">
+                                            <div className="text-center mb-3 font-bold opacity-90 text-lg">
+                                                {link.title}
+                                            </div>
+
+                                            <div className="space-y-4">
+                                                {activeChildren.map(child => {
+                                                    // Special handling for Spotify/Deezer - custom mini player
+                                                    if (isMusicLink(child)) {
+                                                        return (
+                                                            <div key={child.id} className="w-full">
+                                                                <MusicRichCard link={child} handleLinkClick={handleLinkClick} />
+                                                            </div>
+                                                        );
+                                                    }
+
+                                                    // YOUTUBE EMBED IN COLLECTION
+                                                    if (child.embedType === 'youtube') {
+                                                        return (
+                                                            <div key={child.id} className="mb-4">
+                                                                <YouTubeEmbed url={child.url} title={child.title} className="rounded-2xl" />
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return (
+                                                        <a
+                                                            key={child.id}
+                                                            href={child.url}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            onClick={() => handleLinkClick(child.id)}
+                                                            className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(child.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
+                                                            style={!profile.customButtonColor ? {} : {
+                                                                backgroundColor: profile.customButtonColor,
+                                                                color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
+                                                            }}
+                                                        >
+                                                            {currentTheme.id === 'glass' ? (
+                                                                <GlassSurface
+                                                                    width="100%"
+                                                                    height="auto"
+                                                                    borderRadius={borderRadius}
+                                                                    displace={0.5}
+                                                                    distortionScale={-180}
+                                                                    redOffset={0}
+                                                                    greenOffset={10}
+                                                                    blueOffset={20}
+                                                                    brightness={50}
+                                                                    opacity={0.93}
+                                                                    mixBlendMode="screen"
+                                                                    className={`${getHighlightClass(child.highlight)}`}
+                                                                >
+                                                                    <div className="w-full flex items-center justify-between py-3 px-5">
+                                                                        {child.image ? (
+                                                                            <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
+                                                                        ) : (
+                                                                            <span className="w-8"></span>
+                                                                        )}
+                                                                        <span className="truncate flex-1 px-3 text-white text-lg">{child.title}</span>
+                                                                        <span className="w-8 shrink-0"></span>
+                                                                    </div>
+                                                                </GlassSurface>
+                                                            ) : (
+                                                                <div className="relative z-10 w-full flex items-center justify-between">
                                                                     {child.image ? (
                                                                         <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
                                                                     ) : (
                                                                         <span className="w-8"></span>
                                                                     )}
-                                                                    <span className="truncate flex-1 px-3 text-white text-lg">{child.title}</span>
+                                                                    <span className="truncate flex-1 px-3">{child.title}</span>
                                                                     <span className="w-8 shrink-0"></span>
                                                                 </div>
-                                                            </GlassSurface>
-                                                        ) : (
-                                                            <div className="relative z-10 w-full flex items-center justify-between">
-                                                                {child.image ? (
-                                                                    <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
-                                                                ) : (
-                                                                    <span className="w-8"></span>
-                                                                )}
-                                                                <span className="truncate flex-1 px-3">{child.title}</span>
-                                                                <span className="w-8 shrink-0"></span>
-                                                            </div>
-                                                        )}
-                                                    </a>
-                                                );
-                                            })}
+                                                            )}
+                                                        </a>
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            }
+                                    );
+                                }
 
-                            // EMBED HANDLING
-                            if (link.embedType === 'youtube') {
+                                // EMBED HANDLING
+                                if (link.embedType === 'youtube') {
+                                    return (
+                                        <div key={link.id} className="mb-4">
+                                            <YouTubeEmbed url={link.url} title={link.title} className="rounded-2xl" />
+                                        </div>
+                                    );
+                                }
+
+                                if (isMusicLink(link)) {
+                                    return (
+                                        <div key={link.id} className="w-full mb-5">
+                                            <MusicRichCard link={link} handleLinkClick={handleLinkClick} />
+                                        </div>
+                                    );
+                                }
+
+                                // STANDARD LINK
                                 return (
-                                    <div key={link.id} className="mb-4">
-                                        <YouTubeEmbed url={link.url} title={link.title} className="rounded-2xl" />
-                                    </div>
+                                    <a
+                                        key={link.id}
+                                        href={link.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        onClick={() => handleLinkClick(link.id)}
+                                        className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(link.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
+                                        style={!profile.customButtonColor ? {} : {
+                                            backgroundColor: profile.customButtonColor,
+                                            color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000') // Fallback or override
+                                        }}
+                                    >
+                                        {currentTheme.id === 'glass' ? <GlassSurface
+                                            width="100%"
+                                            height="auto"
+                                            borderRadius={borderRadius}
+                                            displace={0.5}
+                                            distortionScale={-180}
+                                            redOffset={0}
+                                            greenOffset={10}
+                                            blueOffset={20}
+                                            brightness={50}
+                                            opacity={0.93}
+                                            mixBlendMode="screen"
+                                            className={`${getHighlightClass(link.highlight)}`}
+                                        >
+                                            <div className="w-full flex items-center justify-between py-3 px-5">
+                                                {link.image ? (
+                                                    <img src={link.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
+                                                ) : (
+                                                    <span className="w-8"></span>
+                                                )}
+                                                <span className="truncate flex-1 px-3 text-white text-lg">{link.title}</span>
+                                                <span className="w-8 shrink-0"></span>
+                                            </div>
+                                        </GlassSurface>
+                                            : (
+                                                <>
+                                                    <div className="relative z-10 w-full flex items-center justify-between">
+                                                        {link.image ? (
+                                                            <img src={link.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
+                                                        ) : (
+                                                            <span className="w-8"></span>
+                                                        )}
+                                                        <span className="truncate flex-1 px-3">{link.title}</span>
+                                                        <span className="w-8 shrink-0"></span>
+                                                    </div>
+                                                </>
+                                            )}
+                                    </a>
                                 );
-                            }
+                            })}
 
-                            if (isMusicLink(link)) {
-                                return (
-                                    <div key={link.id} className="w-full mb-5">
-                                        <MusicRichCard link={link} handleLinkClick={handleLinkClick} />
-                                    </div>
-                                );
-                            }
+                            {activeLinks.length === 0 && (
+                                <div className="flex flex-col items-center justify-center py-10 opacity-50 space-y-2">
+                                    <span className="text-sm font-medium">Nenhum link ativo</span>
+                                </div>
+                            )}
 
-                            // STANDARD LINK
-                            return (
+                            {/* Theme-Integrated Support Button */}
+                            {profile.supportKey && (
                                 <a
-                                    key={link.id}
-                                    href={link.url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    onClick={() => handleLinkClick(link.id)}
-                                    className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(link.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
+                                    href={profile.supportType === 'paypal' ? `https://${profile.supportKey}` : '#'}
+                                    onClick={(e) => {
+                                        if (profile.supportType === 'pix') {
+                                            e.preventDefault();
+                                            alert(`Chave Pix copiada: ${profile.supportKey}`);
+                                            navigator.clipboard.writeText(profile.supportKey);
+                                        }
+                                    }}
+                                    className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${hasThemeShadow ? '' : 'shadow-sm'} overflow-hidden`}`}
                                     style={!profile.customButtonColor ? {} : {
                                         backgroundColor: profile.customButtonColor,
-                                        color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000') // Fallback or override
+                                        color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
                                     }}
                                 >
                                     {currentTheme.id === 'glass' ? <GlassSurface
@@ -594,98 +787,35 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         brightness={50}
                                         opacity={0.93}
                                         mixBlendMode="screen"
-                                        className={`${getHighlightClass(link.highlight)}`}
+                                        className=""
                                     >
                                         <div className="w-full flex items-center justify-between py-3 px-5">
-                                            {link.image ? (
-                                                <img src={link.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
+                                            {profile.supportType === 'pix' ? (
+                                                <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" />
                                             ) : (
-                                                <span className="w-8"></span>
+                                                <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
                                             )}
-                                            <span className="truncate flex-1 px-3 text-white text-lg">{link.title}</span>
-                                            <span className="w-8 shrink-0"></span>
+                                            <span className="truncate flex-1 px-3 text-white text-lg">Apoiar</span>
+                                            <span className="w-8 opacity-50 text-white flex justify-end"><Coffee size={20} /></span>
                                         </div>
                                     </GlassSurface>
                                         : (
                                             <>
                                                 <div className="relative z-10 w-full flex items-center justify-between">
-                                                    {link.image ? (
-                                                        <img src={link.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
+                                                    {profile.supportType === 'pix' ? (
+                                                        <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" />
                                                     ) : (
-                                                        <span className="w-8"></span>
+                                                        <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
                                                     )}
-                                                    <span className="truncate flex-1 px-3">{link.title}</span>
-                                                    <span className="w-8 shrink-0"></span>
+                                                    <span className="truncate flex-1 px-3">Apoiar</span>
+                                                    <span className="w-8 opacity-50 flex justify-end"><Coffee size={20} /></span>
                                                 </div>
                                             </>
                                         )}
                                 </a>
-                            );
-                        })}
-
-                        {activeLinks.length === 0 && (
-                            <div className="flex flex-col items-center justify-center py-10 opacity-50 space-y-2">
-                                <span className="text-sm font-medium">Nenhum link ativo</span>
-                            </div>
-                        )}
-
-                        {/* Theme-Integrated Support Button */}
-                        {profile.supportKey && (
-                            <a
-                                href={profile.supportType === 'paypal' ? `https://${profile.supportKey}` : '#'}
-                                onClick={(e) => {
-                                    if (profile.supportType === 'pix') {
-                                        e.preventDefault();
-                                        alert(`Chave Pix copiada: ${profile.supportKey}`);
-                                        navigator.clipboard.writeText(profile.supportKey);
-                                    }
-                                }}
-                                className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${hasThemeShadow ? '' : 'shadow-sm'} overflow-hidden`}`}
-                                style={!profile.customButtonColor ? {} : {
-                                    backgroundColor: profile.customButtonColor,
-                                    color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
-                                }}
-                            >
-                                {currentTheme.id === 'glass' ? <GlassSurface
-                                    width="100%"
-                                    height="auto"
-                                    borderRadius={borderRadius}
-                                    displace={0.5}
-                                    distortionScale={-180}
-                                    redOffset={0}
-                                    greenOffset={10}
-                                    blueOffset={20}
-                                    brightness={50}
-                                    opacity={0.93}
-                                    mixBlendMode="screen"
-                                    className=""
-                                >
-                                    <div className="w-full flex items-center justify-between py-3 px-5">
-                                        {profile.supportType === 'pix' ? (
-                                            <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" />
-                                        ) : (
-                                            <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
-                                        )}
-                                        <span className="truncate flex-1 px-3 text-white text-lg">Apoiar</span>
-                                        <span className="w-8 opacity-50 text-white flex justify-end"><Coffee size={20} /></span>
-                                    </div>
-                                </GlassSurface>
-                                    : (
-                                        <>
-                                            <div className="relative z-10 w-full flex items-center justify-between">
-                                                {profile.supportType === 'pix' ? (
-                                                    <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" />
-                                                ) : (
-                                                    <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
-                                                )}
-                                                <span className="truncate flex-1 px-3">Apoiar</span>
-                                                <span className="w-8 opacity-50 flex justify-end"><Coffee size={20} /></span>
-                                            </div>
-                                        </>
-                                    )}
-                            </a>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    )}
 
                     {/* Newsletter Widget */}
                     {profile.showNewsletter && (
