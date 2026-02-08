@@ -42,6 +42,7 @@ export default function EditorPage() {
     // Always start loading - we don't use localStorage cache anymore
     const [isLoading, setIsLoading] = useState(true);
     const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+    const [loadError, setLoadError] = useState(false); // New state to track load failures
 
     // Loading progress (0-100)
     const [loadingProgress, setLoadingProgress] = React.useState(0);
@@ -89,7 +90,8 @@ export default function EditorPage() {
             } catch (error) {
                 console.error('Failed to sync background data:', error);
                 setLoadingProgress(100);
-                setHasLoadedOnce(true);
+                setLoadError(true);
+                // Do NOT set hasLoadedOnce(true) here to prevent auto-save of empty state
             } finally {
                 setIsLoading(false);
             }
@@ -235,6 +237,26 @@ export default function EditorPage() {
                                                 'Pronto'}
                             </p>
                         </div>
+                    </div>
+                )}
+
+                {/* Error State - Block access to prevent data loss */}
+                {loadError && (
+                    <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center p-6 text-center">
+                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4">
+                            <Construction size={32} />
+                        </div>
+                        <h2 className="text-2xl font-bold text-slate-800 mb-2">Erro ao carregar dados</h2>
+                        <p className="text-slate-500 mb-6 max-w-md">
+                            Não foi possível sincronizar suas informações. Para evitar perda de dados, o editor foi pausado.
+                            Isso pode ser causado por problemas de conexão ou bloqueadores de anúncio.
+                        </p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="px-6 py-3 bg-slate-900 text-white rounded-xl font-medium hover:scale-105 transition-transform"
+                        >
+                            Tentar Novamente
+                        </button>
                     </div>
                 )}
 
