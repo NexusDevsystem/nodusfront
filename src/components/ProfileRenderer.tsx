@@ -290,16 +290,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 {/* GLOBAL BLUR FADE OVERLAY */}
                 {profile.enableBlur && (
                     <>
-                        {/* Gradient Fade Overlay - Top transparent, Bottom Solid Matching Background */}
-                        {/* Note: We try to match the theme background color. If it's a gradient or image, we fallback to a dark overlay or try to derive it. 
-                            For now, we use a generic dark fade for dark themes and light for light themes, or specific overrides.
-                         */}
+                        {/* Gradient Fade Overlay - Top transparent, Bottom Solid Matching Theme or Custom Color */}
                         <div
-                            className={`absolute inset-0 z-10 pointer-events-none ${isDarkTheme ? 'bg-gradient-to-b from-transparent via-black/60 to-black' : 'bg-gradient-to-b from-transparent via-white/60 to-white'}`}
+                            className="absolute inset-0 z-10 pointer-events-none"
                             style={{
-                                background: isDarkTheme
-                                    ? `linear-gradient(to bottom, transparent 0%, ${currentTheme.id === 'animated-nodus-official' ? '#0f1f1a' : '#000000'}99 45%, ${currentTheme.id === 'animated-nodus-official' ? '#0f1f1a' : '#000000'} 100%)`
-                                    : 'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.6) 45%, #ffffff 100%)'
+                                background: `linear-gradient(to bottom, transparent 0%, ${profile.customSolidColor || currentTheme.solidColor || (isDarkTheme ? '#000000' : '#ffffff')}99 45%, ${profile.customSolidColor || currentTheme.solidColor || (isDarkTheme ? '#000000' : '#ffffff')} 100%)`
                             }}
                         ></div>
                         {/* Backdrop Blur */}

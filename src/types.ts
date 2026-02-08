@@ -54,6 +54,7 @@ export interface Theme {
   textClass: string;
   avatarBorder: string;
   isPro?: boolean;
+  solidColor?: string;
 }
 
 
