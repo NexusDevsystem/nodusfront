@@ -151,7 +151,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0, pro
                 disabled={isLimitReached}
                 className={`w-full h-14 rounded-[22px] font-bold text-lg flex items-center justify-center gap-2 transition-all duration-300 shadow-lg ${isLimitReached
                   ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
-                  : 'bg-slate-950 text-white hover:bg-black hover:-translate-y-0.5 active:translate-y-0 shadow-black/10'
+                  : 'bg-brand-300 text-brand-950 hover:bg-brand-400 hover:-translate-y-0.5 active:translate-y-0 shadow-brand-950/10'
                   }`}
               >
                 <Plus size={22} /> Adicionar Link

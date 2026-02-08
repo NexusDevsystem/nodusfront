@@ -7,9 +7,10 @@ interface PreviewProps {
   profile: UserProfile;
   links: LinkItem[];
   products: Product[];
+  onShare?: () => void;
 }
 
-const Preview: React.FC<PreviewProps> = ({ profile, links, products = [] }) => {
+const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShare }) => {
   return (
     <div className="flex flex-col items-center select-none w-full">
       {/* Public URL Preview Bar - Hidden on mobile for immersive feel */}
@@ -39,7 +40,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [] }) => {
           <div className="hidden lg:block absolute top-36 -left-[15px] h-16 w-[3px] bg-gray-800 rounded-l-md"></div>
 
           {/* Screen Content */}
-          <ProfileRenderer profile={profile} links={links} products={products} isPreview={true} />
+          <ProfileRenderer profile={profile} links={links} products={products} isPreview={true} onShare={onShare} />
 
         </div>
       </div>

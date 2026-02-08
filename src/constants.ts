@@ -298,6 +298,69 @@ export const THEMES: Theme[] = [
     textClass: 'text-white drop-shadow-[0_0_8px_rgba(255,0,255,0.8)]',
     avatarBorder: 'border-[#ff00ff] shadow-[0_0_10px_#00ffff]',
     isPro: true
+  },
+  {
+    id: 'animated-mesh',
+    name: 'Liquid Mesh',
+    backgroundClass: 'bg-slate-900',
+    buttonClass: 'bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 shadow-lg',
+    textClass: 'text-white',
+    avatarBorder: 'border-white/20',
+    isPro: true
+  },
+  {
+    id: 'animated-cybergrid',
+    name: 'Retro Grid',
+    backgroundClass: 'bg-[#050510]',
+    buttonClass: 'bg-[#050510]/80 backdrop-blur-sm text-fuchsia-400 border border-fuchsia-500/50 hover:bg-fuchsia-500/20 hover:text-white',
+    textClass: 'text-fuchsia-100',
+    avatarBorder: 'border-fuchsia-500 shadow-[0_0_15px_rgba(217,70,239,0.5)]',
+    isPro: true
+  },
+  {
+    id: 'animated-shapes',
+    name: 'Zen Shapes',
+    backgroundClass: 'bg-slate-50',
+    buttonClass: 'bg-white/60 backdrop-blur-md text-indigo-900 border border-white/40 hover:bg-white/80 shadow-sm',
+    textClass: 'text-indigo-950',
+    avatarBorder: 'border-indigo-100',
+    isPro: true
+  },
+  {
+    id: 'animated-neon-city',
+    name: 'Pixel City',
+    backgroundClass: 'bg-[#0d0221]',
+    buttonClass: 'bg-[#2e1065] text-yellow-300 border-2 border-yellow-400 hover:bg-yellow-400 hover:text-[#2e1065] font-black shadow-[4px_4px_0px_#c026d3]',
+    textClass: 'text-white drop-shadow-[2px_2px_0px_#4c1d95]',
+    avatarBorder: 'border-yellow-400 shadow-[4px_4px_0px_#c026d3]',
+    isPro: true
+  },
+  {
+    id: 'animated-geo-flow',
+    name: 'Pastel Flow',
+    backgroundClass: 'bg-[#fffdf5]',
+    buttonClass: 'bg-white/80 backdrop-blur-sm text-slate-600 border border-slate-200 rounded-3xl hover:rounded-xl transition-all duration-500 shadow-sm',
+    textClass: 'text-slate-800',
+    avatarBorder: 'border-white',
+    isPro: true
+  },
+  {
+    id: 'animated-space-warp',
+    name: 'Hyperdrive',
+    backgroundClass: 'bg-black',
+    buttonClass: 'bg-black/50 backdrop-blur-md text-white border border-white/50 hover:bg-white hover:text-black transition-colors skew-x-[-10deg] rounded-none',
+    textClass: 'text-white tracking-widest uppercase',
+    avatarBorder: 'border-white/50',
+    isPro: true
+  },
+  {
+    id: 'animated-waves',
+    name: 'Ocean Breeze',
+    backgroundClass: 'bg-[#E0F7FA]',
+    buttonClass: 'bg-white/90 text-[#006064] border-none shadow-[0_4px_15px_rgba(0,188,212,0.3)] hover:translate-y-[-2px] hover:shadow-[0_8px_20px_rgba(0,188,212,0.4)] rounded-xl',
+    textClass: 'text-[#006064]',
+    avatarBorder: 'border-white ring-4 ring-[#4DD0E1]/30',
+    isPro: true
   }
 ];
 

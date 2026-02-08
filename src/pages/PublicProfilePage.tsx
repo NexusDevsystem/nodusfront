@@ -7,6 +7,7 @@ import { THEMES } from '../constants';
 import { apiClient } from '../services/apiClient';
 // @ts-ignore
 import LightPillar from '../components/LightPillar';
+import QRCodeModal from '../components/QRCodeModal';
 
 export default function PublicProfilePage() {
     const { username } = useParams<{ username: string }>();
@@ -15,6 +16,7 @@ export default function PublicProfilePage() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [links, setLinks] = useState<LinkItem[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
     useEffect(() => {
         const loadPageData = async () => {
@@ -117,8 +119,23 @@ export default function PublicProfilePage() {
             {/* Main Profile Card - Responsive: Full Screen Mobile, Card Desktop */}
             <div className="w-full h-full relative z-10 bg-black overflow-hidden 
                 md:max-w-[600px] md:shadow-2xl md:rounded-t-[3rem] md:border-t md:border-x md:border-white/10">
-                <ProfileRenderer profile={profile} links={links} products={products} isPreview={false} />
+                <ProfileRenderer
+                    profile={profile}
+                    links={links}
+                    products={products}
+                    isPreview={false}
+                    onShare={() => setIsShareModalOpen(true)}
+                />
             </div>
+
+            {/* Share Modal */}
+            {isShareModalOpen && (
+                <QRCodeModal
+                    url={window.location.href}
+                    profileName={profile.name}
+                    onClose={() => setIsShareModalOpen(false)}
+                />
+            )}
 
             {/* Footer / QR Code Mock (Visual Match) */}
             <div className="fixed bottom-8 right-8 hidden xl:flex flex-col items-center gap-2 text-white/40 z-20">

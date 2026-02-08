@@ -20,6 +20,13 @@ import NewsletterWidget from './NewsletterWidget';
 import AuroraBackground from './AuroraBackground';
 import ParticlesBackground from './ParticlesBackground';
 import MatrixBackground from './MatrixBackground';
+import GradientMeshBackground from './GradientMeshBackground';
+import CyberGridBackground from './CyberGridBackground';
+import FloatingShapesBackground from './FloatingShapesBackground';
+import NeonCityBackground from './NeonCityBackground';
+import GeometricFlowBackground from './GeometricFlowBackground';
+import SpaceWarpBackground from './SpaceWarpBackground';
+import AbstractWavesBackground from './AbstractWavesBackground';
 import Prism from './Prism';
 import { apiClient } from '../services/apiClient';
 import { Play, Plus, Music } from 'lucide-react';
@@ -30,9 +37,10 @@ interface ProfileRendererProps {
     links: LinkItem[];
     products: Product[];
     isPreview?: boolean; // If true, shows mock status bar (9:41, wifi etc)
+    onShare?: () => void;
 }
 
-const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], isPreview = false }) => {
+const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], isPreview = false, onShare }) => {
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
     const activeLinks = links.filter(l => l.isActive);
 
@@ -258,6 +266,34 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none" />
                     <div className="absolute top-0 left-0 w-full h-[100px] bg-white/5 opacity-10 pointer-events-none" style={{ animation: 'scanline 8s linear infinite' }} />
                 </div>
+            ) : currentTheme.id === 'animated-mesh' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                    <GradientMeshBackground />
+                </div>
+            ) : currentTheme.id === 'animated-cybergrid' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                    <CyberGridBackground />
+                </div>
+            ) : currentTheme.id === 'animated-shapes' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                    <FloatingShapesBackground />
+                </div>
+            ) : currentTheme.id === 'animated-neon-city' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                    <NeonCityBackground />
+                </div>
+            ) : currentTheme.id === 'animated-geo-flow' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden block">
+                    <GeometricFlowBackground />
+                </div>
+            ) : currentTheme.id === 'animated-space-warp' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                    <SpaceWarpBackground />
+                </div>
+            ) : currentTheme.id === 'animated-waves' ? (
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                    <AbstractWavesBackground />
+                </div>
             ) : (
                 <div className={`absolute inset-0 z-0 ${currentTheme.backgroundClass}`}></div>
             )}
@@ -289,8 +325,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             Let's keep it mock/visual for now as per original.
         */}
                 <div className="absolute top-[34px] right-6 z-20">
-                    <button className={`p-2 rounded-full transition-colors ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'bg-black/20 text-white hover:bg-black/30' : 'bg-transparent text-slate-800 hover:bg-black/5'}`}>
-                        <Share2 size={20} />
+                    <button
+                        onClick={onShare}
+                        className={`p-2 rounded-full transition-colors ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white hover:bg-white/10 drop-shadow-md' : 'text-slate-800 hover:bg-black/5'}`}
+                    >
+                        <Share2 size={24} className="drop-shadow-sm" />
                     </button>
                 </div>
                 {/* Menu / Options Button */}
@@ -312,7 +351,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                     {/* Profile Section */}
                     <div className="flex flex-col items-center text-center mb-6 animate-fade-in mt-8">
-                        <div className={`w-32 h-32 mb-4 rounded-full overflow-hidden border-4 ${currentTheme.avatarBorder} shadow-lg`}>
+                        <div className={`w-24 h-24 mb-3 rounded-full overflow-hidden shadow-lg`}>
                             <img src={profile.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'} alt={profile.name || 'Avatar'} className="w-full h-full object-cover" />
                         </div>
                         <h3 className="text-2xl font-bold mb-2 tracking-tight">{profile.name}</h3>
@@ -321,7 +360,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                     {/* Social Icons Row */}
                     {socialLinks.length > 0 && (
-                        <div className="flex items-center justify-center gap-6 mb-10 animate-fade-in flex-wrap">
+                        <div className="flex items-center justify-center gap-4 mb-8 animate-fade-in flex-wrap">
                             {socialLinks.map(link => {
                                 const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
                                     SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id)) ||
@@ -331,7 +370,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                 return (
                                     <a key={link.id} href={link.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(link.id)} className={`${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass} hover:opacity-70 transition-opacity hover:scale-110 transform duration-200`}>
-                                        <Icon size={40} />
+                                        <Icon size={24} />
                                     </a>
                                 );
                             })}
@@ -645,7 +684,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {/* Footer / Join Nodus Badge */}
                     <div className="mt-auto pt-20 mb-12 flex flex-col items-center gap-3 w-full px-4">
                         <a
-                            href="https://nodus.cc"
+                            href="https://www.noduscc.com.br"
                             target="_blank"
                             rel="noopener noreferrer"
                             className={`group flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md hover:scale-[1.02] ${isDarkTheme

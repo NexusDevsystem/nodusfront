@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import EditorPage from './pages/EditorPage';
+import LandingPage from './pages/LandingPage';
 import PublicProfilePage from './pages/PublicProfilePage';
 import LoginPage from './pages/LoginPage';
 import OnboardingPage from './pages/OnboardingPage';
@@ -34,8 +35,8 @@ export default function App() {
             }
           />
 
-          {/* Redirect root to admin */}
-          <Route path="/" element={<Navigate to="/admin" replace />} />
+          {/* Landing Page */}
+          <Route path="/" element={<LandingPage />} />
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/admin" replace />} />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, Coffee, Heart, CreditCard, AlertCircle } from 'lucide-react';
+import { DollarSign, Heart, CreditCard, AlertCircle, Zap } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface MonetizationViewProps {
@@ -13,7 +13,7 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
     };
 
     return (
-        <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
+        <div className="space-y-6 animate-fade-in max-w-4xl mx-auto pb-20 font-sans">
             {/* Header */}
             <div className="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 flex items-start gap-4">
                 <div className="p-3 bg-yellow-50 text-yellow-600 rounded-2xl">
@@ -34,71 +34,70 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                     <h3 className="font-bold text-lg text-slate-800">Tip Jar (Caixinha de Apoio)</h3>
                 </div>
 
-                <div className="p-6 space-y-6">
+                <div className="p-6 space-y-8">
                     {/* Payment Method Selector */}
                     <div>
-                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">
                             Método de Recebimento
                         </label>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <button
                                 onClick={() => handleChange('supportType', 'pix')}
-                                className={`p-4 rounded-xl border-2 flex items-center gap-3 transition-all ${profile.supportType === 'pix'
-                                    ? 'border-brand-500 bg-brand-50 text-brand-700'
+                                className={`p-4 rounded-xl border-2 flex items-center gap-4 transition-all ${profile.supportType === 'pix'
+                                    ? 'border-[#acc8a2] bg-[#acc8a2]/10 text-slate-900'
                                     : 'border-slate-100 hover:border-slate-200 text-slate-600'
                                     }`}
                             >
-                                <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-6 h-6 object-contain" />
-                                <span className="font-semibold">Pix</span>
+                                <div className={`p-2 rounded-lg ${profile.supportType === 'pix' ? 'bg-[#acc8a2] text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                    <Zap size={20} fill="currentColor" />
+                                </div>
+                                <div className="text-left">
+                                    <span className="block font-bold">Pix</span>
+                                    <span className="text-xs opacity-70">Recebimento instantâneo</span>
+                                </div>
                             </button>
+
                             <button
                                 onClick={() => handleChange('supportType', 'paypal')}
-                                className={`p-4 rounded-xl border-2 flex items-center gap-3 transition-all ${profile.supportType === 'paypal'
-                                    ? 'border-brand-500 bg-brand-50 text-brand-700'
+                                className={`p-4 rounded-xl border-2 flex items-center gap-4 transition-all ${profile.supportType === 'paypal'
+                                    ? 'border-[#acc8a2] bg-[#acc8a2]/10 text-slate-900'
                                     : 'border-slate-100 hover:border-slate-200 text-slate-600'
                                     }`}
                             >
-                                <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-6 h-6 object-contain" />
-                                <span className="font-semibold">PayPal</span>
+                                <div className={`p-2 rounded-lg ${profile.supportType === 'paypal' ? 'bg-[#acc8a2] text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                    <CreditCard size={20} />
+                                </div>
+                                <div className="text-left">
+                                    <span className="block font-bold">PayPal</span>
+                                    <span className="text-xs opacity-70">Internacional</span>
+                                </div>
                             </button>
                         </div>
                     </div>
 
                     {/* Key Input */}
-                    {profile.supportType && (
-                        <div className="animate-fade-in">
-                            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-                                {profile.supportType === 'pix' ? 'Chave Pix' : 'Link do PayPal.Me'}
-                            </label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                                    <CreditCard size={16} />
-                                </span>
-                                <input
-                                    type="text"
-                                    value={profile.supportKey || ''}
-                                    onChange={(e) => handleChange('supportKey', e.target.value)}
-                                    placeholder={profile.supportType === 'pix' ? 'email@exemplo.com ou CPF' : 'paypal.me/seuusuario'}
-                                    className="w-full pl-10 pr-3 py-3 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 text-sm focus:bg-white focus:ring-1 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all"
-                                />
-                            </div>
-                            <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
-                                <AlertCircle size={12} />
-                                <span>O botão "Apoiar" aparecerá automaticamente no seu perfil.</span>
-                            </div>
+                    <div className={`transition-all duration-300 ${!profile.supportType ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            {profile.supportType === 'pix' ? 'Chave Pix' : 'Link do PayPal.Me'}
+                        </label>
+                        <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                {profile.supportType === 'pix' ? <Zap size={18} /> : <CreditCard size={18} />}
+                            </span>
+                            <input
+                                type="text"
+                                value={profile.supportKey || ''}
+                                onChange={(e) => handleChange('supportKey', e.target.value)}
+                                placeholder={profile.supportType === 'pix' ? 'email@exemplo.com ou CPF' : 'paypal.me/seuusuario'}
+                                className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm focus:bg-white focus:ring-2 focus:ring-[#acc8a2]/20 focus:border-[#acc8a2] outline-none transition-all"
+                            />
                         </div>
-                    )}
+                        <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+                            <AlertCircle size={14} className="text-[#acc8a2]" />
+                            <span>O botão "Apoiar" aparecerá automaticamente no seu perfil público.</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            {/* Preview Card */}
-            <div className="bg-slate-50 p-6 rounded-[24px] border border-dashed border-slate-200 flex flex-col items-center text-center">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Preview do Botão</span>
-
-                <button className="flex items-center gap-2 px-6 py-3 bg-white rounded-full shadow-md text-slate-800 font-bold hover:scale-105 transition-transform">
-                    <Coffee size={20} className="text-amber-500" />
-                    <span>Apoie meu trabalho</span>
-                </button>
             </div>
         </div>
     );

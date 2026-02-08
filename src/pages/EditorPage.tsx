@@ -130,7 +130,7 @@ export default function EditorPage() {
             }
         };
 
-        const timeoutId = setTimeout(saveProfile, 500);
+        const timeoutId = setTimeout(saveProfile, 200);
         return () => clearTimeout(timeoutId);
     }, [profile, hasLoadedOnce]);
 
@@ -155,7 +155,7 @@ export default function EditorPage() {
             }
         };
 
-        const timeoutId = setTimeout(saveLinks, 500);
+        const timeoutId = setTimeout(saveLinks, 200);
         return () => clearTimeout(timeoutId);
     }, [links, hasLoadedOnce]);
 
@@ -179,7 +179,7 @@ export default function EditorPage() {
             }
         };
 
-        const timeoutId = setTimeout(saveProducts, 500);
+        const timeoutId = setTimeout(saveProducts, 200);
         return () => clearTimeout(timeoutId);
     }, [products, hasLoadedOnce]);
 
@@ -313,9 +313,9 @@ export default function EditorPage() {
                             </div>
                             <div className="flex items-center gap-3">
                                 {isSaving && (
-                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-50 text-brand-700 rounded-lg animate-pulse border border-brand-100">
-                                        <Save size={14} />
-                                        <span className="text-xs font-bold uppercase tracking-wider">Salvando</span>
+                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 text-slate-500 rounded-lg border border-slate-100 transition-all">
+                                        <Loader2 size={14} className="animate-spin" />
+                                        <span className="text-xs font-bold uppercase tracking-wider">Salvando...</span>
                                     </div>
                                 )}
                                 <button
@@ -602,7 +602,7 @@ export default function EditorPage() {
                             <div className={`
               w-full h-full transform transition-transform duration-300 origin-center flex items-center justify-center
             `}>
-                                <Preview profile={profile} links={links} products={products} />
+                                <Preview profile={profile} links={links} products={products} onShare={() => setIsShareModalOpen(true)} />
                             </div>
                         </div>
 
