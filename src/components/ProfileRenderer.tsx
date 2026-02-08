@@ -355,11 +355,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 <div className={`px-6 pb-40 ${isPreview ? 'pt-12' : 'pt-16'} flex-1 flex flex-col min-h-full`}>
 
                     {/* Profile Section */}
-                    <div className="flex flex-col items-center text-center mb-6 animate-fade-in mt-8">
-                        <div className={`w-24 h-24 mb-3 rounded-full overflow-hidden shadow-lg`}>
+                    <div className="flex flex-col items-center text-center mb-4 animate-fade-in mt-6">
+                        <div className={`w-24 h-24 mb-2 rounded-full overflow-hidden shadow-lg`}>
                             <img src={profile.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'} alt={profile.name || 'Avatar'} className="w-full h-full object-cover" />
                         </div>
-                        <h3 className="text-2xl font-bold mb-2 tracking-tight flex items-center justify-center gap-2">
+                        <h3 className="text-2xl font-bold mb-1 tracking-tight flex items-center justify-center gap-2">
                             {profile.name}
                             {profile.isVerified && (
                                 <img
@@ -375,7 +375,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                     {/* Social Icons Row */}
                     {socialLinks.length > 0 && (
-                        <div className="flex items-center justify-center gap-4 mb-8 animate-fade-in flex-wrap">
+                        <div className="flex items-center justify-center gap-4 mb-6 animate-fade-in flex-wrap">
                             {socialLinks.map(link => {
                                 const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
                                     SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id)) ||
