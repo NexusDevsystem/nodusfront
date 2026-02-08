@@ -104,6 +104,9 @@ export default function EditorPage() {
     const linksLoadHandled = React.useRef(false);
     const productsLoadHandled = React.useRef(false);
 
+    // Track last saved state to prevent redundant requests (stop duplication loop)
+    const lastSavedLinks = React.useRef<string>('');
+
     // Track saving states for each entity for more reliable feedback
     const [isSavingProfile, setIsSavingProfile] = React.useState(false);
     const [isSavingLinks, setIsSavingLinks] = React.useState(false);
@@ -136,30 +139,84 @@ export default function EditorPage() {
         return () => clearTimeout(timeoutId);
     }, [profile, hasLoadedOnce]);
 
-    // Save links changes to API
+    // Save links changes to API with Debounce & Deep Compare
     React.useEffect(() => {
         if (!hasLoadedOnce) return;
 
         if (!linksLoadHandled.current) {
             linksLoadHandled.current = true;
+            // Initialize lastSaved state on first load to avoid immediate save
+            lastSavedLinks.current = JSON.stringify(links);
+            return;
+        }
+
+        // Deep equality check: Only save if content ACTUALLY changed
+        const currentLinksString = JSON.stringify(links);
+        if (currentLinksString === lastSavedLinks.current) {
             return;
         }
 
         const saveLinks = async () => {
             setIsSavingLinks(true);
+            const linksSnapshot = links;
             try {
-                await apiClient.replaceAllLinks(links);
+                // console.log('Saving links...', linksSnapshot.length);
+                const savedLinks = await apiClient.replaceAllLinks(linksSnapshot);
+
+                // Update the "last saved" ref to the VERSION WE JUST RECEIVED/SYNCED
+                // This is crucial: if we save X, backend returns X' (with UUIDs).
+                // We MUST update state to X'. Then lastSaved becomes X'. 
+                // Next render checks X' vs X' -> No Save.
+
+                // Sync IDs back to state
+                setLinks(currentLinks => {
+                    if (savedLinks.length !== linksSnapshot.length) return currentLinks;
+
+                    const idMap = new Map<string, string>();
+
+                    const buildMap = (sent: LinkItem[], received: LinkItem[]) => {
+                        for (let i = 0; i < sent.length; i++) {
+                            if (sent[i].id !== received[i].id) {
+                                idMap.set(sent[i].id, received[i].id);
+                            }
+                            if (sent[i].children && received[i].children && sent[i].children!.length === received[i].children!.length) {
+                                buildMap(sent[i].children!, received[i].children!);
+                            }
+                        }
+                    };
+
+                    buildMap(linksSnapshot, savedLinks);
+
+                    if (idMap.size === 0) {
+                        // If no IDs changed, we still strict update the ref to current state
+                        lastSavedLinks.current = JSON.stringify(currentLinks);
+                        return currentLinks;
+                    }
+
+                    const updateIds = (items: LinkItem[]): LinkItem[] => {
+                        return items.map(item => ({
+                            ...item,
+                            id: idMap.get(item.id) || item.id,
+                            children: item.children ? updateIds(item.children) : undefined
+                        }));
+                    };
+
+                    const updatedLinks = updateIds(currentLinks);
+
+                    // Update reference to the NEW state (with UUIDs)
+                    lastSavedLinks.current = JSON.stringify(updatedLinks);
+
+                    return updatedLinks;
+                });
+
             } catch (error) {
                 console.error('Failed to save links:', error);
-                // Do not use alert, it interrupts flow. Just log. 
-                // Maybe a toast would be better but for now let's be silent as requested "always save"
-                // The backend fixes should prevent data loss.
             } finally {
                 setIsSavingLinks(false);
             }
         };
 
-        const timeoutId = setTimeout(saveLinks, 200);
+        const timeoutId = setTimeout(saveLinks, 3000); // Debounce 3s
         return () => clearTimeout(timeoutId);
     }, [links, hasLoadedOnce]);
 
@@ -174,8 +231,29 @@ export default function EditorPage() {
 
         const saveProducts = async () => {
             setIsSavingProducts(true);
+            const productsSnapshot = products;
             try {
-                await apiClient.replaceAllProducts(products);
+                const savedProducts = await apiClient.replaceAllProducts(productsSnapshot);
+
+                // Sync IDs for products too
+                setProducts(currentProducts => {
+                    if (savedProducts.length !== productsSnapshot.length) return currentProducts;
+
+                    const idMap = new Map<string, string>();
+                    for (let i = 0; i < productsSnapshot.length; i++) {
+                        if (productsSnapshot[i].id !== savedProducts[i].id) {
+                            idMap.set(productsSnapshot[i].id, savedProducts[i].id);
+                        }
+                    }
+
+                    if (idMap.size === 0) return currentProducts;
+
+                    return currentProducts.map(p => ({
+                        ...p,
+                        id: idMap.get(p.id) || p.id
+                    }));
+                });
+
             } catch (error) {
                 console.error('Failed to save products:', error);
             } finally {
@@ -183,7 +261,7 @@ export default function EditorPage() {
             }
         };
 
-        const timeoutId = setTimeout(saveProducts, 200);
+        const timeoutId = setTimeout(saveProducts, 1000); // Increased debounce
         return () => clearTimeout(timeoutId);
     }, [products, hasLoadedOnce]);
 

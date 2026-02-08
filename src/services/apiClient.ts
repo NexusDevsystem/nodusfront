@@ -13,28 +13,43 @@ class ApiClient {
 
     private async request(path: string, options: RequestInit = {}) {
         const headers = await this.getHeaders();
-        const response = await fetch(`${API_URL}${path}`, {
-            ...options,
-            headers: {
-                ...headers,
-                ...(options.headers || {})
-            }
-        });
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            let errorMessage = `Request failed with status ${response.status}`;
-            try {
-                const errorJson = JSON.parse(errorText);
-                errorMessage = errorJson.error || errorMessage;
-            } catch (e) {
-                errorMessage = errorText || errorMessage;
+        try {
+            const response = await fetch(`${API_URL}${path}`, {
+                ...options,
+                signal: controller.signal,
+                headers: {
+                    ...headers,
+                    ...(options.headers || {})
+                }
+            });
+            clearTimeout(id);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                let errorMessage = `Request failed with status ${response.status}`;
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    errorMessage = errorJson.error || errorMessage;
+                } catch (e) {
+                    errorMessage = errorText || errorMessage;
+                }
+                throw new Error(errorMessage);
             }
-            throw new Error(errorMessage);
+
+            const text = await response.text();
+            return text ? JSON.parse(text) : {};
+        } catch (error: any) {
+            clearTimeout(id);
+            if (error.name === 'AbortError') {
+                throw new Error('Connection timeout - Backend unresponsive');
+            }
+            throw error;
         }
 
-        const text = await response.text();
-        return text ? JSON.parse(text) : {};
+
     }
 
     // Profile
