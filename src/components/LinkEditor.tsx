@@ -19,6 +19,7 @@ import {
   Folder,
   Sparkles
 } from 'lucide-react';
+import { integrationService } from '../services/integrationService';
 
 interface LinkEditorProps {
   links: LinkItem[];
@@ -421,6 +422,27 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0, pro
                         Deezer
                       </button>
                     </div>
+
+                    {/* Official Integration Helper */}
+                    {link.embedType === 'youtube' && (
+                      <div className="mt-3">
+                        <button
+                          onClick={async () => {
+                            try {
+                              const url = await integrationService.getYouTubeAuthUrl();
+                              window.location.href = url;
+                            } catch (error) {
+                              console.error('Failed to get auth url', error);
+                              alert('Erro ao iniciar conexão. Verifique o console.');
+                            }
+                          }}
+                          className="w-full py-2 rounded-lg font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-all flex items-center justify-center gap-2 text-xs"
+                        >
+                          Conectar Conta Oficial (Importar Inscritos)
+                        </button>
+                        <p className="text-[10px] text-slate-400 mt-1 text-center">Isso criará um novo link verificado.</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Bottom Row: Actions & Stats */}

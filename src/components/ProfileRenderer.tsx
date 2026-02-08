@@ -743,9 +743,22 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             </div>
                                         </GlassSurface>
                                             : (
-                                                <>
-
-                                                </>
+                                                <div className="relative z-10 w-full flex items-center justify-between">
+                                                    {link.image ? (
+                                                        <img src={link.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
+                                                    ) : (
+                                                        <span className="w-8"></span>
+                                                    )}
+                                                    <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden">
+                                                        <span className="truncate leading-tight">{link.title}</span>
+                                                        {link.subtitle && (
+                                                            <span className="truncate text-xs opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5">
+                                                                {link.subtitle}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <span className="w-8 shrink-0"></span>
+                                                </div>
                                             )}
                                     </a>
                                 );
