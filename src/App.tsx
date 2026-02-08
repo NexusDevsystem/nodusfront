@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage';
 import PublicProfilePage from './pages/PublicProfilePage';
 import LoginPage from './pages/LoginPage';
 import OnboardingPage from './pages/OnboardingPage';
+import IntegrationCallback from './pages/IntegrationCallback';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
@@ -23,6 +24,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <EditorPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/integrations/callback"
+            element={
+              <ProtectedRoute>
+                <IntegrationCallback />
               </ProtectedRoute>
             }
           />

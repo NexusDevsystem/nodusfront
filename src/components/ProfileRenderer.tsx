@@ -412,12 +412,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                     {/* TABS (Links / Shop) - Only if products exist */}
                     {products.length > 0 && (
-                        <div className="w-full mb-6 px-1">
-                            <div className={`w-full p-1 rounded-full flex relative ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'bg-white/10' : 'bg-slate-200/60'}`}>
+                        <div className="w-full mb-6 px-1 flex justify-center">
+                            <div className={`w-auto min-w-[180px] p-1 rounded-full flex relative ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'bg-white/10' : 'bg-slate-200/60'}`}>
                                 {/* Sliding background could be complex, sticking to simple conditional classes for now */}
                                 <button
                                     onClick={() => setActiveTab('links')}
-                                    className={`flex-1 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeTab === 'links'
+                                    className={`flex-1 py-1.5 rounded-full text-sm font-bold transition-all duration-300 ${activeTab === 'links'
                                         ? 'bg-white text-slate-900 shadow-sm'
                                         : `${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white/70' : 'text-slate-600'} hover:opacity-100`
                                         }`}
@@ -426,7 +426,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('shop')}
-                                    className={`flex-1 py-2 rounded-full text-sm font-bold transition-all duration-300 ${activeTab === 'shop'
+                                    className={`flex-1 py-1.5 rounded-full text-sm font-bold transition-all duration-300 ${activeTab === 'shop'
                                         ? 'bg-white text-slate-900 shadow-sm'
                                         : `${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white/70' : 'text-slate-600'} hover:opacity-100`
                                         }`}
@@ -453,7 +453,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         <button
                                             key={name}
                                             onClick={() => handleCollectionClick(name)}
-                                            className={`w-full group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ${currentTheme.id === 'glass' ? '' : 'bg-white'}`}
+                                            className={`w-full group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ${currentTheme.id === 'glass' ? '' : currentTheme.buttonClass}`}
                                         >
                                             {currentTheme.id === 'glass' ? (
                                                 <GlassSurface
@@ -497,9 +497,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             </div>
                                                         ))}
                                                     </div>
-                                                    <div className="p-3 text-left">
-                                                        <h3 className="text-lg font-bold text-slate-800">{name}</h3>
-                                                        <div className="flex items-center gap-1 text-xs text-slate-500 font-medium uppercase tracking-wide">
+                                                    <div className="p-3 text-center">
+                                                        <h3 className="text-sm font-medium">{name}</h3>
+                                                        <div className="flex justify-center items-center gap-1 text-[10px] opacity-80 font-medium uppercase tracking-wide">
                                                             <span>{items.length} produtos</span>
                                                         </div>
                                                     </div>
@@ -731,21 +731,20 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 ) : (
                                                     <span className="w-8"></span>
                                                 )}
-                                                <span className="truncate flex-1 px-3 text-white text-lg">{link.title}</span>
+                                                <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-white">
+                                                    <span className="truncate text-lg leading-tight">{link.title}</span>
+                                                    {link.subtitle && (
+                                                        <span className="truncate text-xs opacity-90 leading-tight mt-0.5">
+                                                            {link.subtitle}
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <span className="w-8 shrink-0"></span>
                                             </div>
                                         </GlassSurface>
                                             : (
                                                 <>
-                                                    <div className="relative z-10 w-full flex items-center justify-between">
-                                                        {link.image ? (
-                                                            <img src={link.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
-                                                        ) : (
-                                                            <span className="w-8"></span>
-                                                        )}
-                                                        <span className="truncate flex-1 px-3">{link.title}</span>
-                                                        <span className="w-8 shrink-0"></span>
-                                                    </div>
+
                                                 </>
                                             )}
                                     </a>

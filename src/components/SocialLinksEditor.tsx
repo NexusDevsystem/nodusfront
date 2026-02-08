@@ -5,6 +5,7 @@ import { SOCIAL_NETWORKS } from '../constants';
 import {
     Mail, Globe, Plus, X, ChevronRight, Search, ChevronLeft, Link as LinkIcon
 } from 'lucide-react';
+import { integrationService } from '../services/integrationService';
 
 
 interface SocialLinksEditorProps {
@@ -201,6 +202,24 @@ const SocialLinksEditor: React.FC<SocialLinksEditorProps> = ({ links, onChange }
                                     </div>
 
                                     <div className="w-full max-w-sm space-y-6">
+                                        {selectedNetwork.id === 'youtube' && (
+                                            <button
+                                                onClick={async () => {
+                                                    try {
+                                                        const url = await integrationService.getYouTubeAuthUrl();
+                                                        window.location.href = url;
+                                                    } catch (error) {
+                                                        console.error('Failed to get auth url', error);
+                                                        alert('Erro ao iniciar conexão. Verifique o console.');
+                                                    }
+                                                }}
+                                                className="w-full py-3 rounded-full font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-all flex items-center justify-center gap-2 mb-4"
+                                            >
+                                                <selectedNetwork.icon size={18} />
+                                                Conectar Conta Oficial
+                                            </button>
+                                        )}
+
                                         <div>
                                             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 text-center">
                                                 {selectedNetwork.name} Username / URL
@@ -223,7 +242,7 @@ const SocialLinksEditor: React.FC<SocialLinksEditorProps> = ({ links, onChange }
                                             disabled={!inputValue.trim()}
                                             className="w-full py-3.5 rounded-full font-bold text-white bg-black hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
                                         >
-                                            Adicionar aos Links
+                                            Adicionar Link Manualmente
                                         </button>
                                     </div>
                                 </div>

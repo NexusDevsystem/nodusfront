@@ -11,6 +11,17 @@ class ApiClient {
         };
     }
 
+    public async get(path: string) {
+        return this.request(path, { method: 'GET' });
+    }
+
+    public async post(path: string, body: any) {
+        return this.request(path, {
+            method: 'POST',
+            body: JSON.stringify(body)
+        });
+    }
+
     private async request(path: string, options: RequestInit = {}) {
         const headers = await this.getHeaders();
         const controller = new AbortController();
