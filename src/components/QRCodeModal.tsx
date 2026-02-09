@@ -39,14 +39,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                     <X size={24} />
                 </button>
 
-                <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-800">
-                        <Share2 size={32} />
-                    </div>
-
-                    <h3 className="text-xl font-bold text-slate-800 mb-1">Compartilhe seu Nodus</h3>
-                    <p className="text-sm text-slate-500 mb-6">Escaneie para acessar o perfil de {profileName}</p>
-
+                <div className="flex flex-col items-center text-center pt-8">
                     <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm mb-6" ref={canvasRef}>
                         <QRCodeCanvas
                             value={url.startsWith('http') ? url : `https://${url}`}
@@ -55,7 +48,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                             fgColor={"#000000"}
                             level={"H"}
                             imageSettings={{
-                                src: "/icons/logo sem fundo.png",
+                                src: "/icons/logo_icone.png",
                                 x: undefined,
                                 y: undefined,
                                 height: 50,

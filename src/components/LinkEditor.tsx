@@ -17,7 +17,8 @@ import {
   ChevronRight,
   ChevronDown,
   Folder,
-  Sparkles
+  Sparkles,
+  CreditCard
 } from 'lucide-react';
 
 
@@ -377,13 +378,19 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0, pro
                     </div>
                   </div>
 
-                  {/* Type Selection (Button vs Social Icon) */}
+                  {/* Type Selection (Button vs Social Icon vs Card) */}
                   <div className="mb-4 flex gap-2">
                     <button
                       onClick={() => updateLink(link.id, 'layout', 'classic')}
                       className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border ${link.layout === 'classic' ? 'bg-brand-50 border-brand-200 text-brand-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                     >
                       <LayoutTemplate size={14} /> Botão
+                    </button>
+                    <button
+                      onClick={() => updateLink(link.id, 'layout', 'card')}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border ${link.layout === 'card' ? 'bg-brand-50 border-brand-200 text-brand-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                    >
+                      <CreditCard size={14} /> Cartão
                     </button>
                     <button
                       onClick={() => updateLink(link.id, 'layout', 'social')}

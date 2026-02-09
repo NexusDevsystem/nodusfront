@@ -312,7 +312,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <div
                             className="absolute inset-0 z-10 pointer-events-none"
                             style={{
-                                background: `linear-gradient(to bottom, transparent 0%, ${profile.customSolidColor || currentTheme.solidColor || (isDarkTheme ? '#000000' : '#ffffff')}F2 45%, ${profile.customSolidColor || currentTheme.solidColor || (isDarkTheme ? '#000000' : '#ffffff')} 100%)`
+                                background: `linear-gradient(to bottom, transparent 0%, ${profile.customSolidColor || currentTheme.solidColor || (isDarkTheme ? '#000000' : '#ffffff')}FF 45%, ${profile.customSolidColor || currentTheme.solidColor || (isDarkTheme ? '#000000' : '#ffffff')} 100%)`
                             }}
                         ></div>
                         {/* Backdrop Blur */}
@@ -350,15 +350,15 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 <div className="absolute top-[34px] right-6 z-20">
                     <button
                         onClick={onShare}
-                        className={`p-2 rounded-full transition-colors ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white hover:bg-white/10 drop-shadow-md' : 'text-slate-800 hover:bg-black/5'}`}
+                        className={`p-2 rounded-xl transition-colors ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white hover:bg-white/10 drop-shadow-md' : 'text-slate-800 hover:bg-black/5'}`}
                     >
                         <Share2 size={24} className="drop-shadow-sm" />
                     </button>
                 </div>
                 {/* Menu / Options Button */}
-                <div className="absolute top-6 left-6 z-20">
+                <div className="absolute top-[34px] left-6 z-20">
                     <div className="p-2">
-                        <img src="/icons/logo sem fundo.png" alt="Logo" className="w-10 h-10 object-contain" />
+                        <img src="/icons/logo_icone.png" alt="Nodus" className="w-8 h-8 object-contain opacity-90 rounded-xl" />
                     </div>
                 </div>
 
@@ -598,6 +598,54 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                     if (!hasChildren && !activeChildren.length) return null;
 
+                                    // Check if this collection contains card layouts (trigger carousel mode)
+                                    const isCardCollection = activeChildren.some(c => c.layout === 'card');
+
+                                    if (isCardCollection) {
+                                        return (
+                                            <div key={link.id} className="w-full pt-2 pb-1">
+                                                <div className="text-center mb-3 font-bold opacity-90 text-lg">
+                                                    {link.title}
+                                                </div>
+
+                                                {/* CAROUSEL CONTAINER */}
+                                                <div className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x">
+                                                    {activeChildren.map(child => (
+                                                        <a
+                                                            key={child.id}
+                                                            href={child.url}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            onClick={() => handleLinkClick(child.id)}
+                                                            className={`relative group flex-shrink-0 w-40 snap-start flex flex-col rounded-[20px] overflow-hidden transition-all duration-300 shadow-sm`}
+                                                        >
+                                                            {/* Top Image - 2/3 Height */}
+                                                            <div className="h-24 w-full bg-slate-100 relative">
+                                                                {child.image ? (
+                                                                    <img src={child.image} alt="" className="w-full h-full object-cover" />
+                                                                ) : (
+                                                                    <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400">
+                                                                        <ShoppingBag size={20} />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Bottom Content - White & Compact */}
+                                                            <div className="bg-white p-3 flex flex-col justify-center h-16 relative">
+                                                                <span className="text-[12px] font-bold leading-tight line-clamp-2 text-slate-900">{child.title}</span>
+                                                                {child.subtitle && (
+                                                                    <span className="text-[10px] font-medium leading-tight truncate text-slate-500 mt-0.5">{child.subtitle}</span>
+                                                                )}
+                                                                {/* Tiny visual indicator */}
+                                                                <div className="absolute right-2 bottom-2 w-1 h-1 rounded-full bg-slate-300"></div>
+                                                            </div>
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+
                                     return (
                                         <div key={link.id} className="w-full pt-2 pb-1">
                                             <div className="text-center mb-3 font-bold opacity-90 text-lg">
@@ -677,6 +725,46 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 })}
                                             </div>
                                         </div>
+                                    );
+                                }
+
+                                // CARD LAYOUT STANDARD
+                                if (link.layout === 'card') {
+                                    return (
+                                        <a
+                                            key={link.id}
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            onClick={() => handleLinkClick(link.id)}
+                                            className={`block w-full rounded-[22px] overflow-hidden relative group transition-all duration-300 ${getHighlightClass(link.highlight)} shadow-sm`}
+                                        >
+                                            <div className="flex flex-col w-full h-full">
+                                                {/* Image Area - The user wanted a "Card" style with image on top */}
+                                                <div className="aspect-[2.2/1] w-full bg-slate-100 relative">
+                                                    {link.image ? (
+                                                        <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400">
+                                                            <ShoppingBag size={32} />
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Content Area - STRICTLY WHITE background as requested */}
+                                                <div className="bg-white px-5 py-4 flex items-center justify-between relative min-h-[80px]">
+                                                    <div className="flex flex-col gap-0.5 w-full pr-6">
+                                                        <span className="font-bold text-lg leading-tight line-clamp-2 text-slate-900">{link.title}</span>
+                                                        {link.subtitle && (
+                                                            <span className="text-sm font-medium leading-tight truncate text-slate-500">{link.subtitle}</span>
+                                                        )}
+                                                    </div>
+                                                    <div className="text-slate-400 shrink-0 ml-2">
+                                                        <MoreHorizontal size={20} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
                                     );
                                 }
 
