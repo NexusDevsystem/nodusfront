@@ -40,12 +40,17 @@
                 '0%': { transform: 'translateX(-100%)' },
                 '50%': { transform: 'translateX(100%)' },
                 '100%': { transform: 'translateX(-100%)' },
+              },
+              marquee: {
+                '0%': { transform: 'translateX(0%)' },
+                '100%': { transform: 'translateX(-100%)' },
               }
             },
             animation: {
               shake: 'shake 0.5s ease-in-out infinite',
               glow: 'glow 2s ease-in-out infinite',
               loading: 'loading 1.5s ease-in-out infinite',
+              marquee: 'marquee 20s linear infinite',
             }
           }
         }
@@ -106,17 +111,31 @@
     .animate-fade-in {
       animation: fade-in 0.5s ease-out forwards;
     }
+
+    .animate-marquee {
+      animation: marquee 20s linear infinite;
+    }
+
+    @keyframes marquee {
+      0% {
+        transform: translateX(0%);
+      }
+
+      100% {
+        transform: translateX(-100%);
+      }
+    }
   </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "lucide-react": "https://esm.sh/lucide-react@^0.563.0"
-  }
-}
-</script>
+  <script type="importmap"> {
+      "imports": {
+        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+          "react/": "https://esm.sh/react@^19.2.4/",
+          "react": "https://esm.sh/react@^19.2.4",
+          "lucide-react": "https://esm.sh/lucide-react@^0.563.0"
+      }
+    }
+
+    </script>
   <link rel="stylesheet" href="/index.css">
 </head>
 

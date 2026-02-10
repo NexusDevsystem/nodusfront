@@ -5,7 +5,7 @@ import * as random from 'maath/random/dist/maath-random.esm';
 import * as THREE from 'three';
 
 function ParticleField(props: any) {
-    const ref = useRef<any>();
+    const ref = useRef<any>(null);
     // Generate 5000 particles in a sphere
     const sphere = useMemo(() => random.inSphere(new Float32Array(5000), { radius: 1.5 }), []);
 
@@ -54,7 +54,7 @@ function LogoCenter() {
             {/* Glow effect behind logo */}
             <mesh position={[0, 0, -0.1]}>
                 <circleGeometry args={[0.8, 32]} />
-                <meshBasicMaterial color="#acc8a2" transparent opacity={0.3} blurriness={1} />
+                <meshBasicMaterial color="#acc8a2" transparent opacity={0.3} />
             </mesh>
         </Float>
     );

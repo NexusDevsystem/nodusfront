@@ -34,7 +34,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-slate-100 text-slate-900 font-semibold hover:bg-slate-200 hover:scale-[1.02] shadow-sm',
     textClass: 'text-slate-900',
     avatarBorder: 'border-slate-200',
-    solidColor: '#ffffff'
+    solidColor: '#ffffff',
+    category: 'solid'
   },
   {
     id: 'minimal-grey',
@@ -43,7 +44,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-white text-slate-800 border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md',
     textClass: 'text-slate-800',
     avatarBorder: 'border-slate-300',
-    solidColor: '#f8fafc'
+    solidColor: '#f8fafc',
+    category: 'solid'
   },
   {
     id: 'dark',
@@ -52,8 +54,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-slate-900 hover:bg-slate-800 text-white border border-slate-800',
     textClass: 'text-white',
     avatarBorder: 'border-slate-800',
-    isPro: true,
-    solidColor: '#020617'
+    solidColor: '#020617',
+    category: 'solid'
   },
   {
     id: 'nordic-ice',
@@ -62,8 +64,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-white text-sky-800 border border-sky-100 hover:border-sky-200 shadow-sm',
     textClass: 'text-sky-900',
     avatarBorder: 'border-sky-100',
-    isPro: true,
-    solidColor: '#f0f9ff'
+    solidColor: '#f0f9ff',
+    category: 'solid'
   },
   {
     id: 'midnight-purple',
@@ -72,8 +74,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-[#3d1d6d] text-white border border-[#5a2e91] hover:bg-[#4c2486] shadow-lg',
     textClass: 'text-[#e0b0ff]',
     avatarBorder: 'border-[#5a2e91]',
-    isPro: true,
-    solidColor: '#1a0b2e'
+    solidColor: '#1a0b2e',
+    category: 'solid'
   },
   {
     id: 'evergreen',
@@ -82,8 +84,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-[#2d4a3e] text-[#d1e8e2] border border-[#1a332a] hover:bg-[#345c4d]',
     textClass: 'text-[#d1e8e2]',
     avatarBorder: 'border-[#2d4a3e]',
-    isPro: true,
-    solidColor: '#0f1f1a'
+    solidColor: '#0f1f1a',
+    category: 'solid'
   },
   {
     id: 'golden-hour',
@@ -92,8 +94,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-[#C5A059] text-black font-bold border border-[#d4af37] hover:bg-[#d4af37]',
     textClass: 'text-[#C5A059]',
     avatarBorder: 'border-[#C5A059]',
-    isPro: true,
-    solidColor: '#0a0a0a'
+    solidColor: '#0a0a0a',
+    category: 'solid'
   },
   {
     id: 'berry-blast',
@@ -102,8 +104,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-[#8b2b5a] text-white border border-[#a63d71] hover:bg-[#a63d71]',
     textClass: 'text-[#ffd1dc]',
     avatarBorder: 'border-[#8b2b5a]',
-    isPro: true,
-    solidColor: '#4a0e2e'
+    solidColor: '#4a0e2e',
+    category: 'solid'
   },
   {
     id: 'steel-blue',
@@ -112,8 +114,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-[#39414a] text-[#b0c4de] border border-[#4a555e] hover:bg-[#4a555e]',
     textClass: 'text-[#f0f8ff]',
     avatarBorder: 'border-[#4a555e]',
-    isPro: true,
-    solidColor: '#24292e'
+    solidColor: '#24292e',
+    category: 'solid'
   },
   {
     id: 'matcha',
@@ -122,8 +124,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-[#8bc34a] text-white font-bold hover:bg-[#9ccc65] shadow-md',
     textClass: 'text-[#33691e]',
     avatarBorder: 'border-[#c5e1a5]',
-    isPro: true,
-    solidColor: '#f1f8e9'
+    solidColor: '#f1f8e9',
+    category: 'solid'
   },
   {
     id: 'leafy',
@@ -132,8 +134,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-[#acc8a2] text-[#1a2517] font-bold hover:scale-[1.02] shadow-lg transition-all',
     textClass: 'text-[#acc8a2]',
     avatarBorder: 'border-[#acc8a2]',
-    isPro: true,
-    solidColor: '#1a2517'
+    solidColor: '#1a2517',
+    category: 'solid'
   },
   {
     id: 'lavender',
@@ -142,8 +144,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-white text-[#9370db] font-medium border border-[#dcd0ff] hover:bg-[#f3e5f5] shadow-sm rounded-xl',
     textClass: 'text-[#4b0082]',
     avatarBorder: 'border-[#dcd0ff]',
-    isPro: true,
-    solidColor: '#e6e6fa'
+    solidColor: '#e6e6fa',
+    category: 'solid'
   },
   {
     id: 'pastel-pink',
@@ -152,8 +154,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-white text-pink-500 font-bold rounded-xl border-b-4 border-pink-200 hover:border-pink-300 hover:-translate-y-0.5 active:border-b-0 active:translate-y-0.5 transition-all',
     textClass: 'text-pink-800',
     avatarBorder: 'border-pink-200',
-    isPro: true,
-    solidColor: '#fce7f3'
+    solidColor: '#fce7f3',
+    category: 'solid'
   },
   {
     id: 'vampire',
@@ -162,8 +164,8 @@ export const THEMES: Theme[] = [
     buttonClass: 'bg-[#4a0e1c] text-[#ffb3b3] border border-[#800020] hover:bg-[#800020] hover:text-white hover:shadow-[0_0_15px_#800020]',
     textClass: 'text-[#ffcccc]',
     avatarBorder: 'border-[#800020]',
-    isPro: true,
-    solidColor: '#2a0a10'
+    solidColor: '#2a0a10',
+    category: 'solid'
   },
 
   // Special Effects & Gradients
@@ -175,7 +177,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white',
     avatarBorder: 'border-white/30',
     isPro: true,
-    solidColor: '#ec4899' // Pink bottom
+    solidColor: '#ec4899', // Pink bottom
+    category: 'gradient'
   },
   {
     id: 'solaris',
@@ -185,7 +188,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white drop-shadow-md',
     avatarBorder: 'border-white/40',
     isPro: true,
-    solidColor: '#e11d48' // Rose bottom
+    solidColor: '#e11d48', // Rose bottom
+    category: 'gradient'
   },
   {
     id: 'gradient-sunset',
@@ -195,7 +199,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white drop-shadow-md',
     avatarBorder: 'border-white/50',
     isPro: true,
-    solidColor: '#4f46e5' // Brand 600 indigo? Wait brand-600 is usually indigo/purple. Assuming default tailwind indigo-600 #4f46e5
+    solidColor: '#4f46e5', // Brand 600 indigo? Wait brand-600 is usually indigo/purple. Assuming default tailwind indigo-600 #4f46e5
+    category: 'gradient'
   },
   {
     id: 'gradient-ocean',
@@ -205,7 +210,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-cyan-50',
     avatarBorder: 'border-cyan-200/30',
     isPro: true,
-    solidColor: '#0f172a' // Slate 900
+    solidColor: '#0f172a', // Slate 900
+    category: 'gradient'
   },
   {
     id: 'gradient-aurora',
@@ -215,7 +221,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white drop-shadow',
     avatarBorder: 'border-white',
     isPro: true,
-    solidColor: '#4ade80' // Green 400 bottom left? Actually gradient to BL means top-right to bottom-left. So Green is top-right, Emerald is bottom-left. Emerald-600: #059669
+    solidColor: '#4ade80', // Green 400 bottom left? Actually gradient to BL means top-right to bottom-left. So Green is top-right, Emerald is bottom-left. Emerald-600: #059669
+    category: 'gradient'
   },
   {
     id: 'retro-pop',
@@ -225,7 +232,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-black font-black',
     avatarBorder: 'border-black border-4',
     isPro: true,
-    solidColor: '#facc15'
+    solidColor: '#facc15',
+    category: 'gradient'
   },
   {
     id: 'cyberpunk',
@@ -235,7 +243,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#00ff41]',
     avatarBorder: 'border-[#00ff41]',
     isPro: true,
-    solidColor: '#000000'
+    solidColor: '#000000',
+    category: 'gradient'
   },
   {
     id: 'luxury-gold',
@@ -245,7 +254,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#D4AF37]',
     avatarBorder: 'border-[#D4AF37]',
     isPro: true,
-    solidColor: '#121212'
+    solidColor: '#121212',
+    category: 'gradient'
   },
   {
     id: 'neumorphism',
@@ -255,7 +265,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-slate-600',
     avatarBorder: 'border-[#e0e5ec] shadow-[5px_5px_10px_rgb(163,177,198),-5px_-5px_10px_rgba(255,255,255,0.5)]',
     isPro: true,
-    solidColor: '#e0e5ec'
+    solidColor: '#e0e5ec',
+    category: 'gradient'
   },
   {
     id: 'outline-blue',
@@ -265,7 +276,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white',
     avatarBorder: 'border-white border-dashed border-2',
     isPro: true,
-    solidColor: '#0044cc'
+    solidColor: '#0044cc',
+    category: 'gradient'
   },
   {
     id: 'mono-light',
@@ -275,7 +287,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-black',
     avatarBorder: 'border-black',
     isPro: true,
-    solidColor: '#f5f5f0'
+    solidColor: '#f5f5f0',
+    category: 'gradient'
   },
 
   // Animated Themes
@@ -287,7 +300,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white',
     avatarBorder: 'border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.5)]',
     isPro: true,
-    solidColor: '#000000'
+    solidColor: '#000000',
+    category: 'animated'
   },
   {
     id: 'animated-aurora',
@@ -297,7 +311,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white',
     avatarBorder: 'border-purple-400/30',
     isPro: true,
-    solidColor: '#0a0a0a'
+    solidColor: '#0a0a0a',
+    category: 'animated'
   },
   {
     id: 'animated-starfield',
@@ -307,7 +322,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white',
     avatarBorder: 'border-white/20',
     isPro: true,
-    solidColor: '#020617'
+    solidColor: '#020617',
+    category: 'animated'
   },
   {
     id: 'animated-matrix',
@@ -317,7 +333,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#00ff41]',
     avatarBorder: 'border-[#00ff41]',
     isPro: true,
-    solidColor: '#000000'
+    solidColor: '#000000',
+    category: 'animated'
   },
   {
     id: 'animated-glitch',
@@ -327,7 +344,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white drop-shadow-[0_0_8px_rgba(255,0,255,0.8)]',
     avatarBorder: 'border-[#ff00ff] shadow-[0_0_10px_#00ffff]',
     isPro: true,
-    solidColor: '#050505'
+    solidColor: '#050505',
+    category: 'animated'
   },
   {
     id: 'animated-nodus-official',
@@ -337,7 +355,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#e8f5e9]',
     avatarBorder: 'border-[#acc8a2] shadow-none',
     isPro: true,
-    solidColor: '#0f1f1a'
+    solidColor: '#0f1f1a',
+    category: 'animated'
   },
   {
     id: 'animated-mesh',
@@ -347,7 +366,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white',
     avatarBorder: 'border-white/20',
     isPro: true,
-    solidColor: '#0f172a'
+    solidColor: '#0f172a',
+    category: 'animated'
   },
   {
     id: 'animated-cybergrid',
@@ -357,7 +377,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-fuchsia-100',
     avatarBorder: 'border-fuchsia-500 shadow-[0_0_15px_rgba(217,70,239,0.5)]',
     isPro: true,
-    solidColor: '#050510'
+    solidColor: '#050510',
+    category: 'animated'
   },
   {
     id: 'animated-shapes',
@@ -367,7 +388,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-indigo-950',
     avatarBorder: 'border-indigo-100',
     isPro: true,
-    solidColor: '#f8fafc'
+    solidColor: '#f8fafc',
+    category: 'animated'
   },
   {
     id: 'animated-neon-city',
@@ -377,7 +399,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white drop-shadow-[2px_2px_0px_#4c1d95]',
     avatarBorder: 'border-yellow-400 shadow-[4px_4px_0px_#c026d3]',
     isPro: true,
-    solidColor: '#0d0221'
+    solidColor: '#0d0221',
+    category: 'animated'
   },
   {
     id: 'animated-geo-flow',
@@ -387,7 +410,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-slate-800',
     avatarBorder: 'border-white',
     isPro: true,
-    solidColor: '#fffdf5'
+    solidColor: '#fffdf5',
+    category: 'animated'
   },
   {
     id: 'animated-space-warp',
@@ -397,7 +421,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white tracking-widest uppercase',
     avatarBorder: 'border-white/50',
     isPro: true,
-    solidColor: '#000000'
+    solidColor: '#000000',
+    category: 'animated'
   },
   {
     id: 'animated-waves',
@@ -407,7 +432,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#006064]',
     avatarBorder: 'border-white ring-4 ring-[#4DD0E1]/30',
     isPro: true,
-    solidColor: '#E0F7FA'
+    solidColor: '#E0F7FA',
+    category: 'animated'
   }
 ];
 

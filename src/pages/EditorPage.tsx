@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { UserProfile, LinkItem, Product } from '../types';
 import { THEMES, FONTS } from '../constants';
 import ThemeSelector from '../components/ThemeSelector';
-import ProfileEditor from '../components/ProfileEditor';
+
 import LinkEditor from '../components/LinkEditor';
 import ShopEditor from '../components/ShopEditor';
 import Preview from '../components/Preview';
@@ -17,6 +17,12 @@ import ManageBillingView from '../components/ManageBillingView';
 import BillingModal from '../components/BillingModal';
 import QRCodeModal from '../components/QRCodeModal';
 import UpgradeBanner from '../components/UpgradeBanner';
+import DesignSidebar from '../components/DesignSidebar';
+import HeaderEditor from '../components/design/HeaderEditor';
+import TypographyEditor from '../components/design/TypographyEditor';
+import ButtonsEditor from '../components/design/ButtonsEditor';
+import ColorsEditor from '../components/design/ColorsEditor';
+import WallpaperEditor from '../components/design/WallpaperEditor';
 import { compressImage } from '../utils/imageUtils';
 import { apiClient } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
@@ -278,6 +284,9 @@ export default function EditorPage() {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
 
+    // Design Sidebar State
+    const [activeDesignSection, setActiveDesignSection] = useState('header');
+
     const shareUrl = `https://www.noduscc.com.br/${profile.username || profile.name.toLowerCase().replace(/\s/g, '')}`;
 
     return (
@@ -459,7 +468,7 @@ export default function EditorPage() {
                             <div className="animate-fade-in">
                                 {activeTab === 'links' && (
                                     <div className="space-y-6">
-                                        <ProfileEditor profile={profile} onChange={setProfile} />
+
                                         <SocialLinksEditor links={links} onChange={setLinks} />
                                         <LinkEditor links={links} onChange={setLinks} profile={profile} />
                                     </div>
@@ -493,178 +502,50 @@ export default function EditorPage() {
 
 
                                 {activeTab === 'appearance' && (
-                                    <div className="space-y-8">
-                                        {/* Theme Section */}
-                                        <ThemeSelector profile={profile} links={links} products={products} onChange={setProfile} />
-
-                                        {/* Custom Colors Section */}
-                                        <div className="bg-white rounded-[20px] shadow-sm border border-slate-200 p-6 lg:p-8">
-                                            <div className="flex items-center gap-2 mb-6">
-                                                <Palette size={20} className="text-slate-400" />
-                                                <h2 className="text-xl font-bold text-slate-800">Cores</h2>
-                                            </div>
-
-                                            <div className="space-y-6">
-                                                {/* Font Color */}
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Cor da Fonte</label>
-                                                    <div className="flex items-center gap-3">
-                                                        <input
-                                                            type="color"
-                                                            value={profile.customTextColor || '#000000'}
-                                                            onChange={(e) => setProfile({ ...profile, customTextColor: e.target.value })}
-                                                            className="w-10 h-10 rounded-lg cursor-pointer border-none p-0 bg-transparent shrink-0"
-                                                        />
-                                                        <input
-                                                            type="text"
-                                                            value={profile.customTextColor || ''}
-                                                            onChange={(e) => setProfile({ ...profile, customTextColor: e.target.value })}
-                                                            placeholder="#000000"
-                                                            className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono"
-                                                        />
-                                                        {(profile.customTextColor) && (
-                                                            <button
-                                                                onClick={() => setProfile({ ...profile, customTextColor: null })}
-                                                                className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-                                                            >
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                {/* Button Color */}
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Cor dos Botões</label>
-                                                    <div className="flex items-center gap-3">
-                                                        <input
-                                                            type="color"
-                                                            value={profile.customButtonColor || '#ffffff'}
-                                                            onChange={(e) => setProfile({ ...profile, customButtonColor: e.target.value })}
-                                                            className="w-10 h-10 rounded-lg cursor-pointer border-none p-0 bg-transparent shrink-0"
-                                                        />
-                                                        <input
-                                                            type="text"
-                                                            value={profile.customButtonColor || ''}
-                                                            onChange={(e) => setProfile({ ...profile, customButtonColor: e.target.value })}
-                                                            placeholder="#ffffff"
-                                                            className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono"
-                                                        />
-                                                        {(profile.customButtonColor) && (
-                                                            <button
-                                                                onClick={() => setProfile({ ...profile, customButtonColor: null })}
-                                                                className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-                                                            >
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                {/* Background Solid Color */}
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Fundo Sólido (Opcional)</label>
-                                                    <div className="flex items-center gap-3">
-                                                        <input
-                                                            type="color"
-                                                            value={profile.customSolidColor || '#ffffff'}
-                                                            onChange={(e) => setProfile({ ...profile, customSolidColor: e.target.value, customBackground: null })}
-                                                            className="w-10 h-10 rounded-lg cursor-pointer border-none p-0 bg-transparent shrink-0"
-                                                        />
-                                                        <input
-                                                            type="text"
-                                                            value={profile.customSolidColor || ''}
-                                                            onChange={(e) => setProfile({ ...profile, customSolidColor: e.target.value, customBackground: null })}
-                                                            placeholder="Ex: #ffffff"
-                                                            className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm font-mono"
-                                                        />
-                                                        {(profile.customSolidColor) && (
-                                                            <button
-                                                                onClick={() => setProfile({ ...profile, customSolidColor: null })}
-                                                                className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-                                                            >
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                    <p className="text-[10px] text-slate-400 mt-1">Isso sobrescreverá o gradiente do tema selecionado.</p>
-                                                </div>
-                                            </div>
+                                    <div className="flex h-[calc(100vh-140px)] -mt-6 -mx-6 lg:-mx-12 bg-slate-50 relative">
+                                        {/* Design Sidebar */}
+                                        <div className="shrink-0 h-full">
+                                            <DesignSidebar
+                                                activeSection={activeDesignSection}
+                                                setActiveSection={setActiveDesignSection}
+                                            />
                                         </div>
 
-                                        {/* Fonts Section */}
-                                        <div className="bg-white rounded-[20px] shadow-sm border border-slate-200 p-6 lg:p-8">
-                                            <div className="flex items-center gap-2 mb-6">
-                                                <Type size={20} className="text-slate-400" />
-                                                <h2 className="text-xl font-bold text-slate-800">Tipografia</h2>
-                                            </div>
+                                        {/* Design Content Area */}
+                                        <div className="flex-1 h-full overflow-y-auto p-8">
+                                            <h2 className="text-2xl font-bold text-slate-800 mb-6">
+                                                {activeDesignSection === 'header' && 'Cabeçalho'}
+                                                {activeDesignSection === 'theme' && 'Temas'}
+                                                {activeDesignSection === 'wallpaper' && 'Papel de Parede'}
+                                                {activeDesignSection === 'text' && 'Tipografia'}
+                                                {activeDesignSection === 'buttons' && 'Estilo dos Botões'}
+                                                {activeDesignSection === 'colors' && 'Cores Personalizadas'}
+                                            </h2>
 
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                {FONTS.map((font) => (
-                                                    <button
-                                                        key={font.name}
-                                                        onClick={() => setProfile({ ...profile, fontFamily: font.family })}
-                                                        className={`flex flex-col items-start p-4 rounded-xl border-2 transition-all text-left hover:bg-slate-50 ${profile.fontFamily === font.family
-                                                            ? 'border-brand-600 bg-brand-50/50'
-                                                            : 'border-slate-100 hover:border-slate-300'
-                                                            }`}
-                                                    >
-                                                        <span className="text-2xl mb-1" style={{ fontFamily: font.family }}>Aa</span>
-                                                        <span className="font-semibold text-slate-800">{font.name}</span>
-                                                        <span className="text-xs text-slate-400 uppercase tracking-wider">{font.type}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
+                                            {activeDesignSection === 'header' && (
+                                                <HeaderEditor profile={profile} onChange={setProfile} />
+                                            )}
+
+                                            {activeDesignSection === 'theme' && (
+                                                <ThemeSelector profile={profile} links={links} products={products} onChange={setProfile} />
+                                            )}
+
+                                            {activeDesignSection === 'wallpaper' && (
+                                                <WallpaperEditor profile={profile} onChange={setProfile} />
+                                            )}
+
+                                            {activeDesignSection === 'text' && (
+                                                <TypographyEditor profile={profile} onChange={setProfile} />
+                                            )}
+
+                                            {activeDesignSection === 'buttons' && (
+                                                <ButtonsEditor profile={profile} onChange={setProfile} />
+                                            )}
+
+                                            {activeDesignSection === 'colors' && (
+                                                <ColorsEditor profile={profile} onChange={setProfile} />
+                                            )}
                                         </div>
-
-                                        {/* Button Style Section */}
-                                        <div className="bg-white rounded-[20px] shadow-sm border border-slate-200 p-6 lg:p-8">
-                                            <div className="flex items-center gap-2 mb-6">
-                                                <div className="p-1.5 bg-brand-50 rounded-md text-brand-600">
-                                                    <Construction size={18} />
-                                                </div>
-                                                <h2 className="text-xl font-bold text-slate-800">Estilo dos Botões</h2>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                {/* Rounded Option */}
-                                                <button
-                                                    onClick={() => setProfile({ ...profile, buttonStyle: 'rounded' })}
-                                                    className={`group relative p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4 ${(profile.buttonStyle || 'rounded') === 'rounded'
-                                                        ? 'border-brand-600 bg-brand-50/50'
-                                                        : 'border-slate-100 hover:border-slate-300'
-                                                        }`}
-                                                >
-                                                    <div className={`w-12 h-8 bg-slate-200 border border-slate-300 rounded-full ${(profile.buttonStyle || 'rounded') === 'rounded' ? 'bg-brand-200 border-brand-300' : ''}`}></div>
-                                                    <div>
-                                                        <span className="font-semibold text-slate-800 block">Redondo</span>
-                                                        <span className="text-xs text-slate-400">Estilo Clássico</span>
-                                                    </div>
-                                                    {(profile.buttonStyle || 'rounded') === 'rounded' && (
-                                                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-brand-500"></div>
-                                                    )}
-                                                </button>
-
-                                                {/* Soft Rect Option */}
-                                                <button
-                                                    onClick={() => setProfile({ ...profile, buttonStyle: 'soft-rect' })}
-                                                    className={`group relative p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4 ${profile.buttonStyle === 'soft-rect'
-                                                        ? 'border-brand-600 bg-brand-50/50'
-                                                        : 'border-slate-100 hover:border-slate-300'
-                                                        }`}
-                                                >
-                                                    <div className={`w-12 h-8 bg-slate-200 border border-slate-300 rounded-xl ${(profile.buttonStyle) === 'soft-rect' ? 'bg-brand-200 border-brand-300' : ''}`}></div>
-                                                    <div>
-                                                        <span className="font-semibold text-slate-800 block">Quadrado Suave</span>
-                                                        <span className="text-xs text-slate-400">Bordas Arredondadas</span>
-                                                    </div>
-                                                    {profile.buttonStyle === 'soft-rect' && (
-                                                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-brand-500"></div>
-                                                    )}
-                                                </button>
-                                            </div>
-                                        </div>
-
                                     </div>
                                 )}
 

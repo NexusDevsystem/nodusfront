@@ -170,6 +170,12 @@ class ApiClient {
     async getInvoices(): Promise<any> {
         return this.request('/api/billing/invoices');
     }
+    async createLead(profileId: string, email: string): Promise<any> {
+        return this.request('/api/leads/subscribe', {
+            method: 'POST',
+            body: JSON.stringify({ profileId, email })
+        });
+    }
 }
 
 export const apiClient = new ApiClient();

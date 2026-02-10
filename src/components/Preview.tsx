@@ -26,7 +26,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShar
       </div>
 
       {/* Frame Container - Full screen on mobile, centered frame on desktop */}
-      <div className={`relative transition-all duration-500 ease-in-out origin-top flex items-center justify-center w-full h-full lg:w-[340px] lg:h-[700px] lg:scale-[0.85] xl:scale-100`}>
+      <div className={`relative origin-top flex items-center justify-center w-full h-full lg:w-[340px] lg:h-[700px] lg:scale-[0.85] xl:scale-100`}>
         <div className="relative w-full h-full lg:border-gray-900 lg:bg-gray-900 lg:border-[12px] lg:rounded-[3rem] lg:shadow-2xl flex flex-col overflow-hidden lg:ring-1 lg:ring-white/20">
 
           {/* Dynamic Island - Only on Desktop Frame */}
