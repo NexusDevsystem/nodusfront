@@ -35,6 +35,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-slate-900',
     avatarBorder: 'border-slate-200',
     solidColor: '#ffffff',
+    buttonHex: '#f1f5f9', // slate-100
+    textHex: '#0f172a',   // slate-900
     category: 'solid'
   },
   {
@@ -45,6 +47,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-slate-800',
     avatarBorder: 'border-slate-300',
     solidColor: '#f8fafc',
+    buttonHex: '#ffffff',
+    textHex: '#1e293b', // slate-800
     category: 'solid'
   },
   {
@@ -55,6 +59,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-white',
     avatarBorder: 'border-slate-800',
     solidColor: '#020617',
+    buttonHex: '#0f172a', // slate-900
+    textHex: '#ffffff',
     category: 'solid'
   },
   {
@@ -125,6 +131,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#33691e]',
     avatarBorder: 'border-[#c5e1a5]',
     solidColor: '#f1f8e9',
+    buttonHex: '#8bc34a',
+    textHex: '#ffffff',
     category: 'solid'
   },
   {
@@ -155,6 +163,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-pink-800',
     avatarBorder: 'border-pink-200',
     solidColor: '#fce7f3',
+    buttonHex: '#ffffff',
+    textHex: '#ec4899', // pink-500
     category: 'solid'
   },
   {
@@ -165,6 +175,8 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#ffcccc]',
     avatarBorder: 'border-[#800020]',
     solidColor: '#2a0a10',
+    buttonHex: '#4a0e1c',
+    textHex: '#ffb3b3',
     category: 'solid'
   },
 

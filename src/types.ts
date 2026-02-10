@@ -24,6 +24,8 @@ export interface UserProfile {
   themeId: string;
   fontFamily: string;
   buttonStyle?: 'rounded' | 'soft-rect';
+  buttonStyleType?: 'solid' | 'glass' | 'outline';
+  buttonRoundness?: 'square' | 'round' | 'rounder' | 'full';
   headerLayout?: 'classic' | 'compact' | 'hero';
   headerStyle?: 'text' | 'logo';
   logoUrl?: string;
@@ -59,6 +61,8 @@ export interface Theme {
   avatarBorder: string;
   isPro?: boolean;
   solidColor?: string;
+  buttonHex?: string;
+  textHex?: string;
   category?: 'solid' | 'gradient' | 'animated';
 }
 

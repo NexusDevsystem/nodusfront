@@ -186,13 +186,83 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         );
     };
 
-    const isSoftRect = profile.buttonStyle === 'soft-rect';
-    const isRounded = profile.buttonStyle === 'rounded';
-    const borderRadius = isSoftRect ? 14 : 50;
-    const roundedClass = isRounded ? 'rounded-full' : isSoftRect ? 'rounded-2xl' : '';
+    const buttonStyleType = profile.buttonStyleType || 'solid';
+    const buttonRoundness = profile.buttonRoundness || (profile.buttonStyle === 'soft-rect' ? 'rounder' : 'full');
+
+    let borderRadius = 50;
+    let roundedClass = 'rounded-full';
+
+    switch (buttonRoundness) {
+        case 'square':
+            borderRadius = 0;
+            roundedClass = 'rounded-none';
+            break;
+        case 'round':
+            borderRadius = 8;
+            roundedClass = 'rounded-lg';
+            break;
+        case 'rounder':
+            borderRadius = 16;
+            roundedClass = 'rounded-2xl';
+            break;
+        case 'full':
+            borderRadius = 999;
+            roundedClass = 'rounded-full';
+            break;
+    }
 
     // Check if theme has its own shadow
     const hasThemeShadow = currentTheme.buttonClass.includes('shadow-');
+
+    // Helper to get custom styles
+    const getCustomButtonStyles = () => {
+        if (!isCustomButtonStyle) return {};
+
+        // Default base color (for button bg or border)
+        const defaultBaseColor = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#0f172a');
+        const baseColor = profile.customButtonColor || defaultBaseColor;
+
+        let textColor = profile.customTextColor;
+
+        if (!textColor) {
+            if (buttonStyleType === 'solid') {
+                if (profile.customButtonColor) {
+                    textColor = '#ffffff';
+                } else if (currentTheme.textHex && !profile.customButtonColor) {
+                    textColor = currentTheme.textHex;
+                } else {
+                    textColor = (isDarkTheme || currentTheme.id === 'glass') ? '#000000' : '#ffffff';
+                }
+            } else {
+                // Outline / Glass: Match text to border color
+                textColor = baseColor;
+            }
+        }
+
+        const styles: React.CSSProperties = {};
+
+        if (buttonStyleType === 'solid') {
+            styles.backgroundColor = baseColor;
+            styles.color = textColor;
+            styles.border = '2px solid transparent'; // maintain size
+        } else if (buttonStyleType === 'outline') {
+            styles.backgroundColor = 'transparent';
+            styles.color = textColor;
+            styles.border = `2px solid ${baseColor}`;
+        } else if (buttonStyleType === 'glass') {
+            // Glass effect
+            styles.backgroundColor = `${baseColor}26`; // ~15% opacity
+            styles.backdropFilter = 'blur(8px)';
+            styles.WebkitBackdropFilter = 'blur(8px)';
+            styles.color = textColor;
+            styles.border = `1px solid ${baseColor}4D`; // ~30% opacity border
+            styles.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+        }
+
+        return styles;
+    };
+
+    const isCustomButtonStyle = !!(profile.customButtonColor || profile.buttonStyleType || profile.customTextColor || profile.buttonRoundness);
 
     return (
         <div className="relative w-full h-full flex flex-col overflow-hidden">
@@ -909,13 +979,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 onClick={() => handleLinkClick(link.id)}
-                                                className={`block w-full ${roundedClass} text-center text-base font-medium transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(link.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
-                                                style={!profile.customButtonColor ? {} : {
-                                                    backgroundColor: profile.customButtonColor,
-                                                    color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000') // Fallback or override
-                                                }}
+                                                className={`block w-full ${roundedClass} text-center text-base font-medium transform group relative hover:scale-[1.02] active:scale-[0.98] ${(currentTheme.id === 'glass' && !isCustomButtonStyle) ? '' : `py-4 px-6 flex items-center justify-between ${!isCustomButtonStyle ? currentTheme.buttonClass : 'bg-slate-100 shadow-sm'} ${getHighlightClass(link.highlight)} overflow-hidden ${hasThemeShadow && !isCustomButtonStyle ? '' : 'shadow-sm'}`}`}
+                                                style={!isCustomButtonStyle ? {} : getCustomButtonStyles()}
                                             >
-                                                {currentTheme.id === 'glass' ? <GlassSurface
+                                                {currentTheme.id === 'glass' && !isCustomButtonStyle ? <GlassSurface
                                                     width="100%"
                                                     height="auto"
                                                     borderRadius={borderRadius}
