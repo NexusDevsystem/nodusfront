@@ -12,6 +12,7 @@ export interface LinkItem {
   highlight?: 'none' | 'pulse' | 'bounce' | 'shake' | 'glow' | 'wobble';
   embedType?: 'none' | 'youtube' | 'spotify' | 'twitch' | 'deezer';
   clicks?: number;
+  isArchived?: boolean;
 }
 
 export interface UserProfile {
@@ -24,7 +25,7 @@ export interface UserProfile {
   themeId: string;
   fontFamily: string;
   buttonStyle?: 'rounded' | 'soft-rect';
-  buttonStyleType?: 'solid' | 'glass' | 'outline';
+  buttonStyleType?: 'solid' | 'outline' | 'glass' | 'soft' | 'hard-shadow' | 'push' | 'gradient' | 'cyber' | 'neon' | 'skeuo' | 'minimal-hover' | 'paper' | 'liquid';
   buttonRoundness?: 'square' | 'round' | 'rounder' | 'full';
   headerLayout?: 'classic' | 'compact' | 'hero';
   headerStyle?: 'text' | 'logo';

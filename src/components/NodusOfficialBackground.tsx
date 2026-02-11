@@ -3,7 +3,7 @@ import Grainient from './Grainient';
 
 const NodusOfficialBackground: React.FC = () => {
     return (
-        <div className="absolute inset-0 z-0 bg-[#0f1f1a]">
+        <div className="absolute inset-0 bg-[#0f1f1a] pointer-events-none z-[-1] h-full w-full">
             <Grainient
                 color1="#97cd7a"
                 color2="#4e764c"

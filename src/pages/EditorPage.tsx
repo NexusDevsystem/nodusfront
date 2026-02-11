@@ -120,32 +120,31 @@ export default function EditorPage() {
 
     const isSaving = isSavingProfile || isSavingLinks || isSavingProducts;
 
-    // Save profile changes to API
-    React.useEffect(() => {
-        if (!hasLoadedOnce) return;
-        if (!profile.id) return; // Only block if ID is missing
+    // Manual save for profile and products
+    const handleManualSave = async () => {
+        if (!profile.id) return;
 
-        if (!profileLoadHandled.current) {
-            profileLoadHandled.current = true;
-            return;
+        setIsSavingProfile(true);
+        setIsSavingProducts(true);
+
+        try {
+            // Save profile and products in parallel
+            await Promise.all([
+                apiClient.updateProfile(profile),
+                apiClient.replaceAllProducts(products)
+            ]);
+
+            // Success feedback could be added here (e.g., toast)
+        } catch (error) {
+            console.error('Failed to save data:', error);
+            // Error feedback could be added here
+        } finally {
+            setIsSavingProfile(false);
+            setIsSavingProducts(false);
         }
+    };
 
-        const saveProfile = async () => {
-            setIsSavingProfile(true);
-            try {
-                await apiClient.updateProfile(profile);
-            } catch (error) {
-                console.error('Persistence Error (Profile):', error);
-            } finally {
-                setIsSavingProfile(false);
-            }
-        };
-
-        const timeoutId = setTimeout(saveProfile, 200);
-        return () => clearTimeout(timeoutId);
-    }, [profile, hasLoadedOnce]);
-
-    // Save links changes to API with Debounce & Deep Compare
+    // Save links changes to API with Debounce & Deep Compare (KEEP UNCHANGED)
     React.useEffect(() => {
         if (!hasLoadedOnce) return;
 
@@ -226,50 +225,8 @@ export default function EditorPage() {
         return () => clearTimeout(timeoutId);
     }, [links, hasLoadedOnce]);
 
-    // Save products changes to API
-    React.useEffect(() => {
-        if (!hasLoadedOnce) return;
-
-        if (!productsLoadHandled.current) {
-            productsLoadHandled.current = true;
-            return;
-        }
-
-        const saveProducts = async () => {
-            setIsSavingProducts(true);
-            const productsSnapshot = products;
-            try {
-                const savedProducts = await apiClient.replaceAllProducts(productsSnapshot);
-
-                // Sync IDs for products too
-                setProducts(currentProducts => {
-                    if (savedProducts.length !== productsSnapshot.length) return currentProducts;
-
-                    const idMap = new Map<string, string>();
-                    for (let i = 0; i < productsSnapshot.length; i++) {
-                        if (productsSnapshot[i].id !== savedProducts[i].id) {
-                            idMap.set(productsSnapshot[i].id, savedProducts[i].id);
-                        }
-                    }
-
-                    if (idMap.size === 0) return currentProducts;
-
-                    return currentProducts.map(p => ({
-                        ...p,
-                        id: idMap.get(p.id) || p.id
-                    }));
-                });
-
-            } catch (error) {
-                console.error('Failed to save products:', error);
-            } finally {
-                setIsSavingProducts(false);
-            }
-        };
-
-        const timeoutId = setTimeout(saveProducts, 1000); // Increased debounce
-        return () => clearTimeout(timeoutId);
-    }, [products, hasLoadedOnce]);
+    // Products auto-save removed in favor of manual save button
+    // Links still use auto-save below.
 
     React.useEffect(() => {
         document.title = 'Nodus | Editor';
@@ -379,6 +336,14 @@ export default function EditorPage() {
                                 <Share2 size={18} />
                             </button>
                             <button
+                                onClick={handleManualSave}
+                                disabled={isSaving}
+                                className={`flex items-center gap-2 text-sm font-bold text-white px-5 py-2 rounded-full transition-all ${isSaving ? 'bg-slate-400' : 'bg-slate-900 shadow-lg active:scale-95'}`}
+                            >
+                                {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                                {isSaving ? 'Salvando...' : 'Salvar'}
+                            </button>
+                            <button
                                 className="flex items-center gap-2 text-sm font-medium text-brand-700 bg-brand-50 px-4 py-2 rounded-full border border-brand-100"
                                 onClick={() => setShowMobilePreview(!showMobilePreview)}
                             >
@@ -419,12 +384,17 @@ export default function EditorPage() {
                                 <h1 className="text-xl font-bold text-slate-800">Editor</h1>
                             </div>
                             <div className="flex items-center gap-3">
-                                {isSaving && (
-                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 text-slate-500 rounded-lg border border-slate-100 transition-all">
-                                        <Loader2 size={14} className="animate-spin" />
-                                        <span className="text-xs font-bold uppercase tracking-wider">Salvando...</span>
-                                    </div>
-                                )}
+                                <button
+                                    onClick={handleManualSave}
+                                    disabled={isSaving}
+                                    className={`flex items-center gap-2 px-6 py-2 rounded-lg transition-all text-sm font-bold ${isSaving
+                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                        : 'bg-slate-900 text-white hover:bg-slate-800 shadow-md active:scale-95'
+                                        }`}
+                                >
+                                    {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                                    {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+                                </button>
                                 <button
                                     onClick={() => setIsShareModalOpen(true)}
                                     className="flex items-center gap-2 px-4 py-2 text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors text-sm font-medium"
@@ -442,10 +412,10 @@ export default function EditorPage() {
                                 </a>
                             </div>
                         </header>
-                        <div className="w-full py-10 px-6 lg:px-12 pb-32">
+                        <div className="w-full py-4 md:py-10 px-6 lg:px-12 pb-32">
 
                             {/* Page Title */}
-                            <div className="mb-8">
+                            <div className="mb-4 md:mb-8">
                                 <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">
                                     {activeTab === 'links' && 'Links'}
                                     {activeTab === 'appearance' && 'Design'}
@@ -502,9 +472,9 @@ export default function EditorPage() {
 
 
                                 {activeTab === 'appearance' && (
-                                    <div className="flex h-[calc(100vh-140px)] -mt-6 -mx-6 lg:-mx-12 bg-slate-50 relative">
+                                    <div className="flex flex-col md:flex-row h-[calc(100vh-130px)] md:h-[calc(100vh-140px)] -mt-4 md:-mt-6 -mx-6 lg:-mx-12 bg-slate-50 relative">
                                         {/* Design Sidebar */}
-                                        <div className="shrink-0 h-full">
+                                        <div className="shrink-0 h-auto md:h-full z-10 sticky top-0 bg-slate-50">
                                             <DesignSidebar
                                                 activeSection={activeDesignSection}
                                                 setActiveSection={setActiveDesignSection}
@@ -512,8 +482,8 @@ export default function EditorPage() {
                                         </div>
 
                                         {/* Design Content Area */}
-                                        <div className="flex-1 h-full overflow-y-auto p-8">
-                                            <h2 className="text-2xl font-bold text-slate-800 mb-6">
+                                        <div className="flex-1 h-full overflow-y-auto p-4 md:p-8 pb-32 md:pb-8">
+                                            <h2 className="text-2xl font-bold text-slate-800 mb-6 hidden md:block">
                                                 {activeDesignSection === 'header' && 'Cabeçalho'}
                                                 {activeDesignSection === 'theme' && 'Temas'}
                                                 {activeDesignSection === 'wallpaper' && 'Papel de Parede'}

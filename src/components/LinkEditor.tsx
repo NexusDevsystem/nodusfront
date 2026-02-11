@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+// @ts-ignore
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import { LinkItem, UserProfile } from '../types';
+import { SiSpotify } from 'react-icons/si';
 import { compressImage } from '../utils/imageUtils';
 import { fetchMusicMetadata } from '../utils/musicUtils';
 import {
   Trash2,
   GripVertical,
   Plus,
+  Link as LinkIcon,
   Image as ImageIcon,
   BarChart2,
   Pencil,
@@ -24,6 +28,430 @@ import {
   Ban
 } from 'lucide-react';
 
+const DeezerIcon = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 1433 1431" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" fillRule="evenodd" d="M1201.8 218.3c13.2-76.7 32.7-125 54.2-125.1h.1c40.2.2 72.7 167.5 72.7 374.1 0 206.7-32.6 374.1-72.8 374.1-16.5 0-31.7-28.4-44-76.1-19.3 174.5-59.5 294.4-106 294.4-36 0-68.3-72-90-185.6-14.8 216-52.1 369.3-95.6 369.3-27.3 0-52.3-60.7-70.7-159.6-22.2 204.1-73.5 347.2-133.2 347.2-59.8 0-111.1-143-133.2-347.2-18.3 98.9-43.3 159.6-70.7 159.6-43.6 0-80.8-153.3-95.6-369.3-21.7 113.6-53.9 185.6-90 185.6-46.5 0-86.7-119.9-106.1-294.4-12.1 47.8-27.4 76.1-43.9 76.1-40.3 0-72.9-167.4-72.9-374.1 0-206.6 32.6-374.1 72.9-374.1 21.6 0 40.9 48.4 54.3 125.1C252.7 86 287.6 0 327 0c46.8 0 87.3 121.6 106.5 298.2 18.8-128.5 47.2-210.4 79.1-210.4 44.7 0 82.7 161.1 96.8 385.9 26.4-115.2 64.8-187.5 107.2-187.5s80.7 72.3 107.1 187.5c14.1-224.8 52.1-385.9 96.8-385.9 31.8 0 60.2 81.9 79.1 210.4C1018.7 121.6 1059.3 0 1106.1 0c39.2 0 74.2 86 95.7 218.3M41.3 597.8C18.5 597.8 0 523 0 430.5s18.5-167.2 41.3-167.2c22.9 0 41.4 74.7 41.4 167.2S64.2 597.8 41.3 597.8m1350.3 0c-22.9 0-41.3-74.8-41.3-167.3s18.4-167.2 41.3-167.2c22.8 0 41.3 74.7 41.3 167.2s-18.5 167.3-41.3 167.3" />
+  </svg>
+);
+
+interface SortableLinkItemProps {
+  link: LinkItem;
+  updateLink: (id: string, field: keyof LinkItem, value: any) => void;
+  updateLinkFields: (id: string, updates: Partial<LinkItem>) => void;
+  removeLink: (id: string) => void;
+  toggleLink: (id: string) => void;
+  isExpanded: boolean;
+  toggleCollection: (id: string) => void;
+  isCollectionExpanded: boolean;
+  profile: UserProfile;
+  level: number;
+}
+
+function SortableLinkItem({
+  link,
+  updateLink,
+  updateLinkFields,
+  removeLink,
+  toggleLink,
+  isExpanded,
+  toggleCollection,
+  isCollectionExpanded,
+  profile,
+  level
+}: SortableLinkItemProps) {
+  const dragControls = useDragControls();
+  const [openAnimationMenu, setOpenAnimationMenu] = useState<string | null>(null);
+
+  // LinkEditor is used recursively here. It must be hoisted or available.
+
+  return (
+    <Reorder.Item
+      value={link}
+      dragListener={false}
+      dragControls={dragControls}
+      className="relative"
+    >
+      <div className="bg-white rounded-[20px] shadow-sm border border-slate-200 group transition-all relative hover:shadow-md">
+        {/* RENDER COLLECTION ITEM */}
+        {link.type === 'collection' ? (
+          <div className="overflow-hidden">
+            <div className="flex bg-slate-50/50 border-b border-slate-100">
+              {/* Drag Handle */}
+              <div
+                className="w-8 py-4 flex flex-col items-center justify-center cursor-move text-slate-300 hover:text-brand-600 active:text-brand-700 touch-none"
+                onPointerDown={(e) => dragControls.start(e)}
+              >
+                <GripVertical size={20} />
+              </div>
+
+              {/* Header Content */}
+              <div className="flex-1 p-3 pl-2 flex items-center gap-3">
+                <div onClick={() => toggleCollection(link.id)} className="cursor-pointer text-slate-400 hover:text-brand-600 transition-colors">
+                  {isCollectionExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={link.title}
+                    onChange={(e) => updateLink(link.id, 'title', e.target.value)}
+                    className="w-full font-bold text-slate-700 bg-transparent border-none focus:ring-0 p-0 text-base placeholder:text-slate-400"
+                    placeholder="Nome da Coleção"
+                  />
+                  <span className="text-xs text-slate-400 font-medium">{link.children?.length || 0} itens</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={link.isActive}
+                      onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-500"></div>
+                  </label>
+                  <button
+                    onClick={() => removeLink(link.id)}
+                    className="p-2 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Excluir Coleção"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Expanded Content (Nested Editor) */}
+            <AnimatePresence>
+              {isCollectionExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  className="overflow-hidden"
+                >
+                  <div className="p-4 bg-slate-50/30 border-t border-slate-100 pl-8">
+                    {/* Recursive Call to Main Editor */}
+                    <LinkEditor
+                      links={link.children || []}
+                      onChange={(newChildren) => updateLink(link.id, 'children', newChildren)}
+                      level={level + 1}
+                      profile={profile}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ) : (
+          /* RENDER STANDARD LINK ITEM */
+          <div className="flex flex-col transition-all">
+            {/* Header Row (Always Visible) */}
+            <div className="flex items-center w-full min-h-[72px]">
+              {/* Drag Handle */}
+              <div
+                className="w-8 flex flex-col items-center justify-center cursor-move text-slate-300 hover:text-slate-500 active:text-brand-600 self-stretch py-2 pl-2 touch-none"
+                onPointerDown={(e) => dragControls.start(e)}
+              >
+                <GripVertical size={20} />
+              </div>
+
+              {/* Image Thumbnail */}
+              <div className="shrink-0 mr-3 py-2 pl-2">
+                <div className="relative">
+                  <input
+                    type="file"
+                    id={`file-${link.id}`}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        try {
+                          const compressed = await compressImage(e.target.files[0], 400, 0.8);
+                          updateLink(link.id, 'image', compressed);
+                        } catch (error) {
+                          console.error('Error processing image:', error);
+                          alert('Erro ao processar imagem.');
+                        }
+                      }
+                    }}
+                  />
+                  {link.image ? (
+                    <div className="w-10 h-10 rounded-lg overflow-hidden border border-slate-200 relative group/img shadow-sm">
+                      <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => document.getElementById(`file-${link.id}`)?.click()}
+                      className="w-10 h-10 rounded-lg bg-slate-50 border border-dashed border-slate-200 flex items-center justify-center text-slate-400 hover:border-brand-300 hover:text-brand-500 hover:bg-brand-50 transition-all"
+                    >
+                      <ImageIcon size={16} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Title & Chevron (Click to Expand) */}
+              <div
+                className="flex-1 min-w-0 pr-4 py-3 cursor-pointer group/title"
+                onClick={() => toggleLink(link.id)}
+              >
+                <div className="font-bold text-slate-700 truncate group-hover/title:text-brand-700 transition-colors text-base flex items-center gap-2">
+                  {link.title || 'Sem título'}
+                </div>
+                <div className="text-xs text-slate-400 truncate flex items-center gap-1">
+                  {link.url || 'Sem URL'}
+                </div>
+              </div>
+
+              {/* Right Actions: Edit(Expand) & Switch */}
+              <div className="flex items-center gap-3 pr-5">
+                <button
+                  onClick={() => toggleLink(link.id)}
+                  className={`p-2 rounded-full transition-all ${isExpanded ? 'bg-slate-100 text-slate-600 rotate-180' : 'text-slate-400 hover:bg-slate-50 hover:text-brand-600'}`}
+                >
+                  <ChevronDown size={20} />
+                </button>
+
+                <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={link.isActive}
+                    onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-500 shadow-inner"></div>
+                </label>
+              </div>
+            </div>
+
+            {/* Expanded Body Content */}
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-5 pb-5 pt-0">
+                    {/* Main Edit Form */}
+                    <div className="flex items-start gap-4 mb-6 pt-4">
+                      {/* Expanded Image (Larger with controls) */}
+                      <div className="relative shrink-0 pt-1">
+                        {link.image ? (
+                          <div className="w-20 h-20 rounded-xl overflow-hidden border border-slate-200 relative group/img shadow-sm">
+                            <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity gap-2">
+                              <button
+                                onClick={() => document.getElementById(`file-${link.id}`)?.click()}
+                                className="text-white hover:scale-110 transition-transform p-1.5 rounded-full bg-white/20 hover:bg-white/30"
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              <button
+                                onClick={() => updateLink(link.id, 'image', undefined)}
+                                className="text-white hover:text-red-200 hover:scale-110 transition-transform p-1.5 rounded-full bg-white/20 hover:bg-red-500/50"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => document.getElementById(`file-${link.id}`)?.click()}
+                            className="w-20 h-20 rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 hover:border-brand-300 hover:text-brand-500 hover:bg-brand-50 transition-all group/btn"
+                          >
+                            <ImageIcon size={24} className="group-hover/btn:scale-110 transition-transform mb-1" />
+                            <span className="text-[10px] font-bold uppercase">Add</span>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Inputs */}
+                      <div className="flex-1 min-w-0 space-y-3 pt-1">
+                        <div>
+                          <input
+                            type="text"
+                            value={link.title}
+                            onChange={(e) => updateLink(link.id, 'title', e.target.value)}
+                            className="w-full font-bold text-xl text-slate-800 bg-transparent border-b border-slate-200 focus:border-brand-500 rounded-none px-0 py-1 outline-none transition-all placeholder:text-slate-300"
+                            placeholder="Título do Link"
+                          />
+                        </div>
+
+                        <div className="relative group/url">
+                          <input
+                            type="text"
+                            value={link.url}
+                            onChange={(e) => {
+                              const newUrl = e.target.value;
+                              const updates: Partial<LinkItem> = { url: newUrl };
+
+                              // Auto detection logic
+                              const isSpotify = newUrl.includes('open.spotify.com/') && (newUrl.includes('/track/') || newUrl.includes('/album/') || newUrl.includes('/playlist/'));
+                              const isDeezer = newUrl.includes('deezer.com/') || newUrl.includes('deezer.page.link/');
+
+                              if (isSpotify || isDeezer) {
+                                updates.embedType = isSpotify ? 'spotify' : 'deezer';
+                                fetchMusicMetadata(newUrl).then(metadata => {
+                                  if (metadata) {
+                                    updateLinkFields(link.id, {
+                                      title: metadata.title,
+                                      subtitle: metadata.artist,
+                                      image: metadata.thumbnailUrl,
+                                      embedType: isSpotify ? 'spotify' : 'deezer',
+                                      url: newUrl
+                                    });
+                                  }
+                                });
+                              }
+                              updateLinkFields(link.id, updates);
+                            }}
+                            className="w-full text-sm text-slate-600 bg-slate-50 border border-slate-200 focus:border-brand-300 focus:bg-white rounded-lg px-3 py-2 outline-none transition-all placeholder:text-slate-400"
+                            placeholder="https://..."
+                          />
+                        </div>
+
+                        <div>
+                          <input
+                            type="text"
+                            value={link.subtitle || ''}
+                            onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)}
+                            className="w-full text-sm text-slate-500 bg-transparent border-b border-slate-100 focus:border-brand-300 rounded-none px-0 py-1 outline-none transition-all placeholder:text-slate-300"
+                            placeholder="Subtítulo ou descrição curta"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Settings & Config (New Section) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div className="space-y-5">
+                        {/* Plataforma / Embed */}
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block flex items-center gap-1.5">
+                            <Zap size={10} className="text-amber-500" />
+                            Integração Especial
+                          </label>
+                          <div className="flex flex-wrap gap-2">
+                            {[
+                              { id: 'none', label: 'Padrão', icon: LinkIcon },
+                              { id: 'youtube', label: 'YouTube', icon: Youtube, color: 'text-red-600' },
+                              { id: 'spotify', label: 'Spotify', icon: SiSpotify, color: 'text-green-600' },
+                              { id: 'deezer', label: 'Deezer', icon: DeezerIcon, color: 'text-purple-600' },
+                            ].map((plat) => (
+                              <button
+                                key={plat.id}
+                                onClick={() => updateLinkFields(link.id, { embedType: plat.id as any })}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${(link.embedType || 'none') === plat.id
+                                  ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                                  }`}
+                              >
+                                <plat.icon size={14} className={plat.color} />
+                                {plat.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Destaque</label>
+                          <div className="relative">
+                            <button
+                              onClick={() => setOpenAnimationMenu(prev => prev === link.id ? null : link.id)}
+                              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all border ${link.highlight && link.highlight !== 'none' ? 'bg-amber-50 border-amber-200 text-amber-700 ring-2 ring-amber-500/10' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <Sparkles size={14} className={link.highlight && link.highlight !== 'none' ? 'text-amber-500' : 'text-slate-400'} />
+                                <span className="capitalize">{link.highlight === 'none' || !link.highlight ? 'Sem Destaque' : link.highlight}</span>
+                              </div>
+                              <ChevronDown size={14} />
+                            </button>
+
+                            {openAnimationMenu === link.id && (
+                              <div className="absolute top-full right-0 mt-1 w-full bg-white rounded-xl shadow-xl border border-slate-100 p-1 z-20 animate-in fade-in zoom-in-95 duration-200">
+                                {['none', 'pulse', 'bounce', 'shake', 'glow', 'wobble'].map((anim) => (
+                                  <button
+                                    key={anim}
+                                    onClick={() => {
+                                      updateLink(link.id, 'highlight', anim);
+                                      setOpenAnimationMenu(null);
+                                    }}
+                                    className={`w-full text-left px-3 py-2 text-xs font-medium rounded-lg capitalize transition-colors flex items-center justify-between ${link.highlight === anim ? 'bg-amber-50 text-amber-700' : 'text-slate-600 hover:bg-slate-50'}`}
+                                  >
+                                    {anim === 'none' ? 'Nenhum' : anim}
+                                    {link.highlight === anim && <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-5">
+                        {/* Layout Picker */}
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Visualização</label>
+                          <div className="flex gap-2">
+                            {[
+                              { id: 'classic', label: 'Lista', icon: GripVertical },
+                              { id: 'card', label: 'Card Grande', icon: LayoutTemplate }
+                            ].map((opt) => (
+                              <button
+                                key={opt.id}
+                                onClick={() => updateLink(link.id, 'layout', opt.id)}
+                                className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-all ${link.layout === opt.id ? 'bg-slate-900 border-slate-900 text-white shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+                              >
+                                <opt.icon size={18} />
+                                <span className="text-[10px] font-bold uppercase">{opt.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                      <div className="flex items-center gap-1.5 text-slate-400 text-xs font-medium py-1 px-3 rounded-md bg-slate-50 border border-slate-100">
+                        <BarChart2 size={14} />
+                        <span>{link.clicks || 0} cliques</span>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-xs font-bold ${link.isArchived ? 'bg-orange-50 text-orange-600' : 'text-slate-400 hover:bg-slate-100'}`}
+                        >
+                          <Archive size={14} />
+                          <span>{link.isArchived ? 'Arquivado' : 'Arquivar'}</span>
+                        </button>
+
+                        <button
+                          onClick={() => removeLink(link.id)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all text-xs font-medium group/delete"
+                        >
+                          <Trash2 size={14} className="group-hover/delete:stroke-[2.5px]" />
+                          <span>Excluir</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+      </div>
+    </Reorder.Item>
+  );
+}
+
 interface LinkEditorProps {
   links: LinkItem[];
   onChange: (links: LinkItem[] | ((prev: LinkItem[]) => LinkItem[])) => void;
@@ -31,13 +459,22 @@ interface LinkEditorProps {
   profile: UserProfile;
 }
 
-const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0, profile }) => {
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+function LinkEditor({ links, onChange, level = 0, profile }: LinkEditorProps) {
   const [expandedCollections, setExpandedCollections] = useState<Record<string, boolean>>({});
   const [expandedLinks, setExpandedLinks] = useState<Record<string, boolean>>({});
-  const [openAnimationMenu, setOpenAnimationMenu] = useState<string | null>(null);
+  const [showArchive, setShowArchive] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Use effect to handle mounting state for Portals
+  React.useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   const isLimitReached = (profile.planType === 'free' || !profile.planType) && links.length >= 5;
+
+  const activeLinks = links.filter(l => !l.isArchived);
+  const archivedLinks = links.filter(l => l.isArchived);
 
   const toggleCollection = (id: string) => {
     setExpandedCollections(prev => ({
@@ -63,7 +500,6 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0, pro
       layout: 'classic',
       type: 'link'
     };
-    // Auto-expand the new link
     setExpandedLinks(prev => ({ ...prev, [newLink.id]: true }));
     // @ts-ignore
     onChange(prev => [newLink, ...prev]);
@@ -73,51 +509,29 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0, pro
     const newCollection: LinkItem = {
       id: Date.now().toString(),
       title: 'Nova Coleção',
-      url: '', // Not used for collections
+      url: '',
       isActive: true,
       clicks: 0,
-      layout: 'classic', // Not used
+      layout: 'classic',
       type: 'collection',
       children: []
     };
-    // Auto-expand the new collection
     setExpandedCollections(prev => ({ ...prev, [newCollection.id]: true }));
     // @ts-ignore
     onChange(prev => [newCollection, ...prev]);
   };
 
-  // Helper for internal simple add (used inside collections)
-  const addSimpleLink = () => {
-    const newLink: LinkItem = {
-      id: Date.now().toString(),
-      title: 'Novo Link',
-      url: '',
-      isActive: true,
-      clicks: 0,
-      layout: 'classic',
-      type: 'link'
-    };
-    // @ts-ignore
-    onChange(prev => [newLink, ...prev]);
-  };
-
-
-
-  // ... rest of the update/remove functions ...
   const updateLink = (id: string, field: keyof LinkItem, value: any) => {
-    // @ts-ignore - Handle both array and functional update
+    // @ts-ignore
     onChange((prev: LinkItem[]) => prev.map(link => {
       if (link.id !== id) return link;
-
-      // If a child (like a nested LinkEditor) passed a functional update, 
-      // we need to evaluate it against the CURRENT value of this link's field.
       const newValue = typeof value === 'function' ? value(link[field] || []) : value;
       return { ...link, [field]: newValue };
     }));
   };
 
   const updateLinkFields = (id: string, updates: Partial<LinkItem>) => {
-    // @ts-ignore - Handle both array and functional update
+    // @ts-ignore
     onChange((prev: LinkItem[]) => prev.map(link => {
       if (link.id !== id) return link;
       const resolvedUpdates = { ...updates };
@@ -137,39 +551,13 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0, pro
     onChange(prev => prev.filter(link => link.id !== id));
   };
 
-  // Drag and Drop Handlers
-  const handleDragStart = (index: number) => {
-    setDraggedIndex(index);
-  };
-
-  const handleDragEnter = (index: number) => {
-    if (draggedIndex === null) return;
-    if (draggedIndex === index) return;
-
-    // Create a copy of the array to mutate
-    const newLinks = [...links];
-    // Remove the item from its old position
-    const draggedItem = newLinks[draggedIndex];
-    newLinks.splice(draggedIndex, 1);
-    // Insert it into the new position
-    newLinks.splice(index, 0, draggedItem);
-
-    onChange(newLinks);
-    setDraggedIndex(index);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault(); // Necessary to allow dropping
+  const handleReorder = (newActiveLinks: LinkItem[]) => {
+    // Combine new active links with existing archived links to preserve full state
+    onChange([...newActiveLinks, ...archivedLinks]);
   };
 
   return (
     <div className={`space-y-4 ${level === 0 ? 'w-full' : ''}`}>
-
-      {/* Top Actions Area - Only at root level or inside collection (but simpler) */}
       <div className="space-y-4">
         {level === 0 ? (
           <>
@@ -209,13 +597,23 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0, pro
               >
                 <span className="text-lg"><FolderHeart size={18} /></span> Add collection
               </button>
-              <button className="flex items-center gap-2 text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors">
-                <Archive size={16} /> View archive
+              <button
+                onClick={() => setShowArchive(true)}
+                className="flex items-center gap-2.5 text-slate-500 hover:text-slate-900 text-sm font-bold transition-all px-4 py-2 rounded-full hover:bg-slate-100 border border-transparent hover:border-slate-200 group"
+              >
+                <div className="bg-slate-100 group-hover:bg-orange-100 p-1.5 rounded-lg transition-colors group-hover:text-orange-600 text-slate-400">
+                  <Archive size={16} />
+                </div>
+                View archive
+                {archivedLinks.length > 0 && (
+                  <span className="bg-orange-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full animate-in zoom-in group-hover:scale-110 transition-transform">
+                    {archivedLinks.length}
+                  </span>
+                )}
               </button>
             </div>
           </>
         ) : (
-          /* Simple Add Button for inside collections */
           <button
             onClick={addLink}
             className="w-full py-2 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 font-semibold hover:border-brand-300 hover:text-brand-600 transition-colors flex items-center justify-center gap-2 text-sm"
@@ -223,420 +621,141 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ links, onChange, level = 0, pro
             <Plus size={16} /> Adicionar Link na Coleção
           </button>
         )}
-
       </div>
 
-      {/* Links List */}
       <div className="space-y-4">
-        {links.length === 0 && (
+        {activeLinks.length === 0 && (
           <div className="text-center py-8 text-slate-400 rounded-2xl border border-dashed border-slate-200 bg-slate-50/50">
             <p className="text-sm">Vazio</p>
           </div>
         )}
 
-        {links.map((link, index) => (
-          <div
-            key={link.id}
-            draggable
-            onDragStart={(e) => {
-              e.stopPropagation(); // Prevent parent drag
-              handleDragStart(index);
-            }}
-            onDragEnter={(e) => {
-              e.stopPropagation();
-              handleDragEnter(index);
-            }}
-            onDragEnd={(e) => {
-              e.stopPropagation();
-              handleDragEnd();
-            }}
-            onDragOver={handleDragOver}
-            className={`
-              bg-white rounded-[20px] shadow-sm border border-slate-200 group transition-all relative
-              ${draggedIndex === index ? 'opacity-40 border-dashed border-slate-400 scale-[0.98]' : 'hover:shadow-md'}
-              cursor-default
-            `}
-          >
-            {/* RENDER COLLECTION ITEM */}
-            {link.type === 'collection' ? (
-              <div className="overflow-hidden">
-                <div className="flex bg-slate-50/50 border-b border-slate-100">
-                  {/* Drag Handle */}
-                  <div className="w-8 py-4 flex flex-col items-center justify-center cursor-move text-slate-300 hover:text-brand-600 active:text-brand-700">
-                    <GripVertical size={20} />
-                  </div>
+        <Reorder.Group axis="y" values={activeLinks} onReorder={handleReorder} className="space-y-4">
+          {activeLinks.map((link) => (
+            <SortableLinkItem
+              key={link.id}
+              link={link}
+              updateLink={updateLink}
+              updateLinkFields={updateLinkFields}
+              removeLink={removeLink}
+              toggleLink={toggleLink}
+              isExpanded={!!expandedLinks[link.id]}
+              toggleCollection={toggleCollection}
+              isCollectionExpanded={!!expandedCollections[link.id]}
+              profile={profile}
+              level={level}
+            />
+          ))}
+        </Reorder.Group>
+      </div>
 
-                  {/* Header Content */}
-                  <div className="flex-1 p-3 pl-2 flex items-center gap-3">
-                    <div onClick={() => toggleCollection(link.id)} className="cursor-pointer text-slate-400 hover:text-brand-600 transition-colors">
-                      {expandedCollections[link.id] ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+      {/* Archive Modal - Safely Portaled */}
+      {mounted && createPortal(
+        <AnimatePresence>
+          {showArchive && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowArchive(false)}
+                className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 30 }}
+                className="relative w-full max-w-2xl bg-white/90 backdrop-blur-xl border border-white/20 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col max-h-[85vh]"
+              >
+                {/* Header */}
+                <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white/50">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-orange-500 shadow-lg shadow-orange-500/20 flex items-center justify-center text-white">
+                      <Archive size={28} strokeWidth={2.5} />
                     </div>
-                    <div className="flex-1">
-                      <input
-                        type="text"
-                        value={link.title}
-                        onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                        className="w-full font-bold text-slate-700 bg-transparent border-none focus:ring-0 p-0 text-base placeholder:text-slate-400"
-                        placeholder="Nome da Coleção"
-                      />
-                      <span className="text-xs text-slate-400 font-medium">{link.children?.length || 0} itens</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                        <input
-                          type="checkbox"
-                          checked={link.isActive}
-                          onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
-                          className="sr-only peer"
-                        />
-                        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-500"></div>
-                      </label>
-                      <button
-                        onClick={() => removeLink(link.id)}
-                        className="p-2 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Excluir Coleção"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                    <div>
+                      <h3 className="text-2xl font-black text-slate-900 tracking-tight">Arquivados</h3>
+                      <p className="text-sm text-slate-500 font-bold uppercase tracking-wider">{archivedLinks.length} Items no arquivo</p>
                     </div>
                   </div>
-                </div>
-
-                {/* Expanded Content (Nested Editor) */}
-                <AnimatePresence>
-                  {expandedCollections[link.id] && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: 'easeInOut' }}
-                      className="overflow-hidden"
-                    >
-                      <div className="p-4 bg-slate-50/30 border-t border-slate-100 pl-8">
-                        <LinkEditor
-                          links={link.children || []}
-                          onChange={(newChildren) => updateLink(link.id, 'children', newChildren)}
-                          level={level + 1}
-                          profile={profile}
-                        />
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ) : (
-              /* RENDER STANDARD LINK ITEM - REDESIGNED (Collapsible) */
-              <div className="flex flex-col transition-all">
-                {/* Header Row (Always Visible) */}
-                <div className="flex items-center w-full min-h-[72px]">
-                  {/* Drag Handle */}
-                  <div className="w-8 flex flex-col items-center justify-center cursor-move text-slate-300 hover:text-slate-500 active:text-brand-600 self-stretch py-2 pl-2">
-                    <GripVertical size={20} />
-                  </div>
-
-                  {/* Image Thumbnail (Small in minimized, Large in expanded handled by conditional rendering below? No, let's keep it consistent in header) */}
-                  <div className="shrink-0 mr-3 py-2 pl-2">
-                    <div className="relative">
-                      <input
-                        type="file"
-                        id={`file-${link.id}`}
-                        className="hidden"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          if (e.target.files && e.target.files[0]) {
-                            try {
-                              const compressed = await compressImage(e.target.files[0], 400, 0.8);
-                              updateLink(link.id, 'image', compressed);
-                            } catch (error) {
-                              console.error('Error processing image:', error);
-                              alert('Erro ao processar imagem.');
-                            }
-                          }
-                        }}
-                      />
-                      {link.image ? (
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-slate-200 relative group/img shadow-sm">
-                          <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                          className="w-10 h-10 rounded-lg bg-slate-50 border border-dashed border-slate-200 flex items-center justify-center text-slate-400 hover:border-brand-300 hover:text-brand-500 hover:bg-brand-50 transition-all"
-                        >
-                          <ImageIcon size={16} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Title & Chevron (Click to Expand) */}
-                  <div
-                    className="flex-1 min-w-0 pr-4 py-3 cursor-pointer group/title"
-                    onClick={() => toggleLink(link.id)}
+                  <button
+                    onClick={() => setShowArchive(false)}
+                    className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-950 hover:bg-slate-200 transition-all border border-slate-200/50"
                   >
-                    <div className="font-bold text-slate-700 truncate group-hover/title:text-brand-700 transition-colors text-base flex items-center gap-2">
-                      {link.title || 'Sem título'}
-                    </div>
-                    <div className="text-xs text-slate-400 truncate flex items-center gap-1">
-                      {link.url || 'Sem URL'}
-                    </div>
-                  </div>
-
-                  {/* Right Actions: Edit(Expand) & Switch */}
-                  <div className="flex items-center gap-3 pr-5">
-                    <button
-                      onClick={() => toggleLink(link.id)}
-                      className={`p-2 rounded-full transition-all ${expandedLinks[link.id] ? 'bg-slate-100 text-slate-600 rotate-180' : 'text-slate-400 hover:bg-slate-50 hover:text-brand-600'}`}
-                    >
-                      <ChevronDown size={20} />
-                    </button>
-
-                    <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                      <input
-                        type="checkbox"
-                        checked={link.isActive}
-                        onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-500 shadow-inner"></div>
-                    </label>
-                  </div>
+                    <Plus size={24} className="rotate-45" />
+                  </button>
                 </div>
 
-                {/* Expanded Body Content */}
-                <AnimatePresence>
-                  {expandedLinks[link.id] && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: 'easeInOut' }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-5 pb-5 pt-0">
-                        {/* Main Edit Form */}
-                        <div className="flex items-start gap-4 mb-6 pt-4">
-                          {/* Expanded Image (Larger with controls) */}
-                          <div className="relative shrink-0 pt-1">
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto p-8 space-y-4 scrollbar-hide">
+                  {archivedLinks.length === 0 ? (
+                    <div className="text-center py-20 flex flex-col items-center">
+                      <div className="w-24 h-24 rounded-full bg-slate-50 flex items-center justify-center mb-6">
+                        <Archive size={48} className="text-slate-200" />
+                      </div>
+                      <p className="text-slate-400 font-bold text-lg">Seu arquivo está vazio</p>
+                      <p className="text-slate-300 text-sm mt-1">Links arquivados aparecerão aqui.</p>
+                    </div>
+                  ) : (
+                    archivedLinks.map((link) => (
+                      <motion.div
+                        key={link.id}
+                        layout
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-center justify-between p-5 bg-white border border-slate-100 rounded-[24px] group hover:border-orange-300 hover:shadow-xl hover:shadow-orange-500/5 transition-all duration-300"
+                      >
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className="w-14 h-14 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-300 shrink-0 overflow-hidden shadow-sm">
                             {link.image ? (
-                              <div className="w-20 h-20 rounded-xl overflow-hidden border border-slate-200 relative group/img shadow-sm">
-                                <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity gap-2">
-                                  <button
-                                    onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                                    className="text-white hover:scale-110 transition-transform p-1.5 rounded-full bg-white/20 hover:bg-white/30"
-                                  >
-                                    <Pencil size={14} />
-                                  </button>
-                                  <button
-                                    onClick={() => updateLink(link.id, 'image', undefined)}
-                                    className="text-white hover:text-red-200 hover:scale-110 transition-transform p-1.5 rounded-full bg-white/20 hover:bg-red-500/50"
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                </div>
-                              </div>
+                              <img src={link.image} alt="" className="w-full h-full object-cover" />
                             ) : (
-                              <button
-                                onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                                className="w-20 h-20 rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 hover:border-brand-300 hover:text-brand-500 hover:bg-brand-50 transition-all group/btn"
-                              >
-                                <ImageIcon size={24} className="group-hover/btn:scale-110 transition-transform mb-1" />
-                                <span className="text-[10px] font-bold uppercase">Add</span>
-                              </button>
+                              <LinkIcon size={24} />
                             )}
                           </div>
-
-                          {/* Inputs */}
-                          <div className="flex-1 min-w-0 space-y-3 pt-1">
-                            <div>
-                              <input
-                                type="text"
-                                value={link.title}
-                                onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                                className="w-full font-bold text-xl text-slate-800 bg-transparent border-b border-slate-200 focus:border-brand-500 rounded-none px-0 py-1 outline-none transition-all placeholder:text-slate-300"
-                                placeholder="Título do Link"
-                              />
-                            </div>
-
-                            <div className="relative group/url">
-                              <input
-                                type="text"
-                                value={link.url}
-                                onChange={(e) => {
-                                  const newUrl = e.target.value;
-                                  const updates: Partial<LinkItem> = { url: newUrl };
-
-                                  // Auto detection logic
-                                  const isSpotify = newUrl.includes('open.spotify.com/') && (newUrl.includes('/track/') || newUrl.includes('/album/') || newUrl.includes('/playlist/'));
-                                  const isDeezer = newUrl.includes('deezer.com/') || newUrl.includes('deezer.page.link/');
-
-                                  if (isSpotify || isDeezer) {
-                                    updates.embedType = isSpotify ? 'spotify' : 'deezer';
-                                    fetchMusicMetadata(newUrl).then(metadata => {
-                                      if (metadata) {
-                                        updateLinkFields(link.id, {
-                                          title: metadata.title,
-                                          subtitle: metadata.artist,
-                                          image: metadata.thumbnailUrl,
-                                          embedType: isSpotify ? 'spotify' : 'deezer',
-                                          url: newUrl
-                                        });
-                                      }
-                                    });
-                                  }
-                                  updateLinkFields(link.id, updates);
-                                }}
-                                className="w-full text-sm text-slate-600 bg-slate-50 border border-slate-200 focus:border-brand-300 focus:bg-white rounded-lg px-3 py-2 outline-none transition-all placeholder:text-slate-400"
-                                placeholder="https://..."
-                              />
+                          <div className="min-w-0">
+                            <h4 className="text-base font-black text-slate-800 truncate leading-tight mb-1">{link.title || 'Sem título'}</h4>
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs text-slate-400 font-medium truncate max-w-[200px]">{link.url}</p>
+                              <span className="w-1 h-1 rounded-full bg-slate-200"></span>
+                              <span className="text-[10px] text-orange-600 font-black uppercase tracking-tighter">Arquivado</span>
                             </div>
                           </div>
                         </div>
 
-                        {/* Settings & Config */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-
-                          {/* Left Column */}
-                          <div className="space-y-5">
-                            <div>
-                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Subtítulo</label>
-                              <input
-                                type="text"
-                                value={link.subtitle || ''}
-                                onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)}
-                                className="w-full text-sm text-slate-600 bg-slate-50 border border-slate-200 focus:border-brand-300 rounded-lg px-3 py-2 outline-none transition-all placeholder:text-slate-300"
-                                placeholder="Ex: Artista, Cargo, Detalhe..."
-                              />
-                            </div>
-
-                            <div>
-                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Layout</label>
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => updateLink(link.id, 'layout', 'classic')}
-                                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${link.layout === 'classic' ? 'bg-brand-50 border-brand-200 text-brand-700 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-                                >
-                                  <LayoutTemplate size={14} /> <span>Padrão</span>
-                                </button>
-                                <button
-                                  onClick={() => updateLink(link.id, 'layout', 'card')}
-                                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${link.layout === 'card' ? 'bg-brand-50 border-brand-200 text-brand-700 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-                                >
-                                  <CreditCard size={14} /> <span>Cartão</span>
-                                </button>
-                                <button
-                                  onClick={() => updateLink(link.id, 'layout', 'social')}
-                                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${link.layout === 'social' ? 'bg-brand-50 border-brand-200 text-brand-700 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-                                >
-                                  <MessageCircle size={14} /> <span>Social</span>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Right Column */}
-                          <div className="space-y-5">
-                            <div>
-                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Embed</label>
-                              <div className="grid grid-cols-4 gap-2">
-                                <button
-                                  onClick={() => updateLink(link.id, 'embedType', 'none')}
-                                  className={`col-span-1 py-2 rounded-lg text-xs font-medium transition-all border flex items-center justify-center ${(!link.embedType || link.embedType === 'none') ? 'bg-slate-800 text-white border-slate-900 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-                                  title="Nenhum"
-                                >
-                                  <Ban size={18} />
-                                </button>
-                                <button
-                                  onClick={() => updateLink(link.id, 'embedType', 'youtube')}
-                                  className={`col-span-1 py-2 rounded-lg text-xs font-medium transition-all border flex items-center justify-center ${link.embedType === 'youtube' ? 'bg-red-50 text-red-600 border-red-200 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-                                  title="Youtube"
-                                >
-                                  <Youtube size={18} />
-                                </button>
-                                <button
-                                  onClick={() => updateLink(link.id, 'embedType', 'spotify')}
-                                  className={`col-span-1 py-2 rounded-lg text-xs font-medium transition-all border flex items-center justify-center ${link.embedType === 'spotify' ? 'bg-green-50 text-green-600 border-green-200 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-                                  title="Spotify"
-                                >
-                                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-[18px] h-[18px]">
-                                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141 4.32-1.32 9.779-.6 13.5 1.62.42.239.6.84.3 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-                                  </svg>
-                                </button>
-                                <button
-                                  onClick={() => updateLink(link.id, 'embedType', 'deezer')}
-                                  className={`col-span-1 py-2 rounded-lg text-xs font-medium transition-all border flex items-center justify-center ${link.embedType === 'deezer' ? 'bg-pink-50 text-pink-600 border-pink-200 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-                                  title="Deezer"
-                                >
-                                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-[18px] h-[18px]">
-                                    <path d="M4 17h3v7H4v-7zm4.5 0h3v7h-3v-7zm5-4h3v11h-3V13zm4.5 0h3v11h-3V13zM4 12h3v2H4v-2zm4.5-5h3v7h-3V7zm5-5h3v9h-3V2zm4.5 5h3v4h-3V7z" />
-                                  </svg>
-                                </button>
-                              </div>
-                            </div>
-
-                            <div>
-                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Destaque</label>
-                              <div className="relative">
-                                <button
-                                  onClick={() => setOpenAnimationMenu(prev => prev === link.id ? null : link.id)}
-                                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all border ${link.highlight && link.highlight !== 'none' ? 'bg-amber-50 border-amber-200 text-amber-700 ring-2 ring-amber-500/10' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <Sparkles size={14} className={link.highlight && link.highlight !== 'none' ? 'text-amber-500' : 'text-slate-400'} />
-                                    <span className="capitalize">{link.highlight === 'none' || !link.highlight ? 'Sem Destaque' : link.highlight}</span>
-                                  </div>
-                                  <ChevronDown size={14} />
-                                </button>
-
-                                {openAnimationMenu === link.id && (
-                                  <div className="absolute top-full right-0 mt-1 w-full bg-white rounded-xl shadow-xl border border-slate-100 p-1 z-20 animate-in fade-in zoom-in-95 duration-200">
-                                    {['none', 'pulse', 'bounce', 'shake', 'glow', 'wobble'].map((anim) => (
-                                      <button
-                                        key={anim}
-                                        onClick={() => {
-                                          updateLink(link.id, 'highlight', anim);
-                                          setOpenAnimationMenu(null);
-                                        }}
-                                        className={`w-full text-left px-3 py-2 text-xs font-medium rounded-lg capitalize transition-colors flex items-center justify-between ${link.highlight === anim ? 'bg-amber-50 text-amber-700' : 'text-slate-600 hover:bg-slate-50'}`}
-                                      >
-                                        {anim === 'none' ? 'Nenhum' : anim}
-                                        {link.highlight === anim && <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>}
-                                      </button>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Footer Actions */}
-                        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                          <div className="flex items-center gap-1.5 text-slate-400 text-xs font-medium py-1 px-3 rounded-md bg-slate-50 border border-slate-100">
-                            <BarChart2 size={14} />
-                            <span>{link.clicks || 0} cliques</span>
-                          </div>
-
+                        <div className="flex items-center gap-3 shrink-0 ml-4">
+                          <button
+                            onClick={() => updateLink(link.id, 'isArchived', false)}
+                            className="px-5 py-2.5 rounded-xl bg-slate-900 text-xs font-black text-white hover:bg-brand-600 hover:scale-105 transition-all shadow-md active:scale-95"
+                          >
+                            Restaurar
+                          </button>
                           <button
                             onClick={() => removeLink(link.id)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all text-xs font-medium group/delete"
+                            className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all border border-red-100 shadow-sm"
+                            title="Excluir Permanentemente"
                           >
-                            <Trash2 size={14} className="group-hover/delete:stroke-[2.5px]" />
-                            <span>Excluir</span>
+                            <Trash2 size={18} />
                           </button>
                         </div>
-                      </div>
-                    </motion.div>
+                      </motion.div>
+                    ))
                   )}
-                </AnimatePresence>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+                </div>
+
+                {/* Footer */}
+                <div className="p-6 bg-slate-900/5 border-t border-slate-100 flex items-center justify-center gap-2">
+                  <Zap size={14} className="text-orange-500" />
+                  <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Nodus Archive Manager</span>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
-};
+}
 
 export default LinkEditor;

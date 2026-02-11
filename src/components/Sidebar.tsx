@@ -50,13 +50,13 @@ interface MenuGroup {
 const MENU_GROUPS: MenuGroup[] = [
   {
     id: 'my-linktree',
-    label: 'My Nodus',
+    label: 'Meu Nodus',
     groupIcon: Layers,
     items: [
       { id: 'links', label: 'Links', icon: LinkIcon },
       { id: 'appearance', label: 'Design', icon: Palette },
-      { id: 'shop', label: 'Shop', icon: ShoppingBag, disabled: false },
-      { id: 'earn', label: 'Earn (Tip Jar)', icon: DollarSign, disabled: false },
+      { id: 'shop', label: 'Loja', icon: ShoppingBag, disabled: false },
+      { id: 'earn', label: 'Monetizar (Caixinha)', icon: DollarSign, disabled: false },
     ]
   },
   {
@@ -66,17 +66,17 @@ const MENU_GROUPS: MenuGroup[] = [
     items: [
       {
         id: 'analytics',
-        label: 'Analytics',
+        label: 'Estatísticas',
         icon: BarChart2,
         disabled: false
       },
       {
         id: 'audience',
-        label: 'Audience (CRM)',
+        label: 'Audiência (CRM)',
         icon: Users,
         disabled: false
       },
-      { id: 'settings', label: 'Settings & SEO', icon: Settings, disabled: false },
+      { id: 'settings', label: 'Configurações & SEO', icon: Settings, disabled: false },
     ]
   }
 ];
@@ -202,7 +202,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
             className={`flex items-center gap-2 text-[11px] font-bold transition-colors py-2 px-1 w-fit ${activeTab === 'billing' ? 'text-brand-600' : 'text-slate-500 hover:text-brand-600'}`}
           >
             <CreditCard size={14} className="opacity-70" />
-            Billing (Faturamento)
+            Faturamento
           </button>
         </div>
 

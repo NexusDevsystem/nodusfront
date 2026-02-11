@@ -426,17 +426,6 @@ export const THEMES: Theme[] = [
     category: 'animated'
   },
   {
-    id: 'animated-space-warp',
-    name: 'Hyperdrive',
-    backgroundClass: 'bg-black',
-    buttonClass: 'bg-black/50 backdrop-blur-md text-white border border-white/50 hover:bg-white hover:text-black transition-colors skew-x-[-10deg] rounded-none',
-    textClass: 'text-white tracking-widest uppercase',
-    avatarBorder: 'border-white/50',
-    isPro: true,
-    solidColor: '#000000',
-    category: 'animated'
-  },
-  {
     id: 'animated-waves',
     name: 'Ocean Breeze',
     backgroundClass: 'bg-[#E0F7FA]',
@@ -445,6 +434,39 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-white ring-4 ring-[#4DD0E1]/30',
     isPro: true,
     solidColor: '#E0F7FA',
+    category: 'animated'
+  },
+  {
+    id: 'animated-grainient-cool',
+    name: 'Grainient Cool',
+    backgroundClass: 'bg-[#0f172a]',
+    buttonClass: 'bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 shadow-lg',
+    textClass: 'text-white',
+    avatarBorder: 'border-white/30',
+    isPro: true,
+    solidColor: '#0f172a',
+    category: 'animated'
+  },
+  {
+    id: 'animated-grainient-warm',
+    name: 'Grainient Warm',
+    backgroundClass: 'bg-[#2a0a10]',
+    buttonClass: 'bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 shadow-lg',
+    textClass: 'text-white',
+    avatarBorder: 'border-white/30',
+    isPro: true,
+    solidColor: '#2a0a10',
+    category: 'animated'
+  },
+  {
+    id: 'animated-grainient-mono',
+    name: 'Grainient Mono',
+    backgroundClass: 'bg-[#000000]',
+    buttonClass: 'bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 shadow-lg',
+    textClass: 'text-white',
+    avatarBorder: 'border-white/30',
+    isPro: true,
+    solidColor: '#000000',
     category: 'animated'
   }
 ];
