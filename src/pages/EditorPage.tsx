@@ -21,7 +21,6 @@ import DesignSidebar from '../components/DesignSidebar';
 import HeaderEditor from '../components/design/HeaderEditor';
 import TypographyEditor from '../components/design/TypographyEditor';
 import ButtonsEditor from '../components/design/ButtonsEditor';
-import ColorsEditor from '../components/design/ColorsEditor';
 import WallpaperEditor from '../components/design/WallpaperEditor';
 import { compressImage } from '../utils/imageUtils';
 import { apiClient } from '../services/apiClient';
@@ -489,7 +488,6 @@ export default function EditorPage() {
                                                 {activeDesignSection === 'wallpaper' && 'Papel de Parede'}
                                                 {activeDesignSection === 'text' && 'Tipografia'}
                                                 {activeDesignSection === 'buttons' && 'Estilo dos Botões'}
-                                                {activeDesignSection === 'colors' && 'Cores Personalizadas'}
                                             </h2>
 
                                             {activeDesignSection === 'header' && (
@@ -510,10 +508,6 @@ export default function EditorPage() {
 
                                             {activeDesignSection === 'buttons' && (
                                                 <ButtonsEditor profile={profile} onChange={setProfile} />
-                                            )}
-
-                                            {activeDesignSection === 'colors' && (
-                                                <ColorsEditor profile={profile} onChange={setProfile} />
                                             )}
                                         </div>
                                     </div>

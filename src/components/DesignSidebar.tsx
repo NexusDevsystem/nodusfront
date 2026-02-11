@@ -20,7 +20,6 @@ const DESIGN_MENU_ITEMS = [
     { id: 'wallpaper', label: 'Papel de Parede', icon: ImageIcon },
     { id: 'text', label: 'Texto', icon: Type },
     { id: 'buttons', label: 'Botões', icon: MousePointer2 },
-    { id: 'colors', label: 'Cores', icon: Palette },
 ];
 
 const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveSection }) => {

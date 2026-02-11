@@ -51,6 +51,9 @@ export interface UserProfile {
   referralSource?: string | null;
   isVerified?: boolean;
   enableBlur?: boolean;
+  fontSize?: number;
+  fontWeight?: string;
+  fontItalic?: boolean;
 }
 
 export interface Theme {
@@ -83,6 +86,7 @@ export interface FontOption {
   name: string;
   family: string;
   type: 'sans' | 'serif' | 'mono' | 'display' | 'handwriting';
+  isPro?: boolean;
 }
 
 export interface AnalyticsEvent {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { UserProfile, LinkItem, Product } from '../types';
 import { THEMES } from '../constants';
-import { Zap, Check } from 'lucide-react';
+import { Zap, Check, Trash2 } from 'lucide-react';
 import ProfileRenderer from './ProfileRenderer';
 
 interface ThemeSelectorProps {
@@ -61,6 +61,53 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                         </button>
                     ))}
                 </div>
+
+                {/* Custom Background Color Picker (Only for Solid Themes) */}
+                {(() => {
+                    const selectedTheme = THEMES.find(t => t.id === profile.themeId);
+                    if (selectedTheme?.category === 'solid') {
+                        return (
+                            <div className="pt-6 border-t border-slate-50 animate-fade-in">
+                                <label className="block text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                    <div className="p-1 bg-brand-50 rounded text-brand-600">
+                                        <Zap size={14} fill="currentColor" />
+                                    </div>
+                                    Cor de Fundo Personalizada
+                                </label>
+                                <div className="flex items-center gap-3">
+                                    <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-sm border border-slate-200 group shrink-0">
+                                        <input
+                                            type="color"
+                                            value={profile.customSolidColor || (selectedTheme.solidColor || '#FFFFFF')}
+                                            onChange={(e) => onChange({ ...profile, customSolidColor: e.target.value })}
+                                            className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <input
+                                            type="text"
+                                            value={profile.customSolidColor || (selectedTheme.solidColor || '#FFFFFF')}
+                                            onChange={(e) => onChange({ ...profile, customSolidColor: e.target.value })}
+                                            placeholder="#FFFFFF"
+                                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-mono focus:border-brand-500 outline-none uppercase"
+                                        />
+                                    </div>
+                                    {profile.customSolidColor && (
+                                        <button
+                                            onClick={() => onChange({ ...profile, customSolidColor: null })}
+                                            className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                                            title="Resetar para o padrão do tema"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    )}
+                                </div>
+                                <p className="text-[10px] text-slate-400 mt-2 italic">* Esta opção só está disponível para temas de cor sólida.</p>
+                            </div>
+                        );
+                    }
+                    return null;
+                })()}
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 lg:gap-8">

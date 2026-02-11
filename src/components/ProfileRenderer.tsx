@@ -486,7 +486,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 ) : currentTheme.id === 'animated-grainient-mono' ? (
                     <Grainient color1="#334155" color2="#0f172a" color3="#000000" saturation={0} />
                 ) : (
-                    <div className={`absolute inset-0 ${currentTheme.backgroundClass}`}></div>
+                    <div
+                        className={`absolute inset-0 ${currentTheme.backgroundClass}`}
+                        style={currentTheme.category === 'solid' && profile.customSolidColor ? { backgroundColor: profile.customSolidColor } : {}}
+                    ></div>
                 )}
 
                 {/* GLOBAL BLUR FADE OVERLAY */}
@@ -510,6 +513,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 className={`w-full h-full overflow-y-auto scrollbar-hide flex flex-col relative z-20 ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}
                 style={{
                     fontFamily: profile.fontFamily,
+                    fontSize: `${profile.fontSize || 16}px`,
+                    fontWeight: profile.fontWeight || undefined,
+                    fontStyle: profile.fontItalic ? 'italic' : 'normal',
                     color: profile.customTextColor || undefined
                 }}
             >
@@ -588,8 +594,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 }`}
                                         />
                                     ) : (
-                                        <h3 className={`font-bold mb-1 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-3xl' : 'text-2xl'
-                                            }`} style={{ fontFamily: profile.fontFamily }}>
+                                        <h3 className={`mb-1 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[2em]' : 'text-[1.5em]'
+                                            }`}>
                                             {profile.name}
                                             {profile.isVerified && (
                                                 <img
@@ -604,8 +610,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 </div>
 
                                 {profile.bio && (
-                                    <p className={`text-base font-medium opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'
-                                        }`} style={{ fontFamily: profile.fontFamily }}>
+                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'
+                                        }`}>
                                         {profile.bio}
                                     </p>
                                 )}
@@ -787,15 +793,15 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     <div className={`aspect-square rounded-xl overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative w-full`}>
                                                                         <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                                                                         {product.discountCode && (
-                                                                            <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-sm">
+                                                                            <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg shadow-sm">
                                                                                 {product.discountCode}
                                                                             </div>
                                                                         )}
                                                                     </div>
                                                                     <div className="flex flex-col gap-0.5 w-full">
-                                                                        <span className="text-sm font-medium truncate text-center text-white opacity-90">{product.name}</span>
+                                                                        <span className="text-sm truncate text-center text-white opacity-90">{product.name}</span>
                                                                         {product.price && (
-                                                                            <span className="text-xs font-bold truncate text-center text-white">{product.price}</span>
+                                                                            <span className="text-xs truncate text-center text-white">{product.price}</span>
                                                                         )}
                                                                     </div>
                                                                 </div>
@@ -858,7 +864,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                                         className="w-full pt-2 pb-1"
                                                     >
-                                                        <div className="text-center mb-3 font-bold opacity-90 text-lg">
+                                                        <div className="text-center mb-3 opacity-90 text-lg">
                                                             {link.title}
                                                         </div>
 
@@ -888,9 +894,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                                     {/* Bottom Content - White & Compact */}
                                                                     <div className="bg-white p-3 flex flex-col justify-center h-16 relative">
-                                                                        <span className="text-[12px] font-bold leading-tight line-clamp-2 text-slate-900">{child.title}</span>
+                                                                        <span className="text-[0.75em] leading-tight truncate text-slate-900 font-bold">{child.title}</span>
                                                                         {child.subtitle && (
-                                                                            <span className="text-[10px] font-medium leading-tight truncate text-slate-500 mt-0.5">{child.subtitle}</span>
+                                                                            <span className="text-[0.7em] leading-tight truncate text-slate-500 mt-0.5">{child.subtitle}</span>
                                                                         )}
                                                                         {/* Tiny visual indicator */}
                                                                         <div className="absolute right-2 bottom-2 w-1 h-1 rounded-full bg-slate-300"></div>
@@ -942,7 +948,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     target="_blank"
                                                                     rel="noreferrer"
                                                                     onClick={() => handleLinkClick(child.id)}
-                                                                    className={`block w-full ${roundedClass} text-center text-base font-medium transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(child.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
+                                                                    className={`block w-full ${roundedClass} text-center text-base transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(child.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
                                                                     style={!profile.customButtonColor ? {} : {
                                                                         backgroundColor: profile.customButtonColor,
                                                                         color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
@@ -963,14 +969,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             mixBlendMode="screen"
                                                                             className={`${getHighlightClass(child.highlight)}`}
                                                                         >
-                                                                            <div className="w-full flex items-center justify-between py-3 px-5">
-                                                                                {child.image ? (
-                                                                                    <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
-                                                                                ) : (
-                                                                                    <span className="w-8"></span>
+                                                                            <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-white text-center">
+                                                                                <span className="truncate text-[0.9em] leading-tight font-bold">{child.title}</span>
+                                                                                {child.subtitle && (
+                                                                                    <span className="truncate text-[0.75em] opacity-90 leading-tight mt-0.5">
+                                                                                        {child.subtitle}
+                                                                                    </span>
                                                                                 )}
-                                                                                <span className="truncate flex-1 px-3 text-white text-lg">{child.title}</span>
-                                                                                <span className="w-8 shrink-0"></span>
                                                                             </div>
                                                                         </GlassSurface>
                                                                     ) : (
@@ -980,7 +985,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             ) : (
                                                                                 <span className="w-8"></span>
                                                                             )}
-                                                                            <span className="truncate flex-1 px-3">{child.title}</span>
+                                                                            <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-center">
+                                                                                <span className="truncate text-[0.9em] leading-tight font-bold">{child.title}</span>
+                                                                                {child.subtitle && (
+                                                                                    <span className="truncate text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5">
+                                                                                        {child.subtitle}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
                                                                             <span className="w-8 shrink-0"></span>
                                                                         </div>
                                                                     )}
@@ -1020,9 +1032,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         {/* Content Area - STRICTLY WHITE background as requested */}
                                                         <div className="bg-white px-5 py-4 flex items-center justify-between relative min-h-[80px]">
                                                             <div className="flex flex-col gap-0.5 w-full pr-6">
-                                                                <span className="font-bold text-lg leading-tight line-clamp-2 text-slate-900">{link.title}</span>
+                                                                <span className="text-[0.9em] leading-tight truncate text-slate-900 font-bold">{link.title}</span>
                                                                 {link.subtitle && (
-                                                                    <span className="text-sm font-medium leading-tight truncate text-slate-500">{link.subtitle}</span>
+                                                                    <span className="text-[0.75em] leading-tight truncate text-slate-500">{link.subtitle}</span>
                                                                 )}
                                                             </div>
                                                             <div className="text-slate-400 shrink-0 ml-2">
@@ -1071,7 +1083,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 onClick={() => handleLinkClick(link.id)}
-                                                className={`block w-full ${roundedClass} text-center text-base font-medium transform group relative hover:scale-[1.02] active:scale-[0.98] ${(currentTheme.id === 'glass' && !isCustomButtonStyle) ? '' : `py-4 px-6 flex items-center justify-between ${(!isCustomButtonStyle || (!profile.customButtonColor && !profile.buttonStyleType)) ? currentTheme.buttonClass : 'bg-slate-100 shadow-sm'} ${getHighlightClass(link.highlight)} overflow-hidden ${hasThemeShadow && !isCustomButtonStyle ? '' : 'shadow-sm'}`}`}
+                                                className={`block w-full ${roundedClass} text-center text-base transform group relative hover:scale-[1.02] active:scale-[0.98] ${(currentTheme.id === 'glass' && !isCustomButtonStyle) ? '' : `py-4 px-6 flex items-center justify-between ${(!isCustomButtonStyle || (!profile.customButtonColor && !profile.buttonStyleType)) ? currentTheme.buttonClass : 'bg-slate-100 shadow-sm'} ${getHighlightClass(link.highlight)} overflow-hidden ${hasThemeShadow && !isCustomButtonStyle ? '' : 'shadow-sm'}`}`}
                                                 style={!isCustomButtonStyle ? {} : getCustomButtonStyles()}
                                             >
                                                 {currentTheme.id === 'glass' && !isCustomButtonStyle ? <GlassSurface
@@ -1094,10 +1106,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         ) : (
                                                             <span className="w-8"></span>
                                                         )}
-                                                        <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-white">
-                                                            <span className="truncate text-lg leading-tight">{link.title}</span>
+                                                        <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-white text-center">
+                                                            <span className="truncate text-[0.9em] leading-tight font-bold">{link.title}</span>
                                                             {link.subtitle && (
-                                                                <span className="truncate text-xs opacity-90 leading-tight mt-0.5">
+                                                                <span className="truncate text-[0.75em] opacity-90 leading-tight mt-0.5">
                                                                     {link.subtitle}
                                                                 </span>
                                                             )}
@@ -1112,10 +1124,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             ) : (
                                                                 <span className="w-8"></span>
                                                             )}
-                                                            <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden">
-                                                                <span className="truncate leading-tight">{link.title}</span>
+                                                            <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-center">
+                                                                <span className="truncate text-[0.9em] leading-tight font-bold">{link.title}</span>
                                                                 {link.subtitle && (
-                                                                    <span className="truncate text-xs opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5">
+                                                                    <span className="truncate text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5">
                                                                         {link.subtitle}
                                                                     </span>
                                                                 )}
@@ -1129,7 +1141,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                     {activeLinks.length === 0 && (
                                         <div className="flex flex-col items-center justify-center py-10 opacity-50 space-y-2">
-                                            <span className="text-sm font-medium">Nenhum link ativo</span>
+                                            <span className="text-sm">Nenhum link ativo</span>
                                         </div>
                                     )}
                                 </motion.div>
@@ -1151,7 +1163,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             navigator.clipboard.writeText(profile.supportKey || '');
                                         }
                                     }}
-                                    className={`block w-full ${roundedClass} text-center text-base font-medium transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${hasThemeShadow ? '' : 'shadow-sm'} overflow-hidden`}`}
+                                    className={`block w-full ${roundedClass} text-center text-base transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${hasThemeShadow ? '' : 'shadow-sm'} overflow-hidden`}`}
                                     style={!profile.customButtonColor ? {} : {
                                         backgroundColor: profile.customButtonColor,
                                         color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
@@ -1213,13 +1225,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     : 'bg-slate-900 text-white'
                                     }`}
                             >
-                                <span className="text-[13px] font-semibold tracking-tight">
+                                <span className="text-[13px] tracking-tight">
                                     Junte-se a {profile.name} no Nodus
                                 </span>
                             </a>
 
                             {/* Legal Links (Minimalist) */}
-                            <div className={`flex items-center gap-2 text-[10px] font-medium transition-opacity duration-300 ${isDarkTheme ? 'text-white/40 hover:text-white/80' : 'text-slate-400 hover:text-slate-600'}`}>
+                            <div className={`flex items-center gap-2 text-[10px] transition-opacity duration-300 ${isDarkTheme ? 'text-white/40 hover:text-white/80' : 'text-slate-400 hover:text-slate-600'}`}>
                                 <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:underline">Termos</a>
                                 <span>•</span>
                                 <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline">Privacidade</a>

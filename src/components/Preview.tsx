@@ -40,7 +40,14 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShar
           <div className="hidden lg:block absolute top-36 -left-[15px] h-16 w-[3px] bg-gray-800 rounded-l-md"></div>
 
           {/* Screen Content */}
-          <ProfileRenderer profile={profile} links={links} products={products} isPreview={true} onShare={onShare} />
+          <ProfileRenderer
+            key={`${profile.fontFamily}-${profile.fontSize || 16}-${profile.fontWeight || '400'}-${profile.fontItalic}`}
+            profile={profile}
+            links={links}
+            products={products}
+            isPreview={true}
+            onShare={onShare}
+          />
 
         </div>
       </div>
