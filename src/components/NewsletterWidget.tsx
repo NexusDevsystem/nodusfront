@@ -47,7 +47,7 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
     const textColor = isDarkContext ? 'text-white' : 'text-slate-800';
     const subTextColor = isDarkContext ? 'text-white/70' : 'text-slate-500';
     const inputBg = isDarkContext ? 'bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/20' : 'bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:bg-white';
-    const buttonBg = isDarkContext ? 'bg-white text-black hover:bg-white/90' : 'bg-slate-900 text-white hover:bg-slate-800';
+    const buttonBg = 'bg-white text-black hover:bg-white/90 shadow-sm';
 
     if (status === 'success') {
         return (

@@ -10,9 +10,15 @@ import {
     Globe,
     ShoppingBag,
     MoreHorizontal,
+    MoreVertical,
     Coffee,
     BadgeCheck,
-    ChevronDown
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    Play,
+    Plus,
+    Music
 } from 'lucide-react';
 import YouTubeEmbed from './YouTubeEmbed';
 import verifiedBadge from '../assets/verified-badge.png';
@@ -33,7 +39,6 @@ import AbstractWavesBackground from './AbstractWavesBackground';
 import NodusOfficialBackground from './NodusOfficialBackground';
 import Prism from './Prism';
 import { apiClient } from '../services/apiClient';
-import { Play, Plus, Music } from 'lucide-react';
 import { SiSpotify } from 'react-icons/si';
 
 // @ts-ignore
@@ -213,6 +218,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             break;
     }
 
+    let cardRoundedClass = 'rounded-[32px]';
+    switch (buttonRoundness) {
+        case 'square': cardRoundedClass = 'rounded-none'; break;
+        case 'round': cardRoundedClass = 'rounded-xl'; break;
+        case 'rounder': cardRoundedClass = 'rounded-[24px]'; break;
+        case 'full': cardRoundedClass = 'rounded-[32px]'; break;
+    }
+
     // Check if theme has its own shadow
     const hasThemeShadow = currentTheme.buttonClass.includes('shadow-');
 
@@ -221,8 +234,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         if (!isCustomButtonStyle) return {};
 
         // Default base color
-        const defaultBaseColor = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#0f172a');
-        const baseColor = profile.customButtonColor || defaultBaseColor;
+        const themeButtonHex = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#0f172a');
+        const baseColor = profile.customButtonColor || themeButtonHex;
 
         let textColor = profile.customTextColor;
 
@@ -578,7 +591,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 'w-24 h-24' // default (md)
                                         } ${profile.headerLayout === 'hero' ? 'w-40 h-40 border-[6px]' : ''
                                         }`}>
-                                        <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
+                                        <img
+                                            src={profile.avatarUrl}
+                                            alt={profile.name}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
+                                            }}
+                                        />
                                     </div>
                                 </div>
                             )}
@@ -702,7 +722,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 <button
                                                     key={name}
                                                     onClick={() => handleCollectionClick(name)}
-                                                    className={`w-full group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ${currentTheme.id === 'glass' ? '' : currentTheme.buttonClass}`}
+                                                    className={`w-full group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ${(!profile.customButtonColor && !profile.buttonStyleType) ? currentTheme.buttonClass : ''}`}
                                                 >
                                                     {currentTheme.id === 'glass' ? (
                                                         <GlassSurface
@@ -844,300 +864,280 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     layout
                                     className="flex flex-col gap-4 w-full flex-1 relative"
                                 >
-                                    {buttonLinks.map(link => {
+                                    {(() => {
+                                        const renderedItems: React.ReactNode[] = [];
 
-                                        // COLLECTION
-                                        if (link.type === 'collection') {
-                                            const hasChildren = link.children && link.children.length > 0;
-                                            const activeChildren = link.children ? link.children.filter(c => c.isActive) : [];
+                                        const themeButtonHex = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#0f172a');
+                                        const cardAccentColor = profile.customButtonColor || themeButtonHex;
+                                        const cardTextColor = profile.customTextColor || (isDarkTheme || currentTheme.id === 'glass' ? '#ffffff' : '#0f172a');
+                                        const displayTextColor = (cardTextColor === '#ffffff' || cardTextColor === '#fff') ? cardAccentColor : cardTextColor;
 
-                                            if (!hasChildren && !activeChildren.length) return null;
+                                        let currentIconGroup: LinkItem[] = [];
+                                        let currentCardGroup: LinkItem[] = [];
 
-                                            // Check if this collection contains card layouts (trigger carousel mode)
-                                            const isCardCollection = activeChildren.some(c => c.layout === 'card');
+                                        const flushIcons = () => {
+                                            if (currentIconGroup.length > 0) {
+                                                const group = [...currentIconGroup];
+                                                renderedItems.push(
+                                                    <div key={`social-row-${group[0].id}`} className="flex items-center justify-center gap-5 w-full mb-6 flex-wrap relative">
+                                                        {group.map(iconLink => {
+                                                            const network = SOCIAL_NETWORKS.find(n => iconLink.title.toLowerCase().includes(n.id)) ||
+                                                                SOCIAL_NETWORKS.find(n => iconLink.url.toLowerCase().includes(n.id)) ||
+                                                                SOCIAL_NETWORKS[0];
 
-                                            if (isCardCollection) {
-                                                return (
-                                                    <motion.div
-                                                        key={link.id}
-                                                        layout
-                                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                        className="w-full pt-2 pb-1"
-                                                    >
-                                                        <div className="text-center mb-3 opacity-90 text-lg">
-                                                            {link.title}
-                                                        </div>
+                                                            const Icon = network.icon || Globe;
 
-                                                        {/* CAROUSEL CONTAINER */}
-                                                        <div className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative">
-                                                            {activeChildren.map(child => (
-                                                                <motion.a
-                                                                    key={child.id}
-                                                                    layout
-                                                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                                    href={child.url}
-                                                                    target="_blank"
-                                                                    rel="noreferrer"
-                                                                    onClick={() => handleLinkClick(child.id)}
-                                                                    className="relative group flex-shrink-0 w-40 snap-start flex flex-col rounded-[20px] overflow-hidden transition-all duration-300 shadow-sm"
-                                                                >
-                                                                    {/* Top Image - 2/3 Height */}
-                                                                    <div className="h-24 w-full bg-slate-100 relative">
-                                                                        {child.image ? (
-                                                                            <img src={child.image} alt="" className="w-full h-full object-cover" />
-                                                                        ) : (
-                                                                            <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400">
-                                                                                <ShoppingBag size={20} />
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-
-                                                                    {/* Bottom Content - White & Compact */}
-                                                                    <div className="bg-white p-3 flex flex-col justify-center h-16 relative">
-                                                                        <span className="text-[0.75em] leading-tight truncate text-slate-900 font-bold">{child.title}</span>
-                                                                        {child.subtitle && (
-                                                                            <span className="text-[0.7em] leading-tight truncate text-slate-500 mt-0.5">{child.subtitle}</span>
-                                                                        )}
-                                                                        {/* Tiny visual indicator */}
-                                                                        <div className="absolute right-2 bottom-2 w-1 h-1 rounded-full bg-slate-300"></div>
-                                                                    </div>
-                                                                </motion.a>
-                                                            ))}
-                                                        </div>
-                                                    </motion.div>
-                                                );
-                                            }
-
-                                            return (
-                                                <motion.div
-                                                    key={link.id}
-                                                    layout
-                                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                    className="w-full pt-2 pb-1"
-                                                >
-                                                    <div className="text-center mb-3 font-bold opacity-90 text-lg">
-                                                        {link.title}
-                                                    </div>
-
-                                                    <motion.div layout className="flex flex-col gap-4 relative">
-                                                        {activeChildren.map(child => {
-                                                            // ... (inner content same as before, but wrapped in motion later if needed)
-                                                            // For now, let's keep it simple at the collection level
-                                                            // Special handling for Spotify/Deezer - custom mini player
-                                                            if (isMusicLink(child)) {
-                                                                return (
-                                                                    <motion.div key={child.id} layout className="w-full">
-                                                                        <MusicRichCard link={child} handleLinkClick={handleLinkClick} />
-                                                                    </motion.div>
-                                                                );
-                                                            }
-
-                                                            // YOUTUBE EMBED IN COLLECTION
-                                                            if (child.embedType === 'youtube') {
-                                                                return (
-                                                                    <motion.div key={child.id} layout className="mb-4">
-                                                                        <YouTubeEmbed url={child.url} title={child.title} className="rounded-2xl" />
-                                                                    </motion.div>
-                                                                );
-                                                            }
                                                             return (
                                                                 <motion.a
-                                                                    key={child.id}
+                                                                    key={iconLink.id}
                                                                     layout
-                                                                    href={child.url}
+                                                                    initial={{ scale: 0.8, opacity: 0 }}
+                                                                    animate={{ scale: 1, opacity: 1 }}
+                                                                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                                                                    href={iconLink.url}
                                                                     target="_blank"
                                                                     rel="noreferrer"
-                                                                    onClick={() => handleLinkClick(child.id)}
-                                                                    className={`block w-full ${roundedClass} text-center text-base transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(child.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
-                                                                    style={!profile.customButtonColor ? {} : {
-                                                                        backgroundColor: profile.customButtonColor,
-                                                                        color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
-                                                                    }}
+                                                                    onClick={() => handleLinkClick(iconLink.id)}
+                                                                    className={`${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass} hover:opacity-70 transition-all hover:scale-110 active:scale-95 flex items-center justify-center`}
                                                                 >
-                                                                    {currentTheme.id === 'glass' ? (
-                                                                        <GlassSurface
-                                                                            width="100%"
-                                                                            height="auto"
-                                                                            borderRadius={borderRadius}
-                                                                            displace={0.5}
-                                                                            distortionScale={-180}
-                                                                            redOffset={0}
-                                                                            greenOffset={10}
-                                                                            blueOffset={20}
-                                                                            brightness={50}
-                                                                            opacity={0.93}
-                                                                            mixBlendMode="screen"
-                                                                            className={`${getHighlightClass(child.highlight)}`}
-                                                                        >
-                                                                            <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-white text-center">
-                                                                                <span className="truncate text-[0.9em] leading-tight font-bold">{child.title}</span>
-                                                                                {child.subtitle && (
-                                                                                    <span className="truncate text-[0.75em] opacity-90 leading-tight mt-0.5">
-                                                                                        {child.subtitle}
-                                                                                    </span>
-                                                                                )}
-                                                                            </div>
-                                                                        </GlassSurface>
+                                                                    {iconLink.image ? (
+                                                                        <img src={iconLink.image} alt="" className="w-8 h-8 rounded-lg object-cover" />
                                                                     ) : (
-                                                                        <div className="relative z-10 w-full flex items-center justify-between">
-                                                                            {child.image ? (
-                                                                                <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
-                                                                            ) : (
-                                                                                <span className="w-8"></span>
-                                                                            )}
-                                                                            <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-center">
-                                                                                <span className="truncate text-[0.9em] leading-tight font-bold">{child.title}</span>
-                                                                                {child.subtitle && (
-                                                                                    <span className="truncate text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5">
-                                                                                        {child.subtitle}
-                                                                                    </span>
-                                                                                )}
-                                                                            </div>
-                                                                            <span className="w-8 shrink-0"></span>
-                                                                        </div>
+                                                                        <Icon size={28} />
                                                                     )}
                                                                 </motion.a>
                                                             );
                                                         })}
-                                                    </motion.div>
-                                                </motion.div>
-                                            );
-                                        }
+                                                    </div>
+                                                );
+                                                currentIconGroup = [];
+                                            }
+                                        };
 
-                                        // CARD LAYOUT STANDARD
-                                        if (link.layout === 'card') {
-                                            return (
-                                                <motion.a
-                                                    key={link.id}
-                                                    layout
-                                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                    href={link.url}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    onClick={() => handleLinkClick(link.id)}
-                                                    className={`block w-full rounded-[22px] overflow-hidden relative group ${getHighlightClass(link.highlight)} shadow-sm`}
-                                                >
-                                                    <div className="flex flex-col w-full h-full">
-                                                        {/* Image Area - The user wanted a "Card" style with image on top */}
-                                                        <div className="aspect-[2.2/1] w-full bg-slate-100 relative">
-                                                            {link.image ? (
-                                                                <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                        const flushCards = () => {
+                                            if (currentCardGroup.length > 0) {
+                                                const group = [...currentCardGroup];
+                                                renderedItems.push(
+                                                    <div key={`card-grid-${group[0].id}`} className="grid grid-cols-2 gap-2.5 mb-8">
+                                                        {group.map((cardLink) => {
+                                                            const cardBg = cardAccentColor;
+
+                                                            return (
+                                                                <motion.a
+                                                                    key={cardLink.id}
+                                                                    layout
+                                                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                                                    href={cardLink.url}
+                                                                    target="_blank"
+                                                                    rel="noreferrer"
+                                                                    onClick={() => handleLinkClick(cardLink.id)}
+                                                                    className={`flex flex-col ${cardRoundedClass} overflow-hidden relative group transition-all w-full aspect-[3/3.8] ${!isCustomButtonStyle ? 'bg-white border border-black/5 shadow-sm hover:shadow-xl' : ''}`}
+                                                                    style={!isCustomButtonStyle ? {} : getCustomButtonStyles()}
+                                                                >
+                                                                    <div
+                                                                        className="flex-1 w-full relative overflow-hidden"
+                                                                        style={{ backgroundColor: cardBg }}
+                                                                    >
+                                                                        {cardLink.image ? (
+                                                                            <img src={cardLink.image} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                                        ) : (
+                                                                            <div className="w-full h-full flex items-center justify-center text-white/40">
+                                                                                <ShoppingBag size={28} />
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="px-4 py-1 flex items-center justify-center shrink-0">
+                                                                        <div className="flex flex-col min-w-0 flex-1 items-center text-center">
+                                                                            <span className="text-[0.82em] leading-tight font-bold truncate tracking-tight" style={{ color: cardTextColor }}>
+                                                                                {cardLink.title}
+                                                                            </span>
+                                                                            {cardLink.subtitle && (
+                                                                                <span className="text-[0.68em] opacity-60 truncate font-medium" style={{ color: cardTextColor }}>
+                                                                                    {cardLink.subtitle}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </motion.a>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                );
+                                                currentCardGroup = [];
+                                            }
+                                        };
+
+                                        buttonLinks.forEach((link) => {
+                                            if (link.layout === 'icon' && link.type !== 'collection') {
+                                                flushCards();
+                                                currentIconGroup.push(link);
+                                            } else if (link.layout === 'card' && link.type !== 'collection') {
+                                                flushIcons();
+                                                currentCardGroup.push(link);
+                                            } else {
+                                                flushIcons();
+                                                flushCards();
+
+                                                // RENDER NORMAL LINK / COLLECTION
+                                                if (link.type === 'collection') {
+                                                    const hasChildren = link.children && link.children.length > 0;
+                                                    const activeChildren = link.children ? link.children.filter(c => c.isActive) : [];
+
+                                                    if (hasChildren || activeChildren.length > 0) {
+                                                        const isCardCollection = activeChildren.some(c => c.layout === 'card');
+
+                                                        if (isCardCollection) {
+                                                            const scrollContainerId = `scroll-${link.id}`;
+                                                            const scroll = (direction: 'left' | 'right') => {
+                                                                const container = document.getElementById(scrollContainerId);
+                                                                if (container) {
+                                                                    const scrollAmount = 250;
+                                                                    container.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+                                                                }
+                                                            };
+
+                                                            renderedItems.push(
+                                                                <motion.div key={link.id} layout transition={{ type: "spring", stiffness: 300, damping: 30 }} className="w-full pt-2 pb-1 group/carousel">
+                                                                    <div className="text-center mb-3 opacity-90 text-lg">{link.title}</div>
+
+                                                                    <div className="relative w-full">
+                                                                        {/* Arrows - Only visible on hover and on larger screens */}
+                                                                        <button
+                                                                            onClick={() => scroll('left')}
+                                                                            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white active:scale-90"
+                                                                        >
+                                                                            <ChevronLeft size={20} />
+                                                                        </button>
+
+                                                                        <div
+                                                                            id={scrollContainerId}
+                                                                            className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth"
+                                                                        >
+                                                                            {activeChildren.map(child => (
+                                                                                <motion.a
+                                                                                    key={child.id}
+                                                                                    layout
+                                                                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                                                                    href={child.url}
+                                                                                    target="_blank"
+                                                                                    rel="noreferrer"
+                                                                                    onClick={() => handleLinkClick(child.id)}
+                                                                                    className={`relative group flex-shrink-0 w-40 snap-start flex flex-col ${cardRoundedClass} overflow-hidden transition-all duration-300 ${!isCustomButtonStyle ? 'bg-white shadow-sm' : ''}`}
+                                                                                    style={!isCustomButtonStyle ? {} : getCustomButtonStyles()}
+                                                                                >
+                                                                                    <motion.div layout className="h-32 w-full bg-slate-100 relative">
+                                                                                        {child.image ? <img src={child.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400"><ShoppingBag size={20} /></div>}
+                                                                                    </motion.div>
+                                                                                    <motion.div layout className="p-2 flex flex-col justify-center items-center text-center h-8 relative">
+                                                                                        <span className="text-[0.7em] leading-tight truncate font-bold" style={{ color: cardTextColor }}>{child.title}</span>
+                                                                                        {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60" style={{ color: cardTextColor }}>{child.subtitle}</span>}
+                                                                                        <div className="absolute right-2 bottom-1 w-0.5 h-0.5 rounded-full opacity-20" style={{ backgroundColor: cardTextColor }}></div>
+                                                                                    </motion.div>
+                                                                                </motion.a>
+                                                                            ))}
+                                                                        </div>
+
+                                                                        <button
+                                                                            onClick={() => scroll('right')}
+                                                                            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white active:scale-90"
+                                                                        >
+                                                                            <ChevronRight size={20} />
+                                                                        </button>
+                                                                    </div>
+                                                                </motion.div>
+                                                            );
+                                                        } else {
+                                                            renderedItems.push(
+                                                                <motion.div key={link.id} layout transition={{ type: "spring", stiffness: 300, damping: 30 }} className="w-full pt-2 pb-1">
+                                                                    <div className="text-center mb-3 font-bold opacity-90 text-lg">{link.title}</div>
+                                                                    <motion.div layout className="flex flex-col gap-4 relative">
+                                                                        {activeChildren.map(child => {
+                                                                            if (isMusicLink(child)) return <motion.div key={child.id} layout className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
+                                                                            if (child.embedType === 'youtube') return <motion.div key={child.id} layout className="mb-4"><YouTubeEmbed url={child.url} title={child.title} className="rounded-2xl" /></motion.div>;
+                                                                            return (
+                                                                                <motion.a
+                                                                                    key={child.id}
+                                                                                    layout
+                                                                                    href={child.url}
+                                                                                    target="_blank"
+                                                                                    rel="noreferrer"
+                                                                                    onClick={() => handleLinkClick(child.id)}
+                                                                                    className={`block w-full ${roundedClass} text-center text-base transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(child.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
+                                                                                    style={!profile.customButtonColor ? {} : { backgroundColor: profile.customButtonColor, color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000') }}
+                                                                                >
+                                                                                    {currentTheme.id === 'glass' ? (
+                                                                                        <GlassSurface width="100%" height="auto" borderRadius={borderRadius} displace={0.5} distortionScale={-180} redOffset={0} greenOffset={10} blueOffset={20} brightness={50} opacity={0.93} mixBlendMode="screen" className={`${getHighlightClass(child.highlight)}`}>
+                                                                                            <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-white text-center">
+                                                                                                <span className="truncate text-[0.9em] leading-tight font-bold">{child.title}</span>
+                                                                                                {child.subtitle && <span className="truncate text-[0.75em] opacity-90 leading-tight mt-0.5">{child.subtitle}</span>}
+                                                                                            </div>
+                                                                                        </GlassSurface>
+                                                                                    ) : (
+                                                                                        <div className="relative z-10 w-full flex items-center justify-between">
+                                                                                            {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                                                            <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-center">
+                                                                                                <span className="truncate text-[0.9em] leading-tight font-bold">{child.title}</span>
+                                                                                                {child.subtitle && <span className="truncate text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5">{child.subtitle}</span>}
+                                                                                            </div>
+                                                                                            <span className="w-8 shrink-0"></span>
+                                                                                        </div>
+                                                                                    )}
+                                                                                </motion.a>
+                                                                            );
+                                                                        })}
+                                                                    </motion.div>
+                                                                </motion.div>
+                                                            );
+                                                        }
+                                                    }
+                                                } else if (link.embedType === 'youtube') {
+                                                    renderedItems.push(<motion.div key={link.id} layout transition={{ type: "spring", stiffness: 300, damping: 30 }} className="mb-4"><YouTubeEmbed url={link.url} title={link.title} className="rounded-2xl" /></motion.div>);
+                                                } else if (isMusicLink(link)) {
+                                                    renderedItems.push(<motion.div key={link.id} layout transition={{ type: "spring", stiffness: 300, damping: 30 }} className="w-full mb-5"><MusicRichCard link={link} handleLinkClick={handleLinkClick} /></motion.div>);
+                                                } else {
+                                                    renderedItems.push(
+                                                        <motion.a
+                                                            key={link.id}
+                                                            layout
+                                                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                                            href={link.url}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            onClick={() => handleLinkClick(link.id)}
+                                                            className={`block w-full ${roundedClass} min-h-[64px] text-center text-base transform group relative hover:scale-[1.02] active:scale-[0.98] ${(currentTheme.id === 'glass' && !isCustomButtonStyle) ? '' : `py-2.5 px-6 flex items-center justify-between ${(!profile.customButtonColor && !profile.buttonStyleType) ? currentTheme.buttonClass : ''} ${getHighlightClass(link.highlight)} overflow-hidden ${hasThemeShadow && !isCustomButtonStyle ? '' : 'shadow-sm'}`}`}
+                                                            style={!isCustomButtonStyle ? {} : getCustomButtonStyles()}
+                                                        >
+                                                            {currentTheme.id === 'glass' && !isCustomButtonStyle ? (
+                                                                <GlassSurface width="100%" height="auto" borderRadius={borderRadius} displace={0.5} distortionScale={-180} redOffset={0} greenOffset={10} blueOffset={20} brightness={50} opacity={0.93} mixBlendMode="screen" className={`${getHighlightClass(link.highlight)}`}>
+                                                                    <div className="w-full flex items-center justify-between py-2 px-5">
+                                                                        {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                                        <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-white text-center">
+                                                                            <span className="truncate text-[0.9em] leading-tight font-bold">{link.title}</span>
+                                                                            {link.subtitle && <span className="truncate text-[0.75em] opacity-90 leading-tight mt-0.5">{link.subtitle}</span>}
+                                                                        </div>
+                                                                        <span className="w-8 shrink-0"></span>
+                                                                    </div>
+                                                                </GlassSurface>
                                                             ) : (
-                                                                <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400">
-                                                                    <ShoppingBag size={32} />
+                                                                <div className="relative z-10 w-full flex items-center justify-between">
+                                                                    {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                                    <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-center">
+                                                                        <span className="truncate text-[0.9em] leading-tight font-bold">{link.title}</span>
+                                                                        {link.subtitle && <span className="truncate text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5">{link.subtitle}</span>}
+                                                                    </div>
+                                                                    <span className="w-8 shrink-0"></span>
                                                                 </div>
                                                             )}
-                                                        </div>
+                                                        </motion.a>
+                                                    );
+                                                }
+                                            }
+                                        });
 
-                                                        {/* Content Area - STRICTLY WHITE background as requested */}
-                                                        <div className="bg-white px-5 py-4 flex items-center justify-between relative min-h-[80px]">
-                                                            <div className="flex flex-col gap-0.5 w-full pr-6">
-                                                                <span className="text-[0.9em] leading-tight truncate text-slate-900 font-bold">{link.title}</span>
-                                                                {link.subtitle && (
-                                                                    <span className="text-[0.75em] leading-tight truncate text-slate-500">{link.subtitle}</span>
-                                                                )}
-                                                            </div>
-                                                            <div className="text-slate-400 shrink-0 ml-2">
-                                                                <MoreHorizontal size={20} />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </motion.a>
-                                            );
-                                        }
-
-                                        // EMBED HANDLING
-                                        if (link.embedType === 'youtube') {
-                                            return (
-                                                <motion.div
-                                                    key={link.id}
-                                                    layout
-                                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                    className="mb-4"
-                                                >
-                                                    <YouTubeEmbed url={link.url} title={link.title} className="rounded-2xl" />
-                                                </motion.div>
-                                            );
-                                        }
-
-                                        if (isMusicLink(link)) {
-                                            return (
-                                                <motion.div
-                                                    key={link.id}
-                                                    layout
-                                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                    className="w-full mb-5"
-                                                >
-                                                    <MusicRichCard link={link} handleLinkClick={handleLinkClick} />
-                                                </motion.div>
-                                            );
-                                        }
-
-                                        // STANDARD LINK
-                                        return (
-                                            <motion.a
-                                                key={link.id}
-                                                layout
-                                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                href={link.url}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                onClick={() => handleLinkClick(link.id)}
-                                                className={`block w-full ${roundedClass} text-center text-base transform group relative hover:scale-[1.02] active:scale-[0.98] ${(currentTheme.id === 'glass' && !isCustomButtonStyle) ? '' : `py-4 px-6 flex items-center justify-between ${(!isCustomButtonStyle || (!profile.customButtonColor && !profile.buttonStyleType)) ? currentTheme.buttonClass : 'bg-slate-100 shadow-sm'} ${getHighlightClass(link.highlight)} overflow-hidden ${hasThemeShadow && !isCustomButtonStyle ? '' : 'shadow-sm'}`}`}
-                                                style={!isCustomButtonStyle ? {} : getCustomButtonStyles()}
-                                            >
-                                                {currentTheme.id === 'glass' && !isCustomButtonStyle ? <GlassSurface
-                                                    width="100%"
-                                                    height="auto"
-                                                    borderRadius={borderRadius}
-                                                    displace={0.5}
-                                                    distortionScale={-180}
-                                                    redOffset={0}
-                                                    greenOffset={10}
-                                                    blueOffset={20}
-                                                    brightness={50}
-                                                    opacity={0.93}
-                                                    mixBlendMode="screen"
-                                                    className={`${getHighlightClass(link.highlight)}`}
-                                                >
-                                                    <div className="w-full flex items-center justify-between py-3 px-5">
-                                                        {link.image ? (
-                                                            <img src={link.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
-                                                        ) : (
-                                                            <span className="w-8"></span>
-                                                        )}
-                                                        <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-white text-center">
-                                                            <span className="truncate text-[0.9em] leading-tight font-bold">{link.title}</span>
-                                                            {link.subtitle && (
-                                                                <span className="truncate text-[0.75em] opacity-90 leading-tight mt-0.5">
-                                                                    {link.subtitle}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <span className="w-8 shrink-0"></span>
-                                                    </div>
-                                                </GlassSurface>
-                                                    : (
-                                                        <div className="relative z-10 w-full flex items-center justify-between">
-                                                            {link.image ? (
-                                                                <img src={link.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" />
-                                                            ) : (
-                                                                <span className="w-8"></span>
-                                                            )}
-                                                            <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-center">
-                                                                <span className="truncate text-[0.9em] leading-tight font-bold">{link.title}</span>
-                                                                {link.subtitle && (
-                                                                    <span className="truncate text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5">
-                                                                        {link.subtitle}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            <span className="w-8 shrink-0"></span>
-                                                        </div>
-                                                    )}
-                                            </motion.a>
-                                        );
-                                    })}
+                                        flushIcons();
+                                        flushCards();
+                                        return renderedItems;
+                                    })()}
 
                                     {activeLinks.length === 0 && (
                                         <div className="flex flex-col items-center justify-center py-10 opacity-50 space-y-2">
@@ -1163,7 +1163,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             navigator.clipboard.writeText(profile.supportKey || '');
                                         }
                                     }}
-                                    className={`block w-full ${roundedClass} text-center text-base transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${hasThemeShadow ? '' : 'shadow-sm'} overflow-hidden`}`}
+                                    className={`block w-full ${roundedClass} min-h-[64px] text-center text-base transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-2.5 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${hasThemeShadow ? '' : 'shadow-sm'} overflow-hidden`}`}
                                     style={!profile.customButtonColor ? {} : {
                                         backgroundColor: profile.customButtonColor,
                                         color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
@@ -1216,19 +1216,24 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         </div>
 
                         <motion.div layout className="mt-auto pt-20 mb-12 flex flex-col items-center gap-1 w-full px-4">
-                            <a
-                                href="https://www.noduscc.com.br"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={`group flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md hover:scale-[1.02] mb-2 ${isDarkTheme
-                                    ? 'bg-white text-slate-900'
-                                    : 'bg-slate-900 text-white'
-                                    }`}
-                            >
-                                <span className="text-[13px] tracking-tight">
-                                    Junte-se a {profile.name} no Nodus
-                                </span>
-                            </a>
+                            {(() => {
+                                const isWhiteBg = (profile.customSolidColor?.toLowerCase() === '#ffffff' || profile.customSolidColor?.toLowerCase() === '#fff') ||
+                                    (!profile.customSolidColor && !profile.customBackground && (currentTheme.solidColor?.toLowerCase() === '#ffffff' || currentTheme.id === 'default'));
+                                const btnClass = isWhiteBg ? 'bg-slate-950 text-white' : 'bg-white text-slate-900';
+
+                                return (
+                                    <a
+                                        href="https://www.noduscc.com.br"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`group flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md hover:scale-[1.02] mb-2 ${btnClass}`}
+                                    >
+                                        <span className="text-[13px] tracking-tight">
+                                            Junte-se a {profile.name} no Nodus
+                                        </span>
+                                    </a>
+                                );
+                            })()}
 
                             {/* Legal Links (Minimalist) */}
                             <div className={`flex items-center gap-2 text-[10px] transition-opacity duration-300 ${isDarkTheme ? 'text-white/40 hover:text-white/80' : 'text-slate-400 hover:text-slate-600'}`}>
@@ -1239,8 +1244,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         </motion.div>
                     </div>
                 </LayoutGroup>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

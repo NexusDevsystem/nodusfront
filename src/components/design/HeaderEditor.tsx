@@ -65,7 +65,14 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange }) => {
                     <div className="relative group shrink-0">
                         <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-slate-100 shadow-inner bg-slate-50">
                             {profile.avatarUrl ? (
-                                <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                <img
+                                    src={profile.avatarUrl}
+                                    alt="Avatar"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
+                                    }}
+                                />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-slate-300">
                                     <Camera size={32} />

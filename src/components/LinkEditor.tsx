@@ -15,6 +15,7 @@ import {
   BarChart2,
   Pencil,
   Archive,
+  LayoutGrid,
   LayoutTemplate,
   MessageCircle,
   FolderHeart,
@@ -399,7 +400,8 @@ function SortableLinkItem({
                           <div className="flex gap-2">
                             {[
                               { id: 'classic', label: 'Lista', icon: GripVertical },
-                              { id: 'card', label: 'Card Grande', icon: LayoutTemplate }
+                              { id: 'card', label: 'Card Grande', icon: LayoutTemplate },
+                              { id: 'icon', label: 'Ícone', icon: LayoutGrid }
                             ].map((opt) => (
                               <button
                                 key={opt.id}

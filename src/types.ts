@@ -4,7 +4,7 @@ export interface LinkItem {
   url: string;
   icon?: string;
   isActive: boolean;
-  layout: 'classic' | 'social' | 'card';
+  layout: 'classic' | 'social' | 'card' | 'icon';
   type?: 'link' | 'collection';
   children?: LinkItem[];
   subtitle?: string;

@@ -52,13 +52,13 @@ export default function OnboardingPage() {
                 const { data, error } = await supabase
                     .from('users')
                     .select('id')
-                    .eq('username', username.toLowerCase())
-                    .maybeSingle();
+                    .eq('username', username.toLowerCase());
 
                 if (error) throw error;
-                setAvailable(!data);
+                setAvailable(data.length === 0);
             } catch (err) {
                 console.error('Availability check failed:', err);
+                setAvailable(false); // Assume unavailable on error as a safety measure
             } finally {
                 setChecking(false);
             }
@@ -121,85 +121,108 @@ export default function OnboardingPage() {
     return (
         <div className="min-h-screen w-full bg-white flex flex-col lg:flex-row font-sans overflow-hidden">
 
-            {/* Background elements synchronized with LoginPage */}
-            <div className="fixed inset-0 bg-[radial-gradient(circle_at_bottom_left,#f4f6f3_0%,#ffffff_60%)] opacity-70 pointer-events-none z-0"></div>
-            {/* Background Radial Gradient */}
-            <div className="fixed -bottom-20 -left-20 w-[600px] h-[600px] bg-[#1a2517] rounded-full blur-[150px] opacity-10 pointer-events-none z-0"></div>
 
             {/* Left Side: Form */}
-            <div className="flex-1 flex flex-col items-center justify-center p-8 lg:p-24 relative z-10">
-                <div className="w-full max-w-sm">
-                    {/* Logo Section */}
-                    <div className="flex items-center gap-2 mb-12">
-                        <div className="h-10 relative flex items-center justify-start min-w-[200px]">
-                            <img
-                                src="/icons/logo sem fundo.png"
-                                alt="Nodus Logo"
-                                className="absolute top-1/2 -translate-y-1/2 left-0 h-40 w-auto object-contain max-w-none"
-                            />
+            <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-12 relative border-b-2 lg:border-b-0 lg:border-r-2 border-black z-10">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-16">
+                    <button
+                        onClick={() => navigate('/')}
+                        className="group flex items-center gap-2 font-bold text-sm uppercase hover:text-[#97cd7a] transition-colors"
+                    >
+                        <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none transition-all">
+                            <LinkIcon size={16} />
                         </div>
-                    </div>
+                        Voltar
+                    </button>
+                    <div className="font-black text-2xl tracking-tighter uppercase">NODUS</div>
+                </div>
 
-                    <div className="space-y-2 mb-10">
-                        {step === 1 && <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">Escolha seu link único.</h1>}
-                        {step === 2 && <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">Como você pretende usar o Nodus?</h1>}
-                        {step === 3 && <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">Por onde nos conheceu?</h1>}
-                        <p className="text-slate-500 font-medium">
+                <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+                    <div className="mb-12">
+                        {step === 1 && (
+                            <h1 className="text-6xl lg:text-7xl font-black uppercase leading-[0.9] mb-6">
+                                Escolha seu <br /> Link Único.
+                            </h1>
+                        )}
+                        {step === 2 && (
+                            <h1 className="text-5xl lg:text-6xl font-black uppercase leading-[0.9] mb-6">
+                                Como você <br /> vai usar?
+                            </h1>
+                        )}
+                        {step === 3 && (
+                            <h1 className="text-6xl lg:text-7xl font-black uppercase leading-[0.9] mb-6">
+                                Quase <br /> lá.
+                            </h1>
+                        )}
+                        <p className="font-medium text-lg text-black/70 border-l-4 border-[#ffdf00] pl-4">
                             {step === 1 && "Você poderá alterá-lo depois se precisar."}
                             {step === 2 && "Isso nos ajuda a personalizar sua experiência."}
-                            {step === 3 && "Sua resposta é fundamental para nosso crescimento."}
+                            {step === 3 && "Por onde nos conheceu?"}
                         </p>
                     </div>
 
                     {step === 1 && (
-                        <form onSubmit={handleNextStep} className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Claim your username</label>
-                                <div className="relative group">
-                                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg select-none group-focus-within:text-[#acc8a2] transition-colors">
-                                        noduscc/
-                                    </span>
+                        <form onSubmit={handleNextStep} className="space-y-8">
+                            <div className="space-y-3">
+                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">Claim your username</label>
+                                <div className="group relative">
                                     <input
                                         type="text"
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9._]/g, ''))}
                                         className={`
-                                            w-full bg-white border-2 rounded-[22px] py-5 pl-[100px] pr-12 text-lg font-bold
-                                            focus:outline-none focus:ring-4 transition-all duration-300
-                                            ${available === true ? 'border-[#acc8a2] focus:ring-[#acc8a2]/10' :
-                                                available === false ? 'border-red-400 focus:ring-red-400/10' :
-                                                    'border-slate-100 hover:border-slate-200 focus:border-[#acc8a2] focus:ring-[#acc8a2]/10'}
+                                            w-full bg-white border-2 border-black py-6 pl-[110px] pr-12 text-xl font-black
+                                            shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
+                                            focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] 
+                                            transition-all duration-200
+                                            ${available === true ? 'border-[#97cd7a]' :
+                                                available === false ? 'border-red-500' :
+                                                    'border-black hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}
                                         `}
-                                        placeholder="voce"
+                                        placeholder="você"
                                         required
                                     />
-                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center gap-3">
-                                        {checking && <Loader2 className="animate-spin text-slate-300" size={20} />}
-                                        {!checking && available === true && <Check className="text-[#acc8a2]" size={22} strokeWidth={3} />}
-                                        {!checking && available === false && <X className="text-red-400" size={22} strokeWidth={3} />}
+                                    <div className="absolute left-5 inset-y-0 flex items-center gap-1 text-black font-black text-xl select-none pointer-events-none z-10 
+                                        group-focus-within:text-[#97cd7a] group-focus-within:translate-x-[2px] group-focus-within:translate-y-[2px]
+                                        group-hover:translate-x-[1px] group-hover:translate-y-[1px]
+                                        transition-all duration-200">
+                                        noduscc<span className="opacity-30">/</span>
+                                    </div>
+                                    <div className="absolute right-5 inset-y-0 flex items-center gap-3 bg-white pl-2 z-10
+                                        group-focus-within:translate-x-[2px] group-focus-within:translate-y-[2px]
+                                        group-hover:translate-x-[1px] group-hover:translate-y-[1px]
+                                        transition-all duration-200">
+                                        {checking && <Loader2 className="animate-spin text-black" size={24} />}
+                                        {!checking && available === true && <Check className="text-[#97cd7a]" size={24} strokeWidth={4} />}
+                                        {!checking && available === false && <X className="text-red-500" size={24} strokeWidth={4} />}
                                     </div>
                                 </div>
-                                <div className="h-6">
+                                <div className="h-6 mt-2">
                                     {available === true && (
-                                        <p className="text-[#acc8a2] text-xs font-bold mt-2 ml-4 animate-in fade-in slide-in-from-top-1">Link de usuário disponível!</p>
+                                        <div className="bg-[#97cd7a]/10 border-2 border-[#97cd7a] text-[#5b8c41] px-3 py-1 text-[10px] font-black uppercase tracking-tight inline-block shadow-[2px_2px_0px_0px_#97cd7a]">
+                                            Link disponível!
+                                        </div>
                                     )}
                                     {available === false && username && !checking && (
-                                        <p className="text-red-400 text-xs font-bold mt-2 ml-4 animate-in fade-in slide-in-from-top-1">Este link já está sendo usado.</p>
+                                        <div className="bg-red-50 border-2 border-red-500 text-red-600 px-3 py-1 text-[10px] font-black uppercase tracking-tight inline-block shadow-[2px_2px_0px_0px_#ef4444]">
+                                            Indisponível :(
+                                        </div>
                                     )}
                                 </div>
                             </div>
 
                             <button
                                 type="submit"
-                                disabled={!available || loading}
+                                disabled={!available || loading || checking}
                                 className={`
-                                    w-full h-16 rounded-[22px] font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300
-                                    ${available && !loading
-                                        ? 'bg-slate-900 text-white shadow-xl shadow-black/10 hover:bg-black hover:-translate-y-0.5 active:translate-y-0'
-                                        : 'bg-slate-100 text-slate-300 cursor-not-allowed'}
+                                    w-full h-20 border-2 border-black font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300
+                                    ${available && !loading && !checking
+                                        ? 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
+                                        : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
-                                Continuar
+                                {checking ? <Loader2 className="animate-spin" size={24} /> : 'Continuar'}
                             </button>
                         </form>
                     )}
@@ -215,17 +238,17 @@ export default function OnboardingPage() {
                                     key={cat.id}
                                     onClick={() => setUserCategory(cat.id as any)}
                                     className={`
-                                        w-full p-6 rounded-[24px] border-2 text-left transition-all duration-300 relative group
+                                        w-full p-6 border-2 text-left transition-all duration-200 relative group
                                         ${userCategory === cat.id
-                                            ? 'border-[#acc8a2] bg-[#f4f6f3]'
-                                            : 'border-slate-100 hover:border-slate-200 bg-white shadow-sm'}
+                                            ? 'border-black bg-[#97cd7a] translate-x-[2px] translate-y-[2px] shadow-none'
+                                            : 'border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}
                                     `}
                                 >
-                                    <h3 className={`font-bold text-lg ${userCategory === cat.id ? 'text-slate-900' : 'text-slate-700'}`}>{cat.label}</h3>
-                                    <p className="text-sm text-slate-400 font-medium">{cat.description}</p>
+                                    <h3 className={`font-black uppercase text-xl ${userCategory === cat.id ? 'text-black' : 'text-black'}`}>{cat.label}</h3>
+                                    <p className={`text-sm font-bold ${userCategory === cat.id ? 'text-black/60' : 'text-black/40'}`}>{cat.description}</p>
                                     {userCategory === cat.id && (
-                                        <div className="absolute right-6 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#acc8a2] rounded-full flex items-center justify-center">
-                                            <Check className="text-white" size={14} strokeWidth={3} />
+                                        <div className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 bg-white border-2 border-black flex items-center justify-center">
+                                            <Check className="text-black" size={18} strokeWidth={4} />
                                         </div>
                                     )}
                                 </button>
@@ -234,27 +257,27 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(3)}
                                 disabled={!userCategory}
                                 className={`
-                                    w-full h-16 rounded-[22px] font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300 mt-6
+                                    w-full h-20 border-2 border-black font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6
                                     ${userCategory
-                                        ? 'bg-slate-900 text-white shadow-xl shadow-black/10 hover:bg-black hover:-translate-y-0.5 active:translate-y-0'
-                                        : 'bg-slate-100 text-slate-300 cursor-not-allowed'}
+                                        ? 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
+                                        : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
                                 Continuar
                             </button>
-                            <button onClick={() => setStep(1)} className="w-full text-slate-400 text-sm font-bold hover:text-slate-600 transition-colors">Voltar</button>
+                            <button onClick={() => setStep(1)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">Voltar</button>
                         </div>
                     )}
 
                     {step === 3 && (
-                        <form onSubmit={handleFinalize} className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Sua resposta</label>
+                        <form onSubmit={handleFinalize} className="space-y-8">
+                            <div className="space-y-3">
+                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">Sua resposta</label>
                                 <input
                                     type="text"
                                     value={referralSource}
                                     onChange={(e) => setReferralSource(e.target.value)}
-                                    className="w-full bg-white border-2 border-slate-100 rounded-[22px] py-5 px-6 text-lg font-bold focus:outline-none focus:ring-4 focus:ring-[#acc8a2]/10 focus:border-[#acc8a2] transition-all duration-300"
+                                    className="w-full bg-white border-2 border-black py-6 px-6 text-xl font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all duration-200"
                                     placeholder="Ex: Instagram, Amigo, Google..."
                                     required
                                 />
@@ -264,98 +287,98 @@ export default function OnboardingPage() {
                                 type="submit"
                                 disabled={!referralSource || loading}
                                 className={`
-                                    w-full h-16 rounded-[22px] font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300
+                                    w-full h-20 border-2 border-black font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300
                                     ${referralSource && !loading
-                                        ? 'bg-slate-900 text-white shadow-xl shadow-black/10 hover:bg-black hover:-translate-y-0.5 active:translate-y-0'
-                                        : 'bg-slate-100 text-slate-300 cursor-not-allowed'}
+                                        ? 'bg-[#97cd7a] text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
+                                        : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
                                 {loading ? <Loader2 className="animate-spin" size={24} /> : 'Finalizar Perfil'}
                             </button>
-                            <button type="button" onClick={() => setStep(2)} className="w-full text-slate-400 text-sm font-bold hover:text-slate-600 transition-colors">Voltar</button>
+                            <button type="button" onClick={() => setStep(2)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">Voltar</button>
                         </form>
                     )}
 
                     {error && <p className="mt-4 text-red-500 text-sm font-medium text-center">{error}</p>}
                 </div>
+
+                <div className="mt-auto pt-8 flex justify-between items-end border-t-2 border-black/10">
+                    <div className="text-xs font-bold text-black/30 uppercase">
+                        V 2.0.0
+                    </div>
+                    <div className="text-xs font-bold text-black/30 uppercase">
+                        Secure Onboarding
+                    </div>
+                </div>
             </div>
 
             {/* Right Side: Visual Banner */}
-            <div className="hidden lg:flex flex-1 items-center justify-center relative p-12">
-                <div className="relative z-10 w-full h-full flex items-center justify-center">
-                    {/* Pattern de Background Sutil com transição suave */}
-                    <div
-                        className="absolute inset-x-[-100px] inset-y-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"
-                        style={{
-                            WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
-                            maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)'
-                        }}
-                    ></div>
+            <div className="hidden lg:flex w-1/2 bg-[#ffdf00] relative overflow-hidden items-center justify-center p-12">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10"
+                    style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '30px 30px' }}>
+                </div>
+
+                {/* Big Visual Element */}
+                <div className="relative w-full max-w-lg aspect-square">
+                    {/* Circle Background */}
+                    <div className="absolute inset-0 bg-white rounded-full border-4 border-black shadow-[20px_20px_0px_0px_rgba(0,0,0,1)]"></div>
 
                     {/* Premium Phone Frame */}
-                    <div className="relative w-auto h-full max-h-[80vh] aspect-[9/19] bg-slate-950 rounded-[3rem] shadow-[0_50px_100px_rgba(0,0,0,0.25)] overflow-hidden border-[8px] border-slate-900 ring-1 ring-white/10 z-10 transition-transform hover:scale-[1.02] duration-500">
-                        {/* Internal Image Background */}
-                        <div className="absolute inset-0 bg-slate-900 flex items-center justify-center">
+                    <div className="absolute inset-0 flex items-center justify-center z-10">
+                        <div className="relative w-auto h-[85%] aspect-[9/19] bg-slate-950 rounded-[2.5rem] shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] overflow-hidden border-[6px] border-black ring-1 ring-white/10 transition-transform hover:scale-[1.02] duration-500 animate-float">
                             <img
                                 src="/mockup.jpeg"
                                 alt="Mockup Preview"
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-cover"
                             />
+                            {/* Mobile Notch Bar */}
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[35%] h-5 bg-black rounded-b-xl z-20"></div>
                         </div>
-                        {/* Mobile Notch Bar */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[35%] h-6 bg-slate-900 rounded-b-2xl"></div>
                     </div>
 
-                    {/* Floating Elements for "Wow" Factor */}
-
-                    {/* 1. Verified Badge */}
-                    <div className="absolute top-[15%] left-0 lg:-left-6 bg-white rounded-2xl p-4 shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center gap-3 border border-slate-100 animate-float z-20">
-                        <div className="w-10 h-10 bg-[#acc8a2] rounded-full flex items-center justify-center shadow-lg shadow-[#acc8a2]/20">
-                            <Check className="text-white" size={20} strokeWidth={3} />
+                    {/* Brutalist Floating elements */}
+                    {/* 1. Status */}
+                    <div className="absolute top-0 left-0 bg-white border-2 border-black p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3 transform -rotate-3 z-20 animate-float">
+                        <div className="w-8 h-8 bg-[#97cd7a] border-2 border-black rounded-full flex items-center justify-center">
+                            <Check className="text-black" size={16} strokeWidth={4} />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-1">Status</span>
-                            <span className="font-bold text-slate-800">Perfil Ativo</span>
+                            <span className="text-[10px] text-black/40 font-black uppercase tracking-widest leading-none">Status</span>
+                            <span className="font-black text-black text-xs uppercase">Perfil Ativo</span>
                         </div>
                     </div>
 
-                    {/* 2. Mini Analytics Card */}
-                    <div className="absolute top-[40%] right-0 lg:-right-4 bg-white/80 backdrop-blur-xl rounded-2xl p-5 shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-white/50 w-[180px] animate-float-delayed z-20">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                                <span className="text-blue-500 text-xs font-bold">↗</span>
+                    {/* 2. Analytics */}
+                    <div className="absolute top-[20%] -right-8 bg-white border-2 border-black p-4 shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] flex flex-col gap-2 transform rotate-6 z-20 animate-float-delayed w-36">
+                        <div className="flex justify-between items-center">
+                            <div className="w-6 h-6 border-2 border-black bg-blue-400 flex items-center justify-center">
+                                <LinkIcon size={12} className="text-white" />
                             </div>
-                            <span className="text-[10px] font-bold text-green-500 bg-green-50 px-2 py-0.5 rounded-full">+12%</span>
+                            <span className="text-[10px] font-black bg-[#97cd7a] text-black px-1.5 border-2 border-black">+12%</span>
                         </div>
-                        <div className="space-y-1">
-                            <span className="text-[11px] text-slate-400 font-medium">Cliques Totais</span>
-                            <div className="text-2xl font-black text-slate-800">2.840</div>
-                        </div>
-                        <div className="mt-4 flex gap-1 items-end h-8">
-                            {[40, 70, 45, 90, 65, 80].map((h, i) => (
-                                <div key={i} className="flex-1 bg-[#acc8a2]/20 rounded-t-sm" style={{ height: `${h}%` }}></div>
-                            ))}
-                        </div>
+                        <div className="text-2xl font-black text-black">2.840</div>
+                        <div className="text-[9px] font-black text-black/30 uppercase tracking-tighter">Cliques Totais</div>
                     </div>
 
-                    {/* 3. Design Selection Badge */}
-                    <div className="absolute bottom-[20%] left-0 lg:-left-10 bg-slate-900 text-white rounded-2xl p-4 shadow-2xl border border-white/10 flex items-center gap-4 animate-float z-20">
-                        <div className="grid grid-cols-2 gap-1.5">
-                            <div className="w-3 h-3 bg-[#acc8a2] rounded-full"></div>
-                            <div className="w-3 h-3 bg-white/20 rounded-full"></div>
-                            <div className="w-3 h-3 bg-white/20 rounded-full"></div>
-                            <div className="w-3 h-3 bg-white/20 rounded-full"></div>
+                    {/* 3. Theme */}
+                    <div className="absolute bottom-[10%] -left-8 bg-black text-white border-2 border-black p-4 shadow-[6px_6px_0px_0px_#ffdf00] flex items-center gap-3 transform rotate-2 z-20 animate-float">
+                        <div className="grid grid-cols-2 gap-1">
+                            <div className="w-2 h-2 bg-[#97cd7a] border-[1px] border-white/20"></div>
+                            <div className="w-2 h-2 bg-white/10 border-[1px] border-white/20"></div>
+                            <div className="w-2 h-2 bg-white/10 border-[1px] border-white/20"></div>
+                            <div className="w-2 h-2 bg-white/10 border-[1px] border-white/20"></div>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Tema</span>
-                            <span className="font-bold text-sm">Glassmorphism</span>
+                            <span className="text-[9px] text-white/40 font-black uppercase tracking-widest leading-none mb-1">Theme</span>
+                            <span className="font-black text-white text-[10px] uppercase">Brutalism</span>
                         </div>
                     </div>
 
-                    {/* Floating tag refined */}
-                    <div className="absolute bottom-4 right-12 bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full border border-slate-100 shadow-xl text-slate-500 text-[11px] font-bold flex items-center gap-2 z-20">
-                        <div className="w-2 h-2 bg-[#acc8a2] rounded-full animate-pulse"></div>
-                        PREVIEW EM TEMPO REAL
+                    {/* 4. Realtime Badge */}
+                    <div className="absolute -bottom-4 right-10 bg-white border-2 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black text-[10px] font-black uppercase flex items-center gap-2 z-20">
+                        <div className="w-3 h-3 bg-red-500 border-2 border-black animate-pulse"></div>
+                        Live Preview
                     </div>
                 </div>
             </div>

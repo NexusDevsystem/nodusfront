@@ -137,6 +137,7 @@ export const THEMES: Theme[] = [
     textClass: 'text-sky-900',
     avatarBorder: 'border-sky-100',
     solidColor: '#f0f9ff',
+    buttonHex: '#ffffff',
     category: 'solid'
   },
   {
@@ -147,6 +148,7 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#e0b0ff]',
     avatarBorder: 'border-[#5a2e91]',
     solidColor: '#1a0b2e',
+    buttonHex: '#3d1d6d',
     category: 'solid'
   },
   {
@@ -157,6 +159,7 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#d1e8e2]',
     avatarBorder: 'border-[#2d4a3e]',
     solidColor: '#0f1f1a',
+    buttonHex: '#2d4a3e',
     category: 'solid'
   },
   {
@@ -167,6 +170,7 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#C5A059]',
     avatarBorder: 'border-[#C5A059]',
     solidColor: '#0a0a0a',
+    buttonHex: '#C5A059',
     category: 'solid'
   },
   {
@@ -177,6 +181,7 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#ffd1dc]',
     avatarBorder: 'border-[#8b2b5a]',
     solidColor: '#4a0e2e',
+    buttonHex: '#8b2b5a',
     category: 'solid'
   },
   {
@@ -187,6 +192,7 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#f0f8ff]',
     avatarBorder: 'border-[#4a555e]',
     solidColor: '#24292e',
+    buttonHex: '#39414a',
     category: 'solid'
   },
   {
@@ -209,6 +215,7 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#acc8a2]',
     avatarBorder: 'border-[#acc8a2]',
     solidColor: '#1a2517',
+    buttonHex: '#acc8a2',
     category: 'solid'
   },
   {
@@ -219,6 +226,7 @@ export const THEMES: Theme[] = [
     textClass: 'text-[#4b0082]',
     avatarBorder: 'border-[#dcd0ff]',
     solidColor: '#e6e6fa',
+    buttonHex: '#ffffff',
     category: 'solid'
   },
   {
@@ -256,6 +264,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-white/30',
     isPro: true,
     solidColor: '#ec4899', // Pink bottom
+    buttonHex: '#ffffff',
     category: 'gradient'
   },
   {
@@ -267,6 +276,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-white/40',
     isPro: true,
     solidColor: '#e11d48', // Rose bottom
+    buttonHex: '#ffffff',
     category: 'gradient'
   },
   {
@@ -278,6 +288,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-white/50',
     isPro: true,
     solidColor: '#4f46e5', // Brand 600 indigo? Wait brand-600 is usually indigo/purple. Assuming default tailwind indigo-600 #4f46e5
+    buttonHex: '#ffffff',
     category: 'gradient'
   },
   {
@@ -289,6 +300,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-cyan-200/30',
     isPro: true,
     solidColor: '#0f172a', // Slate 900
+    buttonHex: '#0891b2', // cyan-600
     category: 'gradient'
   },
   {
@@ -300,6 +312,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-white',
     isPro: true,
     solidColor: '#4ade80', // Green 400 bottom left? Actually gradient to BL means top-right to bottom-left. So Green is top-right, Emerald is bottom-left. Emerald-600: #059669
+    buttonHex: '#ffffff',
     category: 'gradient'
   },
   {
@@ -311,6 +324,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-black border-4',
     isPro: true,
     solidColor: '#facc15',
+    buttonHex: '#ffffff',
     category: 'gradient'
   },
   {
@@ -322,6 +336,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-[#00ff41]',
     isPro: true,
     solidColor: '#000000',
+    buttonHex: '#000000',
     category: 'gradient'
   },
   {
@@ -333,6 +348,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-[#D4AF37]',
     isPro: true,
     solidColor: '#121212',
+    buttonHex: '#121212',
     category: 'gradient'
   },
   {
@@ -344,6 +360,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-[#e0e5ec] shadow-[5px_5px_10px_rgb(163,177,198),-5px_-5px_10px_rgba(255,255,255,0.5)]',
     isPro: true,
     solidColor: '#e0e5ec',
+    buttonHex: '#e0e5ec',
     category: 'gradient'
   },
   {
@@ -355,6 +372,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-white border-dashed border-2',
     isPro: true,
     solidColor: '#0044cc',
+    buttonHex: '#0044cc',
     category: 'gradient'
   },
   {
@@ -366,6 +384,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-black',
     isPro: true,
     solidColor: '#f5f5f0',
+    buttonHex: '#f5f5f0',
     category: 'gradient'
   },
 
@@ -379,6 +398,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.5)]',
     isPro: true,
     solidColor: '#000000',
+    buttonHex: '#ffffff',
     category: 'animated'
   },
   {
@@ -390,6 +410,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-purple-400/30',
     isPro: true,
     solidColor: '#0a0a0a',
+    buttonHex: '#ffffff',
     category: 'animated'
   },
   {
@@ -401,6 +422,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-white/20',
     isPro: true,
     solidColor: '#020617',
+    buttonHex: '#ffffff',
     category: 'animated'
   },
   {
@@ -412,6 +434,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-[#00ff41]',
     isPro: true,
     solidColor: '#000000',
+    buttonHex: '#000000',
     category: 'animated'
   },
   {
@@ -423,6 +446,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-[#ff00ff] shadow-[0_0_10px_#00ffff]',
     isPro: true,
     solidColor: '#050505',
+    buttonHex: '#000000',
     category: 'animated'
   },
   {
@@ -434,6 +458,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-[#acc8a2] shadow-none',
     isPro: true,
     solidColor: '#0f1f1a',
+    buttonHex: '#acc8a2',
     category: 'animated'
   },
   {
@@ -445,6 +470,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-white/20',
     isPro: true,
     solidColor: '#0f172a',
+    buttonHex: '#ffffff',
     category: 'animated'
   },
   {
@@ -456,6 +482,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-fuchsia-500 shadow-[0_0_15px_rgba(217,70,239,0.5)]',
     isPro: true,
     solidColor: '#050510',
+    buttonHex: '#050510',
     category: 'animated'
   },
   {
@@ -500,6 +527,7 @@ export const THEMES: Theme[] = [
     avatarBorder: 'border-white ring-4 ring-[#4DD0E1]/30',
     isPro: true,
     solidColor: '#E0F7FA',
+    buttonHex: '#ffffff',
     category: 'animated'
   },
   {

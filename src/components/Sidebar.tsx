@@ -21,7 +21,8 @@ import {
   HelpCircle,
   CreditCard,
   CalendarDays,
-  ReceiptText
+  ReceiptText,
+  User
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -107,8 +108,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
           <div className="w-2 h-2 rounded-full bg-[#acc8a2] animate-pulse"></div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl border-2 border-slate-100 overflow-hidden shadow-sm shrink-0">
-            <img src={userProfile.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'} alt="Public" className="w-full h-full object-cover" />
+          <div className="w-12 h-12 rounded-2xl border-2 border-slate-100 overflow-hidden shadow-sm shrink-0 bg-slate-50">
+            <img
+              src={userProfile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`}
+              alt="Public"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`;
+              }}
+            />
           </div>
           <div className="flex-1 overflow-hidden">
             <h3 className="text-sm font-bold text-slate-800 truncate leading-none mb-1">{userProfile.name}</h3>
@@ -207,8 +215,20 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
         </div>
 
         <div className="flex items-center gap-3 p-2 rounded-xl bg-white border border-slate-100 shadow-sm group/account relative transition-all duration-300 hover:border-brand-100 hover:shadow-md">
-          <div className="w-10 h-10 rounded-full border border-slate-100 overflow-hidden shadow-inner shrink-0">
-            <img src={user?.picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'} alt="Account" className="w-full h-full object-cover" />
+          <div className="w-10 h-10 rounded-full border border-slate-100 overflow-hidden shadow-inner shrink-0 bg-slate-50 flex items-center justify-center">
+            {user?.picture ? (
+              <img
+                src={user.picture}
+                alt="Account"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            ) : (
+              <User size={18} className="text-slate-400" />
+            )}
           </div>
           <div className="flex-1 overflow-hidden pr-8">
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter leading-none mb-0.5">Conta Logada</p>
