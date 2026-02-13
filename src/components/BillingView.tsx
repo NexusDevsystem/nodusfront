@@ -119,10 +119,20 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
     const handleSelectPlan = (planId: string) => {
         if (planId === currentPlan) return;
 
-        const links: Record<string, string> = {
+        // Automatically detect if we are in production
+        const isProd = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1');
+
+        const testLinks: Record<string, string> = {
             monthly: 'https://donate.stripe.com/test_dRm5kDesReNLbC7aJr0sU00',
             annual: 'https://donate.stripe.com/test_9B68wPckJ7ljay3eZH0sU01'
         };
+
+        const liveLinks: Record<string, string> = {
+            monthly: 'https://donate.stripe.com/dRm5kDesReNLbC7aJr0sU00',
+            annual: 'https://donate.stripe.com/9B68wPckJ7ljay3eZH0sU01'
+        };
+
+        const links = isProd ? liveLinks : testLinks;
 
         let targetUrl = links[planId];
         if (targetUrl) {
