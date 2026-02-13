@@ -120,8 +120,8 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
         if (planId === currentPlan) return;
 
         const links: Record<string, string> = {
-            monthly: 'https://donate.stripe.com/test_7sYeV68QB5EA9qxbRWb7y01',
-            annual: 'https://donate.stripe.com/test_bJe8wI8QBd729qx4pub7y00'
+            monthly: 'https://donate.stripe.com/test_dRm5kDesReNLbC7aJr0sU00',
+            annual: 'https://donate.stripe.com/test_9B68wPckJ7ljay3eZH0sU01'
         };
 
         let targetUrl = links[planId];
