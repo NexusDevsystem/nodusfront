@@ -103,7 +103,7 @@ function SortableLinkItem({
                     type="text"
                     value={link.title}
                     onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                    className="w-full font-bold text-slate-800 bg-transparent border-none focus:ring-0 p-0 text-sm placeholder:text-slate-300 truncate"
+                    className="w-full font-semibold text-slate-800 bg-transparent border-none focus:ring-0 p-0 text-sm placeholder:text-slate-300 truncate"
                     placeholder="Nome da Coleção"
                   />
                   <div className="text-[10px] text-slate-400 font-medium mt-0.5 truncate">
@@ -140,41 +140,45 @@ function SortableLinkItem({
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden bg-slate-50/50"
                 >
-                  <div className="p-6 pl-12 border-t border-slate-100 space-y-8">
-                    {/* Collection Layout Picker */}
-                    <div className="space-y-3 pb-6 border-b border-slate-100">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Layout do Grupo</label>
-                      <div className="flex gap-2">
-                        {[
-                          { id: 'stacked', label: 'Lista Empilhada', desc: 'Links aparecem um abaixo do outro', icon: <LayoutGrid size={18} /> },
-                          { id: 'carousel', label: 'Carrossel Horizontal', desc: 'Deslize lateral para ver os itens', icon: <Sparkles size={18} /> }
-                        ].map((opt) => (
-                          <button
-                            key={opt.id}
-                            onClick={() => updateLink(link.id, 'layout', opt.id)}
-                            className={`flex-1 p-3 rounded-xl border text-left flex items-start gap-3 transition-all ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id
-                              ? 'bg-[#32a800]/5 border-[#32a800] ring-1 ring-[#32a800]/10'
-                              : 'bg-white border-slate-200 hover:border-slate-300'
-                              }`}
-                          >
-                            <div className={`shrink-0 flex items-center justify-center p-2 rounded-lg ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'bg-[#32a800] text-white' : 'bg-slate-50 text-slate-400'}`}>
-                              {opt.icon}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className={`text-xs font-semibold mb-0.5 truncate ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'text-[#32a800]' : 'text-slate-700'}`}>{opt.label}</div>
-                              <div className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-1">{opt.desc}</div>
-                            </div>
-                          </button>
-                        ))}
+                  <div className="overflow-hidden bg-slate-50/50">
+                    <div className="p-3 md:p-6 md:pl-12 border-t border-slate-100 space-y-5 md:space-y-8">
+                      {/* Collection Layout Picker */}
+                      <div className="space-y-3 pb-6 border-b border-slate-100">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Layout do Grupo</label>
+                        <div className="flex flex-col gap-2">
+                          {[
+                            { id: 'stacked', label: 'Lista Empilhada', desc: 'Links um abaixo do outro', icon: <LayoutGrid size={16} /> },
+                            { id: 'carousel', label: 'Carrossel', desc: 'Deslize lateral para ver', icon: <Sparkles size={16} /> }
+                          ].map((opt) => (
+                            <button
+                              key={opt.id}
+                              onClick={() => updateLink(link.id, 'layout', opt.id)}
+                              className={`flex-1 p-3 rounded-xl border text-left flex items-center sm:items-start gap-3 transition-all ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id
+                                ? 'bg-[#32a800]/5 border-[#32a800] ring-1 ring-[#32a800]/10'
+                                : 'bg-white border-slate-200 hover:border-slate-300'
+                                }`}
+                            >
+                              <div className={`shrink-0 flex items-center justify-center p-2 rounded-lg ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'bg-[#32a800] text-white' : 'bg-slate-50 text-slate-400'}`}>
+                                {opt.icon}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className={`text-xs truncate ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'text-[#32a800]' : 'text-slate-700'}`}>{opt.label}</div>
+                                <div className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-1">{opt.desc}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="md:px-0">
+                        <LinkEditor
+                          links={link.children || []}
+                          onChange={(newChildren) => updateLink(link.id, 'children', newChildren)}
+                          level={level + 1}
+                          profile={profile}
+                        />
                       </div>
                     </div>
-
-                    <LinkEditor
-                      links={link.children || []}
-                      onChange={(newChildren) => updateLink(link.id, 'children', newChildren)}
-                      level={level + 1}
-                      profile={profile}
-                    />
                   </div>
                 </motion.div>
               )}
@@ -229,22 +233,22 @@ function SortableLinkItem({
 
               {/* Title & Chevron (Click to Expand) */}
               <div
-                className="flex-1 min-w-0 pr-6 py-4 cursor-pointer group/title"
+                className="flex-1 min-w-0 pr-2 py-4 cursor-pointer group/title"
                 onClick={() => toggleLink(link.id)}
               >
-                <div className="font-semibold text-slate-800 truncate text-sm">
+                <div className="font-semibold text-slate-800 truncate text-xs md:text-sm">
                   {link.title || 'Link sem título'}
                 </div>
-                <div className="text-xs text-slate-400 truncate mt-0.5">
+                <div className="text-[10px] md:text-xs text-slate-400 truncate mt-0.5">
                   {link.url || 'Suas redes ou site'}
                 </div>
               </div>
 
               {/* Right Actions: Edit(Expand) & Switch */}
-              <div className="flex items-center gap-3 md:gap-6 pr-3 md:pr-6 shrink-0">
+              <div className="flex items-center gap-2 md:gap-6 pr-3 md:pr-6 shrink-0">
                 <button
                   onClick={() => toggleLink(link.id)}
-                  className={`p-2 rounded-xl transition-all ${isExpanded ? 'text-[#32a800] bg-[#32a800]/5 rotate-180' : 'text-slate-300 hover:text-slate-600 bg-slate-50 hover:bg-slate-100'}`}
+                  className={`p-1.5 md:p-2 rounded-xl transition-all ${isExpanded ? 'text-[#32a800] bg-[#32a800]/5 rotate-180' : 'text-slate-300 hover:text-slate-600 bg-slate-50 hover:bg-slate-100'}`}
                 >
                   <ChevronDown size={18} />
                 </button>
@@ -256,7 +260,7 @@ function SortableLinkItem({
                     onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#32a800]"></div>
+                  <div className="w-8 md:w-9 h-4 md:h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 md:after:h-4 after:w-3 md:after:w-4 after:transition-all peer-checked:bg-[#32a800]"></div>
                 </label>
               </div>
             </div>
@@ -271,24 +275,24 @@ function SortableLinkItem({
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden bg-slate-50/20"
                 >
-                  <div className="px-10 pb-10 pt-8 border-t border-slate-100">
+                  <div className="px-4 md:px-10 pb-6 md:pb-10 pt-6 md:pt-8 border-t border-slate-100">
                     {/* Main Edit Form */}
-                    <div className="flex items-start gap-10 mb-10">
+                    <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 mb-8 md:mb-10">
                       {/* Expanded Image (Larger with controls) */}
                       <div className="relative shrink-0">
                         {link.image ? (
-                          <div className="w-24 h-24 rounded-2xl overflow-hidden border border-slate-200 relative group/img shadow-sm">
+                          <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden border border-slate-200 relative group/img shadow-sm">
                             <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-white/90 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                            <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-3">
                               <button
                                 onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                                className="p-3 bg-white rounded-full text-slate-600 hover:text-[#32a800] shadow-md border border-slate-100"
+                                className="p-2.5 bg-white rounded-full text-slate-600 hover:text-[#32a800] shadow-md border border-slate-100"
                               >
                                 <Pencil size={18} />
                               </button>
                               <button
                                 onClick={() => updateLink(link.id, 'image', undefined)}
-                                className="p-3 bg-white rounded-full text-slate-400 hover:text-red-500 shadow-md border border-slate-100"
+                                className="p-2.5 bg-white rounded-full text-slate-400 hover:text-red-500 shadow-md border border-slate-100"
                               >
                                 <Trash2 size={18} />
                               </button>
@@ -297,10 +301,10 @@ function SortableLinkItem({
                         ) : (
                           <button
                             onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                            className="w-24 h-24 bg-white border border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:border-[#32a800] hover:text-[#32a800] transition-all group/btn"
+                            className="w-20 h-20 md:w-24 md:h-24 bg-white border border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:border-[#32a800] hover:text-[#32a800] transition-all group/btn"
                           >
-                            <ImageIcon size={24} className="mb-2" />
-                            <span className="text-[10px] font-semibold uppercase tracking-wider">Imagem</span>
+                            <ImageIcon size={20} className="mb-1" />
+                            <span className="text-[9px] font-bold uppercase tracking-wider">Imagem</span>
                           </button>
                         )}
                       </div>
@@ -366,8 +370,8 @@ function SortableLinkItem({
                     </div>
 
                     {/* Settings & Config */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10 pt-4 border-t border-slate-100/50">
-                      <div className="space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mb-8 md:mb-10 pt-6 md:pt-8 border-t border-slate-100/50">
+                      <div className="space-y-6 md:space-y-8">
                         {/* Plataforma / Embed */}
                         <div className="space-y-3">
                           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Plataforma</label>
@@ -430,20 +434,20 @@ function SortableLinkItem({
                         </div>
                       </div>
 
-                      <div className="space-y-8">
+                      <div className="space-y-6 md:space-y-8">
                         {/* Layout Picker */}
                         <div className="space-y-3">
                           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Layout do Botão</label>
                           <div className="flex flex-col gap-2">
                             {[
-                              { id: 'classic', label: 'Botão Clássico', desc: 'Largura total com ícone lateral', icon: <LayoutGrid size={18} /> },
-                              { id: 'card', label: 'Card Moderno', desc: 'Bordas arredondadas e sombra', icon: <LayoutTemplate size={18} /> },
-                              { id: 'icon', label: 'Ícone Solo', desc: 'Apenas o ícone em formato circular', icon: <Sparkles size={18} /> }
+                              { id: 'classic', label: 'Botão Clássico', desc: 'Largura total com ícone', icon: <LayoutGrid size={16} /> },
+                              { id: 'card', label: 'Card Moderno', desc: 'Arredondado e sombra', icon: <LayoutTemplate size={16} /> },
+                              { id: 'icon', label: 'Ícone Solo', desc: 'Apenas ícone circular', icon: <Sparkles size={16} /> }
                             ].map((opt) => (
                               <button
                                 key={opt.id}
                                 onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                className={`p-4 rounded-xl border text-left flex items-start gap-4 transition-all ${link.layout === opt.id
+                                className={`p-3 md:p-4 rounded-xl border text-left flex items-start gap-4 transition-all ${link.layout === opt.id
                                   ? 'bg-[#32a800]/5 border-[#32a800] ring-1 ring-[#32a800]/10'
                                   : 'bg-white border-slate-200 hover:border-slate-300'
                                   }`}
@@ -452,11 +456,11 @@ function SortableLinkItem({
                                   {opt.icon}
                                 </div>
                                 <div className="flex-1">
-                                  <div className={`text-sm font-semibold mb-0.5 ${link.layout === opt.id ? 'text-[#32a800]' : 'text-slate-700'}`}>{opt.label}</div>
-                                  <div className="text-[10px] text-slate-400 font-medium leading-tight">{opt.desc}</div>
+                                  <div className={`text-xs md:text-sm font-semibold mb-0.5 ${link.layout === opt.id ? 'text-[#32a800]' : 'text-slate-700'}`}>{opt.label}</div>
+                                  <div className="text-[9px] md:text-[10px] text-slate-400 font-medium leading-tight">{opt.desc}</div>
                                 </div>
                                 {link.layout === opt.id && (
-                                  <div className="w-2 h-2 rounded-full bg-[#32a800] mt-2 shadow shadow-[#32a800]/50" />
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#32a800] mt-2" />
                                 )}
                               </button>
                             ))}

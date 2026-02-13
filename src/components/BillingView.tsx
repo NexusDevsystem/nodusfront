@@ -7,7 +7,8 @@ import {
     ArrowRight,
     ShieldCheck,
     Loader2,
-    PartyPopper
+    PartyPopper,
+    Star
 } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import confetti from 'canvas-confetti';
@@ -26,13 +27,13 @@ const PLANS = [
         description: 'Tudo o que você precisa para começar sua presença online.',
         features: [
             'Links ilimitados',
-            'Temas básicos',
+            'Newsletter Widget',
+            'Temas básicos animados',
             'Analytics básico (7 dias)',
             'Suporte via email'
         ],
         buttonText: 'Plano Atual',
         highlight: false,
-        theme: 'bg-white border-slate-200 text-slate-800'
     },
     {
         id: 'monthly',
@@ -42,32 +43,31 @@ const PLANS = [
         description: 'Recursos avançados para profissionais e criadores.',
         features: [
             'Todos os recursos do Gratuito',
-            'Temas Premium e Personalizados',
-            'Cores e Fundos customizados',
+            'Temas Pro & Exclusividade',
+            'Design Personalizado (Cores/Blur)',
             'Analytics completo (30 dias)',
-            'Loja com produtos ilimitados'
+            'Loja com produtos ilimitados',
+            'Suporte prioritário'
         ],
         buttonText: 'Assinar Mensal',
         highlight: true,
-        theme: 'bg-white border-brand-500 shadow-xl shadow-brand-500/10'
     },
     {
         id: 'annual',
         name: 'Anual',
-        price: 'R$ 299,00',
+        price: 'R$ 299',
         period: '/ano',
-        description: 'A melhor escolha para quem quer economizar e crescer.',
+        description: 'A melhor escolha para quem quer crescer rápido.',
         features: [
-            'Todos os recursos do Plano Mensal',
-            'Economia de R$ 59,80 ao ano',
-            'Equivalente a 2 meses grátis',
-            'Suporte prioritário',
-            'Acesso antecipado a novos recursos'
+            '2 Meses Grátis (Economia R$ 59)',
+            'Todos os recursos do Mensal',
+            'Acesso antecipado a Beta',
+            'Selo de Conta Verificada',
+            'Remover marca Nodus'
         ],
         buttonText: 'Assinar Anual',
         highlight: false,
         badge: 'Melhor Valor',
-        theme: 'bg-white border-slate-200 hover:border-brand-300 shadow-sm'
     }
 ];
 
@@ -81,20 +81,18 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
         let pollInterval: NodeJS.Timeout;
 
         if (status === 'pending') {
-            // Poll profile every 3 seconds to check for upgrade
             pollInterval = setInterval(async () => {
                 try {
-                    const profile = await apiClient.getMyProfile();
-                    if (profile.planType !== 'free' && profile.planType !== currentPlan) {
+                    const updatedProfile = await apiClient.getMyProfile();
+                    if (updatedProfile.planType !== 'free' && updatedProfile.planType !== currentPlan) {
                         setStatus('success');
-                        onChange(profile);
+                        onChange(updatedProfile);
 
-                        // Fire confetti!
                         confetti({
                             particleCount: 150,
                             spread: 70,
                             origin: { y: 0.6 },
-                            colors: ['#2563eb', '#1e40af', '#60a5fa']
+                            colors: ['#32a800', '#acc8a2', '#ffffff']
                         });
 
                         clearInterval(pollInterval);
@@ -104,7 +102,6 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                 }
             }, 3000);
 
-            // Timeout after 5 minutes
             const timeout = setTimeout(() => {
                 if (status === 'pending') {
                     setStatus('idle');
@@ -141,14 +138,14 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
     if (status === 'success') {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-center animate-scale-in">
-                <div className="w-24 h-24 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-brand-500/20">
+                <div className="w-24 h-24 bg-emerald-50 text-[#32a800] rounded-[32px] flex items-center justify-center mb-8 shadow-xl shadow-emerald-500/10 rotate-3">
                     <PartyPopper size={48} />
                 </div>
-                <h2 className="text-3xl font-black text-slate-900 mb-4">¡Parabéns! Upgrade Concluído</h2>
-                <p className="text-slate-600 max-w-md mx-auto mb-8 text-lg font-medium">
-                    Sua conta agora é <span className="text-brand-600 font-bold uppercase italic">{profile.planType === 'monthly' ? 'Premium Mensal' : 'Premium Anual'}</span>. Aproveite todos os recursos liberados!
+                <h2 className="text-3xl font-bold text-slate-900 mb-4 tracking-tight">Upgrade Concluído!</h2>
+                <p className="text-slate-500 max-w-md mx-auto mb-10 text-lg font-medium leading-relaxed">
+                    Sua conta agora é <span className="text-[#32a800] font-bold uppercase tracking-wide">{profile.planType === 'monthly' ? 'Premium Mensal' : 'Premium Anual'}</span>. Aproveite todos os recursos liberados!
                 </p>
-                <div className="bg-emerald-50 text-emerald-700 px-6 py-3 rounded-2xl border border-emerald-100 font-bold flex items-center gap-2">
+                <div className="bg-[#32a800] text-white px-8 py-3 rounded-2xl font-bold flex items-center gap-3 shadow-lg shadow-[#32a800]/20">
                     <ShieldCheck size={20} />
                     Assinatura Ativa
                 </div>
@@ -158,20 +155,18 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
 
     if (status === 'pending') {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
-                <div className="relative">
-                    <Loader2 size={64} className="text-brand-500 animate-spin" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <CreditCard size={24} className="text-brand-400" />
-                    </div>
+            <div className="flex flex-col items-center justify-center py-24 text-center animate-fade-in">
+                <div className="relative mb-8">
+                    <div className="absolute inset-0 bg-[#32a800]/10 blur-2xl rounded-full animate-pulse"></div>
+                    <Loader2 size={64} className="text-[#32a800] animate-spin relative z-10" />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-3">Aguardando Pagamento</h2>
-                <p className="text-slate-500 max-w-sm mx-auto leading-relaxed">
-                    Estamos processando sua transação com a Stripe. Fique tranquilo, o sistema atualizará sozinho em instantes...
+                <h2 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">Aguardando Pagamento</h2>
+                <p className="text-slate-500 max-w-xs mx-auto leading-relaxed font-medium">
+                    Estamos processando sua transação com a Stripe. O sistema atualizará sozinho em instantes...
                 </p>
                 <button
                     onClick={() => setStatus('idle')}
-                    className="mt-8 text-sm font-bold text-slate-400 hover:text-slate-600 underline decoration-slate-200 underline-offset-4"
+                    className="mt-10 text-xs font-bold text-slate-400 hover:text-[#32a800] uppercase tracking-widest transition-colors duration-300"
                 >
                     Voltar para os planos
                 </button>
@@ -182,40 +177,44 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
     return (
         <div className="animate-fade-in pb-8">
             {/* Plans Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-6 max-w-6xl mx-auto">
                 {PLANS.map((plan) => (
                     <div
                         key={plan.id}
                         className={`
-                            relative rounded-[32px] border-2 p-8 flex flex-col transition-all duration-500 group
-                            ${plan.theme}
-                            ${plan.highlight ? 'scale-[1.05] z-10' : 'hover:scale-[1.02]'}
+                            relative bg-white p-6 md:p-8 rounded-[32px] border transition-all duration-500 flex flex-col group
+                            ${plan.highlight
+                                ? 'border-[#32a800] shadow-[0_20px_40px_-15px_rgba(50,168,0,0.12)] md:scale-[1.03] z-10'
+                                : 'border-slate-100 hover:border-slate-200 shadow-sm'}
                         `}
                     >
                         {plan.badge && (
-                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-xl">
+                            <div className="absolute -top-4 left-6 px-4 py-1.5 bg-[#32a800] text-white text-[10px] font-bold uppercase tracking-wider rounded-full shadow-lg shadow-[#32a800]/20 flex items-center gap-1.5">
+                                <Star size={10} fill="currentColor" />
                                 {plan.badge}
                             </div>
                         )}
 
                         <div className="mb-8">
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 group-hover:text-brand-600 transition-colors">
+                            <span className={`text-[10px] font-bold uppercase tracking-[0.2em] mb-3 block ${plan.highlight ? 'text-[#32a800]' : 'text-slate-400'}`}>
                                 {plan.name}
-                            </h3>
+                            </span>
                             <div className="flex items-baseline gap-1 mb-4">
-                                <span className="text-5xl font-black text-slate-900 tracking-tight">{plan.price}</span>
+                                <span className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">{plan.price}</span>
                                 <span className="text-slate-400 font-bold text-sm tracking-wide">{plan.period}</span>
                             </div>
-                            <p className="text-sm text-slate-500 leading-relaxed font-medium">{plan.description}</p>
+                            <p className="text-sm text-slate-500 leading-relaxed font-medium line-clamp-2">{plan.description}</p>
                         </div>
 
                         <div className="space-y-4 mb-10 flex-1">
                             {plan.features.map((feature, idx) => (
-                                <div key={idx} className="flex items-start gap-4">
-                                    <div className={`mt-0.5 w-6 h-6 rounded-xl flex items-center justify-center shrink-0 ${plan.highlight ? 'bg-brand-50 text-brand-600' : 'bg-slate-50 text-slate-400'}`}>
-                                        <Check size={14} strokeWidth={3} />
+                                <div key={idx} className="flex items-start gap-3">
+                                    <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${plan.highlight ? 'bg-emerald-50 text-[#32a800]' : 'bg-slate-50 text-slate-300'}`}>
+                                        <Check size={12} strokeWidth={3} />
                                     </div>
-                                    <span className="text-sm text-slate-600 font-bold tracking-tight">{feature}</span>
+                                    <span className={`text-sm tracking-tight font-medium ${plan.highlight ? 'text-slate-700' : 'text-slate-500'}`}>
+                                        {feature}
+                                    </span>
                                 </div>
                             ))}
                         </div>
@@ -224,11 +223,11 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                             onClick={() => handleSelectPlan(plan.id)}
                             disabled={plan.id === currentPlan}
                             className={`
-                                w-full py-5 rounded-2xl text-xs font-black transition-all duration-300 flex items-center justify-center gap-3 uppercase tracking-widest
+                                w-full py-4 rounded-2xl text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 uppercase tracking-widest
                                 ${plan.id === currentPlan
-                                    ? 'bg-slate-50 text-slate-400 cursor-default border-2 border-slate-100'
+                                    ? 'bg-slate-50 text-slate-400 cursor-default border border-slate-100'
                                     : plan.highlight
-                                        ? 'bg-brand-900 text-white hover:bg-black shadow-xl shadow-brand-900/20'
+                                        ? 'bg-[#32a800] text-white hover:bg-[#2a8c00] shadow-xl shadow-[#32a800]/10 hover:shadow-[#32a800]/20'
                                         : 'bg-slate-900 text-white hover:bg-black shadow-lg shadow-slate-900/10'}
                             `}
                         >
@@ -248,12 +247,14 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                 ))}
             </div>
 
-            {/* Micro Support Footer */}
+            {/* Support Footer */}
             <div className="mt-12 text-center">
-                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2">
-                    <Zap size={14} className="text-brand-500" />
-                    Pagamento 100% seguro via Stripe
-                </p>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full border border-slate-100">
+                    <ShieldCheck size={14} className="text-[#32a800]" />
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                        Pagamento 100% seguro via Stripe
+                    </span>
+                </div>
             </div>
         </div>
     );

@@ -15,7 +15,6 @@ import {
   ChevronRight,
   Sparkles,
   Layers,
-  Settings,
   LogOut,
   ExternalLink,
   HelpCircle,
@@ -78,7 +77,6 @@ const MENU_GROUPS: MenuGroup[] = [
         icon: Users,
         disabled: false
       },
-      { id: 'settings', label: 'Configurações & SEO', icon: Settings, disabled: false },
     ]
   }
 ];
@@ -190,7 +188,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                         )}
                         {isLocked && (
                           <div className="flex items-center gap-1">
-                            <span className="text-[10px] bg-brand-100 text-brand-600 px-1.5 py-0.5 rounded-md font-bold">PRO</span>
+                            <span className="text-[10px] bg-emerald-50 text-[#32a800] px-1.5 py-0.5 rounded-md font-bold">PRO</span>
                             <Zap size={12} className="text-brand-400" />
                           </div>
                         )}
@@ -215,7 +213,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
         <div className="flex flex-col gap-1 px-1 mb-4">
           <button
             onClick={() => setActiveTab('billing')}
-            className={`flex items-center gap-2 text-[11px] font-bold transition-colors py-2 px-1 w-fit ${activeTab === 'billing' ? 'text-brand-600' : 'text-slate-500 hover:text-brand-600'}`}
+            className={`flex items-center gap-2 text-[11px] font-bold transition-colors py-2 px-1 w-fit ${activeTab === 'billing' ? 'text-[#32a800]' : 'text-slate-500 hover:text-[#32a800]'}`}
           >
             <CreditCard size={14} className="opacity-70" />
             Faturamento

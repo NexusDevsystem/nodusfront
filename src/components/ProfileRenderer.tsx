@@ -27,35 +27,14 @@ import {
 import YouTubeEmbed from './YouTubeEmbed';
 import verifiedBadge from '../assets/verified-badge.png';
 
-import NodusOfficialBackground from './NodusOfficialBackground';
+import BackgroundLayer from './BackgroundLayer';
 import { apiClient } from '../services/apiClient';
 import { SiSpotify } from 'react-icons/si';
-
 // @ts-ignore
 import NewsletterWidget from './NewsletterWidget';
-// ... rest of imports ...
 import Prism from './Prism';
-
-// @ts-ignore
-import LightPillar from './LightPillar';
-import Ballpit from './Ballpit';
-import Iridescence from './Iridescence';
-import PrismaticBurst from './PrismaticBurst';
-import Beams from './Beams';
-import Silk from './Silk';
 import GlassSurface from './GlassSurface';
-import {
-    SynthwaveBackground, AudioPulseBackground, VinylBackground,
-    ElectricStormBackground, JazzBackground, AcousticBackground,
-    LofiBackground, PopBackground, TechnoBackground, ClassicalBackground
-} from './MusicBackgrounds';
-import { PixelBackground } from './CreativeBackgrounds';
-import {
-    KawaiiCloudsBackground, KawaiiStarsBackground, KawaiiGardenBackground,
-    KawaiiPeachBackground, KawaiiMilkBackground, KawaiiRainbowBackground,
-    KawaiiJellyBackground, KawaiiBakeryBackground, KawaiiSpaceBackground,
-    KawaiiMatchaBackground, KawaiiSakuraBackground, KawaiiSakuraForeground
-} from './KawaiiBackgrounds';
+import { KawaiiSakuraForeground } from './KawaiiBackgrounds';
 
 interface ProfileRendererProps {
     profile: UserProfile;
@@ -117,7 +96,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             currentTheme.id.includes('midnight') ||
             currentTheme.id.includes('vampire') ||
             currentTheme.id.includes('animated-') ||
-            ['luxury-gold', 'leafy', 'evergreen', 'golden-hour', 'berry-blast', 'steel-blue', 'ballpit', 'iridescence', 'prismatic-burst', 'beams', 'silk'].includes(currentTheme.id) ||
+            ['luxury-gold', 'leafy', 'evergreen', 'golden-hour', 'berry-blast', 'steel-blue', 'iridescence', 'prismatic-burst', 'beams', 'silk'].includes(currentTheme.id) ||
             currentTheme.id === 'kawaii-space' ||
             currentTheme.id === 'creative-pixel' ||
             (currentTheme.id.startsWith('music-') && currentTheme.id !== 'music-classical-flow') ||
@@ -242,6 +221,22 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         ? `${getCleanedThemeButtonClass(currentTheme.buttonClass)} ${roundedClass}`
         : getCleanedThemeButtonClass(currentTheme.buttonClass);
 
+    const buttonHex = currentTheme.buttonHex;
+    // Lower threshold for more aggressive light button detection (white is 1, so 0.6 is quite early)
+    const isButtonLight = buttonHex ? getLuminance(buttonHex) > 0.6 : false;
+
+    // Universal Helper for Button Text Contrast
+    const getSmartTextColor = () => {
+        // 1. If the button specifically is light, we MUST use dark text for visibility
+        if (isButtonLight) return '#0f172a'; // slate-900 equivalent
+        // 2. If it's a glass theme or has a custom photo background, use white for premium contrast
+        if (currentTheme.id === 'glass' || profile.customBackground) return '#ffffff';
+        // 3. If the theme's default text class is white (e.g. dark themes), follow that
+        if (currentTheme.textClass.includes('text-white')) return '#ffffff';
+        // 4. Default to undefined to let Tailwind/Inheritance handle it
+        return undefined;
+    };
+
     const textClass = currentTheme.textClass;
 
 
@@ -281,132 +276,24 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 }
             `}</style>
             {/* Background Layer */}
-            <div className="absolute inset-0 z-0 overflow-hidden">
-                {profile.customSolidColor ? (
-                    <div className="absolute inset-0" style={{ backgroundColor: profile.customSolidColor }}></div>
-                ) : profile.customBackground ? (
-                    <div className="absolute inset-0">
-                        <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/20"></div>
-                    </div>
-                ) : currentTheme.id === 'music-synth-wave' ? (
-                    <SynthwaveBackground />
-                ) : currentTheme.id === 'music-audio-pulse' ? (
-                    <AudioPulseBackground />
-                ) : currentTheme.id === 'music-vinyl-groove' ? (
-                    <VinylBackground />
-                ) : currentTheme.id === 'music-electric-storm' ? (
-                    <ElectricStormBackground />
-                ) : currentTheme.id === 'music-jazz-lounge' ? (
-                    <JazzBackground />
-                ) : currentTheme.id === 'music-acoustic-vibe' ? (
-                    <AcousticBackground />
-                ) : currentTheme.id === 'music-lofi-beats' ? (
-                    <LofiBackground />
-                ) : currentTheme.id === 'music-pop-star' ? (
-                    <PopBackground />
-                ) : currentTheme.id === 'music-techno-core' ? (
-                    <TechnoBackground />
-                ) : currentTheme.id === 'music-classical-flow' ? (
-                    <ClassicalBackground />
-                ) : currentTheme.id === 'kawaii-clouds' ? (
-                    <KawaiiCloudsBackground />
-                ) : currentTheme.id === 'kawaii-stars' ? (
-                    <KawaiiStarsBackground />
-                ) : currentTheme.id === 'kawaii-garden' ? (
-                    <KawaiiGardenBackground />
-                ) : currentTheme.id === 'kawaii-peach' ? (
-                    <KawaiiPeachBackground />
-                ) : currentTheme.id === 'kawaii-milk' ? (
-                    <KawaiiMilkBackground />
-                ) : currentTheme.id === 'kawaii-rainbow' ? (
-                    <KawaiiRainbowBackground />
-                ) : currentTheme.id === 'kawaii-jelly' ? (
-                    <KawaiiJellyBackground />
-                ) : currentTheme.id === 'kawaii-bakery' ? (
-                    <KawaiiBakeryBackground />
-                ) : currentTheme.id === 'kawaii-space' ? (
-                    <KawaiiSpaceBackground />
-                ) : currentTheme.id === 'kawaii-matcha' ? (
-                    <KawaiiMatchaBackground />
-                ) : currentTheme.id === 'kawaii-sakura' ? (
-                    <KawaiiSakuraBackground />
-                ) : currentTheme.id === 'creative-pixel' ? (
-                    <PixelBackground />
-                ) : currentTheme.id === 'animated-nodus-official' ? (
-                    <NodusOfficialBackground />
-                ) : currentTheme.id === 'ballpit' ? (
-                    <Ballpit
-                        count={60}
-                        gravity={0.3}
-                        friction={0.9975}
-                        wallBounce={0.95}
-                        followCursor={false}
-                        colors={[0x2563eb, 0xffffff, 0x7c3aed, 0xdb2777]}
-                    />
-                ) : currentTheme.id === 'iridescence' ? (
-                    <Iridescence
-                        color={[0.5, 0.6, 0.8]}
-                        mouseReact
-                        amplitude={0.1}
-                        speed={1}
-                    />
-                ) : currentTheme.id === 'prismatic-burst' ? (
-                    <PrismaticBurst
-                        animationType="rotate3d"
-                        intensity={2}
-                        speed={0.5}
-                        distort={0}
-                        paused={false}
-                        offset={{ x: 0, y: 0 }}
-                        hoverDampness={0.25}
-                        rayCount={0}
-                        mixBlendMode="lighten"
-                        colors={['#ff007a', '#4d3dff', '#ffffff']}
-                    />
-                ) : currentTheme.id === 'beams' ? (
-                    <Beams
-                        beamWidth={3}
-                        beamHeight={30}
-                        beamNumber={20}
-                        lightColor="#ffffff"
-                        speed={2}
-                        noiseIntensity={1.75}
-                        scale={0.2}
-                        rotation={30}
-                    />
-                ) : currentTheme.id === 'silk' ? (
-                    <Silk
-                        speed={5}
-                        scale={1}
-                        color="#7B7481"
-                        noiseIntensity={1.5}
-                        rotation={0}
-                    />
-                ) : (
-                    <div
-                        className={`absolute inset-0 ${currentTheme.backgroundClass}`}
-                        style={currentTheme.category === 'solid' && profile.customSolidColor ? { backgroundColor: profile.customSolidColor } : {}}
-                    ></div>
-                )}
+            <BackgroundLayer profile={profile} currentTheme={currentTheme} isStatic={isStatic} />
 
-                {/* GLOBAL BLUR FADE OVERLAY */}
-                {profile.enableBlur && (
-                    <>
-                        {/* Final Refined Backdrop Blur Overlay */}
-                        <div
-                            className="absolute inset-0 z-10 pointer-events-none"
-                            style={{
-                                backgroundColor: 'transparent',
-                                maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
-                                WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
-                                backdropFilter: 'blur(80px)',
-                                WebkitBackdropFilter: 'blur(80px)'
-                            }}
-                        />
-                    </>
-                )}
-            </div>
+            {/* GLOBAL BLUR FADE OVERLAY */}
+            {profile.enableBlur && (
+                <>
+                    {/* Final Refined Backdrop Blur Overlay */}
+                    <div
+                        className="absolute inset-0 z-10 pointer-events-none"
+                        style={{
+                            backgroundColor: 'transparent',
+                            maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
+                            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
+                            backdropFilter: 'blur(80px)',
+                            WebkitBackdropFilter: 'blur(80px)'
+                        }}
+                    />
+                </>
+            )}
 
             {/* Content Container */}
             <div
@@ -849,8 +736,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             )}
                                                                         </div>
                                                                         <div className="p-2.5 flex flex-col justify-center items-center text-center h-16 relative">
-                                                                            <span className="text-[0.7em] leading-tight truncate px-1 font-bold" style={{ color: (profile.customBackground || currentTheme.id === 'glass') ? 'white' : (currentTheme.textClass.includes('text-white') ? 'white' : undefined) }}>{cardLink.title}</span>
-                                                                            {cardLink.subtitle && <span className="text-[0.62em] leading-tight truncate px-1 opacity-60 mt-0.5" style={{ color: (profile.customBackground || currentTheme.id === 'glass') ? 'white' : (currentTheme.textClass.includes('text-white') ? 'white' : undefined) }}>{cardLink.subtitle}</span>}
+                                                                            <span className="text-[0.7em] leading-tight truncate px-1 font-bold" style={{ color: getSmartTextColor() }}>{cardLink.title}</span>
+                                                                            {cardLink.subtitle && <span className="text-[0.62em] leading-tight truncate px-1 opacity-60 mt-0.5" style={{ color: getSmartTextColor() }}>{cardLink.subtitle}</span>}
                                                                         </div>
                                                                     </div>
                                                                 </motion.a>
@@ -922,8 +809,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                 {child.image ? <img src={child.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
                                                                                             </div>
                                                                                             <div className="p-2 flex flex-col justify-center items-center text-center h-12 relative">
-                                                                                                <span className="text-[0.7em] leading-tight truncate font-bold w-full" style={{ color: (profile.customBackground || currentTheme.id === 'glass') ? 'white' : (currentTheme.textClass.includes('text-white') ? 'white' : undefined) }}>{child.title}</span>
-                                                                                                {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60 w-full" style={{ color: (profile.customBackground || currentTheme.id === 'glass') ? 'white' : (currentTheme.textClass.includes('text-white') ? 'white' : undefined) }}>{child.subtitle}</span>}
+                                                                                                <span className="text-[0.7em] leading-tight truncate font-bold w-full" style={{ color: getSmartTextColor() }}>{child.title}</span>
+                                                                                                {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60 w-full" style={{ color: getSmartTextColor() }}>{child.subtitle}</span>}
                                                                                             </div>
                                                                                         </div>
                                                                                     </motion.a>
@@ -974,8 +861,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             <div className="relative z-10 w-full flex items-center justify-between">
                                                                                                 {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
                                                                                                 <div className="flex-1 px-1 flex flex-col justify-center text-center">
-                                                                                                    <span className="text-[0.9em] leading-tight font-bold break-words">{child.title}</span>
-                                                                                                    {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words">{child.subtitle}</span>}
+                                                                                                    <span className="text-[0.9em] leading-tight font-bold break-words" style={{ color: getSmartTextColor() }}>{child.title}</span>
+                                                                                                    {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ color: getSmartTextColor() }}>{child.subtitle}</span>}
                                                                                                 </div>
                                                                                                 <span className="w-8 shrink-0"></span>
                                                                                             </div>
@@ -1017,8 +904,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         <div className="relative z-10 w-full flex items-center justify-between px-2">
                                                                             {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
                                                                             <div className="flex-1 px-1 flex flex-col justify-center text-center">
-                                                                                <span className="text-[0.9em] leading-tight font-bold break-words">{link.title}</span>
-                                                                                {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words">{link.subtitle}</span>}
+                                                                                <span className="text-[0.9em] leading-tight font-bold break-words" style={{ color: getSmartTextColor() }}>{link.title}</span>
+                                                                                {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ color: getSmartTextColor() }}>{link.subtitle}</span>}
                                                                             </div>
                                                                             <span className="w-8 shrink-0"></span>
                                                                         </div>
@@ -1098,8 +985,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 ) : (
                                                     <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
                                                 )}
-                                                <span className="truncate flex-1 px-3">Apoiar</span>
-                                                <span className="w-8 opacity-50 flex justify-end"><Coffee size={20} /></span>
+                                                <span className="truncate flex-1 px-3" style={{ color: getSmartTextColor() }}>Apoiar</span>
+                                                <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={20} /></span>
                                             </div>
                                         </>
                                     )}

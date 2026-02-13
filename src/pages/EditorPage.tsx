@@ -7,11 +7,10 @@ import LinkEditor from '../components/LinkEditor';
 import ShopEditor from '../components/ShopEditor';
 import Preview from '../components/Preview';
 import Sidebar from '../components/Sidebar';
-import { Plus, Trash2, GripVertical, Settings, Image as ImageIcon, Layout, Palette, Type, MousePointer2, Smartphone, Monitor, Share2, Eye, ExternalLink, Globe, ChevronRight, Menu, X, Check, Save, Loader2, Play, PlusCircle, Search, List, MessageCircle, HelpCircle, Construction, Mail } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Image as ImageIcon, Layout, Palette, Type, MousePointer2, Smartphone, Monitor, Share2, Eye, ExternalLink, Globe, ChevronRight, Menu, X, Check, Save, Loader2, Play, PlusCircle, Search, List, MessageCircle, HelpCircle, Construction, Mail } from 'lucide-react';
 import SocialLinksEditor from '../components/SocialLinksEditor';
 import AnalyticsView from '../components/AnalyticsView';
 import AudienceView from '../components/AudienceView';
-import SettingsView from '../components/SettingsView';
 import MonetizationView from '../components/MonetizationView';
 import ManageBillingView from '../components/ManageBillingView';
 import BillingModal from '../components/BillingModal';
@@ -112,123 +111,133 @@ export default function EditorPage() {
     const linksLoadHandled = React.useRef(false);
     const productsLoadHandled = React.useRef(false);
 
-    // Track last saved state to prevent redundant requests (stop duplication loop)
+    // Track last saved state to prevent redundant requests
     const lastSavedLinks = React.useRef<string>('');
+    const lastSavedProfile = React.useRef<string>('');
+    const lastSavedProducts = React.useRef<string>('');
 
-    // Track saving states for each entity for more reliable feedback
+    // Track saving states for each entity
     const [isSavingProfile, setIsSavingProfile] = React.useState(false);
     const [isSavingLinks, setIsSavingLinks] = React.useState(false);
     const [isSavingProducts, setIsSavingProducts] = React.useState(false);
 
     const isSaving = isSavingProfile || isSavingLinks || isSavingProducts;
 
-    // Manual save for profile and products
-    const handleManualSave = async () => {
-        if (!profile.id) return;
+    // --- AUTO-SAVE: PROFILE ---
+    React.useEffect(() => {
+        if (!hasLoadedOnce || !profile.id) return;
 
-        setIsSavingProfile(true);
-        setIsSavingProducts(true);
-
-        try {
-            // Save profile and products in parallel
-            await Promise.all([
-                apiClient.updateProfile(profile),
-                apiClient.replaceAllProducts(products)
-            ]);
-
-            // Success feedback could be added here (e.g., toast)
-        } catch (error) {
-            console.error('Failed to save data:', error);
-            // Error feedback could be added here
-        } finally {
-            setIsSavingProfile(false);
-            setIsSavingProducts(false);
+        // Initialize ref on first successful load
+        if (!profileLoadHandled.current) {
+            profileLoadHandled.current = true;
+            lastSavedProfile.current = JSON.stringify(profile);
+            return;
         }
-    };
 
-    // Save links changes to API with Debounce & Deep Compare (KEEP UNCHANGED)
+        const currentProfileString = JSON.stringify(profile);
+        if (currentProfileString === lastSavedProfile.current) return;
+
+        const saveProfile = async () => {
+            setIsSavingProfile(true);
+            try {
+                await apiClient.updateProfile(profile);
+                lastSavedProfile.current = JSON.stringify(profile);
+            } catch (error) {
+                console.error('Auto-save profile failed:', error);
+            } finally {
+                setIsSavingProfile(false);
+            }
+        };
+
+        const timeoutId = setTimeout(saveProfile, 2000);
+        return () => clearTimeout(timeoutId);
+    }, [profile, hasLoadedOnce]);
+
+    // --- AUTO-SAVE: LINKS ---
     React.useEffect(() => {
         if (!hasLoadedOnce) return;
 
         if (!linksLoadHandled.current) {
             linksLoadHandled.current = true;
-            // Initialize lastSaved state on first load to avoid immediate save
             lastSavedLinks.current = JSON.stringify(links);
             return;
         }
 
-        // Deep equality check: Only save if content ACTUALLY changed
         const currentLinksString = JSON.stringify(links);
-        if (currentLinksString === lastSavedLinks.current) {
-            return;
-        }
+        if (currentLinksString === lastSavedLinks.current) return;
 
         const saveLinks = async () => {
             setIsSavingLinks(true);
             const linksSnapshot = links;
             try {
-                // console.log('Saving links...', linksSnapshot.length);
                 const savedLinks = await apiClient.replaceAllLinks(linksSnapshot);
 
-                // Update the "last saved" ref to the VERSION WE JUST RECEIVED/SYNCED
-                // This is crucial: if we save X, backend returns X' (with UUIDs).
-                // We MUST update state to X'. Then lastSaved becomes X'. 
-                // Next render checks X' vs X' -> No Save.
-
-                // Sync IDs back to state
+                // Sync backend-generated IDs back to state
                 setLinks(currentLinks => {
                     if (savedLinks.length !== linksSnapshot.length) return currentLinks;
-
                     const idMap = new Map<string, string>();
-
                     const buildMap = (sent: LinkItem[], received: LinkItem[]) => {
                         for (let i = 0; i < sent.length; i++) {
-                            if (sent[i].id !== received[i].id) {
-                                idMap.set(sent[i].id, received[i].id);
-                            }
-                            if (sent[i].children && received[i].children && sent[i].children!.length === received[i].children!.length) {
-                                buildMap(sent[i].children!, received[i].children!);
-                            }
+                            if (sent[i].id !== received[i].id) idMap.set(sent[i].id, received[i].id);
+                            if (sent[i].children && received[i].children) buildMap(sent[i].children!, received[i].children!);
                         }
                     };
-
                     buildMap(linksSnapshot, savedLinks);
 
                     if (idMap.size === 0) {
-                        // If no IDs changed, we still strict update the ref to current state
                         lastSavedLinks.current = JSON.stringify(currentLinks);
                         return currentLinks;
                     }
 
-                    const updateIds = (items: LinkItem[]): LinkItem[] => {
-                        return items.map(item => ({
-                            ...item,
-                            id: idMap.get(item.id) || item.id,
-                            children: item.children ? updateIds(item.children) : undefined
-                        }));
-                    };
+                    const updateIds = (items: LinkItem[]): LinkItem[] => items.map(item => ({
+                        ...item,
+                        id: idMap.get(item.id) || item.id,
+                        children: item.children ? updateIds(item.children) : undefined
+                    }));
 
                     const updatedLinks = updateIds(currentLinks);
-
-                    // Update reference to the NEW state (with UUIDs)
                     lastSavedLinks.current = JSON.stringify(updatedLinks);
-
                     return updatedLinks;
                 });
-
             } catch (error) {
-                console.error('Failed to save links:', error);
+                console.error('Auto-save links failed:', error);
             } finally {
                 setIsSavingLinks(false);
             }
         };
 
-        const timeoutId = setTimeout(saveLinks, 3000); // Debounce 3s
+        const timeoutId = setTimeout(saveLinks, 3000);
         return () => clearTimeout(timeoutId);
     }, [links, hasLoadedOnce]);
 
-    // Products auto-save removed in favor of manual save button
-    // Links still use auto-save below.
+    // --- AUTO-SAVE: PRODUCTS ---
+    React.useEffect(() => {
+        if (!hasLoadedOnce) return;
+
+        if (!productsLoadHandled.current) {
+            productsLoadHandled.current = true;
+            lastSavedProducts.current = JSON.stringify(products);
+            return;
+        }
+
+        const currentProductsString = JSON.stringify(products);
+        if (currentProductsString === lastSavedProducts.current) return;
+
+        const saveProducts = async () => {
+            setIsSavingProducts(true);
+            try {
+                await apiClient.replaceAllProducts(products);
+                lastSavedProducts.current = JSON.stringify(products);
+            } catch (error) {
+                console.error('Auto-save products failed:', error);
+            } finally {
+                setIsSavingProducts(false);
+            }
+        };
+
+        const timeoutId = setTimeout(saveProducts, 2500);
+        return () => clearTimeout(timeoutId);
+    }, [products, hasLoadedOnce]);
 
     React.useEffect(() => {
         document.title = 'Nodus | Editor';
@@ -255,7 +264,8 @@ export default function EditorPage() {
                 <UpgradeBanner onUpgradeClick={() => setIsBillingModalOpen(true)} />
             )}
 
-            <div className="flex-1 flex overflow-hidden relative rounded-t-[24px] md:rounded-t-[32px] bg-white shadow-2xl">
+            <div className={`flex-1 flex overflow-hidden relative bg-white shadow-2xl ${profile.planType === 'free' ? 'rounded-t-[24px] md:rounded-t-[32px]' : ''
+                }`}>
                 {/* Loading Overlay */}
                 {isLoading && (
                     <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center">
@@ -310,47 +320,47 @@ export default function EditorPage() {
                     setActiveTab={setActiveTab}
                     userProfile={profile}
                     onUpgradeClick={() => setIsBillingModalOpen(true)}
-                    className={`hidden md:flex h-full rounded-tl-[24px] md:rounded-tl-[32px]`}
+                    className={`hidden md:flex h-full ${profile.planType === 'free' ? 'rounded-tl-[24px] md:rounded-tl-[32px]' : ''
+                        }`}
                 />
 
                 {/* Main Layout */}
                 <main className="flex-1 flex flex-col md:flex-row w-full h-full relative transition-all duration-300">
 
                     {/* Mobile Header */}
-                    <div className="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shrink-0 z-30 rounded-t-[24px] shadow-sm">
+                    <div className={`md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shrink-0 z-30 shadow-sm ${profile.planType === 'free' ? 'rounded-t-[24px]' : ''
+                        }`}>
                         <div className="flex items-center gap-3">
                             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                                 <Menu size={24} className="text-slate-700" />
                             </button>
                             <h1 className="font-bold text-slate-800">Nodus</h1>
                         </div>
-                        <div className="flex gap-2 items-center">
-                            {isSaving && (
-                                <div className="flex items-center gap-1.5 px-3 py-1 bg-brand-50 text-brand-700 rounded-full animate-pulse border border-brand-100 mr-1">
-                                    <Save size={12} />
-                                    <span className="text-[10px] font-bold uppercase tracking-wider">Salvando</span>
-                                </div>
-                            )}
+                        <div className="flex gap-1 items-center">
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-300">
+                                {isSaving ? (
+                                    <>
+                                        <Loader2 size={12} className="animate-spin text-[#32a800]" />
+                                        <span className="text-[9px] font-bold uppercase tracking-widest text-[#32a800]">Salvando</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Check size={12} className="text-slate-400 font-bold" />
+                                        <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Salvo</span>
+                                    </>
+                                )}
+                            </div>
                             <button
                                 onClick={() => setIsShareModalOpen(true)}
-                                className="p-2 text-slate-600 bg-slate-100 rounded-full hover:bg-slate-200"
+                                className="p-2 text-slate-500 hover:text-[#32a800] active:bg-slate-50 rounded-lg transition-all"
                             >
-                                <Share2 size={18} />
+                                <Share2 size={20} />
                             </button>
                             <button
-                                onClick={handleManualSave}
-                                disabled={isSaving}
-                                className={`flex items-center gap-2 text-sm font-bold text-white px-5 py-2 rounded-full transition-all ${isSaving ? 'bg-slate-400' : 'bg-slate-900 shadow-lg active:scale-95'}`}
-                            >
-                                {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                                {isSaving ? 'Salvando...' : 'Salvar'}
-                            </button>
-                            <button
-                                className="flex items-center gap-2 text-sm font-medium text-brand-700 bg-brand-50 px-4 py-2 rounded-full border border-brand-100"
+                                className="p-2 text-slate-500 active:text-[#32a800] active:bg-slate-50 rounded-lg transition-all"
                                 onClick={() => setShowMobilePreview(!showMobilePreview)}
                             >
-                                <Eye size={16} />
-                                {showMobilePreview ? 'Editar' : 'Preview'}
+                                {showMobilePreview ? <Plus size={20} /> : <Eye size={20} />}
                             </button>
                         </div>
                     </div>
@@ -380,37 +390,40 @@ export default function EditorPage() {
                     <div className={`flex-1 h-full overflow-y-auto scrollbar-hide ${showMobilePreview ? 'hidden lg:block' : 'block'}`}>
 
                         {/* Desktop Header (Sticky) */}
-                        <header className="hidden md:flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 sticky top-0 z-20 rounded-tr-[24px] md:rounded-tr-[32px]">
+                        <header className={`hidden md:flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 sticky top-0 z-20 ${profile.planType === 'free' ? 'rounded-tr-[24px] md:rounded-tr-[32px]' : ''
+                            }`}>
                             <div className="flex items-center gap-2">
                                 {/* Breadcrumb or Title */}
                                 <h1 className="text-xl font-bold text-slate-800">Editor</h1>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={handleManualSave}
-                                    disabled={isSaving}
-                                    className={`flex items-center gap-2 px-6 py-2 rounded-lg transition-all text-sm font-bold ${isSaving
-                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                        : 'bg-slate-900 text-white hover:bg-slate-800 shadow-md active:scale-95'
-                                        }`}
-                                >
-                                    {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                                    {isSaving ? 'Salvando...' : 'Salvar Alterações'}
-                                </button>
+                            <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-300 border border-transparent mr-2">
+                                    {isSaving ? (
+                                        <>
+                                            <Loader2 size={14} className="animate-spin text-[#32a800]" />
+                                            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#32a800]">Sincronizando</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                                            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Alterações Salvas</span>
+                                        </>
+                                    )}
+                                </div>
                                 <button
                                     onClick={() => setIsShareModalOpen(true)}
-                                    className="flex items-center gap-2 px-4 py-2 text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors text-sm font-medium"
+                                    title="Compartilhar"
+                                    className="p-2 text-slate-500 hover:text-[#32a800] hover:bg-slate-50 rounded-lg transition-all active:scale-95"
                                 >
-                                    <Share2 size={16} />
-                                    Compartilhar
+                                    <Share2 size={20} />
                                 </button>
                                 <a
                                     href={shareUrl}
                                     target="_blank"
-                                    className="flex items-center gap-2 px-4 py-2 text-brand-700 bg-brand-50 hover:bg-brand-100 rounded-lg border border-brand-200 transition-colors text-sm font-medium"
+                                    title="Abrir Link Público"
+                                    className="p-2 text-slate-500 hover:text-[#32a800] hover:bg-slate-50 rounded-lg transition-all active:scale-95"
                                 >
-                                    <ExternalLink size={16} />
-                                    Abrir Link
+                                    <ExternalLink size={20} />
                                 </a>
                             </div>
                         </header>
@@ -458,10 +471,6 @@ export default function EditorPage() {
 
                                 {activeTab === 'audience' && (
                                     <AudienceView />
-                                )}
-
-                                {activeTab === 'settings' && (
-                                    <SettingsView profile={profile} onChange={setProfile} />
                                 )}
 
                                 {activeTab === 'earn' && (

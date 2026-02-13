@@ -8,6 +8,7 @@ import { apiClient } from '../services/apiClient';
 // @ts-ignore
 import LightPillar from '../components/LightPillar';
 import QRCodeModal from '../components/QRCodeModal';
+import BackgroundLayer from '../components/BackgroundLayer';
 
 export default function PublicProfilePage() {
     const { username } = useParams<{ username: string }>();
@@ -92,24 +93,15 @@ export default function PublicProfilePage() {
     return (
         <div className="w-full h-screen relative flex justify-center overflow-hidden md:pt-8" style={{ backgroundColor: themeBgColor }}>
 
-            {/* Dynamic Fuzzy Background */}
-            <div className="fixed inset-0 z-0 overflow-hidden">
-                <div
-                    className="absolute inset-0 blur-[100px] scale-150 transition-colors duration-1000"
-                    style={{ backgroundColor: themeBgColor }}
-                ></div>
+            {/* Dynamic Full Page Background Layer */}
+            <div className="fixed inset-0 z-0 overflow-hidden scale-110">
+                <BackgroundLayer profile={profile} currentTheme={currentTheme} />
 
-                {profile.customBackground && (
-                    <div className="absolute inset-0">
-                        <img src={profile.customBackground} alt="" className="w-full h-full object-cover blur-3xl scale-110 opacity-30" />
-                    </div>
-                )}
+                {/* Immersive Blur Overlay */}
+                <div className="absolute inset-0 backdrop-blur-[80px] bg-black/10 transition-colors duration-1000"></div>
 
-                {/* Adaptive Overlay: Darker for light themes to provide contrast, vice-versa */}
-                <div className={`absolute inset-0 backdrop-blur-[60px] ${
-                    // Detect if it's a dark background (using a simple heuristic for now, or just making it universally softer)
-                    currentTheme.id === 'kawaii-space' ? 'bg-black/20' : 'bg-white/5'
-                    }`}></div>
+                {/* Ambient Glow / Grain Layer */}
+                <div className="absolute inset-0 opacity-20 pointer-events-none mix-blend-soft-light"></div>
             </div>
 
 
