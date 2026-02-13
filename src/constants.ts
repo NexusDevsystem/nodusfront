@@ -149,6 +149,56 @@ export const THEMES: Theme[] = [
     category: 'animated'
   },
   {
+    id: 'gradient-sunset-horizon',
+    name: 'Sunset Horizon',
+    backgroundClass: 'bg-gradient-to-br from-[#ff512f] to-[#dd2476]',
+    buttonClass: 'bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-2xl font-bold shadow-lg hover:bg-white/30 transition-all border-none',
+    textClass: 'text-white',
+    avatarBorder: 'border-white border-4 shadow-xl',
+    isPro: true,
+    category: 'gradient'
+  },
+  {
+    id: 'gradient-deep-ocean',
+    name: 'Deep Ocean',
+    backgroundClass: 'bg-gradient-to-t from-[#0f2027] via-[#203a43] to-[#2c5364]',
+    buttonClass: 'bg-cyan-500/10 backdrop-blur-xl text-cyan-50 border border-cyan-400/20 rounded-full font-medium tracking-wide shadow-[0_0_15px_rgba(34,211,238,0.2)]',
+    textClass: 'text-slate-100',
+    avatarBorder: 'border-cyan-400/50 border-2 shadow-2xl',
+    isPro: true,
+    category: 'gradient'
+  },
+  {
+    id: 'gradient-midnight-neon',
+    name: 'Midnight Neon',
+    backgroundClass: 'bg-gradient-to-br from-[#000000] to-[#434343]',
+    buttonClass: 'bg-transparent text-[#00f3ff] border-2 border-[#00f3ff] rounded-none font-black uppercase tracking-widest shadow-[4px_4px_0_#ff00ff] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_#ff00ff] transition-all',
+    textClass: 'text-[#ff00ff] font-black',
+    avatarBorder: 'border-[#ff00ff] border-4 shadow-[0_0_20px_#00f3ff]',
+    isPro: true,
+    category: 'gradient'
+  },
+  {
+    id: 'gradient-aurora-borealis',
+    name: 'Aurora Borealis',
+    backgroundClass: 'bg-gradient-to-r from-[#00c9ff] to-[#92fe9d]',
+    buttonClass: 'bg-white text-slate-950 rounded-xl font-bold shadow-sm border border-slate-100/50 hover:shadow-md transition-shadow',
+    textClass: 'text-white drop-shadow-md',
+    avatarBorder: 'border-white/80 border-4 backdrop-blur-sm',
+    isPro: true,
+    category: 'gradient'
+  },
+  {
+    id: 'gradient-royal-velvet',
+    name: 'Royal Velvet',
+    backgroundClass: 'bg-gradient-to-br from-[#4b1248] to-[#f0c27b]',
+    buttonClass: 'bg-[#f0c27b] text-[#4b1248] rounded-none border-t-2 border-b-2 border-[#4b1248]/20 font-serif italic font-bold tracking-tight shadow-2xl',
+    textClass: 'text-amber-50',
+    avatarBorder: 'border-[#f0c27b] border-double border-8 p-1',
+    isPro: true,
+    category: 'gradient'
+  },
+  {
     id: 'music-synth-wave',
     name: 'Synthwave Night',
     backgroundClass: 'bg-[#0a001a]',

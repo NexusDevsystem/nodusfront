@@ -13,7 +13,7 @@ interface ThemeSelectorProps {
 }
 
 const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products, onChange }) => {
-    const [activeCategory, setActiveCategory] = React.useState<'all' | 'solid' | 'pro' | 'music'>('all');
+    const [activeCategory, setActiveCategory] = React.useState<string>('all');
 
     const handleThemeSelect = (themeId: string) => {
         onChange({ ...profile, themeId, customBackground: null, customSolidColor: null });
@@ -21,12 +21,21 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
 
     const categories = [
         { id: 'all', label: 'Todos' },
-        { id: 'solid', label: 'Cores Sólidas' },
+        { id: 'gradient', label: 'Gradientes' },
         { id: 'music', label: 'Música' },
         { id: 'creative', label: 'Criativo' },
         { id: 'kawaii', label: 'Kawaii' },
         { id: 'pro', label: 'Temas Pro' }
     ] as const;
+
+    const filteredThemes = THEMES.filter(theme => {
+        // Filter official theme
+        if (theme.id === 'animated-nodus-official' && profile.username !== 'noduscc') return false;
+
+        if (activeCategory === 'all') return true;
+        if (activeCategory === 'pro') return theme.isPro;
+        return theme.category === activeCategory;
+    });
 
     return (
         <div className="bg-white rounded-[24px] md:rounded-[32px] border border-slate-100 p-6 md:p-10 shadow-sm">
@@ -51,44 +60,62 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                         </button>
                     </div>
                 </div>
+
+                {/* Categories Scrollable */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
+                    {categories.map((cat) => (
+                        <button
+                            key={cat.id}
+                            onClick={() => setActiveCategory(cat.id)}
+                            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeCategory === cat.id
+                                ? 'bg-[#32a800] text-white shadow-md'
+                                : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                }`}
+                        >
+                            {cat.label}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3">
                 {/* Custom Theme Card */}
-                <motion.div
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex flex-col items-center gap-1.5 group cursor-pointer"
-                    onClick={() => onChange({ ...profile, themeId: 'custom', customBackground: profile.customBackground || null, customSolidColor: profile.customSolidColor || null })}
-                >
-                    <div
-                        className={`relative aspect-[4/5] w-full rounded-xl border-2 transition-all flex flex-col items-center justify-center ${profile.themeId === 'custom' ? 'border-[#32a800] ring-2 ring-[#32a800]/20' : 'border-slate-200 group-hover:border-slate-300'}`}
-                        style={{ backgroundColor: profile.customSolidColor || '#f8fafc' }}
+                {activeCategory === 'all' && (
+                    <motion.div
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="flex flex-col items-center gap-1.5 group cursor-pointer"
+                        onClick={() => onChange({ ...profile, themeId: 'custom', customBackground: profile.customBackground || null, customSolidColor: profile.customSolidColor || null })}
                     >
-                        {profile.customBackground ? (
-                            <img src={profile.customBackground} alt="Preview" className="w-full h-full object-cover rounded-lg" />
-                        ) : (
-                            <Paintbrush
-                                className={profile.customSolidColor ? 'mix-blend-difference' : 'text-slate-400 group-hover:text-slate-500'}
-                                size={20}
-                                strokeWidth={1.5}
-                                style={{ color: profile.customSolidColor ? '#fff' : undefined }}
-                            />
-                        )}
+                        <div
+                            className={`relative aspect-[4/5] w-full rounded-xl border-2 transition-all flex flex-col items-center justify-center ${profile.themeId === 'custom' ? 'border-[#32a800] ring-2 ring-[#32a800]/20' : 'border-slate-200 group-hover:border-slate-300'}`}
+                            style={{ backgroundColor: profile.customSolidColor || '#f8fafc' }}
+                        >
+                            {profile.customBackground ? (
+                                <img src={profile.customBackground} alt="Preview" className="w-full h-full object-cover rounded-lg" />
+                            ) : (
+                                <Paintbrush
+                                    className={profile.customSolidColor ? 'mix-blend-difference' : 'text-slate-400 group-hover:text-slate-500'}
+                                    size={20}
+                                    strokeWidth={1.5}
+                                    style={{ color: profile.customSolidColor ? '#fff' : undefined }}
+                                />
+                            )}
 
-                        {profile.themeId === 'custom' && (
-                            <div className="absolute inset-0 bg-black/5 flex items-center justify-center z-10">
-                                <div className="w-6 h-6 rounded-full bg-[#32a800] flex items-center justify-center text-white shadow-lg border-2 border-white">
-                                    <Check size={12} strokeWidth={3} />
+                            {profile.themeId === 'custom' && (
+                                <div className="absolute inset-0 bg-black/5 flex items-center justify-center z-10">
+                                    <div className="w-6 h-6 rounded-full bg-[#32a800] flex items-center justify-center text-white shadow-lg border-2 border-white">
+                                        <Check size={12} strokeWidth={3} />
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
-                    <span className={`text-[10px] font-bold ${profile.themeId === 'custom' ? 'text-[#32a800]' : 'text-slate-500'}`}>Custom</span>
-                </motion.div>
+                            )}
+                        </div>
+                        <span className={`text-[10px] font-bold ${profile.themeId === 'custom' ? 'text-[#32a800]' : 'text-slate-500'}`}>Custom</span>
+                    </motion.div>
+                )}
 
-                {THEMES.filter(theme => theme.id !== 'animated-nodus-official' || profile.username === 'noduscc').map((theme) => {
+                {filteredThemes.map((theme) => {
                     const isSelected = profile.themeId === theme.id && !profile.customBackground;
 
                     return (

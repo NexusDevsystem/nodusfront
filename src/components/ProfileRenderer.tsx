@@ -96,7 +96,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             currentTheme.id.includes('midnight') ||
             currentTheme.id.includes('vampire') ||
             currentTheme.id.includes('animated-') ||
-            ['luxury-gold', 'leafy', 'evergreen', 'golden-hour', 'berry-blast', 'steel-blue', 'iridescence', 'prismatic-burst', 'beams', 'silk'].includes(currentTheme.id) ||
+            ['luxury-gold', 'leafy', 'evergreen', 'golden-hour', 'berry-blast', 'steel-blue', 'iridescence', 'prismatic-burst', 'beams', 'silk', 'gradient-sunset-horizon', 'gradient-deep-ocean', 'gradient-midnight-neon', 'gradient-royal-velvet'].includes(currentTheme.id) ||
             currentTheme.id === 'kawaii-space' ||
             currentTheme.id === 'creative-pixel' ||
             (currentTheme.id.startsWith('music-') && currentTheme.id !== 'music-classical-flow') ||
