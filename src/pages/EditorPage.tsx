@@ -240,7 +240,10 @@ export default function EditorPage() {
     }, [products, hasLoadedOnce]);
 
     React.useEffect(() => {
+        const handleOpenBilling = () => setIsBillingModalOpen(true);
+        window.addEventListener('open-billing-modal', handleOpenBilling);
         document.title = 'Nodus | Editor';
+        return () => window.removeEventListener('open-billing-modal', handleOpenBilling);
     }, []);
 
     // 'links' or 'appearance' are the main functional tabs

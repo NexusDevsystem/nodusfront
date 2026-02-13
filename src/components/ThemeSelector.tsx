@@ -117,6 +117,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
 
                 {filteredThemes.map((theme) => {
                     const isSelected = profile.themeId === theme.id && !profile.customBackground;
+                    const isLocked = theme.isPro && profile.planType === 'free';
 
                     return (
                         <motion.div
@@ -125,11 +126,20 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             className="flex flex-col items-center gap-1.5 group cursor-pointer"
-                            onClick={() => handleThemeSelect(theme.id)}
+                            onClick={() => {
+                                if (isLocked) {
+                                    // Let parent component know we want to upgrade
+                                    // We can use a custom event or a specific themeId to signal this, 
+                                    // but better to just call onChange with something that triggers the modal or use a prop
+                                    (window as any).dispatchEvent(new CustomEvent('open-billing-modal'));
+                                    return;
+                                }
+                                handleThemeSelect(theme.id);
+                            }}
                         >
                             <div className={`relative aspect-[4/5] w-full rounded-xl border overflow-hidden transition-all ${isSelected ? 'border-[#32a800] ring-2 ring-[#32a800]/20 border-2' : 'border-slate-100 group-hover:border-slate-200'}`}>
                                 {/* Theme Preview */}
-                                <div className="absolute inset-0 z-0 pointer-events-none origin-top-left scale-[0.3] w-[333%] h-[333%]">
+                                <div className={`absolute inset-0 z-0 pointer-events-none origin-top-left scale-[0.3] w-[333%] h-[333%] ${isLocked ? 'blur-[2px] opacity-80' : ''}`}>
                                     <ProfileRenderer
                                         profile={{ ...profile, themeId: theme.id, customBackground: null, customSolidColor: null }}
                                         links={links}
@@ -143,17 +153,27 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-between p-2 pointer-events-none">
                                     <div className="w-full flex justify-end">
                                         {theme.isPro && (
-                                            <div className="w-4 h-4 rounded-full bg-slate-900/80 backdrop-blur-sm flex items-center justify-center text-white shadow-lg">
+                                            <div className={`w-4 h-4 rounded-full ${isLocked ? 'bg-orange-500 shadow-orange-500/20 shadow-lg' : 'bg-slate-900/80backdrop-blur-sm'} flex items-center justify-center text-white`}>
                                                 <Zap size={8} fill="currentColor" />
                                             </div>
                                         )}
                                     </div>
 
-                                    <span className="text-lg font-bold mt-1" style={{ color: theme.textClass.includes('white') ? '#fff' : '#000' }}>
-                                        Aa
-                                    </span>
+                                    {!isLocked && (
+                                        <span className="text-lg font-bold mt-1" style={{ color: theme.textClass.includes('white') ? '#fff' : '#000' }}>
+                                            Aa
+                                        </span>
+                                    )}
 
-                                    <div className={`w-full h-2.5 mt-auto rounded-md shadow-sm border border-white/10 ${theme.buttonClass.split(' ').filter(c => c.startsWith('bg-') || c.startsWith('border-')).join(' ')} opacity-90`} />
+                                    {isLocked && (
+                                        <div className="bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm border border-slate-100">
+                                            <span className="text-[8px] font-black uppercase tracking-widest text-slate-800">Pro</span>
+                                        </div>
+                                    )}
+
+                                    {!isLocked && (
+                                        <div className={`w-full h-2.5 mt-auto rounded-md shadow-sm border border-white/10 ${theme.buttonClass.split(' ').filter(c => c.startsWith('bg-') || c.startsWith('border-')).join(' ')} opacity-90`} />
+                                    )}
                                 </div>
 
                                 {isSelected && (

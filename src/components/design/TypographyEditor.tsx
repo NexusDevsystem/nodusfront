@@ -20,20 +20,18 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {FONTS.map((font) => {
-                        const isProLocked = font.isPro && (profile.planType === 'free' || !profile.planType);
                         const isSelected = profile.fontFamily === font.family;
 
                         return (
                             <button
                                 key={font.name}
                                 onClick={() => {
-                                    if (isProLocked) return;
                                     onChange({ ...profile, fontFamily: font.family });
                                 }}
                                 className={`flex items-center justify-between p-4 rounded-md border transition-all text-left relative ${isSelected
                                     ? 'border-[#32a800] bg-slate-50'
                                     : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'
-                                    } ${isProLocked ? 'cursor-not-allowed opacity-60' : ''}`}
+                                    }`}
                             >
                                 <div className="flex items-center gap-4">
                                     <span
@@ -62,12 +60,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
                                     </div>
                                 </div>
 
-                                {isProLocked ? (
-                                    <div className="bg-amber-100 text-amber-700 text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                                        <Zap size={8} fill="currentColor" />
-                                        PRO
-                                    </div>
-                                ) : isSelected && (
+                                {isSelected && (
                                     <div className="w-4 h-4 rounded-full bg-[#32a800] flex items-center justify-center">
                                         <Check size={10} className="text-white" strokeWidth={4} />
                                     </div>

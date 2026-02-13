@@ -9,7 +9,6 @@ interface WallpaperEditorProps {
 }
 
 const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange }) => {
-
     const handleCustomBackground = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             try {
@@ -23,9 +22,6 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange }) 
         }
     };
 
-    const isPro = profile.planType === 'monthly' || profile.planType === 'annual';
-    const isFree = !profile.planType || profile.planType === 'free';
-
     return (
         <div className="space-y-6 animate-fade-in pb-10">
             {/* Custom Image Upload */}
@@ -34,18 +30,6 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange }) 
                     <ImageIcon size={18} />
                     <h3 className="text-sm font-semibold uppercase tracking-wider">Imagem de Fundo</h3>
                 </div>
-
-                {isFree && (
-                    <div className="mb-6 bg-amber-50 border border-amber-100 rounded-md p-3 flex items-start gap-3">
-                        <div className="p-1 bg-amber-100 rounded text-amber-600 shrink-0">
-                            <Zap size={12} fill="currentColor" />
-                        </div>
-                        <div>
-                            <p className="text-[11px] font-bold text-amber-800 uppercase tracking-wide">Recurso PRO</p>
-                            <p className="text-[10px] text-amber-700 mt-0.5">Faça upgrade para usar fundos personalizados.</p>
-                        </div>
-                    </div>
-                )}
 
                 <div className="w-full">
                     {profile.customBackground ? (
@@ -65,8 +49,8 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange }) 
                         </div>
                     ) : (
                         <label
-                            htmlFor={isFree ? '' : "bg-upload"}
-                            className={`w-full aspect-[16/9] border border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center gap-2 transition-colors ${isFree ? 'opacity-50 cursor-not-allowed bg-slate-50' : 'cursor-pointer hover:border-[#32a800] hover:bg-slate-50/50'}`}
+                            htmlFor="bg-upload"
+                            className={`w-full aspect-[16/9] border border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center gap-2 transition-colors cursor-pointer hover:border-[#32a800] hover:bg-slate-50/50`}
                         >
                             <Upload size={20} className="text-slate-400" />
                             <div className="text-center">
@@ -81,7 +65,6 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange }) 
                         className="hidden"
                         accept="image/*"
                         onChange={handleCustomBackground}
-                        disabled={isFree}
                     />
                     <input
                         type="file"
@@ -89,7 +72,6 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange }) 
                         className="hidden"
                         accept="image/*"
                         onChange={handleCustomBackground}
-                        disabled={isFree}
                     />
                 </div>
             </div>
