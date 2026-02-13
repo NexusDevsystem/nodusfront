@@ -176,6 +176,12 @@ class ApiClient {
             body: JSON.stringify({ profileId, email })
         });
     }
+
+    async autoReconcile(): Promise<UserProfile> {
+        return this.request('/api/billing/auto-reconcile', {
+            method: 'POST'
+        });
+    }
 }
 
 export const apiClient = new ApiClient();

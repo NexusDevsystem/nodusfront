@@ -88,6 +88,22 @@ export default function EditorPage() {
                 setLinks(linksData);
                 setProducts(productsData);
 
+                // --- AUTOMATIC PAYMENT RECONCILIATION ---
+                // If user is currently marked as Free, check Stripe silently for an active subscription
+                if (profileData.planType === 'free' || !profileData.planType) {
+                    console.log('🔄 Free plan detected. Silently checking for active subscriptions...');
+                    try {
+                        const reconciledProfile = await apiClient.autoReconcile();
+                        if (reconciledProfile.planType && reconciledProfile.planType !== 'free') {
+                            setProfile(reconciledProfile);
+                            console.log('✨ Account upgraded automatically!');
+                        }
+                    } catch (reconcileError) {
+                        // Fail silently for auto-reconcile to not disturb user flow
+                        console.error('Silent reconcile failed:', reconcileError);
+                    }
+                }
+
                 // Data loaded successfully
                 setLoadingProgress(100);
                 setHasLoadedOnce(true);
