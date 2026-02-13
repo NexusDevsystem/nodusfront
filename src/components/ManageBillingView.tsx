@@ -46,9 +46,12 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
         setLoadingPortal(true);
         try {
             const { url } = await apiClient.createPortalSession();
-            window.location.href = url;
+            if (url) {
+                window.open(url, '_blank');
+            }
         } catch (err: any) {
             console.error('Portal Error:', err);
+        } finally {
             setLoadingPortal(false);
         }
     };

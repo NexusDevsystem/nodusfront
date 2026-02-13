@@ -89,19 +89,6 @@ export default function PolishedHero() {
 
             </div>
 
-            {/* Bottom Marquee */}
-            <div className="w-full border-b-2 border-black bg-black text-white overflow-hidden py-3">
-                <div className="whitespace-nowrap animate-marquee flex gap-12 font-bold uppercase text-xs md:text-sm tracking-widest opacity-80">
-                    <span>★ Usado por +10.000 Criadores</span>
-                    <span>★ Otimizado para Conversão</span>
-                    <span>★ Customização Ilimitada</span>
-                    <span>★ Analytics em Tempo Real</span>
-                    <span>★ Usado por +10.000 Criadores</span>
-                    <span>★ Otimizado para Conversão</span>
-                    <span>★ Customização Ilimitada</span>
-                    <span>★ Analytics em Tempo Real</span>
-                </div>
-            </div>
 
         </section>
     );

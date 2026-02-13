@@ -26,17 +26,23 @@ export default function AnalyticsView() {
     const [error, setError] = useState<string | null>(null);
     const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
     const [links, setLinks] = useState<LinkItem[]>([]);
+    const [products, setProducts] = useState<any[]>([]);
 
     useEffect(() => {
         const loadData = async () => {
             try {
                 setIsLoading(true);
-                const [analyticsData, linksData] = await Promise.all([
+                const [analyticsData, linksData, productsData] = await Promise.all([
                     apiClient.getAnalytics(),
-                    apiClient.getMyLinks()
+                    apiClient.getMyLinks(),
+                    apiClient.getMyProducts()
                 ]);
                 setSummary(analyticsData);
                 setLinks(linksData);
+                // We'll store products in a local map for lookup
+                const prodMap = new Map();
+                productsData.forEach(p => prodMap.set(p.id, p));
+                setProducts(productsData);
                 setError(null);
             } catch (error: any) {
                 console.error('Failed to load analytics data:', error);
@@ -80,7 +86,7 @@ export default function AnalyticsView() {
 
     if (!summary) return null;
 
-    // Flatten links map for fast lookup
+    // Flatten links and products map for fast lookup
     const linkMap = new Map();
     const processLinks = (items: LinkItem[]) => {
         items.forEach(l => {
@@ -90,12 +96,23 @@ export default function AnalyticsView() {
     };
     processLinks(links);
 
+    const productMap = new Map();
+    products.forEach(p => productMap.set(p.id, p));
+
     const enrichedTopLinks = summary.topLinks
-        .map(stat => ({
-            ...stat,
-            metadata: linkMap.get(stat.id) || { title: 'Link Deletado', url: '#' }
-        }))
-        .filter(l => l.metadata);
+        .map(stat => {
+            const linkMatch = linkMap.get(stat.id);
+            const productMatch = productMap.get(stat.id);
+
+            return {
+                ...stat,
+                metadata: linkMatch
+                    ? { title: linkMatch.title, url: linkMatch.url, type: 'Link' }
+                    : productMatch
+                        ? { title: productMatch.name, url: productMatch.url, type: 'Produto' }
+                        : { title: 'Item Removido', url: '#', type: 'Desconhecido' }
+            };
+        });
 
     const maxViews = Math.max(...summary.dailyData.map(d => d.views), 1);
 
@@ -222,8 +239,16 @@ export default function AnalyticsView() {
                                         {i + 1}
                                     </div>
                                     <div className="min-w-0">
-                                        <h4 className="text-sm font-bold text-slate-800 truncate">{link.metadata.title}</h4>
-                                        <p className="text-[10px] text-slate-400 truncate font-medium uppercase tracking-wider">{link.metadata.url ? new URL(link.metadata.url).hostname : 'Link Direto'}</p>
+                                        <div className="flex items-center gap-2">
+                                            <h4 className="text-sm font-bold text-slate-800 truncate">{link.metadata.title}</h4>
+                                            <span className={`text-[8px] px-1.5 py-0.5 rounded font-black uppercase tracking-tighter ${link.metadata.type === 'Produto' ? 'bg-indigo-50 text-indigo-500' : 'bg-slate-100 text-slate-400'
+                                                }`}>
+                                                {link.metadata.type}
+                                            </span>
+                                        </div>
+                                        <p className="text-[10px] text-slate-400 truncate font-medium uppercase tracking-wider">
+                                            {link.metadata.url && link.metadata.url !== '#' ? new URL(link.metadata.url).hostname : 'Link Direto'}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="text-right pl-4">
@@ -242,8 +267,8 @@ export default function AnalyticsView() {
 function KpiCard({ label, value, icon: Icon, isActive }: any) {
     return (
         <div className={`p-6 rounded-lg border transition-all ${isActive
-                ? 'bg-slate-50 border-[#32a800] text-slate-900'
-                : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+            ? 'bg-slate-50 border-[#32a800] text-slate-900'
+            : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
             }`}>
             <div className="flex items-center justify-between mb-4">
                 <div className={`p-2 rounded ${isActive ? 'bg-[#32a800] text-white' : 'bg-slate-50 text-slate-400'}`}>

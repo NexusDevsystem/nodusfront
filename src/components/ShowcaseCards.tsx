@@ -4,8 +4,15 @@ import { THEMES } from '../constants';
 import { CheckCircle } from 'lucide-react';
 import NodusOfficialBackground from './NodusOfficialBackground';
 
-// Use only the Nodus Official theme
-const SHOWCASE_THEMES = ['nodus-official'];
+// Use a variety of premium and featured themes
+const SHOWCASE_THEMES = [
+    'nodus-official',
+    'gradient-royal-velvet',
+    'animated-cosmic-drift',
+    'glass',
+    'animated-aurora-borealis',
+    'luxury-gold'
+];
 
 export default function ShowcaseCards() {
     const [index, setIndex] = useState(0);
@@ -20,11 +27,16 @@ export default function ShowcaseCards() {
         return () => clearInterval(timer);
     }, [displayThemes.length]);
 
-    // Helper to render the specific background component for a theme
+    // Import components dynamic-like or use a map
     const renderThemeBackground = (themeId: string) => {
         switch (themeId) {
             case 'nodus-official':
                 return <NodusOfficialBackground />;
+            case 'animated-aurora-borealis':
+                // We'll use a placeholder or generic animated div if specific component isn't easy to import here
+                return <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 via-teal-500 to-blue-500 animate-pulse opacity-40 blur-3xl"></div>;
+            case 'animated-cosmic-drift':
+                return <div className="absolute inset-0 bg-black"><div className="absolute inset-0 bg-[#6366f1]/20 animate-pulse"></div></div>;
             default:
                 return null;
         }

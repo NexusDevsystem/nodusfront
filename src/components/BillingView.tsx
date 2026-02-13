@@ -116,32 +116,26 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
         }
     }, [status, currentPlan, onChange]);
 
-    const handleSelectPlan = (planId: string) => {
-        if (planId === currentPlan) return;
+    const [isCheckingOut, setIsCheckingOut] = useState<string | null>(null);
 
-        // Automatically detect if we are in production
-        const isProd = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1');
+    const handleSelectPlan = async (planId: string) => {
+        if (planId === 'free' || planId === currentPlan) return;
 
-        const testLinks: Record<string, string> = {
-            monthly: 'https://donate.stripe.com/test_dRm5kDesReNLbC7aJr0sU00',
-            annual: 'https://donate.stripe.com/test_9B68wPckJ7ljay3eZH0sU01'
-        };
+        setIsCheckingOut(planId);
+        try {
+            const { url } = await apiClient.createCheckoutSession(planId as 'monthly' | 'annual');
+            if (url) {
+                // Open Stripe in a new tab
+                window.open(url, '_blank');
 
-        const liveLinks: Record<string, string> = {
-            monthly: 'https://donate.stripe.com/dRm5kDesReNLbC7aJr0sU00',
-            annual: 'https://donate.stripe.com/9B68wPckJ7ljay3eZH0sU01'
-        };
-
-        const links = isProd ? liveLinks : testLinks;
-
-        let targetUrl = links[planId];
-        if (targetUrl) {
-            const url = new URL(targetUrl);
-            if (profile.email) {
-                url.searchParams.append('prefilled_email', profile.email);
+                // Show the "Pending" screen in the main app to poll for the update
+                setStatus('pending');
             }
-            window.open(url.toString(), '_blank');
-            setStatus('pending');
+        } catch (error: any) {
+            console.error('Checkout error:', error);
+            alert(error.message || 'Falha ao iniciar checkout.');
+        } finally {
+            setIsCheckingOut(null);
         }
     };
 
@@ -248,8 +242,14 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                                 </>
                             ) : (
                                 <>
-                                    {plan.buttonText}
-                                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                    {isCheckingOut === plan.id ? (
+                                        <Loader2 size={18} className="animate-spin" />
+                                    ) : (
+                                        <>
+                                            {plan.buttonText}
+                                            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                        </>
+                                    )}
                                 </>
                             )}
                         </button>
