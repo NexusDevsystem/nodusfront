@@ -49,9 +49,15 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
     const inputBg = isDarkContext ? 'bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/20' : 'bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:bg-white';
     const buttonBg = 'bg-white text-black hover:bg-white/90 shadow-sm';
 
+    const roundedClass = profile.buttonRoundness === 'square' ? 'rounded-none' :
+        profile.buttonRoundness === 'round' ? 'rounded-lg' :
+            profile.buttonRoundness === 'rounder' ? 'rounded-2xl' :
+                profile.buttonRoundness === 'full' ? 'rounded-full' :
+                    'rounded-3xl';
+
     if (status === 'success') {
         return (
-            <div className={`w-full mx-auto my-6 p-6 rounded-3xl animate-fade-in text-center flex flex-col items-center justify-center gap-3 ${isGlass
+            <div className={`w-full mx-auto my-6 p-6 ${roundedClass} animate-fade-in text-center flex flex-col items-center justify-center gap-3 ${isGlass
                 ? 'bg-white/10 backdrop-blur-md border border-white/20'
                 : hasCustomBg ? 'bg-black/40 backdrop-blur-md border border-white/10' : 'bg-white shadow-lg border border-slate-100'
                 }`}>
@@ -65,15 +71,15 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
     }
 
     return (
-        <div className={`w-full mx-auto my-6 p-1 rounded-3xl transition-all duration-300 relative group overflow-hidden ${isGlass
+        <div className={`w-full mx-auto my-6 p-1 ${roundedClass} transition-all duration-300 relative group overflow-hidden ${isGlass
             ? 'bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10'
             : hasCustomBg ? 'bg-black/30 backdrop-blur-sm border border-white/10 hover:bg-black/40' : 'bg-white shadow-sm hover:shadow-md border border-slate-100'
             }`}>
             {/* Optional Glow Effect for premium feel */}
             {isDarkContext && <div className="absolute -top-10 -right-10 w-32 h-32 bg-purple-500/20 blur-3xl rounded-full pointer-events-none"></div>}
 
-            <div className="p-5 flex flex-col items-center text-center relative z-10">
-                <div className={`w-10 h-10 mb-3 rounded-2xl flex items-center justify-center ${isDarkContext ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-600'}`}>
+            <div className="p-5 flex flex-col items-center text-center relative z-10" style={{ fontFamily: profile.fontFamily }}>
+                <div className={`w-10 h-10 mb-3 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-2xl'} flex items-center justify-center ${isDarkContext ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-600'}`}>
                     <Mail size={20} />
                 </div>
 
@@ -89,12 +95,14 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className={`w-full pl-4 pr-12 py-3.5 rounded-xl outline-none border transition-all text-sm font-medium ${inputBg}`}
+                        className={`w-full pl-4 pr-12 py-3.5 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-xl'} outline-none border transition-all text-sm font-medium ${inputBg}`}
+                        style={{ fontFamily: profile.fontFamily }}
                     />
                     <button
                         type="submit"
                         disabled={status === 'loading'}
-                        className={`absolute right-1.5 top-1.5 bottom-1.5 aspect-square rounded-lg flex items-center justify-center transition-all disabled:opacity-70 disabled:cursor-not-allowed ${buttonBg}`}
+                        className={`absolute right-1.5 top-1.5 bottom-1.5 aspect-square ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-lg'} flex items-center justify-center transition-all disabled:opacity-70 disabled:cursor-not-allowed ${buttonBg}`}
+                        style={{ fontFamily: profile.fontFamily }}
                     >
                         {status === 'loading' ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} />}
                     </button>

@@ -18,32 +18,44 @@ import {
     ChevronRight,
     Play,
     Plus,
-    Music
+    Music,
+    Pause,
+    SkipBack,
+    SkipForward,
+    Music2
 } from 'lucide-react';
 import YouTubeEmbed from './YouTubeEmbed';
 import verifiedBadge from '../assets/verified-badge.png';
-import Grainient from './Grainient';
 
-// @ts-ignore
-import NewsletterWidget from './NewsletterWidget';
-import AuroraBackground from './AuroraBackground';
-import ParticlesBackground from './ParticlesBackground';
-import MatrixBackground from './MatrixBackground';
-import GradientMeshBackground from './GradientMeshBackground';
-import CyberGridBackground from './CyberGridBackground';
-import FloatingShapesBackground from './FloatingShapesBackground';
-import NeonCityBackground from './NeonCityBackground';
-import GeometricFlowBackground from './GeometricFlowBackground';
-import SpaceWarpBackground from './SpaceWarpBackground';
-import AbstractWavesBackground from './AbstractWavesBackground';
 import NodusOfficialBackground from './NodusOfficialBackground';
-import Prism from './Prism';
 import { apiClient } from '../services/apiClient';
 import { SiSpotify } from 'react-icons/si';
 
 // @ts-ignore
+import NewsletterWidget from './NewsletterWidget';
+// ... rest of imports ...
+import Prism from './Prism';
+
+// @ts-ignore
 import LightPillar from './LightPillar';
+import Ballpit from './Ballpit';
+import Iridescence from './Iridescence';
+import PrismaticBurst from './PrismaticBurst';
+import Beams from './Beams';
+import Silk from './Silk';
 import GlassSurface from './GlassSurface';
+import {
+    SynthwaveBackground, AudioPulseBackground, VinylBackground,
+    ElectricStormBackground, JazzBackground, AcousticBackground,
+    LofiBackground, PopBackground, TechnoBackground, ClassicalBackground
+} from './MusicBackgrounds';
+import { PixelBackground } from './CreativeBackgrounds';
+import {
+    KawaiiCloudsBackground, KawaiiStarsBackground, KawaiiGardenBackground,
+    KawaiiPeachBackground, KawaiiMilkBackground, KawaiiRainbowBackground,
+    KawaiiJellyBackground, KawaiiBakeryBackground, KawaiiSpaceBackground,
+    KawaiiMatchaBackground, KawaiiSakuraBackground, KawaiiSakuraForeground
+} from './KawaiiBackgrounds';
 
 interface ProfileRendererProps {
     profile: UserProfile;
@@ -92,14 +104,24 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     // Button links
     const buttonLinks = activeLinks.filter(l => l.layout !== 'social' || l.type === 'collection');
 
+    const getLuminance = (hex: string) => {
+        const rgb = hex.replace('#', '').match(/.{1,2}/g)?.map(x => parseInt(x, 16)) || [255, 255, 255];
+        return (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255;
+    };
+
     const isDarkTheme =
-        currentTheme.id.includes('dark') ||
-        currentTheme.id.includes('black') ||
-        currentTheme.id.includes('midnight') ||
-        currentTheme.id.includes('vampire') ||
-        currentTheme.id.includes('animated-') ||
-        ['luxury-gold', 'leafy', 'evergreen', 'golden-hour', 'berry-blast', 'steel-blue'].includes(currentTheme.id) ||
-        currentTheme.id === 'solaris';
+        profile.customSolidColor
+            ? getLuminance(profile.customSolidColor) < 0.5
+            : currentTheme.id.includes('dark') ||
+            currentTheme.id.includes('black') ||
+            currentTheme.id.includes('midnight') ||
+            currentTheme.id.includes('vampire') ||
+            currentTheme.id.includes('animated-') ||
+            ['luxury-gold', 'leafy', 'evergreen', 'golden-hour', 'berry-blast', 'steel-blue', 'ballpit', 'iridescence', 'prismatic-burst', 'beams', 'silk'].includes(currentTheme.id) ||
+            currentTheme.id === 'kawaii-space' ||
+            currentTheme.id === 'creative-pixel' ||
+            (currentTheme.id.startsWith('music-') && currentTheme.id !== 'music-classical-flow') ||
+            currentTheme.id === 'solaris';
 
     const getHighlightClass = (type?: string) => {
         switch (type) {
@@ -145,9 +167,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         );
 
         return (
-            <div className={`rounded-[16px] p-2.5 flex items-center relative overflow-hidden group shadow-md border border-white/5 min-h-[64px] w-full ${isDeezer ? 'bg-[#1a1c3b]' : 'bg-[#5c540d]'}`}>
+            <div className={`${roundedClass || 'rounded-2xl'} p-2.5 flex items-center relative overflow-hidden group shadow-md border border-white/5 min-h-[64px] w-full ${isDeezer ? 'bg-[#1a1c3b]' : 'bg-[#5c540d]'}`}>
                 {/* Album Art */}
-                <div className="relative z-10 w-[42px] h-[42px] rounded-md overflow-hidden shadow-sm mr-2.5 shrink-0 transition-transform duration-500 group-hover:scale-105">
+                <div className={`relative z-10 w-[42px] h-[42px] ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-md'} overflow-hidden shadow-sm mr-2.5 shrink-0`}>
                     <img
                         src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
                         alt={musicTitle}
@@ -181,7 +203,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             e.stopPropagation();
                             handleLinkClick(link.id);
                         }}
-                        className="w-[30px] h-[30px] bg-white rounded-full flex items-center justify-center text-black hover:scale-110 active:scale-95 transition-all shadow-sm hover:bg-slate-50"
+                        className="w-[30px] h-[30px] bg-white rounded-full flex items-center justify-center text-black shadow-sm"
                     >
                         <Play size={12} fill="currentColor" className="ml-0.5" />
                     </a>
@@ -193,193 +215,41 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         );
     };
 
-    const buttonStyleType = profile.buttonStyleType || 'solid';
-    const buttonRoundness = profile.buttonRoundness || (profile.buttonStyle === 'soft-rect' ? 'rounder' : 'full');
+    // Button Roundness Logic
+    const roundedClass = profile.buttonRoundness === 'square' ? 'rounded-none' :
+        profile.buttonRoundness === 'round' ? 'rounded-lg' :
+            profile.buttonRoundness === 'rounder' ? 'rounded-2xl' :
+                profile.buttonRoundness === 'full' ? 'rounded-full' :
+                    null;
 
-    let borderRadius = 50;
-    let roundedClass = 'rounded-full';
+    const borderRadiusValue = profile.buttonRoundness === 'square' ? 0 :
+        profile.buttonRoundness === 'round' ? 8 :
+            profile.buttonRoundness === 'rounder' ? 16 :
+                profile.buttonRoundness === 'full' ? 40 : // Full for GlassSurface usually looks best around 40 or higher
+                    16;
 
-    switch (buttonRoundness) {
-        case 'square':
-            borderRadius = 0;
-            roundedClass = 'rounded-none';
-            break;
-        case 'round':
-            borderRadius = 8;
-            roundedClass = 'rounded-lg';
-            break;
-        case 'rounder':
-            borderRadius = 16;
-            roundedClass = 'rounded-2xl';
-            break;
-        case 'full':
-            borderRadius = 999;
-            roundedClass = 'rounded-full';
-            break;
-    }
-
-    let cardRoundedClass = 'rounded-[32px]';
-    switch (buttonRoundness) {
-        case 'square': cardRoundedClass = 'rounded-none'; break;
-        case 'round': cardRoundedClass = 'rounded-xl'; break;
-        case 'rounder': cardRoundedClass = 'rounded-[24px]'; break;
-        case 'full': cardRoundedClass = 'rounded-[32px]'; break;
-    }
-
-    // Check if theme has its own shadow
-    const hasThemeShadow = currentTheme.buttonClass.includes('shadow-');
-
-    // Helper to get custom styles
-    const getCustomButtonStyles = () => {
-        if (!isCustomButtonStyle) return {};
-
-        // Default base color
-        const themeButtonHex = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#0f172a');
-        const baseColor = profile.customButtonColor || themeButtonHex;
-
-        let textColor = profile.customTextColor;
-
-        if (!textColor) {
-            if (['solid', 'push', 'gradient', 'cyber', 'skeuo'].includes(buttonStyleType)) {
-                if (profile.customButtonColor) {
-                    textColor = '#ffffff'; // Default white text for fill buttons
-                } else if (currentTheme.textHex && !profile.customButtonColor) {
-                    textColor = currentTheme.textHex;
-                } else {
-                    textColor = (isDarkTheme || currentTheme.id === 'glass') ? '#000000' : '#ffffff';
-                }
-            } else if (buttonStyleType === 'neon') {
-                textColor = baseColor;
-            } else {
-                // Outline, Soft, Glass, Hard-Shadow, Minimal: Match text to base color
-                textColor = baseColor;
-            }
-        }
-
-        const styles: React.CSSProperties = {
-            transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)', // smooth physics
-            borderRadius: `${borderRadius}px`
-        };
-
-        switch (buttonStyleType) {
-            case 'solid':
-                styles.backgroundColor = baseColor;
-                styles.color = textColor;
-                styles.border = '2px solid transparent';
-                break;
-
-            case 'outline':
-                styles.backgroundColor = 'transparent';
-                styles.color = textColor;
-                styles.border = `2px solid ${baseColor}`;
-                break;
-
-            case 'soft':
-                styles.backgroundColor = `${baseColor}26`; // ~15% opacity
-                styles.color = baseColor; // Always use base color for text in soft mode for contrast
-                styles.fontWeight = 600;
-                break;
-
-            case 'glass':
-                styles.backgroundColor = `${baseColor}26`;
-                styles.backdropFilter = 'blur(12px)';
-                styles.WebkitBackdropFilter = 'blur(12px)';
-                styles.color = textColor;
-                styles.border = `1px solid ${baseColor}4D`;
-                styles.boxShadow = '0 8px 32px 0 rgba(31, 38, 135, 0.15)';
-                break;
-
-            case 'hard-shadow':
-                styles.backgroundColor = isDarkTheme ? '#000000' : '#ffffff';
-                styles.color = baseColor;
-                styles.border = `2px solid ${baseColor}`;
-                styles.boxShadow = `4px 4px 0px ${baseColor}`;
-                // styles.transform = 'translate(-2px, -2px)'; // Handled by motion or hover usually
-                break;
-
-            case 'push':
-                styles.backgroundColor = baseColor;
-                styles.color = textColor;
-                styles.borderBottom = `6px solid rgba(0,0,0,0.2)`; // Simple darkening
-                // styles.marginBottom = '2px'; // Handled by margin in container or specific offset
-                break;
-
-            case 'gradient':
-                styles.background = `linear-gradient(135deg, ${baseColor}, ${baseColor}88)`;
-                styles.color = textColor;
-                styles.border = 'none';
-                styles.boxShadow = `0 4px 15px ${baseColor}66`;
-                break;
-
-            case 'cyber':
-                styles.backgroundColor = baseColor;
-                styles.color = textColor;
-                styles.clipPath = 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)';
-                styles.borderRadius = '0px'; // Cyber still looks best square
-                styles.borderLeft = '2px solid rgba(255,255,255,0.2)';
-                styles.letterSpacing = '1px';
-                break;
-
-            case 'neon':
-                styles.backgroundColor = 'transparent';
-                styles.color = baseColor;
-                styles.border = `2px solid ${baseColor}`;
-                styles.boxShadow = `0 0 10px ${baseColor}, inset 0 0 5px ${baseColor}`;
-                styles.textShadow = `0 0 5px ${baseColor}`;
-                break;
-
-            case 'skeuo':
-                styles.backgroundColor = baseColor;
-                styles.color = textColor;
-                styles.borderTop = '2px solid rgba(255,255,255,0.5)';
-                styles.borderLeft = '2px solid rgba(255,255,255,0.5)';
-                styles.borderRight = '2px solid rgba(0,0,0,0.3)';
-                styles.borderBottom = '2px solid rgba(0,0,0,0.3)';
-                styles.boxShadow = '2px 2px 5px rgba(0,0,0,0.2)';
-                break;
-
-            case 'minimal-hover':
-                styles.backgroundColor = 'transparent';
-                styles.color = baseColor;
-                styles.border = 'none';
-                styles.borderBottom = `1px solid ${baseColor}`;
-                styles.borderRadius = '0px';
-                styles.boxShadow = 'none';
-                break;
-
-            case 'paper':
-                styles.backgroundColor = baseColor;
-                styles.color = textColor;
-                // Complex clip-path for torn edges
-                styles.clipPath = 'polygon(3% 0, 7% 1%, 11% 0%, 16% 2%, 20% 0, 23% 2%, 28% 2%, 32% 1%, 35% 1%, 39% 3%, 41% 1%, 45% 0%, 47% 2%, 50% 2%, 53% 0, 58% 2%, 60% 2%, 63% 1%, 65% 0%, 69% 2%, 72% 2%, 75% 1%, 79% 1%, 82% 1%, 85% 0, 88% 1%, 91% 0, 93% 2%, 96% 0, 98% 1%, 100% 0, 100% 7%, 99% 11%, 100% 13%, 100% 22%, 99% 23%, 100% 27%, 100% 30%, 100% 36%, 99% 40%, 100% 43%, 100% 50%, 99% 55%, 100% 60%, 100% 66%, 99% 68%, 100% 71%, 100% 77%, 100% 80%, 99% 83%, 100% 89%, 100% 96%, 98% 98%, 95% 99%, 92% 99%, 89% 100%, 86% 99%, 83% 100%, 78% 99%, 74% 99%, 70% 100%, 66% 99%, 63% 100%, 59% 99%, 56% 100%, 53% 99%, 49% 100%, 46% 99%, 42% 100%, 39% 99%, 36% 100%, 31% 99%, 27% 100%, 24% 99%, 21% 100%, 18% 99%, 13% 100%, 9% 99%, 6% 100%, 3% 99%, 0 100%, 1% 97%, 0% 94%, 1% 89%, 0% 84%, 1% 81%, 0 76%, 0 73%, 1% 69%, 0% 64%, 1% 60%, 0% 55%, 0 51%, 1% 47%, 0% 44%, 1% 40%, 0% 36%, 0 31%, 1% 27%, 0% 23%, 1% 18%, 0% 15%, 0 10%, 1% 6%, 0% 0)';
-                styles.borderRadius = '0px';
-                styles.filter = 'drop-shadow(2px 2px 1px rgba(0,0,0,0.2))';
-                break;
-
-            case 'liquid':
-                styles.backgroundColor = baseColor;
-                styles.color = textColor;
-                // If the user hasn't specified roundness, use the fluid shape. 
-                // If they did, we might want to blend, but for now fluid shape as priority for this style.
-                styles.borderRadius = '60% 40% 30% 70% / 60% 30% 70% 40%';
-                styles.animation = 'wobble-shape 6s ease-in-out infinite';
-                styles.boxShadow = `0 10px 20px ${baseColor}4D`;
-                styles.border = 'none';
-                break;
-
-            default: // solid fallback
-                styles.backgroundColor = baseColor;
-                styles.color = textColor;
-                break;
-        }
-
-        return styles;
+    // Helper to strip existing rounding and font classes from theme button class
+    const getCleanedThemeButtonClass = (cls: string) => {
+        let cleaned = cls;
+        // Strip rounding
+        cleaned = cleaned.replace(/\brounded-(none|sm|md|lg|xl|2xl|3xl|full)\b|\brounded\b/g, '');
+        // Strip font family and weight classes to allow inheritance/override
+        cleaned = cleaned.replace(/\bfont-(sans|serif|mono|bold|black|medium|light|thin|extrabold|semibold)\b/g, '');
+        return cleaned.trim();
     };
 
-    const isCustomButtonStyle = !!(profile.customButtonColor || profile.buttonStyleType || profile.customTextColor || profile.buttonRoundness);
+    const buttonClass = roundedClass
+        ? `${getCleanedThemeButtonClass(currentTheme.buttonClass)} ${roundedClass}`
+        : getCleanedThemeButtonClass(currentTheme.buttonClass);
+
+    const textClass = currentTheme.textClass;
+
 
     return (
-        <div className="relative w-full h-full flex flex-col overflow-hidden">
+        <div
+            className="relative w-full h-full flex flex-col overflow-hidden"
+            style={{ fontFamily: profile.fontFamily }}
+        >
             <style>{`
                 @keyframes wobble {
                     0%, 100% { transform: translateX(0%); }
@@ -419,85 +289,100 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-black/20"></div>
                     </div>
-                ) : isStatic && currentTheme.id.startsWith('animated-') ? (
-                    // STATIC FALLBACK FOR ANIMATED THEMES
-                    <div className="absolute inset-0 bg-zinc-900 border-2 border-red-500/0">
-                        {/* ... Existing fallbacks ... */}
-                        {/* Fallback for new themes */}
-                        {currentTheme.id === 'animated-grainient-cool' && <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 to-purple-900"></div>}
-                        {currentTheme.id === 'animated-grainient-warm' && <div className="absolute inset-0 bg-gradient-to-br from-orange-900 to-red-900"></div>}
-                        {currentTheme.id === 'animated-grainient-mono' && <div className="absolute inset-0 bg-zinc-900"></div>}
-
-                        {/* Fallback for any other animated theme not caught above - Keep existing fallback */}
-                        <div className={`absolute inset-0 ${currentTheme.backgroundClass}`}></div>
-                    </div>
-                ) : currentTheme.id === 'glass' ? (
-                    <div className="absolute inset-0 bg-black">
-                        <LightPillar
-                            topColor="#5227FF"
-                            bottomColor="#FF9FFC"
-                            intensity={1}
-                            rotationSpeed={0.3}
-                            glowAmount={0.002}
-                            pillarWidth={3}
-                            pillarHeight={0.4}
-                            noiseIntensity={0.5}
-                            pillarRotation={25}
-                            interactive={false}
-                            mixBlendMode="screen"
-                            quality="high"
-                        />
-                        <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
-                    </div>
-                ) : currentTheme.id === 'animated-hologram' ? (
-                    <div className="absolute inset-0 bg-black">
-                        <Prism
-                            animationType="3drotate"
-                            glow={1.5}
-                            scale={4}
-                            hueShift={0}
-                            colorFrequency={0.8}
-                            transparent={true}
-                        />
-                        <div className="absolute inset-0 bg-black/40" />
-                    </div>
-                ) : currentTheme.id === 'animated-aurora' ? (
-                    <AuroraBackground />
-                ) : currentTheme.id === 'animated-starfield' ? (
-                    <div className="absolute inset-0 bg-[#020617]">
-                        <ParticlesBackground color="#ffffff" count={80} />
-                    </div>
-                ) : currentTheme.id === 'animated-matrix' ? (
-                    <MatrixBackground />
-                ) : currentTheme.id === 'animated-glitch' ? (
-                    <div className="absolute inset-0 bg-[#050505]">
-                        {/* Glitch CSS ... */}
-                        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ animation: 'glitch-bg 4s infinite' }} />
-                        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none" />
-                        <div className="absolute top-0 left-0 w-full h-[100px] bg-white/5 opacity-10 pointer-events-none" style={{ animation: 'scanline 8s linear infinite' }} />
-                    </div>
-                ) : currentTheme.id === 'animated-mesh' ? (
-                    <GradientMeshBackground />
-                ) : currentTheme.id === 'animated-cybergrid' ? (
-                    <CyberGridBackground />
-                ) : currentTheme.id === 'animated-shapes' ? (
-                    <FloatingShapesBackground />
-                ) : currentTheme.id === 'animated-neon-city' ? (
-                    <NeonCityBackground />
-                ) : currentTheme.id === 'animated-geo-flow' ? (
-                    <GeometricFlowBackground />
-                ) : currentTheme.id === 'animated-space-warp' ? (
-                    <SpaceWarpBackground />
-                ) : currentTheme.id === 'animated-waves' ? (
-                    <AbstractWavesBackground />
+                ) : currentTheme.id === 'music-synth-wave' ? (
+                    <SynthwaveBackground />
+                ) : currentTheme.id === 'music-audio-pulse' ? (
+                    <AudioPulseBackground />
+                ) : currentTheme.id === 'music-vinyl-groove' ? (
+                    <VinylBackground />
+                ) : currentTheme.id === 'music-electric-storm' ? (
+                    <ElectricStormBackground />
+                ) : currentTheme.id === 'music-jazz-lounge' ? (
+                    <JazzBackground />
+                ) : currentTheme.id === 'music-acoustic-vibe' ? (
+                    <AcousticBackground />
+                ) : currentTheme.id === 'music-lofi-beats' ? (
+                    <LofiBackground />
+                ) : currentTheme.id === 'music-pop-star' ? (
+                    <PopBackground />
+                ) : currentTheme.id === 'music-techno-core' ? (
+                    <TechnoBackground />
+                ) : currentTheme.id === 'music-classical-flow' ? (
+                    <ClassicalBackground />
+                ) : currentTheme.id === 'kawaii-clouds' ? (
+                    <KawaiiCloudsBackground />
+                ) : currentTheme.id === 'kawaii-stars' ? (
+                    <KawaiiStarsBackground />
+                ) : currentTheme.id === 'kawaii-garden' ? (
+                    <KawaiiGardenBackground />
+                ) : currentTheme.id === 'kawaii-peach' ? (
+                    <KawaiiPeachBackground />
+                ) : currentTheme.id === 'kawaii-milk' ? (
+                    <KawaiiMilkBackground />
+                ) : currentTheme.id === 'kawaii-rainbow' ? (
+                    <KawaiiRainbowBackground />
+                ) : currentTheme.id === 'kawaii-jelly' ? (
+                    <KawaiiJellyBackground />
+                ) : currentTheme.id === 'kawaii-bakery' ? (
+                    <KawaiiBakeryBackground />
+                ) : currentTheme.id === 'kawaii-space' ? (
+                    <KawaiiSpaceBackground />
+                ) : currentTheme.id === 'kawaii-matcha' ? (
+                    <KawaiiMatchaBackground />
+                ) : currentTheme.id === 'kawaii-sakura' ? (
+                    <KawaiiSakuraBackground />
+                ) : currentTheme.id === 'creative-pixel' ? (
+                    <PixelBackground />
                 ) : currentTheme.id === 'animated-nodus-official' ? (
                     <NodusOfficialBackground />
-                ) : currentTheme.id === 'animated-grainient-cool' ? (
-                    <Grainient color1="#4f46e5" color2="#7c3aed" color3="#2563eb" />
-                ) : currentTheme.id === 'animated-grainient-warm' ? (
-                    <Grainient color1="#ea580c" color2="#dc2626" color3="#f59e0b" />
-                ) : currentTheme.id === 'animated-grainient-mono' ? (
-                    <Grainient color1="#334155" color2="#0f172a" color3="#000000" saturation={0} />
+                ) : currentTheme.id === 'ballpit' ? (
+                    <Ballpit
+                        count={60}
+                        gravity={0.3}
+                        friction={0.9975}
+                        wallBounce={0.95}
+                        followCursor={false}
+                        colors={[0x2563eb, 0xffffff, 0x7c3aed, 0xdb2777]}
+                    />
+                ) : currentTheme.id === 'iridescence' ? (
+                    <Iridescence
+                        color={[0.5, 0.6, 0.8]}
+                        mouseReact
+                        amplitude={0.1}
+                        speed={1}
+                    />
+                ) : currentTheme.id === 'prismatic-burst' ? (
+                    <PrismaticBurst
+                        animationType="rotate3d"
+                        intensity={2}
+                        speed={0.5}
+                        distort={0}
+                        paused={false}
+                        offset={{ x: 0, y: 0 }}
+                        hoverDampness={0.25}
+                        rayCount={0}
+                        mixBlendMode="lighten"
+                        colors={['#ff007a', '#4d3dff', '#ffffff']}
+                    />
+                ) : currentTheme.id === 'beams' ? (
+                    <Beams
+                        beamWidth={3}
+                        beamHeight={30}
+                        beamNumber={20}
+                        lightColor="#ffffff"
+                        speed={2}
+                        noiseIntensity={1.75}
+                        scale={0.2}
+                        rotation={30}
+                    />
+                ) : currentTheme.id === 'silk' ? (
+                    <Silk
+                        speed={5}
+                        scale={1}
+                        color="#7B7481"
+                        noiseIntensity={1.5}
+                        rotation={0}
+                    />
                 ) : (
                     <div
                         className={`absolute inset-0 ${currentTheme.backgroundClass}`}
@@ -508,15 +393,17 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 {/* GLOBAL BLUR FADE OVERLAY */}
                 {profile.enableBlur && (
                     <>
-                        {/* Gradient Fade Overlay - Top transparent, Bottom Solid Matching Theme or Custom Color */}
+                        {/* Final Refined Backdrop Blur Overlay */}
                         <div
                             className="absolute inset-0 z-10 pointer-events-none"
                             style={{
-                                background: `linear-gradient(to bottom, transparent 0%, ${profile.customSolidColor || currentTheme.solidColor || (isDarkTheme ? '#000000' : '#ffffff')}FF 45%, ${profile.customSolidColor || currentTheme.solidColor || (isDarkTheme ? '#000000' : '#ffffff')} 100%)`
+                                backgroundColor: 'transparent',
+                                maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
+                                WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
+                                backdropFilter: 'blur(80px)',
+                                WebkitBackdropFilter: 'blur(80px)'
                             }}
-                        ></div>
-                        {/* Backdrop Blur */}
-                        <div className="absolute inset-0 backdrop-blur-[2px] z-10 pointer-events-none" style={{ maskImage: 'linear-gradient(to bottom, transparent 10%, black 60%)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 10%, black 60%)' }}></div>
+                        />
                     </>
                 )}
             </div>
@@ -528,11 +415,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     fontFamily: profile.fontFamily,
                     fontSize: `${profile.fontSize || 16}px`,
                     fontWeight: profile.fontWeight || undefined,
-                    fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                    color: profile.customTextColor || undefined
+                    fontStyle: profile.fontItalic ? 'italic' : 'normal'
                 }}
             >
-                <LayoutGroup id="profile-content">
+                <div>
                     {/* Status Bar - Only for Preview Mode */}
                     {isPreview && (
                         <div className={`w-full px-6 pt-3 pb-2 flex justify-between items-center z-20 ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white' : 'text-slate-900'}`}>
@@ -577,7 +463,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     <div className={`px-6 pb-40 ${isPreview ? 'pt-12' : 'pt-16'} flex-1 flex flex-col min-h-full`}>
 
                         {/* Profile Section */}
-                        <motion.div layout className={`w-full mb-6 ${profile.headerLayout === 'compact'
+                        <motion.div className={`w-full mb-6 ${profile.headerLayout === 'compact'
                             ? 'flex flex-row items-center gap-4 text-left px-2'
                             : 'flex flex-col items-center text-center'
                             }`}>
@@ -585,7 +471,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             {profile.avatarUrl && (
                                 <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? 'mb-0' : 'mb-4'
                                     }`}>
-                                    <div className={`rounded-full overflow-hidden border-4 transition-all duration-300 shadow-lg ${currentTheme.avatarBorder
+                                    <div className={`rounded-full overflow-hidden border-4 shadow-lg ${currentTheme.avatarBorder
                                         } ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
                                             profile.avatarSize === 'lg' ? 'w-32 h-32' :
                                                 'w-24 h-24' // default (md)
@@ -614,8 +500,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 }`}
                                         />
                                     ) : (
-                                        <h3 className={`mb-1 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[2em]' : 'text-[1.5em]'
-                                            }`}>
+                                        <h3
+                                            className={`mb-1 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[2em]' : 'text-[1.5em]'}`}
+                                            style={{ fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                        >
                                             {profile.name}
                                             {profile.isVerified && (
                                                 <img
@@ -630,8 +518,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 </div>
 
                                 {profile.bio && (
-                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'
-                                        }`}>
+                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'}`}
+                                        style={{ fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                    >
                                         {profile.bio}
                                     </p>
                                 )}
@@ -659,7 +548,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             target="_blank"
                                             rel="noreferrer"
                                             onClick={() => handleLinkClick(link.id)}
-                                            className={`${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass} hover:opacity-70 transition-all hover:scale-110 active:scale-95`}
+                                            className={`${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}
                                         >
                                             <Icon size={24} />
                                         </motion.a>
@@ -705,8 +594,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.15 }}
-                                    layout
+                                    transition={{ duration: 0 }}
                                     className="w-full space-y-4"
                                 >
 
@@ -722,13 +610,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 <button
                                                     key={name}
                                                     onClick={() => handleCollectionClick(name)}
-                                                    className={`w-full group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ${(!profile.customButtonColor && !profile.buttonStyleType) ? currentTheme.buttonClass : ''}`}
+                                                    className={`w-full group relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ${buttonClass}`}
                                                 >
                                                     {currentTheme.id === 'glass' ? (
                                                         <GlassSurface
                                                             width="100%"
                                                             height="auto"
-                                                            borderRadius={16}
+                                                            borderRadius={borderRadiusValue}
                                                             displace={0.5}
                                                             distortionScale={-180}
                                                             redOffset={0}
@@ -794,12 +682,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                             <div className="grid grid-cols-2 gap-3 pb-8">
                                                 {collections[activeCollection].map(product => (
-                                                    <a key={product.id} href={product.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(product.id)} className={`flex flex-col gap-2 group relative rounded-2xl w-full ${currentTheme.id === 'glass' ? '' : 'p-2'}`}>
+                                                    <a key={product.id} href={product.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(product.id)} className={`flex flex-col gap-2 group relative ${roundedClass || 'rounded-2xl'} w-full transition-all duration-300 ${currentTheme.id === 'glass' ? '' : 'p-2'}`}>
                                                         {currentTheme.id === 'glass' ? (
                                                             <GlassSurface
                                                                 width="100%"
                                                                 height="auto"
-                                                                borderRadius={16}
+                                                                borderRadius={borderRadiusValue}
                                                                 displace={0.5}
                                                                 distortionScale={-180}
                                                                 redOffset={0}
@@ -810,7 +698,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 mixBlendMode="screen"
                                                             >
                                                                 <div className="flex flex-col gap-2 w-full p-2">
-                                                                    <div className={`aspect-square rounded-xl overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative w-full`}>
+                                                                    <div className={`aspect-square ${roundedClass || 'rounded-xl'} overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative w-full`}>
                                                                         <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                                                                         {product.discountCode && (
                                                                             <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg shadow-sm">
@@ -829,7 +717,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                         ) : (
                                                             <div className="relative z-10 flex flex-col gap-2">
-                                                                <div className={`aspect-square rounded-xl overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative`}>
+                                                                <div className={`aspect-square ${roundedClass || 'rounded-xl'} overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative`}>
                                                                     <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                                                                     {product.discountCode && (
                                                                         <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-sm">
@@ -860,17 +748,15 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.15 }}
-                                    layout
+                                    transition={{ duration: 0 }}
                                     className="flex flex-col gap-4 w-full flex-1 relative"
                                 >
                                     {(() => {
                                         const renderedItems: React.ReactNode[] = [];
 
                                         const themeButtonHex = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#0f172a');
-                                        const cardAccentColor = profile.customButtonColor || themeButtonHex;
-                                        const cardTextColor = profile.customTextColor || (isDarkTheme || currentTheme.id === 'glass' ? '#ffffff' : '#0f172a');
-                                        const displayTextColor = (cardTextColor === '#ffffff' || cardTextColor === '#fff') ? cardAccentColor : cardTextColor;
+                                        const cardAccentColor = themeButtonHex;
+                                        const cardTextColor = (isDarkTheme || currentTheme.id === 'glass' ? '#ffffff' : '#0f172a');
 
                                         let currentIconGroup: LinkItem[] = [];
                                         let currentCardGroup: LinkItem[] = [];
@@ -886,25 +772,35 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 SOCIAL_NETWORKS[0];
 
                                                             const Icon = network.icon || Globe;
+                                                            const isGlass = currentTheme.id === 'glass';
 
                                                             return (
                                                                 <motion.a
                                                                     key={iconLink.id}
-                                                                    layout
                                                                     initial={{ scale: 0.8, opacity: 0 }}
                                                                     animate={{ scale: 1, opacity: 1 }}
-                                                                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                                                                    transition={{ duration: 0 }}
                                                                     href={iconLink.url}
                                                                     target="_blank"
                                                                     rel="noreferrer"
                                                                     onClick={() => handleLinkClick(iconLink.id)}
-                                                                    className={`${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass} hover:opacity-70 transition-all hover:scale-110 active:scale-95 flex items-center justify-center`}
+                                                                    className={`relative group flex items-center justify-center ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}
                                                                 >
-                                                                    {iconLink.image ? (
-                                                                        <img src={iconLink.image} alt="" className="w-8 h-8 rounded-lg object-cover" />
+                                                                    {isGlass ? (
+                                                                        <div className="absolute inset-0 -m-2">
+                                                                            <GlassSurface width="100%" height="100%" displace={0.2} distortionScale={-50} brightness={40} opacity={0.8} mixBlendMode="screen" className="w-full h-full" />
+                                                                        </div>
                                                                     ) : (
-                                                                        <Icon size={28} />
+                                                                        <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${currentTheme.id.includes('dark') ? 'bg-white' : 'bg-black'}`}></div>
                                                                     )}
+
+                                                                    <div className="relative z-10 p-1">
+                                                                        {iconLink.image ? (
+                                                                            <img src={iconLink.image} alt="" className="w-8 h-8 rounded-lg object-cover" />
+                                                                        ) : (
+                                                                            <Icon size={28} />
+                                                                        )}
+                                                                    </div>
                                                                 </motion.a>
                                                             );
                                                         })}
@@ -921,41 +817,40 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     <div key={`card-grid-${group[0].id}`} className="grid grid-cols-2 gap-2.5 mb-8">
                                                         {group.map((cardLink) => {
                                                             const cardBg = cardAccentColor;
+                                                            const isGlass = currentTheme.id === 'glass';
 
                                                             return (
                                                                 <motion.a
                                                                     key={cardLink.id}
-                                                                    layout
-                                                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                                                    transition={{ duration: 0 }}
                                                                     href={cardLink.url}
                                                                     target="_blank"
                                                                     rel="noreferrer"
                                                                     onClick={() => handleLinkClick(cardLink.id)}
-                                                                    className={`flex flex-col ${cardRoundedClass} overflow-hidden relative group transition-all w-full aspect-[3/3.8] ${!isCustomButtonStyle ? 'bg-white border border-black/5 shadow-sm hover:shadow-xl' : ''}`}
-                                                                    style={!isCustomButtonStyle ? {} : getCustomButtonStyles()}
+                                                                    className={`flex flex-col overflow-hidden relative group transition-all w-full aspect-[3/3.8] ${!isGlass ? buttonClass : ''}`}
                                                                 >
-                                                                    <div
-                                                                        className="flex-1 w-full relative overflow-hidden"
-                                                                        style={{ backgroundColor: cardBg }}
-                                                                    >
-                                                                        {cardLink.image ? (
-                                                                            <img src={cardLink.image} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                                                        ) : (
-                                                                            <div className="w-full h-full flex items-center justify-center text-white/40">
-                                                                                <ShoppingBag size={28} />
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                    <div className="px-4 py-1 flex items-center justify-center shrink-0">
-                                                                        <div className="flex flex-col min-w-0 flex-1 items-center text-center">
-                                                                            <span className="text-[0.82em] leading-tight font-bold truncate tracking-tight" style={{ color: cardTextColor }}>
-                                                                                {cardLink.title}
-                                                                            </span>
-                                                                            {cardLink.subtitle && (
-                                                                                <span className="text-[0.68em] opacity-60 truncate font-medium" style={{ color: cardTextColor }}>
-                                                                                    {cardLink.subtitle}
-                                                                                </span>
+                                                                    {isGlass ? (
+                                                                        <div className="absolute inset-0 z-0">
+                                                                            <GlassSurface width="100%" height="100%" displace={0.5} distortionScale={-180} brightness={50} opacity={0.93} mixBlendMode="screen" className="w-full h-full" borderRadius={borderRadiusValue} />
+                                                                        </div>
+                                                                    ) : null}
+
+                                                                    <div className="relative z-10 flex flex-col h-full w-full">
+                                                                        <div
+                                                                            className="flex-1 w-full relative overflow-hidden"
+                                                                            style={{ backgroundColor: cardBg + '1A' }}
+                                                                        >
+                                                                            {cardLink.image ? (
+                                                                                <img src={cardLink.image} alt="" className="w-full h-full object-cover transition-transform duration-700" />
+                                                                            ) : (
+                                                                                <div className="w-full h-full flex items-center justify-center opacity-10">
+                                                                                    <Globe size={40} />
+                                                                                </div>
                                                                             )}
+                                                                        </div>
+                                                                        <div className="p-2.5 flex flex-col justify-center items-center text-center h-16 relative">
+                                                                            <span className="text-[0.7em] leading-tight truncate px-1 font-bold" style={{ color: (profile.customBackground || currentTheme.id === 'glass') ? 'white' : (currentTheme.textClass.includes('text-white') ? 'white' : undefined) }}>{cardLink.title}</span>
+                                                                            {cardLink.subtitle && <span className="text-[0.62em] leading-tight truncate px-1 opacity-60 mt-0.5" style={{ color: (profile.customBackground || currentTheme.id === 'glass') ? 'white' : (currentTheme.textClass.includes('text-white') ? 'white' : undefined) }}>{cardLink.subtitle}</span>}
                                                                         </div>
                                                                     </div>
                                                                 </motion.a>
@@ -967,26 +862,28 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             }
                                         };
 
-                                        buttonLinks.forEach((link) => {
-                                            if (link.layout === 'icon' && link.type !== 'collection') {
+                                        buttonLinks.forEach(link => {
+                                            if (link.layout === 'icon') {
                                                 flushCards();
                                                 currentIconGroup.push(link);
-                                            } else if (link.layout === 'card' && link.type !== 'collection') {
+                                            } else if (link.layout === 'card') {
                                                 flushIcons();
                                                 currentCardGroup.push(link);
                                             } else {
                                                 flushIcons();
                                                 flushCards();
 
-                                                // RENDER NORMAL LINK / COLLECTION
-                                                if (link.type === 'collection') {
-                                                    const hasChildren = link.children && link.children.length > 0;
-                                                    const activeChildren = link.children ? link.children.filter(c => c.isActive) : [];
+                                                if (isMusicLink(link)) {
+                                                    renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full mb-5"><MusicRichCard link={link} handleLinkClick={handleLinkClick} /></motion.div>);
+                                                } else if (link.embedType === 'youtube') {
+                                                    renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} /></motion.div>);
+                                                } else {
+                                                    const activeChildren = link.children?.filter(c => c.isActive) || [];
 
-                                                    if (hasChildren || activeChildren.length > 0) {
-                                                        const isCardCollection = activeChildren.some(c => c.layout === 'card');
+                                                    if (activeChildren.length > 0) {
+                                                        const collectionLayout = (link.layout === 'carousel') ? 'carousel' : 'stacked';
 
-                                                        if (isCardCollection) {
+                                                        if (collectionLayout === 'carousel') {
                                                             const scrollContainerId = `scroll-${link.id}`;
                                                             const scroll = (direction: 'left' | 'right') => {
                                                                 const container = document.getElementById(scrollContainerId);
@@ -997,139 +894,139 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             };
 
                                                             renderedItems.push(
-                                                                <motion.div key={link.id} layout transition={{ type: "spring", stiffness: 300, damping: 30 }} className="w-full pt-2 pb-1 group/carousel">
-                                                                    <div className="text-center mb-3 opacity-90 text-lg">{link.title}</div>
-
+                                                                <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-2 pb-1 group/carousel">
+                                                                    <div className={`text-center mb-3 opacity-90 text-lg font-bold ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}>{link.title}</div>
                                                                     <div className="relative w-full">
-                                                                        {/* Arrows - Only visible on hover and on larger screens */}
-                                                                        <button
-                                                                            onClick={() => scroll('left')}
-                                                                            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white active:scale-90"
-                                                                        >
-                                                                            <ChevronLeft size={20} />
-                                                                        </button>
+                                                                        <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
+                                                                        <div id={scrollContainerId} className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
+                                                                            {activeChildren.map(child => {
+                                                                                const isGlass = currentTheme.id === 'glass';
+                                                                                return (
+                                                                                    <motion.a
+                                                                                        key={child.id}
+                                                                                        transition={{ duration: 0 }}
+                                                                                        href={child.url}
+                                                                                        target="_blank"
+                                                                                        rel="noreferrer"
+                                                                                        onClick={() => handleLinkClick(child.id)}
+                                                                                        className={`relative group flex-shrink-0 w-40 snap-start flex flex-col overflow-hidden transition-all duration-300 ${!isGlass ? buttonClass : ''}`}
+                                                                                    >
+                                                                                        {isGlass ? (
+                                                                                            <div className="absolute inset-0 z-0">
+                                                                                                <GlassSurface width="100%" height="100%" displace={0.5} distortionScale={-180} brightness={50} opacity={0.93} mixBlendMode="screen" className="w-full h-full" borderRadius={borderRadiusValue} />
+                                                                                            </div>
+                                                                                        ) : null}
 
-                                                                        <div
-                                                                            id={scrollContainerId}
-                                                                            className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth"
-                                                                        >
-                                                                            {activeChildren.map(child => (
-                                                                                <motion.a
-                                                                                    key={child.id}
-                                                                                    layout
-                                                                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                                                    href={child.url}
-                                                                                    target="_blank"
-                                                                                    rel="noreferrer"
-                                                                                    onClick={() => handleLinkClick(child.id)}
-                                                                                    className={`relative group flex-shrink-0 w-40 snap-start flex flex-col ${cardRoundedClass} overflow-hidden transition-all duration-300 ${!isCustomButtonStyle ? 'bg-white shadow-sm' : ''}`}
-                                                                                    style={!isCustomButtonStyle ? {} : getCustomButtonStyles()}
-                                                                                >
-                                                                                    <motion.div layout className="h-32 w-full bg-slate-100 relative">
-                                                                                        {child.image ? <img src={child.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400"><ShoppingBag size={20} /></div>}
-                                                                                    </motion.div>
-                                                                                    <motion.div layout className="p-2 flex flex-col justify-center items-center text-center h-8 relative">
-                                                                                        <span className="text-[0.7em] leading-tight truncate font-bold" style={{ color: cardTextColor }}>{child.title}</span>
-                                                                                        {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60" style={{ color: cardTextColor }}>{child.subtitle}</span>}
-                                                                                        <div className="absolute right-2 bottom-1 w-0.5 h-0.5 rounded-full opacity-20" style={{ backgroundColor: cardTextColor }}></div>
-                                                                                    </motion.div>
-                                                                                </motion.a>
-                                                                            ))}
+                                                                                        <div className="relative z-10 flex flex-col h-full w-full">
+                                                                                            <div className="h-32 w-full bg-slate-100/10 relative">
+                                                                                                {child.image ? <img src={child.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
+                                                                                            </div>
+                                                                                            <div className="p-2 flex flex-col justify-center items-center text-center h-12 relative">
+                                                                                                <span className="text-[0.7em] leading-tight truncate font-bold w-full" style={{ color: (profile.customBackground || currentTheme.id === 'glass') ? 'white' : (currentTheme.textClass.includes('text-white') ? 'white' : undefined) }}>{child.title}</span>
+                                                                                                {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60 w-full" style={{ color: (profile.customBackground || currentTheme.id === 'glass') ? 'white' : (currentTheme.textClass.includes('text-white') ? 'white' : undefined) }}>{child.subtitle}</span>}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </motion.a>
+                                                                                );
+                                                                            })}
                                                                         </div>
-
-                                                                        <button
-                                                                            onClick={() => scroll('right')}
-                                                                            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white active:scale-90"
-                                                                        >
-                                                                            <ChevronRight size={20} />
-                                                                        </button>
+                                                                        <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronRight size={20} /></button>
                                                                     </div>
                                                                 </motion.div>
                                                             );
                                                         } else {
                                                             renderedItems.push(
-                                                                <motion.div key={link.id} layout transition={{ type: "spring", stiffness: 300, damping: 30 }} className="w-full pt-2 pb-1">
-                                                                    <div className="text-center mb-3 font-bold opacity-90 text-lg">{link.title}</div>
-                                                                    <motion.div layout className="flex flex-col gap-4 relative">
+                                                                <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-2 pb-1">
+                                                                    <div className={`text-center mb-3 font-bold opacity-90 text-lg ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}>{link.title}</div>
+                                                                    <div className="flex flex-col gap-4 relative">
                                                                         {activeChildren.map(child => {
-                                                                            if (isMusicLink(child)) return <motion.div key={child.id} layout className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
-                                                                            if (child.embedType === 'youtube') return <motion.div key={child.id} layout className="mb-4"><YouTubeEmbed url={child.url} title={child.title} className="rounded-2xl" /></motion.div>;
+                                                                            if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
+                                                                            if (child.embedType === 'youtube') return <motion.div key={child.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} /></motion.div>;
+
+                                                                            const isGlass = currentTheme.id === 'glass';
+
                                                                             return (
                                                                                 <motion.a
                                                                                     key={child.id}
-                                                                                    layout
+                                                                                    transition={{ duration: 0 }}
                                                                                     href={child.url}
                                                                                     target="_blank"
                                                                                     rel="noreferrer"
                                                                                     onClick={() => handleLinkClick(child.id)}
-                                                                                    className={`block w-full ${roundedClass} text-center text-base transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-4 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${getHighlightClass(child.highlight)} overflow-hidden ${hasThemeShadow ? '' : 'shadow-sm'}`}`}
-                                                                                    style={!profile.customButtonColor ? {} : { backgroundColor: profile.customButtonColor, color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000') }}
+                                                                                    className={`block w-full text-center text-base transform group relative ${isGlass ? '' : `py-4 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}`}
+                                                                                    style={{ fontFamily: profile.fontFamily, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                                                 >
-                                                                                    {currentTheme.id === 'glass' ? (
-                                                                                        <GlassSurface width="100%" height="auto" borderRadius={borderRadius} displace={0.5} distortionScale={-180} redOffset={0} greenOffset={10} blueOffset={20} brightness={50} opacity={0.93} mixBlendMode="screen" className={`${getHighlightClass(child.highlight)}`}>
-                                                                                            <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-white text-center">
-                                                                                                <span className="truncate text-[0.9em] leading-tight font-bold">{child.title}</span>
-                                                                                                {child.subtitle && <span className="truncate text-[0.75em] opacity-90 leading-tight mt-0.5">{child.subtitle}</span>}
+                                                                                    {isGlass ? (
+                                                                                        <GlassSurface width="100%" height="auto" displace={0.5} distortionScale={-180} redOffset={0} greenOffset={10} blueOffset={20} brightness={50} opacity={0.93} mixBlendMode="screen" className={`${getHighlightClass(child.highlight)}`} borderRadius={borderRadiusValue}>
+                                                                                            <div className="flex-1 px-1 py-1 flex flex-col justify-center text-white text-center">
+                                                                                                <div className="flex items-center justify-between w-full px-2 py-1">
+                                                                                                    {child.image ? <img src={child.image} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                                                                    <div className="flex-1 px-2 flex flex-col justify-center">
+                                                                                                        <span className="text-[0.9em] leading-tight font-bold break-words">{child.title}</span>
+                                                                                                        {child.subtitle && <span className="text-[0.75em] opacity-90 leading-tight mt-0.5 break-words">{child.subtitle}</span>}
+                                                                                                    </div>
+                                                                                                    <span className="w-8 shrink-0"></span>
+                                                                                                </div>
                                                                                             </div>
                                                                                         </GlassSurface>
                                                                                     ) : (
-                                                                                        <div className="relative z-10 w-full flex items-center justify-between">
-                                                                                            {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                                                            <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-center">
-                                                                                                <span className="truncate text-[0.9em] leading-tight font-bold">{child.title}</span>
-                                                                                                {child.subtitle && <span className="truncate text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5">{child.subtitle}</span>}
+                                                                                        <>
+                                                                                            <div className="relative z-10 w-full flex items-center justify-between">
+                                                                                                {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                                                                <div className="flex-1 px-1 flex flex-col justify-center text-center">
+                                                                                                    <span className="text-[0.9em] leading-tight font-bold break-words">{child.title}</span>
+                                                                                                    {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words">{child.subtitle}</span>}
+                                                                                                </div>
+                                                                                                <span className="w-8 shrink-0"></span>
                                                                                             </div>
-                                                                                            <span className="w-8 shrink-0"></span>
-                                                                                        </div>
+                                                                                        </>
                                                                                     )}
                                                                                 </motion.a>
                                                                             );
                                                                         })}
-                                                                    </motion.div>
+                                                                    </div>
                                                                 </motion.div>
                                                             );
                                                         }
-                                                    }
-                                                } else if (link.embedType === 'youtube') {
-                                                    renderedItems.push(<motion.div key={link.id} layout transition={{ type: "spring", stiffness: 300, damping: 30 }} className="mb-4"><YouTubeEmbed url={link.url} title={link.title} className="rounded-2xl" /></motion.div>);
-                                                } else if (isMusicLink(link)) {
-                                                    renderedItems.push(<motion.div key={link.id} layout transition={{ type: "spring", stiffness: 300, damping: 30 }} className="w-full mb-5"><MusicRichCard link={link} handleLinkClick={handleLinkClick} /></motion.div>);
-                                                } else {
-                                                    renderedItems.push(
-                                                        <motion.a
-                                                            key={link.id}
-                                                            layout
-                                                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                                            href={link.url}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            onClick={() => handleLinkClick(link.id)}
-                                                            className={`block w-full ${roundedClass} min-h-[64px] text-center text-base transform group relative hover:scale-[1.02] active:scale-[0.98] ${(currentTheme.id === 'glass' && !isCustomButtonStyle) ? '' : `py-2.5 px-6 flex items-center justify-between ${(!profile.customButtonColor && !profile.buttonStyleType) ? currentTheme.buttonClass : ''} ${getHighlightClass(link.highlight)} overflow-hidden ${hasThemeShadow && !isCustomButtonStyle ? '' : 'shadow-sm'}`}`}
-                                                            style={!isCustomButtonStyle ? {} : getCustomButtonStyles()}
-                                                        >
-                                                            {currentTheme.id === 'glass' && !isCustomButtonStyle ? (
-                                                                <GlassSurface width="100%" height="auto" borderRadius={borderRadius} displace={0.5} distortionScale={-180} redOffset={0} greenOffset={10} blueOffset={20} brightness={50} opacity={0.93} mixBlendMode="screen" className={`${getHighlightClass(link.highlight)}`}>
-                                                                    <div className="w-full flex items-center justify-between py-2 px-5">
-                                                                        {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                                        <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-white text-center">
-                                                                            <span className="truncate text-[0.9em] leading-tight font-bold">{link.title}</span>
-                                                                            {link.subtitle && <span className="truncate text-[0.75em] opacity-90 leading-tight mt-0.5">{link.subtitle}</span>}
+                                                    } else {
+                                                        renderedItems.push(
+                                                            <motion.a
+                                                                key={link.id}
+                                                                transition={{ duration: 0 }}
+                                                                href={link.url}
+                                                                target="_blank"
+                                                                rel="noreferrer"
+                                                                onClick={() => handleLinkClick(link.id)}
+                                                                className={`block w-full min-h-[64px] text-center text-base transform group relative ${currentTheme.id === 'glass' ? '' : `py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`}`}
+                                                                style={{ fontFamily: profile.fontFamily, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                            >
+                                                                {currentTheme.id === 'glass' ? (
+                                                                    <GlassSurface width="100%" height="auto" displace={0.5} distortionScale={-180} redOffset={0} greenOffset={10} blueOffset={20} brightness={50} opacity={0.93} mixBlendMode="screen" className={`${getHighlightClass(link.highlight)}`} borderRadius={borderRadiusValue}>
+                                                                        <div className="w-full flex items-center justify-between py-2 px-2">
+                                                                            {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                                            <div className="flex-1 px-1 flex flex-col justify-center text-white text-center">
+                                                                                <span className="text-[0.9em] leading-tight font-bold break-words">{link.title}</span>
+                                                                                {link.subtitle && <span className="text-[0.75em] opacity-90 leading-tight mt-0.5 break-words">{link.subtitle}</span>}
+                                                                            </div>
+                                                                            <span className="w-8 shrink-0"></span>
                                                                         </div>
-                                                                        <span className="w-8 shrink-0"></span>
-                                                                    </div>
-                                                                </GlassSurface>
-                                                            ) : (
-                                                                <div className="relative z-10 w-full flex items-center justify-between">
-                                                                    {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                                    <div className="flex-1 px-3 flex flex-col justify-center overflow-hidden text-center">
-                                                                        <span className="truncate text-[0.9em] leading-tight font-bold">{link.title}</span>
-                                                                        {link.subtitle && <span className="truncate text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5">{link.subtitle}</span>}
-                                                                    </div>
-                                                                    <span className="w-8 shrink-0"></span>
-                                                                </div>
-                                                            )}
-                                                        </motion.a>
-                                                    );
+                                                                    </GlassSurface>
+                                                                ) : (
+                                                                    <>
+
+                                                                        <div className="relative z-10 w-full flex items-center justify-between px-2">
+                                                                            {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                                            <div className="flex-1 px-1 flex flex-col justify-center text-center">
+                                                                                <span className="text-[0.9em] leading-tight font-bold break-words">{link.title}</span>
+                                                                                {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words">{link.subtitle}</span>}
+                                                                            </div>
+                                                                            <span className="w-8 shrink-0"></span>
+                                                                        </div>
+                                                                    </>
+                                                                )}
+                                                            </motion.a>
+                                                        );
+                                                    }
                                                 }
                                             }
                                         });
@@ -1145,7 +1042,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         </div>
                                     )}
                                 </motion.div>
-                            )}
+                            )
+                            }
                         </AnimatePresence>
 
 
@@ -1154,7 +1052,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <div className="mt-4 flex flex-col gap-4">
                             {profile.supportKey && (
                                 <motion.a
-                                    layout
+                                    transition={{ duration: 0 }}
                                     href={profile.supportType === 'paypal' ? `https://${profile.supportKey}` : '#'}
                                     onClick={(e) => {
                                         if (profile.supportType === 'pix') {
@@ -1163,17 +1061,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             navigator.clipboard.writeText(profile.supportKey || '');
                                         }
                                     }}
-                                    className={`block w-full ${roundedClass} min-h-[64px] text-center text-base transition-all duration-300 transform group relative hover:scale-[1.02] active:scale-[0.98] ${currentTheme.id === 'glass' ? '' : `py-2.5 px-6 flex items-center justify-between ${!profile.customButtonColor ? currentTheme.buttonClass : ''} ${hasThemeShadow ? '' : 'shadow-sm'} overflow-hidden`}`}
-                                    style={!profile.customButtonColor ? {} : {
-                                        backgroundColor: profile.customButtonColor,
-                                        color: profile.customTextColor || (isDarkTheme ? '#fff' : '#000')
-                                    }}
+                                    className={`block w-full min-h-[64px] text-center text-base transition-all duration-300 transform group relative ${currentTheme.id === 'glass' ? '' : `py-2.5 px-6 flex items-center justify-between ${buttonClass} overflow-hidden`}`}
+                                    style={{ fontFamily: profile.fontFamily, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                 >
                                     {currentTheme.id === 'glass' ? (
                                         <GlassSurface
                                             width="100%"
                                             height="auto"
-                                            borderRadius={borderRadius}
                                             displace={0.5}
                                             distortionScale={-180}
                                             redOffset={0}
@@ -1183,6 +1077,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             opacity={0.93}
                                             mixBlendMode="screen"
                                             className=""
+                                            borderRadius={borderRadiusValue}
                                         >
                                             <div className="w-full flex items-center justify-between py-3 px-5">
                                                 {profile.supportType === 'pix' ? (
@@ -1195,21 +1090,24 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             </div>
                                         </GlassSurface>
                                     ) : (
-                                        <div className="relative z-10 w-full flex items-center justify-between">
-                                            {profile.supportType === 'pix' ? (
-                                                <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" />
-                                            ) : (
-                                                <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
-                                            )}
-                                            <span className="truncate flex-1 px-3">Apoiar</span>
-                                            <span className="w-8 opacity-50 flex justify-end"><Coffee size={20} /></span>
-                                        </div>
+                                        <>
+
+                                            <div className="relative z-10 w-full flex items-center justify-between">
+                                                {profile.supportType === 'pix' ? (
+                                                    <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" />
+                                                ) : (
+                                                    <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
+                                                )}
+                                                <span className="truncate flex-1 px-3">Apoiar</span>
+                                                <span className="w-8 opacity-50 flex justify-end"><Coffee size={20} /></span>
+                                            </div>
+                                        </>
                                     )}
                                 </motion.a>
                             )}
 
                             {profile.showNewsletter && (
-                                <motion.div layout className="w-full px-2">
+                                <motion.div className="w-full px-2">
                                     <NewsletterWidget profile={profile} />
                                 </motion.div>
                             )}
@@ -1226,9 +1124,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         href="https://www.noduscc.com.br"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className={`group flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md hover:scale-[1.02] mb-2 ${btnClass}`}
+                                        className={`group flex items-center justify-center gap-2.5 px-6 py-2.5 ${roundedClass || 'rounded-full'} transition-all duration-300 shadow-sm ${btnClass}`}
                                     >
-                                        <span className="text-[13px] tracking-tight">
+                                        <span
+                                            className="text-[13px] tracking-tight"
+                                            style={{ fontFamily: profile.fontFamily }}
+                                        >
                                             Junte-se a {profile.name} no Nodus
                                         </span>
                                     </a>
@@ -1243,8 +1144,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             </div>
                         </motion.div>
                     </div>
-                </LayoutGroup>
+                </div>
             </div >
+            {/* Foreground Layer (For themes like Sakura) */}
+            {currentTheme.id === 'kawaii-sakura' && <KawaiiSakuraForeground />}
         </div >
     );
 };

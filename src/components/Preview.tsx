@@ -41,7 +41,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShar
 
           {/* Screen Content */}
           <ProfileRenderer
-            key={`${profile.fontFamily}-${profile.fontSize || 16}-${profile.fontWeight || '400'}-${profile.fontItalic}`}
+            key={`${profile.fontFamily}-${profile.fontSize || 16}-${profile.fontWeight || '400'}-${profile.fontItalic}-${profile.buttonRoundness}`}
             profile={profile}
             links={links}
             products={products}

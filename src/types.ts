@@ -4,8 +4,8 @@ export interface LinkItem {
   url: string;
   icon?: string;
   isActive: boolean;
-  layout: 'classic' | 'social' | 'card' | 'icon';
-  type?: 'link' | 'collection';
+  layout: 'classic' | 'social' | 'card' | 'icon' | 'grid' | 'carousel' | 'stacked';
+  type?: 'link' | 'collection' | 'social';
   children?: LinkItem[];
   subtitle?: string;
   image?: string;
@@ -13,6 +13,7 @@ export interface LinkItem {
   embedType?: 'none' | 'youtube' | 'spotify' | 'twitch' | 'deezer';
   clicks?: number;
   isArchived?: boolean;
+  platform?: string;
 }
 
 export interface UserProfile {
@@ -24,8 +25,6 @@ export interface UserProfile {
   avatarUrl: string;
   themeId: string;
   fontFamily: string;
-  buttonStyle?: 'rounded' | 'soft-rect';
-  buttonStyleType?: 'solid' | 'outline' | 'glass' | 'soft' | 'hard-shadow' | 'push' | 'gradient' | 'cyber' | 'neon' | 'skeuo' | 'minimal-hover' | 'paper' | 'liquid';
   buttonRoundness?: 'square' | 'round' | 'rounder' | 'full';
   headerLayout?: 'classic' | 'compact' | 'hero';
   headerStyle?: 'text' | 'logo';
@@ -33,9 +32,7 @@ export interface UserProfile {
   avatarSize?: 'sm' | 'md' | 'lg';
   showNewsletter?: boolean;
   customBackground?: string | null;
-  customTextColor?: string | null;
   customSolidColor?: string | null;
-  customButtonColor?: string | null;
   authProvider?: string;
   planType?: 'free' | 'monthly' | 'annual';
   subscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid';
@@ -67,7 +64,7 @@ export interface Theme {
   solidColor?: string;
   buttonHex?: string;
   textHex?: string;
-  category?: 'solid' | 'gradient' | 'animated';
+  category?: 'solid' | 'gradient' | 'animated' | 'music' | 'creative' | 'kawaii';
 }
 
 

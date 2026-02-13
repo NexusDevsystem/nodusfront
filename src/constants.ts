@@ -1,7 +1,7 @@
 
 import { Theme, FontOption, Product } from './types';
 import {
-  Mail, Globe, Link as LinkIcon
+  Mail, Globe, Link as LinkIcon, Phone
 } from 'lucide-react';
 import {
   SiInstagram, SiFacebook, SiX, SiTiktok, SiThreads, SiLinkedin, SiWhatsapp, SiTelegram,
@@ -92,476 +92,325 @@ export const FONTS: FontOption[] = [
 ];
 
 export const THEMES: Theme[] = [
-  // Basics & Solids
-  {
-    id: 'default',
-    name: 'Clean White',
-    backgroundClass: 'bg-white',
-    buttonClass: 'bg-slate-100 text-slate-900 hover:bg-slate-200 hover:scale-[1.02] shadow-sm',
-    textClass: 'text-slate-900',
-    avatarBorder: 'border-slate-200',
-    solidColor: '#ffffff',
-    buttonHex: '#f1f5f9', // slate-100
-    textHex: '#0f172a',   // slate-900
-    category: 'solid'
-  },
-  {
-    id: 'minimal-grey',
-    name: 'Air Grey',
-    backgroundClass: 'bg-slate-50',
-    buttonClass: 'bg-white text-slate-800 border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md',
-    textClass: 'text-slate-800',
-    avatarBorder: 'border-slate-300',
-    solidColor: '#f8fafc',
-    buttonHex: '#ffffff',
-    textHex: '#1e293b', // slate-800
-    category: 'solid'
-  },
-  {
-    id: 'dark',
-    name: 'Midnight',
-    backgroundClass: 'bg-slate-950',
-    buttonClass: 'bg-slate-900 hover:bg-slate-800 text-white border border-slate-800',
-    textClass: 'text-white',
-    avatarBorder: 'border-slate-800',
-    solidColor: '#020617',
-    buttonHex: '#0f172a', // slate-900
-    textHex: '#ffffff',
-    category: 'solid'
-  },
-  {
-    id: 'nordic-ice',
-    name: 'Nordic Ice',
-    backgroundClass: 'bg-[#f0f9ff]',
-    buttonClass: 'bg-white text-sky-800 border border-sky-100 hover:border-sky-200 shadow-sm',
-    textClass: 'text-sky-900',
-    avatarBorder: 'border-sky-100',
-    solidColor: '#f0f9ff',
-    buttonHex: '#ffffff',
-    category: 'solid'
-  },
-  {
-    id: 'midnight-purple',
-    name: 'Midnight Purple',
-    backgroundClass: 'bg-[#1a0b2e]',
-    buttonClass: 'bg-[#3d1d6d] text-white border border-[#5a2e91] hover:bg-[#4c2486] shadow-lg',
-    textClass: 'text-[#e0b0ff]',
-    avatarBorder: 'border-[#5a2e91]',
-    solidColor: '#1a0b2e',
-    buttonHex: '#3d1d6d',
-    category: 'solid'
-  },
-  {
-    id: 'evergreen',
-    name: 'Evergreen',
-    backgroundClass: 'bg-[#0f1f1a]',
-    buttonClass: 'bg-[#2d4a3e] text-[#d1e8e2] border border-[#1a332a] hover:bg-[#345c4d]',
-    textClass: 'text-[#d1e8e2]',
-    avatarBorder: 'border-[#2d4a3e]',
-    solidColor: '#0f1f1a',
-    buttonHex: '#2d4a3e',
-    category: 'solid'
-  },
-  {
-    id: 'golden-hour',
-    name: 'Golden Hour',
-    backgroundClass: 'bg-[#0a0a0a]',
-    buttonClass: 'bg-[#C5A059] text-black border border-[#d4af37] hover:bg-[#d4af37]',
-    textClass: 'text-[#C5A059]',
-    avatarBorder: 'border-[#C5A059]',
-    solidColor: '#0a0a0a',
-    buttonHex: '#C5A059',
-    category: 'solid'
-  },
-  {
-    id: 'berry-blast',
-    name: 'Berry Blast',
-    backgroundClass: 'bg-[#4a0e2e]',
-    buttonClass: 'bg-[#8b2b5a] text-white border border-[#a63d71] hover:bg-[#a63d71]',
-    textClass: 'text-[#ffd1dc]',
-    avatarBorder: 'border-[#8b2b5a]',
-    solidColor: '#4a0e2e',
-    buttonHex: '#8b2b5a',
-    category: 'solid'
-  },
-  {
-    id: 'steel-blue',
-    name: 'Steel Blue',
-    backgroundClass: 'bg-[#24292e]',
-    buttonClass: 'bg-[#39414a] text-[#b0c4de] border border-[#4a555e] hover:bg-[#4a555e]',
-    textClass: 'text-[#f0f8ff]',
-    avatarBorder: 'border-[#4a555e]',
-    solidColor: '#24292e',
-    buttonHex: '#39414a',
-    category: 'solid'
-  },
-  {
-    id: 'matcha',
-    name: 'Matcha',
-    backgroundClass: 'bg-[#f1f8e9]',
-    buttonClass: 'bg-[#8bc34a] text-white hover:bg-[#9ccc65] shadow-md',
-    textClass: 'text-[#33691e]',
-    avatarBorder: 'border-[#c5e1a5]',
-    solidColor: '#f1f8e9',
-    buttonHex: '#8bc34a',
-    textHex: '#ffffff',
-    category: 'solid'
-  },
-  {
-    id: 'leafy',
-    name: 'Forest',
-    backgroundClass: 'bg-[#1a2517]',
-    buttonClass: 'bg-[#acc8a2] text-[#1a2517] hover:scale-[1.02] shadow-lg transition-all',
-    textClass: 'text-[#acc8a2]',
-    avatarBorder: 'border-[#acc8a2]',
-    solidColor: '#1a2517',
-    buttonHex: '#acc8a2',
-    category: 'solid'
-  },
-  {
-    id: 'lavender',
-    name: 'Lavender Mist',
-    backgroundClass: 'bg-[#e6e6fa]',
-    buttonClass: 'bg-white text-[#9370db] font-medium border border-[#dcd0ff] hover:bg-[#f3e5f5] shadow-sm rounded-xl',
-    textClass: 'text-[#4b0082]',
-    avatarBorder: 'border-[#dcd0ff]',
-    solidColor: '#e6e6fa',
-    buttonHex: '#ffffff',
-    category: 'solid'
-  },
-  {
-    id: 'pastel-pink',
-    name: 'Cotton Candy',
-    backgroundClass: 'bg-pink-100',
-    buttonClass: 'bg-white text-pink-500 rounded-xl border-b-4 border-pink-200 hover:border-pink-300 hover:-translate-y-0.5 active:border-b-0 active:translate-y-0.5 transition-all',
-    textClass: 'text-pink-800',
-    avatarBorder: 'border-pink-200',
-    solidColor: '#fce7f3',
-    buttonHex: '#ffffff',
-    textHex: '#ec4899', // pink-500
-    category: 'solid'
-  },
-  {
-    id: 'vampire',
-    name: 'Vampire',
-    backgroundClass: 'bg-[#2a0a10]',
-    buttonClass: 'bg-[#4a0e1c] text-[#ffb3b3] border border-[#800020] hover:bg-[#800020] hover:text-white hover:shadow-[0_0_15px_#800020]',
-    textClass: 'text-[#ffcccc]',
-    avatarBorder: 'border-[#800020]',
-    solidColor: '#2a0a10',
-    buttonHex: '#4a0e1c',
-    textHex: '#ffb3b3',
-    category: 'solid'
-  },
-
-  // Special Effects & Gradients
-  {
-    id: 'glass',
-    name: 'Glassmorphism',
-    backgroundClass: 'bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500',
-    buttonClass: 'glass-effect',
-    textClass: 'text-white',
-    avatarBorder: 'border-white/30',
-    isPro: true,
-    solidColor: '#ec4899', // Pink bottom
-    buttonHex: '#ffffff',
-    category: 'gradient'
-  },
-  {
-    id: 'solaris',
-    name: 'Solaris',
-    backgroundClass: 'bg-gradient-to-br from-orange-400 via-amber-500 to-rose-600',
-    buttonClass: 'bg-white/10 backdrop-blur-md text-white border border-white/30 hover:bg-white/20',
-    textClass: 'text-white drop-shadow-md',
-    avatarBorder: 'border-white/40',
-    isPro: true,
-    solidColor: '#e11d48', // Rose bottom
-    buttonHex: '#ffffff',
-    category: 'gradient'
-  },
-  {
-    id: 'gradient-sunset',
-    name: 'Sunset Blvd',
-    backgroundClass: 'bg-gradient-to-b from-orange-400 via-rose-500 to-brand-600',
-    buttonClass: 'bg-white/20 backdrop-blur-md hover:bg-white/30 text-white border border-white/40 shadow-lg',
-    textClass: 'text-white drop-shadow-md',
-    avatarBorder: 'border-white/50',
-    isPro: true,
-    solidColor: '#4f46e5', // Brand 600 indigo? Wait brand-600 is usually indigo/purple. Assuming default tailwind indigo-600 #4f46e5
-    buttonHex: '#ffffff',
-    category: 'gradient'
-  },
-  {
-    id: 'gradient-ocean',
-    name: 'Deep Ocean',
-    backgroundClass: 'bg-gradient-to-tr from-cyan-600 via-blue-700 to-slate-900',
-    buttonClass: 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-sm hover:from-cyan-500/30 hover:to-blue-500/30 text-white border border-white/20',
-    textClass: 'text-cyan-50',
-    avatarBorder: 'border-cyan-200/30',
-    isPro: true,
-    solidColor: '#0f172a', // Slate 900
-    buttonHex: '#0891b2', // cyan-600
-    category: 'gradient'
-  },
-  {
-    id: 'gradient-aurora',
-    name: 'Aurora',
-    backgroundClass: 'bg-gradient-to-bl from-green-400 via-teal-500 to-emerald-600',
-    buttonClass: 'bg-white text-teal-800 hover:bg-teal-50 shadow-xl shadow-teal-900/20',
-    textClass: 'text-white drop-shadow',
-    avatarBorder: 'border-white',
-    isPro: true,
-    solidColor: '#4ade80', // Green 400 bottom left? Actually gradient to BL means top-right to bottom-left. So Green is top-right, Emerald is bottom-left. Emerald-600: #059669
-    buttonHex: '#ffffff',
-    category: 'gradient'
-  },
-  {
-    id: 'retro-pop',
-    name: 'Retro Pop',
-    backgroundClass: 'bg-yellow-400',
-    buttonClass: 'bg-white text-black font-black border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-all rounded-none',
-    textClass: 'text-black font-black',
-    avatarBorder: 'border-black border-4',
-    isPro: true,
-    solidColor: '#facc15',
-    buttonHex: '#ffffff',
-    category: 'gradient'
-  },
-  {
-    id: 'cyberpunk',
-    name: 'Cyberpunk',
-    backgroundClass: 'bg-black',
-    buttonClass: 'bg-black text-[#00ff41] border border-[#00ff41] hover:bg-[#00ff41] hover:text-black font-mono shadow-[0_0_10px_rgba(0,255,65,0.3)] hover:shadow-[0_0_20px_rgba(0,255,65,0.6)] rounded-sm',
-    textClass: 'text-[#00ff41]',
-    avatarBorder: 'border-[#00ff41]',
-    isPro: true,
-    solidColor: '#000000',
-    buttonHex: '#000000',
-    category: 'gradient'
-  },
-  {
-    id: 'luxury-gold',
-    name: 'Luxury',
-    backgroundClass: 'bg-[#121212]',
-    buttonClass: 'bg-transparent text-[#D4AF37] border border-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#121212] tracking-widest uppercase text-xs',
-    textClass: 'text-[#D4AF37]',
-    avatarBorder: 'border-[#D4AF37]',
-    isPro: true,
-    solidColor: '#121212',
-    buttonHex: '#121212',
-    category: 'gradient'
-  },
-  {
-    id: 'neumorphism',
-    name: 'Soft Plastic',
-    backgroundClass: 'bg-[#e0e5ec]',
-    buttonClass: 'bg-[#e0e5ec] text-slate-600 font-bold shadow-[9px_9px_16px_rgb(163,177,198),-9px_-9px_16px_rgba(255,255,255,0.5)] hover:shadow-[inset_9px_9px_16px_rgb(163,177,198),inset_-9px_-9px_16px_rgba(255,255,255,0.5)] border-none',
-    textClass: 'text-slate-600',
-    avatarBorder: 'border-[#e0e5ec] shadow-[5px_5px_10px_rgb(163,177,198),-5px_-5px_10px_rgba(255,255,255,0.5)]',
-    isPro: true,
-    solidColor: '#e0e5ec',
-    buttonHex: '#e0e5ec',
-    category: 'gradient'
-  },
-  {
-    id: 'outline-blue',
-    name: 'Blueprint',
-    backgroundClass: 'bg-[#0044cc]',
-    buttonClass: 'bg-transparent text-white border-2 border-white/30 hover:bg-white hover:text-[#0044cc] hover:border-white rounded-full dashed',
-    textClass: 'text-white',
-    avatarBorder: 'border-white border-dashed border-2',
-    isPro: true,
-    solidColor: '#0044cc',
-    buttonHex: '#0044cc',
-    category: 'gradient'
-  },
-  {
-    id: 'mono-light',
-    name: 'Magazine',
-    backgroundClass: 'bg-[#f5f5f0]',
-    buttonClass: 'bg-transparent text-black border-b border-black rounded-none hover:pl-4 transition-all',
-    textClass: 'text-black',
-    avatarBorder: 'border-black',
-    isPro: true,
-    solidColor: '#f5f5f0',
-    buttonHex: '#f5f5f0',
-    category: 'gradient'
-  },
-
-  // Animated Themes
-  {
-    id: 'animated-hologram',
-    name: 'Hologram',
-    backgroundClass: 'bg-black',
-    buttonClass: 'bg-white/10 backdrop-blur-xl border border-white/20 text-white hover:bg-white/20',
-    textClass: 'text-white',
-    avatarBorder: 'border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.5)]',
-    isPro: true,
-    solidColor: '#000000',
-    buttonHex: '#ffffff',
-    category: 'animated'
-  },
-  {
-    id: 'animated-aurora',
-    name: 'Aurora Borealis',
-    backgroundClass: 'bg-[#0a0a0a]',
-    buttonClass: 'bg-white/5 backdrop-blur-xl border border-white/10 text-white hover:bg-white/15',
-    textClass: 'text-white',
-    avatarBorder: 'border-purple-400/30',
-    isPro: true,
-    solidColor: '#0a0a0a',
-    buttonHex: '#ffffff',
-    category: 'animated'
-  },
-  {
-    id: 'animated-starfield',
-    name: 'Starfield',
-    backgroundClass: 'bg-slate-950',
-    buttonClass: 'bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 shadow-lg shadow-white/5',
-    textClass: 'text-white',
-    avatarBorder: 'border-white/20',
-    isPro: true,
-    solidColor: '#020617',
-    buttonHex: '#ffffff',
-    category: 'animated'
-  },
-  {
-    id: 'animated-matrix',
-    name: 'Matrix Digital',
-    backgroundClass: 'bg-black',
-    buttonClass: 'bg-black text-[#00ff41] border border-[#00ff41] hover:bg-[#00ff41]/20 font-mono shadow-[0_0_10px_rgba(0,255,65,0.2)]',
-    textClass: 'text-[#00ff41]',
-    avatarBorder: 'border-[#00ff41]',
-    isPro: true,
-    solidColor: '#000000',
-    buttonHex: '#000000',
-    category: 'animated'
-  },
-  {
-    id: 'animated-glitch',
-    name: 'Cyber Glitch',
-    backgroundClass: 'bg-[#050505]',
-    buttonClass: 'bg-transparent text-[#ff00ff] border-2 border-[#ff00ff] hover:bg-[#ff00ff] hover:text-black font-black italic shadow-[4px_4px_0px_#00ffff]',
-    textClass: 'text-white drop-shadow-[0_0_8px_rgba(255,0,255,0.8)]',
-    avatarBorder: 'border-[#ff00ff] shadow-[0_0_10px_#00ffff]',
-    isPro: true,
-    solidColor: '#050505',
-    buttonHex: '#000000',
-    category: 'animated'
-  },
   {
     id: 'animated-nodus-official',
     name: 'Nodus Official',
-    backgroundClass: 'bg-[#0f1f1a]',
-    buttonClass: 'bg-[#acc8a2] text-white border border-[#acc8a2] hover:bg-[#9ab691] shadow-md hover:shadow-lg transition-all',
-    textClass: 'text-[#e8f5e9]',
-    avatarBorder: 'border-[#acc8a2] shadow-none',
-    isPro: true,
-    solidColor: '#0f1f1a',
-    buttonHex: '#acc8a2',
-    category: 'animated'
-  },
-  {
-    id: 'animated-mesh',
-    name: 'Liquid Mesh',
-    backgroundClass: 'bg-slate-900',
-    buttonClass: 'bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 shadow-lg',
+    backgroundClass: 'bg-black',
+    buttonClass: 'bg-white text-[#051a05] border-2 border-white font-black uppercase tracking-[0.2em] text-[12px] rounded-none shadow-[6px_6px_0_rgba(255,255,255,0.1)]',
     textClass: 'text-white',
-    avatarBorder: 'border-white/20',
+    avatarBorder: 'border-white border-[3px] shadow-[10px_10px_0_rgba(255,255,255,0.05)]',
     isPro: true,
-    solidColor: '#0f172a',
+    solidColor: '#051a05',
     buttonHex: '#ffffff',
     category: 'animated'
   },
   {
-    id: 'animated-cybergrid',
-    name: 'Retro Grid',
-    backgroundClass: 'bg-[#050510]',
-    buttonClass: 'bg-[#050510]/80 backdrop-blur-sm text-fuchsia-400 border border-fuchsia-500/50 hover:bg-fuchsia-500/20 hover:text-white',
-    textClass: 'text-fuchsia-100',
-    avatarBorder: 'border-fuchsia-500 shadow-[0_0_15px_rgba(217,70,239,0.5)]',
+    id: 'ballpit',
+    name: 'Ballpit',
+    backgroundClass: 'bg-slate-950',
+    buttonClass: 'bg-white/10 backdrop-blur-xl text-white border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:bg-white/20 transition-all rounded-3xl font-bold uppercase tracking-tight',
+    textClass: 'text-white',
+    avatarBorder: 'border-white/50 border-4 shadow-2xl',
     isPro: true,
-    solidColor: '#050510',
-    buttonHex: '#050510',
-    category: 'animated'
-  },
-  {
-    id: 'animated-shapes',
-    name: 'Zen Shapes',
-    backgroundClass: 'bg-slate-50',
-    buttonClass: 'bg-white/60 backdrop-blur-md text-indigo-900 border border-white/40 hover:bg-white/80 shadow-sm',
-    textClass: 'text-indigo-950',
-    avatarBorder: 'border-indigo-100',
-    isPro: true,
-    solidColor: '#f8fafc',
-    category: 'animated'
-  },
-  {
-    id: 'animated-neon-city',
-    name: 'Pixel City',
-    backgroundClass: 'bg-[#0d0221]',
-    buttonClass: 'bg-[#2e1065] text-yellow-300 border-2 border-yellow-400 hover:bg-yellow-400 hover:text-[#2e1065] shadow-[4px_4px_0px_#c026d3]',
-    textClass: 'text-white drop-shadow-[2px_2px_0px_#4c1d95]',
-    avatarBorder: 'border-yellow-400 shadow-[4px_4px_0px_#c026d3]',
-    isPro: true,
-    solidColor: '#0d0221',
-    category: 'animated'
-  },
-  {
-    id: 'animated-geo-flow',
-    name: 'Pastel Flow',
-    backgroundClass: 'bg-[#fffdf5]',
-    buttonClass: 'bg-white/80 backdrop-blur-sm text-slate-600 border border-slate-200 rounded-3xl hover:rounded-xl transition-all duration-500 shadow-sm',
-    textClass: 'text-slate-800',
-    avatarBorder: 'border-white',
-    isPro: true,
-    solidColor: '#fffdf5',
-    category: 'animated'
-  },
-  {
-    id: 'animated-waves',
-    name: 'Ocean Breeze',
-    backgroundClass: 'bg-[#E0F7FA]',
-    buttonClass: 'bg-white/90 text-[#006064] border-none shadow-[0_4px_15px_rgba(0,188,212,0.3)] hover:translate-y-[-2px] hover:shadow-[0_8px_20px_rgba(0,188,212,0.4)] rounded-xl',
-    textClass: 'text-[#006064]',
-    avatarBorder: 'border-white ring-4 ring-[#4DD0E1]/30',
-    isPro: true,
-    solidColor: '#E0F7FA',
     buttonHex: '#ffffff',
     category: 'animated'
   },
   {
-    id: 'animated-grainient-cool',
-    name: 'Grainient Cool',
+    id: 'iridescence',
+    name: 'Iridescence',
+    backgroundClass: 'bg-black',
+    buttonClass: 'bg-white/10 backdrop-blur-xl text-white border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:bg-white/20 transition-all rounded-3xl font-bold uppercase tracking-tight',
+    textClass: 'text-white',
+    avatarBorder: 'border-white/50 border-4 shadow-2xl',
+    isPro: true,
+    buttonHex: '#ffffff',
+    category: 'animated'
+  },
+  {
+    id: 'prismatic-burst',
+    name: 'Prismatic Burst',
+    backgroundClass: 'bg-black',
+    buttonClass: 'bg-white/10 backdrop-blur-xl text-white border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:bg-white/20 transition-all rounded-3xl font-bold uppercase tracking-tight',
+    textClass: 'text-white',
+    avatarBorder: 'border-white/50 border-4 shadow-2xl',
+    isPro: true,
+    buttonHex: '#ffffff',
+    category: 'animated'
+  },
+  {
+    id: 'beams',
+    name: 'Beams',
+    backgroundClass: 'bg-black',
+    buttonClass: 'bg-white/10 backdrop-blur-xl text-white border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:bg-white/20 transition-all rounded-3xl font-bold uppercase tracking-tight',
+    textClass: 'text-white',
+    avatarBorder: 'border-white/50 border-4 shadow-2xl',
+    isPro: true,
+    buttonHex: '#ffffff',
+    category: 'animated'
+  },
+  {
+    id: 'silk',
+    name: 'Silk',
+    backgroundClass: 'bg-[#7B7481]',
+    buttonClass: 'bg-white/10 backdrop-blur-xl text-white border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] hover:bg-white/20 transition-all rounded-3xl font-bold uppercase tracking-tight',
+    textClass: 'text-white',
+    avatarBorder: 'border-white/50 border-4 shadow-2xl',
+    isPro: true,
+    buttonHex: '#ffffff',
+    category: 'animated'
+  },
+  {
+    id: 'music-synth-wave',
+    name: 'Synthwave Night',
+    backgroundClass: 'bg-[#0a001a]',
+    buttonClass: 'bg-[#ff00ff]/10 backdrop-blur-xl text-white border border-[#ff00ff]/50 shadow-[0_0_20px_rgba(255,0,255,0.3)] hover:bg-[#ff00ff]/20 transition-all rounded-xl font-black uppercase tracking-widest',
+    textClass: 'text-white',
+    avatarBorder: 'border-[#00ffff] border-[3px] shadow-[0_0_20px_rgba(0,255,255,0.5)]',
+    isPro: true,
+    buttonHex: '#ff00ff',
+    category: 'music'
+  },
+  {
+    id: 'music-audio-pulse',
+    name: 'Audio Pulse',
+    backgroundClass: 'bg-[#020617]',
+    buttonClass: 'bg-blue-600/20 backdrop-blur-lg text-white border border-blue-400/50 hover:bg-blue-600/30 rounded-full font-bold transition-all shadow-lg',
+    textClass: 'text-white',
+    avatarBorder: 'border-blue-500 border-2 shadow-glow',
+    isPro: true,
+    buttonHex: '#3b82f6',
+    category: 'music'
+  },
+  {
+    id: 'music-vinyl-groove',
+    name: 'Vinyl Groove',
+    backgroundClass: 'bg-[#121212]',
+    buttonClass: 'bg-[#ff6b00]/10 backdrop-blur-md text-white border border-[#ff6b00]/30 hover:bg-[#ff6b00]/20 rounded-none font-medium tracking-tighter transition-all',
+    textClass: 'text-white',
+    avatarBorder: 'border-[#333] border-4 shadow-xl',
+    isPro: true,
+    buttonHex: '#ff6b00',
+    category: 'music'
+  },
+  {
+    id: 'music-electric-storm',
+    name: 'Electric Storm',
+    backgroundClass: 'bg-[#00040a]',
+    buttonClass: 'bg-teal-500/10 backdrop-blur-2xl text-white border border-teal-400/40 hover:bg-teal-500/20 rounded-2xl font-black italic tracking-tight',
+    textClass: 'text-white',
+    avatarBorder: 'border-teal-400 border-[3px] shadow-[0_0_15px_rgba(45,212,191,0.4)]',
+    isPro: true,
+    buttonHex: '#2dd4bf',
+    category: 'music'
+  },
+  {
+    id: 'music-jazz-lounge',
+    name: 'Jazz Lounge',
+    backgroundClass: 'bg-[#1a0105]',
+    buttonClass: 'bg-amber-900/40 backdrop-blur-xl text-amber-100 border border-amber-500/20 hover:bg-amber-900/60 rounded-sm font-serif italic transition-all shadow-2xl',
+    textClass: 'text-amber-50',
+    avatarBorder: 'border-amber-700/50 border-[5px] grayscale-[0.5]',
+    isPro: true,
+    buttonHex: '#fbbf24',
+    category: 'music'
+  },
+  {
+    id: 'music-acoustic-vibe',
+    name: 'Acoustic Vibe',
+    backgroundClass: 'bg-[#1c0d02]',
+    buttonClass: 'bg-orange-900/20 backdrop-blur-lg text-orange-50 border border-orange-200/10 hover:bg-orange-900/30 rounded-3xl font-light tracking-wide',
+    textClass: 'text-orange-50',
+    avatarBorder: 'border-orange-200/20 border-2 rounded-full shadow-lg',
+    isPro: true,
+    buttonHex: '#f59e0b',
+    category: 'music'
+  },
+  {
+    id: 'music-lofi-beats',
+    name: 'Lo-Fi Beats',
+    backgroundClass: 'bg-[#2d1b4d]',
+    buttonClass: 'bg-white/5 backdrop-blur-2xl text-purple-100 border border-white/10 hover:bg-white/10 rounded-2xl font-medium tracking-normal transition-all',
+    textClass: 'text-purple-50',
+    avatarBorder: 'border-purple-300/30 border-4 shadow-inner',
+    isPro: true,
+    buttonHex: '#ff9ffc',
+    category: 'music'
+  },
+  {
+    id: 'music-pop-star',
+    name: 'Pop Star',
+    backgroundClass: 'bg-[#ec4899]',
+    buttonClass: 'bg-black text-white hover:bg-slate-900 rounded-full font-black uppercase tracking-tighter px-8 shadow-[0_10px_0_#db2777]',
+    textClass: 'text-white',
+    avatarBorder: 'border-white border-[6px] shadow-2xl skew-x-2',
+    isPro: true,
+    buttonHex: '#000000',
+    category: 'music'
+  },
+  {
+    id: 'music-techno-core',
+    name: 'Techno Core',
+    backgroundClass: 'bg-black',
+    buttonClass: 'bg-[#00ff41]/5 backdrop-blur-md text-[#00ff41] border border-[#00ff41]/40 hover:bg-[#00ff41]/20 rounded-none font-mono text-xs uppercase tracking-[0.5em]',
+    textClass: 'text-[#00ff41]',
+    avatarBorder: 'border-[#00ff41] border-2 shadow-[0_0_10px_#00ff41]',
+    isPro: true,
+    buttonHex: '#00ff41',
+    category: 'music'
+  },
+  {
+    id: 'music-classical-flow',
+    name: 'Classical Flow',
+    backgroundClass: 'bg-[#f8f5f0]',
+    buttonClass: 'bg-white text-[#d4af37] border-2 border-[#d4af37] hover:bg-[#fcfaf7] rounded-none font-serif uppercase tracking-[0.2em] shadow-sm',
+    textClass: 'text-[#8b7355]',
+    avatarBorder: 'border-[#d4af37] border-double border-4 shadow-inner',
+    isPro: true,
+    buttonHex: '#d4af37',
+    category: 'music'
+  },
+  {
+    id: 'creative-pixel',
+    name: 'Retro Vibe',
+    backgroundClass: 'bg-[#2d1b4e]',
+    buttonClass: 'bg-[#ff71ce] text-white hover:bg-[#ff71ce]/90 rounded-none font-black uppercase tracking-normal shadow-[4px_4px_0_#05d9e8]',
+    textClass: 'text-[#01cdfe] font-bold uppercase',
+    avatarBorder: 'border-[#b967ff] border-4 [image-rendering:pixelated] shadow-xl',
+    isPro: true,
+    buttonHex: '#ff71ce',
+    category: 'creative'
+  },
+  {
+    id: 'kawaii-clouds',
+    name: 'Nuvem Doce',
+    backgroundClass: 'bg-[#ffedfa]',
+    solidColor: '#ffedfa',
+    buttonClass: 'bg-white text-[#ffb7e1] hover:bg-white/90 rounded-full font-bold shadow-lg border-2 border-[#ffb7e1]/20 px-8',
+    textClass: 'text-[#ffb7e1] font-black',
+    avatarBorder: 'border-[#ffb7e1] border-4 shadow-xl mb-4',
+    isPro: true,
+    buttonHex: '#ffb7e1',
+    category: 'kawaii'
+  },
+  {
+    id: 'kawaii-stars',
+    name: 'Estrela Feliz',
+    backgroundClass: 'bg-[#f3e8ff]',
+    solidColor: '#f3e8ff',
+    buttonClass: 'bg-[#fde047] text-[#8b5cf6] hover:bg-[#facc15] rounded-3xl font-black shadow-[0_4px_0_#ca8a04] px-8',
+    textClass: 'text-[#8b5cf6] font-black uppercase tracking-wider',
+    avatarBorder: 'border-[#fde047] border-4 shadow-lg',
+    isPro: true,
+    buttonHex: '#fde047',
+    category: 'kawaii'
+  },
+  {
+    id: 'kawaii-garden',
+    name: 'Jardim Fofo',
+    backgroundClass: 'bg-[#f0fdf4]',
+    solidColor: '#f0fdf4',
+    buttonClass: 'bg-[#f472b6] text-white hover:bg-[#ec4899] rounded-full font-bold shadow-md px-10 border-b-4 border-[#be185d]',
+    textClass: 'text-[#166534] font-medium',
+    avatarBorder: 'border-[#facc15] border-8 p-1 bg-white shadow-2xl',
+    isPro: true,
+    buttonHex: '#f472b6',
+    category: 'kawaii'
+  },
+  {
+    id: 'kawaii-peach',
+    name: 'Sonho de Pêssego',
+    backgroundClass: 'bg-[#fff1f2]',
+    solidColor: '#fff1f2',
+    buttonClass: 'bg-white/60 backdrop-blur-md text-[#be123c] border-2 border-[#fda4af] hover:bg-white rounded-3xl font-bold italic',
+    textClass: '#be123c',
+    avatarBorder: 'border-[#fda4af] border-4 shadow-inner',
+    isPro: true,
+    buttonHex: '#fda4af',
+    category: 'kawaii'
+  },
+  {
+    id: 'kawaii-milk',
+    name: 'Leite e Mel',
+    backgroundClass: 'bg-[#fffbeb]',
+    solidColor: '#fffbeb',
+    buttonClass: 'bg-white text-[#d97706] hover:bg-slate-50 rounded-xl font-black shadow-sm border border-[#fde68a]',
+    textClass: 'text-[#92400e] font-light uppercase tracking-widest',
+    avatarBorder: 'border-white border-8 shadow-sm p-1 bg-amber-50',
+    isPro: true,
+    buttonHex: '#ffffff',
+    category: 'kawaii'
+  },
+  {
+    id: 'kawaii-rainbow',
+    name: 'Arco-Íris Pastel',
+    backgroundClass: 'bg-[#f0f9ff]',
+    solidColor: '#f0f9ff',
+    buttonClass: 'bg-gradient-to-r from-[#fecaca] via-[#fef08a] to-[#bae6fd] text-slate-700 hover:opacity-90 rounded-full font-black px-12 shadow-inner',
+    textClass: 'text-slate-500 font-bold',
+    avatarBorder: 'border-white border-4 shadow-xl rounded-full',
+    isPro: true,
+    buttonHex: '#ffffff',
+    category: 'kawaii'
+  },
+  {
+    id: 'kawaii-jelly',
+    name: 'Jelly Bouncy',
+    backgroundClass: 'bg-[#ecfeff]',
+    solidColor: '#ecfeff',
+    buttonClass: 'bg-[#818cf8] text-white hover:bg-[#6366f1] rounded-2xl font-black shadow-[0_8px_0_#4338ca] active:translate-y-1 active:shadow-none transition-all',
+    textClass: 'text-[#1e1b4b] font-black',
+    avatarBorder: 'border-[#22d3ee] border-[10px] shadow-2xl',
+    isPro: true,
+    buttonHex: '#818cf8',
+    category: 'kawaii'
+  },
+  {
+    id: 'kawaii-bakery',
+    name: 'Padaria Kawaii',
+    backgroundClass: 'bg-[#fff7ed]',
+    solidColor: '#fff7ed',
+    buttonClass: 'bg-[#fdba74] text-[#431407] hover:bg-[#fb923c] rounded-lg font-bold shadow-[4px_4px_0_#9a3412] px-8',
+    textClass: 'text-[#9a3412] font-mono',
+    avatarBorder: 'border-[#9a3412] border-2 p-2 bg-orange-50',
+    isPro: true,
+    buttonHex: '#fdba74',
+    category: 'kawaii'
+  },
+  {
+    id: 'kawaii-space',
+    name: 'Astro Hamster',
     backgroundClass: 'bg-[#0f172a]',
-    buttonClass: 'bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 shadow-lg',
-    textClass: 'text-white',
-    avatarBorder: 'border-white/30',
-    isPro: true,
     solidColor: '#0f172a',
-    category: 'animated'
+    buttonClass: 'bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20 rounded-full font-medium tracking-widest',
+    textClass: 'text-slate-300 font-thin italic',
+    avatarBorder: 'border-white/20 border-2 rounded-full shadow-[0_0_15px_white]',
+    isPro: true,
+    buttonHex: '#ffffff',
+    category: 'kawaii'
   },
   {
-    id: 'animated-grainient-warm',
-    name: 'Grainient Warm',
-    backgroundClass: 'bg-[#2a0a10]',
-    buttonClass: 'bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 shadow-lg',
-    textClass: 'text-white',
-    avatarBorder: 'border-white/30',
+    id: 'kawaii-matcha',
+    name: 'Matcha Relax',
+    backgroundClass: 'bg-[#f0fdf4]',
+    solidColor: '#f0fdf4',
+    buttonClass: 'bg-[#22c55e]/10 backdrop-blur-3xl text-[#166534] border-2 border-[#22c55e]/20 hover:bg-[#22c55e]/20 rounded-none font-bold tracking-widest px-10',
+    textClass: 'text-[#166534] font-light italic',
+    avatarBorder: 'border-[#4ade80] border-4 shadow-2xl',
     isPro: true,
-    solidColor: '#2a0a10',
-    category: 'animated'
+    buttonHex: '#4ade80',
+    category: 'kawaii'
   },
   {
-    id: 'animated-grainient-mono',
-    name: 'Grainient Mono',
-    backgroundClass: 'bg-[#000000]',
-    buttonClass: 'bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 shadow-lg',
-    textClass: 'text-white',
-    avatarBorder: 'border-white/30',
+    id: 'kawaii-sakura',
+    name: 'Sakura Dreams',
+    backgroundClass: 'bg-[#fff5f7]',
+    solidColor: '#fff5f7',
+    buttonClass: 'bg-white/80 backdrop-blur-sm text-[#d48191] hover:bg-white rounded-full font-bold shadow-[0_4px_12px_rgba(255,183,197,0.2)] border border-[#ffb7c5]/30 px-10 transition-all duration-300',
+    textClass: 'text-[#d48191] font-bold tracking-tight',
+    avatarBorder: 'border-white border-8 shadow-2xl p-0.5 bg-gradient-to-br from-[#ffb7c5]/20 to-transparent',
     isPro: true,
-    solidColor: '#000000',
-    category: 'animated'
+    buttonHex: '#ffffff',
+    category: 'kawaii'
   }
 ];
 
@@ -604,4 +453,5 @@ export const SOCIAL_NETWORKS = [
   // Contato
   { id: 'email', name: 'Email', icon: Mail, baseUrl: 'mailto:', placeholder: 'seu@email.com' },
   { id: 'site', name: 'Site / Blog', icon: Globe, baseUrl: 'https://', placeholder: 'seusite.com' },
+  { id: 'telefone', name: 'Telefone', icon: Phone, baseUrl: 'tel:', placeholder: '55999999999' },
 ];

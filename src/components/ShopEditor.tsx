@@ -270,46 +270,46 @@ export default function ShopEditor({ products, onChange }: ShopEditorProps) {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-800">Sua Loja</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h2 className="text-xl font-bold text-slate-800 tracking-tight">Sua Loja</h2>
                 <button
                     onClick={() => setIsAddingCollection(true)}
-                    className="flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-full font-medium hover:bg-brand-700 transition shadow-sm text-sm"
+                    className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-[#32a800] hover:text-[#32a800]/80 transition-all active:scale-90 shrink-0"
+                    title="Nova Coleção"
                 >
-                    <FolderPlus size={18} />
-                    Nova Coleção
+                    <FolderPlus size={20} className="md:w-6 md:h-6" />
                 </button>
             </div>
 
             {/* Helper Text */}
-            <p className="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
+            <p className="text-xs md:text-sm text-slate-500 bg-slate-50 p-4 rounded-2xl border border-slate-100 leading-relaxed font-medium">
                 Organize seus produtos em coleções para exibir na aba "Loja".
                 Produtos sem coleção aparecerão em "Geral".
             </p>
 
             {/* Add Collection Field */}
             {isAddingCollection && (
-                <div className="flex gap-2 items-center animate-fade-in bg-white p-2 rounded-xl border border-brand-200 shadow-sm">
+                <div className="flex gap-2 items-center animate-fade-in bg-white p-3 rounded-[24px] border border-[#32a800]/20 shadow-lg shadow-[#32a800]/5 ring-1 ring-[#32a800]/5">
                     <input
                         autoFocus
                         type="text"
                         placeholder="Nome da nova coleção (ex: Camisetas)"
-                        className="flex-1 px-4 py-2 rounded-lg bg-slate-50 border-none outline-none focus:ring-2 focus:ring-brand-100 text-sm"
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-[#32a800]/10 text-sm font-medium"
                         value={newCollectionName}
                         onChange={e => setNewCollectionName(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') handleAddCollection() }}
                     />
                     <button
                         onClick={handleAddCollection}
-                        className="bg-brand-600 text-white p-2 rounded-lg hover:bg-brand-700"
+                        className="bg-[#32a800] text-white p-2.5 rounded-xl hover:bg-[#32a800]/90 active:scale-95 transition-all"
                     >
-                        <Plus size={18} />
+                        <Plus size={20} />
                     </button>
                     <button
                         onClick={() => setIsAddingCollection(false)}
-                        className="text-slate-400 p-2 hover:text-slate-600"
+                        className="text-slate-400 p-2.5 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all"
                     >
-                        <X size={18} />
+                        <X size={20} />
                     </button>
                 </div>
             )}
@@ -332,7 +332,7 @@ export default function ShopEditor({ products, onChange }: ShopEditorProps) {
                     const isExpanded = expandedCollections.includes(collectionName);
 
                     return (
-                        <div key={collectionName} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div key={collectionName} className="bg-white rounded-[24px] md:rounded-[32px] border border-slate-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
                             <div
                                 className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 transition"
                                 onClick={() => toggleCollection(collectionName)}
@@ -381,7 +381,7 @@ export default function ShopEditor({ products, onChange }: ShopEditorProps) {
 
                 {/* Uncategorized Products */}
                 {uncategorizedProducts.length > 0 && (
-                    <div className="bg-white rounded-xl border border-slate-200 border-dashed shadow-sm overflow-hidden opacity-90">
+                    <div className="bg-white rounded-[24px] md:rounded-[32px] border border-slate-100 border-dashed shadow-sm overflow-hidden opacity-90">
                         <div
                             className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 transition"
                             onClick={() => toggleCollection('uncategorized')}

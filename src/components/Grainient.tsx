@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react';
-// @ts-ignore
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
 
-const hexToRgb = (hex: string) => {
+const hexToRgb = (hex: string): number[] => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     if (!result) return [1, 1, 1];
     return [parseInt(result[1], 16) / 255, parseInt(result[2], 16) / 255, parseInt(result[3], 16) / 255];
@@ -125,7 +124,7 @@ interface GrainientProps {
     className?: string;
 }
 
-const Grainient: React.FC<GrainientProps> = ({
+const Grainient = ({
     timeSpeed = 0.25,
     colorBalance = 0.0,
     warpStrength = 1.0,
@@ -149,14 +148,13 @@ const Grainient: React.FC<GrainientProps> = ({
     color2 = '#5227FF',
     color3 = '#B19EEF',
     className = ''
-}) => {
+}: GrainientProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!containerRef.current) return;
 
         const renderer = new Renderer({
-            // @ts-ignore
             webgl: 2,
             alpha: true,
             antialias: false,
@@ -206,8 +204,6 @@ const Grainient: React.FC<GrainientProps> = ({
         const mesh = new Mesh(gl, { geometry, program });
 
         const setSize = () => {
-            // @ts-ignore
-            if (!container) return;
             const rect = container.getBoundingClientRect();
             const width = Math.max(1, Math.floor(rect.width));
             const height = Math.max(1, Math.floor(rect.height));
@@ -234,7 +230,7 @@ const Grainient: React.FC<GrainientProps> = ({
             cancelAnimationFrame(raf);
             ro.disconnect();
             try {
-                if (container && canvas) container.removeChild(canvas);
+                container.removeChild(canvas);
             } catch {
                 // Ignore
             }

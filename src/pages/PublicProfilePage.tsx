@@ -87,38 +87,37 @@ export default function PublicProfilePage() {
     }
 
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
+    const themeBgColor = profile.customSolidColor || currentTheme.solidColor || currentTheme.buttonHex || '#000000';
 
     return (
-        <div className="w-full h-screen relative flex justify-center overflow-hidden md:pt-8 bg-[#222]">
+        <div className="w-full h-screen relative flex justify-center overflow-hidden md:pt-8" style={{ backgroundColor: themeBgColor }}>
 
             {/* Dynamic Fuzzy Background */}
-            <div className="fixed inset-0 z-0">
-                {profile.customBackground ? (
+            <div className="fixed inset-0 z-0 overflow-hidden">
+                <div
+                    className="absolute inset-0 blur-[100px] scale-150 transition-colors duration-1000"
+                    style={{ backgroundColor: themeBgColor }}
+                ></div>
+
+                {profile.customBackground && (
                     <div className="absolute inset-0">
-                        <img src={profile.customBackground} alt="" className="w-full h-full object-cover blur-xl scale-110 opacity-60" />
-                        <div className="absolute inset-0 bg-black/40"></div>
+                        <img src={profile.customBackground} alt="" className="w-full h-full object-cover blur-3xl scale-110 opacity-30" />
                     </div>
-                ) : currentTheme.id === 'glass' ? (
-                    <div className="absolute inset-0 bg-black">
-                        <div className="absolute inset-0 opacity-40 blur-3xl scale-125">
-                            <LightPillar
-                                topColor="#5227FF"
-                                bottomColor="#FF9FFC"
-                                intensity={1}
-                            />
-                        </div>
-                    </div>
-                ) : (
-                    <div className={`absolute inset-0 ${currentTheme.backgroundClass} blur-3xl scale-125 opacity-70`}></div>
                 )}
-                {/* Overlay to ensure readability and focus */}
-                <div className="absolute inset-0 bg-black/50 backdrop-blur-[60px]"></div>
+
+                {/* Adaptive Overlay: Darker for light themes to provide contrast, vice-versa */}
+                <div className={`absolute inset-0 backdrop-blur-[60px] ${
+                    // Detect if it's a dark background (using a simple heuristic for now, or just making it universally softer)
+                    currentTheme.id === 'kawaii-space' ? 'bg-black/20' : 'bg-white/5'
+                    }`}></div>
             </div>
 
 
             {/* Main Profile Card - Responsive: Full Screen Mobile, Card Desktop */}
-            <div className="w-full h-full relative z-10 bg-black overflow-hidden 
-                md:max-w-[600px] md:shadow-2xl md:rounded-t-[3rem] md:border-t md:border-x md:border-white/10">
+            <div
+                className="w-full h-full relative z-10 overflow-hidden md:max-w-[460px] md:shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.5)] md:rounded-t-[3rem] md:border-t md:border-x md:border-white/10"
+                style={{ backgroundColor: profile.customSolidColor || currentTheme.solidColor || '#000' }}
+            >
                 <ProfileRenderer
                     profile={profile}
                     links={links}
@@ -137,12 +136,13 @@ export default function PublicProfilePage() {
                 />
             )}
 
-            {/* Footer / QR Code Mock (Visual Match) */}
-            <div className="fixed bottom-8 right-8 hidden xl:flex flex-col items-center gap-2 text-white/40 z-20">
-                <span className="text-xs font-medium tracking-wide">View on mobile</span>
-                <div className="w-24 h-24 bg-white p-1 rounded-lg opacity-80 mix-blend-screen">
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.href}`} alt="QR Code" className="w-full h-full" />
-                </div>
+            {/* Minimalist QR Code */}
+            <div className="fixed bottom-4 right-4 hidden xl:block z-20">
+                <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${window.location.href}`}
+                    alt="QR Code"
+                    className="w-32 h-32 invert transition-opacity duration-300 hover:opacity-100 opacity-90 brightness-200"
+                />
             </div>
         </div>
     );

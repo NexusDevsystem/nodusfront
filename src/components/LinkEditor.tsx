@@ -26,7 +26,8 @@ import {
   Sparkles,
   CreditCard,
   Youtube,
-  Ban
+  Ban,
+  X
 } from 'lucide-react';
 
 const DeezerIcon = ({ size }: { size: number }) => (
@@ -62,6 +63,7 @@ function SortableLinkItem({
 }: SortableLinkItemProps) {
   const dragControls = useDragControls();
   const [openAnimationMenu, setOpenAnimationMenu] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // LinkEditor is used recursively here. It must be hoisted or available.
 
@@ -70,50 +72,57 @@ function SortableLinkItem({
       value={link}
       dragListener={false}
       dragControls={dragControls}
-      className="relative"
+      id={link.id}
+      layout
+      className={`relative mb-4 overflow-hidden rounded-2xl border ${isExpanded ? 'border-[#32a800] ring-1 ring-[#32a800]/10' : 'border-slate-200'} bg-white`}
+      whileDrag={{
+        zIndex: 50
+      }}
+      transition={{ duration: 0.2 }}
     >
-      <div className="bg-white rounded-[20px] shadow-sm border border-slate-200 group transition-all relative hover:shadow-md">
+      <div className="bg-white">
         {/* RENDER COLLECTION ITEM */}
         {link.type === 'collection' ? (
           <div className="overflow-hidden">
-            <div className="flex bg-slate-50/50 border-b border-slate-100">
+            <div className="flex border-b border-slate-100">
               {/* Drag Handle */}
               <div
-                className="w-8 py-4 flex flex-col items-center justify-center cursor-move text-slate-300 hover:text-brand-600 active:text-brand-700 touch-none"
+                className="w-10 md:w-12 flex items-center justify-center cursor-move text-slate-300 hover:text-slate-500 touch-none"
                 onPointerDown={(e) => dragControls.start(e)}
               >
-                <GripVertical size={20} />
+                <GripVertical size={16} />
               </div>
 
               {/* Header Content */}
-              <div className="flex-1 p-3 pl-2 flex items-center gap-3">
-                <div onClick={() => toggleCollection(link.id)} className="cursor-pointer text-slate-400 hover:text-brand-600 transition-colors">
-                  {isCollectionExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+              <div className="flex-1 py-4 md:py-5 pr-3 md:pr-5 flex items-center gap-2 md:gap-4 overflow-hidden">
+                <div onClick={() => toggleCollection(link.id)} className="cursor-pointer text-slate-400 hover:text-slate-900 transition-colors shrink-0">
+                  {isCollectionExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <input
                     type="text"
                     value={link.title}
                     onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                    className="w-full font-bold text-slate-700 bg-transparent border-none focus:ring-0 p-0 text-base placeholder:text-slate-400"
+                    className="w-full font-bold text-slate-800 bg-transparent border-none focus:ring-0 p-0 text-sm placeholder:text-slate-300 truncate"
                     placeholder="Nome da Coleção"
                   />
-                  <span className="text-xs text-slate-400 font-medium">{link.children?.length || 0} itens</span>
+                  <div className="text-[10px] text-slate-400 font-medium mt-0.5 truncate">
+                    {link.children?.length || 0} {(link.children?.length === 1) ? 'item configurado' : 'itens configurados'}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                <div className="flex items-center gap-3 md:gap-6 shrink-0">
+                  <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={link.isActive}
                       onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-500"></div>
+                    <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#32a800]"></div>
                   </label>
                   <button
                     onClick={() => removeLink(link.id)}
-                    className="p-2 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Excluir Coleção"
+                    className="p-2 text-slate-300 hover:text-red-500 transition-colors bg-slate-50 rounded-lg hover:bg-red-50"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -128,11 +137,38 @@ function SortableLinkItem({
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
-                  className="overflow-hidden"
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden bg-slate-50/50"
                 >
-                  <div className="p-4 bg-slate-50/30 border-t border-slate-100 pl-8">
-                    {/* Recursive Call to Main Editor */}
+                  <div className="p-6 pl-12 border-t border-slate-100 space-y-8">
+                    {/* Collection Layout Picker */}
+                    <div className="space-y-3 pb-6 border-b border-slate-100">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Layout do Grupo</label>
+                      <div className="flex gap-2">
+                        {[
+                          { id: 'stacked', label: 'Lista Empilhada', desc: 'Links aparecem um abaixo do outro', icon: <LayoutGrid size={18} /> },
+                          { id: 'carousel', label: 'Carrossel Horizontal', desc: 'Deslize lateral para ver os itens', icon: <Sparkles size={18} /> }
+                        ].map((opt) => (
+                          <button
+                            key={opt.id}
+                            onClick={() => updateLink(link.id, 'layout', opt.id)}
+                            className={`flex-1 p-3 rounded-xl border text-left flex items-start gap-3 transition-all ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id
+                              ? 'bg-[#32a800]/5 border-[#32a800] ring-1 ring-[#32a800]/10'
+                              : 'bg-white border-slate-200 hover:border-slate-300'
+                              }`}
+                          >
+                            <div className={`shrink-0 flex items-center justify-center p-2 rounded-lg ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'bg-[#32a800] text-white' : 'bg-slate-50 text-slate-400'}`}>
+                              {opt.icon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className={`text-xs font-semibold mb-0.5 truncate ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'text-[#32a800]' : 'text-slate-700'}`}>{opt.label}</div>
+                              <div className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-1">{opt.desc}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     <LinkEditor
                       links={link.children || []}
                       onChange={(newChildren) => updateLink(link.id, 'children', newChildren)}
@@ -146,19 +182,19 @@ function SortableLinkItem({
           </div>
         ) : (
           /* RENDER STANDARD LINK ITEM */
-          <div className="flex flex-col transition-all">
+          <div className="flex flex-col">
             {/* Header Row (Always Visible) */}
             <div className="flex items-center w-full min-h-[72px]">
               {/* Drag Handle */}
               <div
-                className="w-8 flex flex-col items-center justify-center cursor-move text-slate-300 hover:text-slate-500 active:text-brand-600 self-stretch py-2 pl-2 touch-none"
+                className="w-10 md:w-12 flex items-center justify-center cursor-move text-slate-300 hover:text-[#32a800] hover:bg-[#32a800]/5 self-stretch touch-none border-r border-slate-50 transition-colors"
                 onPointerDown={(e) => dragControls.start(e)}
               >
-                <GripVertical size={20} />
+                <GripVertical size={16} />
               </div>
 
               {/* Image Thumbnail */}
-              <div className="shrink-0 mr-3 py-2 pl-2">
+              <div className="shrink-0 mx-4">
                 <div className="relative">
                   <input
                     type="file"
@@ -172,21 +208,20 @@ function SortableLinkItem({
                           updateLink(link.id, 'image', compressed);
                         } catch (error) {
                           console.error('Error processing image:', error);
-                          alert('Erro ao processar imagem.');
                         }
                       }
                     }}
                   />
                   {link.image ? (
-                    <div className="w-10 h-10 rounded-lg overflow-hidden border border-slate-200 relative group/img shadow-sm">
+                    <div className="w-11 h-11 rounded-xl overflow-hidden shadow-sm border border-slate-100">
                       <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
                     </div>
                   ) : (
                     <button
                       onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                      className="w-10 h-10 rounded-lg bg-slate-50 border border-dashed border-slate-200 flex items-center justify-center text-slate-400 hover:border-brand-300 hover:text-brand-500 hover:bg-brand-50 transition-all"
+                      className="w-11 h-11 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-[#32a800] hover:bg-white hover:border-[#32a800] transition-all"
                     >
-                      <ImageIcon size={16} />
+                      <ImageIcon size={18} />
                     </button>
                   )}
                 </div>
@@ -194,34 +229,34 @@ function SortableLinkItem({
 
               {/* Title & Chevron (Click to Expand) */}
               <div
-                className="flex-1 min-w-0 pr-4 py-3 cursor-pointer group/title"
+                className="flex-1 min-w-0 pr-6 py-4 cursor-pointer group/title"
                 onClick={() => toggleLink(link.id)}
               >
-                <div className="font-bold text-slate-700 truncate group-hover/title:text-brand-700 transition-colors text-base flex items-center gap-2">
-                  {link.title || 'Sem título'}
+                <div className="font-semibold text-slate-800 truncate text-sm">
+                  {link.title || 'Link sem título'}
                 </div>
-                <div className="text-xs text-slate-400 truncate flex items-center gap-1">
-                  {link.url || 'Sem URL'}
+                <div className="text-xs text-slate-400 truncate mt-0.5">
+                  {link.url || 'Suas redes ou site'}
                 </div>
               </div>
 
               {/* Right Actions: Edit(Expand) & Switch */}
-              <div className="flex items-center gap-3 pr-5">
+              <div className="flex items-center gap-3 md:gap-6 pr-3 md:pr-6 shrink-0">
                 <button
                   onClick={() => toggleLink(link.id)}
-                  className={`p-2 rounded-full transition-all ${isExpanded ? 'bg-slate-100 text-slate-600 rotate-180' : 'text-slate-400 hover:bg-slate-50 hover:text-brand-600'}`}
+                  className={`p-2 rounded-xl transition-all ${isExpanded ? 'text-[#32a800] bg-[#32a800]/5 rotate-180' : 'text-slate-300 hover:text-slate-600 bg-slate-50 hover:bg-slate-100'}`}
                 >
-                  <ChevronDown size={20} />
+                  <ChevronDown size={18} />
                 </button>
 
-                <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={link.isActive}
                     onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-500 shadow-inner"></div>
+                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#32a800]"></div>
                 </label>
               </div>
             </div>
@@ -233,56 +268,58 @@ function SortableLinkItem({
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
-                  className="overflow-hidden"
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden bg-slate-50/20"
                 >
-                  <div className="px-5 pb-5 pt-0">
+                  <div className="px-10 pb-10 pt-8 border-t border-slate-100">
                     {/* Main Edit Form */}
-                    <div className="flex items-start gap-4 mb-6 pt-4">
+                    <div className="flex items-start gap-10 mb-10">
                       {/* Expanded Image (Larger with controls) */}
-                      <div className="relative shrink-0 pt-1">
+                      <div className="relative shrink-0">
                         {link.image ? (
-                          <div className="w-20 h-20 rounded-xl overflow-hidden border border-slate-200 relative group/img shadow-sm">
+                          <div className="w-24 h-24 rounded-2xl overflow-hidden border border-slate-200 relative group/img shadow-sm">
                             <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity gap-2">
+                            <div className="absolute inset-0 bg-white/90 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-4">
                               <button
                                 onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                                className="text-white hover:scale-110 transition-transform p-1.5 rounded-full bg-white/20 hover:bg-white/30"
+                                className="p-3 bg-white rounded-full text-slate-600 hover:text-[#32a800] shadow-md border border-slate-100"
                               >
-                                <Pencil size={14} />
+                                <Pencil size={18} />
                               </button>
                               <button
                                 onClick={() => updateLink(link.id, 'image', undefined)}
-                                className="text-white hover:text-red-200 hover:scale-110 transition-transform p-1.5 rounded-full bg-white/20 hover:bg-red-500/50"
+                                className="p-3 bg-white rounded-full text-slate-400 hover:text-red-500 shadow-md border border-slate-100"
                               >
-                                <Trash2 size={14} />
+                                <Trash2 size={18} />
                               </button>
                             </div>
                           </div>
                         ) : (
                           <button
                             onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                            className="w-20 h-20 rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 hover:border-brand-300 hover:text-brand-500 hover:bg-brand-50 transition-all group/btn"
+                            className="w-24 h-24 bg-white border border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:border-[#32a800] hover:text-[#32a800] transition-all group/btn"
                           >
-                            <ImageIcon size={24} className="group-hover/btn:scale-110 transition-transform mb-1" />
-                            <span className="text-[10px] font-bold uppercase">Add</span>
+                            <ImageIcon size={24} className="mb-2" />
+                            <span className="text-[10px] font-semibold uppercase tracking-wider">Imagem</span>
                           </button>
                         )}
                       </div>
 
                       {/* Inputs */}
-                      <div className="flex-1 min-w-0 space-y-3 pt-1">
-                        <div>
+                      <div className="flex-1 min-w-0 space-y-6">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Título</label>
                           <input
                             type="text"
                             value={link.title}
                             onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                            className="w-full font-bold text-xl text-slate-800 bg-transparent border-b border-slate-200 focus:border-brand-500 rounded-none px-0 py-1 outline-none transition-all placeholder:text-slate-300"
-                            placeholder="Título do Link"
+                            className="w-full font-semibold text-xl text-slate-900 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all placeholder:text-slate-200"
+                            placeholder="Nome do link"
                           />
                         </div>
 
-                        <div className="relative group/url">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">URL / Link</label>
                           <input
                             type="text"
                             value={link.url}
@@ -310,139 +347,184 @@ function SortableLinkItem({
                               }
                               updateLinkFields(link.id, updates);
                             }}
-                            className="w-full text-sm text-slate-600 bg-slate-50 border border-slate-200 focus:border-brand-300 focus:bg-white rounded-lg px-3 py-2 outline-none transition-all placeholder:text-slate-400"
-                            placeholder="https://..."
+                            className="w-full text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all placeholder:text-slate-200"
+                            placeholder="https://exemplo.com"
                           />
                         </div>
 
-                        <div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Descrição (Opcional)</label>
                           <input
                             type="text"
                             value={link.subtitle || ''}
                             onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)}
-                            className="w-full text-sm text-slate-500 bg-transparent border-b border-slate-100 focus:border-brand-300 rounded-none px-0 py-1 outline-none transition-all placeholder:text-slate-300"
-                            placeholder="Subtítulo ou descrição curta"
+                            className="w-full text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-2.5 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all"
+                            placeholder="Breve descrição ou subtítulo"
                           />
                         </div>
                       </div>
                     </div>
 
-                    {/* Settings & Config (New Section) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      <div className="space-y-5">
+                    {/* Settings & Config */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10 pt-4 border-t border-slate-100/50">
+                      <div className="space-y-8">
                         {/* Plataforma / Embed */}
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block flex items-center gap-1.5">
-                            <Zap size={10} className="text-amber-500" />
-                            Integração Especial
-                          </label>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Plataforma</label>
                           <div className="flex flex-wrap gap-2">
                             {[
-                              { id: 'none', label: 'Padrão', icon: LinkIcon },
-                              { id: 'youtube', label: 'YouTube', icon: Youtube, color: 'text-red-600' },
-                              { id: 'spotify', label: 'Spotify', icon: SiSpotify, color: 'text-green-600' },
-                              { id: 'deezer', label: 'Deezer', icon: DeezerIcon, color: 'text-purple-600' },
+                              { id: 'none', label: 'Padrão' },
+                              { id: 'youtube', label: 'YouTube' },
+                              { id: 'spotify', label: 'Spotify' },
+                              { id: 'deezer', label: 'Deezer' },
                             ].map((plat) => (
                               <button
                                 key={plat.id}
                                 onClick={() => updateLinkFields(link.id, { embedType: plat.id as any })}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${(link.embedType || 'none') === plat.id
-                                  ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                                className={`flex-1 min-w-[80px] h-10 px-4 rounded-xl text-xs font-semibold border transition-all ${(link.embedType || 'none') === plat.id
+                                  ? 'bg-[#32a800] border-[#32a800] text-white shadow-sm shadow-[#32a800]/20'
+                                  : 'bg-white border-slate-200 text-slate-500 hover:border-[#32a800] hover:text-[#32a800]'
                                   }`}
                               >
-                                <plat.icon size={14} className={plat.color} />
                                 {plat.label}
                               </button>
                             ))}
                           </div>
                         </div>
 
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Destaque</label>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Animação</label>
                           <div className="relative">
                             <button
                               onClick={() => setOpenAnimationMenu(prev => prev === link.id ? null : link.id)}
-                              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all border ${link.highlight && link.highlight !== 'none' ? 'bg-amber-50 border-amber-200 text-amber-700 ring-2 ring-amber-500/10' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+                              className={`flex items-center justify-between w-full h-11 px-4 text-sm font-medium border rounded-xl transition-all ${link.highlight && link.highlight !== 'none' ? 'border-[#32a800] text-[#32a800] bg-[#32a800]/5' : 'border-slate-200 text-slate-600 bg-white hover:border-slate-300'}`}
                             >
-                              <div className="flex items-center gap-2">
-                                <Sparkles size={14} className={link.highlight && link.highlight !== 'none' ? 'text-amber-500' : 'text-slate-400'} />
-                                <span className="capitalize">{link.highlight === 'none' || !link.highlight ? 'Sem Destaque' : link.highlight}</span>
-                              </div>
-                              <ChevronDown size={14} />
+                              <span className="capitalize">{link.highlight === 'none' || !link.highlight ? 'Sem efeito' : link.highlight}</span>
+                              <ChevronDown size={18} className={`transition-transform duration-300 ${openAnimationMenu === link.id ? 'rotate-180' : ''}`} />
                             </button>
 
-                            {openAnimationMenu === link.id && (
-                              <div className="absolute top-full right-0 mt-1 w-full bg-white rounded-xl shadow-xl border border-slate-100 p-1 z-20 animate-in fade-in zoom-in-95 duration-200">
-                                {['none', 'pulse', 'bounce', 'shake', 'glow', 'wobble'].map((anim) => (
-                                  <button
-                                    key={anim}
-                                    onClick={() => {
-                                      updateLink(link.id, 'highlight', anim);
-                                      setOpenAnimationMenu(null);
-                                    }}
-                                    className={`w-full text-left px-3 py-2 text-xs font-medium rounded-lg capitalize transition-colors flex items-center justify-between ${link.highlight === anim ? 'bg-amber-50 text-amber-700' : 'text-slate-600 hover:bg-slate-50'}`}
-                                  >
-                                    {anim === 'none' ? 'Nenhum' : anim}
-                                    {link.highlight === anim && <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
+                            <AnimatePresence>
+                              {openAnimationMenu === link.id && (
+                                <motion.div
+                                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                                  className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-slate-200 rounded-2xl z-50 p-2 shadow-xl"
+                                >
+                                  {['none', 'pulse', 'bounce', 'shake', 'glow', 'wobble'].map((anim) => (
+                                    <button
+                                      key={anim}
+                                      onClick={() => {
+                                        updateLink(link.id, 'highlight', anim);
+                                        setOpenAnimationMenu(null);
+                                      }}
+                                      className={`w-full text-left px-4 py-2.5 text-sm font-medium rounded-xl transition-colors ${link.highlight === anim ? 'bg-[#32a800] text-white' : 'text-slate-600 hover:bg-slate-50 hover:text-[#32a800]'}`}
+                                    >
+                                      {anim === 'none' ? 'Nenhuma' : anim.charAt(0).toUpperCase() + anim.slice(1)}
+                                    </button>
+                                  ))}
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </div>
                         </div>
                       </div>
 
-                      <div className="space-y-5">
+                      <div className="space-y-8">
                         {/* Layout Picker */}
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Visualização</label>
-                          <div className="flex gap-2">
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Layout do Botão</label>
+                          <div className="flex flex-col gap-2">
                             {[
-                              { id: 'classic', label: 'Lista', icon: GripVertical },
-                              { id: 'card', label: 'Card Grande', icon: LayoutTemplate },
-                              { id: 'icon', label: 'Ícone', icon: LayoutGrid }
+                              { id: 'classic', label: 'Botão Clássico', desc: 'Largura total com ícone lateral', icon: <LayoutGrid size={18} /> },
+                              { id: 'card', label: 'Card Moderno', desc: 'Bordas arredondadas e sombra', icon: <LayoutTemplate size={18} /> },
+                              { id: 'icon', label: 'Ícone Solo', desc: 'Apenas o ícone em formato circular', icon: <Sparkles size={18} /> }
                             ].map((opt) => (
                               <button
                                 key={opt.id}
                                 onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-all ${link.layout === opt.id ? 'bg-slate-900 border-slate-900 text-white shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+                                className={`p-4 rounded-xl border text-left flex items-start gap-4 transition-all ${link.layout === opt.id
+                                  ? 'bg-[#32a800]/5 border-[#32a800] ring-1 ring-[#32a800]/10'
+                                  : 'bg-white border-slate-200 hover:border-slate-300'
+                                  }`}
                               >
-                                <opt.icon size={18} />
-                                <span className="text-[10px] font-bold uppercase">{opt.label}</span>
+                                <div className={`flex items-center justify-center p-2 rounded-lg ${link.layout === opt.id ? 'bg-[#32a800] text-white' : 'bg-slate-50 text-slate-400'}`}>
+                                  {opt.icon}
+                                </div>
+                                <div className="flex-1">
+                                  <div className={`text-sm font-semibold mb-0.5 ${link.layout === opt.id ? 'text-[#32a800]' : 'text-slate-700'}`}>{opt.label}</div>
+                                  <div className="text-[10px] text-slate-400 font-medium leading-tight">{opt.desc}</div>
+                                </div>
+                                {link.layout === opt.id && (
+                                  <div className="w-2 h-2 rounded-full bg-[#32a800] mt-2 shadow shadow-[#32a800]/50" />
+                                )}
                               </button>
                             ))}
                           </div>
                         </div>
-
                       </div>
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                      <div className="flex items-center gap-1.5 text-slate-400 text-xs font-medium py-1 px-3 rounded-md bg-slate-50 border border-slate-100">
-                        <BarChart2 size={14} />
-                        <span>{link.clicks || 0} cliques</span>
+                    <div className="flex items-center justify-between pt-8 border-t border-slate-100">
+                      <div className="flex items-center gap-2 text-slate-500 font-medium text-xs">
+                        <BarChart2 size={16} className="text-[#32a800]" />
+                        <span className="font-bold text-[#32a800]">{link.clicks || 0}</span>
+                        <span>cliques no total</span>
                       </div>
 
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-xs font-bold ${link.isArchived ? 'bg-orange-50 text-orange-600' : 'text-slate-400 hover:bg-slate-100'}`}
+                          className={`px-4 h-10 rounded-xl text-xs font-semibold transition-all ${link.isArchived ? 'bg-slate-900 text-white shadow-sm' : 'bg-transparent text-slate-400 hover:text-slate-600'}`}
                         >
-                          <Archive size={14} />
-                          <span>{link.isArchived ? 'Arquivado' : 'Arquivar'}</span>
+                          {link.isArchived ? 'Restaurar' : 'Arquivar'}
                         </button>
 
                         <button
-                          onClick={() => removeLink(link.id)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all text-xs font-medium group/delete"
+                          onClick={() => setShowDeleteConfirm(true)}
+                          className="px-4 h-10 rounded-xl text-xs font-semibold bg-transparent text-red-500 hover:text-red-600 transition-all"
                         >
-                          <Trash2 size={14} className="group-hover/delete:stroke-[2.5px]" />
-                          <span>Excluir</span>
+                          Excluir
                         </button>
                       </div>
                     </div>
+
+                    {/* Delete Confirmation Overlay */}
+                    <AnimatePresence>
+                      {showDeleteConfirm && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden mt-4"
+                        >
+                          <div className="pt-8 flex items-center justify-between border-t border-slate-100">
+                            <div className="flex items-center gap-3 text-red-500">
+                              <Trash2 size={18} />
+                              <span className="text-sm font-bold">Tem certeza que deseja excluir?</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="px-5 h-10 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-600 transition-all"
+                              >
+                                Cancelar
+                              </button>
+                              <button
+                                onClick={() => {
+                                  removeLink(link.id);
+                                  setShowDeleteConfirm(false);
+                                }}
+                                className="px-6 h-10 rounded-xl text-xs font-bold bg-red-500 text-white hover:bg-red-600 transition-all active:scale-95 shadow-sm shadow-red-100"
+                              >
+                                Confirmar Exclusão
+                              </button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </motion.div>
               )}
@@ -475,7 +557,7 @@ function LinkEditor({ links, onChange, level = 0, profile }: LinkEditorProps) {
 
   const isLimitReached = (profile.planType === 'free' || !profile.planType) && links.length >= 5;
 
-  const activeLinks = links.filter(l => !l.isArchived);
+  const activeLinks = links.filter(l => !l.isArchived && (l.layout !== 'social' || l.type === 'collection'));
   const archivedLinks = links.filter(l => l.isArchived);
 
   const toggleCollection = (id: string) => {
@@ -514,7 +596,7 @@ function LinkEditor({ links, onChange, level = 0, profile }: LinkEditorProps) {
       url: '',
       isActive: true,
       clicks: 0,
-      layout: 'classic',
+      layout: 'stacked',
       type: 'collection',
       children: []
     };
@@ -559,79 +641,98 @@ function LinkEditor({ links, onChange, level = 0, profile }: LinkEditorProps) {
   };
 
   return (
-    <div className={`space-y-4 ${level === 0 ? 'w-full' : ''}`}>
-      <div className="space-y-4">
+    <div className={`space-y-6 ${level === 0 ? 'bg-white border border-slate-100 p-6 md:p-8 pt-8 md:pt-10 rounded-[24px] md:rounded-[32px] shadow-sm' : ''}`}>
+      <div className="space-y-6">
         {level === 0 ? (
           <>
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={addLink}
-                disabled={isLimitReached}
-                className={`w-full h-14 rounded-[22px] font-bold text-lg flex items-center justify-center gap-2 transition-all duration-300 shadow-lg ${isLimitReached
-                  ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
-                  : 'bg-brand-300 text-brand-950 hover:bg-brand-400 hover:-translate-y-0.5 active:translate-y-0 shadow-brand-950/10'
-                  }`}
-              >
-                <Plus size={22} /> Adicionar Link
-              </button>
-              {isLimitReached && (
-                <div className="bg-brand-50 border border-brand-100 rounded-xl p-3 flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
-                  <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 shrink-0">
-                    <Zap size={16} fill="currentColor" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs font-bold text-brand-900 leading-tight">Limite de links atingido (5/5)</p>
-                    <p className="text-[10px] text-brand-600 font-medium">Faça upgrade para adicionar links ilimitados.</p>
-                  </div>
-                  <button className="text-[10px] font-bold text-white bg-brand-600 px-3 py-1.5 rounded-full hover:bg-brand-700 transition-colors">PRO</button>
+            <div className="flex flex-col gap-8 mb-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Meus Links</h2>
+                  <p className="text-xs md:text-sm text-slate-500 mt-1">Gerencie seu perfil e suas conexões</p>
                 </div>
-              )}
+
+                <div className="flex items-center gap-1 md:gap-2">
+                  <button
+                    onClick={() => setShowArchive(true)}
+                    className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all active:scale-90"
+                    title="Ver Arquivo"
+                  >
+                    <Archive size={20} className="md:w-6 md:h-6" />
+                    {archivedLinks.length > 0 && (
+                      <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-100 text-[9px] font-bold text-slate-500">
+                        {archivedLinks.length}
+                      </span>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={addLink}
+                    disabled={isLimitReached}
+                    className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center transition-all active:scale-90 ${isLimitReached
+                      ? 'text-slate-200 cursor-not-allowed'
+                      : 'text-[#32a800] hover:text-[#32a800]/80'
+                      }`}
+                    title="Adicionar Novo Link"
+                  >
+                    <Plus size={20} className="md:w-6 md:h-6" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={addCollection}
+                  disabled={isLimitReached}
+                  className={`flex-1 flex items-center justify-center gap-2 h-11 text-sm font-medium transition-all border border-slate-100 rounded-2xl ${isLimitReached
+                    ? 'text-slate-200 cursor-not-allowed'
+                    : 'text-slate-500 hover:border-[#32a800] hover:text-[#32a800] bg-slate-50/50'
+                    }`}
+                >
+                  <FolderHeart size={16} />
+                  <span>Adicionar Coleção</span>
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 px-1 py-1">
-              <button
-                onClick={addCollection}
-                disabled={isLimitReached}
-                className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-2xl text-[11px] sm:text-sm font-bold transition-all border ${isLimitReached
-                  ? 'bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed'
-                  : 'text-slate-600 bg-white hover:bg-slate-100 border-slate-200 active:scale-[0.98]'
-                  }`}
-              >
-                <FolderHeart size={18} />
-                <span>Add collection</span>
-              </button>
-              <button
-                onClick={() => setShowArchive(true)}
-                className="flex-1 flex items-center justify-center gap-2 h-11 rounded-2xl text-[11px] sm:text-sm font-bold transition-all bg-slate-50/50 hover:bg-slate-100 text-slate-500 hover:text-slate-900 border border-slate-100 hover:border-slate-200 group active:scale-[0.98]"
-              >
-                <Archive size={18} />
-                <span>View archive</span>
-                {archivedLinks.length > 0 && (
-                  <span className="bg-orange-500 text-white text-[10px] min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-lg font-black transition-transform group-hover:scale-110">
-                    {archivedLinks.length}
-                  </span>
-                )}
-              </button>
-            </div>
+            {isLimitReached && (
+              <div className="bg-amber-50 border border-amber-100 p-6 rounded-2xl flex items-center gap-6 mb-8">
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-amber-900">Limite Atingido (5/5)</p>
+                  <p className="text-sm text-amber-700 mt-0.5">Torne-se PRO para ter links ilimitados em seu perfil.</p>
+                </div>
+                <button className="text-xs font-bold text-amber-700 bg-white border border-amber-200 px-4 py-2 rounded-xl hover:bg-amber-100 transition-colors shadow-sm">Ver Planos</button>
+              </div>
+            )}
           </>
         ) : (
           <button
             onClick={addLink}
-            className="w-full py-2 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 font-semibold hover:border-brand-300 hover:text-brand-600 transition-colors flex items-center justify-center gap-2 text-sm"
+            className="w-full py-4 border border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium hover:border-[#32a800] hover:text-[#32a800] transition-colors flex items-center justify-center gap-2 text-sm"
           >
-            <Plus size={16} /> Adicionar Link na Coleção
+            <Plus size={16} /> Novo Link na Coleção
           </button>
         )}
       </div>
 
       <div className="space-y-4">
         {activeLinks.length === 0 && (
-          <div className="text-center py-8 text-slate-400 rounded-2xl border border-dashed border-slate-200 bg-slate-50/50">
-            <p className="text-sm">Vazio</p>
+          <div className="text-center py-10 md:py-16 bg-slate-50/50 rounded-[24px] md:rounded-[32px] border border-dashed border-slate-200">
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-slate-100 text-slate-200">
+              <Ban size={24} />
+            </div>
+            <p className="text-xs md:text-sm font-medium text-slate-400">Sua lista de links está vazia</p>
+            <p className="text-[10px] md:text-xs text-slate-300 mt-1">Adicione seu primeiro link para começar</p>
           </div>
         )}
 
-        <Reorder.Group axis="y" values={activeLinks} onReorder={handleReorder} className="space-y-4">
+        <Reorder.Group
+          axis="y"
+          values={activeLinks}
+          onReorder={handleReorder}
+          className="space-y-4"
+          transition={{ duration: 0 }}
+        >
           {activeLinks.map((link) => (
             <SortableLinkItem
               key={link.id}
@@ -650,11 +751,11 @@ function LinkEditor({ links, onChange, level = 0, profile }: LinkEditorProps) {
         </Reorder.Group>
       </div>
 
-      {/* Archive Modal - Clean Minimalist Design */}
+      {/* Archive Modal - Soft Corporate */}
       {mounted && createPortal(
         <AnimatePresence>
           {showArchive && (
-            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-8">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -663,75 +764,81 @@ function LinkEditor({ links, onChange, level = 0, profile }: LinkEditorProps) {
                 className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
               />
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                className="relative w-full max-w-2xl h-[500px] bg-white border border-slate-200 rounded-[32px] shadow-2xl overflow-hidden flex flex-col"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-2xl max-h-[85vh] bg-white rounded-[32px] md:rounded-[40px] p-6 md:p-14 transition-all flex flex-col shadow-2xl overflow-hidden"
               >
                 {/* Header */}
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                <div className="mb-10 flex items-center justify-between shrink-0">
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900">Itens Arquivados</h3>
-                    <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">{archivedLinks.length} no total</p>
+                    <h3 className="text-2xl font-semibold text-slate-900 tracking-tight">Itens Arquivados</h3>
+                    <p className="text-sm text-slate-500 mt-1">{archivedLinks.length} links guardados no seu arquivo</p>
                   </div>
                   <button
                     onClick={() => setShowArchive(false)}
-                    className="w-10 h-10 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center"
+                    className="p-3 bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-2xl transition-all active:scale-95"
                   >
-                    <Plus size={24} className="rotate-45" />
+                    <X size={24} />
                   </button>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-3 scrollbar-hide">
+                <div className="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-hide">
                   {archivedLinks.length === 0 ? (
-                    <div className="text-center py-20">
-                      <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-4">
+                    <div className="h-full flex flex-col items-center justify-center py-20">
+                      <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
                         <Archive size={32} className="text-slate-200" />
                       </div>
-                      <p className="text-slate-500 font-medium">Nenhum item arquivado</p>
+                      <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest leading-none">Arquivo Vazio</p>
                     </div>
                   ) : (
                     archivedLinks.map((link) => (
                       <motion.div
                         key={link.id}
                         layout
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl group hover:border-slate-300 transition-all shadow-sm"
+                        className="flex items-center justify-between p-5 bg-white border border-slate-100 rounded-[24px] transition-all hover:border-[#32a800] group/item"
                       >
-                        <div className="flex items-center gap-4 min-w-0">
-                          <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+                        <div className="flex items-center gap-5 min-w-0">
+                          <div className="w-14 h-14 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
                             {link.image ? (
-                              <img src={link.image} alt="" className="w-full h-full object-cover" />
+                              <img src={link.image} alt="" className="w-full h-full object-cover grayscale group-hover/item:grayscale-0 transition-all" />
                             ) : (
                               <LinkIcon size={20} className="text-slate-300" />
                             )}
                           </div>
                           <div className="min-w-0">
-                            <h4 className="text-sm font-bold text-slate-800 truncate leading-tight mb-0.5">{link.title || 'Sem título'}</h4>
-                            <p className="text-[11px] text-slate-400 truncate">{link.url || 'Sem URL'}</p>
+                            <h4 className="text-sm font-semibold text-slate-800 truncate mb-0.5">{link.title || 'Sem título'}</h4>
+                            <p className="text-xs text-slate-400 truncate font-medium">{link.url || 'Sem URL'}</p>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0 ml-4">
+                        <div className="flex items-center gap-3 shrink-0">
                           <button
                             onClick={() => updateLink(link.id, 'isArchived', false)}
-                            className="h-10 px-4 rounded-xl bg-slate-900 text-xs font-bold text-white hover:bg-slate-800 transition-colors"
+                            className="h-10 px-5 bg-slate-50 text-slate-600 rounded-xl text-xs font-bold hover:bg-[#32a800] hover:text-white transition-all shadow-sm active:scale-95"
                           >
                             Restaurar
                           </button>
                           <button
                             onClick={() => removeLink(link.id)}
-                            className="w-10 h-10 rounded-xl text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center"
-                            title="Excluir"
+                            className="p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={18} />
                           </button>
                         </div>
                       </motion.div>
                     ))
                   )}
+                </div>
+
+                <div className="mt-10 pt-8 border-t border-slate-50 shrink-0">
+                  <button
+                    onClick={() => setShowArchive(false)}
+                    className="w-full h-14 bg-slate-900 text-white rounded-[20px] font-bold text-sm tracking-wide hover:shadow-xl transition-all active:scale-[0.98]"
+                  >
+                    Voltar aos Meus Links
+                  </button>
                 </div>
               </motion.div>
             </div>

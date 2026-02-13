@@ -20,8 +20,8 @@ import UpgradeBanner from '../components/UpgradeBanner';
 import DesignSidebar from '../components/DesignSidebar';
 import HeaderEditor from '../components/design/HeaderEditor';
 import TypographyEditor from '../components/design/TypographyEditor';
-import ButtonsEditor from '../components/design/ButtonsEditor';
 import WallpaperEditor from '../components/design/WallpaperEditor';
+import ButtonsEditor from '../components/design/ButtonsEditor';
 import { compressImage } from '../utils/imageUtils';
 import { apiClient } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
@@ -35,14 +35,17 @@ export default function EditorPage() {
         name: '',
         bio: '',
         avatarUrl: '',
-        themeId: 'default',
+        themeId: 'animated-nodus-official',
         fontFamily: "'Inter', sans-serif",
-        buttonStyle: 'rounded',
         showNewsletter: true
     });
 
     const [links, setLinks] = useState<LinkItem[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
+
+    const updateProfile = (updates: Partial<UserProfile>) => {
+        setProfile(prev => ({ ...prev, ...updates }));
+    };
 
     // Always start loading - we don't use localStorage cache anymore
     const [isLoading, setIsLoading] = useState(true);
@@ -246,13 +249,13 @@ export default function EditorPage() {
     const shareUrl = `https://www.noduscc.com.br/${profile.username || profile.name.toLowerCase().replace(/\s/g, '')}`;
 
     return (
-        <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
+        <div className="h-screen bg-[#0D0E12] flex flex-col overflow-hidden">
             {/* Top Banner for Free Users */}
             {profile.planType === 'free' && (
                 <UpgradeBanner onUpgradeClick={() => setIsBillingModalOpen(true)} />
             )}
 
-            <div className="flex-1 flex overflow-hidden relative">
+            <div className="flex-1 flex overflow-hidden relative rounded-t-[24px] md:rounded-t-[32px] bg-white shadow-2xl">
                 {/* Loading Overlay */}
                 {isLoading && (
                     <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center">
@@ -307,14 +310,14 @@ export default function EditorPage() {
                     setActiveTab={setActiveTab}
                     userProfile={profile}
                     onUpgradeClick={() => setIsBillingModalOpen(true)}
-                    className={`fixed left-0 z-40 hidden md:flex ${profile.planType === 'free' ? 'top-10 h-[calc(100vh-40px)]' : 'top-0 h-screen'}`}
+                    className={`hidden md:flex h-full rounded-tl-[24px] md:rounded-tl-[32px]`}
                 />
 
                 {/* Main Layout */}
-                <main className="flex-1 md:ml-64 flex flex-col md:flex-row w-full h-full relative transition-all duration-300">
+                <main className="flex-1 flex flex-col md:flex-row w-full h-full relative transition-all duration-300">
 
                     {/* Mobile Header */}
-                    <div className="md:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between shrink-0 z-30">
+                    <div className="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shrink-0 z-30 rounded-t-[24px] shadow-sm">
                         <div className="flex items-center gap-3">
                             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                                 <Menu size={24} className="text-slate-700" />
@@ -355,8 +358,8 @@ export default function EditorPage() {
                     {/* Mobile Sidebar (Drawer) */}
                     {isMobileMenuOpen && (
                         <div className="fixed inset-0 z-50 md:hidden flex">
-                            <div className="w-64 h-full bg-white shadow-xl">
-                                <Sidebar activeTab={activeTab} setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }} userProfile={profile} onUpgradeClick={() => { setIsBillingModalOpen(true); setIsMobileMenuOpen(false); }} className="flex" />
+                            <div className="w-64 h-full bg-white shadow-xl rounded-tr-[24px] overflow-hidden">
+                                <Sidebar activeTab={activeTab} setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }} userProfile={profile} onUpgradeClick={() => { setIsBillingModalOpen(true); setIsMobileMenuOpen(false); }} className="flex h-full" />
                             </div>
                             <div className="flex-1 bg-black/50" onClick={() => setIsMobileMenuOpen(false)}></div>
                         </div>
@@ -377,7 +380,7 @@ export default function EditorPage() {
                     <div className={`flex-1 h-full overflow-y-auto scrollbar-hide ${showMobilePreview ? 'hidden lg:block' : 'block'}`}>
 
                         {/* Desktop Header (Sticky) */}
-                        <header className="hidden md:flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 sticky top-0 z-20">
+                        <header className="hidden md:flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 sticky top-0 z-20 rounded-tr-[24px] md:rounded-tr-[32px]">
                             <div className="flex items-center gap-2">
                                 {/* Breadcrumb or Title */}
                                 <h1 className="text-xl font-bold text-slate-800">Editor</h1>
@@ -411,7 +414,7 @@ export default function EditorPage() {
                                 </a>
                             </div>
                         </header>
-                        <div className="w-full py-4 md:py-10 px-6 lg:px-12 pb-32">
+                        <div className="w-full py-6 md:py-10 px-4 md:px-10 lg:px-12 pb-32">
 
                             {/* Page Title */}
                             <div className="mb-4 md:mb-8">
@@ -471,9 +474,9 @@ export default function EditorPage() {
 
 
                                 {activeTab === 'appearance' && (
-                                    <div className="flex flex-col md:flex-row h-[calc(100vh-130px)] md:h-[calc(100vh-140px)] -mt-4 md:-mt-6 -mx-6 lg:-mx-12 bg-slate-50 relative">
+                                    <div className="flex flex-col -mt-4 md:-mt-6 -mx-6 lg:-mx-12 bg-slate-50 relative min-h-[calc(100vh-140px)]">
                                         {/* Design Sidebar */}
-                                        <div className="shrink-0 h-auto md:h-full z-10 sticky top-0 bg-slate-50">
+                                        <div className="shrink-0 z-10 sticky top-0 bg-slate-50">
                                             <DesignSidebar
                                                 activeSection={activeDesignSection}
                                                 setActiveSection={setActiveDesignSection}
@@ -481,13 +484,13 @@ export default function EditorPage() {
                                         </div>
 
                                         {/* Design Content Area */}
-                                        <div className="flex-1 h-full overflow-y-auto p-4 md:p-8 pb-32 md:pb-8">
+                                        <div className="flex-1 p-4 md:p-8 pb-32 md:pb-8">
                                             <h2 className="text-2xl font-bold text-slate-800 mb-6 hidden md:block">
                                                 {activeDesignSection === 'header' && 'Cabeçalho'}
                                                 {activeDesignSection === 'theme' && 'Temas'}
+                                                {activeDesignSection === 'buttons' && 'Botões'}
                                                 {activeDesignSection === 'wallpaper' && 'Papel de Parede'}
                                                 {activeDesignSection === 'text' && 'Tipografia'}
-                                                {activeDesignSection === 'buttons' && 'Estilo dos Botões'}
                                             </h2>
 
                                             {activeDesignSection === 'header' && (
@@ -502,12 +505,12 @@ export default function EditorPage() {
                                                 <WallpaperEditor profile={profile} onChange={setProfile} />
                                             )}
 
-                                            {activeDesignSection === 'text' && (
-                                                <TypographyEditor profile={profile} onChange={setProfile} />
+                                            {activeDesignSection === 'buttons' && (
+                                                <ButtonsEditor profile={profile} updateProfile={updateProfile} />
                                             )}
 
-                                            {activeDesignSection === 'buttons' && (
-                                                <ButtonsEditor profile={profile} onChange={setProfile} />
+                                            {activeDesignSection === 'text' && (
+                                                <TypographyEditor profile={profile} onChange={setProfile} />
                                             )}
                                         </div>
                                     </div>
@@ -540,7 +543,7 @@ export default function EditorPage() {
             ${!showMobilePreview ? 'hidden' : 'flex'}
         `}>
 
-                        <div className="relative w-full h-full lg:flex items-center justify-center overflow-hidden lg:bg-white/50 lg:bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
+                        <div className="relative w-full h-full lg:flex items-center justify-center overflow-hidden lg:bg-[#FAFBFC] lg:bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
                             {/* Scale container to fit phone nicely on different laptop screens - Only on Desktop */}
                             <div className={`
               w-full h-full transform transition-transform duration-300 origin-center flex items-center justify-center

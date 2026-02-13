@@ -25,6 +25,7 @@ import {
   User
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
 
 interface SidebarProps {
   activeTab: string;
@@ -99,7 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
   };
 
   return (
-    <aside className={`w-64 bg-white border-r border-slate-200 h-screen overflow-y-auto flex flex-col select-none ${className || ''}`}>
+    <aside className={`w-64 bg-white border-r border-slate-200 h-full overflow-y-auto flex flex-col select-none overflow-hidden ${className || ''}`}>
 
       {/* Public Profile Header */}
       <div className="p-5 border-b border-slate-100 flex flex-col gap-4">
@@ -127,7 +128,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
         </div>
       </div>
 
-      <div className="p-3 flex-1 overflow-y-auto custom-scrollbar">
+      <div className="p-3 flex-1 overflow-y-auto scrollbar-hide">
         {MENU_GROUPS.map((group) => {
           const isOpen = openMenus[group.id];
           const GroupIcon = group.groupIcon;
@@ -171,15 +172,22 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                         }}
                         disabled={item.disabled}
                         className={`
-                              w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all group
-                              ${activeTab === item.id
-                            ? 'bg-brand-50 text-brand-700'
-                            : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}
-                              ${item.disabled ? 'opacity-40 cursor-not-allowed hover:bg-transparent' : ''}
-                              ${isLocked ? 'cursor-not-allowed' : ''}
-                            `}
+                                w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold transition-all group relative
+                                ${activeTab === item.id
+                            ? 'text-slate-900'
+                            : 'text-slate-500 hover:text-slate-800'}
+                                ${item.disabled ? 'opacity-40 cursor-not-allowed hover:bg-transparent' : ''}
+                                ${isLocked ? 'cursor-not-allowed' : ''}
+                              `}
                       >
                         <span className="truncate">{item.label}</span>
+                        {activeTab === item.id && (
+                          <motion.div
+                            layoutId="mainSidebarActiveBar"
+                            className="absolute -left-[17px] top-1/2 -translate-y-1/2 w-1 h-5 bg-[#32a800] rounded-r-full"
+                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          />
+                        )}
                         {isLocked && (
                           <div className="flex items-center gap-1">
                             <span className="text-[10px] bg-brand-100 text-brand-600 px-1.5 py-0.5 rounded-md font-bold">PRO</span>

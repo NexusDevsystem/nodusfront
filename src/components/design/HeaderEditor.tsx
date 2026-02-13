@@ -23,17 +23,12 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange }) => {
     };
 
     return (
-        <div className="space-y-8 animate-fade-in pb-10">
+        <div className="space-y-6 animate-fade-in pb-10">
             {/* Header Layout Section */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-brand-50 rounded-lg text-brand-600">
-                        <Layout size={20} />
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-bold text-slate-800">Layout do Perfil</h3>
-                        <p className="text-xs text-slate-400">Como seu topo será exibido</p>
-                    </div>
+            <div className="bg-white p-6 rounded-lg border border-slate-200">
+                <div className="flex items-center gap-2 mb-6 text-slate-500">
+                    <Layout size={18} />
+                    <h3 className="text-sm font-semibold uppercase tracking-wider">Layout do Perfil</h3>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
@@ -45,25 +40,28 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange }) => {
                         <button
                             key={layout.id}
                             onClick={() => onChange({ ...profile, headerLayout: layout.id as any })}
-                            className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all ${(profile.headerLayout || 'classic') === layout.id
-                                ? 'border-brand-600 bg-brand-50/50 text-brand-700'
-                                : 'border-slate-100 hover:border-slate-300 text-slate-600'
+                            className={`flex flex-col items-center justify-center gap-2 p-4 rounded-md border transition-all ${(profile.headerLayout || 'classic') === layout.id
+                                ? 'border-[#32a800] bg-slate-50 text-slate-900'
+                                : 'border-slate-100 hover:border-slate-200 text-slate-500'
                                 }`}
                         >
-                            <layout.icon size={24} />
-                            <span className="text-xs font-bold">{layout.label}</span>
+                            <layout.icon size={20} />
+                            <span className="text-[11px] font-medium">{layout.label}</span>
                         </button>
                     ))}
                 </div>
             </div>
 
             {/* Profile Picture Section */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <h3 className="text-lg font-bold text-slate-800 mb-6">Imagem de Perfil</h3>
+            <div className="bg-white p-6 rounded-lg border border-slate-200">
+                <div className="flex items-center gap-2 mb-6 text-slate-500">
+                    <Camera size={18} />
+                    <h3 className="text-sm font-semibold uppercase tracking-wider">Imagem de Perfil</h3>
+                </div>
 
-                <div className="flex flex-col items-center sm:flex-row gap-6 mb-6">
-                    <div className="relative group shrink-0">
-                        <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-slate-100 shadow-inner bg-slate-50">
+                <div className="flex flex-col items-center sm:flex-row gap-8">
+                    <div className="relative shrink-0">
+                        <div className="w-20 h-20 rounded-full overflow-hidden border border-slate-200 bg-slate-50">
                             {profile.avatarUrl ? (
                                 <img
                                     src={profile.avatarUrl}
@@ -75,15 +73,15 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange }) => {
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-slate-300">
-                                    <Camera size={32} />
+                                    <Camera size={24} />
                                 </div>
                             )}
                         </div>
                         <button
                             onClick={() => avatarInputRef.current?.click()}
-                            className="absolute bottom-0 right-0 p-2 bg-brand-600 text-white rounded-full shadow-lg hover:bg-brand-700 transition-transform hover:scale-105 active:scale-95"
+                            className="absolute -bottom-1 -right-1 p-2 bg-[#32a800] text-white rounded-full shadow-sm hover:scale-105 transition-transform"
                         >
-                            <Camera size={16} />
+                            <Camera size={14} />
                         </button>
                         <input
                             type="file"
@@ -98,24 +96,24 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange }) => {
                         <div className="flex gap-2">
                             <button
                                 onClick={() => avatarInputRef.current?.click()}
-                                className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-200 transition-colors"
+                                className="flex-1 px-4 py-2 border border-slate-200 text-slate-600 rounded-md text-xs font-semibold hover:bg-slate-50 transition-colors"
                             >
                                 Escolher Imagem
                             </button>
                             {profile.avatarUrl && (
                                 <button
                                     onClick={() => onChange({ ...profile, avatarUrl: '' })}
-                                    className="px-3 py-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                    className="px-3 py-2 text-slate-400 hover:text-red-500 transition-colors"
                                 >
-                                    <Trash2 size={18} />
+                                    <Trash2 size={16} />
                                 </button>
                             )}
                         </div>
 
                         {/* Size Selector */}
-                        <div>
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Tamanho</label>
-                            <div className="flex bg-slate-100 p-1 rounded-lg">
+                        <div className="flex items-center gap-4">
+                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Tamanho</span>
+                            <div className="flex bg-slate-50 p-1 rounded-md border border-slate-100 flex-1">
                                 {[
                                     { id: 'sm', label: 'P' },
                                     { id: 'md', label: 'M' },
@@ -124,9 +122,9 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange }) => {
                                     <button
                                         key={size.id}
                                         onClick={() => onChange({ ...profile, avatarSize: size.id as any })}
-                                        className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${(profile.avatarSize || 'md') === size.id
-                                            ? 'bg-white text-brand-600 shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-700'
+                                        className={`flex-1 py-1 text-[10px] font-bold rounded transition-all ${(profile.avatarSize || 'md') === size.id
+                                            ? 'bg-white text-[#32a800] shadow-sm'
+                                            : 'text-slate-400 hover:text-slate-600'
                                             }`}
                                     >
                                         {size.label}
@@ -139,27 +137,30 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange }) => {
             </div>
 
             {/* Title / Identity Section */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <h3 className="text-lg font-bold text-slate-800 mb-6">Identidade</h3>
+            <div className="bg-white p-6 rounded-lg border border-slate-200">
+                <div className="flex items-center gap-2 mb-6 text-slate-500">
+                    <User size={18} />
+                    <h3 className="text-sm font-semibold uppercase tracking-wider">Identidade</h3>
+                </div>
 
-                <div className="space-y-4 animate-fade-in">
+                <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Nome de Exibição / Título</label>
+                        <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Nome de Exibição</label>
                         <input
                             type="text"
                             value={profile.name}
                             onChange={(e) => onChange({ ...profile, name: e.target.value })}
-                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all font-medium"
+                            className="w-full px-4 py-2.5 rounded-md border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-medium"
                             placeholder="@seuusuario"
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">Bio / Descrição</label>
+                        <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Bio / Descrição</label>
                         <textarea
                             value={profile.bio || ''}
                             onChange={(e) => onChange({ ...profile, bio: e.target.value })}
                             rows={3}
-                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all resize-none font-medium"
+                            className="w-full px-4 py-2.5 rounded-md border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-medium resize-none"
                             placeholder="Conte um pouco sobre você..."
                         />
                     </div>

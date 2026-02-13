@@ -28,7 +28,7 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
                 </div>
 
                 {/* Content Area - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-8 lg:p-12 pt-0 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-8 lg:p-12 pt-0 scrollbar-hide">
                     <BillingView profile={profile} onChange={onChange} />
                 </div>
             </div>

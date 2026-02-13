@@ -2,25 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { THEMES } from '../constants';
 import { CheckCircle } from 'lucide-react';
+import NodusOfficialBackground from './NodusOfficialBackground';
 
-// Animated Background Imports
-import AuroraBackground from './AuroraBackground';
-import MatrixBackground from './MatrixBackground';
-import CyberGridBackground from './CyberGridBackground';
-import FloatingShapesBackground from './FloatingShapesBackground';
-import NeonCityBackground from './NeonCityBackground';
-import SpaceWarpBackground from './SpaceWarpBackground';
-import ParticlesBackground from './ParticlesBackground';
-
-// Select visually striking themes for the showcase
-const SHOWCASE_THEMES = [
-    'animated-aurora',      // Green/Purple Flow
-    'animated-neon-city',   // Cyberpunk City
-    'animated-matrix',      // Hacker Green
-    'animated-shapes',      // Clean White/Blue Moving
-    'animated-starfield',   // Space
-    'animated-cybergrid'    // Retro Grid
-];
+// Use only the Nodus Official theme
+const SHOWCASE_THEMES = ['nodus-official'];
 
 export default function ShowcaseCards() {
     const [index, setIndex] = useState(0);
@@ -31,31 +16,15 @@ export default function ShowcaseCards() {
     useEffect(() => {
         const timer = setInterval(() => {
             setIndex((prev) => (prev + 1) % displayThemes.length);
-        }, 3500); // Slightly longer to appreciate animation
+        }, 3500);
         return () => clearInterval(timer);
     }, [displayThemes.length]);
 
     // Helper to render the specific background component for a theme
     const renderThemeBackground = (themeId: string) => {
         switch (themeId) {
-            case 'animated-aurora':
-                return <AuroraBackground />;
-            case 'animated-matrix':
-                return <MatrixBackground />;
-            case 'animated-cybergrid':
-                return <CyberGridBackground />;
-            case 'animated-shapes':
-                return <FloatingShapesBackground />;
-            case 'animated-neon-city':
-                return <NeonCityBackground />;
-            case 'animated-space-warp':
-                return <SpaceWarpBackground />;
-            case 'animated-starfield':
-                return (
-                    <div className="absolute inset-0 bg-[#020617]">
-                        <ParticlesBackground color="#ffffff" count={40} />
-                    </div>
-                );
+            case 'nodus-official':
+                return <NodusOfficialBackground />;
             default:
                 return null;
         }
