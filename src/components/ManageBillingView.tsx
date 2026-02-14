@@ -81,7 +81,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                     <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Faturamento</h2>
                     <p className="text-slate-500 mt-2 font-medium">Gerencie sua assinatura e visualize seu histórico de pagamentos.</p>
                 </div>
-                {!isFree && (
+                {!isFree && profile.stripeCustomerId && (
                     <button
                         onClick={handleManageBilling}
                         disabled={loadingPortal}
@@ -120,7 +120,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                         <div>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Método de Cobrança</p>
                             <h3 className="text-xl font-bold text-slate-900">
-                                {isFree ? 'Faturas Manuais' : 'Cartão de Crédito'}
+                                {isFree ? 'Faturas Manuais' : (profile.stripeCustomerId ? 'Cartão de Crédito' : 'Sistema Interno')}
                             </h3>
                         </div>
                         <div className="p-4 rounded-2xl bg-slate-50 text-slate-300">
@@ -128,7 +128,9 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                         </div>
                     </div>
                     <p className="text-xs text-slate-400 font-medium leading-tight">
-                        Segurança garantida pela infraestrutura de pagamentos Stripe.
+                        {profile.stripeCustomerId
+                            ? 'Segurança garantida pela infraestrutura de pagamentos Stripe.'
+                            : 'Assinatura gerenciada manualmente pela administração.'}
                     </p>
                 </div>
             </div>
