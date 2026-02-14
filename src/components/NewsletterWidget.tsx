@@ -44,10 +44,13 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
 
     // Determine text colors based on theme/background
     const isDarkContext = hasCustomBg || isGlass || currentTheme.id.includes('dark') || currentTheme.id.includes('black') || currentTheme.textClass.includes('white');
-    const textColor = isDarkContext ? 'text-white' : 'text-slate-800';
-    const subTextColor = isDarkContext ? 'text-white/70' : 'text-slate-500';
+    const customTextColorStyle = (profile.themeId === 'custom' && profile.customTextColor) ? { color: profile.customTextColor } : {};
+    const textColor = (profile.themeId === 'custom' && profile.customTextColor) ? '' : (isDarkContext ? 'text-white' : 'text-slate-800');
+    const subTextColor = (profile.themeId === 'custom' && profile.customTextColor) ? '' : (isDarkContext ? 'text-white/70' : 'text-slate-500');
     const inputBg = isDarkContext ? 'bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/20' : 'bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:bg-white';
-    const buttonBg = 'bg-white text-black hover:bg-white/90 shadow-sm';
+    const customButtonColorStyle = (profile.themeId === 'custom' && profile.customButtonColor) ? { backgroundColor: profile.customButtonColor } : {};
+    const customButtonTextColorStyle = profile.customButtonTextColor ? { color: profile.customButtonTextColor } : {};
+    const buttonBg = (profile.themeId === 'custom' && profile.customButtonColor) ? 'shadow-sm' : 'bg-white text-black hover:bg-white/90 shadow-sm';
 
     const roundedClass = profile.buttonRoundness === 'square' ? 'rounded-none' :
         profile.buttonRoundness === 'round' ? 'rounded-lg' :
@@ -64,8 +67,8 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
                 <div className="w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center mb-1 shadow-lg shadow-green-500/30">
                     <Check size={24} strokeWidth={3} />
                 </div>
-                <h3 className={`font-bold text-lg ${textColor}`}>Inscrito com sucesso!</h3>
-                <p className={`text-sm ${subTextColor}`}>Obrigado por acompanhar.</p>
+                <h3 className={`font-bold text-lg ${textColor}`} style={customTextColorStyle}>Inscrito com sucesso!</h3>
+                <p className={`text-sm ${subTextColor}`} style={customTextColorStyle}>Obrigado por acompanhar.</p>
             </div>
         );
     }
@@ -83,8 +86,8 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
                     <Mail size={20} />
                 </div>
 
-                <h3 className={`font-bold text-lg mb-1 ${textColor}`}>Fique por dentro</h3>
-                <p className={`text-xs mb-4 max-w-[200px] leading-relaxed ${subTextColor}`}>
+                <h3 className={`font-bold text-lg mb-1 ${textColor}`} style={customTextColorStyle}>Fique por dentro</h3>
+                <p className={`text-xs mb-4 max-w-[200px] leading-relaxed ${subTextColor}`} style={customTextColorStyle}>
                     Receba novidades e conteúdos exclusivos diretamente no seu e-mail.
                 </p>
 
@@ -102,9 +105,9 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
                         type="submit"
                         disabled={status === 'loading'}
                         className={`absolute right-1.5 top-1.5 bottom-1.5 aspect-square ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-lg'} flex items-center justify-center transition-all disabled:opacity-70 disabled:cursor-not-allowed ${buttonBg}`}
-                        style={{ fontFamily: profile.fontFamily }}
+                        style={{ ...customButtonColorStyle, ...customButtonTextColorStyle, fontFamily: profile.fontFamily }}
                     >
-                        {status === 'loading' ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} />}
+                        {status === 'loading' ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} style={customButtonTextColorStyle} />}
                     </button>
                 </form>
             </div>

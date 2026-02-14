@@ -146,7 +146,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         );
 
         return (
-            <div className={`${roundedClass || 'rounded-2xl'} p-2.5 flex items-center relative overflow-hidden group shadow-md border border-white/5 min-h-[64px] w-full ${isDeezer ? 'bg-[#1a1c3b]' : 'bg-[#5c540d]'}`}>
+            <div className={`${roundedClass || 'rounded-2xl'} p-2.5 flex items-center relative overflow-hidden group border border-white/5 min-h-[64px] w-full ${isDeezer ? 'bg-[#1a1c3b]' : 'bg-[#5c540d]'}`}>
                 {/* Album Art */}
                 <div className={`relative z-10 w-[42px] h-[42px] ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-md'} overflow-hidden shadow-sm mr-2.5 shrink-0`}>
                     <img
@@ -212,8 +212,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         let cleaned = cls;
         // Strip rounding
         cleaned = cleaned.replace(/\brounded-(none|sm|md|lg|xl|2xl|3xl|full)\b|\brounded\b/g, '');
-        // Strip font family and weight classes to allow inheritance/override
+        // Strip font family and weight classes
         cleaned = cleaned.replace(/\bfont-(sans|serif|mono|bold|black|medium|light|thin|extrabold|semibold)\b/g, '');
+        // Strip shadows and active state transforms/shadows
+        cleaned = cleaned.replace(/\bshadow-(sm|md|lg|xl|2xl|inner|none)\b|\bshadow\b/g, '');
+        cleaned = cleaned.replace(/\bactive:(translate-y-\d+|shadow-none)\b/g, '');
+        // Strip explicit shadow offsets if any (e.g. shadow-[...])
+        cleaned = cleaned.replace(/\bshadow-\[.*?\]\b/g, '');
         return cleaned.trim();
     };
 
@@ -221,21 +226,33 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         ? `${getCleanedThemeButtonClass(currentTheme.buttonClass)} ${roundedClass}`
         : getCleanedThemeButtonClass(currentTheme.buttonClass);
 
-    const buttonHex = currentTheme.buttonHex;
+    const buttonHex = (profile.themeId === 'custom' && profile.customButtonColor)
+        ? profile.customButtonColor
+        : currentTheme.buttonHex;
+
+    const mainButtonStyle = (profile.themeId === 'custom' && profile.customButtonColor)
+        ? { backgroundColor: profile.customButtonColor }
+        : {};
+
     // Lower threshold for more aggressive light button detection (white is 1, so 0.6 is quite early)
     const isButtonLight = buttonHex ? getLuminance(buttonHex) > 0.6 : false;
 
     // Universal Helper for Button Text Contrast
     const getSmartTextColor = () => {
+        // 0. Priority: User custom button text color
+        if (profile.customButtonTextColor) return profile.customButtonTextColor;
+
         // 1. If the button specifically is light, we MUST use dark text for visibility
         if (isButtonLight) return '#0f172a'; // slate-900 equivalent
         // 2. If it's a glass theme or has a custom photo background, use white for premium contrast
         if (currentTheme.id === 'glass' || profile.customBackground) return '#ffffff';
-        // 3. If the theme's default text class is white (e.g. dark themes), follow that
-        if (currentTheme.textClass.includes('text-white')) return '#ffffff';
         // 4. Default to undefined to let Tailwind/Inheritance handle it
         return undefined;
     };
+
+    const mainTextColorStyle = (profile.themeId === 'custom' && profile.customTextColor)
+        ? { color: profile.customTextColor }
+        : {};
 
     const textClass = currentTheme.textClass;
 
@@ -389,8 +406,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         />
                                     ) : (
                                         <h3
-                                            className={`mb-1 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[2em]' : 'text-[1.5em]'}`}
-                                            style={{ fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                            className={`mb-1 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[2em]' : 'text-[1.5em]'} ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : ''}`}
+                                            style={{ ...mainTextColorStyle, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                         >
                                             {profile.name}
                                             {profile.isVerified && (
@@ -406,8 +423,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 </div>
 
                                 {profile.bio && (
-                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'}`}
-                                        style={{ fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'} ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : ''}`}
+                                        style={{ ...mainTextColorStyle, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                     >
                                         {profile.bio}
                                     </p>
@@ -436,7 +453,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             target="_blank"
                                             rel="noreferrer"
                                             onClick={() => handleLinkClick(link.id)}
-                                            className={`${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}
+                                            className={`${((profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor) ? 'text-white' : currentTheme.textClass}`}
+                                            style={mainTextColorStyle}
                                         >
                                             <Icon size={24} />
                                         </motion.a>
@@ -489,7 +507,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     {/* Collection List View */}
                                     {!activeCollection ? (
                                         <div className="space-y-4">
-                                            <div className={`flex items-center gap-2 mb-2 text-base font-bold opacity-80 ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass} px-1`}>
+                                            <div
+                                                className={`flex items-center gap-2 mb-2 text-base font-bold opacity-80 ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : currentTheme.textClass} px-1`}
+                                                style={mainTextColorStyle}
+                                            >
                                                 <ShoppingBag size={18} />
                                                 <span>Coleções</span>
                                             </div>
@@ -498,7 +519,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 <button
                                                     key={name}
                                                     onClick={() => handleCollectionClick(name)}
-                                                    className={`w-full group relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 ${buttonClass}`}
+                                                    className={`w-full group relative overflow-hidden transition-all duration-300 ${buttonClass}`}
+                                                    style={mainButtonStyle}
                                                 >
                                                     {currentTheme.id === 'glass' ? (
                                                         <GlassSurface
@@ -589,7 +611,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     <div className={`aspect-square ${roundedClass || 'rounded-xl'} overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative w-full`}>
                                                                         <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                                                                         {product.discountCode && (
-                                                                            <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg shadow-sm">
+                                                                            <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg">
                                                                                 {product.discountCode}
                                                                             </div>
                                                                         )}
@@ -608,15 +630,25 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 <div className={`aspect-square ${roundedClass || 'rounded-xl'} overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative`}>
                                                                     <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                                                                     {product.discountCode && (
-                                                                        <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-sm">
+                                                                        <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
                                                                             {product.discountCode}
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div className="flex flex-col gap-0.5">
-                                                                    <span className="text-sm font-medium truncate text-center opacity-90">{product.name}</span>
+                                                                    <span
+                                                                        className={`text-sm font-medium truncate text-center opacity-90 ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : ''}`}
+                                                                        style={mainTextColorStyle}
+                                                                    >
+                                                                        {product.name}
+                                                                    </span>
                                                                     {product.price && (
-                                                                        <span className="text-xs font-bold truncate text-center">{product.price}</span>
+                                                                        <span
+                                                                            className={`text-xs font-bold truncate text-center ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : ''}`}
+                                                                            style={mainTextColorStyle}
+                                                                        >
+                                                                            {product.price}
+                                                                        </span>
                                                                     )}
                                                                 </div>
                                                             </div>
@@ -783,7 +815,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                             renderedItems.push(
                                                                 <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-1 pb-1 group/carousel">
-                                                                    <div className={`text-center mb-2 opacity-90 text-lg font-bold ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}>{link.title}</div>
+                                                                    <div
+                                                                        className={`text-center mb-2 opacity-90 text-lg font-bold ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : currentTheme.textClass}`}
+                                                                        style={mainTextColorStyle}
+                                                                    >
+                                                                        {link.title}
+                                                                    </div>
                                                                     <div className="relative w-full">
                                                                         <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
                                                                         <div id={scrollContainerId} className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
@@ -798,6 +835,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         rel="noreferrer"
                                                                                         onClick={() => handleLinkClick(child.id)}
                                                                                         className={`relative group flex-shrink-0 w-40 snap-start flex flex-col overflow-hidden transition-all duration-300 ${!isGlass ? buttonClass : ''}`}
+                                                                                        style={!isGlass ? mainButtonStyle : {}}
                                                                                     >
                                                                                         {isGlass ? (
                                                                                             <div className="absolute inset-0 z-0">
@@ -825,7 +863,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         } else {
                                                             renderedItems.push(
                                                                 <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-1 pb-1">
-                                                                    <div className={`text-center mb-2 font-bold opacity-90 text-lg ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}>{link.title}</div>
+                                                                    <div
+                                                                        className={`text-center mb-2 font-bold opacity-90 text-lg ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : currentTheme.textClass}`}
+                                                                        style={mainTextColorStyle}
+                                                                    >
+                                                                        {link.title}
+                                                                    </div>
                                                                     <div className="flex flex-col gap-4 relative">
                                                                         {activeChildren.map(child => {
                                                                             if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
@@ -842,7 +885,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     rel="noreferrer"
                                                                                     onClick={() => handleLinkClick(child.id)}
                                                                                     className={`block w-full text-center text-base transform group relative ${isGlass ? '' : `py-4 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}`}
-                                                                                    style={{ fontFamily: profile.fontFamily, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                                    style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                                                 >
                                                                                     {isGlass ? (
                                                                                         <GlassSurface width="100%" height="auto" displace={0.5} distortionScale={-180} redOffset={0} greenOffset={10} blueOffset={20} brightness={50} opacity={0.93} mixBlendMode="screen" className={`${getHighlightClass(child.highlight)}`} borderRadius={borderRadiusValue}>
@@ -886,7 +929,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 rel="noreferrer"
                                                                 onClick={() => handleLinkClick(link.id)}
                                                                 className={`block w-full min-h-[64px] text-center text-base transform group relative ${currentTheme.id === 'glass' ? '' : `py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`}`}
-                                                                style={{ fontFamily: profile.fontFamily, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                             >
                                                                 {currentTheme.id === 'glass' ? (
                                                                     <GlassSurface width="100%" height="auto" displace={0.5} distortionScale={-180} redOffset={0} greenOffset={10} blueOffset={20} brightness={50} opacity={0.93} mixBlendMode="screen" className={`${getHighlightClass(link.highlight)}`} borderRadius={borderRadiusValue}>

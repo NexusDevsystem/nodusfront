@@ -144,6 +144,83 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
                     </div>
                 </div>
             </div>
+
+            {/* Colors */}
+            <div className="bg-white p-6 rounded-lg border border-slate-200">
+                <div className="flex items-center gap-2 mb-8 text-slate-500">
+                    <div className="w-4 h-4 rounded-sm bg-gradient-to-br from-purple-500 to-pink-500"></div>
+                    <h3 className="text-sm font-semibold uppercase tracking-wider">Cores do Texto</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Header/Main Text Color */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Cabeçalhos e Texto</span>
+                            {profile.customTextColor && (
+                                <button
+                                    onClick={() => onChange({ ...profile, customTextColor: null })}
+                                    className="text-[10px] text-red-500 font-bold uppercase hover:underline"
+                                >
+                                    Resetar
+                                </button>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 shrink-0 shadow-sm">
+                                <input
+                                    type="color"
+                                    value={profile.customTextColor || '#000000'}
+                                    onChange={(e) => onChange({ ...profile, themeId: 'custom', customTextColor: e.target.value })}
+                                    className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer"
+                                />
+                            </div>
+                            <input
+                                type="text"
+                                value={profile.customTextColor || ''}
+                                onChange={(e) => onChange({ ...profile, themeId: 'custom', customTextColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}` })}
+                                placeholder="#000000"
+                                className="flex-1 h-12 px-4 rounded-xl border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-mono uppercase font-bold"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Button Text Color */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Texto do Botão</span>
+                            {profile.customButtonTextColor && (
+                                <button
+                                    onClick={() => onChange({ ...profile, customButtonTextColor: null })}
+                                    className="text-[10px] text-red-500 font-bold uppercase hover:underline"
+                                >
+                                    Resetar
+                                </button>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 shrink-0 shadow-sm">
+                                <input
+                                    type="color"
+                                    value={profile.customButtonTextColor || '#ffffff'}
+                                    onChange={(e) => onChange({ ...profile, customButtonTextColor: e.target.value })}
+                                    className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer"
+                                />
+                            </div>
+                            <input
+                                type="text"
+                                value={profile.customButtonTextColor || ''}
+                                onChange={(e) => onChange({ ...profile, customButtonTextColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}` })}
+                                placeholder="#FFFFFF"
+                                className="flex-1 h-12 px-4 rounded-xl border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-mono uppercase font-bold"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-6 italic bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    * A <b>cor do texto no botão</b> agora é aplicada em todos os temas. Alterar a cor dos <b>cabeçalhos e textos principais</b> ainda ativará o modo <b>Custom</b> para garantir a visibilidade.
+                </p>
+            </div>
         </div>
     );
 };
