@@ -16,7 +16,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
     const [activeCategory, setActiveCategory] = React.useState<string>('all');
 
     const handleThemeSelect = (themeId: string) => {
-        onChange({ ...profile, themeId, customBackground: null, customSolidColor: null });
+        onChange({ ...profile, themeId });
     };
 
     const categories = [
@@ -87,7 +87,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         className="flex flex-col items-center gap-1.5 group cursor-pointer"
-                        onClick={() => onChange({ ...profile, themeId: 'custom', customBackground: profile.customBackground || null, customSolidColor: profile.customSolidColor || null })}
+                        onClick={() => onChange({ ...profile, themeId: 'custom' })}
                     >
                         <div
                             className={`relative aspect-[4/5] w-full rounded-xl border-2 transition-all flex flex-col items-center justify-center ${profile.themeId === 'custom' ? 'border-[#32a800] ring-2 ring-[#32a800]/20' : 'border-slate-200 group-hover:border-slate-300'}`}

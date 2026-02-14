@@ -89,7 +89,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     };
 
     const isDarkTheme =
-        profile.customSolidColor
+        (profile.themeId === 'custom' && profile.customSolidColor)
             ? getLuminance(profile.customSolidColor) < 0.5
             : currentTheme.id.includes('dark') ||
             currentTheme.id.includes('black') ||

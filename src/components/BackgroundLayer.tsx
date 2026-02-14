@@ -30,20 +30,20 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
     if (isStatic) {
         return (
             <div className={`absolute inset-0 z-0 overflow-hidden ${className}`}>
-                {profile.customSolidColor ? (
+                {(profile.themeId === 'custom' && profile.customSolidColor) ? (
                     <div className="absolute inset-0" style={{
                         background: profile.customSecondaryColor
                             ? `linear-gradient(135deg, ${profile.customSolidColor}, ${profile.customSecondaryColor})`
                             : profile.customSolidColor
                     }}></div>
-                ) : profile.customBackground ? (
+                ) : (profile.themeId === 'custom' && profile.customBackground) ? (
                     <div className="absolute inset-0">
                         <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" />
                     </div>
                 ) : (
                     <div
                         className={`absolute inset-0 ${currentTheme.backgroundClass}`}
-                        style={currentTheme.category === 'solid' && profile.customSolidColor ? { backgroundColor: profile.customSolidColor } : {}}
+                        style={currentTheme.category === 'solid' && (profile.themeId === 'custom' && profile.customSolidColor) ? { backgroundColor: profile.customSolidColor } : {}}
                     ></div>
                 )}
             </div>
@@ -52,13 +52,13 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
 
     return (
         <div className={`absolute inset-0 z-0 overflow-hidden ${className}`}>
-            {profile.customSolidColor ? (
+            {(profile.themeId === 'custom' && profile.customSolidColor) ? (
                 <div className="absolute inset-0" style={{
                     background: profile.customSecondaryColor
                         ? `linear-gradient(135deg, ${profile.customSolidColor}, ${profile.customSecondaryColor})`
                         : profile.customSolidColor
                 }}></div>
-            ) : profile.customBackground ? (
+            ) : (profile.themeId === 'custom' && profile.customBackground) ? (
                 <div className="absolute inset-0">
                     <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/20"></div>

@@ -14,7 +14,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange }) 
             try {
                 // Compress image before saving
                 const compressed = await compressImage(e.target.files[0], 1080, 0.7);
-                onChange({ ...profile, customBackground: compressed, customSolidColor: null });
+                onChange({ ...profile, themeId: 'custom', customBackground: compressed, customSolidColor: null });
             } catch (error) {
                 console.error(error);
                 alert('Erro ao processar imagem.');
@@ -40,7 +40,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange }) 
                                     <Upload size={14} /> Trocar
                                 </label>
                                 <button
-                                    onClick={() => onChange({ ...profile, customBackground: null })}
+                                    onClick={() => onChange({ ...profile, themeId: 'custom', customBackground: null })}
                                     className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
                                 >
                                     <Trash2 size={16} />
@@ -89,20 +89,20 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange }) 
                             <input
                                 type="color"
                                 value={profile.customSolidColor || '#ffffff'}
-                                onChange={(e) => onChange({ ...profile, customSolidColor: e.target.value, customBackground: null })}
+                                onChange={(e) => onChange({ ...profile, themeId: 'custom', customSolidColor: e.target.value, customBackground: null })}
                                 className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer"
                             />
                         </div>
                         <input
                             type="text"
                             value={profile.customSolidColor || ''}
-                            onChange={(e) => onChange({ ...profile, customSolidColor: e.target.value, customBackground: null })}
+                            onChange={(e) => onChange({ ...profile, themeId: 'custom', customSolidColor: e.target.value, customBackground: null })}
                             placeholder="#FFFFFF"
                             className="flex-1 h-11 px-4 rounded-md border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-mono uppercase"
                         />
                         {(profile.customSolidColor) && (
                             <button
-                                onClick={() => onChange({ ...profile, customSolidColor: null })}
+                                onClick={() => onChange({ ...profile, themeId: 'custom', customSolidColor: null })}
                                 className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-red-500 rounded-md border border-slate-200 hover:bg-red-50 transition-colors"
                             >
                                 <Trash2 size={18} />
