@@ -94,22 +94,26 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
             finalUrl = `${platform.baseUrl}${cleanUser}`;
         }
 
-        const existing = links.find(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform))));
+        const platformLinks = links.filter(l => l.platform === configuringPlatform);
 
-        if (existing) {
-            onChange(links.map(l => l.id === existing.id ? { ...l, url: finalUrl } : l));
+        if (platformLinks.length > 0) {
+            // Update all existing links for this platform
+            onChange(links.map(l => l.platform === configuringPlatform ? { ...l, url: finalUrl } : l));
         } else {
-            const newLink: LinkItem = {
-                id: Date.now().toString(),
-                type: 'link', // Aligned with existing pattern (type: link, layout: social)
+            const now = Date.now();
+            // Create only one link. User can change its layout in LinkEditor if they want a button instead of icon.
+            const newSocialLink: LinkItem = {
+                id: now.toString(),
+                type: 'link',
                 platform: configuringPlatform,
                 title: platform.name,
                 url: finalUrl,
                 isActive: true,
                 clicks: 0,
-                layout: 'social'
+                layout: 'social' // Default to top icon as it's a social link, but it's now visible in the main list.
             };
-            onChange([...links, newLink]);
+
+            onChange([...links, newSocialLink]);
         }
 
         handleCloseModal();

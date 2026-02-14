@@ -27,7 +27,8 @@ import {
   CreditCard,
   Youtube,
   Ban,
-  X
+  X,
+  Share2
 } from 'lucide-react';
 
 const DeezerIcon = ({ size }: { size: number }) => (
@@ -236,10 +237,21 @@ function SortableLinkItem({
                 className="flex-1 min-w-0 pr-2 py-4 cursor-pointer group/title"
                 onClick={() => toggleLink(link.id)}
               >
-                <div className="font-semibold text-slate-800 truncate text-xs md:text-sm">
-                  {link.title || 'Link sem título'}
+                <div className="flex items-center gap-2 mb-0.5">
+                  <div className="font-semibold text-slate-800 truncate text-xs md:text-sm">
+                    {link.title || 'Link sem título'}
+                  </div>
+                  {link.layout === 'social' ? (
+                    <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-emerald-50 text-[9px] font-bold text-emerald-600 border border-emerald-100 uppercase tracking-tighter">
+                      Ícone do Topo
+                    </span>
+                  ) : (
+                    <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-blue-50 text-[9px] font-bold text-blue-600 border border-blue-100 uppercase tracking-tighter">
+                      Botão na Lista
+                    </span>
+                  )}
                 </div>
-                <div className="text-[10px] md:text-xs text-slate-400 truncate mt-0.5">
+                <div className="text-[10px] md:text-xs text-slate-400 truncate">
                   {link.url || 'Suas redes ou site'}
                 </div>
               </div>
@@ -442,7 +454,7 @@ function SortableLinkItem({
                             {[
                               { id: 'classic', label: 'Botão Clássico', desc: 'Largura total com ícone', icon: <LayoutGrid size={16} /> },
                               { id: 'card', label: 'Card Moderno', desc: 'Arredondado e sombra', icon: <LayoutTemplate size={16} /> },
-                              { id: 'icon', label: 'Ícone Solo', desc: 'Apenas ícone circular', icon: <Sparkles size={16} /> }
+                              { id: 'social', label: 'Rede Social (Topo)', desc: 'Ícone pequeno no topo', icon: <Share2 size={16} /> }
                             ].map((opt) => (
                               <button
                                 key={opt.id}
@@ -561,7 +573,7 @@ function LinkEditor({ links, onChange, level = 0, profile }: LinkEditorProps) {
 
   const isLimitReached = (profile.planType === 'free' || !profile.planType) && links.length >= 5;
 
-  const activeLinks = links.filter(l => !l.isArchived && (l.layout !== 'social' || l.type === 'collection'));
+  const activeLinks = links.filter(l => !l.isArchived);
   const archivedLinks = links.filter(l => l.isArchived);
 
   const toggleCollection = (id: string) => {

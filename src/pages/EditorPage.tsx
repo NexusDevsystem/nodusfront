@@ -379,7 +379,7 @@ export default function EditorPage() {
                                 className="p-2 text-slate-500 active:text-[#32a800] active:bg-slate-50 rounded-lg transition-all"
                                 onClick={() => setShowMobilePreview(!showMobilePreview)}
                             >
-                                {showMobilePreview ? <Plus size={20} /> : <Eye size={20} />}
+                                {showMobilePreview ? <X size={20} /> : <Eye size={20} />}
                             </button>
                         </div>
                     </div>
@@ -566,9 +566,7 @@ export default function EditorPage() {
             lg:flex flex-col items-center justify-center 
             border-l border-slate-200 bg-white 
             w-full lg:w-[480px] xl:w-[580px] shrink-0
-            h-[calc(100vh-64px)] md:h-screen
-            sticky top-0 right-0
-            ${!showMobilePreview ? 'hidden' : 'flex'}
+            ${!showMobilePreview ? 'hidden' : 'fixed inset-0 top-[60px] md:top-[64px] z-40 lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-screen lg:sticky lg:right-0'}
         `}>
 
                         <div className="relative w-full h-full lg:flex items-center justify-center overflow-hidden lg:bg-[#FAFBFC] lg:bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
