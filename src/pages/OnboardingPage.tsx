@@ -31,7 +31,7 @@ export default function OnboardingPage() {
     const { user, setProfile } = useAuth();
     const [step, setStep] = useState(1);
     const [username, setUsername] = useState('');
-    const [userCategory, setUserCategory] = useState<'creator' | 'corporate' | 'personal' | null>(null);
+    const [userCategory, setUserCategory] = useState<'creator' | 'personal' | null>(null);
     const [referralSource, setReferralSource] = useState('');
     const [loading, setLoading] = useState(false);
     const [checking, setChecking] = useState(false);
@@ -231,7 +231,6 @@ export default function OnboardingPage() {
                         <div className="space-y-4">
                             {[
                                 { id: 'creator', label: 'Criador de Conteúdo', description: 'Influenciadores, YouTubers e Criadores.' },
-                                { id: 'corporate', label: 'Corporativo / Negócio', description: 'Empresas, Agências e Marcas.' },
                                 { id: 'personal', label: 'Uso Pessoal', description: 'Agrupar links e projetos pessoais.' }
                             ].map((cat) => (
                                 <button

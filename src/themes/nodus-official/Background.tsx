@@ -1,7 +1,7 @@
 import React from 'react';
-import Grainient from './Grainient';
+import Grainient from '../../components/Grainient';
 
-const NodusOfficialBackground: React.FC = () => {
+const Background: React.FC = () => {
     return (
         <div className="absolute inset-0 bg-black pointer-events-none z-[-1] h-full w-full">
             <Grainient
@@ -32,4 +32,4 @@ const NodusOfficialBackground: React.FC = () => {
     );
 };
 
-export default NodusOfficialBackground;
+export default Background;

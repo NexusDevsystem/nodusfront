@@ -16,7 +16,32 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
     const [activeCategory, setActiveCategory] = React.useState<string>('all');
 
     const handleThemeSelect = (themeId: string) => {
-        onChange({ ...profile, themeId });
+        // Find the selected theme
+        const theme = THEMES.find(t => t.id === themeId);
+
+        // Reset ALL custom overrides when selecting a preset theme
+        // This ensures the theme "soul" is preserved and pure
+        onChange({
+            ...profile,
+            themeId,
+            // Reset background
+            customBackground: null,
+            customSolidColor: null,
+            customSecondaryColor: null,
+            // Reset text & button colors
+            customTextColor: null,
+            customButtonColor: null,
+            customButtonTextColor: null,
+            // Reset fonts & button styling
+            fontFamily: theme?.fontFamily || "'Inter', sans-serif",
+            buttonRoundness: null, // Force NULL to clear DB value
+            fontWeight: null,
+            fontItalic: false,
+            fontSize: null,
+            // Reset layout
+            headerLayout: 'classic',
+            headerStyle: 'text'
+        });
     };
 
     const categories = [
@@ -36,6 +61,10 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
         if (activeCategory === 'all') return true;
         if (activeCategory === 'pro') return theme.isPro;
         return theme.category === activeCategory;
+    }).sort((a, b) => {
+        // Prioritize Free themes (isPro: false) over Pro themes (isPro: true)
+        if (a.isPro === b.isPro) return 0;
+        return a.isPro ? 1 : -1;
     });
 
     return (
@@ -119,6 +148,12 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                 {filteredThemes.map((theme) => {
                     const isSelected = profile.themeId === theme.id && !profile.customBackground;
                     const isLocked = theme.isPro && profile.planType === 'free';
+                    const isActive = isSelected; // Alias for clarity
+
+                    // Extract button visual styles (strip layout)
+                    const buttonVisuals = theme.buttonClass
+                        .replace(/\b(w-full|flex|items-center|justify-between|py-\d+|px-\d+|gap-\d+)\b/g, '')
+                        .trim();
 
                     return (
                         <motion.div
@@ -126,66 +161,71 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                             key={theme.id}
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="flex flex-col items-center gap-1.5 group cursor-pointer"
+                            className="flex flex-col gap-2 group cursor-pointer relative"
                             onClick={() => {
                                 if (isLocked) {
-                                    // Let parent component know we want to upgrade
-                                    // We can use a custom event or a specific themeId to signal this, 
-                                    // but better to just call onChange with something that triggers the modal or use a prop
                                     (window as any).dispatchEvent(new CustomEvent('open-billing-modal'));
                                     return;
                                 }
                                 handleThemeSelect(theme.id);
                             }}
                         >
-                            <div className={`relative aspect-[4/5] w-full rounded-xl border overflow-hidden transition-all ${isSelected ? 'border-[#32a800] ring-2 ring-[#32a800]/20 border-2' : 'border-slate-100 group-hover:border-slate-200'}`}>
-                                {/* Theme Preview */}
-                                <div className={`absolute inset-0 z-0 pointer-events-none origin-top-left scale-[0.3] w-[333%] h-[333%] ${isLocked ? 'blur-[2px] opacity-80' : ''}`}>
-                                    <ProfileRenderer
-                                        profile={{ ...profile, themeId: theme.id, customBackground: null, customSolidColor: null }}
-                                        links={links}
-                                        products={products}
-                                        isPreview={false}
-                                        isStatic={true}
-                                    />
-                                </div>
+                            {/* Card Container */}
+                            <div className={`relative aspect-[3/4] w-full rounded-2xl overflow-hidden transition-all duration-300 ${isActive ? 'ring-2 ring-[#32a800] ring-offset-2 shadow-md' : 'border border-slate-200 hover:border-slate-300 hover:shadow-sm'}`}>
 
-                                {/* Aa Text & Button Preview Overlay */}
-                                <div className="absolute inset-0 z-10 flex flex-col items-center justify-between p-2 pointer-events-none">
-                                    <div className="w-full flex justify-end">
-                                        {theme.isPro && (
-                                            <div className={`w-4 h-4 rounded-full ${isLocked ? 'bg-orange-500 shadow-orange-500/20 shadow-lg' : 'bg-slate-900/80backdrop-blur-sm'} flex items-center justify-center text-white`}>
-                                                <Zap size={8} fill="currentColor" />
-                                            </div>
-                                        )}
+                                {/* 1. Background Layer */}
+                                <div
+                                    className={`absolute inset-0 ${theme.backgroundClass}`}
+                                    style={{ backgroundColor: theme.solidColor }}
+                                />
+
+                                {/* 2. Content Abstraction Layer */}
+                                <div className="absolute inset-0 p-4 flex flex-col items-center justify-center gap-4">
+
+                                    {/* Typography Preview */}
+                                    <div className="flex-1 flex items-center justify-center w-full">
+                                        <div
+                                            className={`${theme.textClass} text-4xl font-bold opacity-90`}
+                                            style={{ fontFamily: theme.fontFamily }}
+                                        >
+                                            Aa
+                                        </div>
                                     </div>
 
-                                    {!isLocked && (
-                                        <span className="text-lg font-bold mt-1" style={{ color: theme.textClass.includes('white') ? '#fff' : '#000' }}>
-                                            Aa
-                                        </span>
-                                    )}
-
-                                    {isLocked && (
-                                        <div className="bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm border border-slate-100">
-                                            <span className="text-[8px] font-black uppercase tracking-widest text-slate-800">Pro</span>
+                                    {/* Button Preview (Pill) */}
+                                    <div className="w-full h-10 flex items-center justify-center">
+                                        <div className={`h-8 w-16 ${buttonVisuals} flex items-center justify-center shadow-sm`}>
+                                            <div className="w-6 h-1 bg-current opacity-20 rounded-full" />
                                         </div>
-                                    )}
-
-                                    {!isLocked && (
-                                        <div className={`w-full h-2.5 mt-auto rounded-md shadow-sm border border-white/10 ${theme.buttonClass.split(' ').filter(c => c.startsWith('bg-') || c.startsWith('border-')).join(' ')} opacity-90`} />
-                                    )}
+                                    </div>
                                 </div>
 
-                                {isSelected && (
-                                    <div className="absolute inset-0 bg-black/5 flex items-center justify-center z-20">
-                                        <div className="w-6 h-6 rounded-full bg-[#32a800] flex items-center justify-center text-white shadow-lg border-2 border-white">
-                                            <Check size={12} strokeWidth={3} />
+                                {/* 3. Status Overlays */}
+                                {isActive && (
+                                    <div className="absolute top-2 right-2 w-5 h-5 bg-[#32a800] text-white rounded-full flex items-center justify-center shadow-sm z-10">
+                                        <Check size={12} strokeWidth={3} />
+                                    </div>
+                                )}
+
+                                {/* Pro Badge */}
+                                {theme.isPro && (
+                                    <div className={`absolute top-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider z-10 ${isLocked ? 'bg-slate-900 text-white' : 'bg-black/10 text-black/50'}`}>
+                                        Pro
+                                    </div>
+                                )}
+
+                                {/* Lock Overlay */}
+                                {isLocked && (
+                                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-20">
+                                        <div className="bg-white p-2 rounded-full shadow-lg">
+                                            <Zap size={16} className="text-slate-400 fill-slate-400" />
                                         </div>
                                     </div>
                                 )}
                             </div>
-                            <span className={`text-[10px] font-bold truncate w-full text-center ${isSelected ? 'text-[#32a800]' : 'text-slate-500'}`}>
+
+                            {/* Label */}
+                            <span className={`text-xs font-medium text-center truncate px-1 transition-colors ${isActive ? 'text-[#32a800]' : 'text-slate-500 group-hover:text-slate-700'}`}>
                                 {theme.name}
                             </span>
                         </motion.div>

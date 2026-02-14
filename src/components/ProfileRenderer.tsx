@@ -32,9 +32,7 @@ import { apiClient } from '../services/apiClient';
 import { SiSpotify } from 'react-icons/si';
 // @ts-ignore
 import NewsletterWidget from './NewsletterWidget';
-import Prism from './Prism';
-import GlassSurface from './GlassSurface';
-import { KawaiiSakuraForeground } from './KawaiiBackgrounds';
+import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
 
 interface ProfileRendererProps {
     profile: UserProfile;
@@ -93,14 +91,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             ? getLuminance(profile.customSolidColor) < 0.5
             : currentTheme.id.includes('dark') ||
             currentTheme.id.includes('black') ||
-            currentTheme.id.includes('midnight') ||
-            currentTheme.id.includes('vampire') ||
             currentTheme.id.includes('animated-') ||
-            ['luxury-gold', 'leafy', 'evergreen', 'golden-hour', 'berry-blast', 'steel-blue', 'iridescence', 'prismatic-burst', 'beams', 'silk', 'gradient-sunset-horizon', 'gradient-deep-ocean', 'gradient-midnight-neon', 'gradient-royal-velvet'].includes(currentTheme.id) ||
-            currentTheme.id === 'kawaii-space' ||
-            currentTheme.id === 'creative-pixel' ||
-            (currentTheme.id.startsWith('music-') && currentTheme.id !== 'music-classical-flow') ||
-            currentTheme.id === 'solaris';
+            currentTheme.id === 'modern-cyberpunk' ||
+            currentTheme.id === 'modern-industrial' ||
+            currentTheme.id === 'modern-retro' ||
+            currentTheme.id === 'modern-royal-gold';
 
     const getHighlightClass = (type?: string) => {
         switch (type) {
@@ -158,11 +153,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                 {/* Text Info */}
                 <div className="relative z-10 flex-1 min-w-0 pr-6">
-                    <h3 className="text-white text-[13px] truncate leading-tight opacity-95">{musicTitle}</h3>
-                    <p style={{ color: platformColor }} className="text-[10px] truncate leading-tight mt-0.5 opacity-80">{musicArtist}</p>
+                    <h3 className="text-white text-[13px] truncate leading-tight opacity-95" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{musicTitle}</h3>
+                    <p style={{ color: platformColor, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }} className="text-[10px] truncate leading-tight mt-0.5 opacity-80">{musicArtist}</p>
 
                     {/* Badge - even smaller */}
-                    <div className="inline-block bg-[#1a1804]/40 px-1 py-0.5 rounded text-[8px] text-white uppercase tracking-tighter mt-1">
+                    <div className="inline-block bg-[#1a1804]/40 px-1 py-0.5 rounded text-[8px] text-white uppercase tracking-tighter mt-1" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                         Prév<span className={isDeezer ? 'text-pink-400' : 'text-cyan-400'}>i</span>a
                     </div>
                 </div>
@@ -194,65 +189,97 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         );
     };
 
-    // Button Roundness Logic
+    // Unified Styling Logic: Preserving Theme "Soul" while allowing Edits
+    const isCustomTheme = currentTheme.id === 'custom';
+
+    // Button Roundness Logic - Works across ALL themes as a direct override
     const roundedClass = profile.buttonRoundness === 'square' ? 'rounded-none' :
         profile.buttonRoundness === 'round' ? 'rounded-lg' :
             profile.buttonRoundness === 'rounder' ? 'rounded-2xl' :
                 profile.buttonRoundness === 'full' ? 'rounded-full' :
-                    null;
+                    (currentTheme.buttonClass.match(/rounded-[^\s]+/g)?.join(' ') || null);
 
     const borderRadiusValue = profile.buttonRoundness === 'square' ? 0 :
         profile.buttonRoundness === 'round' ? 8 :
             profile.buttonRoundness === 'rounder' ? 16 :
-                profile.buttonRoundness === 'full' ? 40 : // Full for GlassSurface usually looks best around 40 or higher
-                    16;
+                profile.buttonRoundness === 'full' ? 40 :
+                    undefined; // Let theme CSS handle it
 
-    // Helper to strip existing rounding and font classes from theme button class
-    const getCleanedThemeButtonClass = (cls: string) => {
+    // Surgical cleaning helper to allow global edits on any theme
+    const cleanClass = (cls: string, types: ('rounded' | 'bg' | 'text' | 'border' | 'shadow')[]) => {
         let cleaned = cls;
-        // Strip rounding
-        cleaned = cleaned.replace(/\brounded-(none|sm|md|lg|xl|2xl|3xl|full)\b|\brounded\b/g, '');
-        // Strip font family and weight classes
-        cleaned = cleaned.replace(/\bfont-(sans|serif|mono|bold|black|medium|light|thin|extrabold|semibold)\b/g, '');
-        // Strip shadows and active state transforms/shadows
-        cleaned = cleaned.replace(/\bshadow-(sm|md|lg|xl|2xl|inner|none)\b|\bshadow\b/g, '');
-        cleaned = cleaned.replace(/\bactive:(translate-y-\d+|shadow-none)\b/g, '');
-        // Strip explicit shadow offsets if any (e.g. shadow-[...])
-        cleaned = cleaned.replace(/\bshadow-\[.*?\]\b/g, '');
+        // Updated regex to catch ALL rounded classes including specific corners (rounded-tl-*, etc.)
+        if (types.includes('rounded')) cleaned = cleaned.replace(/\brounded-[^\s]+(?=\s|$)/g, '');
+        if (types.includes('bg')) cleaned = cleaned.replace(/\bbg-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(none|50|100|200|300|400|500|600|700|800|900|950)\b|\bbg-(white|black|transparent|current)\b|\bbg-\[.*?\]\b/g, '');
+        if (types.includes('text')) cleaned = cleaned.replace(/\btext-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(none|50|100|200|300|400|500|600|700|800|900|950)\b|\btext-(white|black|transparent|current)\b|\btext-\[.*?\]\b/g, '');
+        if (types.includes('border')) cleaned = cleaned.replace(/\bborder-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(none|50|100|200|300|400|500|600|700|800|900|950)\b|\bborder-(white|black|transparent|current)\b|\bborder-\[.*?\]\b/g, '');
         return cleaned.trim();
     };
 
-    const buttonClass = roundedClass
-        ? `${getCleanedThemeButtonClass(currentTheme.buttonClass)} ${roundedClass}`
-        : getCleanedThemeButtonClass(currentTheme.buttonClass);
+    // Unified Styling Logic: Preserving Theme "Soul" while allowing Edits
+    const overrideTypes: ('rounded' | 'bg' | 'text' | 'border' | 'shadow')[] = [];
+    if (roundedClass) overrideTypes.push('rounded');
+    if (isCustomTheme && profile.customButtonColor) overrideTypes.push('bg');
+    if (isCustomTheme && profile.customButtonTextColor) overrideTypes.push('text');
 
-    const buttonHex = (profile.themeId === 'custom' && profile.customButtonColor)
-        ? profile.customButtonColor
-        : currentTheme.buttonHex;
+    // 1. Button Class - Start with theme base and apply surgical overrides
+    let buttonClass = cleanClass(currentTheme.buttonClass, overrideTypes);
+    if (roundedClass) buttonClass += ` ${roundedClass}`;
 
-    const mainButtonStyle = (profile.themeId === 'custom' && profile.customButtonColor)
-        ? { backgroundColor: profile.customButtonColor }
-        : {};
+    // 2. Button Color Logic - Custom colors ONLY apply to 'custom' theme
+    const buttonHex = (isCustomTheme && profile.customButtonColor) ? profile.customButtonColor : currentTheme.buttonHex;
+    const mainButtonStyle = (isCustomTheme && profile.customButtonColor) ? { backgroundColor: profile.customButtonColor } : {};
+
+    // 2.5 Font Logic - Always prioritize profile settings if available
+    const effectiveFontFamily = profile.fontFamily || currentTheme.fontFamily || "'Inter', sans-serif";
+    const containerStyle = { fontFamily: effectiveFontFamily };
+
+    // 3. Card/Container Logic - STRICT UNIFICATION
+    // User Requirement: "Tudo vai ser tratado como botao" & "Mesma cor"
+    // We ignore currentTheme.cardClass specifically for colors/bg/shadows to ensure they match the button exactly.
+    // We strictly derive the card's visual style from the button's class.
+
+    let baseCardClass = buttonClass; // Start with the button
+
+    // Remove classes not suitable for a container/card layout (like flex-row specific alignment)
+    baseCardClass = baseCardClass
+        .replace(/\b(flex|items-center|justify-between|justify-center|flex-row|flex-col)\b/g, '') // Remove layout
+        .replace(/\bp[xy]?-(none|\d+|\[.*?\])\b/g, '') // Remove padding (cards handle their own)
+        .replace(/\bh-\[.*?\]\b/g, '') // Remove height constraints usually found on buttons
+        .replace(/\bmin-h-\[.*?\]\b/g, '')
+        .trim();
+
+    // Reapply roundedness if global override exists
+    if (roundedClass) {
+        baseCardClass = cleanClass(baseCardClass, ['rounded']) + ` ${roundedClass}`;
+    }
+
+    // Note: We do NOT use currentTheme.cardClass anymore because it often introduces deviant colors (white/black) 
+    // that break the "Everything is a Button" rule.
 
     // Lower threshold for more aggressive light button detection (white is 1, so 0.6 is quite early)
     const isButtonLight = buttonHex ? getLuminance(buttonHex) > 0.6 : false;
 
-    // Universal Helper for Button Text Contrast
+    // Universal Helper for Button/Card Text Contrast
     const getSmartTextColor = () => {
         // 0. Priority: User custom button text color
         if (profile.customButtonTextColor) return profile.customButtonTextColor;
 
-        // 1. If the button specifically is light, we MUST use dark text for visibility
+        // 2. If currently in a DARK card/theme context and button is NOT light, use white
+        if (!isButtonLight && (isDarkTheme)) return '#ffffff';
+
+        // 3. If the button specifically is light, we MUST use dark text for visibility
         if (isButtonLight) return '#0f172a'; // slate-900 equivalent
-        // 2. If it's a glass theme or has a custom photo background, use white for premium contrast
-        if (currentTheme.id === 'glass' || profile.customBackground) return '#ffffff';
-        // 4. Default to undefined to let Tailwind/Inheritance handle it
+
+        // 4. Fallback to white if background is dark/glass
+        if (profile.customBackground || isDarkTheme) return '#ffffff';
+
+        // 5. Default to undefined to let Tailwind/Inheritance handle it
         return undefined;
     };
 
-    const mainTextColorStyle = (profile.themeId === 'custom' && profile.customTextColor)
-        ? { color: profile.customTextColor }
-        : {};
+    const effectiveTextColor = profile.customTextColor || currentTheme.textHex || (isDarkTheme ? '#ffffff' : '#0f172a');
+    const mainTextColorStyle = effectiveTextColor ? { color: effectiveTextColor } : {};
 
     const textClass = currentTheme.textClass;
 
@@ -314,12 +341,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
             {/* Content Container */}
             <div
-                className={`w-full h-full overflow-y-auto scrollbar-hide flex flex-col relative z-20 overscroll-none ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}
+                className={`w-full h-full overflow-y-auto scrollbar-hide flex flex-col relative z-20 overscroll-none ${currentTheme.id === 'glass' ? 'text-white' : currentTheme.textClass}`}
                 style={{
-                    fontFamily: profile.fontFamily,
-                    fontSize: `${profile.fontSize || 16}px`,
-                    fontWeight: profile.fontWeight || undefined,
-                    fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                    ...containerStyle,
+                    fontSize: `${(profile.fontSize || undefined) || 16}px`,
+                    fontWeight: ((profile.fontWeight || undefined) || undefined),
+                    fontStyle: (profile.fontItalic) ? 'italic' : 'normal',
                     overscrollBehavior: 'none'
                 }}
             >
@@ -385,7 +412,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         <img
                                             src={profile.avatarUrl}
                                             alt={profile.name}
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-cover rounded-full"
                                             onError={(e) => {
                                                 e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
                                             }}
@@ -406,8 +433,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         />
                                     ) : (
                                         <h3
-                                            className={`mb-1 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[2em]' : 'text-[1.5em]'} ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : ''}`}
-                                            style={{ ...mainTextColorStyle, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                            className={`mb-1 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[2em]' : 'text-[1.5em]'}`}
+                                            style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                         >
                                             {profile.name}
                                             {profile.isVerified && (
@@ -423,7 +450,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 </div>
 
                                 {profile.bio && (
-                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'} ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : ''}`}
+                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'}`}
                                         style={{ ...mainTextColorStyle, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                     >
                                         {profile.bio}
@@ -453,8 +480,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             target="_blank"
                                             rel="noreferrer"
                                             onClick={() => handleLinkClick(link.id)}
-                                            className={`${((profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor) ? 'text-white' : currentTheme.textClass}`}
-                                            style={mainTextColorStyle}
+                                            className={`transition-all duration-300 ${roundedClass || 'rounded-full'} p-2`} // Adicionado padding e rounded unificado
+                                            style={{
+                                                ...mainTextColorStyle,
+                                                // Se houver cor customizada de botão, aplicamos suavemente ao ícone ou seu fundo
+                                                // Mas ícones sociais geralmente são "text-only" ou "ghost". 
+                                                // Se quisermos tratar TUDO como botão, podemos dar um bg sutil se houver cor definida
+                                                backgroundColor: (isCustomTheme && profile.customButtonColor) ? profile.customButtonColor + '20' : undefined
+                                            }}
                                         >
                                             <Icon size={24} />
                                         </motion.a>
@@ -470,19 +503,21 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     {/* Sliding background could be complex, sticking to simple conditional classes for now */}
                                     <button
                                         onClick={() => setActiveTab('links')}
-                                        className={`flex-1 py-1.5 rounded-full text-sm font-bold transition-all duration-300 ${activeTab === 'links'
+                                        className={`flex-1 py-1.5 rounded-full text-sm transition-all duration-300 ${activeTab === 'links'
                                             ? 'bg-white text-slate-900 shadow-sm'
-                                            : `${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white/70' : 'text-slate-600'} hover:opacity-100`
+                                            : 'opacity-70 hover:opacity-100'
                                             }`}
+                                        style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                     >
                                         Links
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('shop')}
-                                        className={`flex-1 py-1.5 rounded-full text-sm font-bold transition-all duration-300 ${activeTab === 'shop'
+                                        className={`flex-1 py-1.5 rounded-full text-sm transition-all duration-300 ${activeTab === 'shop'
                                             ? 'bg-white text-slate-900 shadow-sm'
-                                            : `${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white/70' : 'text-slate-600'} hover:opacity-100`
+                                            : 'opacity-70 hover:opacity-100'
                                             }`}
+                                        style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                     >
                                         Loja
                                     </button>
@@ -508,8 +543,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     {!activeCollection ? (
                                         <div className="space-y-4">
                                             <div
-                                                className={`flex items-center gap-2 mb-2 text-base font-bold opacity-80 ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : currentTheme.textClass} px-1`}
-                                                style={mainTextColorStyle}
+                                                className={`flex items-center gap-2 mb-2 text-base opacity-80 px-1`}
+                                                style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                             >
                                                 <ShoppingBag size={18} />
                                                 <span>Coleções</span>
@@ -519,59 +554,25 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 <button
                                                     key={name}
                                                     onClick={() => handleCollectionClick(name)}
-                                                    className={`w-full group relative overflow-hidden transition-all duration-300 ${buttonClass}`}
+                                                    className={`w-full group relative overflow-hidden transition-all duration-300 ${baseCardClass}`}
                                                     style={mainButtonStyle}
                                                 >
-                                                    {currentTheme.id === 'glass' ? (
-                                                        <GlassSurface
-                                                            width="100%"
-                                                            height="auto"
-                                                            borderRadius={borderRadiusValue}
-                                                            displace={0.5}
-                                                            distortionScale={-180}
-                                                            redOffset={0}
-                                                            greenOffset={10}
-                                                            blueOffset={20}
-                                                            brightness={50}
-                                                            opacity={0.93}
-                                                            mixBlendMode="screen"
-                                                        >
-                                                            <div className="p-1">
-                                                                {/* Preview Images Collage */}
-                                                                <div className="flex h-48 w-full gap-0.5 rounded-t-xl overflow-hidden bg-slate-100">
-                                                                    {items.slice(0, 3).map((item, i) => (
-                                                                        <div key={item.id} className="flex-1 h-full relative">
-                                                                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                                                                        </div>
-                                                                    ))}
-                                                                    {/* Fill empty slots if less than 3? No, flex-1 handles it */}
+                                                    <div className="flex flex-col">
+                                                        {/* Preview Images Collage */}
+                                                        <div className="flex h-52 w-full gap-0.5 overflow-hidden bg-slate-50">
+                                                            {items.slice(0, 3).map((item, i) => (
+                                                                <div key={item.id} className="flex-1 h-full relative border-r border-white/20 last:border-0">
+                                                                    <img src={item.image} alt={item.name} className="w-full h-full block object-cover" />
                                                                 </div>
-                                                                <div className="p-3 text-left">
-                                                                    <h3 className="text-lg font-bold text-white">{name}</h3>
-                                                                    <div className="flex items-center gap-1 text-xs text-white/70 font-medium">
-                                                                        <span>{items.length} produtos</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </GlassSurface>
-                                                    ) : (
-                                                        <div className="p-1">
-                                                            {/* Preview Images Collage */}
-                                                            <div className="flex h-48 w-full gap-0.5 rounded-t-xl overflow-hidden bg-slate-100">
-                                                                {items.slice(0, 3).map((item, i) => (
-                                                                    <div key={item.id} className="flex-1 h-full relative border-r border-white/20 last:border-0">
-                                                                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                            <div className="p-3 text-center">
-                                                                <h3 className="text-sm font-medium">{name}</h3>
-                                                                <div className="flex justify-center items-center gap-1 text-[10px] opacity-80 font-medium uppercase tracking-wide">
-                                                                    <span>{items.length} produtos</span>
-                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        <div className="p-3 text-center">
+                                                            <h3 className="text-sm" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
+                                                            <div className="flex justify-center items-center gap-1 text-[10px] opacity-80 uppercase tracking-wide" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                <span>{items.length} produtos</span>
                                                             </div>
                                                         </div>
-                                                    )}
+                                                    </div>
                                                 </button>
                                             ))}
                                         </div>
@@ -580,81 +581,46 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         <div className="relative">
                                             <button
                                                 onClick={() => setActiveCollection(null)}
-                                                className={`flex items-center gap-2 mb-4 text-sm font-bold opacity-80 hover:opacity-100 transition ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass} px-1`}
+                                                className={`flex items-center gap-2 mb-4 text-sm font-bold opacity-80 hover:opacity-100 transition px-1`}
+                                                style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                             >
                                                 <ChevronDown size={16} className="rotate-90" />
                                                 <span>Voltar para Coleções</span>
                                             </button>
 
-                                            <div className={`flex items-center gap-2 mb-4 text-xl font-bold ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass} px-1`}>
+                                            <div className={`flex items-center gap-2 mb-4 text-xl px-1`} style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                 <span>{activeCollection}</span>
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-3 pb-8">
-                                                {collections[activeCollection].map(product => (
-                                                    <a key={product.id} href={product.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(product.id)} className={`flex flex-col gap-2 group relative ${roundedClass || 'rounded-2xl'} w-full transition-all duration-300 ${currentTheme.id === 'glass' ? '' : 'p-2'}`}>
-                                                        {currentTheme.id === 'glass' ? (
-                                                            <GlassSurface
-                                                                width="100%"
-                                                                height="auto"
-                                                                borderRadius={borderRadiusValue}
-                                                                displace={0.5}
-                                                                distortionScale={-180}
-                                                                redOffset={0}
-                                                                greenOffset={10}
-                                                                blueOffset={20}
-                                                                brightness={50}
-                                                                opacity={0.93}
-                                                                mixBlendMode="screen"
-                                                            >
-                                                                <div className="flex flex-col gap-2 w-full p-2">
-                                                                    <div className={`aspect-square ${roundedClass || 'rounded-xl'} overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative w-full`}>
-                                                                        <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                                                                        {product.discountCode && (
-                                                                            <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg">
-                                                                                {product.discountCode}
-                                                                            </div>
-                                                                        )}
+                                                {collections[activeCollection].map(product => {
+                                                    const productContent = (
+                                                        <div className="flex flex-col w-full h-full p-2 gap-2">
+                                                            <div className={`relative w-full aspect-square ${roundedClass || 'rounded-xl'} overflow-hidden border-b transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-slate-50 relative`}>
+                                                                <img src={product.image} alt={product.name} className="w-full h-full block object-cover" />
+                                                                {product.discountCode && (
+                                                                    <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg">
+                                                                        {product.discountCode}
                                                                     </div>
-                                                                    <div className="flex flex-col gap-0.5 w-full">
-                                                                        <span className="text-sm truncate text-center text-white opacity-90">{product.name}</span>
-                                                                        {product.price && (
-                                                                            <span className="text-xs truncate text-center text-white">{product.price}</span>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            </GlassSurface>
-
-                                                        ) : (
-                                                            <div className="relative z-10 flex flex-col gap-2">
-                                                                <div className={`aspect-square ${roundedClass || 'rounded-xl'} overflow-hidden border-2 transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-white relative`}>
-                                                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                                                                    {product.discountCode && (
-                                                                        <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
-                                                                            {product.discountCode}
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                                <div className="flex flex-col gap-0.5">
-                                                                    <span
-                                                                        className={`text-sm font-medium truncate text-center opacity-90 ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : ''}`}
-                                                                        style={mainTextColorStyle}
-                                                                    >
-                                                                        {product.name}
-                                                                    </span>
-                                                                    {product.price && (
-                                                                        <span
-                                                                            className={`text-xs font-bold truncate text-center ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : ''}`}
-                                                                            style={mainTextColorStyle}
-                                                                        >
-                                                                            {product.price}
-                                                                        </span>
-                                                                    )}
-                                                                </div>
+                                                                )}
                                                             </div>
-                                                        )}
-                                                    </a>
-                                                ))}
+                                                            <div className="flex flex-col gap-0.5 w-full">
+                                                                <span className={`text-sm truncate text-center`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{product.name}</span>
+                                                                {product.price && (
+                                                                    <span className={`text-xs truncate text-center`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{product.price}</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+
+                                                    return (
+                                                        <a key={product.id} href={product.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(product.id)} className={`flex flex-col gap-2 group relative ${roundedClass || 'rounded-2xl'} w-full transition-all duration-300 ${baseCardClass}`} style={mainButtonStyle}>
+                                                            <div className="relative z-10 flex flex-col gap-2 w-full">
+                                                                {productContent}
+                                                            </div>
+                                                        </a>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     )}
@@ -692,7 +658,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 SOCIAL_NETWORKS[0];
 
                                                             const Icon = network.icon || Globe;
-                                                            const isGlass = currentTheme.id === 'glass';
 
                                                             return (
                                                                 <motion.a
@@ -701,18 +666,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     animate={{ scale: 1, opacity: 1 }}
                                                                     transition={{ duration: 0 }}
                                                                     href={iconLink.url}
-                                                                    target="_blank"
-                                                                    rel="noreferrer"
                                                                     onClick={() => handleLinkClick(iconLink.id)}
-                                                                    className={`relative group flex items-center justify-center ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}
+                                                                    // AQUI: Aplicamos buttonClass (limpa) para que o ícone social tenha o mesmo "feel" do botão (hover, shadow)
+                                                                    // Removemos classes de layout/padding do botão para que não quebre o ícone
+                                                                    className={`relative group flex items-center justify-center w-12 h-12 transition-all duration-300 ${buttonClass.replace(/\b(block|w-full|min-h-\[.*?\]|px-\d+(\.\d+)?|py-\d+(\.\d+)?|justify-between|text-center)\b/g, '').trim()}`}
+                                                                    style={{ ...mainButtonStyle, borderRadius: borderRadiusValue }} // Força o estilo do botão (cor e redondura)
                                                                 >
-                                                                    {isGlass ? (
-                                                                        <div className="absolute inset-0 -m-2">
-                                                                            <GlassSurface width="100%" height="100%" displace={0.2} distortionScale={-50} brightness={40} opacity={0.8} mixBlendMode="screen" className="w-full h-full" />
-                                                                        </div>
-                                                                    ) : (
-                                                                        <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${currentTheme.id.includes('dark') ? 'bg-white' : 'bg-black'}`}></div>
-                                                                    )}
+                                                                    <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${currentTheme.id.includes('dark') ? 'bg-white' : 'bg-black'}`}></div>
 
                                                                     <div className="relative z-10 p-1">
                                                                         {iconLink.image ? (
@@ -737,43 +697,39 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     <div key={`card-grid-${group[0].id}`} className="grid grid-cols-2 gap-2.5 mb-8">
                                                         {group.map((cardLink) => {
                                                             const cardBg = cardAccentColor;
-                                                            const isGlass = currentTheme.id === 'glass';
+                                                            const cardContent = (
+                                                                <div className="relative z-10 flex flex-col h-full w-full">
+                                                                    <div
+                                                                        className="relative overflow-hidden h-40"
+                                                                        style={{ backgroundColor: cardBg + '1A' }}
+                                                                    >
+                                                                        {cardLink.image ? (
+                                                                            <img src={cardLink.image} alt="" className="w-full h-full object-cover transition-transform duration-700" />
+                                                                        ) : (
+                                                                            <div className="w-full h-full flex items-center justify-center opacity-10">
+                                                                                <Globe size={40} />
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className={`p-2.5 flex flex-col justify-center items-center text-center h-16 relative`}>
+                                                                        <span className="text-[0.7em] leading-tight truncate px-1" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.title}</span>
+                                                                        {cardLink.subtitle && <span className="text-[0.62em] leading-tight truncate px-1 opacity-60 mt-0.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.subtitle}</span>}
+                                                                    </div>
+                                                                </div>
+                                                            );
 
                                                             return (
-                                                                <motion.a
+                                                                <a
                                                                     key={cardLink.id}
-                                                                    transition={{ duration: 0 }}
                                                                     href={cardLink.url}
                                                                     target="_blank"
                                                                     rel="noreferrer"
                                                                     onClick={() => handleLinkClick(cardLink.id)}
-                                                                    className={`flex flex-col overflow-hidden relative group transition-all w-full aspect-[3/3.8] ${!isGlass ? buttonClass : ''}`}
+                                                                    className={`flex flex-col transition-all duration-300 group relative overflow-hidden ${baseCardClass}`}
+                                                                    style={{ ...mainButtonStyle, borderRadius: borderRadiusValue }}
                                                                 >
-                                                                    {isGlass ? (
-                                                                        <div className="absolute inset-0 z-0">
-                                                                            <GlassSurface width="100%" height="100%" displace={0.5} distortionScale={-180} brightness={50} opacity={0.93} mixBlendMode="screen" className="w-full h-full" borderRadius={borderRadiusValue} />
-                                                                        </div>
-                                                                    ) : null}
-
-                                                                    <div className="relative z-10 flex flex-col h-full w-full">
-                                                                        <div
-                                                                            className="flex-1 w-full relative overflow-hidden"
-                                                                            style={{ backgroundColor: cardBg + '1A' }}
-                                                                        >
-                                                                            {cardLink.image ? (
-                                                                                <img src={cardLink.image} alt="" className="w-full h-full object-cover transition-transform duration-700" />
-                                                                            ) : (
-                                                                                <div className="w-full h-full flex items-center justify-center opacity-10">
-                                                                                    <Globe size={40} />
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                        <div className="p-2.5 flex flex-col justify-center items-center text-center h-16 relative">
-                                                                            <span className="text-[0.7em] leading-tight truncate px-1 font-bold" style={{ color: getSmartTextColor() }}>{cardLink.title}</span>
-                                                                            {cardLink.subtitle && <span className="text-[0.62em] leading-tight truncate px-1 opacity-60 mt-0.5" style={{ color: getSmartTextColor() }}>{cardLink.subtitle}</span>}
-                                                                        </div>
-                                                                    </div>
-                                                                </motion.a>
+                                                                    {cardContent}
+                                                                </a>
                                                             );
                                                         })}
                                                     </div>
@@ -816,8 +772,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             renderedItems.push(
                                                                 <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-1 pb-1 group/carousel">
                                                                     <div
-                                                                        className={`text-center mb-2 opacity-90 text-lg font-bold ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : currentTheme.textClass}`}
-                                                                        style={mainTextColorStyle}
+                                                                        className={`text-center mb-2 font-bold opacity-90 text-lg`}
+                                                                        style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                                     >
                                                                         {link.title}
                                                                     </div>
@@ -825,7 +781,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
                                                                         <div id={scrollContainerId} className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
                                                                             {activeChildren.map(child => {
-                                                                                const isGlass = currentTheme.id === 'glass';
+                                                                                const childContent = (
+                                                                                    <div className="relative z-10 flex flex-col h-full w-full">
+                                                                                        <div className="relative overflow-hidden h-36 w-full bg-slate-50">
+                                                                                            {child.image ? <img src={child.image} alt="" className="w-full h-full block object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
+                                                                                        </div>
+                                                                                        <div className={`p-2 flex flex-col justify-center items-center text-center h-12 relative`}>
+                                                                                            <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
+                                                                                            {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60 w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                );
+
                                                                                 return (
                                                                                     <motion.a
                                                                                         key={child.id}
@@ -834,38 +801,24 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         target="_blank"
                                                                                         rel="noreferrer"
                                                                                         onClick={() => handleLinkClick(child.id)}
-                                                                                        className={`relative group flex-shrink-0 w-40 snap-start flex flex-col overflow-hidden transition-all duration-300 ${!isGlass ? buttonClass : ''}`}
-                                                                                        style={!isGlass ? mainButtonStyle : {}}
+                                                                                        className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass}`}
+                                                                                        style={mainButtonStyle}
                                                                                     >
-                                                                                        {isGlass ? (
-                                                                                            <div className="absolute inset-0 z-0">
-                                                                                                <GlassSurface width="100%" height="100%" displace={0.5} distortionScale={-180} brightness={50} opacity={0.93} mixBlendMode="screen" className="w-full h-full" borderRadius={borderRadiusValue} />
-                                                                                            </div>
-                                                                                        ) : null}
-
-                                                                                        <div className="relative z-10 flex flex-col h-full w-full">
-                                                                                            <div className="h-32 w-full bg-slate-100/10 relative">
-                                                                                                {child.image ? <img src={child.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
-                                                                                            </div>
-                                                                                            <div className="p-2 flex flex-col justify-center items-center text-center h-12 relative">
-                                                                                                <span className="text-[0.7em] leading-tight truncate font-bold w-full" style={{ color: getSmartTextColor() }}>{child.title}</span>
-                                                                                                {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60 w-full" style={{ color: getSmartTextColor() }}>{child.subtitle}</span>}
-                                                                                            </div>
-                                                                                        </div>
+                                                                                        {childContent}
                                                                                     </motion.a>
                                                                                 );
                                                                             })}
                                                                         </div>
                                                                         <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronRight size={20} /></button>
-                                                                    </div>
-                                                                </motion.div>
+                                                                    </div >
+                                                                </motion.div >
                                                             );
                                                         } else {
                                                             renderedItems.push(
                                                                 <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-1 pb-1">
                                                                     <div
-                                                                        className={`text-center mb-2 font-bold opacity-90 text-lg ${(profile.customBackground || currentTheme.id === 'glass') && !profile.customTextColor ? 'text-white' : currentTheme.textClass}`}
-                                                                        style={mainTextColorStyle}
+                                                                        className={`text-center mb-2 opacity-90 text-lg`}
+                                                                        style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                                     >
                                                                         {link.title}
                                                                     </div>
@@ -873,8 +826,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         {activeChildren.map(child => {
                                                                             if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
                                                                             if (child.embedType === 'youtube') return <motion.div key={child.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} /></motion.div>;
-
-                                                                            const isGlass = currentTheme.id === 'glass';
 
                                                                             return (
                                                                                 <motion.a
@@ -884,34 +835,17 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     target="_blank"
                                                                                     rel="noreferrer"
                                                                                     onClick={() => handleLinkClick(child.id)}
-                                                                                    className={`block w-full text-center text-base transform group relative ${isGlass ? '' : `py-4 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}`}
-                                                                                    style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                                    className={`block w-full text-center text-base transform group relative py-4 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
+                                                                                    style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                                                 >
-                                                                                    {isGlass ? (
-                                                                                        <GlassSurface width="100%" height="auto" displace={0.5} distortionScale={-180} redOffset={0} greenOffset={10} blueOffset={20} brightness={50} opacity={0.93} mixBlendMode="screen" className={`${getHighlightClass(child.highlight)}`} borderRadius={borderRadiusValue}>
-                                                                                            <div className="flex-1 px-1 py-1 flex flex-col justify-center text-white text-center">
-                                                                                                <div className="flex items-center justify-between w-full px-2 py-1">
-                                                                                                    {child.image ? <img src={child.image} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                                                                    <div className="flex-1 px-2 flex flex-col justify-center">
-                                                                                                        <span className="text-[0.9em] leading-tight font-bold break-words">{child.title}</span>
-                                                                                                        {child.subtitle && <span className="text-[0.75em] opacity-90 leading-tight mt-0.5 break-words">{child.subtitle}</span>}
-                                                                                                    </div>
-                                                                                                    <span className="w-8 shrink-0"></span>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </GlassSurface>
-                                                                                    ) : (
-                                                                                        <>
-                                                                                            <div className="relative z-10 w-full flex items-center justify-between">
-                                                                                                {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                                                                <div className="flex-1 px-1 flex flex-col justify-center text-center">
-                                                                                                    <span className="text-[0.9em] leading-tight font-bold break-words" style={{ color: getSmartTextColor() }}>{child.title}</span>
-                                                                                                    {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ color: getSmartTextColor() }}>{child.subtitle}</span>}
-                                                                                                </div>
-                                                                                                <span className="w-8 shrink-0"></span>
-                                                                                            </div>
-                                                                                        </>
-                                                                                    )}
+                                                                                    <div className="relative z-10 w-full flex items-center justify-between">
+                                                                                        {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                                                        <div className="flex-1 px-1 flex flex-col justify-center text-center">
+                                                                                            <span className="text-[0.9em] leading-tight break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
+                                                                                            {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
+                                                                                        </div>
+                                                                                        <span className="w-8 shrink-0"></span>
+                                                                                    </div>
                                                                                 </motion.a>
                                                                             );
                                                                         })}
@@ -928,33 +862,17 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 target="_blank"
                                                                 rel="noreferrer"
                                                                 onClick={() => handleLinkClick(link.id)}
-                                                                className={`block w-full min-h-[64px] text-center text-base transform group relative ${currentTheme.id === 'glass' ? '' : `py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`}`}
-                                                                style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`}
+                                                                style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                             >
-                                                                {currentTheme.id === 'glass' ? (
-                                                                    <GlassSurface width="100%" height="auto" displace={0.5} distortionScale={-180} redOffset={0} greenOffset={10} blueOffset={20} brightness={50} opacity={0.93} mixBlendMode="screen" className={`${getHighlightClass(link.highlight)}`} borderRadius={borderRadiusValue}>
-                                                                        <div className="w-full flex items-center justify-between py-2 px-2">
-                                                                            {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                                            <div className="flex-1 px-1 flex flex-col justify-center text-white text-center">
-                                                                                <span className="text-[0.9em] leading-tight font-bold break-words">{link.title}</span>
-                                                                                {link.subtitle && <span className="text-[0.75em] opacity-90 leading-tight mt-0.5 break-words">{link.subtitle}</span>}
-                                                                            </div>
-                                                                            <span className="w-8 shrink-0"></span>
-                                                                        </div>
-                                                                    </GlassSurface>
-                                                                ) : (
-                                                                    <>
-
-                                                                        <div className="relative z-10 w-full flex items-center justify-between px-2">
-                                                                            {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                                            <div className="flex-1 px-1 flex flex-col justify-center text-center">
-                                                                                <span className="text-[0.9em] leading-tight font-bold break-words" style={{ color: getSmartTextColor() }}>{link.title}</span>
-                                                                                {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ color: getSmartTextColor() }}>{link.subtitle}</span>}
-                                                                            </div>
-                                                                            <span className="w-8 shrink-0"></span>
-                                                                        </div>
-                                                                    </>
-                                                                )}
+                                                                <div className="relative z-10 w-full flex items-center justify-between px-2">
+                                                                    {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                                    <div className="flex-1 px-1 flex flex-col justify-center text-center">
+                                                                        <span className="text-[0.9em] leading-tight break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
+                                                                        {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.subtitle}</span>}
+                                                                    </div>
+                                                                    <span className="w-8 shrink-0"></span>
+                                                                </div>
                                                             </motion.a>
                                                         );
                                                     }
@@ -973,8 +891,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         </div>
                                     )}
                                 </motion.div>
-                            )
-                            }
+                            )}
                         </AnimatePresence>
 
 
@@ -992,51 +909,20 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             navigator.clipboard.writeText(profile.supportKey || '');
                                         }
                                     }}
-                                    className={`block w-full min-h-[64px] text-center text-base transition-all duration-300 transform group relative ${currentTheme.id === 'glass' ? '' : `py-2.5 px-6 flex items-center justify-between ${buttonClass} overflow-hidden`}`}
-                                    style={{ fontFamily: profile.fontFamily, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                    className={`block w-full min-h-[64px] text-center text-base transition-all duration-300 transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} overflow-hidden`}
+                                    style={{ fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                 >
-                                    {currentTheme.id === 'glass' ? (
-                                        <GlassSurface
-                                            width="100%"
-                                            height="auto"
-                                            displace={0.5}
-                                            distortionScale={-180}
-                                            redOffset={0}
-                                            greenOffset={10}
-                                            blueOffset={20}
-                                            brightness={50}
-                                            opacity={0.93}
-                                            mixBlendMode="screen"
-                                            className=""
-                                            borderRadius={borderRadiusValue}
-                                        >
-                                            <div className="w-full flex items-center justify-between py-3 px-5">
-                                                {profile.supportType === 'pix' ? (
-                                                    <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" />
-                                                ) : (
-                                                    <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
-                                                )}
-                                                <span className="truncate flex-1 px-3 text-white text-lg">Apoiar</span>
-                                                <span className="w-8 opacity-50 text-white flex justify-end"><Coffee size={20} /></span>
-                                            </div>
-                                        </GlassSurface>
-                                    ) : (
-                                        <>
-
-                                            <div className="relative z-10 w-full flex items-center justify-between">
-                                                {profile.supportType === 'pix' ? (
-                                                    <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" />
-                                                ) : (
-                                                    <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
-                                                )}
-                                                <span className="truncate flex-1 px-3" style={{ color: getSmartTextColor() }}>Apoiar</span>
-                                                <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={20} /></span>
-                                            </div>
-                                        </>
-                                    )}
+                                    <div className="relative z-10 w-full flex items-center justify-between">
+                                        {profile.supportType === 'pix' ? (
+                                            <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" />
+                                        ) : (
+                                            <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
+                                        )}
+                                        <span className="truncate flex-1 px-3" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Apoiar</span>
+                                        <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={20} /></span>
+                                    </div>
                                 </motion.a>
                             )}
-
                             {profile.showNewsletter && (
                                 <motion.div className="w-full px-2">
                                     <NewsletterWidget profile={profile} />
@@ -1059,7 +945,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     >
                                         <span
                                             className="text-[13px] tracking-tight"
-                                            style={{ fontFamily: profile.fontFamily }}
+                                            style={{ fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                         >
                                             Junte-se a {profile.name} no Nodus
                                         </span>
@@ -1068,15 +954,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             })()}
 
                             {/* Legal Links (Minimalist) */}
-                            <div className={`flex items-center gap-2 text-[10px] transition-opacity duration-300 ${isDarkTheme ? 'text-white/40 hover:text-white/80' : 'text-slate-400 hover:text-slate-600'}`}>
-                                <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:underline">Termos</a>
-                                <span>•</span>
-                                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline">Privacidade</a>
+                            <div
+                                className={`flex items-center gap-2 text-[10px] transition-opacity duration-300 ${isDarkTheme ? 'text-white/40 hover:text-white/80' : 'text-slate-400 hover:text-slate-600'}`}
+                                style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                            >
+                                <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-60 hover:opacity-100">Termos</a>
+                                <span className="opacity-40">•</span>
+                                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-60 hover:opacity-100">Privacidade</a>
                             </div>
                         </motion.div>
                     </div>
                 </div>
-            </div >
+            </div>
             {/* Foreground Layer (For themes like Sakura) */}
             {currentTheme.id === 'kawaii-sakura' && <KawaiiSakuraForeground />}
         </div >

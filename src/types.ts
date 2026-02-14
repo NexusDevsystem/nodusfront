@@ -25,7 +25,7 @@ export interface UserProfile {
   avatarUrl: string;
   themeId: string;
   fontFamily: string;
-  buttonRoundness?: 'square' | 'round' | 'rounder' | 'full';
+  buttonRoundness?: 'square' | 'round' | 'rounder' | 'full' | null;
   headerLayout?: 'classic' | 'compact' | 'hero';
   headerStyle?: 'text' | 'logo';
   logoUrl?: string;
@@ -44,12 +44,12 @@ export interface UserProfile {
   customCSS?: string;
   supportType?: 'pix' | 'paypal';
   supportKey?: string;
-  userCategory?: 'creator' | 'corporate' | 'personal' | null;
+  userCategory?: 'creator' | 'personal' | null;
   referralSource?: string | null;
   isVerified?: boolean;
   enableBlur?: boolean;
-  fontSize?: number;
-  fontWeight?: string;
+  fontSize?: number | null;
+  fontWeight?: string | null;
   fontItalic?: boolean;
   customSecondaryColor?: string | null;
   customTextColor?: string | null;
@@ -69,6 +69,9 @@ export interface Theme {
   buttonHex?: string;
   textHex?: string;
   category?: 'solid' | 'gradient' | 'animated' | 'music' | 'creative' | 'kawaii';
+  cardClass?: string;
+  fontFamily?: string;
+  buttonRoundness?: 'square' | 'round' | 'rounder' | 'full';
 }
 
 

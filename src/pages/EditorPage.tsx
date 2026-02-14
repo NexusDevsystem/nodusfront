@@ -165,7 +165,7 @@ export default function EditorPage() {
             }
         };
 
-        const timeoutId = setTimeout(saveProfile, 2000);
+        const timeoutId = setTimeout(saveProfile, 800);
         return () => clearTimeout(timeoutId);
     }, [profile, hasLoadedOnce]);
 

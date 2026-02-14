@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { THEMES } from '../constants';
 import { CheckCircle } from 'lucide-react';
-import NodusOfficialBackground from './NodusOfficialBackground';
+import { Background as NodusOfficialBackground } from '../themes/nodus-official';
 
 // Use a variety of premium and featured themes
 const SHOWCASE_THEMES = [

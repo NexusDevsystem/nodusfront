@@ -44,9 +44,11 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
 
     // Determine text colors based on theme/background
     const isDarkContext = hasCustomBg || isGlass || currentTheme.id.includes('dark') || currentTheme.id.includes('black') || currentTheme.textClass.includes('white');
-    const customTextColorStyle = (profile.themeId === 'custom' && profile.customTextColor) ? { color: profile.customTextColor } : {};
-    const textColor = (profile.themeId === 'custom' && profile.customTextColor) ? '' : (isDarkContext ? 'text-white' : 'text-slate-800');
-    const subTextColor = (profile.themeId === 'custom' && profile.customTextColor) ? '' : (isDarkContext ? 'text-white/70' : 'text-slate-500');
+    const buttonHex = profile.customButtonColor || currentTheme.buttonHex;
+    const effectiveTextColor = profile.customTextColor || buttonHex;
+    const customTextColorStyle = effectiveTextColor ? { color: effectiveTextColor } : {};
+    const textColor = '';
+    const subTextColor = '';
     const inputBg = isDarkContext ? 'bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/20' : 'bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:bg-white';
     const customButtonColorStyle = (profile.themeId === 'custom' && profile.customButtonColor) ? { backgroundColor: profile.customButtonColor } : {};
     const customButtonTextColorStyle = profile.customButtonTextColor ? { color: profile.customButtonTextColor } : {};
@@ -67,8 +69,8 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
                 <div className="w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center mb-1 shadow-lg shadow-green-500/30">
                     <Check size={24} strokeWidth={3} />
                 </div>
-                <h3 className={`font-bold text-lg ${textColor}`} style={customTextColorStyle}>Inscrito com sucesso!</h3>
-                <p className={`text-sm ${subTextColor}`} style={customTextColorStyle}>Obrigado por acompanhar.</p>
+                <h3 className={`text-lg ${textColor}`} style={{ ...customTextColorStyle, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Inscrito com sucesso!</h3>
+                <p className={`text-sm ${subTextColor}`} style={{ ...customTextColorStyle, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Obrigado por acompanhar.</p>
             </div>
         );
     }
@@ -86,8 +88,8 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
                     <Mail size={20} />
                 </div>
 
-                <h3 className={`font-bold text-lg mb-1 ${textColor}`} style={customTextColorStyle}>Fique por dentro</h3>
-                <p className={`text-xs mb-4 max-w-[200px] leading-relaxed ${subTextColor}`} style={customTextColorStyle}>
+                <h3 className={`text-lg mb-1 ${textColor}`} style={{ ...customTextColorStyle, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Fique por dentro</h3>
+                <p className={`text-xs mb-4 max-w-[200px] leading-relaxed ${subTextColor}`} style={{ ...customTextColorStyle, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                     Receba novidades e conteúdos exclusivos diretamente no seu e-mail.
                 </p>
 
@@ -98,14 +100,14 @@ export default function NewsletterWidget({ profile }: NewsletterWidgetProps) {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className={`w-full pl-4 pr-12 py-3.5 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-xl'} outline-none border transition-all text-sm font-medium ${inputBg}`}
-                        style={{ fontFamily: profile.fontFamily }}
+                        className={`w-full pl-4 pr-12 py-3.5 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-xl'} outline-none border transition-all text-sm ${inputBg}`}
+                        style={{ fontFamily: profile.fontFamily, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                     />
                     <button
                         type="submit"
                         disabled={status === 'loading'}
                         className={`absolute right-1.5 top-1.5 bottom-1.5 aspect-square ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-lg'} flex items-center justify-center transition-all disabled:opacity-70 disabled:cursor-not-allowed ${buttonBg}`}
-                        style={{ ...customButtonColorStyle, ...customButtonTextColorStyle, fontFamily: profile.fontFamily }}
+                        style={{ ...customButtonColorStyle, ...customButtonTextColorStyle, fontFamily: profile.fontFamily, fontWeight: profile.fontWeight, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                     >
                         {status === 'loading' ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} style={customButtonTextColorStyle} />}
                     </button>
