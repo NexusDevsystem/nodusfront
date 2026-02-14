@@ -417,7 +417,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                         {/* Social Icons Row */}
                         {socialLinks.length > 0 && (
-                            <div className="flex items-center justify-center gap-4 mb-2 flex-wrap relative">
+                            <div className="flex items-center justify-center gap-4 mb-4 flex-wrap relative">
                                 {socialLinks.map(link => {
                                     const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
                                         SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id)) ||
@@ -782,8 +782,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             };
 
                                                             renderedItems.push(
-                                                                <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-0 pb-1 group/carousel">
-                                                                    <div className={`text-center mb-1 opacity-90 text-lg font-bold ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}>{link.title}</div>
+                                                                <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-1 pb-1 group/carousel">
+                                                                    <div className={`text-center mb-2 opacity-90 text-lg font-bold ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}>{link.title}</div>
                                                                     <div className="relative w-full">
                                                                         <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
                                                                         <div id={scrollContainerId} className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
@@ -824,8 +824,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             );
                                                         } else {
                                                             renderedItems.push(
-                                                                <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-0 pb-1">
-                                                                    <div className={`text-center mb-1 font-bold opacity-90 text-lg ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}>{link.title}</div>
+                                                                <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-1 pb-1">
+                                                                    <div className={`text-center mb-2 font-bold opacity-90 text-lg ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}>{link.title}</div>
                                                                     <div className="flex flex-col gap-4 relative">
                                                                         {activeChildren.map(child => {
                                                                             if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
