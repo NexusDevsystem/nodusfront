@@ -351,7 +351,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     <div className={`px-6 pb-12 ${isPreview ? 'pt-12' : 'pt-16'} flex-1 flex flex-col min-h-full`}>
 
                         {/* Profile Section */}
-                        <motion.div className={`w-full mb-6 ${profile.headerLayout === 'compact'
+                        <motion.div className={`w-full mb-1 ${profile.headerLayout === 'compact'
                             ? 'flex flex-row items-center gap-4 text-left px-2'
                             : 'flex flex-col items-center text-center'
                             }`}>
