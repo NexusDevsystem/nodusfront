@@ -193,11 +193,16 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const isCustomTheme = currentTheme.id === 'custom';
 
     // Button Roundness Logic - Works across ALL themes as a direct override
-    const roundedClass = profile.buttonRoundness === 'square' ? 'rounded-none' :
-        profile.buttonRoundness === 'round' ? 'rounded-lg' :
-            profile.buttonRoundness === 'rounder' ? 'rounded-2xl' :
-                profile.buttonRoundness === 'full' ? 'rounded-full' :
-                    (currentTheme.buttonClass.match(/rounded-[^\s]+/g)?.join(' ') || null);
+    // Force Nature theme to use its specific shape even if 'rounder' is selected/defaulted
+    const effectiveRoundness = (currentTheme.id === 'modern-nature' && (profile.buttonRoundness === 'rounder' || !profile.buttonRoundness))
+        ? null
+        : profile.buttonRoundness;
+
+    const roundedClass = effectiveRoundness === 'square' ? 'rounded-none' :
+        effectiveRoundness === 'round' ? 'rounded-lg' :
+            effectiveRoundness === 'rounder' ? 'rounded-2xl' :
+                effectiveRoundness === 'full' ? 'rounded-full' :
+                    (currentTheme.buttonClass.match(/rounded-[^\s]+(?=\s|$)/g)?.join(' ') || null);
 
     const borderRadiusValue = profile.buttonRoundness === 'square' ? 0 :
         profile.buttonRoundness === 'round' ? 8 :

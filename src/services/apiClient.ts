@@ -30,6 +30,7 @@ class ApiClient {
         try {
             const response = await fetch(`${API_URL}${path}`, {
                 ...options,
+                cache: 'no-store', // Prevent caching of API responses
                 signal: controller.signal,
                 headers: {
                     ...headers,

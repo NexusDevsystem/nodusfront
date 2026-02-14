@@ -83,7 +83,10 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
         if (status === 'pending') {
             pollInterval = setInterval(async () => {
                 try {
-                    const updatedProfile = await apiClient.getMyProfile();
+                    // Use autoReconcile to force a check against Stripe API
+                    // This handles cases where webhooks are delayed or fail locally
+                    const updatedProfile = await apiClient.autoReconcile();
+
                     if (updatedProfile.planType !== 'free' && updatedProfile.planType !== currentPlan) {
                         setStatus('success');
                         onChange(updatedProfile);
