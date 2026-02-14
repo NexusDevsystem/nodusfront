@@ -297,12 +297,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
             {/* Content Container */}
             <div
-                className={`w-full h-full overflow-y-auto scrollbar-hide flex flex-col relative z-20 ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}
+                className={`w-full h-full overflow-y-auto scrollbar-hide flex flex-col relative z-20 overscroll-none ${(profile.customBackground || currentTheme.id === 'glass') ? 'text-white' : currentTheme.textClass}`}
                 style={{
                     fontFamily: profile.fontFamily,
                     fontSize: `${profile.fontSize || 16}px`,
                     fontWeight: profile.fontWeight || undefined,
-                    fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                    fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                    overscrollBehavior: 'none'
                 }}
             >
                 <div>
@@ -347,7 +348,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     )}
 
                     {/* Content Scrollable Area */}
-                    <div className={`px-6 pb-40 ${isPreview ? 'pt-12' : 'pt-16'} flex-1 flex flex-col min-h-full`}>
+                    <div className={`px-6 pb-12 ${isPreview ? 'pt-12' : 'pt-16'} flex-1 flex flex-col min-h-full`}>
 
                         {/* Profile Section */}
                         <motion.div className={`w-full mb-6 ${profile.headerLayout === 'compact'
@@ -1000,7 +1001,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             )}
                         </div>
 
-                        <motion.div layout className="mt-auto pt-20 mb-12 flex flex-col items-center gap-1 w-full px-4">
+                        <motion.div layout className="mt-auto pt-10 mb-8 flex flex-col items-center gap-1 w-full px-4">
                             {(() => {
                                 const isWhiteBg = (profile.customSolidColor?.toLowerCase() === '#ffffff' || profile.customSolidColor?.toLowerCase() === '#fff') ||
                                     (!profile.customSolidColor && !profile.customBackground && (currentTheme.solidColor?.toLowerCase() === '#ffffff' || currentTheme.id === 'default'));
