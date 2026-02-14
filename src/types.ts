@@ -44,7 +44,7 @@ export interface UserProfile {
   customCSS?: string;
   supportType?: 'pix' | 'paypal';
   supportKey?: string;
-  userCategory?: 'creator' | 'personal' | null;
+  userCategory?: 'creator' | 'personal' | 'business' | null;
   referralSource?: string | null;
   isVerified?: boolean;
   enableBlur?: boolean;
