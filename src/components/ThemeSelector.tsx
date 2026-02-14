@@ -30,6 +30,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
 
     const filteredThemes = THEMES.filter(theme => {
         // Filter official theme
+        if (theme.id === 'custom') return false;
         if (theme.id === 'animated-nodus-official' && profile.username !== 'noduscc') return false;
 
         if (activeCategory === 'all') return true;

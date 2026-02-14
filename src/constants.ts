@@ -93,6 +93,17 @@ export const FONTS: FontOption[] = [
 
 export const THEMES: Theme[] = [
   {
+    id: 'custom',
+    name: 'Personalizado',
+    backgroundClass: 'bg-white',
+    buttonClass: 'bg-slate-950 text-white rounded-2xl font-bold',
+    textClass: 'text-slate-950',
+    avatarBorder: 'border-slate-200 border-2',
+    category: 'solid',
+    solidColor: '#ffffff',
+    buttonHex: '#020617'
+  },
+  {
     id: 'animated-nodus-official',
     name: 'Nodus Official',
     backgroundClass: 'bg-black',
