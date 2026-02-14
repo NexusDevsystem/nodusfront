@@ -192,7 +192,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                 })}
             </div>
 
-            {/* Custom Color Picker Section */}
+            {/* Custom Background Section */}
             {profile.themeId === 'custom' && (
                 <motion.div
                     initial={{ opacity: 0, height: 0 }}
@@ -200,52 +200,140 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                     exit={{ opacity: 0, height: 0 }}
                     className="mt-8 pt-8 border-t border-slate-100"
                 >
-                    <div className="flex items-center gap-2 mb-4">
-                        <Paintbrush size={16} className="text-[#32a800]" />
-                        <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Cor de Fundo Personalizada</h3>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 shrink-0 shadow-sm">
-                            <input
-                                type="color"
-                                value={profile.customSolidColor || '#ffffff'}
-                                onChange={(e) => onChange({ ...profile, customSolidColor: e.target.value, customBackground: null })}
-                                className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer"
-                            />
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
+                            <Paintbrush size={16} className="text-[#32a800]" />
+                            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Fundo Personalizado</h3>
                         </div>
-                        <div className="flex-1 relative">
-                            <input
-                                type="text"
-                                value={profile.customSolidColor || ''}
-                                onChange={(e) => onChange({ ...profile, customSolidColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`, customBackground: null })}
-                                placeholder="#FFFFFF"
-                                className="w-full h-12 px-4 rounded-xl border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-mono uppercase font-bold"
-                            />
+
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Gradiente</span>
+                                <button
+                                    onClick={() => {
+                                        if (profile.customSecondaryColor) {
+                                            onChange({ ...profile, customSecondaryColor: null });
+                                        } else {
+                                            onChange({ ...profile, customSecondaryColor: '#6366f1', customBackground: null });
+                                        }
+                                    }}
+                                    className={`relative w-10 h-5 rounded-full transition-colors ${profile.customSecondaryColor ? 'bg-[#32a800]' : 'bg-slate-200'}`}
+                                >
+                                    <motion.div
+                                        animate={{ x: profile.customSecondaryColor ? 20 : 2 }}
+                                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                        className="absolute top-1 left-1 w-3 h-3 bg-white rounded-full shadow-sm"
+                                    />
+                                </button>
+                            </div>
                         </div>
-                        {profile.customSolidColor && (
-                            <button
-                                onClick={() => onChange({ ...profile, customSolidColor: null })}
-                                className="h-12 w-12 flex items-center justify-center text-slate-400 hover:text-red-500 rounded-xl border border-slate-100 hover:bg-red-50 transition-all active:scale-95"
-                            >
-                                <Trash2 size={18} />
-                            </button>
-                        )}
                     </div>
 
-                    <div className="grid grid-cols-6 gap-2 mt-4">
-                        {['#000000', '#FFFFFF', '#6366f1', '#ec4899', '#f59e0b', '#10b981'].map((color) => (
-                            <button
-                                key={color}
-                                onClick={() => onChange({ ...profile, customSolidColor: color, customBackground: null })}
-                                className="h-8 rounded-lg border border-slate-100 transition-transform hover:scale-105 active:scale-95"
-                                style={{ backgroundColor: color }}
-                            />
-                        ))}
+                    <div className="space-y-6">
+                        {/* Primary Color */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                                {profile.customSecondaryColor ? 'Cor Primária' : 'Cor Sólida'}
+                            </label>
+                            <div className="flex items-center gap-3">
+                                <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 shrink-0 shadow-md">
+                                    <input
+                                        type="color"
+                                        value={profile.customSolidColor || '#ffffff'}
+                                        onChange={(e) => onChange({ ...profile, customSolidColor: e.target.value, customBackground: null })}
+                                        className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer"
+                                    />
+                                </div>
+                                <div className="flex-1 relative">
+                                    <input
+                                        type="text"
+                                        value={profile.customSolidColor || ''}
+                                        onChange={(e) => onChange({ ...profile, customSolidColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`, customBackground: null })}
+                                        placeholder="#FFFFFF"
+                                        className="w-full h-12 px-4 rounded-xl border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-mono uppercase font-bold"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Secondary Color (Visible only if gradient is active) */}
+                        <AnimatePresence>
+                            {profile.customSecondaryColor && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="space-y-2"
+                                >
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Cor Secundária</label>
+                                    <div className="flex items-center gap-3">
+                                        <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 shrink-0 shadow-md">
+                                            <input
+                                                type="color"
+                                                value={profile.customSecondaryColor || '#6366f1'}
+                                                onChange={(e) => onChange({ ...profile, customSecondaryColor: e.target.value, customBackground: null })}
+                                                className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer"
+                                            />
+                                        </div>
+                                        <div className="flex-1 relative">
+                                            <input
+                                                type="text"
+                                                value={profile.customSecondaryColor || ''}
+                                                onChange={(e) => onChange({ ...profile, customSecondaryColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`, customBackground: null })}
+                                                placeholder="#6366F1"
+                                                className="w-full h-12 px-4 rounded-xl border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-mono uppercase font-bold"
+                                            />
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
 
-                    <p className="text-[10px] text-slate-400 mt-4 italic">
-                        * Escolha uma cor para o fundo do seu perfil. Isso substituirá temas com imagens.
+                    {/* Presets */}
+                    <div className="mt-8">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1 mb-3 block">Sugestões</label>
+                        <div className="grid grid-cols-6 gap-3">
+                            {(profile.customSecondaryColor ? [
+                                ['#6366f1', '#ec4899'], // Indigo to Pink
+                                ['#3b82f6', '#10b981'], // Blue to Green
+                                ['#f59e0b', '#ef4444'], // Orange to Red
+                                ['#8b5cf6', '#3b82f6'], // Violet to Blue
+                                ['#000000', '#333333'], // Black to Dark Grey
+                                ['#acc8a2', '#4d634d']  // Nodus palette
+                            ] : ['#000000', '#FFFFFF', '#6366f1', '#ec4899', '#f59e0b', '#10b981']).map((preset) => (
+                                <button
+                                    key={Array.isArray(preset) ? preset.join('-') : preset}
+                                    onClick={() => {
+                                        if (Array.isArray(preset)) {
+                                            onChange({ ...profile, customSolidColor: preset[0], customSecondaryColor: preset[1], customBackground: null });
+                                        } else {
+                                            onChange({ ...profile, customSolidColor: preset, customSecondaryColor: null, customBackground: null });
+                                        }
+                                    }}
+                                    className="aspect-square rounded-xl border border-slate-100 transition-transform hover:scale-105 active:scale-95 shadow-sm overflow-hidden"
+                                    style={{
+                                        background: Array.isArray(preset)
+                                            ? `linear-gradient(135deg, ${preset[0]}, ${preset[1]})`
+                                            : preset
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="mt-8 flex gap-3">
+                        <button
+                            onClick={() => onChange({ ...profile, customSolidColor: null, customSecondaryColor: null })}
+                            className="flex-1 h-12 flex items-center justify-center gap-2 text-slate-500 hover:text-red-500 rounded-xl border border-slate-100 hover:bg-red-50 transition-all active:scale-95 font-bold text-xs uppercase tracking-wider"
+                        >
+                            <Trash2 size={16} />
+                            Limpar Customização
+                        </button>
+                    </div>
+
+                    <p className="text-[10px] text-slate-400 mt-6 italic bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        * O modo customizado permite criar fundos únicos. Ative o <b>Gradiente</b> para misturar duas cores ou use uma <b>Cor Sólida</b> para minimalismo.
                     </p>
                 </motion.div>
             )}

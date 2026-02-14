@@ -51,6 +51,7 @@ export interface UserProfile {
   fontSize?: number;
   fontWeight?: string;
   fontItalic?: boolean;
+  customSecondaryColor?: string | null;
 }
 
 export interface Theme {

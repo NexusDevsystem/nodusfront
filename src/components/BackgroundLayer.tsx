@@ -31,7 +31,11 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
         return (
             <div className={`absolute inset-0 z-0 overflow-hidden ${className}`}>
                 {profile.customSolidColor ? (
-                    <div className="absolute inset-0" style={{ backgroundColor: profile.customSolidColor }}></div>
+                    <div className="absolute inset-0" style={{
+                        background: profile.customSecondaryColor
+                            ? `linear-gradient(135deg, ${profile.customSolidColor}, ${profile.customSecondaryColor})`
+                            : profile.customSolidColor
+                    }}></div>
                 ) : profile.customBackground ? (
                     <div className="absolute inset-0">
                         <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" />
@@ -49,7 +53,11 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
     return (
         <div className={`absolute inset-0 z-0 overflow-hidden ${className}`}>
             {profile.customSolidColor ? (
-                <div className="absolute inset-0" style={{ backgroundColor: profile.customSolidColor }}></div>
+                <div className="absolute inset-0" style={{
+                    background: profile.customSecondaryColor
+                        ? `linear-gradient(135deg, ${profile.customSolidColor}, ${profile.customSecondaryColor})`
+                        : profile.customSolidColor
+                }}></div>
             ) : profile.customBackground ? (
                 <div className="absolute inset-0">
                     <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" />
