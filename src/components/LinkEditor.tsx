@@ -256,8 +256,19 @@ function SortableLinkItem({
                 onClick={() => toggleLink(link.id)}
               >
                 <div className="flex items-center gap-2 mb-0.5">
-                  <div className="font-semibold text-slate-800 truncate text-xs md:text-sm">
+                  <div className="font-semibold text-slate-800 truncate text-xs md:text-sm flex items-center gap-2">
                     {link.title || 'Link sem título'}
+                    {/* Schedule Badges */}
+                    {link.scheduleStart && new Date(link.scheduleStart) > new Date() && (
+                      <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-blue-50 text-[9px] font-bold text-blue-600 border border-blue-100 uppercase tracking-tighter flex items-center gap-1">
+                        🕒 Agendado
+                      </span>
+                    )}
+                    {link.scheduleEnd && new Date(link.scheduleEnd) < new Date() && (
+                      <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-red-50 text-[9px] font-bold text-red-600 border border-red-100 uppercase tracking-tighter flex items-center gap-1">
+                        🔴 Expirado
+                      </span>
+                    )}
                   </div>
                   {link.layout === 'social' ? (
                     <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-emerald-50 text-[9px] font-bold text-emerald-600 border border-emerald-100 uppercase tracking-tighter">
@@ -494,6 +505,75 @@ function SortableLinkItem({
                                 )}
                               </button>
                             ))}
+                          </div>
+                        </div>
+
+                        {/* Scheduling Section (PRO) */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Agendamento (PRO)</label>
+                            {(!profile.planType || profile.planType === 'free') && (
+                              <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-tight">Bloqueado</span>
+                            )}
+                          </div>
+
+                          <div className={`p-4 rounded-xl border ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-50 border-slate-200 opacity-70 pointer-events-none' : 'bg-white border-slate-200'}`}>
+                            <div className="grid grid-cols-1 gap-4">
+                              {/* Start Date */}
+                              <div className="space-y-1.5">
+                                <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
+                                  <div className={`w-2 h-2 rounded-full ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-blue-500' : 'bg-slate-300'}`}></div>
+                                  Início (Agendar para o futuro)
+                                </div>
+                                <input
+                                  type="datetime-local"
+                                  value={link.scheduleStart ? new Date(link.scheduleStart).toISOString().slice(0, 16) : ''}
+                                  onChange={(e) => {
+                                    const date = e.target.value ? new Date(e.target.value).toISOString() : null;
+                                    updateLink(link.id, 'scheduleStart', date);
+                                  }}
+                                  disabled={!profile.planType || profile.planType === 'free'}
+                                  className="w-full text-xs font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all"
+                                />
+                              </div>
+
+                              {/* End Date */}
+                              <div className="space-y-1.5">
+                                <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
+                                  <div className={`w-2 h-2 rounded-full ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-slate-300'}`}></div>
+                                  Fim (Expirar automaticamente)
+                                </div>
+                                <input
+                                  type="datetime-local"
+                                  value={link.scheduleEnd ? new Date(link.scheduleEnd).toISOString().slice(0, 16) : ''}
+                                  onChange={(e) => {
+                                    const date = e.target.value ? new Date(e.target.value).toISOString() : null;
+                                    updateLink(link.id, 'scheduleEnd', date);
+                                  }}
+                                  disabled={!profile.planType || profile.planType === 'free'}
+                                  className="w-full text-xs font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all"
+                                />
+                              </div>
+
+                              {/* Status Message */}
+                              {(link.scheduleStart || link.scheduleEnd) && (
+                                <div className="pt-2 border-t border-slate-100">
+                                  {link.scheduleStart && new Date(link.scheduleStart) > new Date() ? (
+                                    <div className="text-[10px] font-semibold text-blue-600 flex items-center gap-1.5">
+                                      <Sparkles size={12} /> Link agendado para aparecer em {new Date(link.scheduleStart).toLocaleDateString()}
+                                    </div>
+                                  ) : link.scheduleEnd && new Date(link.scheduleEnd) < new Date() ? (
+                                    <div className="text-[10px] font-semibold text-red-500 flex items-center gap-1.5">
+                                      <Archive size={12} /> Link expirado e oculto do perfil
+                                    </div>
+                                  ) : (
+                                    <div className="text-[10px] font-bold text-emerald-600 flex items-center gap-1.5">
+                                      <Zap size={12} fill="currentColor" /> Atualmente visível (Dentro do agendamento)
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>

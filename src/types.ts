@@ -15,6 +15,8 @@ export interface LinkItem {
   clicks?: number;
   isArchived?: boolean;
   platform?: string;
+  scheduleStart?: string | null;
+  scheduleEnd?: string | null;
 }
 
 export interface PaymentMethod {
