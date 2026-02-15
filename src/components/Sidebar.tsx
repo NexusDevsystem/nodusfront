@@ -212,6 +212,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
             <CreditCard size={14} className="opacity-70" />
             Faturamento
           </button>
+
+          <button
+            onClick={() => setActiveTab('support')}
+            className={`flex items-center gap-2 text-[11px] font-bold transition-colors py-2 px-1 w-fit ${activeTab === 'support' ? 'text-[#32a800]' : 'text-slate-500 hover:text-[#32a800]'}`}
+          >
+            <HelpCircle size={14} className="opacity-70" />
+            Suporte
+          </button>
         </div>
 
         <div className="flex items-center gap-3 p-2 rounded-xl bg-white border border-slate-100 shadow-sm group/account relative transition-all duration-300 hover:border-brand-100 hover:shadow-md">

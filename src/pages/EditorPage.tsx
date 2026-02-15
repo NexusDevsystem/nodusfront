@@ -11,6 +11,7 @@ import { Plus, Trash2, GripVertical, Image as ImageIcon, Layout, Palette, Type, 
 import SocialLinksEditor from '../components/SocialLinksEditor';
 import AnalyticsView from '../components/AnalyticsView';
 import MonetizationView from '../components/MonetizationView';
+import SupportView from '../components/SupportView';
 import ManageBillingView from '../components/ManageBillingView';
 import BillingModal from '../components/BillingModal';
 import QRCodeModal from '../components/QRCodeModal';
@@ -517,13 +518,15 @@ export default function EditorPage() {
                                     {activeTab === 'links' && 'Links'}
                                     {activeTab === 'appearance' && 'Design'}
                                     {activeTab === 'shop' && 'Loja'}
-                                    {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'earn' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                                    {activeTab === 'support' && 'Suporte'}
+                                    {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'earn' && activeTab !== 'support' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                                 </h1>
                                 <p className="text-slate-500 mt-2 text-base">
                                     {activeTab === 'links' && 'Gerencie seus links e informações do perfil.'}
                                     {activeTab === 'appearance' && 'Personalize as cores e o tema do seu Nodus.'}
                                     {activeTab === 'shop' && 'Gerencie os produtos da sua vitrine.'}
                                     {activeTab === 'billing' && 'Gerencie sua assinatura, visualize recibos e detalhes de pagamento.'}
+                                    {activeTab === 'support' && 'Entre em contato com nossa equipe para resolver dúvidas.'}
                                 </p>
                             </div>
 
@@ -566,6 +569,10 @@ export default function EditorPage() {
 
                                 {activeTab === 'billing' && (
                                     <ManageBillingView profile={profile} />
+                                )}
+
+                                {activeTab === 'support' && (
+                                    <SupportView />
                                 )}
 
 
@@ -612,7 +619,7 @@ export default function EditorPage() {
                                     </div>
                                 )}
 
-                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && (
+                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && (
                                     <div className="bg-white p-12 rounded-[20px] border border-dashed border-slate-300 text-center">
                                         <div className="text-4xl mb-4 text-slate-300 flex justify-center"><Construction size={48} /></div>
                                         <h3 className="text-lg font-medium text-slate-700">Em Desenvolvimento</h3>
