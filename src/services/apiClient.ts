@@ -1,6 +1,8 @@
 import { UserProfile, LinkItem, Product } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || 'https://nodusback-production.up.railway.app';
+
+console.log('📡 Nodus API Client using:', API_URL);
 
 class ApiClient {
     private async getHeaders() {
