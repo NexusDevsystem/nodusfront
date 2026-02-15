@@ -8,9 +8,10 @@ import {
     Zap,
     BarChart3,
     ArrowRight,
-    MousePointer2
+    MousePointer2,
+    Lock
 } from 'lucide-react';
-import { LinkItem } from '../types';
+import { LinkItem, UserProfile } from '../types';
 import { apiClient } from '../services/apiClient';
 
 interface AnalyticsSummary {
@@ -21,19 +22,53 @@ interface AnalyticsSummary {
     topLinks: Array<{ id: string; clicks: number }>;
 }
 
-export default function AnalyticsView() {
+type DateRange = '7d' | '14d' | '30d' | '1y' | 'all';
+
+interface AnalyticsViewProps {
+    userProfile: UserProfile;
+}
+
+export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
     const [links, setLinks] = useState<LinkItem[]>([]);
     const [products, setProducts] = useState<any[]>([]);
 
+    // Default to 14d as before
+    const [dateRange, setDateRange] = useState<DateRange>('14d');
+
+    // Helper to get numeric days
+    const getDaysFromRange = (range: DateRange): number => {
+        switch (range) {
+            case '7d': return 7;
+            case '14d': return 14;
+            case '30d': return 30;
+            case '1y': return 365;
+            case 'all': return 0;
+            default: return 14;
+        }
+    };
+
+    const isPro = userProfile.planType === 'monthly' || userProfile.planType === 'annual';
+
+    const handleRangeChange = (range: DateRange) => {
+        if ((range === '30d' || range === '1y' || range === 'all') && !isPro) {
+            // Trigger upgrade modal via window event (standard pattern in this app)
+            window.dispatchEvent(new CustomEvent('open-billing-modal'));
+            return;
+        }
+        setDateRange(range);
+    };
+
     useEffect(() => {
         const loadData = async () => {
             try {
                 setIsLoading(true);
+                const days = getDaysFromRange(dateRange);
+
                 const [analyticsData, linksData, productsData] = await Promise.all([
-                    apiClient.getAnalytics(),
+                    apiClient.getAnalytics(days),
                     apiClient.getMyLinks(),
                     apiClient.getMyProducts()
                 ]);
@@ -53,7 +88,7 @@ export default function AnalyticsView() {
         };
 
         loadData();
-    }, []);
+    }, [dateRange]); // Reload when range changes
 
     if (isLoading) {
         return (
@@ -116,22 +151,66 @@ export default function AnalyticsView() {
 
     const maxViews = Math.max(...summary.dailyData.map(d => d.views), 1);
 
+    const getRangeLabel = () => {
+        switch (dateRange) {
+            case '7d': return 'Últimos 7 dias';
+            case '14d': return 'Últimos 14 dias';
+            case '30d': return 'Últimos 30 dias';
+            case '1y': return 'Último ano';
+            case 'all': return 'Todo o período';
+            default: return 'Últimos 14 dias';
+        }
+    }
+
     return (
         <div className="space-y-6 animate-fade-in w-full pb-20 max-w-4xl mx-auto">
             {/* Standard Header Card */}
             <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
                     <div className="flex items-center gap-2 text-slate-500">
                         <BarChart3 size={18} />
                         <h3 className="text-sm font-semibold uppercase tracking-wider">Estatísticas</h3>
                     </div>
-                    <div className="px-3 py-1 bg-slate-50 border border-slate-100 rounded text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        Últimos 14 dias
+
+                    {/* Date Range Selector */}
+                    <div className="flex items-center bg-slate-50 p-1 rounded-lg border border-slate-200 self-start md:self-auto overflow-x-auto max-w-full">
+                        {(['7d', '14d', '30d', '1y', 'all'] as DateRange[]).map((range) => {
+                            const isLocked = (range === '30d' || range === '1y' || range === 'all') && !isPro;
+                            const isActive = dateRange === range;
+
+                            return (
+                                <button
+                                    key={range}
+                                    onClick={() => handleRangeChange(range)}
+                                    className={`
+                                        relative px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-md transition-all whitespace-nowrap
+                                        ${isActive
+                                            ? 'bg-white text-slate-800 shadow-sm border border-slate-100'
+                                            : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}
+                                        ${isLocked ? 'opacity-70' : ''}
+                                    `}
+                                >
+                                    <div className="flex items-center gap-1.5">
+                                        {range === '7d' && '7 Dias'}
+                                        {range === '14d' && '14 Dias'}
+                                        {range === '30d' && '30 Dias'}
+                                        {range === '1y' && '1 Ano'}
+                                        {range === 'all' && 'Tudo'}
+                                        {isLocked && <Lock size={8} className="text-[#32a800]" />}
+                                    </div>
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
-                <p className="text-sm text-slate-500 font-medium">
-                    Acompanhe o desempenho e engajamento do seu perfil em tempo real.
-                </p>
+                <div className="flex items-center justify-between">
+                    <p className="text-sm text-slate-500 font-medium">
+                        Acompanhe o desempenho e engajamento do seu perfil em tempo real.
+                    </p>
+                    <div className="hidden md:block px-3 py-1 bg-slate-50 border border-slate-100 rounded text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        {getRangeLabel()}
+                    </div>
+                </div>
             </div>
 
             {/* KPI Grid */}
@@ -175,46 +254,57 @@ export default function AnalyticsView() {
                 </div>
 
                 <div className="h-48 w-full relative pt-4">
-                    <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
-                        {/* Area Gradient (Views) */}
-                        <path
-                            d={createPath(summary.dailyData.map(d => d.views), maxViews, true)}
-                            fill="url(#viewsGradient)"
-                            className="opacity-30"
-                        />
+                    {summary.dailyData.length > 0 ? (
+                        <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
+                            {/* Area Gradient (Views) */}
+                            <path
+                                d={createPath(summary.dailyData.map(d => d.views), maxViews, true)}
+                                fill="url(#viewsGradient)"
+                                className="opacity-30"
+                            />
 
-                        {/* Views Line */}
-                        <path
-                            d={createPath(summary.dailyData.map(d => d.views), maxViews)}
-                            fill="none"
-                            stroke="#32a800"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
+                            {/* Views Line */}
+                            <path
+                                d={createPath(summary.dailyData.map(d => d.views), maxViews)}
+                                fill="none"
+                                stroke="#32a800"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
 
-                        {/* Clicks Line */}
-                        <path
-                            d={createPath(summary.dailyData.map(d => d.clicks), maxViews)}
-                            fill="none"
-                            stroke="#0f172a"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
+                            {/* Clicks Line */}
+                            <path
+                                d={createPath(summary.dailyData.map(d => d.clicks), maxViews)}
+                                fill="none"
+                                stroke="#0f172a"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
 
-                        <defs>
-                            <linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#32a800" stopOpacity="0.4" />
-                                <stop offset="100%" stopColor="#32a800" stopOpacity="0" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
+                            <defs>
+                                <linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#32a800" stopOpacity="0.4" />
+                                    <stop offset="100%" stopColor="#32a800" stopOpacity="0" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">
+                            Sem dados para o período selecionado
+                        </div>
+                    )}
 
                     <div className="flex justify-between mt-6 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                        {summary.dailyData.filter((_, i) => i % 2 === 0).map((d, i) => (
-                            <span key={i}>{new Date(d.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
-                        ))}
+                        {/* Intelligent date labelling based on range */}
+                        {(() => {
+                            const data = summary.dailyData;
+                            if (data.length <= 7) return data.map((d, i) => <span key={i}>{new Date(d.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>);
+                            if (data.length <= 14) return data.filter((_, i) => i % 2 === 0).map((d, i) => <span key={i}>{new Date(d.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>);
+                            if (data.length <= 30) return data.filter((_, i) => i % 5 === 0).map((d, i) => <span key={i}>{new Date(d.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>);
+                            return data.filter((_, i) => i % 30 === 0).map((d, i) => <span key={i}>{new Date(d.date).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })}</span>);
+                        })()}
                     </div>
                 </div>
             </div>

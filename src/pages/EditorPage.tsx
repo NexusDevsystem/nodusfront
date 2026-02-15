@@ -10,7 +10,6 @@ import Sidebar from '../components/Sidebar';
 import { Plus, Trash2, GripVertical, Image as ImageIcon, Layout, Palette, Type, MousePointer2, Smartphone, Monitor, Share2, Eye, ExternalLink, Globe, ChevronRight, Menu, X, Check, Save, Loader2, Play, PlusCircle, Search, List, MessageCircle, HelpCircle, Construction, Mail } from 'lucide-react';
 import SocialLinksEditor from '../components/SocialLinksEditor';
 import AnalyticsView from '../components/AnalyticsView';
-import AudienceView from '../components/AudienceView';
 import MonetizationView from '../components/MonetizationView';
 import ManageBillingView from '../components/ManageBillingView';
 import BillingModal from '../components/BillingModal';
@@ -35,8 +34,7 @@ export default function EditorPage() {
         bio: '',
         avatarUrl: '',
         themeId: 'animated-nodus-official',
-        fontFamily: "'Inter', sans-serif",
-        showNewsletter: true
+        fontFamily: "'Inter', sans-serif"
     });
 
     const [links, setLinks] = useState<LinkItem[]>([]);
@@ -92,7 +90,6 @@ export default function EditorPage() {
                 const linksData = withClientIds(linksDataRaw);
                 const productsData = withClientIds(productsDataRaw);
 
-                if (profileData.showNewsletter === undefined) profileData.showNewsletter = true;
 
                 setProfile(profileData);
                 setLinks(linksData);
@@ -559,12 +556,9 @@ export default function EditorPage() {
                                 )}
 
                                 {activeTab === 'analytics' && (
-                                    <AnalyticsView />
+                                    <AnalyticsView userProfile={profile} />
                                 )}
 
-                                {activeTab === 'audience' && (
-                                    <AudienceView />
-                                )}
 
                                 {activeTab === 'earn' && (
                                     <MonetizationView profile={profile} onChange={setProfile} />
@@ -618,7 +612,7 @@ export default function EditorPage() {
                                     </div>
                                 )}
 
-                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'audience' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && (
+                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && (
                                     <div className="bg-white p-12 rounded-[20px] border border-dashed border-slate-300 text-center">
                                         <div className="text-4xl mb-4 text-slate-300 flex justify-center"><Construction size={48} /></div>
                                         <h3 className="text-lg font-medium text-slate-700">Em Desenvolvimento</h3>

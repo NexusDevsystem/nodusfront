@@ -117,19 +117,6 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
             </div>
           </div>
 
-          {/* Features Toggles */}
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-slate-800 uppercase tracking-wider mb-1">Newsletter</div>
-              <div className="text-[10px] text-slate-400">Exibir captura de leads</div>
-            </div>
-            <button
-              onClick={() => handleChange('showNewsletter', !profile.showNewsletter)}
-              className={`w-10 h-6 rounded-full transition-colors relative ${profile.showNewsletter ? 'bg-brand-500' : 'bg-slate-200'}`}
-            >
-              <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform shadow-sm ${profile.showNewsletter ? 'left-5' : 'left-1'}`}></div>
-            </button>
-          </div>
 
         </div>
       </div>

@@ -31,7 +31,6 @@ export interface UserProfile {
   headerStyle?: 'text' | 'logo';
   logoUrl?: string;
   avatarSize?: 'sm' | 'md' | 'lg';
-  showNewsletter?: boolean;
   customBackground?: string | null;
   customSolidColor?: string | null;
   authProvider?: string;
@@ -100,12 +99,4 @@ export interface AnalyticsEvent {
   linkId: string;
   timestamp: string;
   type: 'click';
-}
-
-export interface NewsletterLead {
-  id: string;
-  email: string;
-  name?: string;
-  date: string;
-  profileName?: string;
 }

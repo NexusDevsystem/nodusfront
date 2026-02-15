@@ -31,7 +31,6 @@ import BackgroundLayer from './BackgroundLayer';
 import { apiClient } from '../services/apiClient';
 import { SiSpotify } from 'react-icons/si';
 // @ts-ignore
-import NewsletterWidget from './NewsletterWidget';
 import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
 
 interface ProfileRendererProps {
@@ -1000,11 +999,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={20} /></span>
                                     </div>
                                 </motion.a>
-                            )}
-                            {profile.showNewsletter && (
-                                <motion.div className="w-full px-2">
-                                    <NewsletterWidget profile={profile} />
-                                </motion.div>
                             )}
                         </div>
 

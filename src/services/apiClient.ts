@@ -137,8 +137,8 @@ class ApiClient {
     }
 
     // Analytics
-    async getAnalytics(): Promise<any> {
-        return this.request('/api/analytics/summary');
+    async getAnalytics(days?: number): Promise<any> {
+        return this.request(`/api/analytics/summary?days=${days || 14}`);
     }
 
     async trackPageView(profileId: string): Promise<void> {

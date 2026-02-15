@@ -78,6 +78,33 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
     const currentPlan = profile.planType || 'free';
 
     useEffect(() => {
+        const handleMessage = async (event: MessageEvent) => {
+            if (event.data === 'stripe-payment-success') {
+                console.log('💳 Payment success message received. Syncing...');
+                try {
+                    const updatedProfile = await apiClient.autoReconcile();
+                    if (updatedProfile.planType !== 'free' && updatedProfile.planType !== currentPlan) {
+                        setStatus('success');
+                        onChange(updatedProfile);
+
+                        confetti({
+                            particleCount: 150,
+                            spread: 70,
+                            origin: { y: 0.6 },
+                            colors: ['#32a800', '#acc8a2', '#ffffff']
+                        });
+                    }
+                } catch (error) {
+                    console.error('Manual reconciliation error:', error);
+                }
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, [currentPlan, onChange]);
+
+    useEffect(() => {
         let pollInterval: NodeJS.Timeout;
 
         if (status === 'pending') {

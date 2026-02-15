@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage';
 import PublicProfilePage from './pages/PublicProfilePage';
 import LoginPage from './pages/LoginPage';
 import OnboardingPage from './pages/OnboardingPage';
+import CheckoutSuccessPage from './pages/CheckoutSuccessPage';
 
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsPage from './pages/TermsPage';
@@ -18,6 +19,7 @@ export default function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/payment/success" element={<CheckoutSuccessPage />} />
           <Route path="/:username" element={<PublicProfilePage />} />
 
           {/* Protected routes */}

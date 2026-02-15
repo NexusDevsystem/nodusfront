@@ -71,12 +71,6 @@ const MENU_GROUPS: MenuGroup[] = [
         icon: BarChart2,
         disabled: false
       },
-      {
-        id: 'audience',
-        label: 'Audiência (CRM)',
-        icon: Users,
-        disabled: false
-      },
     ]
   }
 ];
