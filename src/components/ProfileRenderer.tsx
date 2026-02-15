@@ -406,8 +406,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     </div>
                     {/* Menu / Options Button */}
                     <div className="absolute top-[34px] left-6 z-20">
-                        <div className="p-2">
-                            <img src="/icons/logo_icone.png" alt="Nodus" className="w-8 h-8 object-contain opacity-90 rounded-xl" />
+                        <div className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 transition-all">
+                            <img src="/icons/logo_icone.png" alt="Nodus" className="w-6 h-6 object-contain opacity-90 rounded-full" />
                         </div>
                     </div>
 

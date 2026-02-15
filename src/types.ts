@@ -77,7 +77,7 @@ export interface Theme {
   solidColor?: string;
   buttonHex?: string;
   textHex?: string;
-  category?: 'solid' | 'gradient' | 'animated' | 'music' | 'creative' | 'kawaii';
+  category?: 'solid' | 'gradient' | 'animated' | 'music' | 'creative' | 'kawaii' | 'business' | 'engineering' | 'medicine';
   cardClass?: string;
   fontFamily?: string;
   buttonRoundness?: 'square' | 'round' | 'rounder' | 'full';

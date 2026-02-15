@@ -13,7 +13,7 @@ interface ThemeSelectorProps {
 }
 
 const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products, onChange }) => {
-    const [activeCategory, setActiveCategory] = React.useState<string>('all');
+
 
     const handleThemeSelect = (themeId: string) => {
         // Find the selected theme
@@ -44,28 +44,131 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
         });
     };
 
-    const categories = [
-        { id: 'all', label: 'Todos' },
-        { id: 'gradient', label: 'Gradientes' },
-        { id: 'music', label: 'Música' },
-        { id: 'creative', label: 'Criativo' },
-        { id: 'kawaii', label: 'Kawaii' },
-        { id: 'pro', label: 'Temas Pro' }
-    ] as const;
 
-    const filteredThemes = THEMES.filter(theme => {
-        // Filter official theme
-        if (theme.id === 'custom') return false;
-        if (theme.id === 'animated-nodus-official' && profile.username !== 'noduscc') return false;
 
-        if (activeCategory === 'all') return true;
-        if (activeCategory === 'pro') return theme.isPro;
-        return theme.category === activeCategory;
-    }).sort((a, b) => {
-        // Prioritize Free themes (isPro: false) over Pro themes (isPro: true)
-        if (a.isPro === b.isPro) return 0;
-        return a.isPro ? 1 : -1;
-    });
+    // Helper to render a theme card
+    const renderThemeCard = (theme: typeof THEMES[0]) => {
+        const isSelected = profile.themeId === theme.id && !profile.customBackground;
+        const isLocked = theme.isPro && profile.planType === 'free';
+        const isActive = isSelected; // Alias for clarity
+        const buttonVisuals = theme.buttonClass.replace(/\b(w-full|flex|items-center|justify-between|py-\d+|px-\d+|gap-\d+)\b/g, '').trim();
+
+        return (
+            <motion.div
+                layout
+                key={theme.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col gap-2 group cursor-pointer relative"
+                onClick={() => {
+                    if (isLocked) {
+                        (window as any).dispatchEvent(new CustomEvent('open-billing-modal'));
+                        return;
+                    }
+                    handleThemeSelect(theme.id);
+                }}
+            >
+                {/* Card Container */}
+                <div className={`relative aspect-[3/4] w-full rounded-2xl overflow-hidden transition-all duration-300 ${isActive ? 'ring-2 ring-[#32a800] ring-offset-2 shadow-md' : 'border border-slate-200 hover:border-slate-300 hover:shadow-sm'}`}>
+                    {/* 1. Background Layer */}
+                    <div className={`absolute inset-0 ${theme.backgroundClass}`} style={{ backgroundColor: theme.solidColor }} />
+                    {/* 2. Content Abstraction Layer */}
+                    <div className="absolute inset-0 p-4 flex flex-col items-center justify-center gap-4">
+                        {/* Typography Preview */}
+                        <div className="flex-1 flex items-center justify-center w-full">
+                            <div className={`${theme.textClass} text-4xl font-bold opacity-90`} style={{ fontFamily: theme.fontFamily }}>Aa</div>
+                        </div>
+                        {/* Button Preview (Pill) */}
+                        <div className="w-full h-10 flex items-center justify-center">
+                            <div className={`h-8 w-16 ${buttonVisuals} flex items-center justify-center shadow-sm`}>
+                                <div className="w-6 h-1 bg-current opacity-20 rounded-full" />
+                            </div>
+                        </div>
+                    </div>
+                    {/* 3. Status Overlays */}
+                    {isActive && (
+                        <div className="absolute top-2 right-2 w-5 h-5 bg-[#32a800] text-white rounded-full flex items-center justify-center shadow-sm z-10"><Check size={12} strokeWidth={3} /></div>
+                    )}
+                    {/* Pro Badge */}
+                    {theme.isPro && (
+                        <div className={`absolute top-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider z-10 ${isLocked ? 'bg-slate-900 text-white' : 'bg-black/10 text-black/50'}`}>Pro</div>
+                    )}
+                    {/* Lock Overlay */}
+                    {isLocked && (
+                        <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-20">
+                            <div className="bg-white p-2 rounded-full shadow-lg"><Zap size={16} className="text-slate-400 fill-slate-400" /></div>
+                        </div>
+                    )}
+                </div>
+                {/* Label */}
+                <span className={`text-xs font-medium text-center truncate px-1 transition-colors ${isActive ? 'text-[#32a800]' : 'text-slate-500 group-hover:text-slate-700'}`}>{theme.name}</span>
+            </motion.div>
+        );
+    };
+
+    // Group logic for 'All' view
+    const renderGroupedThemes = () => {
+        const groups = [
+            { title: 'Engenharia & Construção', category: 'engineering' },
+            { title: 'Medicina & Saúde', category: 'medicine' },
+            { title: 'Negócios & Corporativo', category: 'business' },
+            { title: 'Gradientes Vibrantes', category: 'gradient' },
+            { title: 'Minimalista & Sólido', category: 'solid' },
+            { title: 'Música & Artístico', category: 'music' }, // Combined for brevity or separate if needed
+            { title: 'Kawaii & Fofo', category: 'kawaii' },
+            { title: 'Criativo & Animado', category: 'creative' }, // Fallback for others
+        ];
+
+        return (
+            <div className="space-y-10">
+                {/* Custom Theme Card Always Visible on Top */}
+                <div className="flex flex-col gap-4">
+                    <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <Paintbrush size={16} className="text-slate-400" />
+                        Personalizado
+                    </h3>
+                    <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3">
+                        <motion.div
+                            layout
+                            initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+                            className="flex flex-col items-center gap-1.5 group cursor-pointer"
+                            onClick={() => onChange({ ...profile, themeId: 'custom' })}
+                        >
+                            <div className={`relative aspect-[4/5] w-full rounded-xl border-2 transition-all flex flex-col items-center justify-center ${profile.themeId === 'custom' ? 'border-[#32a800] ring-2 ring-[#32a800]/20' : 'border-slate-200 group-hover:border-slate-300'}`} style={{ backgroundColor: profile.customSolidColor || '#f8fafc' }}>
+                                {profile.customBackground ? (
+                                    <img src={profile.customBackground} alt="Preview" className="w-full h-full object-cover rounded-lg" />
+                                ) : (
+                                    <Paintbrush className={profile.customSolidColor ? 'mix-blend-difference' : 'text-slate-400 group-hover:text-slate-500'} size={20} strokeWidth={1.5} style={{ color: profile.customSolidColor ? '#fff' : undefined }} />
+                                )}
+                                {profile.themeId === 'custom' && (
+                                    <div className="absolute inset-0 bg-black/5 flex items-center justify-center z-10">
+                                        <div className="w-6 h-6 rounded-full bg-[#32a800] flex items-center justify-center text-white shadow-lg border-2 border-white"><Check size={12} strokeWidth={3} /></div>
+                                    </div>
+                                )}
+                            </div>
+                            <span className={`text-[10px] font-bold ${profile.themeId === 'custom' ? 'text-[#32a800]' : 'text-slate-500'}`}>Custom</span>
+                        </motion.div>
+                    </div>
+                </div>
+
+                {groups.map((group) => {
+                    const groupThemes = THEMES.filter(t => t.id !== 'custom' && t.category === group.category);
+                    if (groupThemes.length === 0) return null;
+
+                    return (
+                        <div key={group.category} className="flex flex-col gap-4">
+                            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">{group.title}</h3>
+                            <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3">
+                                {groupThemes.map(renderThemeCard)}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        );
+    };
+
+
 
     return (
         <div className="bg-white rounded-[24px] md:rounded-[32px] border border-slate-100 p-6 md:p-10 shadow-sm">
@@ -92,146 +195,10 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                 </div>
 
                 {/* Categories Scrollable */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
-                    {categories.map((cat) => (
-                        <button
-                            key={cat.id}
-                            onClick={() => setActiveCategory(cat.id)}
-                            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeCategory === cat.id
-                                ? 'bg-[#32a800] text-white shadow-md'
-                                : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                                }`}
-                        >
-                            {cat.label}
-                        </button>
-                    ))}
-                </div>
+
             </div>
 
-            <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3">
-                {/* Custom Theme Card */}
-                {activeCategory === 'all' && (
-                    <motion.div
-                        layout
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="flex flex-col items-center gap-1.5 group cursor-pointer"
-                        onClick={() => onChange({ ...profile, themeId: 'custom' })}
-                    >
-                        <div
-                            className={`relative aspect-[4/5] w-full rounded-xl border-2 transition-all flex flex-col items-center justify-center ${profile.themeId === 'custom' ? 'border-[#32a800] ring-2 ring-[#32a800]/20' : 'border-slate-200 group-hover:border-slate-300'}`}
-                            style={{ backgroundColor: profile.customSolidColor || '#f8fafc' }}
-                        >
-                            {profile.customBackground ? (
-                                <img src={profile.customBackground} alt="Preview" className="w-full h-full object-cover rounded-lg" />
-                            ) : (
-                                <Paintbrush
-                                    className={profile.customSolidColor ? 'mix-blend-difference' : 'text-slate-400 group-hover:text-slate-500'}
-                                    size={20}
-                                    strokeWidth={1.5}
-                                    style={{ color: profile.customSolidColor ? '#fff' : undefined }}
-                                />
-                            )}
-
-                            {profile.themeId === 'custom' && (
-                                <div className="absolute inset-0 bg-black/5 flex items-center justify-center z-10">
-                                    <div className="w-6 h-6 rounded-full bg-[#32a800] flex items-center justify-center text-white shadow-lg border-2 border-white">
-                                        <Check size={12} strokeWidth={3} />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        <span className={`text-[10px] font-bold ${profile.themeId === 'custom' ? 'text-[#32a800]' : 'text-slate-500'}`}>Custom</span>
-                    </motion.div>
-                )}
-
-                {filteredThemes.map((theme) => {
-                    const isSelected = profile.themeId === theme.id && !profile.customBackground;
-                    const isLocked = theme.isPro && profile.planType === 'free';
-                    const isActive = isSelected; // Alias for clarity
-
-                    // Extract button visual styles (strip layout)
-                    const buttonVisuals = theme.buttonClass
-                        .replace(/\b(w-full|flex|items-center|justify-between|py-\d+|px-\d+|gap-\d+)\b/g, '')
-                        .trim();
-
-                    return (
-                        <motion.div
-                            layout
-                            key={theme.id}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="flex flex-col gap-2 group cursor-pointer relative"
-                            onClick={() => {
-                                if (isLocked) {
-                                    (window as any).dispatchEvent(new CustomEvent('open-billing-modal'));
-                                    return;
-                                }
-                                handleThemeSelect(theme.id);
-                            }}
-                        >
-                            {/* Card Container */}
-                            <div className={`relative aspect-[3/4] w-full rounded-2xl overflow-hidden transition-all duration-300 ${isActive ? 'ring-2 ring-[#32a800] ring-offset-2 shadow-md' : 'border border-slate-200 hover:border-slate-300 hover:shadow-sm'}`}>
-
-                                {/* 1. Background Layer */}
-                                <div
-                                    className={`absolute inset-0 ${theme.backgroundClass}`}
-                                    style={{ backgroundColor: theme.solidColor }}
-                                />
-
-                                {/* 2. Content Abstraction Layer */}
-                                <div className="absolute inset-0 p-4 flex flex-col items-center justify-center gap-4">
-
-                                    {/* Typography Preview */}
-                                    <div className="flex-1 flex items-center justify-center w-full">
-                                        <div
-                                            className={`${theme.textClass} text-4xl font-bold opacity-90`}
-                                            style={{ fontFamily: theme.fontFamily }}
-                                        >
-                                            Aa
-                                        </div>
-                                    </div>
-
-                                    {/* Button Preview (Pill) */}
-                                    <div className="w-full h-10 flex items-center justify-center">
-                                        <div className={`h-8 w-16 ${buttonVisuals} flex items-center justify-center shadow-sm`}>
-                                            <div className="w-6 h-1 bg-current opacity-20 rounded-full" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* 3. Status Overlays */}
-                                {isActive && (
-                                    <div className="absolute top-2 right-2 w-5 h-5 bg-[#32a800] text-white rounded-full flex items-center justify-center shadow-sm z-10">
-                                        <Check size={12} strokeWidth={3} />
-                                    </div>
-                                )}
-
-                                {/* Pro Badge */}
-                                {theme.isPro && (
-                                    <div className={`absolute top-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider z-10 ${isLocked ? 'bg-slate-900 text-white' : 'bg-black/10 text-black/50'}`}>
-                                        Pro
-                                    </div>
-                                )}
-
-                                {/* Lock Overlay */}
-                                {isLocked && (
-                                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-20">
-                                        <div className="bg-white p-2 rounded-full shadow-lg">
-                                            <Zap size={16} className="text-slate-400 fill-slate-400" />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Label */}
-                            <span className={`text-xs font-medium text-center truncate px-1 transition-colors ${isActive ? 'text-[#32a800]' : 'text-slate-500 group-hover:text-slate-700'}`}>
-                                {theme.name}
-                            </span>
-                        </motion.div>
-                    );
-                })}
-            </div>
+            {renderGroupedThemes()}
 
             {/* Custom Background Section */}
             {profile.themeId === 'custom' && (

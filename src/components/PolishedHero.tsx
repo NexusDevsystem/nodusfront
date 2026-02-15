@@ -1,19 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import React from 'react';
 
 export default function PolishedHero() {
-    const navigate = useNavigate();
-    const [username, setUsername] = useState('');
-
-    const handleClaim = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (username) {
-            navigate(`/onboarding?username=${username}`);
-        } else {
-            navigate('/onboarding');
-        }
-    };
 
     return (
         <section className="w-full min-h-[calc(100vh-80px)] bg-white text-black font-sans flex flex-col">
@@ -41,24 +28,7 @@ export default function PolishedHero() {
                             Design de estúdio, vendas integradas e zero código.
                         </p>
 
-                        {/* Input Form */}
-                        <form onSubmit={handleClaim} className="w-full max-w-xl">
-                            <div className="flex flex-col md:flex-row shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-                                <div className="flex-1 flex items-center px-4 h-16 bg-white border-2 border-black border-b-0 md:border-b-2 md:border-r-0">
-                                    <span className="font-bold text-black/40">nodus.cc/</span>
-                                    <input
-                                        type="text"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                        placeholder="seunome"
-                                        className="w-full bg-transparent border-none outline-none text-lg font-bold text-black placeholder-black/20 ml-1"
-                                    />
-                                </div>
-                                <button type="submit" className="h-16 px-8 bg-black text-white font-bold uppercase hover:bg-[#97cd7a] transition-colors flex items-center justify-center gap-2 border-2 border-black text-sm tracking-widest whitespace-nowrap">
-                                    Começar Grátis <ArrowRight size={18} />
-                                </button>
-                            </div>
-                        </form>
+                        {/* Input Form Removed */}
 
 
                     </div>

@@ -7,6 +7,8 @@ import { Background as KawaiiSakuraBackground } from '../themes/kawaii-sakura';
 import ModernVisualizer from '../themes/modern/ModernVisualizer';
 import ArtisticVisualizer from '../themes/artistic/ArtisticVisualizer';
 import SocialVisualizer from '../themes/social/SocialVisualizer';
+import EngineeringVisualizer from '../themes/engineering/EngineeringVisualizer';
+import MedicineVisualizer from '../themes/medicine/MedicineVisualizer';
 
 interface BackgroundLayerProps {
     profile: UserProfile;
@@ -96,6 +98,30 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
                 return <SocialVisualizer variant="twitch" />;
             case 'social-youtube':
                 return <SocialVisualizer variant="youtube" />;
+
+            // Engineering Themes (Animated)
+            case 'engineering-crane':
+                return <EngineeringVisualizer variant="crane-sky" />;
+            case 'engineering-blueprint':
+                return <EngineeringVisualizer variant="blueprint-motion" />;
+            case 'engineering-circuit':
+                return <EngineeringVisualizer variant="circuit-flow" />;
+            case 'engineering-gears':
+                return <EngineeringVisualizer variant="industrial-gears" />;
+            case 'engineering-structure':
+                return <EngineeringVisualizer variant="neon-grid" />;
+
+            // Medicine Themes (Animated)
+            case 'medicine-clinical':
+                return <MedicineVisualizer variant="clinical-clean" />;
+            case 'medicine-cardio':
+                return <MedicineVisualizer variant="cardio-pulse" />;
+            case 'medicine-biolab':
+                return <MedicineVisualizer variant="bio-lab" />;
+            case 'medicine-neuro':
+                return <MedicineVisualizer variant="neuro-mind" />;
+            case 'medicine-radiology':
+                return <MedicineVisualizer variant="radiology-dark" />;
 
             // Music Themes (New Config)
 

@@ -2,23 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { THEMES } from '../constants';
 import { CheckCircle } from 'lucide-react';
-import { Background as NodusOfficialBackground } from '../themes/nodus-official';
-
-// Use a variety of premium and featured themes
-const SHOWCASE_THEMES = [
-    'nodus-official',
-    'gradient-royal-velvet',
-    'animated-cosmic-drift',
-    'glass',
-    'animated-aurora-borealis',
-    'luxury-gold'
-];
+import BackgroundLayer from './BackgroundLayer';
+import { UserProfile } from '../types';
 
 export default function ShowcaseCards() {
     const [index, setIndex] = useState(0);
 
-    // Filter themes to only the selected ones
-    const displayThemes = SHOWCASE_THEMES.map(id => THEMES.find(t => t.id === id)).filter(Boolean);
+    // Filter themes to only real system themes (excluding 'custom')
+    const displayThemes = THEMES.filter(t => t.id !== 'custom');
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -26,21 +17,6 @@ export default function ShowcaseCards() {
         }, 3500);
         return () => clearInterval(timer);
     }, [displayThemes.length]);
-
-    // Import components dynamic-like or use a map
-    const renderThemeBackground = (themeId: string) => {
-        switch (themeId) {
-            case 'nodus-official':
-                return <NodusOfficialBackground />;
-            case 'animated-aurora-borealis':
-                // We'll use a placeholder or generic animated div if specific component isn't easy to import here
-                return <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 via-teal-500 to-blue-500 animate-pulse opacity-40 blur-3xl"></div>;
-            case 'animated-cosmic-drift':
-                return <div className="absolute inset-0 bg-black"><div className="absolute inset-0 bg-[#6366f1]/20 animate-pulse"></div></div>;
-            default:
-                return null;
-        }
-    };
 
     return (
         <div className="relative w-[320px] h-[640px] bg-black rounded-[3rem] border-[12px] border-black shadow-[20px_20px_0px_0px_rgba(0,0,0,0.2)] overflow-hidden ring-1 ring-white/20 transform transition-transform duration-500 hover:scale-[1.02]">
@@ -58,6 +34,16 @@ export default function ShowcaseCards() {
 
                         // Limit visible stack
                         if (offset > 1) return null;
+
+                        // Create a temporary profile object for the BackgroundLayer
+                        const tempProfile: UserProfile = {
+                            id: 'showcase',
+                            name: 'Showcase',
+                            bio: '',
+                            avatarUrl: '',
+                            themeId: theme.id,
+                            fontFamily: theme.fontFamily || "'Inter', sans-serif"
+                        };
 
                         return (
                             <motion.div
@@ -77,10 +63,12 @@ export default function ShowcaseCards() {
                                 transition={{ type: "spring", stiffness: 200, damping: 25 }}
                                 className={`absolute inset-0 w-full h-full flex flex-col items-center pt-20 px-6 ${theme.backgroundClass}`}
                             >
-                                {/* Render Animated Background */}
-                                <div className="absolute inset-0 z-0 overflow-hidden">
-                                    {renderThemeBackground(theme.id)}
-                                </div>
+                                {/* Render Theme Background using the central BackgroundLayer component */}
+                                <BackgroundLayer
+                                    profile={tempProfile}
+                                    currentTheme={theme}
+                                    className="absolute inset-0 z-0"
+                                />
 
                                 {/* Content Overlay - Z-Index 10 to sit above background */}
                                 <div className="relative z-10 w-full flex flex-col items-center">

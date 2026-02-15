@@ -109,7 +109,7 @@ export default function VectorFooter() {
 
                 {/* Bottom Bar */}
                 <div className="flex flex-col md:flex-row justify-between items-center p-6 bg-black text-white font-bold uppercase text-xs tracking-widest gap-4">
-                    <p>Feito com ❤️ no Brasil</p>
+                    <p>Um sistema Nexus</p>
                     <p>© 2026 Nodus Inc.</p>
                 </div>
             </div>

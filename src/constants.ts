@@ -94,6 +94,8 @@ export const FONTS: FontOption[] = [
 import { nodusOfficialTheme } from './themes/nodus-official';
 import { kawaiiSakuraTheme } from './themes/kawaii-sakura';
 import { businessThemes } from './themes/business';
+import { engineeringThemes } from './themes/engineering';
+import { medicineThemes } from './themes/medicine';
 import { kawaiiThemes } from './themes/kawaii';
 import { modernThemes } from './themes/modern';
 import { artisticThemes } from './themes/artistic';
@@ -116,6 +118,8 @@ export const THEMES: Theme[] = [
   nodusOfficialTheme,
   kawaiiSakuraTheme,
   ...businessThemes,
+  ...engineeringThemes,
+  ...medicineThemes,
   ...kawaiiThemes,
   ...modernThemes,
   ...artisticThemes,
