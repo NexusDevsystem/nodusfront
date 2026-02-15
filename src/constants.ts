@@ -96,6 +96,8 @@ import { kawaiiSakuraTheme } from './themes/kawaii-sakura';
 import { businessThemes } from './themes/business';
 import { kawaiiThemes } from './themes/kawaii';
 import { modernThemes } from './themes/modern';
+import { artisticThemes } from './themes/artistic';
+import { socialThemes } from './themes/social';
 
 export const THEMES: Theme[] = [
   {
@@ -115,7 +117,9 @@ export const THEMES: Theme[] = [
   kawaiiSakuraTheme,
   ...businessThemes,
   ...kawaiiThemes,
-  ...modernThemes
+  ...modernThemes,
+  ...artisticThemes,
+  ...socialThemes
 ];
 
 export const SOCIAL_NETWORKS = [

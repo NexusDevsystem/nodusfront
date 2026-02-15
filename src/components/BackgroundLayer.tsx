@@ -5,6 +5,8 @@ import { UserProfile, Theme } from '../types';
 import { Background as NodusOfficialBackground } from '../themes/nodus-official';
 import { Background as KawaiiSakuraBackground } from '../themes/kawaii-sakura';
 import ModernVisualizer from '../themes/modern/ModernVisualizer';
+import ArtisticVisualizer from '../themes/artistic/ArtisticVisualizer';
+import SocialVisualizer from '../themes/social/SocialVisualizer';
 
 interface BackgroundLayerProps {
     profile: UserProfile;
@@ -74,6 +76,26 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
                 return <ModernVisualizer variant="high-contrast" />;
             case 'modern-royal-gold':
                 return <ModernVisualizer variant="royal-gold" />;
+
+            // Artistic Themes
+            case 'artistic-sketchbook':
+                return <ArtisticVisualizer variant="sketchbook" />;
+            case 'artistic-line-art':
+                return <ArtisticVisualizer variant="line-art" />;
+            case 'artistic-pop-art':
+                return <ArtisticVisualizer variant="pop-art" />;
+            case 'artistic-abstract':
+                return <ArtisticVisualizer variant="abstract" />;
+            case 'artistic-bauhaus':
+                return <ArtisticVisualizer variant="bauhaus" />;
+
+            // Social Themes
+            case 'social-tiktok':
+                return <SocialVisualizer variant="tiktok" />;
+            case 'social-twitch':
+                return <SocialVisualizer variant="twitch" />;
+            case 'social-youtube':
+                return <SocialVisualizer variant="youtube" />;
 
             // Music Themes (New Config)
 

@@ -111,7 +111,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             currentTheme.id === 'modern-cyberpunk' ||
             currentTheme.id === 'modern-industrial' ||
             currentTheme.id === 'modern-retro' ||
-            currentTheme.id === 'modern-royal-gold';
+            currentTheme.id === 'modern-royal-gold' ||
+            currentTheme.id === 'crimson-strategy' ||
+            currentTheme.id === 'social-tiktok' ||
+            currentTheme.id === 'social-twitch' ||
+            currentTheme.id === 'social-youtube';
 
     const getHighlightClass = (type?: string) => {
         switch (type) {

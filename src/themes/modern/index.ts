@@ -26,7 +26,7 @@ export const modernThemes: Theme[] = [
         buttonHex: '#00f3ff',
         textHex: '#00f3ff',
         textClass: 'text-[#00f3ff] font-mono uppercase tracking-widest drop-shadow-[0_0_8px_#00f3ff]',
-        avatarBorder: 'rounded-none border-2 border-[#ff00ff] shadow-[0_0_15px_#ff00ff]',
+        avatarBorder: 'rounded-full border-2 border-[#ff00ff] shadow-[0_0_15px_#ff00ff]',
         fontFamily: "'Orbitron', sans-serif",
         category: 'creative',
         isPro: true
@@ -86,7 +86,7 @@ export const modernThemes: Theme[] = [
         buttonHex: '#ffffff',
         textHex: '#ffffff',
         textClass: 'text-white font-mono tracking-tighter uppercase font-black',
-        avatarBorder: 'rounded-none border-4 border-white grayscale',
+        avatarBorder: 'rounded-full border-4 border-white grayscale',
         fontFamily: "'Roboto Mono', monospace",
         category: 'creative',
         isPro: true
