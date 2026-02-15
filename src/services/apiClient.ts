@@ -1,6 +1,9 @@
 import { UserProfile, LinkItem, Product } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://nodusback-production.up.railway.app';
+const rawUrl = import.meta.env.VITE_API_URL || 'https://nodusback-production.up.railway.app';
+
+// Ensure URL has protocol (prevent relative path issues)
+const API_URL = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
 
 console.log('📡 Nodus API Client using:', API_URL);
 
