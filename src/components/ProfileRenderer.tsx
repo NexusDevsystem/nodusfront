@@ -6,7 +6,7 @@ import {
     Signal,
     Wifi,
     Battery,
-    Share2,
+    Share,
     Globe,
     ShoppingBag,
     MoreHorizontal,
@@ -399,9 +399,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     <div className="absolute top-[34px] right-6 z-20">
                         <button
                             onClick={onShare}
-                            className={`p-2 rounded-xl transition-colors ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white hover:bg-white/10 drop-shadow-md' : 'text-slate-800 hover:bg-black/5'}`}
+                            className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all"
                         >
-                            <Share2 size={24} className="drop-shadow-sm" />
+                            <Share size={18} />
                         </button>
                     </div>
                     {/* Menu / Options Button */}

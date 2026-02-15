@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { X, Download, Copy, Share2 } from 'lucide-react';
+import { X, Download, Copy } from 'lucide-react';
 
 interface QRCodeModalProps {
     url: string;

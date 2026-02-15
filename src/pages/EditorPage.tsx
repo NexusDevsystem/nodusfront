@@ -7,7 +7,7 @@ import LinkEditor from '../components/LinkEditor';
 import ShopEditor from '../components/ShopEditor';
 import Preview from '../components/Preview';
 import Sidebar from '../components/Sidebar';
-import { Plus, Trash2, GripVertical, Image as ImageIcon, Layout, Palette, Type, MousePointer2, Smartphone, Monitor, Share2, Eye, ExternalLink, Globe, ChevronRight, Menu, X, Check, Save, Loader2, Play, PlusCircle, Search, List, MessageCircle, HelpCircle, Construction, Mail } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Image as ImageIcon, Layout, Palette, Type, MousePointer2, Smartphone, Monitor, Share, Eye, ExternalLink, Globe, ChevronRight, Menu, X, Check, Save, Loader2, PlusCircle, Search, List, MessageCircle, HelpCircle, Construction, Mail } from 'lucide-react';
 import SocialLinksEditor from '../components/SocialLinksEditor';
 import AnalyticsView from '../components/AnalyticsView';
 import MonetizationView from '../components/MonetizationView';
@@ -437,7 +437,7 @@ export default function EditorPage() {
                                 onClick={() => setIsShareModalOpen(true)}
                                 className="p-2 text-slate-500 hover:text-[#32a800] active:bg-slate-50 rounded-lg transition-all"
                             >
-                                <Share2 size={20} />
+                                <Share size={20} />
                             </button>
                             <button
                                 className="p-2 text-slate-500 active:text-[#32a800] active:bg-slate-50 rounded-lg transition-all"
@@ -498,7 +498,7 @@ export default function EditorPage() {
                                     title="Compartilhar"
                                     className="p-2 text-slate-500 hover:text-[#32a800] hover:bg-slate-50 rounded-lg transition-all active:scale-95"
                                 >
-                                    <Share2 size={20} />
+                                    <Share size={20} />
                                 </button>
                                 <a
                                     href={shareUrl}
