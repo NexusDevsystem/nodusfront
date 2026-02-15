@@ -76,11 +76,21 @@ export default function EditorPage() {
                 const profileData = await apiClient.getMyProfile();
                 setLoadingProgress(50);
 
-                const linksData = await apiClient.getMyLinks();
+                const linksDataRaw = await apiClient.getMyLinks();
                 setLoadingProgress(70);
 
-                const productsData = await apiClient.getMyProducts();
+                const productsDataRaw = await apiClient.getMyProducts();
                 setLoadingProgress(90);
+
+                // Helper to assign clientIds recursively
+                const withClientIds = (items: any[]): any[] => items.map(item => ({
+                    ...item,
+                    clientId: item.clientId || crypto.randomUUID(),
+                    children: item.children ? withClientIds(item.children) : undefined
+                }));
+
+                const linksData = withClientIds(linksDataRaw);
+                const productsData = withClientIds(productsDataRaw);
 
                 if (profileData.showNewsletter === undefined) profileData.showNewsletter = true;
 
@@ -136,6 +146,8 @@ export default function EditorPage() {
     const [isSavingProfile, setIsSavingProfile] = React.useState(false);
     const [isSavingLinks, setIsSavingLinks] = React.useState(false);
     const [isSavingProducts, setIsSavingProducts] = React.useState(false);
+    const [expandedLinks, setExpandedLinks] = React.useState<Record<string, boolean>>({});
+    const [expandedCollections, setExpandedCollections] = React.useState<Record<string, boolean>>({});
 
     const isSaving = isSavingProfile || isSavingLinks || isSavingProducts;
 
@@ -212,6 +224,29 @@ export default function EditorPage() {
                     }));
 
                     const updatedLinks = updateIds(currentLinks);
+
+                    // Also sync expanded states so editors don't close!
+                    setExpandedLinks(prev => {
+                        const next = { ...prev };
+                        idMap.forEach((newId, oldId) => {
+                            if (next[oldId]) {
+                                next[newId] = true;
+                                delete next[oldId];
+                            }
+                        });
+                        return next;
+                    });
+                    setExpandedCollections(prev => {
+                        const next = { ...prev };
+                        idMap.forEach((newId, oldId) => {
+                            if (next[oldId]) {
+                                next[newId] = true;
+                                delete next[oldId];
+                            }
+                        });
+                        return next;
+                    });
+
                     lastSavedLinks.current = JSON.stringify(updatedLinks);
                     return updatedLinks;
                 });
@@ -241,9 +276,33 @@ export default function EditorPage() {
 
         const saveProducts = async () => {
             setIsSavingProducts(true);
+            const productsSnapshot = products;
             try {
-                await apiClient.replaceAllProducts(products);
-                lastSavedProducts.current = JSON.stringify(products);
+                const savedProducts = await apiClient.replaceAllProducts(productsSnapshot);
+
+                // Sync backend-generated IDs back to state
+                setProducts(currentProducts => {
+                    if (savedProducts.length !== productsSnapshot.length) return currentProducts;
+                    const idMap = new Map<string, string>();
+                    for (let i = 0; i < productsSnapshot.length; i++) {
+                        if (productsSnapshot[i].id !== savedProducts[i].id) {
+                            idMap.set(productsSnapshot[i].id, savedProducts[i].id);
+                        }
+                    }
+
+                    if (idMap.size === 0) {
+                        lastSavedProducts.current = JSON.stringify(currentProducts);
+                        return currentProducts;
+                    }
+
+                    const updatedProducts = currentProducts.map(p => ({
+                        ...p,
+                        id: idMap.get(p.id) || p.id
+                    }));
+
+                    lastSavedProducts.current = JSON.stringify(updatedProducts);
+                    return updatedProducts;
+                });
             } catch (error) {
                 console.error('Auto-save products failed:', error);
             } finally {
@@ -263,7 +322,14 @@ export default function EditorPage() {
     }, []);
 
     // 'links' or 'appearance' are the main functional tabs
-    const [activeTab, setActiveTab] = useState<string>('links');
+    const [activeTab, setActiveTab] = useState<string>(() => {
+        return localStorage.getItem('nodus_editor_active_tab') || 'links';
+    });
+
+    // Persist activeTab to localStorage
+    React.useEffect(() => {
+        localStorage.setItem('nodus_editor_active_tab', activeTab);
+    }, [activeTab]);
 
     // Mobile drawer state
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -474,7 +540,15 @@ export default function EditorPage() {
                                     <div className="space-y-6">
 
                                         <SocialLinksEditor links={links} onChange={setLinks} />
-                                        <LinkEditor links={links} onChange={setLinks} profile={profile} />
+                                        <LinkEditor
+                                            links={links}
+                                            onChange={setLinks}
+                                            profile={profile}
+                                            expandedLinks={expandedLinks}
+                                            setExpandedLinks={setExpandedLinks}
+                                            expandedCollections={expandedCollections}
+                                            setExpandedCollections={setExpandedCollections}
+                                        />
                                     </div>
                                 )}
 

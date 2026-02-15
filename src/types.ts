@@ -1,5 +1,6 @@
 export interface LinkItem {
   id: string;
+  clientId?: string;
   title: string;
   url: string;
   icon?: string;
@@ -77,6 +78,7 @@ export interface Theme {
 
 export interface Product {
   id: string;
+  clientId?: string;
   image: string;
   name: string;
   url: string;

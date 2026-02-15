@@ -48,6 +48,10 @@ interface SortableLinkItemProps {
   isCollectionExpanded: boolean;
   profile: UserProfile;
   level: number;
+  expandedLinks: Record<string, boolean>;
+  setExpandedLinks: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  expandedCollections: Record<string, boolean>;
+  setExpandedCollections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
 }
 
 function SortableLinkItem({
@@ -55,16 +59,26 @@ function SortableLinkItem({
   updateLink,
   updateLinkFields,
   removeLink,
-  toggleLink,
-  isExpanded,
-  toggleCollection,
   isCollectionExpanded,
   profile,
-  level
+  level,
+  expandedLinks,
+  setExpandedLinks,
+  expandedCollections,
+  setExpandedCollections
 }: SortableLinkItemProps) {
   const dragControls = useDragControls();
   const [openAnimationMenu, setOpenAnimationMenu] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const isExpanded = !!expandedLinks[link.id];
+  const toggleLink = (id: string) => {
+    setExpandedLinks(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleCollection = (id: string) => {
+    setExpandedCollections(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   // LinkEditor is used recursively here. It must be hoisted or available.
 
@@ -177,6 +191,10 @@ function SortableLinkItem({
                           onChange={(newChildren) => updateLink(link.id, 'children', newChildren)}
                           level={level + 1}
                           profile={profile}
+                          expandedLinks={expandedLinks}
+                          setExpandedLinks={setExpandedLinks}
+                          expandedCollections={expandedCollections}
+                          setExpandedCollections={setExpandedCollections}
                         />
                       </div>
                     </div>
@@ -555,13 +573,31 @@ function SortableLinkItem({
 interface LinkEditorProps {
   links: LinkItem[];
   onChange: (links: LinkItem[] | ((prev: LinkItem[]) => LinkItem[])) => void;
-  level?: number; // For nesting control
+  level?: number;
   profile: UserProfile;
+  expandedLinks?: Record<string, boolean>;
+  setExpandedLinks?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  expandedCollections?: Record<string, boolean>;
+  setExpandedCollections?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
 }
 
-function LinkEditor({ links, onChange, level = 0, profile }: LinkEditorProps) {
-  const [expandedCollections, setExpandedCollections] = useState<Record<string, boolean>>({});
-  const [expandedLinks, setExpandedLinks] = useState<Record<string, boolean>>({});
+function LinkEditor({
+  links,
+  onChange,
+  level = 0,
+  profile,
+  expandedLinks: externalExpandedLinks,
+  setExpandedLinks: externalSetExpandedLinks,
+  expandedCollections: externalExpandedCollections,
+  setExpandedCollections: externalSetExpandedCollections
+}: LinkEditorProps) {
+  const [internalExpandedCollections, setInternalExpandedCollections] = useState<Record<string, boolean>>({});
+  const [internalExpandedLinks, setInternalExpandedLinks] = useState<Record<string, boolean>>({});
+
+  const expandedCollections = externalExpandedCollections || internalExpandedCollections;
+  const setExpandedCollections = externalSetExpandedCollections || setInternalExpandedCollections;
+  const expandedLinks = externalExpandedLinks || internalExpandedLinks;
+  const setExpandedLinks = externalSetExpandedLinks || setInternalExpandedLinks;
   const [showArchive, setShowArchive] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -593,6 +629,7 @@ function LinkEditor({ links, onChange, level = 0, profile }: LinkEditorProps) {
   const addLink = () => {
     const newLink: LinkItem = {
       id: Date.now().toString(),
+      clientId: crypto.randomUUID(),
       title: 'Novo Link',
       url: '',
       isActive: true,
@@ -608,6 +645,7 @@ function LinkEditor({ links, onChange, level = 0, profile }: LinkEditorProps) {
   const addCollection = () => {
     const newCollection: LinkItem = {
       id: Date.now().toString(),
+      clientId: crypto.randomUUID(),
       title: 'Nova Coleção',
       url: '',
       isActive: true,
@@ -751,7 +789,7 @@ function LinkEditor({ links, onChange, level = 0, profile }: LinkEditorProps) {
         >
           {activeLinks.map((link) => (
             <SortableLinkItem
-              key={link.id}
+              key={link.clientId || link.id}
               link={link}
               updateLink={updateLink}
               updateLinkFields={updateLinkFields}
@@ -762,6 +800,10 @@ function LinkEditor({ links, onChange, level = 0, profile }: LinkEditorProps) {
               isCollectionExpanded={!!expandedCollections[link.id]}
               profile={profile}
               level={level}
+              expandedLinks={expandedLinks}
+              setExpandedLinks={setExpandedLinks}
+              expandedCollections={expandedCollections}
+              setExpandedCollections={setExpandedCollections}
             />
           ))}
         </Reorder.Group>

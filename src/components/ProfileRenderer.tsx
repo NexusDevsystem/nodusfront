@@ -46,8 +46,25 @@ interface ProfileRendererProps {
 const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], isPreview = false, isStatic = false, onShare }) => {
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
     const activeLinks = links.filter(l => l.isActive && !l.isArchived);
-    const [activeTab, setActiveTab] = useState<'links' | 'shop'>('links');
-    const [activeCollection, setActiveCollection] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<'links' | 'shop'>(() => {
+        return (localStorage.getItem('nodus_profile_active_tab') as 'links' | 'shop') || 'links';
+    });
+    const [activeCollection, setActiveCollection] = useState<string | null>(() => {
+        return localStorage.getItem('nodus_profile_active_collection');
+    });
+
+    // Persist activeTab and activeCollection to localStorage
+    React.useEffect(() => {
+        localStorage.setItem('nodus_profile_active_tab', activeTab);
+    }, [activeTab]);
+
+    React.useEffect(() => {
+        if (activeCollection) {
+            localStorage.setItem('nodus_profile_active_collection', activeCollection);
+        } else {
+            localStorage.removeItem('nodus_profile_active_collection');
+        }
+    }, [activeCollection]);
 
     // Group products
     // @ts-ignore
@@ -546,35 +563,60 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                     {/* Collection List View */}
                                     {!activeCollection ? (
-                                        <div className="space-y-4">
+                                        <div className="space-y-6">
                                             <div
-                                                className={`flex items-center gap-2 mb-2 text-base opacity-80 px-1`}
+                                                className={`flex items-center gap-2.5 mb-2 text-xs font-bold uppercase tracking-widest opacity-60 px-1`}
                                                 style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                             >
-                                                <ShoppingBag size={18} />
-                                                <span>Coleções</span>
+                                                <ShoppingBag size={14} className="stroke-[2.5]" />
+                                                <span>Categorias</span>
                                             </div>
 
                                             {Object.entries(collections).map(([name, items]) => (
                                                 <button
                                                     key={name}
                                                     onClick={() => handleCollectionClick(name)}
-                                                    className={`w-full group relative overflow-hidden transition-all duration-300 ${baseCardClass}`}
-                                                    style={mainButtonStyle}
+                                                    className={`w-full group relative transition-all duration-300 ${cleanClass(baseCardClass, ['bg', 'text']).replace('overflow-hidden', '')}`}
+                                                    style={{
+                                                        ...mainButtonStyle,
+                                                        backgroundColor: buttonHex,
+                                                        color: getSmartTextColor()
+                                                    }}
                                                 >
-                                                    <div className="flex flex-col">
-                                                        {/* Preview Images Collage */}
-                                                        <div className="flex h-52 w-full gap-0.5 overflow-hidden bg-slate-50">
-                                                            {items.slice(0, 3).map((item, i) => (
-                                                                <div key={item.id} className="flex-1 h-full relative border-r border-white/20 last:border-0">
-                                                                    <img src={item.image} alt={item.name} className="w-full h-full block object-cover" />
+                                                    <div className={`flex flex-col w-full h-full overflow-hidden ${roundedClass}`}>
+                                                        {/* Preview Images Collage - Refined */}
+                                                        <div className="flex h-48 w-full gap-1 p-1 bg-black/5">
+                                                            {items.length === 1 ? (
+                                                                <div className="flex-1 h-full relative overflow-hidden rounded-xl">
+                                                                    <img src={items[0].image} alt={items[0].name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" />
+                                                                    <div className="absolute inset-0 bg-black/5" />
                                                                 </div>
-                                                            ))}
+                                                            ) : (
+                                                                <>
+                                                                    {items.slice(0, 3).map((item, i) => (
+                                                                        <div key={item.id} className={`flex-1 h-full relative overflow-hidden ${i === 0 ? 'rounded-l-xl' : i === items.slice(0, 3).length - 1 ? 'rounded-r-xl' : ''}`}>
+                                                                            <img src={item.image} alt={item.name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" />
+                                                                            <div className="absolute inset-0 bg-black/5" />
+                                                                        </div>
+                                                                    ))}
+                                                                    {/* Placeholder if less than 3 items */}
+                                                                    {items.length < 3 && Array.from({ length: 3 - items.length }).map((_, i) => (
+                                                                        <div key={`empty-${i}`} className="flex-1 h-full bg-slate-100/50 flex items-center justify-center text-slate-300">
+                                                                            <ShoppingBag size={24} strokeWidth={1.5} />
+                                                                        </div>
+                                                                    ))}
+                                                                </>
+                                                            )}
                                                         </div>
-                                                        <div className="p-3 text-center">
-                                                            <h3 className="text-sm" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
-                                                            <div className="flex justify-center items-center gap-1 text-[10px] opacity-80 uppercase tracking-wide" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                <span>{items.length} produtos</span>
+                                                        <div className="p-4 flex items-center justify-between bg-black/5">
+                                                            <div className="text-left">
+                                                                <h3 className="text-sm font-bold" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
+                                                                <p className="text-[10px] font-bold uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                    {items.length} {items.length === 1 ? 'Produto' : 'Produtos'}
+                                                                </p>
+                                                            </div>
+                                                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center transition-colors">
+                                                                <ChevronRight size={16} />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -582,47 +624,78 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             ))}
                                         </div>
                                     ) : (
-                                        /* Filtered Product Grid */
+                                        /* Filtered Product Grid - Refined Storefront */
                                         <div className="relative">
-                                            <button
-                                                onClick={() => setActiveCollection(null)}
-                                                className={`flex items-center gap-2 mb-4 text-sm font-bold opacity-80 hover:opacity-100 transition px-1`}
-                                                style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                            >
-                                                <ChevronDown size={16} className="rotate-90" />
-                                                <span>Voltar para Coleções</span>
-                                            </button>
-
-                                            <div className={`flex items-center gap-2 mb-4 text-xl px-1`} style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                <span>{activeCollection}</span>
+                                            <div className="flex items-center justify-between mb-8 px-1">
+                                                <div className="flex flex-col">
+                                                    <button
+                                                        onClick={() => setActiveCollection(null)}
+                                                        className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest opacity-50 hover:opacity-100 transition-all mb-1.5`}
+                                                        style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                    >
+                                                        <ChevronLeft size={12} strokeWidth={3} />
+                                                        <span>Voltar</span>
+                                                    </button>
+                                                    <h2 className={`text-2xl font-black tracking-tight`} style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                        {activeCollection}
+                                                    </h2>
+                                                </div>
+                                                <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
+                                                    <ShoppingBag size={20} className="opacity-40" />
+                                                </div>
                                             </div>
 
-                                            <div className="grid grid-cols-2 gap-3 pb-8">
-                                                {collections[activeCollection].map(product => {
+                                            <div className="grid grid-cols-2 gap-4 pb-12">
+                                                {activeCollection && collections[activeCollection]?.map(product => {
                                                     const productContent = (
-                                                        <div className="flex flex-col w-full h-full p-2 gap-2">
-                                                            <div className={`relative w-full aspect-square ${roundedClass || 'rounded-xl'} overflow-hidden border-b transition-transform transform group-hover:scale-[1.02] ${currentTheme.avatarBorder} bg-slate-50 relative`}>
-                                                                <img src={product.image} alt={product.name} className="w-full h-full block object-cover" />
-                                                                {product.discountCode && (
-                                                                    <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg">
-                                                                        {product.discountCode}
+                                                        <div className="flex flex-col w-full h-full relative">
+                                                            <div className={`relative w-full aspect-[4/5] transform transition-transform group-hover:scale-[1.02] duration-300`}>
+                                                                <div className={`absolute inset-0 overflow-hidden ${roundedClass} border-none shadow-none`} style={{ backgroundColor: buttonHex, ...mainButtonStyle }}>
+                                                                    <img src={product.image} alt={product.name} className="w-full h-full block object-cover" />
+                                                                    <div className="absolute inset-0 bg-black/5" />
+
+                                                                    {/* Badge container with high z-index and clip safety */}
+                                                                    <div className="absolute top-2 left-2 z-10">
+                                                                        {product.discountCode && (
+                                                                            <div className="bg-slate-950/90 text-white text-[9px] font-black uppercase tracking-tighter px-2 py-1 rounded-lg">
+                                                                                -{product.discountCode}
+                                                                            </div>
+                                                                        )}
                                                                     </div>
-                                                                )}
+                                                                </div>
+
+                                                                {/* Hover Action Overlay - Also needs to be clipped by the same shape */}
+                                                                <div className={`absolute inset-0 ${roundedClass} bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none`}>
+                                                                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-950 shadow-xl scale-90 group-hover:scale-100 transition-transform">
+                                                                        <Plus size={20} />
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div className="flex flex-col gap-0.5 w-full">
-                                                                <span className={`text-sm truncate text-center`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{product.name}</span>
+
+                                                            {/* Product Info */}
+                                                            <div className="flex flex-col gap-0.5 mt-2 px-1 text-left">
+                                                                <span className={`text-[13px] font-bold truncate`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                    {product.name}
+                                                                </span>
                                                                 {product.price && (
-                                                                    <span className={`text-xs truncate text-center`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{product.price}</span>
+                                                                    <span className={`text-[11px] font-medium opacity-70`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                        {product.price}
+                                                                    </span>
                                                                 )}
                                                             </div>
                                                         </div>
                                                     );
 
                                                     return (
-                                                        <a key={product.id} href={product.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(product.id)} className={`flex flex-col gap-2 group relative ${roundedClass || 'rounded-2xl'} w-full transition-all duration-300 ${baseCardClass}`} style={mainButtonStyle}>
-                                                            <div className="relative z-10 flex flex-col gap-2 w-full">
-                                                                {productContent}
-                                                            </div>
+                                                        <a
+                                                            key={product.id}
+                                                            href={product.url}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            onClick={() => handleLinkClick(product.id)}
+                                                            className={`flex flex-col group relative transition-all duration-300`}
+                                                        >
+                                                            {productContent}
                                                         </a>
                                                     );
                                                 })}
@@ -699,13 +772,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             if (currentCardGroup.length > 0) {
                                                 const group = [...currentCardGroup];
                                                 renderedItems.push(
-                                                    <div key={`card-grid-${group[0].id}`} className="grid grid-cols-2 gap-2.5 mb-8">
+                                                    <div key={`card-grid-${group[0].id}`} className="flex flex-col gap-4 mb-8">
                                                         {group.map((cardLink) => {
                                                             const cardBg = cardAccentColor;
                                                             const cardContent = (
                                                                 <div className="relative z-10 flex flex-col h-full w-full">
                                                                     <div
-                                                                        className="relative overflow-hidden h-40"
+                                                                        className="relative overflow-hidden h-44 md:h-52"
                                                                         style={{ backgroundColor: cardBg + '1A' }}
                                                                     >
                                                                         {cardLink.image ? (
@@ -716,9 +789,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             </div>
                                                                         )}
                                                                     </div>
-                                                                    <div className={`p-2.5 flex flex-col justify-center items-center text-center h-16 relative`}>
-                                                                        <span className="text-[0.7em] leading-tight truncate px-1" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.title}</span>
-                                                                        {cardLink.subtitle && <span className="text-[0.62em] leading-tight truncate px-1 opacity-60 mt-0.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.subtitle}</span>}
+                                                                    <div className={`p-3.5 flex flex-col justify-center items-center text-center h-16 relative`}>
+                                                                        <span className="text-[0.95em] leading-tight truncate px-1" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.title}</span>
+                                                                        {cardLink.subtitle && <span className="text-[0.75em] leading-tight truncate px-1 opacity-60 mt-0.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.subtitle}</span>}
                                                                     </div>
                                                                 </div>
                                                             );
