@@ -326,29 +326,35 @@ export default function ShopEditor({ products, onChange }: ShopEditorProps) {
                 </p>
 
                 {isAddingCollection && (
-                    <div className="flex gap-3 items-center animate-fade-in bg-slate-50 p-4 rounded-md border border-slate-200 mb-6">
-                        <Folder size={18} className="text-slate-400 shrink-0" />
-                        <input
-                            autoFocus
-                            type="text"
-                            placeholder="Ex: Lançamentos 2024"
-                            className="flex-1 bg-white border border-slate-200 rounded-md px-4 py-2 text-sm font-medium outline-none focus:border-[#32a800] transition"
-                            value={newCollectionName}
-                            onChange={e => setNewCollectionName(e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Enter') handleAddCollection() }}
-                        />
-                        <button
-                            onClick={handleAddCollection}
-                            className="bg-[#32a800] text-white px-4 py-2 rounded-md hover:bg-[#32a800]/90 font-bold text-xs transition-all uppercase tracking-widest shadow-sm"
-                        >
-                            CRIAR
-                        </button>
-                        <button
-                            onClick={() => setIsAddingCollection(false)}
-                            className="text-slate-400 hover:text-slate-600 transition-all"
-                        >
-                            <X size={20} />
-                        </button>
+                    <div className="animate-fade-in bg-slate-50 p-3 sm:p-4 rounded-md border border-slate-200 mb-6">
+                        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <Folder size={18} className="text-slate-400 shrink-0" />
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    placeholder="Ex: Lançamentos 2024"
+                                    className="flex-1 min-w-0 bg-white border border-slate-200 rounded-md px-4 py-2 text-sm font-medium outline-none focus:border-[#32a800] transition"
+                                    value={newCollectionName}
+                                    onChange={e => setNewCollectionName(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') handleAddCollection() }}
+                                />
+                            </div>
+                            <div className="flex items-center gap-2 justify-end sm:justify-start">
+                                <button
+                                    onClick={handleAddCollection}
+                                    className="flex-1 sm:flex-none whitespace-nowrap bg-[#32a800] text-white px-5 py-2 rounded-md hover:bg-[#32a800]/90 font-bold text-xs transition-all uppercase tracking-widest shadow-sm"
+                                >
+                                    CRIAR
+                                </button>
+                                <button
+                                    onClick={() => setIsAddingCollection(false)}
+                                    className="p-2 text-slate-400 hover:text-slate-600 transition-all shrink-0"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
