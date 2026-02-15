@@ -25,7 +25,8 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
     };
 
     const handleCopyLink = () => {
-        navigator.clipboard.writeText(url);
+        const shortUrl = url.replace(/^https?:\/\/(www\.)?/, '');
+        navigator.clipboard.writeText(shortUrl);
         alert('Link copiado!');
     };
 

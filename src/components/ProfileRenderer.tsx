@@ -22,7 +22,9 @@ import {
     Pause,
     SkipBack,
     SkipForward,
-    Music2
+    Music2,
+    Zap,
+    CreditCard
 } from 'lucide-react';
 import YouTubeEmbed from './YouTubeEmbed';
 import verifiedBadge from '../assets/verified-badge.png';
@@ -505,12 +507,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             target="_blank"
                                             rel="noreferrer"
                                             onClick={() => handleLinkClick(link.id)}
-                                            className={`transition-all duration-300 ${roundedClass || 'rounded-full'} p-2`} // Adicionado padding e rounded unificado
+                                            className={`transition-all duration-300 ${roundedClass || 'rounded-full'} p-2`}
                                             style={{
                                                 ...mainTextColorStyle,
-                                                // Se houver cor customizada de botão, aplicamos suavemente ao ícone ou seu fundo
-                                                // Mas ícones sociais geralmente são "text-only" ou "ghost". 
-                                                // Se quisermos tratar TUDO como botão, podemos dar um bg sutil se houver cor definida
                                                 backgroundColor: (isCustomTheme && profile.customButtonColor) ? profile.customButtonColor + '20' : undefined
                                             }}
                                         >
@@ -520,6 +519,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 })}
                             </div>
                         )}
+
+
 
                         {/* TABS (Links / Shop) - Only if products exist */}
                         {products.length > 0 && (
@@ -965,6 +966,43 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         flushCards();
                                         return renderedItems;
                                     })()}
+
+                                    {/* Payment Methods (Monetization) - Always Last */}
+                                    {profile.paymentMethods && profile.paymentMethods.length > 0 && (
+                                        <div className="flex flex-col gap-3 w-full mb-2">
+                                            {profile.paymentMethods.filter(pm => pm.isActive !== false).map(method => (
+                                                <motion.button
+                                                    key={method.id}
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    onClick={() => {
+                                                        if (method.type === 'paypal') {
+                                                            window.open(method.key.startsWith('http') ? method.key : `https://${method.key}`, '_blank');
+                                                        } else {
+                                                            navigator.clipboard.writeText(method.key);
+                                                            alert('Chave Pix copiada!');
+                                                        }
+                                                    }}
+                                                    className={`relative w-full overflow-hidden transition-all duration-300 group ${buttonClass} min-h-[56px] flex items-center justify-center`}
+                                                    style={{
+                                                        ...mainButtonStyle,
+                                                        backgroundColor: buttonHex,
+                                                        color: getSmartTextColor(),
+                                                        borderRadius: borderRadiusValue
+                                                    }}
+                                                >
+                                                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                                                    <div className="relative z-10 flex items-center justify-center gap-3">
+                                                        {method.type === 'pix' ? <Zap size={20} fill="currentColor" /> : <CreditCard size={20} />}
+                                                        <span className="font-semibold text-sm">
+                                                            {method.label || (method.type === 'pix' ? 'Fazer um Pix' : 'Pagar com PayPal')}
+                                                        </span>
+                                                    </div>
+                                                </motion.button>
+                                            ))}
+                                        </div>
+                                    )}
 
                                     {activeLinks.length === 0 && (
                                         <div className="flex flex-col items-center justify-center py-10 opacity-50 space-y-2">

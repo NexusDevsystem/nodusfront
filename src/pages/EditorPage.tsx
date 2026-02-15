@@ -517,7 +517,7 @@ export default function EditorPage() {
                                     {activeTab === 'links' && 'Links'}
                                     {activeTab === 'appearance' && 'Design'}
                                     {activeTab === 'shop' && 'Loja'}
-                                    {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                                    {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'earn' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                                 </h1>
                                 <p className="text-slate-500 mt-2 text-base">
                                     {activeTab === 'links' && 'Gerencie seus links e informações do perfil.'}
@@ -633,7 +633,7 @@ export default function EditorPage() {
                     <div className={`
             lg:flex flex-col items-center justify-center 
             border-l border-slate-200 bg-white 
-            w-full lg:w-[480px] xl:w-[580px] shrink-0
+            w-full lg:w-[350px] xl:w-[450px] shrink-0
             ${!showMobilePreview ? 'hidden' : 'fixed inset-0 top-[60px] md:top-[64px] z-40 lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-screen lg:sticky lg:right-0'}
         `}>
 

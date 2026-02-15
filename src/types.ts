@@ -17,6 +17,14 @@ export interface LinkItem {
   platform?: string;
 }
 
+export interface PaymentMethod {
+  id: string;
+  type: 'pix' | 'paypal';
+  key: string;
+  label?: string; // Optional nickname e.g. "Business Pix"
+  isActive?: boolean;
+}
+
 export interface UserProfile {
   id?: string;
   email?: string;
@@ -42,8 +50,9 @@ export interface UserProfile {
   seoTitle?: string;
   seoDescription?: string;
   customCSS?: string;
-  supportType?: 'pix' | 'paypal';
-  supportKey?: string;
+  supportType?: 'pix' | 'paypal'; // Deprecated/Legacy
+  supportKey?: string; // Deprecated/Legacy
+  paymentMethods?: PaymentMethod[]; // New Array
   userCategory?: 'creator' | 'personal' | 'business' | null;
   referralSource?: string | null;
   isVerified?: boolean;
