@@ -23,7 +23,7 @@ import {
   ReceiptText,
   User,
   FolderOpen,
-
+  ChevronsLeft
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
@@ -34,6 +34,7 @@ interface SidebarProps {
   userProfile: UserProfile;
   className?: string;
   onUpgradeClick?: () => void;
+  onClose?: () => void;
 }
 
 interface MenuItem {
@@ -91,7 +92,7 @@ const MENU_GROUPS: MenuGroup[] = [
   }
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile, className, onUpgradeClick }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile, className, onUpgradeClick, onClose }) => {
   const { user, signOut } = useAuth();
 
   // State to track which groups are expanded
@@ -108,14 +109,22 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
   };
 
   return (
-    <aside className={`w-64 bg-white border-r border-slate-200 h-full overflow-y-auto flex flex-col select-none overflow-hidden ${className || ''}`}>
+    <aside className={`w-64 shrink-0 bg-white border-r border-slate-200 h-full overflow-y-auto flex flex-col select-none overflow-hidden ${className || ''}`}>
 
       {/* Public Profile Header */}
-      <div className="p-5 border-b border-slate-100 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Página Pública</span>
-          <div className="w-2 h-2 rounded-full bg-[#acc8a2] animate-pulse"></div>
-        </div>
+      <div className="p-4 border-b border-slate-100 flex flex-col gap-2 relative group/header">
+        {/* Close Sidebar Button (Desktop Only) */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-2 right-2 p-1.5 text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all opacity-0 group-hover/header:opacity-100 hidden md:block"
+            title="Ocultar Menu Lateral"
+          >
+            <ChevronsLeft size={16} />
+          </button>
+        )}
+
+
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl border-2 border-slate-100 overflow-hidden shadow-sm shrink-0 bg-slate-50">
             <img

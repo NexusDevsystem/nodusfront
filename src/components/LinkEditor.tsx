@@ -82,6 +82,44 @@ function SortableLinkItem({
 
   // LinkEditor is used recursively here. It must be hoisted or available.
 
+  // Auto-detect music metadata when URL changes
+  React.useEffect(() => {
+    if (!link.url) return;
+
+    const checkMusicMetadata = async () => {
+      const url = link.url;
+      const isSpotify = url.includes('open.spotify.com/') && (url.includes('/track/') || url.includes('/album/') || url.includes('/playlist/'));
+      const isDeezer = url.includes('deezer.com/') || url.includes('deezer.page.link/');
+
+      if ((isSpotify || isDeezer) && (!link.title || link.title === 'Novo Link' || link.title === 'Link sem título')) {
+        const type = isSpotify ? 'spotify' : 'deezer';
+
+        // Only update type if not set
+        if (link.embedType !== type) {
+          updateLinkFields(link.id, { embedType: type });
+        }
+
+        try {
+          const metadata = await fetchMusicMetadata(url);
+          if (metadata) {
+            console.log('🎵 Metadata fetched via useEffect:', metadata);
+            updateLinkFields(link.id, {
+              title: metadata.title,
+              subtitle: metadata.artist,
+              image: metadata.thumbnailUrl,
+              embedType: type
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching metadata:', error);
+        }
+      }
+    };
+
+    const timeoutId = setTimeout(checkMusicMetadata, 800); // Debounce
+    return () => clearTimeout(timeoutId);
+  }, [link.url]);
+
   return (
     <Reorder.Item
       value={link}
@@ -370,26 +408,76 @@ function SortableLinkItem({
                             value={link.url}
                             onChange={(e) => {
                               const newUrl = e.target.value;
+
+                              // Create updates object
                               const updates: Partial<LinkItem> = { url: newUrl };
 
                               // Auto detection logic
                               const isSpotify = newUrl.includes('open.spotify.com/') && (newUrl.includes('/track/') || newUrl.includes('/album/') || newUrl.includes('/playlist/'));
                               const isDeezer = newUrl.includes('deezer.com/') || newUrl.includes('deezer.page.link/');
+                              const isYoutube = newUrl.includes('youtube.com/') || newUrl.includes('youtu.be/');
+
+                              let detectedType: 'none' | 'youtube' | 'spotify' | 'deezer' = 'none';
+
+                              if (isSpotify) detectedType = 'spotify';
+                              else if (isDeezer) detectedType = 'deezer';
+                              else if (isYoutube) {
+                                // Only set as youtube embed if it has a valid video ID
+                                const videoId = newUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+                                if (videoId) {
+                                  detectedType = 'youtube';
+                                }
+                              }
+
+                              // Update embedType based on detection
+                              updates.embedType = detectedType;
 
                               if (isSpotify || isDeezer) {
-                                updates.embedType = isSpotify ? 'spotify' : 'deezer';
+                                // Call fetch intentionally without awaiting to not block UI
                                 fetchMusicMetadata(newUrl).then(metadata => {
                                   if (metadata) {
-                                    updateLinkFields(link.id, {
-                                      title: metadata.title,
-                                      subtitle: metadata.artist,
-                                      image: metadata.thumbnailUrl,
-                                      embedType: isSpotify ? 'spotify' : 'deezer',
-                                      url: newUrl
-                                    });
+                                    console.log('🎵 Metadata found:', metadata);
+
+                                    // Check if it's an album with tracks
+                                    if (metadata.type === 'album' && metadata.tracks && metadata.tracks.length > 0) {
+                                      const newChildren = metadata.tracks.map((track: any) => ({
+                                        id: self.crypto.randomUUID(),
+                                        title: track.title,
+                                        subtitle: track.artist,
+                                        image: track.image, // Add image
+                                        url: track.url,
+                                        embedType: 'spotify' as const,
+                                        layout: 'classic' as const, // Keeping conformant to LinkItem type, but parent is grid
+                                        isActive: true,
+                                        clicks: 0
+                                      }));
+
+                                      updateLinkFields(link.id, {
+                                        title: metadata.title,
+                                        subtitle: metadata.artist,
+                                        image: metadata.thumbnailUrl,
+                                        type: 'collection' as const,
+                                        layout: 'grid' as const, // Provide grid layout for collection
+                                        children: newChildren,
+                                        url: ''
+                                      });
+                                    } else {
+                                      // Normal single track update
+                                      updateLinkFields(link.id, {
+                                        title: metadata.title,
+                                        subtitle: metadata.artist,
+                                        image: metadata.thumbnailUrl,
+                                        embedType: detectedType,
+                                        url: newUrl
+                                      });
+                                    }
                                   }
+                                }).catch(err => {
+                                  console.error("Error fetching music metadata:", err);
                                 });
                               }
+
+                              // Apply immediate updates (URL + Type)
                               updateLinkFields(link.id, updates);
                             }}
                             className="w-full text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all placeholder:text-slate-200"
@@ -413,29 +501,6 @@ function SortableLinkItem({
                     {/* Settings & Config */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mb-8 md:mb-10 pt-6 md:pt-8 border-t border-slate-100/50">
                       <div className="space-y-6 md:space-y-8">
-                        {/* Plataforma / Embed */}
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Plataforma</label>
-                          <div className="flex flex-wrap gap-2">
-                            {[
-                              { id: 'none', label: 'Padrão' },
-                              { id: 'youtube', label: 'YouTube' },
-                              { id: 'spotify', label: 'Spotify' },
-                              { id: 'deezer', label: 'Deezer' },
-                            ].map((plat) => (
-                              <button
-                                key={plat.id}
-                                onClick={() => updateLinkFields(link.id, { embedType: plat.id as any })}
-                                className={`flex-1 min-w-[80px] h-10 px-4 rounded-xl text-xs font-semibold border transition-all ${(link.embedType || 'none') === plat.id
-                                  ? 'bg-[#32a800] border-[#32a800] text-white shadow-sm shadow-[#32a800]/20'
-                                  : 'bg-white border-slate-200 text-slate-500 hover:border-[#32a800] hover:text-[#32a800]'
-                                  }`}
-                              >
-                                {plat.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
 
                         <div className="space-y-3">
                           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Animação</label>

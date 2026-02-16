@@ -43,22 +43,33 @@ interface ProfileRendererProps {
     isPreview?: boolean; // If true, shows mock status bar (9:41, wifi etc)
     isStatic?: boolean; // If true, disables animated backgrounds for performance (e.g. in ThemeSelector)
     onShare?: () => void;
+    forcedTab?: 'links' | 'shop';
 }
 
-const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], isPreview = false, isStatic = false, onShare }) => {
+const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], isPreview = false, isStatic = false, onShare, forcedTab }) => {
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
     const activeLinks = links.filter(l => l.isActive && !l.isArchived);
     const [activeTab, setActiveTab] = useState<'links' | 'shop'>(() => {
         return (localStorage.getItem('nodus_profile_active_tab') as 'links' | 'shop') || 'links';
     });
+
+    // Sync with external force (e.g. Editor switching sections)
+    React.useEffect(() => {
+        if (forcedTab) {
+            setActiveTab(forcedTab);
+        }
+    }, [forcedTab]);
+
     const [activeCollection, setActiveCollection] = useState<string | null>(() => {
         return localStorage.getItem('nodus_profile_active_collection');
     });
 
-    // Persist activeTab and activeCollection to localStorage
+    // Persist activeTab to localStorage
     React.useEffect(() => {
-        localStorage.setItem('nodus_profile_active_tab', activeTab);
-    }, [activeTab]);
+        if (!isPreview) { // Only persist if not in preview mode (optional, but good practice)
+            localStorage.setItem('nodus_profile_active_tab', activeTab);
+        }
+    }, [activeTab, isPreview]);
 
     React.useEffect(() => {
         if (activeCollection) {
@@ -79,6 +90,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         });
         return groups;
     }, [products]);
+
+    // Validation: If activeCollection disappears (e.g. deleted), reset to main view
+    React.useEffect(() => {
+        if (activeCollection && !collections[activeCollection]) {
+            console.log(`Resetting stale collection: ${activeCollection}`);
+            setActiveCollection(null);
+        }
+    }, [activeCollection, collections]);
 
     const handleCollectionClick = (colName: string) => {
         setActiveCollection(colName);
@@ -164,34 +183,55 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         );
 
         return (
-            <div className={`${roundedClass || 'rounded-2xl'} p-2.5 flex items-center relative overflow-hidden group border border-white/5 min-h-[64px] w-full ${isDeezer ? 'bg-[#1a1c3b]' : 'bg-[#5c540d]'}`}>
-                {/* Album Art */}
-                <div className={`relative z-10 w-[42px] h-[42px] ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-md'} overflow-hidden shadow-sm mr-2.5 shrink-0`}>
+            <div className={`${roundedClass || 'rounded-2xl'} relative overflow-hidden group min-h-[80px] w-full isolate transform transition-all duration-300 hover:scale-[1.01]`}>
+                {/* 1. Blurred Background Image Layer */}
+                <div className="absolute inset-0 z-0">
                     <img
                         src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
-                        alt={musicTitle}
-                        className="w-full h-full object-cover"
+                        alt=""
+                        className="w-full h-full object-cover blur-xl scale-150 opacity-60"
                     />
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+                    {/* Gradient Overlay for text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
                 </div>
 
-                {/* Text Info */}
-                <div className="relative z-10 flex-1 min-w-0 pr-6">
-                    <h3 className="text-white text-[13px] truncate leading-tight opacity-95" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{musicTitle}</h3>
-                    <p style={{ color: platformColor, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }} className="text-[10px] truncate leading-tight mt-0.5 opacity-80">{musicArtist}</p>
-
-                    {/* Badge - even smaller */}
-                    <div className="inline-block bg-[#1a1804]/40 px-1 py-0.5 rounded text-[8px] text-white uppercase tracking-tighter mt-1" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                        Prév<span className={isDeezer ? 'text-pink-400' : 'text-cyan-400'}>i</span>a
+                {/* 2. Content Container */}
+                <div className="relative z-10 flex items-center p-3 h-full gap-3.5">
+                    {/* Album Art with shadow & border */}
+                    <div className={`relative w-[52px] h-[52px] ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-md'} overflow-hidden shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-500`}>
+                        <img
+                            src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
+                            alt={musicTitle}
+                            className="w-full h-full object-cover"
+                        />
+                        {/* Tiny Platform Icon on Album Art */}
+                        <div className="absolute bottom-1 right-1 bg-black/60 backdrop-blur-md rounded-full p-[3px]">
+                            {isDeezer ? <DeezerIcon size={10} /> : <SiSpotify size={10} color="#1DB954" />}
+                        </div>
                     </div>
-                </div>
 
-                {/* Top Right Icon - smaller */}
-                <div className="absolute top-2.5 right-2.5 z-10 text-white/60">
-                    {isDeezer ? <DeezerIcon size={14} /> : <SiSpotify size={14} />}
-                </div>
+                    {/* Text Info */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
+                        <h3 className="text-white text-[14px] font-semibold truncate leading-tight tracking-tight shadow-black drop-shadow-sm" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                            {musicTitle}
+                        </h3>
+                        <p className="text-white/80 text-[11px] truncate leading-tight font-medium" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                            {musicArtist}
+                        </p>
 
-                {/* Bottom Action Controls - Tiny Play Button Only */}
-                <div className="absolute bottom-2 right-2 z-10">
+                        {/* Audio Wave / "Preview" Indicator */}
+                        <div className="flex items-center gap-1.5 mt-1">
+                            <div className="flex items-end gap-0.5 h-2">
+                                <span className="w-0.5 h-full bg-green-400 animate-[music-bar_0.8s_ease-in-out_infinite]" />
+                                <span className="w-0.5 h-1/2 bg-green-400 animate-[music-bar_1.1s_ease-in-out_infinite]" />
+                                <span className="w-0.5 h-3/4 bg-green-400 animate-[music-bar_1.3s_ease-in-out_infinite]" />
+                            </div>
+                            <span className="text-[9px] uppercase tracking-wider text-green-400 font-bold opacity-90">Preview</span>
+                        </div>
+                    </div>
+
+                    {/* Play Button - Large & Clear */}
                     <a
                         href={link.url}
                         target="_blank"
@@ -200,14 +240,21 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             e.stopPropagation();
                             handleLinkClick(link.id);
                         }}
-                        className="w-[30px] h-[30px] bg-white rounded-full flex items-center justify-center text-black shadow-sm"
+                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-black shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 group-hover:bg-green-500 group-hover:text-white"
                     >
-                        <Play size={12} fill="currentColor" className="ml-0.5" />
+                        <Play size={18} fill="currentColor" className="ml-1" />
                     </a>
                 </div>
 
-                {/* Background Grain/Noise Overlay */}
-                <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay" />
+                {/* Subtle border overlay */}
+                <div className="absolute inset-0 border border-white/10 pointer-events-none rounded-[inherit]" />
+
+                <style>{`
+                    @keyframes music-bar {
+                        0%, 100% { height: 25%; opacity: 0.5; }
+                        50% { height: 100%; opacity: 1; }
+                    }
+                `}</style>
             </div>
         );
     };
@@ -489,7 +536,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                         {/* Social Icons Row */}
                         {socialLinks.length > 0 && (
-                            <div className="flex items-center justify-center gap-4 mb-4 flex-wrap relative">
+                            <div className="flex items-center justify-center gap-2 mb-4 flex-wrap relative">
                                 {socialLinks.map(link => {
                                     const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
                                         SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id)) ||
@@ -510,8 +557,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             onClick={() => handleLinkClick(link.id)}
                                             className={`transition-all duration-300 ${roundedClass || 'rounded-full'} p-2`}
                                             style={{
-                                                ...mainTextColorStyle,
-                                                backgroundColor: (isCustomTheme && profile.customButtonColor) ? profile.customButtonColor + '20' : undefined
+                                                ...mainTextColorStyle
                                             }}
                                         >
                                             <Icon size={24} />
@@ -534,7 +580,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             ? 'bg-white text-slate-900 shadow-sm'
                                             : 'opacity-70 hover:opacity-100'
                                             }`}
-                                        style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                        style={{
+                                            ...(activeTab === 'links' ? {} : mainTextColorStyle),
+                                            fontWeight: (profile.fontWeight || undefined),
+                                            fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                                        }}
                                     >
                                         Links
                                     </button>
@@ -544,7 +594,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             ? 'bg-white text-slate-900 shadow-sm'
                                             : 'opacity-70 hover:opacity-100'
                                             }`}
-                                        style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                        style={{
+                                            ...(activeTab === 'shop' ? {} : mainTextColorStyle),
+                                            fontWeight: (profile.fontWeight || undefined),
+                                            fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                                        }}
                                     >
                                         Loja
                                     </button>
@@ -734,7 +788,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             if (currentIconGroup.length > 0) {
                                                 const group = [...currentIconGroup];
                                                 renderedItems.push(
-                                                    <div key={`social-row-${group[0].id}`} className="flex items-center justify-center gap-5 w-full mb-6 flex-wrap relative">
+                                                    <div key={`social-row-${group[0].id}`} className="flex items-center justify-center gap-2 w-full mb-6 flex-wrap relative">
                                                         {group.map(iconLink => {
                                                             const network = SOCIAL_NETWORKS.find(n => iconLink.title.toLowerCase().includes(n.id)) ||
                                                                 SOCIAL_NETWORKS.find(n => iconLink.url.toLowerCase().includes(n.id)) ||
@@ -835,83 +889,44 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
 
-                                                if (isMusicLink(link)) {
-                                                    renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full mb-5"><MusicRichCard link={link} handleLinkClick={handleLinkClick} /></motion.div>);
-                                                } else if (link.embedType === 'youtube') {
-                                                    renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} /></motion.div>);
-                                                } else {
-                                                    const activeChildren = link.children?.filter(c => c.isActive) || [];
+                                                const activeChildren = link.children?.filter(c => c.isActive) || [];
 
-                                                    if (activeChildren.length > 0) {
-                                                        const collectionLayout = (link.layout === 'carousel') ? 'carousel' : 'stacked';
+                                                if (activeChildren.length > 0) {
+                                                    const collectionLayout = (link.layout === 'carousel') ? 'carousel' : (link.layout === 'grid' ? 'grid' : 'stacked');
 
-                                                        if (collectionLayout === 'carousel') {
-                                                            const scrollContainerId = `scroll-${link.id}`;
-                                                            const scroll = (direction: 'left' | 'right') => {
-                                                                const container = document.getElementById(scrollContainerId);
-                                                                if (container) {
-                                                                    const scrollAmount = 250;
-                                                                    container.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
-                                                                }
-                                                            };
+                                                    if (collectionLayout === 'carousel') {
+                                                        const scrollContainerId = `scroll-${link.id}`;
+                                                        const scroll = (direction: 'left' | 'right') => {
+                                                            const container = document.getElementById(scrollContainerId);
+                                                            if (container) {
+                                                                const scrollAmount = 250;
+                                                                container.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+                                                            }
+                                                        };
 
-                                                            renderedItems.push(
-                                                                <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-1 pb-1 group/carousel">
-                                                                    <div
-                                                                        className={`text-center mb-2 font-bold opacity-90 text-lg`}
-                                                                        style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                                    >
-                                                                        {link.title}
-                                                                    </div>
-                                                                    <div className="relative w-full">
-                                                                        <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
-                                                                        <div id={scrollContainerId} className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
-                                                                            {activeChildren.map(child => {
-                                                                                const childContent = (
-                                                                                    <div className="relative z-10 flex flex-col h-full w-full">
-                                                                                        <div className="relative overflow-hidden h-36 w-full bg-slate-50">
-                                                                                            {child.image ? <img src={child.image} alt="" className="w-full h-full block object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
-                                                                                        </div>
-                                                                                        <div className={`p-2 flex flex-col justify-center items-center text-center h-12 relative`}>
-                                                                                            <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
-                                                                                            {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60 w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                );
-
-                                                                                return (
-                                                                                    <motion.a
-                                                                                        key={child.id}
-                                                                                        transition={{ duration: 0 }}
-                                                                                        href={child.url}
-                                                                                        target="_blank"
-                                                                                        rel="noreferrer"
-                                                                                        onClick={() => handleLinkClick(child.id)}
-                                                                                        className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass}`}
-                                                                                        style={mainButtonStyle}
-                                                                                    >
-                                                                                        {childContent}
-                                                                                    </motion.a>
-                                                                                );
-                                                                            })}
-                                                                        </div>
-                                                                        <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronRight size={20} /></button>
-                                                                    </div >
-                                                                </motion.div >
-                                                            );
-                                                        } else {
-                                                            renderedItems.push(
-                                                                <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-1 pb-1">
-                                                                    <div
-                                                                        className={`text-center mb-2 opacity-90 text-lg`}
-                                                                        style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                                    >
-                                                                        {link.title}
-                                                                    </div>
-                                                                    <div className="flex flex-col gap-4 relative">
+                                                        renderedItems.push(
+                                                            <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-1 pb-1 group/carousel">
+                                                                <div
+                                                                    className={`text-center mb-2 font-bold opacity-90 text-lg`}
+                                                                    style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                >
+                                                                    {link.title}
+                                                                </div>
+                                                                <div className="relative w-full">
+                                                                    <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
+                                                                    <div id={scrollContainerId} className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
                                                                         {activeChildren.map(child => {
-                                                                            if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
-                                                                            if (child.embedType === 'youtube') return <motion.div key={child.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} /></motion.div>;
+                                                                            const childContent = (
+                                                                                <div className="relative z-10 flex flex-col h-full w-full">
+                                                                                    <div className="relative overflow-hidden h-36 w-full bg-slate-50">
+                                                                                        {child.image ? <img src={child.image} alt="" className="w-full h-full block object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
+                                                                                    </div>
+                                                                                    <div className={`p-2 flex flex-col justify-center items-center text-center h-12 relative`}>
+                                                                                        <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
+                                                                                        {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60 w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
+                                                                                    </div>
+                                                                                </div>
+                                                                            );
 
                                                                             return (
                                                                                 <motion.a
@@ -921,47 +936,84 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     target="_blank"
                                                                                     rel="noreferrer"
                                                                                     onClick={() => handleLinkClick(child.id)}
-                                                                                    className={`block w-full text-center text-base transform group relative py-4 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
-                                                                                    style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                                    className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass}`}
+                                                                                    style={mainButtonStyle}
                                                                                 >
-                                                                                    <div className="relative z-10 w-full flex items-center justify-between">
-                                                                                        {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                                                        <div className="flex-1 px-1 flex flex-col justify-center text-center">
-                                                                                            <span className="text-[0.9em] leading-tight break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
-                                                                                            {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
-                                                                                        </div>
-                                                                                        <span className="w-8 shrink-0"></span>
-                                                                                    </div>
+                                                                                    {childContent}
                                                                                 </motion.a>
                                                                             );
                                                                         })}
                                                                     </div>
-                                                                </motion.div>
-                                                            );
-                                                        }
+                                                                    <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronRight size={20} /></button>
+                                                                </div >
+                                                            </motion.div >
+                                                        );
                                                     } else {
                                                         renderedItems.push(
-                                                            <motion.a
-                                                                key={link.id}
-                                                                transition={{ duration: 0 }}
-                                                                href={link.url}
-                                                                target="_blank"
-                                                                rel="noreferrer"
-                                                                onClick={() => handleLinkClick(link.id)}
-                                                                className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`}
-                                                                style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                            >
-                                                                <div className="relative z-10 w-full flex items-center justify-between px-2">
-                                                                    {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                                    <div className="flex-1 px-1 flex flex-col justify-center text-center">
-                                                                        <span className="text-[0.9em] leading-tight break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
-                                                                        {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.subtitle}</span>}
-                                                                    </div>
-                                                                    <span className="w-8 shrink-0"></span>
+                                                            <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-1 pb-1">
+                                                                <div
+                                                                    className={`text-center mb-2 opacity-90 text-lg`}
+                                                                    style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                >
+                                                                    {link.title}
                                                                 </div>
-                                                            </motion.a>
+                                                                <div className={collectionLayout === 'grid' ? "grid grid-cols-2 gap-3 relative" : "flex flex-col gap-4 relative"}>
+                                                                    {activeChildren.map(child => {
+                                                                        if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
+                                                                        if (child.embedType === 'youtube') return <motion.div key={child.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} /></motion.div>;
+
+                                                                        return (
+                                                                            <motion.a
+                                                                                key={child.id}
+                                                                                transition={{ duration: 0 }}
+                                                                                href={child.url}
+                                                                                target="_blank"
+                                                                                rel="noreferrer"
+                                                                                onClick={() => handleLinkClick(child.id)}
+                                                                                className={`block w-full text-center text-base transform group relative py-4 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
+                                                                                style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                            >
+                                                                                <div className="relative z-10 w-full flex items-center justify-between">
+                                                                                    {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                                                    <div className="flex-1 px-1 flex flex-col justify-center text-center">
+                                                                                        <span className="text-[0.9em] leading-tight break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
+                                                                                        {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
+                                                                                    </div>
+                                                                                    <span className="w-8 shrink-0"></span>
+                                                                                </div>
+                                                                            </motion.a>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            </motion.div>
                                                         );
                                                     }
+                                                } else if (isMusicLink(link)) {
+                                                    renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full mb-5"><MusicRichCard link={link} handleLinkClick={handleLinkClick} /></motion.div>);
+                                                } else if (link.embedType === 'youtube') {
+                                                    renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} /></motion.div>);
+                                                } else {
+                                                    renderedItems.push(
+                                                        <motion.a
+                                                            key={link.id}
+                                                            transition={{ duration: 0 }}
+                                                            href={link.url}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            onClick={() => handleLinkClick(link.id)}
+                                                            className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`}
+                                                            style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                        >
+                                                            <div className="relative z-10 w-full flex items-center justify-between px-2">
+                                                                {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                                <div className="flex-1 px-1 flex flex-col justify-center text-center">
+                                                                    <span className="text-[0.9em] leading-tight break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
+                                                                    {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.subtitle}</span>}
+                                                                </div>
+                                                                <span className="w-8 shrink-0"></span>
+                                                            </div>
+                                                        </motion.a>
+                                                    );
                                                 }
                                             }
                                         });
@@ -1058,11 +1110,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         href="https://www.noduscc.com.br"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className={`group flex items-center justify-center gap-2.5 px-6 py-2.5 ${roundedClass || 'rounded-full'} transition-all duration-300 shadow-sm ${btnClass}`}
+                                        className={`group flex items-center justify-center gap-2 px-5 py-2 rounded-full transition-all duration-300 shadow-sm ${btnClass}`}
                                     >
                                         <span
-                                            className="text-[13px] tracking-tight"
-                                            style={{ fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                            className="text-[11px] font-medium tracking-tight font-sans whitespace-nowrap"
                                         >
                                             Junte-se a {profile.name} no Nodus
                                         </span>

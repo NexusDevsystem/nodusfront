@@ -4,6 +4,13 @@ export interface MusicMetadata {
     thumbnailUrl: string;
     type: string;
     platform: 'spotify' | 'deezer';
+    tracks?: Array<{
+        title: string;
+        artist: string;
+        url: string;
+        image?: string;
+        duration?: string;
+    }>;
 }
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';

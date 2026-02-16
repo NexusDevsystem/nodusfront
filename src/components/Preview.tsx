@@ -8,9 +8,10 @@ interface PreviewProps {
   links: LinkItem[];
   products: Product[];
   onShare?: () => void;
+  forcedTab?: 'links' | 'shop';
 }
 
-const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShare }) => {
+const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShare, forcedTab }) => {
   return (
     <div className="flex flex-col items-center select-none w-full">
       {/* Public URL Preview Bar - Hidden on mobile for immersive feel */}
@@ -47,6 +48,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShar
             products={products}
             isPreview={true}
             onShare={onShare}
+            forcedTab={forcedTab}
           />
 
         </div>

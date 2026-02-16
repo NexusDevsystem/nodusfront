@@ -7,7 +7,7 @@ import LinkEditor from '../components/LinkEditor';
 import ShopEditor from '../components/ShopEditor';
 import Preview from '../components/Preview';
 import Sidebar from '../components/Sidebar';
-import { Plus, Trash2, GripVertical, Image as ImageIcon, Layout, Palette, Type, MousePointer2, Smartphone, Monitor, Share, Eye, ExternalLink, Globe, ChevronRight, Menu, X, Check, Save, Loader2, PlusCircle, Search, List, MessageCircle, HelpCircle, Construction, Mail } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Image as ImageIcon, Layout, Palette, Type, MousePointer2, Smartphone, Monitor, Share, Eye, ExternalLink, Globe, ChevronRight, Menu, X, Check, Save, Loader2, PlusCircle, Search, List, MessageCircle, HelpCircle, Construction, Mail, ChevronsRight } from 'lucide-react';
 import SocialLinksEditor from '../components/SocialLinksEditor';
 import AnalyticsView from '../components/AnalyticsView';
 import MonetizationView from '../components/MonetizationView';
@@ -340,6 +340,9 @@ export default function EditorPage() {
     // Design Sidebar State
     const [activeDesignSection, setActiveDesignSection] = useState('header');
 
+    // Sidebar Toggle State
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
     const shareUrl = `https://www.noduscc.com.br/${profile.username || profile.name.toLowerCase().replace(/\s/g, '')}`;
 
     return (
@@ -400,17 +403,20 @@ export default function EditorPage() {
                 )}
 
                 {/* Sidebar - Desktop (Fixed) */}
-                <Sidebar
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
-                    userProfile={profile}
-                    onUpgradeClick={() => setIsBillingModalOpen(true)}
-                    className={`hidden md:flex h-full ${profile.planType === 'free' ? 'rounded-tl-[24px] md:rounded-tl-[32px]' : ''
-                        }`}
-                />
+                {isSidebarOpen && (
+                    <Sidebar
+                        activeTab={activeTab}
+                        setActiveTab={setActiveTab}
+                        userProfile={profile}
+                        onUpgradeClick={() => setIsBillingModalOpen(true)}
+                        onClose={() => setIsSidebarOpen(false)}
+                        className={`hidden md:flex h-full ${profile.planType === 'free' ? 'rounded-tl-[24px] md:rounded-tl-[32px]' : ''
+                            }`}
+                    />
+                )}
 
                 {/* Main Layout */}
-                <main className="flex-1 flex flex-col md:flex-row w-full h-full relative transition-all duration-300">
+                <main className="flex-1 flex flex-col md:flex-row min-w-0 h-full relative transition-all duration-300">
 
                     {/* Mobile Header */}
                     <div className={`md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shrink-0 z-30 shadow-sm ${profile.planType === 'free' ? 'rounded-t-[24px]' : ''
@@ -466,23 +472,26 @@ export default function EditorPage() {
            Scrollable, Grey Background, Centered Content
            --------------------------------------------------
         */}
-                    {/* 
-           --------------------------------------------------
-           COLUMN 1: EDITOR AREA 
-           Scrollable, Grey Background, Centered Content
-           --------------------------------------------------
-        */}
                     <div className={`flex-1 h-full overflow-y-auto scrollbar-hide ${showMobilePreview ? 'hidden lg:block' : 'block'}`}>
 
                         {/* Desktop Header (Sticky) */}
                         <header className={`hidden md:flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 sticky top-0 z-20 ${profile.planType === 'free' ? 'rounded-tr-[24px] md:rounded-tr-[32px]' : ''
                             }`}>
                             <div className="flex items-center gap-2">
+                                {!isSidebarOpen && (
+                                    <button
+                                        onClick={() => setIsSidebarOpen(true)}
+                                        className="p-2 -ml-2 text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-colors"
+                                        title="Abrir Menu"
+                                    >
+                                        <ChevronsRight size={20} />
+                                    </button>
+                                )}
                                 {/* Breadcrumb or Title */}
                                 <h1 className="text-xl font-bold text-slate-800">Editor</h1>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-300 border border-transparent mr-2">
+                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-300 border border-transparent mr-2 shrink-0 whitespace-nowrap">
                                     {isSaving ? (
                                         <>
                                             <Loader2 size={14} className="animate-spin text-[#32a800]" />
@@ -660,7 +669,13 @@ export default function EditorPage() {
                             <div className={`
               w-full h-full transform transition-transform duration-300 origin-center flex items-center justify-center
             `}>
-                                <Preview profile={profile} links={links} products={products} onShare={() => setIsShareModalOpen(true)} />
+                                <Preview
+                                    profile={profile}
+                                    links={links}
+                                    products={products}
+                                    onShare={() => setIsShareModalOpen(true)}
+                                    forcedTab={activeTab === 'shop' ? 'shop' : 'links'}
+                                />
                             </div>
                         </div>
 
