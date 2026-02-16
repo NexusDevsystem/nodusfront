@@ -166,7 +166,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

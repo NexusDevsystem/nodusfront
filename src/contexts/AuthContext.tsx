@@ -9,6 +9,7 @@ interface AuthContextType {
     signInWithProfile: (googleUser: any, token: string) => Promise<{ error: any }>;
     signOut: () => void;
     setProfile: React.Dispatch<React.SetStateAction<any | null>>;
+    token: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,6 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [profile, setProfile] = useState<any | null>(null);
     // Always start with loading=true to fetch fresh profile data
     const [loading, setLoading] = useState(true);
+    const [token, setToken] = useState<string | null>(localStorage.getItem('nodus_access_token'));
 
     const getOrCreateProfile = async (userData: { email: string, name?: string, picture?: string }) => {
         try {
@@ -146,6 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!googleUser || !googleUser.email) return { error: { message: 'Dados de perfil inválidos' } };
 
         safeSetItem('nodus_access_token', token);
+        setToken(token);
 
         const userData = {
             id: googleUser.sub || googleUser.id,
@@ -163,6 +166,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const signOut = async () => {
         setUser(null);
         setProfile(null);
+        setToken(null);
         localStorage.removeItem('nodus_access_token');
         localStorage.removeItem('nodus_user');
         localStorage.removeItem('nodus_profile');
@@ -178,7 +182,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             onboardingCompleted: !!profile?.onboarding_completed,
             signInWithProfile,
             signOut,
-            setProfile
+            setProfile,
+            token
         }}>
             {children}
         </AuthContext.Provider>

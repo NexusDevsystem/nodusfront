@@ -21,7 +21,8 @@ import {
   CreditCard,
   CalendarDays,
   ReceiptText,
-  User
+  User,
+  FolderOpen
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
@@ -71,6 +72,19 @@ const MENU_GROUPS: MenuGroup[] = [
         icon: BarChart2,
         disabled: false
       },
+    ]
+  },
+  {
+    id: 'tools',
+    label: 'Ferramentas',
+    groupIcon: Sparkles,
+    items: [
+      {
+        id: 'files',
+        label: 'Arquivos',
+        icon: FolderOpen,
+        disabled: false
+      }
     ]
   }
 ];

@@ -423,7 +423,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                         {/* Profile Section */}
                         <motion.div className={`w-full mb-1 ${profile.headerLayout === 'compact'
-                            ? 'flex flex-row items-center gap-4 text-left px-2'
+                            ? 'flex flex-row items-center gap-4 text-left'
                             : 'flex flex-col items-center text-center'
                             }`}>
                             {/* Avatar */}
@@ -1012,9 +1012,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 </motion.div>
                             )}
                         </AnimatePresence>
-
-
-
                         {/* Theme-Integrated Support Button & Newsletter */}
                         <div className="mt-4 flex flex-col gap-4">
                             {profile.supportKey && (
