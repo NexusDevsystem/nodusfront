@@ -9,6 +9,7 @@ import ArtisticVisualizer from '../themes/artistic/ArtisticVisualizer';
 import SocialVisualizer from '../themes/social/SocialVisualizer';
 import EngineeringVisualizer from '../themes/engineering/EngineeringVisualizer';
 import MedicineVisualizer from '../themes/medicine/MedicineVisualizer';
+import TechnologyVisualizer from '../themes/technology/TechnologyVisualizer';
 
 interface BackgroundLayerProps {
     profile: UserProfile;
@@ -122,6 +123,28 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
                 return <MedicineVisualizer variant="neuro-mind" />;
             case 'medicine-radiology':
                 return <MedicineVisualizer variant="radiology-dark" />;
+
+            // Technology Themes
+            case 'technology-neural':
+                return <TechnologyVisualizer variant="neural-grid" />;
+            case 'technology-brutalist':
+                return <TechnologyVisualizer variant="brutalist-tech" />;
+            case 'technology-cyberpunk':
+                return <TechnologyVisualizer variant="cyberpunk-corp" />;
+            case 'technology-saas':
+                return <TechnologyVisualizer variant="minimal-saas" />;
+            case 'technology-terminal':
+                return <TechnologyVisualizer variant="terminal-dev" />;
+            case 'technology-holo':
+                return <TechnologyVisualizer variant="holographic-glass" />;
+            case 'technology-matrix':
+                return <TechnologyVisualizer variant="matrix-code" />;
+            case 'technology-ai':
+                return <TechnologyVisualizer variant="ai-gradient" />;
+            case 'technology-dark':
+                return <TechnologyVisualizer variant="dark-corp" />;
+            case 'technology-startup':
+                return <TechnologyVisualizer variant="startup-launch" />;
 
             // Music Themes (New Config)
 

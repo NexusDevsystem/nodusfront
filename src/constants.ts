@@ -100,6 +100,7 @@ import { kawaiiThemes } from './themes/kawaii';
 import { modernThemes } from './themes/modern';
 import { artisticThemes } from './themes/artistic';
 import { socialThemes } from './themes/social';
+import { technologyThemes } from './themes/technology';
 
 export const THEMES: Theme[] = [
   {
@@ -123,7 +124,8 @@ export const THEMES: Theme[] = [
   ...kawaiiThemes,
   ...modernThemes,
   ...artisticThemes,
-  ...socialThemes
+  ...socialThemes,
+  ...technologyThemes
 ];
 
 export const SOCIAL_NETWORKS = [

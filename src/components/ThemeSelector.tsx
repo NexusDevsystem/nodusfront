@@ -109,6 +109,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
     // Group logic for 'All' view
     const renderGroupedThemes = () => {
         const groups = [
+            { title: 'Tecnologia & Inovação', category: 'technology' },
             { title: 'Engenharia & Construção', category: 'engineering' },
             { title: 'Medicina & Saúde', category: 'medicine' },
             { title: 'Negócios & Corporativo', category: 'business' },

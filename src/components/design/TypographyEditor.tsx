@@ -12,66 +12,8 @@ interface TypographyEditorProps {
 const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }) => {
     return (
         <div className="space-y-6 animate-fade-in pb-10">
-            <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex items-center gap-2 mb-6 text-slate-500">
-                    <Type size={18} />
-                    <h3 className="text-sm font-semibold uppercase tracking-wider">Tipografia</h3>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {FONTS.map((font) => {
-                        const isSelected = profile.fontFamily === font.family;
-
-                        return (
-                            <button
-                                key={font.name}
-                                onClick={() => {
-                                    onChange({ ...profile, fontFamily: font.family });
-                                }}
-                                className={`flex items-center justify-between p-4 rounded-md border transition-all text-left relative ${isSelected
-                                    ? 'border-[#32a800] bg-slate-50'
-                                    : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'
-                                    }`}
-                            >
-                                <div className="flex items-center gap-4">
-                                    <span
-                                        className="bg-white w-10 h-10 rounded border border-slate-100 flex items-center justify-center text-slate-700 font-medium"
-                                        style={{
-                                            fontFamily: font.family,
-                                            fontWeight: profile.fontWeight || '400',
-                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                            fontSize: '16px'
-                                        }}
-                                    >
-                                        Aa
-                                    </span>
-                                    <div>
-                                        <span
-                                            className="text-sm font-semibold text-slate-900 block"
-                                            style={{
-                                                fontFamily: font.family,
-                                                fontWeight: profile.fontWeight || '400',
-                                                fontStyle: profile.fontItalic ? 'italic' : 'normal'
-                                            }}
-                                        >
-                                            {font.name}
-                                        </span>
-                                        <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{font.type}</span>
-                                    </div>
-                                </div>
-
-                                {isSelected && (
-                                    <div className="w-4 h-4 rounded-full bg-[#32a800] flex items-center justify-center">
-                                        <Check size={10} className="text-white" strokeWidth={4} />
-                                    </div>
-                                )}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Advanced Controls */}
+            {/* Advanced Controls (Moved to Top) */}
             <div className="bg-white p-6 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-2 mb-8 text-slate-500">
                     <Zap size={18} />
@@ -145,7 +87,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
                 </div>
             </div>
 
-            {/* Colors */}
+            {/* Colors (Moved Up) */}
             <div className="bg-white p-6 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-2 mb-8 text-slate-500">
                     <div className="w-4 h-4 rounded-sm bg-gradient-to-br from-purple-500 to-pink-500"></div>
@@ -220,6 +162,87 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
                 <p className="text-[10px] text-slate-400 mt-6 italic bg-slate-50 p-3 rounded-lg border border-slate-100">
                     * A <b>cor do texto no botão</b> agora é aplicada em todos os temas. Alterar a cor dos <b>cabeçalhos e textos principais</b> ainda ativará o modo <b>Custom</b> para garantir a visibilidade.
                 </p>
+            </div>
+
+            {/* Font Library */}
+            <div className="bg-white p-6 rounded-lg border border-slate-200">
+                <div className="flex items-center gap-2 mb-6 text-slate-500">
+                    <Type size={18} />
+                    <h3 className="text-sm font-semibold uppercase tracking-wider">Biblioteca de Fontes</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {FONTS.map((font) => {
+                        const isSelected = profile.fontFamily === font.family;
+                        const isLocked = font.isPro && profile.planType === 'free';
+
+                        return (
+                            <button
+                                key={font.name}
+                                onClick={() => {
+                                    if (isLocked) {
+                                        (window as any).dispatchEvent(new CustomEvent('open-billing-modal'));
+                                        return;
+                                    }
+                                    onChange({ ...profile, fontFamily: font.family });
+                                }}
+                                className={`flex items-center justify-between p-4 rounded-md border transition-all text-left relative ${isSelected
+                                    ? 'border-[#32a800] bg-slate-50'
+                                    : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'
+                                    } ${isLocked ? 'opacity-60 grayscale' : ''}`}
+                            >
+                                <div className="flex items-center gap-4">
+                                    <span
+                                        className="bg-white w-10 h-10 rounded border border-slate-100 flex items-center justify-center text-slate-700 font-medium relative overflow-hidden"
+                                        style={{
+                                            fontFamily: font.family,
+                                            fontWeight: profile.fontWeight || '400',
+                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                            fontSize: '16px'
+                                        }}
+                                    >
+                                        Aa
+                                        {isLocked && (
+                                            <div className="absolute inset-0 bg-slate-100/80 flex items-center justify-center">
+                                                <Zap size={14} className="text-slate-400 fill-slate-400" />
+                                            </div>
+                                        )}
+                                    </span>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <span
+                                                className="text-sm font-semibold text-slate-900 block"
+                                                style={{
+                                                    fontFamily: font.family,
+                                                    fontWeight: profile.fontWeight || '400',
+                                                    fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                                                }}
+                                            >
+                                                {font.name}
+                                            </span>
+                                            {font.isPro && (
+                                                <span className="text-[9px] font-black uppercase tracking-wider bg-black/5 text-black/40 px-1.5 py-0.5 rounded">
+                                                    PRO
+                                                </span>
+                                            )}
+                                        </div>
+                                        <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{font.type}</span>
+                                    </div>
+                                </div>
+
+                                {isSelected && (
+                                    <div className="w-4 h-4 rounded-full bg-[#32a800] flex items-center justify-center">
+                                        <Check size={10} className="text-white" strokeWidth={4} />
+                                    </div>
+                                )}
+
+                                {isLocked && !isSelected && (
+                                    <Zap size={14} className="text-slate-300 fill-slate-300" />
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );
