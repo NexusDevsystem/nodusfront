@@ -26,6 +26,7 @@ import { apiClient } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
 import FileManager from '../components/tools/FileManager';
 
+
 export default function EditorPage() {
     const { profile: authProfile, loading: authLoading } = useAuth();
 
@@ -530,6 +531,7 @@ export default function EditorPage() {
                                     {activeTab === 'billing' && 'Gerencie sua assinatura, visualize recibos e detalhes de pagamento.'}
                                     {activeTab === 'support' && 'Entre em contato com nossa equipe para resolver dúvidas.'}
                                     {activeTab === 'files' && 'Hospede arquivos e documentos para usar no seu perfil.'}
+
                                 </p>
                             </div>
 
@@ -583,6 +585,8 @@ export default function EditorPage() {
                                 )}
 
 
+
+
                                 {activeTab === 'appearance' && (
                                     <div className="flex flex-col -mt-4 md:-mt-6 -mx-6 lg:-mx-12 bg-slate-50 relative min-h-[calc(100vh-140px)]">
                                         {/* Design Sidebar */}
@@ -626,7 +630,7 @@ export default function EditorPage() {
                                     </div>
                                 )}
 
-                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && activeTab !== 'files' && (
+                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'integrations' && (
                                     <div className="bg-white p-12 rounded-[20px] border border-dashed border-slate-300 text-center">
                                         <div className="text-4xl mb-4 text-slate-300 flex justify-center"><Construction size={48} /></div>
                                         <h3 className="text-lg font-medium text-slate-700">Em Desenvolvimento</h3>

@@ -35,6 +35,7 @@ import { SiSpotify } from 'react-icons/si';
 // @ts-ignore
 import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
 
+
 interface ProfileRendererProps {
     profile: UserProfile;
     links: LinkItem[];
@@ -801,17 +802,20 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             );
 
                                                             return (
-                                                                <a
+                                                                <motion.a
                                                                     key={cardLink.id}
+                                                                    initial={{ scale: 0.95, opacity: 0 }}
+                                                                    whileInView={{ scale: 1, opacity: 1 }}
+                                                                    viewport={{ once: true }}
                                                                     href={cardLink.url}
                                                                     target="_blank"
                                                                     rel="noreferrer"
                                                                     onClick={() => handleLinkClick(cardLink.id)}
-                                                                    className={`flex flex-col transition-all duration-300 group relative overflow-hidden ${baseCardClass}`}
-                                                                    style={{ ...mainButtonStyle, borderRadius: borderRadiusValue }}
+                                                                    className={`group relative overflow-hidden transition-all duration-300 w-full ${baseCardClass}`}
+                                                                    style={{ ...mainButtonStyle, backgroundColor: buttonHex }}
                                                                 >
                                                                     {cardContent}
-                                                                </a>
+                                                                </motion.a>
                                                             );
                                                         })}
                                                     </div>
@@ -967,6 +971,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         return renderedItems;
                                     })()}
 
+
+
                                     {/* Payment Methods (Monetization) - Always Last */}
                                     {profile.paymentMethods && profile.paymentMethods.length > 0 && (
                                         <div className="flex flex-col gap-3 w-full mb-2">
@@ -1075,8 +1081,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             </div>
                         </motion.div>
                     </div>
-                </div>
-            </div>
+                </div >
+            </div >
             {/* Foreground Layer (For themes like Sakura) */}
             {currentTheme.id === 'kawaii-sakura' && <KawaiiSakuraForeground />}
         </div >

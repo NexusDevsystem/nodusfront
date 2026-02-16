@@ -22,7 +22,8 @@ import {
   CalendarDays,
   ReceiptText,
   User,
-  FolderOpen
+  FolderOpen,
+
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
@@ -84,7 +85,8 @@ const MENU_GROUPS: MenuGroup[] = [
         label: 'Arquivos',
         icon: FolderOpen,
         disabled: false
-      }
+      },
+
     ]
   }
 ];
