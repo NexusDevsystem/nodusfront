@@ -29,10 +29,8 @@ import {
     Zap,
     ExternalLink
 } from 'lucide-react';
-import { SiSpotify, SiTiktok } from 'react-icons/si';
+import { SiSpotify } from 'react-icons/si';
 import { SOCIAL_NETWORKS } from '../constants';
-import { apiClient } from '../services/apiClient';
-import { useAuth } from '../contexts/AuthContext';
 
 interface SocialLinksEditorProps {
     links: LinkItem[];
@@ -40,13 +38,11 @@ interface SocialLinksEditorProps {
 }
 
 export default function SocialLinksEditor({ links, onChange }: SocialLinksEditorProps) {
-    const { profile } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [configuringPlatform, setConfiguringPlatform] = useState<string | null>(null);
     const [tempUrl, setTempUrl] = useState('');
-    const [isConnecting, setIsConnecting] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -117,19 +113,6 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
         handleCloseModal();
     };
 
-    const handleConnectTikTok = async () => {
-        if (!profile?.id) return;
-        setIsConnecting(true);
-        try {
-            const { url } = await apiClient.getTikTokAuthUrl(profile.id);
-            window.location.href = url;
-        } catch (err: any) {
-            console.error('Failed to get TikTok auth URL:', err);
-            alert('Falha ao iniciar conexão oficial com o TikTok.');
-        } finally {
-            setIsConnecting(false);
-        }
-    };
 
     const filteredPlatforms = SOCIAL_NETWORKS.filter(p =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -299,30 +282,6 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
                                                 </p>
                                             </div>
 
-                                            {configuringPlatform === 'tiktok' && (
-                                                <div className="pt-2">
-                                                    <div className="flex items-center gap-4 my-5">
-                                                        <div className="h-[1px] flex-1 bg-slate-100" />
-                                                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">ou</span>
-                                                        <div className="h-[1px] flex-1 bg-slate-100" />
-                                                    </div>
-
-                                                    <button
-                                                        onClick={handleConnectTikTok}
-                                                        disabled={isConnecting}
-                                                        className="w-full py-4 bg-white border border-slate-200 text-slate-900 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
-                                                    >
-                                                        {isConnecting ? (
-                                                            <div className="w-5 h-5 border-2 border-slate-200 border-t-slate-900 rounded-full animate-spin" />
-                                                        ) : (
-                                                            <>
-                                                                <SiTiktok size={18} />
-                                                                Conectar conta oficial
-                                                            </>
-                                                        )}
-                                                    </button>
-                                                </div>
-                                            )}
 
                                             <button
                                                 onClick={confirmPlatform}
