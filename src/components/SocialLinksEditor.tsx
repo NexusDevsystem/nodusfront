@@ -25,24 +25,28 @@ import {
     ShoppingBag,
     Search,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Zap,
+    ExternalLink
 } from 'lucide-react';
-import { SiSpotify } from 'react-icons/si';
+import { SiSpotify, SiTiktok } from 'react-icons/si';
 import { SOCIAL_NETWORKS } from '../constants';
+import { apiClient } from '../services/apiClient';
+import { useAuth } from '../contexts/AuthContext';
 
 interface SocialLinksEditorProps {
     links: LinkItem[];
     onChange: (links: LinkItem[] | ((prev: LinkItem[]) => LinkItem[])) => void;
 }
 
-// Platforms will be loaded from SOCIAL_NETWORKS
-
 export default function SocialLinksEditor({ links, onChange }: SocialLinksEditorProps) {
+    const { profile } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [configuringPlatform, setConfiguringPlatform] = useState<string | null>(null);
     const [tempUrl, setTempUrl] = useState('');
+    const [isConnecting, setIsConnecting] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -64,9 +68,7 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
         const platform = SOCIAL_NETWORKS.find(p => p.id === platformId);
 
         if (existing && platform) {
-            // Abrir para editar
             setConfiguringPlatform(platformId);
-            // Se a URL salva começar com a baseUrl, remove ela para mostrar apenas o username
             if (existing.url.startsWith(platform.baseUrl)) {
                 setTempUrl(existing.url.replace(platform.baseUrl, ''));
             } else {
@@ -87,9 +89,7 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
 
         let finalUrl = tempUrl.trim();
 
-        // Se não for uma URL completa, monta usando a baseUrl
         if (!finalUrl.startsWith('http') && !finalUrl.startsWith('mailto:') && !finalUrl.startsWith('tel:')) {
-            // Remove @ extra se a baseUrl já tiver ou se o usuário colocou
             const cleanUser = finalUrl.startsWith('@') ? finalUrl.substring(1) : finalUrl;
             finalUrl = `${platform.baseUrl}${cleanUser}`;
         }
@@ -97,11 +97,9 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
         const platformLinks = links.filter(l => l.platform === configuringPlatform);
 
         if (platformLinks.length > 0) {
-            // Update all existing links for this platform
             onChange(links.map(l => l.platform === configuringPlatform ? { ...l, url: finalUrl } : l));
         } else {
             const now = Date.now();
-            // Create only one link. User can change its layout in LinkEditor if they want a button instead of icon.
             const newSocialLink: LinkItem = {
                 id: now.toString(),
                 type: 'link',
@@ -110,7 +108,7 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
                 url: finalUrl,
                 isActive: true,
                 clicks: 0,
-                layout: 'social' // Default to top icon as it's a social link, but it's now visible in the main list.
+                layout: 'social'
             };
 
             onChange([...links, newSocialLink]);
@@ -119,8 +117,18 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
         handleCloseModal();
     };
 
-    const updateLinkUrl = (id: string, url: string) => {
-        onChange(links.map(l => l.id === id ? { ...l, url } : l));
+    const handleConnectTikTok = async () => {
+        if (!profile?.id) return;
+        setIsConnecting(true);
+        try {
+            const { url } = await apiClient.getTikTokAuthUrl(profile.id);
+            window.location.href = url;
+        } catch (err: any) {
+            console.error('Failed to get TikTok auth URL:', err);
+            alert('Falha ao iniciar conexão oficial com o TikTok.');
+        } finally {
+            setIsConnecting(false);
+        }
     };
 
     const filteredPlatforms = SOCIAL_NETWORKS.filter(p =>
@@ -132,7 +140,6 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
     return (
         <div className="bg-white rounded-[24px] md:rounded-[32px] shadow-sm border border-slate-100 mb-6 group transition-all overflow-hidden">
             <div className="p-6 md:p-10">
-                {/* ... (Header and grid) */}
                 <div className="flex items-start justify-between gap-4 mb-8">
                     <div>
                         <h3 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">Redes Sociais</h3>
@@ -181,7 +188,6 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
                             <div
                                 className="relative bg-white w-full max-w-lg max-h-[80vh] rounded-[32px] overflow-hidden shadow-2xl flex flex-col"
                             >
-                                {/* Header - Centered title with back and close buttons */}
                                 <div className="p-6 flex items-center justify-between shrink-0 relative">
                                     <button
                                         onClick={() => configuringPlatform ? setConfiguringPlatform(null) : handleCloseModal()}
@@ -206,7 +212,6 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
 
                                 {!configuringPlatform ? (
                                     <div className="flex flex-col flex-1 min-h-0">
-                                        {/* Search Bar */}
                                         <div className="px-6 pb-4">
                                             <div className="relative">
                                                 <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -220,7 +225,6 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
                                             </div>
                                         </div>
 
-                                        {/* Platforms List */}
                                         <div className="flex-1 overflow-y-auto px-6 pb-6 scrollbar-hide">
                                             <div className="space-y-1">
                                                 {SOCIAL_NETWORKS.filter(p =>
@@ -294,6 +298,31 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
                                                     Exemplo: @{activeConfigPlatform?.placeholder || 'usuario'}
                                                 </p>
                                             </div>
+
+                                            {configuringPlatform === 'tiktok' && (
+                                                <div className="pt-2">
+                                                    <div className="flex items-center gap-4 my-5">
+                                                        <div className="h-[1px] flex-1 bg-slate-100" />
+                                                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">ou</span>
+                                                        <div className="h-[1px] flex-1 bg-slate-100" />
+                                                    </div>
+
+                                                    <button
+                                                        onClick={handleConnectTikTok}
+                                                        disabled={isConnecting}
+                                                        className="w-full py-4 bg-white border border-slate-200 text-slate-900 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
+                                                    >
+                                                        {isConnecting ? (
+                                                            <div className="w-5 h-5 border-2 border-slate-200 border-t-slate-900 rounded-full animate-spin" />
+                                                        ) : (
+                                                            <>
+                                                                <SiTiktok size={18} />
+                                                                Conectar conta oficial
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            )}
 
                                             <button
                                                 onClick={confirmPlatform}

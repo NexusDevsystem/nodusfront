@@ -143,6 +143,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             currentTheme.id === 'social-twitch' ||
             currentTheme.id === 'social-youtube';
 
+    const tiktokIntegration = profile.integrations?.find(i => i.provider === 'tiktok');
+    const tiktokFollowers = tiktokIntegration?.profile_data?.follower_count;
+    const tiktokUsername = tiktokIntegration?.profile_data?.username;
+
     const getHighlightClass = (type?: string) => {
         switch (type) {
             case 'pulse': return 'animate-pulse';
@@ -527,6 +531,16 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         </h3>
                                     )}
                                 </div>
+
+                                {tiktokFollowers !== undefined && (
+                                    <div
+                                        className="flex items-center gap-1.5 mb-2 px-3 py-1 bg-black/10 backdrop-blur-md rounded-full text-[0.75rem] font-bold"
+                                        style={{ color: getSmartTextColor() }}
+                                    >
+                                        <Music size={12} fill="currentColor" />
+                                        <span>{tiktokFollowers.toLocaleString()} Seguidores</span>
+                                    </div>
+                                )}
 
                                 {profile.bio && (
                                     <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'}`}

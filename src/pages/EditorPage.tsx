@@ -596,6 +596,7 @@ export default function EditorPage() {
 
 
 
+
                                 {activeTab === 'appearance' && (
                                     <div className="flex flex-col -mt-4 md:-mt-6 -mx-6 lg:-mx-12 bg-slate-50 relative min-h-[calc(100vh-140px)]">
                                         {/* Design Sidebar */}

@@ -67,6 +67,7 @@ export interface UserProfile {
   customTextColor?: string | null;
   customButtonTextColor?: string | null;
   customButtonColor?: string | null;
+  integrations?: any[];
 }
 
 export interface Theme {
@@ -111,4 +112,18 @@ export interface AnalyticsEvent {
   linkId: string;
   timestamp: string;
   type: 'click';
+}
+
+export interface SocialIntegration {
+  user_id: string;
+  provider: 'tiktok' | 'youtube' | 'instagram';
+  access_token: string;
+  refresh_token?: string;
+  expires_at?: string;
+  profile_data: {
+    username?: string;
+    follower_count?: number;
+    avatar_url?: string;
+    channel_id?: string;
+  };
 }

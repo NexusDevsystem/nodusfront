@@ -1,4 +1,4 @@
-import { UserProfile, LinkItem, Product } from '../types';
+import { UserProfile, LinkItem, Product, SocialIntegration } from '../types';
 
 const rawUrl = import.meta.env.VITE_API_URL || 'https://nodusback-production.up.railway.app';
 
@@ -188,6 +188,22 @@ class ApiClient {
             method: 'POST'
         });
     }
+
+    async getTikTokAuthUrl(userId: string): Promise<{ url: string }> {
+        return this.request(`/api/integrations/tiktok/auth-url?userId=${userId}`);
+    }
+
+    async handleTikTokCallback(code: string, userId: string): Promise<any> {
+        return this.request('/api/integrations/tiktok/callback', {
+            method: 'POST',
+            body: JSON.stringify({ code, userId })
+        });
+    }
+
+    async getMyIntegrations(): Promise<SocialIntegration[]> {
+        return this.request('/api/integrations/me');
+    }
 }
+
 
 export const apiClient = new ApiClient();

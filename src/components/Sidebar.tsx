@@ -86,8 +86,7 @@ const MENU_GROUPS: MenuGroup[] = [
         label: 'Arquivos',
         icon: FolderOpen,
         disabled: false
-      },
-
+      }
     ]
   }
 ];
