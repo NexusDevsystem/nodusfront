@@ -921,8 +921,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         {activeChildren.map(child => {
                                                                             const childContent = (
                                                                                 <div className="relative z-10 flex flex-col h-full w-full">
-                                                                                    <div className="relative overflow-hidden h-36 w-full bg-slate-50">
-                                                                                        {child.image ? <img src={child.image} alt="" className="w-full h-full block object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
+                                                                                    <div className="relative overflow-hidden h-36 w-full bg-white">
+                                                                                        {child.image ? <img src={child.image} alt="" className="w-full h-full block object-contain" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
                                                                                     </div>
                                                                                     <div className={`p-2 flex flex-col justify-center items-center text-center h-12 relative`}>
                                                                                         <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
