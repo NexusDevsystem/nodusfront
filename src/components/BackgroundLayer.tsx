@@ -5,11 +5,16 @@ import { UserProfile, Theme } from '../types';
 import { Background as NodusOfficialBackground } from '../themes/nodus-official';
 import { Background as KawaiiSakuraBackground } from '../themes/kawaii-sakura';
 import ModernVisualizer from '../themes/modern/ModernVisualizer';
+import AdvocacyVisualizer from '../themes/advocacy/AdvocacyVisualizer';
 import ArtisticVisualizer from '../themes/artistic/ArtisticVisualizer';
 import SocialVisualizer from '../themes/social/SocialVisualizer';
 import EngineeringVisualizer from '../themes/engineering/EngineeringVisualizer';
 import MedicineVisualizer from '../themes/medicine/MedicineVisualizer';
 import TechnologyVisualizer from '../themes/technology/TechnologyVisualizer';
+
+// ... (in renderBackground switch)
+
+
 
 interface BackgroundLayerProps {
     profile: UserProfile;
@@ -61,6 +66,18 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
             // Modern UI Themes
             case 'modern-minimalist':
                 return <ModernVisualizer variant="minimalist" />;
+
+            // Advocacy Themes
+            case 'advocacy-juris-classic':
+                return <AdvocacyVisualizer variant="juris-classic" />;
+            case 'advocacy-modern-law':
+                return <AdvocacyVisualizer variant="modern-law" />;
+            case 'advocacy-verdict':
+                return <AdvocacyVisualizer variant="verdict" />;
+            case 'advocacy-equity':
+                return <AdvocacyVisualizer variant="equity" />;
+            case 'advocacy-justice-scale':
+                return <AdvocacyVisualizer variant="justice-scale" />;
             case 'modern-cyberpunk':
                 return <ModernVisualizer variant="cyberpunk" />;
             case 'modern-glassmorphism':

@@ -130,6 +130,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             : currentTheme.id.includes('dark') ||
             currentTheme.id.includes('black') ||
             currentTheme.id.includes('animated-') ||
+            (currentTheme.category === 'advocacy' && currentTheme.id !== 'advocacy-equity') ||
+            currentTheme.category === 'technology' ||
+            currentTheme.category === 'engineering' || // Most engineering are dark
             currentTheme.id === 'modern-cyberpunk' ||
             currentTheme.id === 'modern-industrial' ||
             currentTheme.id === 'modern-retro' ||
@@ -1007,7 +1010,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             <div className="relative z-10 w-full flex items-center justify-between px-2">
                                                                 {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
                                                                 <div className="flex-1 px-1 flex flex-col justify-center text-center">
-                                                                    <span className="text-[0.9em] leading-tight break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
+                                                                    <span className="text-[0.9em] leading-tight line-clamp-2 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
                                                                     {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.subtitle}</span>}
                                                                 </div>
                                                                 <span className="w-8 shrink-0"></span>

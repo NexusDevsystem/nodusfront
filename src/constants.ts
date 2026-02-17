@@ -101,6 +101,7 @@ import { modernThemes } from './themes/modern';
 import { artisticThemes } from './themes/artistic';
 import { socialThemes } from './themes/social';
 import { technologyThemes } from './themes/technology';
+import { advocacyThemes } from './themes/advocacy';
 
 export const THEMES: Theme[] = [
   {
@@ -119,6 +120,7 @@ export const THEMES: Theme[] = [
   nodusOfficialTheme,
   kawaiiSakuraTheme,
   ...businessThemes,
+  ...advocacyThemes,
   ...engineeringThemes,
   ...medicineThemes,
   ...kawaiiThemes,

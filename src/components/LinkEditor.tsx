@@ -245,102 +245,113 @@ function SortableLinkItem({
           /* RENDER STANDARD LINK ITEM */
           <div className="flex flex-col">
             {/* Header Row (Always Visible) */}
-            <div className="flex items-center w-full min-h-[72px]">
+            <div className="flex border-b border-slate-100 items-stretch min-h-[72px]">
               {/* Drag Handle */}
               <div
-                className="w-10 md:w-12 flex items-center justify-center cursor-move text-slate-300 hover:text-[#32a800] hover:bg-[#32a800]/5 self-stretch touch-none border-r border-slate-50 transition-colors"
+                className="w-10 md:w-12 flex items-center justify-center cursor-move text-slate-300 hover:text-slate-500 touch-none"
                 onPointerDown={(e) => dragControls.start(e)}
               >
                 <GripVertical size={16} />
               </div>
 
-              {/* Image Thumbnail */}
-              <div className="shrink-0 mx-4">
-                <div className="relative">
-                  <input
-                    type="file"
-                    id={`file-${link.id}`}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={async (e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        try {
-                          const compressed = await compressImage(e.target.files[0], 400, 0.8);
-                          updateLink(link.id, 'image', compressed);
-                        } catch (error) {
-                          console.error('Error processing image:', error);
-                        }
-                      }
-                    }}
-                  />
-                  {link.image ? (
-                    <div className="w-11 h-11 rounded-xl overflow-hidden shadow-sm border border-slate-100">
-                      <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                      className="w-11 h-11 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-[#32a800] hover:bg-white hover:border-[#32a800] transition-all"
-                    >
-                      <ImageIcon size={18} />
-                    </button>
-                  )}
+              {/* Header Content Wrapper (Matching Collection Style) */}
+              <div className="flex-1 py-4 md:py-5 pr-3 md:pr-6 flex items-center gap-2 md:gap-4 overflow-hidden">
+                {/* Expand Toggle (Left) */}
+                <div
+                  onClick={() => toggleLink(link.id)}
+                  className="cursor-pointer text-slate-400 hover:text-slate-900 transition-colors shrink-0"
+                >
+                  {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
                 </div>
-              </div>
 
-              {/* Title & Chevron (Click to Expand) */}
-              <div
-                className="flex-1 min-w-0 pr-2 py-4 cursor-pointer group/title"
-                onClick={() => toggleLink(link.id)}
-              >
-                <div className="flex items-center gap-2 mb-0.5">
-                  <div className="font-semibold text-slate-800 truncate text-xs md:text-sm flex items-center gap-2">
-                    {link.title || 'Link sem título'}
-                    {/* Schedule Badges */}
-                    {link.scheduleStart && new Date(link.scheduleStart) > new Date() && (
-                      <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-blue-50 text-[9px] font-bold text-blue-600 border border-blue-100 uppercase tracking-tighter flex items-center gap-1">
-                        🕒 Agendado
-                      </span>
+                {/* Image Thumbnail */}
+                <div className="shrink-0">
+                  <div className="relative">
+                    <input
+                      type="file"
+                      id={`file-${link.id}`}
+                      className="hidden"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          try {
+                            const compressed = await compressImage(e.target.files[0], 400, 0.8);
+                            updateLink(link.id, 'image', compressed);
+                          } catch (error) {
+                            console.error('Error processing image:', error);
+                          }
+                        }
+                      }}
+                    />
+                    {link.image ? (
+                      <div className="w-11 h-11 rounded-xl overflow-hidden shadow-sm border border-slate-100">
+                        <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => document.getElementById(`file-${link.id}`)?.click()}
+                        className="w-11 h-11 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-[#32a800] hover:bg-white hover:border-[#32a800] transition-all"
+                      >
+                        <ImageIcon size={18} />
+                      </button>
                     )}
-                    {link.scheduleEnd && new Date(link.scheduleEnd) < new Date() && (
-                      <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-red-50 text-[9px] font-bold text-red-600 border border-red-100 uppercase tracking-tighter flex items-center gap-1">
-                        🔴 Expirado
+                  </div>
+                </div>
+
+                {/* Title & URL (Click to Expand) */}
+                <div
+                  className="flex-1 min-w-0 cursor-pointer group/title"
+                  onClick={() => toggleLink(link.id)}
+                >
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <div className="font-semibold text-slate-800 truncate text-xs md:text-sm flex items-center gap-2">
+                      {link.title || 'Link sem título'}
+                      {/* Schedule Badges */}
+                      {link.scheduleStart && new Date(link.scheduleStart) > new Date() && (
+                        <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-blue-50 text-[9px] font-bold text-blue-600 border border-blue-100 uppercase tracking-tighter flex items-center gap-1">
+                          🕒 Agendado
+                        </span>
+                      )}
+                      {link.scheduleEnd && new Date(link.scheduleEnd) < new Date() && (
+                        <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-red-50 text-[9px] font-bold text-red-600 border border-red-100 uppercase tracking-tighter flex items-center gap-1">
+                          🔴 Expirado
+                        </span>
+                      )}
+                    </div>
+                    {link.layout === 'social' ? (
+                      <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-emerald-50 text-[9px] font-bold text-emerald-600 border border-emerald-100 uppercase tracking-tighter">
+                        Ícone do Topo
+                      </span>
+                    ) : (
+                      <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-blue-50 text-[9px] font-bold text-blue-600 border border-blue-100 uppercase tracking-tighter">
+                        Botão na Lista
                       </span>
                     )}
                   </div>
-                  {link.layout === 'social' ? (
-                    <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-emerald-50 text-[9px] font-bold text-emerald-600 border border-emerald-100 uppercase tracking-tighter">
-                      Ícone do Topo
-                    </span>
-                  ) : (
-                    <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-blue-50 text-[9px] font-bold text-blue-600 border border-blue-100 uppercase tracking-tighter">
-                      Botão na Lista
-                    </span>
-                  )}
+                  <div className="text-[10px] md:text-xs text-slate-400 truncate">
+                    {link.url || 'Suas redes ou site'}
+                  </div>
                 </div>
-                <div className="text-[10px] md:text-xs text-slate-400 truncate">
-                  {link.url || 'Suas redes ou site'}
+
+                {/* Right Actions: Switch & Delete */}
+                <div className="flex items-center gap-3 md:gap-6 shrink-0">
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={link.isActive}
+                      onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-8 md:w-9 h-4 md:h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 md:after:h-4 after:w-3 md:after:w-4 after:transition-all peer-checked:bg-[#32a800]"></div>
+                  </label>
+
+                  <button
+                    onClick={() => removeLink(link.id)}
+                    className="p-2 text-slate-300 hover:text-red-500 transition-colors bg-slate-50 rounded-lg hover:bg-red-50"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
-              </div>
-
-              {/* Right Actions: Edit(Expand) & Switch */}
-              <div className="flex items-center gap-2 md:gap-6 pr-3 md:pr-6 shrink-0">
-                <button
-                  onClick={() => toggleLink(link.id)}
-                  className={`p-1.5 md:p-2 rounded-xl transition-all ${isExpanded ? 'text-[#32a800] bg-[#32a800]/5 rotate-180' : 'text-slate-300 hover:text-slate-600 bg-slate-50 hover:bg-slate-100'}`}
-                >
-                  <ChevronDown size={18} />
-                </button>
-
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={link.isActive}
-                    onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-8 md:w-9 h-4 md:h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 md:after:h-4 after:w-3 md:after:w-4 after:transition-all peer-checked:bg-[#32a800]"></div>
-                </label>
               </div>
             </div>
 
@@ -711,7 +722,7 @@ function SortableLinkItem({
           </div>
         )}
       </div>
-    </Reorder.Item>
+    </Reorder.Item >
   );
 }
 

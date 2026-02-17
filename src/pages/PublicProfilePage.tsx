@@ -95,13 +95,16 @@ export default function PublicProfilePage() {
 
             {/* Dynamic Full Page Background Layer */}
             <div className="fixed inset-0 z-0 overflow-hidden scale-110">
-                <BackgroundLayer profile={profile} currentTheme={currentTheme} />
+                {/* Blurred Background Content */}
+                <div className="absolute inset-0 filter blur-[80px]">
+                    <BackgroundLayer profile={profile} currentTheme={currentTheme} />
+                </div>
 
-                {/* Immersive Blur Overlay */}
-                <div className="absolute inset-0 backdrop-blur-[80px] bg-black/10 transition-colors duration-1000"></div>
+                {/* Immersive Darkening Overlay */}
+                <div className="absolute inset-0 z-40 bg-black/10 transition-colors duration-1000"></div>
 
                 {/* Ambient Glow / Grain Layer */}
-                <div className="absolute inset-0 opacity-20 pointer-events-none mix-blend-soft-light"></div>
+                <div className="absolute inset-0 z-50 opacity-20 pointer-events-none mix-blend-soft-light"></div>
             </div>
 
 
@@ -120,13 +123,15 @@ export default function PublicProfilePage() {
             </div>
 
             {/* Share Modal */}
-            {isShareModalOpen && (
-                <QRCodeModal
-                    url={window.location.href}
-                    profileName={profile.name}
-                    onClose={() => setIsShareModalOpen(false)}
-                />
-            )}
+            {
+                isShareModalOpen && (
+                    <QRCodeModal
+                        url={window.location.href}
+                        profileName={profile.name}
+                        onClose={() => setIsShareModalOpen(false)}
+                    />
+                )
+            }
 
             {/* Minimalist QR Code */}
             <div className="fixed bottom-4 right-4 hidden xl:block z-20">
@@ -136,6 +141,6 @@ export default function PublicProfilePage() {
                     className="w-32 h-32 invert transition-opacity duration-300 hover:opacity-100 opacity-90 brightness-200"
                 />
             </div>
-        </div>
+        </div >
     );
 }
