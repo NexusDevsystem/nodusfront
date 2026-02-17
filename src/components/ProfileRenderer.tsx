@@ -27,6 +27,7 @@ import {
     CreditCard
 } from 'lucide-react';
 import YouTubeEmbed from './YouTubeEmbed';
+import TikTokEmbed from './TikTokEmbed';
 import verifiedBadge from '../assets/verified-badge.png';
 
 import BackgroundLayer from './BackgroundLayer';
@@ -964,6 +965,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     {activeChildren.map(child => {
                                                                         if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
                                                                         if (child.embedType === 'youtube') return <motion.div key={child.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} /></motion.div>;
+                                                                        if (child.embedType === 'tiktok') return <motion.div key={child.id} transition={{ duration: 0 }} className="mb-4 w-full"><TikTokEmbed url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>;
 
                                                                         return (
                                                                             <motion.a
@@ -995,6 +997,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full mb-5"><MusicRichCard link={link} handleLinkClick={handleLinkClick} /></motion.div>);
                                                 } else if (link.embedType === 'youtube') {
                                                     renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} /></motion.div>);
+                                                } else if (link.embedType === 'tiktok') {
+                                                    renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="mb-4 w-full"><TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>);
                                                 } else {
                                                     renderedItems.push(
                                                         <motion.a

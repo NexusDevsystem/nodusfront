@@ -90,16 +90,49 @@ function SortableLinkItem({
       const url = link.url;
       const isSpotify = url.includes('open.spotify.com/') && (url.includes('/track/') || url.includes('/album/') || url.includes('/playlist/'));
       const isDeezer = url.includes('deezer.com/') || url.includes('deezer.page.link/');
+      const isTiktok = url.includes('tiktok.com');
+      const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
 
-      if ((isSpotify || isDeezer) && (!link.title || link.title === 'Novo Link' || link.title === 'Link sem título')) {
-        const type = isSpotify ? 'spotify' : 'deezer';
-
-        // Only update type if not set
-        if (link.embedType !== type) {
-          updateLinkFields(link.id, { embedType: type });
-        }
+      if ((isSpotify || isDeezer || isTiktok || isYoutube) && (!link.title || link.title === 'Novo Link' || link.title === 'Link sem título')) {
+        let type: 'spotify' | 'deezer' | 'tiktok' | 'youtube' | 'none' = 'none';
+        if (isSpotify) type = 'spotify';
+        else if (isDeezer) type = 'deezer';
+        else if (isTiktok) type = 'tiktok';
+        else if (isYoutube) type = 'youtube';
 
         try {
+          // Special handling for TikTok to distinguish video vs profile
+          if (isTiktok) {
+            const metadata = await fetchMusicMetadata(url);
+            if (metadata) {
+              const updates: Partial<LinkItem> = {};
+              if (metadata.title) updates.title = metadata.title;
+
+              // Only embed if it's a video
+              if (metadata.type === 'video') {
+                updates.embedType = 'tiktok';
+                // Use the resolved URL (numeric ID) for the video embed to work correctly
+                if (metadata.resolvedUrl) {
+                  updates.url = metadata.resolvedUrl;
+                }
+                // Store the direct video source for clean player
+                if (metadata.videoUrl) {
+                  updates.videoUrl = metadata.videoUrl;
+                }
+              } else {
+                updates.embedType = 'none';
+              }
+
+              updateLinkFields(link.id, updates);
+              return;
+            }
+          }
+
+          // Only update type if not set
+          if (link.embedType !== type) {
+            updateLinkFields(link.id, { embedType: type });
+          }
+
           const metadata = await fetchMusicMetadata(url);
           if (metadata) {
             console.log('🎵 Metadata fetched via useEffect:', metadata);
@@ -306,25 +339,34 @@ function SortableLinkItem({
                   <div className="flex items-center gap-2 mb-0.5">
                     <div className="font-semibold text-slate-800 truncate text-xs md:text-sm flex items-center gap-2">
                       {link.title || 'Link sem título'}
-                      {/* Schedule Badges */}
                       {link.scheduleStart && new Date(link.scheduleStart) > new Date() && (
                         <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-blue-50 text-[9px] font-bold text-blue-600 border border-blue-100 uppercase tracking-tighter flex items-center gap-1">
-                          🕒 Agendado
+                          🕒 {level === 0 ? 'Agendado' : ''}
                         </span>
                       )}
                       {link.scheduleEnd && new Date(link.scheduleEnd) < new Date() && (
                         <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-red-50 text-[9px] font-bold text-red-600 border border-red-100 uppercase tracking-tighter flex items-center gap-1">
-                          🔴 Expirado
+                          🔴 {level === 0 ? 'Expirado' : ''}
+                        </span>
+                      )}
+                      {link.embedType === 'youtube' && (
+                        <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-red-50 text-[9px] font-bold text-red-600 border border-red-100 uppercase tracking-tighter flex items-center gap-1">
+                          VÍDEO YOUTUBE
+                        </span>
+                      )}
+                      {link.embedType === 'tiktok' && (
+                        <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-slate-900 text-[9px] font-bold text-white border border-slate-800 uppercase tracking-tighter flex items-center gap-1">
+                          VÍDEO TIKTOK
                         </span>
                       )}
                     </div>
                     {link.layout === 'social' ? (
                       <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-emerald-50 text-[9px] font-bold text-emerald-600 border border-emerald-100 uppercase tracking-tighter">
-                        Ícone do Topo
+                        Topo
                       </span>
                     ) : (
                       <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-blue-50 text-[9px] font-bold text-blue-600 border border-blue-100 uppercase tracking-tighter">
-                        Botão na Lista
+                        Lista
                       </span>
                     )}
                   </div>
@@ -427,8 +469,9 @@ function SortableLinkItem({
                               const isSpotify = newUrl.includes('open.spotify.com/') && (newUrl.includes('/track/') || newUrl.includes('/album/') || newUrl.includes('/playlist/'));
                               const isDeezer = newUrl.includes('deezer.com/') || newUrl.includes('deezer.page.link/');
                               const isYoutube = newUrl.includes('youtube.com/') || newUrl.includes('youtu.be/');
+                              const isTiktok = newUrl.includes('tiktok.com');
 
-                              let detectedType: 'none' | 'youtube' | 'spotify' | 'deezer' = 'none';
+                              let detectedType: 'none' | 'youtube' | 'spotify' | 'deezer' | 'tiktok' = 'none';
 
                               if (isSpotify) detectedType = 'spotify';
                               else if (isDeezer) detectedType = 'deezer';
@@ -438,6 +481,31 @@ function SortableLinkItem({
                                 if (videoId) {
                                   detectedType = 'youtube';
                                 }
+                              }
+                              else if (isTiktok) {
+                                // For TikTok, we default to 'none' until the backend confirms it's a video
+                                detectedType = 'none';
+
+                                // We trigger a background metadata fetch to check if it's a video
+                                const checkTikTok = async () => {
+                                  const metadata = await fetchMusicMetadata(newUrl);
+                                  if (metadata && metadata.type === 'video') {
+                                    const updateFields: Partial<LinkItem> = {
+                                      embedType: 'tiktok',
+                                      title: metadata.title || link.title
+                                    };
+                                    // Update to resolved URL for better compatibility with embed player
+                                    if (metadata.resolvedUrl) {
+                                      updateFields.url = metadata.resolvedUrl;
+                                    }
+                                    // Store direct video URL
+                                    if (metadata.videoUrl) {
+                                      updateFields.videoUrl = metadata.videoUrl;
+                                    }
+                                    updateLinkFields(link.id, updateFields);
+                                  }
+                                };
+                                setTimeout(checkTikTok, 500);
                               }
 
                               // Update embedType based on detection

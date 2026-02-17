@@ -11,7 +11,8 @@ export interface LinkItem {
   subtitle?: string;
   image?: string;
   highlight?: 'none' | 'pulse' | 'bounce' | 'shake' | 'glow' | 'wobble';
-  embedType?: 'none' | 'youtube' | 'spotify' | 'twitch' | 'deezer';
+  embedType?: 'none' | 'youtube' | 'spotify' | 'twitch' | 'deezer' | 'tiktok';
+  videoUrl?: string; // For native video players
   clicks?: number;
   isArchived?: boolean;
   platform?: string;
