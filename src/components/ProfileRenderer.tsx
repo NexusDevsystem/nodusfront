@@ -563,7 +563,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                         {/* Social Icons Row */}
                         {socialLinks.length > 0 && (
-                            <div className="flex items-center justify-center gap-2 mb-4 flex-wrap relative">
+                            <div className="flex items-center justify-center gap-2 mb-1 flex-wrap relative">
                                 {socialLinks.map(link => {
                                     const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
                                         SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id)) ||
@@ -818,7 +818,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             if (currentIconGroup.length > 0) {
                                                 const group = [...currentIconGroup];
                                                 renderedItems.push(
-                                                    <div key={`social-row-${group[0].id}`} className="flex items-center justify-center gap-2 w-full mb-6 flex-wrap relative">
+                                                    <div key={`social-row-${group[0].id}`} className="flex items-center justify-center gap-2 w-full mb-3 flex-wrap relative">
                                                         {group.map(iconLink => {
                                                             const network = SOCIAL_NETWORKS.find(n => iconLink.title.toLowerCase().includes(n.id)) ||
                                                                 SOCIAL_NETWORKS.find(n => iconLink.url.toLowerCase().includes(n.id)) ||
@@ -977,7 +977,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         initial={{ opacity: 0, scale: 0.98 }}
                                                         whileInView={{ opacity: 1, scale: 1 }}
                                                         viewport={{ once: true }}
-                                                        className={`w-full text-center py-6 mb-2 mt-4 opacity-80`}
+                                                        className={`w-full text-center py-2 mb-1 mt-1 opacity-80`}
                                                         style={{
                                                             ...mainTextColorStyle,
                                                             fontWeight: 'bold',
