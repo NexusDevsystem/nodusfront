@@ -692,7 +692,7 @@ export default function EditorPage() {
             lg:flex flex-col items-center justify-center 
             border-l border-slate-200 bg-white 
             w-full lg:w-[350px] xl:w-[450px] shrink-0
-            ${!showMobilePreview ? 'hidden' : 'fixed inset-0 top-[60px] md:top-[64px] z-40 lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-screen lg:sticky lg:right-0'}
+            ${!showMobilePreview ? 'hidden' : 'fixed inset-0 top-[60px] md:top-[64px] z-40 lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0'}
         `}>
 
                         <div className="relative w-full h-full lg:flex items-center justify-center overflow-hidden lg:bg-[#FAFBFC] lg:bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">

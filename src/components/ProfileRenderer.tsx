@@ -378,7 +378,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
     return (
         <div
-            className="relative w-full h-full flex flex-col overflow-hidden"
+            className="relative w-full h-full flex flex-col overflow-hidden isolate"
             style={{ fontFamily: profile.fontFamily }}
         >
             <style>{`
@@ -433,13 +433,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
             {/* Content Container */}
             <div
-                className={`w-full h-full overflow-y-auto scrollbar-hide flex flex-col relative z-20 overscroll-none ${currentTheme.id === 'glass' ? 'text-white' : currentTheme.textClass}`}
+                className={`w-full h-full overflow-y-auto scrollbar-hide flex flex-col relative z-20 ${currentTheme.id === 'glass' ? 'text-white' : currentTheme.textClass}`}
                 style={{
                     ...containerStyle,
                     fontSize: `${(profile.fontSize || undefined) || 16}px`,
                     fontWeight: ((profile.fontWeight || undefined) || undefined),
-                    fontStyle: (profile.fontItalic) ? 'italic' : 'normal',
-                    overscrollBehavior: 'none'
+                    fontStyle: (profile.fontItalic) ? 'italic' : 'normal'
                 }}
             >
                 <div>
@@ -484,7 +483,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     )}
 
                     {/* Content Scrollable Area */}
-                    <div className={`px-6 pb-12 ${isPreview ? 'pt-12' : 'pt-16'} flex-1 flex flex-col min-h-full`}>
+                    <div className={`px-6 pb-32 ${isPreview ? 'pt-12' : 'pt-16'} flex-1 flex flex-col min-h-full`}>
 
                         {/* Profile Section */}
                         <motion.div className={`w-full mb-1 ${profile.headerLayout === 'compact'

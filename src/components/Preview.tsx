@@ -13,7 +13,7 @@ interface PreviewProps {
 
 const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShare, forcedTab }) => {
   return (
-    <div className="flex flex-col items-center select-none w-full">
+    <div className="flex flex-col items-center select-none w-full h-full overflow-hidden">
       {/* Public URL Preview Bar - Hidden on mobile for immersive feel */}
       <div className="hidden lg:flex mb-4 items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200 text-slate-500 text-xs font-medium">
         <Globe size={12} />
