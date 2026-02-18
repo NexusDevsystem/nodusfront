@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { apiClient } from '../services/apiClient';
 import { LinkItem } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 import {
     Plus,
     Trash2,
@@ -27,22 +29,35 @@ import {
     ChevronLeft,
     ChevronRight,
     Zap,
-    ExternalLink
+    ExternalLink,
+    Loader2,
+    Check
 } from 'lucide-react';
-import { SiSpotify } from 'react-icons/si';
+import { SiSpotify, SiTiktok } from 'react-icons/si';
 import { SOCIAL_NETWORKS } from '../constants';
 
 interface SocialLinksEditorProps {
     links: LinkItem[];
     onChange: (links: LinkItem[] | ((prev: LinkItem[]) => LinkItem[])) => void;
+    profile?: any;
+    setProfile?: (profile: any) => void;
 }
 
-export default function SocialLinksEditor({ links, onChange }: SocialLinksEditorProps) {
+export default function SocialLinksEditor({ links, onChange, profile: propProfile, setProfile: propSetProfile }: SocialLinksEditorProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [configuringPlatform, setConfiguringPlatform] = useState<string | null>(null);
     const [tempUrl, setTempUrl] = useState('');
+    const { profile: authProfile, setProfile: authSetProfile } = useAuth();
+    const profile = propProfile || authProfile;
+    const setProfile = propSetProfile || authSetProfile;
+
+    const [isConnectingInstagram, setIsConnectingInstagram] = useState(false);
+    const [isConnectingTikTok, setIsConnectingTikTok] = useState(false);
+    const [connectionError, setConnectionError] = useState<string | null>(null);
+    const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
+    const isAuthorized = profile?.username === 'noduscc' || profile?.username === 'nexus';
 
     useEffect(() => {
         setMounted(true);
@@ -50,6 +65,8 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
     }, []);
 
     const socialLinks = links.filter(link => link.layout === 'social' && link.type !== 'collection');
+    const instagramIntegration = profile?.integrations?.find((i: any) => i.provider === 'instagram');
+    const isInstagramConnected = !!instagramIntegration;
 
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => {
@@ -57,6 +74,7 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
         setSearchTerm('');
         setConfiguringPlatform(null);
         setTempUrl('');
+        setShowDisconnectConfirm(false);
     };
 
     const toggleSocialLink = (platformId: string) => {
@@ -114,6 +132,7 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
     };
 
 
+
     const filteredPlatforms = SOCIAL_NETWORKS.filter(p =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -125,7 +144,7 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
             <div className="p-6 md:p-10">
                 <div className="flex items-start justify-between gap-4 mb-8">
                     <div>
-                        <h3 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">Redes Sociais</h3>
+                        <h3 className="text-lg md:text-xl font-medium text-slate-900 tracking-tight">Redes Sociais</h3>
                         <p className="text-xs md:text-sm text-slate-500 mt-1">Ícones rápidos exibidos no topo do seu perfil</p>
                     </div>
                     <button
@@ -137,8 +156,19 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
                     </button>
                 </div>
 
-                {socialLinks.length > 0 && (
+                {(socialLinks.length > 0 || isInstagramConnected) && (
                     <div className="flex flex-wrap gap-4 md:gap-5 py-1">
+                        {/* Auto-render Instagram if connected but not explicitly added as link */}
+                        {isInstagramConnected && !socialLinks.some(l => l.platform === 'instagram') && (
+                            <button
+                                onClick={() => toggleSocialLink('instagram')}
+                                className="text-slate-900 transition-all hover:scale-110 active:scale-90 p-1 relative"
+                            >
+                                <Instagram size={28} className="md:w-8 md:h-8" />
+                                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#32a800] rounded-full border-2 border-white" />
+                            </button>
+                        )}
+
                         {socialLinks.map(link => {
                             const network = SOCIAL_NETWORKS.find(n => n.id === link.platform) ||
                                 SOCIAL_NETWORKS.find(n => n.id !== 'custom' && link.url.toLowerCase().includes(n.id)) ||
@@ -179,7 +209,7 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
                                         <ChevronLeft size={24} />
                                     </button>
 
-                                    <h3 className="absolute left-1/2 -translate-x-1/2 text-lg font-bold text-slate-900 truncate max-w-[240px]">
+                                    <h3 className="absolute left-1/2 -translate-x-1/2 text-lg font-medium text-slate-900 truncate max-w-[240px]">
                                         {configuringPlatform
                                             ? (links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform)))) ? `Editar ${activeConfigPlatform?.name}` : `Adicionar ${activeConfigPlatform?.name}`)
                                             : 'Adicionar ícone social'}
@@ -203,7 +233,7 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
                                                     value={searchTerm}
                                                     onChange={(e) => setSearchTerm(e.target.value)}
                                                     placeholder="Buscar"
-                                                    className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-medium outline-none focus:ring-2 focus:ring-slate-100 placeholder:text-slate-400"
+                                                    className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-normal outline-none focus:ring-2 focus:ring-slate-100 placeholder:text-slate-400"
                                                 />
                                             </div>
                                         </div>
@@ -214,24 +244,38 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
                                                     p.name.toLowerCase().includes(searchTerm.toLowerCase())
                                                 ).map(platform => {
                                                     const isSelected = !!links.find(l => l.layout === 'social' && (l.platform === platform.id || (platform.id !== 'site' && platform.id !== 'custom' && l.url.includes(platform.id))));
+                                                    const isConnected = !!profile?.integrations?.find((i: any) => i.provider === platform.id);
                                                     const Icon = platform.icon;
 
                                                     return (
-                                                        <button
+                                                        <div
                                                             key={platform.id}
                                                             onClick={() => toggleSocialLink(platform.id)}
                                                             className={`
-                                                                w-full flex items-center justify-between p-4 rounded-2xl group
+                                                                w-full flex items-center justify-between p-4 rounded-2xl group cursor-pointer
                                                                 ${isSelected ? 'bg-slate-50' : 'bg-white hover:bg-slate-50'}
                                                             `}
+                                                            role="button"
+                                                            tabIndex={0}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                                    e.preventDefault();
+                                                                    toggleSocialLink(platform.id);
+                                                                }
+                                                            }}
                                                         >
                                                             <div className="flex items-center gap-4">
                                                                 <div className="text-slate-900">
                                                                     <Icon size={24} />
                                                                 </div>
-                                                                <span className="text-base font-bold text-slate-900 tracking-tight">
+                                                                <span className="text-base font-medium text-slate-900 tracking-tight">
                                                                     {platform.name}
                                                                 </span>
+                                                                {isConnected && (
+                                                                    <span className="ml-2 px-1.5 py-0.5 bg-green-100 text-[#32a800] text-[9px] font-bold uppercase rounded-md tracking-widest">
+                                                                        Conectado
+                                                                    </span>
+                                                                )}
                                                             </div>
 
                                                             <div className="text-slate-400">
@@ -239,6 +283,7 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
                                                                     <div className="flex items-center gap-2">
                                                                         <div className="bg-[#32a800] w-2 h-2 rounded-full" />
                                                                         <button
+                                                                            type="button"
                                                                             onClick={(e) => {
                                                                                 e.stopPropagation();
                                                                                 onChange(links.filter(l => !(l.layout === 'social' && (l.platform === platform.id || (platform.id !== 'site' && platform.id !== 'custom' && l.url.includes(platform.id))))));
@@ -253,7 +298,7 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
                                                                     <ChevronRight size={20} />
                                                                 )}
                                                             </div>
-                                                        </button>
+                                                        </div>
                                                     );
                                                 })}
                                             </div>
@@ -267,35 +312,219 @@ export default function SocialLinksEditor({ links, onChange }: SocialLinksEditor
                                 ) : (
                                     <div className="flex flex-col flex-1 px-8 pb-10">
                                         <div className="mt-4 space-y-6">
-                                            <div className="space-y-3">
-                                                <input
-                                                    autoFocus
-                                                    type="text"
-                                                    value={tempUrl}
-                                                    onChange={(e) => setTempUrl(e.target.value)}
-                                                    placeholder={`Inserir ${activeConfigPlatform?.id === 'email' || activeConfigPlatform?.id === 'spotify' ? 'Link' : 'Usuário'} do ${activeConfigPlatform?.name}*`}
-                                                    onKeyDown={(e) => e.key === 'Enter' && confirmPlatform()}
-                                                    className="w-full bg-slate-50/80 border-none focus:bg-slate-50 rounded-2xl px-5 py-5 text-slate-900 font-medium outline-none placeholder:text-slate-500"
-                                                />
-                                                <p className="text-sm text-slate-400 px-1">
-                                                    Exemplo: @{activeConfigPlatform?.placeholder || 'usuario'}
-                                                </p>
-                                            </div>
+                                            {/* Normal Input Section - Hidden for Instagram if connected */}
+                                            {!(configuringPlatform === 'instagram' && isInstagramConnected) && (
+                                                <div className="space-y-3">
+                                                    <input
+                                                        autoFocus
+                                                        type="text"
+                                                        value={tempUrl}
+                                                        onChange={(e) => setTempUrl(e.target.value)}
+                                                        placeholder={`Inserir ${activeConfigPlatform?.id === 'email' || activeConfigPlatform?.id === 'spotify' ? 'Link' : 'Usuário'} do ${activeConfigPlatform?.name}*`}
+                                                        onKeyDown={(e) => e.key === 'Enter' && confirmPlatform()}
+                                                        className="w-full bg-slate-50/80 border-none focus:bg-slate-50 rounded-2xl px-5 py-5 text-slate-900 font-normal outline-none placeholder:text-slate-500"
+                                                    />
+                                                    <p className="text-sm text-slate-400 px-1">
+                                                        Exemplo: @{activeConfigPlatform?.placeholder || 'usuario'}
+                                                    </p>
+                                                </div>
+                                            )}
 
+                                            {/* Instagram Rich Profile Card */}
+                                            {configuringPlatform === 'instagram' && isInstagramConnected && (
+                                                <div className="bg-slate-50 rounded-[24px] p-6 border border-slate-100 flex flex-col items-center text-center animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                                    <div className="relative mb-4">
+                                                        <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-md">
+                                                            <img
+                                                                src={instagramIntegration.profile_data?.avatar_url || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'}
+                                                                alt={instagramIntegration.profile_data?.username}
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    (e.target as HTMLImageElement).src = 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png';
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className="absolute -bottom-1 -right-1 bg-[#32a800] p-1.5 rounded-full border-2 border-white text-white">
+                                                            <Check size={12} strokeWidth={4} />
+                                                        </div>
+                                                    </div>
 
-                                            <button
-                                                onClick={confirmPlatform}
-                                                disabled={!tempUrl}
-                                                className={`
-                                                    w-full py-5 rounded-[24px] font-bold text-base
-                                                    ${tempUrl
-                                                        ? 'bg-[#32a800] text-white shadow-lg shadow-[#32a800]/20'
-                                                        : 'bg-slate-100 text-slate-300 cursor-not-allowed'
-                                                    }
-                                                `}
-                                            >
-                                                {links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform)))) ? 'Salvar' : 'Adicionar'}
-                                            </button>
+                                                    <h4 className="text-lg font-medium text-slate-900 tracking-tight flex items-center gap-1.5">
+                                                        @{instagramIntegration.profile_data?.username}
+                                                    </h4>
+                                                    <div className="flex items-center gap-3 mt-1.5">
+                                                        <span className="text-xs font-normal text-slate-500 flex items-center gap-1">
+                                                            <Instagram size={12} className="text-[#dc2743]" />
+                                                            Instagram Business
+                                                        </span>
+                                                        <span className="w-1 h-1 rounded-full bg-slate-200" />
+                                                        <span className="text-xs font-medium text-[#32a800]">
+                                                            {instagramIntegration.profile_data?.follower_count?.toLocaleString()} seguidores
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="w-full h-px bg-slate-200/60 my-6" />
+
+                                                    <div className="w-full space-y-3">
+                                                        <button
+                                                            onClick={() => setShowDisconnectConfirm(!showDisconnectConfirm)}
+                                                            disabled={isConnectingInstagram}
+                                                            className={`w-full py-3.5 px-6 rounded-xl transition-all font-medium text-xs flex items-center justify-center gap-2 active:scale-[0.98] ${showDisconnectConfirm
+                                                                ? 'bg-slate-100 text-slate-500'
+                                                                : 'bg-white border border-red-100 text-red-500 hover:bg-red-50'
+                                                                }`}
+                                                        >
+                                                            {isConnectingInstagram ? (
+                                                                <Loader2 size={14} className="animate-spin" />
+                                                            ) : (
+                                                                <Trash2 size={14} />
+                                                            )}
+                                                            {showDisconnectConfirm ? 'Voltar' : 'Desconectar Conta'}
+                                                        </button>
+
+                                                        <AnimatePresence>
+                                                            {showDisconnectConfirm && (
+                                                                <motion.div
+                                                                    initial={{ height: 0, opacity: 0 }}
+                                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                                    exit={{ height: 0, opacity: 0 }}
+                                                                    className="overflow-hidden bg-red-50 rounded-xl border border-red-100"
+                                                                >
+                                                                    <div className="p-4 space-y-4">
+                                                                        <div className="text-left">
+                                                                            <p className="text-xs font-medium text-red-900 leading-tight">
+                                                                                Confirmar desconexão?
+                                                                            </p>
+                                                                            <p className="text-[10px] text-red-600 mt-1 leading-relaxed">
+                                                                                Isso removerá o card do seu perfil e o acesso aos posts.
+                                                                            </p>
+                                                                        </div>
+
+                                                                        <button
+                                                                            onClick={async () => {
+                                                                                try {
+                                                                                    setConnectionError(null);
+                                                                                    setIsConnectingInstagram(true);
+                                                                                    await apiClient.disconnectIntegration('instagram');
+
+                                                                                    if (profile) {
+                                                                                        const updatedIntegrations = profile.integrations?.filter((i: any) => i.provider !== 'instagram') || [];
+                                                                                        setProfile({ ...profile, integrations: updatedIntegrations });
+                                                                                    }
+
+                                                                                    setShowDisconnectConfirm(false);
+                                                                                    setIsConnectingInstagram(false);
+                                                                                } catch (err: any) {
+                                                                                    console.error('Failed to disconnect Instagram:', err);
+                                                                                    setConnectionError(err.message || 'Erro ao desconectar Instagram');
+                                                                                    setIsConnectingInstagram(false);
+                                                                                }
+                                                                            }}
+                                                                            disabled={isConnectingInstagram}
+                                                                            className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-[10px] uppercase tracking-widest rounded-lg shadow-sm shadow-red-200 transition-colors disabled:opacity-50"
+                                                                        >
+                                                                            {isConnectingInstagram ? 'Desconectando...' : 'Sim, Desconectar agora'}
+                                                                        </button>
+                                                                    </div>
+                                                                </motion.div>
+                                                            )}
+                                                        </AnimatePresence>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Instagram Connect Button (Only if NOT connected and authorized) */}
+                                            {configuringPlatform === 'instagram' && !isInstagramConnected && isAuthorized && (
+                                                <div className="space-y-3">
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                setConnectionError(null);
+                                                                setIsConnectingInstagram(true);
+                                                                const userId = profile?.id || '';
+                                                                if (!userId) throw new Error('Usuário não identificado.');
+                                                                const { url } = await apiClient.getInstagramAuthUrl(userId, window.location.origin);
+                                                                window.location.href = url;
+                                                            } catch (err: any) {
+                                                                setConnectionError(err.message || 'Erro ao iniciar conexão');
+                                                                setIsConnectingInstagram(false);
+                                                            }
+                                                        }}
+                                                        disabled={isConnectingInstagram}
+                                                        className={`w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all py-4 px-6 rounded-2xl flex items-center justify-between group/ig ${isConnectingInstagram ? 'opacity-70 cursor-wait' : ''}`}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            {isConnectingInstagram ? (
+                                                                <Loader2 size={20} className="animate-spin text-[#dc2743]" />
+                                                            ) : (
+                                                                <Instagram size={20} className="text-[#dc2743]" />
+                                                            )}
+                                                            <div className="text-left">
+                                                                <span className="block text-sm font-medium text-slate-800">
+                                                                    {isConnectingInstagram ? 'Iniciando...' : 'Conectar Conta Profissional'}
+                                                                </span>
+                                                                <span className="block text-[10px] text-slate-500">Seguidores e posts em tempo real</span>
+                                                            </div>
+                                                        </div>
+                                                        <ChevronRight size={16} className="text-slate-400 group-hover/ig:translate-x-0.5 transition-transform" />
+                                                    </button>
+                                                    {connectionError && (
+                                                        <p className="text-[10px] text-red-500 font-medium px-1 italic">{connectionError}</p>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {configuringPlatform === 'tiktok' && isAuthorized && (
+                                                <button
+                                                    onClick={async () => {
+                                                        try {
+                                                            setConnectionError(null);
+                                                            setIsConnectingTikTok(true);
+                                                            const userId = profile?.id || '';
+                                                            if (!userId) throw new Error('Usuário não identificado.');
+                                                            const { url } = await apiClient.getTikTokAuthUrl(userId, window.location.origin);
+                                                            window.location.href = url;
+                                                        } catch (err: any) {
+                                                            setConnectionError(err.message || 'Erro ao iniciar conexão');
+                                                            setIsConnectingTikTok(false);
+                                                        }
+                                                    }}
+                                                    disabled={isConnectingTikTok}
+                                                    className={`w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all py-4 px-6 rounded-2xl flex items-center justify-between group/tt ${isConnectingTikTok ? 'opacity-70 cursor-wait' : ''}`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        {isConnectingTikTok ? (
+                                                            <Loader2 size={18} className="animate-spin text-black" />
+                                                        ) : (
+                                                            <SiTiktok size={18} className="text-[#000000]" />
+                                                        )}
+                                                        <div className="text-left">
+                                                            <span className="block text-sm font-medium text-slate-800">
+                                                                {isConnectingTikTok ? 'Iniciando...' : 'Conectar TikTok'}
+                                                            </span>
+                                                            <span className="block text-[10px] text-slate-500">Sincronizar seguidores e verificação</span>
+                                                        </div>
+                                                    </div>
+                                                    <ChevronRight size={16} className="text-slate-400 group-hover/tt:translate-x-0.5 transition-transform" />
+                                                </button>
+                                            )}
+
+                                            {/* Action Button - Hidden for Instagram if connected */}
+                                            {!(configuringPlatform === 'instagram' && isInstagramConnected) && (
+                                                <button
+                                                    onClick={confirmPlatform}
+                                                    disabled={!tempUrl}
+                                                    className={`
+                                                        w-full py-5 rounded-[24px] font-medium text-base transition-all
+                                                        ${tempUrl
+                                                            ? 'bg-[#32a800] text-white shadow-lg shadow-[#32a800]/20 active:scale-[0.98]'
+                                                            : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                                                        }
+                                                    `}
+                                                >
+                                                    {links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform)))) ? 'Salvar' : 'Adicionar'}
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 )}

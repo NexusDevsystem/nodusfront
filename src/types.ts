@@ -6,7 +6,7 @@ export interface LinkItem {
   icon?: string;
   isActive: boolean;
   layout: 'classic' | 'social' | 'card' | 'icon' | 'grid' | 'carousel' | 'stacked';
-  type?: 'link' | 'collection' | 'social';
+  type?: 'link' | 'collection' | 'social' | 'header';
   children?: LinkItem[];
   subtitle?: string;
   image?: string;
@@ -122,8 +122,14 @@ export interface SocialIntegration {
   expires_at?: string;
   profile_data: {
     username?: string;
-    follower_count?: number;
-    avatar_url?: string;
+    follower_count?: number | null;
+    avatar_url?: string | null;
     channel_id?: string;
+    available_accounts?: Array<{
+      username: string;
+      avatar_url: string | null;
+      follower_count: number | null;
+      channel_id: string;
+    }>;
   };
 }

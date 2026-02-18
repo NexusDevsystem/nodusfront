@@ -97,7 +97,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
   // State to track which groups are expanded
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
     'my-linktree': true,
-    'insights': true
+    'insights': true,
+    'tools': true
   });
 
   const toggleMenu = (groupId: string) => {

@@ -28,8 +28,21 @@ import {
   Youtube,
   Ban,
   X,
-  Share2
+  User,
+  ExternalLink,
+  Share2,
+  Check,
+  DollarSign,
+  Store,
+  Smartphone,
+  Mail,
+  Type,
+  Hash,
+  Send as SendIcon
 } from 'lucide-react';
+import { apiClient } from '../services/apiClient';
+import AddLinkModal from './AddLinkModal';
+import { SOCIAL_NETWORKS } from '../constants';
 
 const DeezerIcon = ({ size }: { size: number }) => (
   <svg width={size} height={size} viewBox="0 0 1433 1431" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -229,32 +242,61 @@ function SortableLinkItem({
                   <div className="overflow-hidden bg-slate-50/50">
                     <div className="p-3 md:p-6 md:pl-12 border-t border-slate-100 space-y-5 md:space-y-8">
                       {/* Collection Layout Picker */}
-                      <div className="space-y-3 pb-6 border-b border-slate-100">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Layout do Grupo</label>
-                        <div className="flex flex-col gap-2">
-                          {[
-                            { id: 'stacked', label: 'Lista Empilhada', desc: 'Links um abaixo do outro', icon: <LayoutGrid size={16} /> },
-                            { id: 'carousel', label: 'Carrossel', desc: 'Deslize lateral para ver', icon: <Sparkles size={16} /> }
-                          ].map((opt) => (
-                            <button
-                              key={opt.id}
-                              onClick={() => updateLink(link.id, 'layout', opt.id)}
-                              className={`flex-1 p-3 rounded-xl border text-left flex items-center sm:items-start gap-3 transition-all ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id
-                                ? 'bg-[#32a800]/5 border-[#32a800] ring-1 ring-[#32a800]/10'
-                                : 'bg-white border-slate-200 hover:border-slate-300'
-                                }`}
-                            >
-                              <div className={`shrink-0 flex items-center justify-center p-2 rounded-lg ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'bg-[#32a800] text-white' : 'bg-slate-50 text-slate-400'}`}>
-                                {opt.icon}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className={`text-xs truncate ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'text-[#32a800]' : 'text-slate-700'}`}>{opt.label}</div>
-                                <div className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-1">{opt.desc}</div>
-                              </div>
-                            </button>
-                          ))}
+                      {link.platform === 'instagram' || link.title === 'Posts do Instagram' ? (
+                        <div className="space-y-3 pb-6 border-b border-slate-100">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Layout do Instagram</label>
+                          <div className="flex flex-col gap-2">
+                            {[
+                              { id: 'card', label: 'Feed de Posts', desc: 'Visual premium com seus últimos posts', icon: <LayoutGrid size={16} /> },
+                              { id: 'classic', label: 'Botão de Perfil', desc: 'Apenas informações de perfil e seguidores', icon: <User size={16} /> }
+                            ].map((opt) => (
+                              <button
+                                key={opt.id}
+                                onClick={() => updateLink(link.id, 'layout', opt.id)}
+                                className={`flex-1 p-3 rounded-xl border text-left flex items-center sm:items-start gap-3 transition-all ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id
+                                  ? 'bg-purple-500/5 border-purple-200 ring-1 ring-purple-500/10 shadow-sm'
+                                  : 'bg-white border-slate-200 hover:border-slate-300'
+                                  }`}
+                              >
+                                <div className={`shrink-0 flex items-center justify-center p-2 rounded-lg ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id ? 'bg-gradient-to-tr from-purple-500 to-pink-500 text-white' : 'bg-slate-50 text-slate-400'}`}>
+                                  {opt.icon}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className={`text-xs truncate ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id ? 'text-purple-700 font-bold' : 'text-slate-700'}`}>{opt.label}</div>
+                                  <div className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-1">{opt.desc}</div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="space-y-3 pb-6 border-b border-slate-100">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Layout do Grupo</label>
+                          <div className="flex flex-col gap-2">
+                            {[
+                              { id: 'stacked', label: 'Lista Empilhada', desc: 'Links um abaixo do outro', icon: <LayoutGrid size={16} /> },
+                              { id: 'carousel', label: 'Carrossel', desc: 'Deslize lateral para ver', icon: <Sparkles size={16} /> }
+                            ].map((opt) => (
+                              <button
+                                key={opt.id}
+                                onClick={() => updateLink(link.id, 'layout', opt.id)}
+                                className={`flex-1 p-3 rounded-xl border text-left flex items-center sm:items-start gap-3 transition-all ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id
+                                  ? 'bg-[#32a800]/5 border-[#32a800] ring-1 ring-[#32a800]/10'
+                                  : 'bg-white border-slate-200 hover:border-slate-300'
+                                  }`}
+                              >
+                                <div className={`shrink-0 flex items-center justify-center p-2 rounded-lg ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'bg-[#32a800] text-white' : 'bg-slate-50 text-slate-400'}`}>
+                                  {opt.icon}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className={`text-xs truncate ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'text-[#32a800]' : 'text-slate-700'}`}>{opt.label}</div>
+                                  <div className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-1">{opt.desc}</div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       <div className="md:px-0">
                         <LinkEditor
@@ -338,7 +380,7 @@ function SortableLinkItem({
                 >
                   <div className="flex items-center gap-2 mb-0.5">
                     <div className="font-semibold text-slate-800 truncate text-xs md:text-sm flex items-center gap-2">
-                      {link.title || 'Link sem título'}
+                      {link.title || (link.type === 'header' ? 'Nova Seção' : 'Link sem título')}
                       {link.scheduleStart && new Date(link.scheduleStart) > new Date() && (
                         <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-blue-50 text-[9px] font-bold text-blue-600 border border-blue-100 uppercase tracking-tighter flex items-center gap-1">
                           🕒 {level === 0 ? 'Agendado' : ''}
@@ -360,7 +402,11 @@ function SortableLinkItem({
                         </span>
                       )}
                     </div>
-                    {link.layout === 'social' ? (
+                    {link.type === 'header' ? (
+                      <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-slate-100 text-[9px] font-bold text-slate-600 border border-slate-200 uppercase tracking-tighter">
+                        Cabeçalho
+                      </span>
+                    ) : link.layout === 'social' ? (
                       <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-emerald-50 text-[9px] font-bold text-emerald-600 border border-emerald-100 uppercase tracking-tighter">
                         Topo
                       </span>
@@ -371,7 +417,7 @@ function SortableLinkItem({
                     )}
                   </div>
                   <div className="text-[10px] md:text-xs text-slate-400 truncate">
-                    {link.url || 'Suas redes ou site'}
+                    {link.type === 'header' ? 'Texto de separação entre links' : (link.url || 'Suas redes ou site')}
                   </div>
                 </div>
 
@@ -450,119 +496,131 @@ function SortableLinkItem({
                             value={link.title}
                             onChange={(e) => updateLink(link.id, 'title', e.target.value)}
                             className="w-full font-semibold text-xl text-slate-900 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all placeholder:text-slate-200"
-                            placeholder="Nome do link"
+                            placeholder={link.type === 'header' ? 'Ex: Redes Sociais' : 'Nome do link'}
                           />
                         </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">URL / Link</label>
-                          <input
-                            type="text"
-                            value={link.url}
-                            onChange={(e) => {
-                              const newUrl = e.target.value;
+                        {link.type !== 'header' && (
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">URL / Link</label>
+                            <input
+                              type="text"
+                              value={link.url}
+                              onChange={(e) => {
+                                const newUrl = e.target.value;
+                                const updates: Partial<LinkItem> = { url: newUrl };
 
-                              // Create updates object
-                              const updates: Partial<LinkItem> = { url: newUrl };
-
-                              // Auto detection logic
-                              const isSpotify = newUrl.includes('open.spotify.com/') && (newUrl.includes('/track/') || newUrl.includes('/album/') || newUrl.includes('/playlist/'));
-                              const isDeezer = newUrl.includes('deezer.com/') || newUrl.includes('deezer.page.link/');
-                              const isYoutube = newUrl.includes('youtube.com/') || newUrl.includes('youtu.be/');
-                              const isTiktok = newUrl.includes('tiktok.com');
-
-                              let detectedType: 'none' | 'youtube' | 'spotify' | 'deezer' | 'tiktok' = 'none';
-
-                              if (isSpotify) detectedType = 'spotify';
-                              else if (isDeezer) detectedType = 'deezer';
-                              else if (isYoutube) {
-                                // Only set as youtube embed if it has a valid video ID
-                                const videoId = newUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
-                                if (videoId) {
-                                  detectedType = 'youtube';
+                                // WhatsApp phone number auto-detection
+                                // If it looks like a phone number (8-15 digits, no dots/slashes, no letters)
+                                const cleanPhone = newUrl.replace(/\D/g, '');
+                                const hasNoLetters = !/[a-zA-Z]/.test(newUrl);
+                                if (cleanPhone.length >= 8 && cleanPhone.length <= 15 && hasNoLetters && !newUrl.includes('.') && !newUrl.includes('/') && !newUrl.includes('@')) {
+                                  updates.url = `https://wa.me/${cleanPhone}`;
+                                  // Optional: also set title if not set
+                                  if (!link.title || link.title === 'Novo Link' || link.title === 'Link sem título') {
+                                    updates.title = 'WhatsApp';
+                                  }
                                 }
-                              }
-                              else if (isTiktok) {
-                                // For TikTok, we default to 'none' until the backend confirms it's a video
-                                detectedType = 'none';
 
-                                // We trigger a background metadata fetch to check if it's a video
-                                const checkTikTok = async () => {
-                                  const metadata = await fetchMusicMetadata(newUrl);
-                                  if (metadata && metadata.type === 'video') {
-                                    const updateFields: Partial<LinkItem> = {
-                                      embedType: 'tiktok',
-                                      title: metadata.title || link.title
-                                    };
-                                    // Update to resolved URL for better compatibility with embed player
-                                    if (metadata.resolvedUrl) {
-                                      updateFields.url = metadata.resolvedUrl;
-                                    }
-                                    // Store direct video URL
-                                    if (metadata.videoUrl) {
-                                      updateFields.videoUrl = metadata.videoUrl;
-                                    }
-                                    updateLinkFields(link.id, updateFields);
+                                // Auto detection logic
+                                const isSpotify = newUrl.includes('open.spotify.com/') && (newUrl.includes('/track/') || newUrl.includes('/album/') || newUrl.includes('/playlist/'));
+                                const isDeezer = newUrl.includes('deezer.com/') || newUrl.includes('deezer.page.link/');
+                                const isYoutube = newUrl.includes('youtube.com/') || newUrl.includes('youtu.be/');
+                                const isTiktok = newUrl.includes('tiktok.com');
+
+                                let detectedType: 'none' | 'youtube' | 'spotify' | 'deezer' | 'tiktok' = 'none';
+
+                                if (isSpotify) detectedType = 'spotify';
+                                else if (isDeezer) detectedType = 'deezer';
+                                else if (isYoutube) {
+                                  // Only set as youtube embed if it has a valid video ID
+                                  const videoId = newUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+                                  if (videoId) {
+                                    detectedType = 'youtube';
                                   }
-                                };
-                                setTimeout(checkTikTok, 500);
-                              }
+                                }
+                                else if (isTiktok) {
+                                  // For TikTok, we default to 'none' until the backend confirms it's a video
+                                  detectedType = 'none';
 
-                              // Update embedType based on detection
-                              updates.embedType = detectedType;
-
-                              if (isSpotify || isDeezer) {
-                                // Call fetch intentionally without awaiting to not block UI
-                                fetchMusicMetadata(newUrl).then(metadata => {
-                                  if (metadata) {
-                                    console.log('🎵 Metadata found:', metadata);
-
-                                    // Check if it's an album with tracks
-                                    if (metadata.type === 'album' && metadata.tracks && metadata.tracks.length > 0) {
-                                      const newChildren = metadata.tracks.map((track: any) => ({
-                                        id: self.crypto.randomUUID(),
-                                        title: track.title,
-                                        subtitle: track.artist,
-                                        image: track.image, // Add image
-                                        url: track.url,
-                                        embedType: 'spotify' as const,
-                                        layout: 'classic' as const, // Keeping conformant to LinkItem type, but parent is grid
-                                        isActive: true,
-                                        clicks: 0
-                                      }));
-
-                                      updateLinkFields(link.id, {
-                                        title: metadata.title,
-                                        subtitle: metadata.artist,
-                                        image: metadata.thumbnailUrl,
-                                        type: 'collection' as const,
-                                        layout: 'grid' as const, // Provide grid layout for collection
-                                        children: newChildren,
-                                        url: ''
-                                      });
-                                    } else {
-                                      // Normal single track update
-                                      updateLinkFields(link.id, {
-                                        title: metadata.title,
-                                        subtitle: metadata.artist,
-                                        image: metadata.thumbnailUrl,
-                                        embedType: detectedType,
-                                        url: newUrl
-                                      });
+                                  // We trigger a background metadata fetch to check if it's a video
+                                  const checkTikTok = async () => {
+                                    const metadata = await fetchMusicMetadata(newUrl);
+                                    if (metadata && metadata.type === 'video') {
+                                      const updateFields: Partial<LinkItem> = {
+                                        embedType: 'tiktok',
+                                        title: metadata.title || link.title
+                                      };
+                                      // Update to resolved URL for better compatibility with embed player
+                                      if (metadata.resolvedUrl) {
+                                        updateFields.url = metadata.resolvedUrl;
+                                      }
+                                      // Store direct video URL
+                                      if (metadata.videoUrl) {
+                                        updateFields.videoUrl = metadata.videoUrl;
+                                      }
+                                      updateLinkFields(link.id, updateFields);
                                     }
-                                  }
-                                }).catch(err => {
-                                  console.error("Error fetching music metadata:", err);
-                                });
-                              }
+                                  };
+                                  setTimeout(checkTikTok, 500);
+                                }
 
-                              // Apply immediate updates (URL + Type)
-                              updateLinkFields(link.id, updates);
-                            }}
-                            className="w-full text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all placeholder:text-slate-200"
-                            placeholder="https://exemplo.com"
-                          />
-                        </div>
+                                // Update embedType based on detection
+                                updates.embedType = detectedType;
+
+                                if (isSpotify || isDeezer) {
+                                  // Call fetch intentionally without awaiting to not block UI
+                                  fetchMusicMetadata(newUrl).then(metadata => {
+                                    if (metadata) {
+                                      console.log('🎵 Metadata found:', metadata);
+
+                                      // Check if it's an album with tracks
+                                      if (metadata.type === 'album' && metadata.tracks && metadata.tracks.length > 0) {
+                                        const newChildren = metadata.tracks.map((track: any) => ({
+                                          id: self.crypto.randomUUID(),
+                                          title: track.title,
+                                          subtitle: track.artist,
+                                          image: track.image, // Add image
+                                          url: track.url,
+                                          embedType: 'spotify' as const,
+                                          layout: 'classic' as const, // Keeping conformant to LinkItem type, but parent is grid
+                                          isActive: true,
+                                          clicks: 0
+                                        }));
+
+                                        updateLinkFields(link.id, {
+                                          title: metadata.title,
+                                          subtitle: metadata.artist,
+                                          image: metadata.thumbnailUrl,
+                                          type: 'collection' as const,
+                                          layout: 'grid' as const, // Provide grid layout for collection
+                                          children: newChildren,
+                                          url: ''
+                                        });
+                                      } else {
+                                        // Normal single track update
+                                        updateLinkFields(link.id, {
+                                          title: metadata.title,
+                                          subtitle: metadata.artist,
+                                          image: metadata.thumbnailUrl,
+                                          embedType: detectedType,
+                                          url: newUrl
+                                        });
+                                      }
+                                    }
+                                  }).catch(err => {
+                                    console.error("Error fetching music metadata:", err);
+                                  });
+                                }
+
+                                // Apply immediate updates (URL + Type)
+                                updateLinkFields(link.id, updates);
+                              }}
+                              className="w-full text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all placeholder:text-slate-200"
+                              placeholder="https://exemplo.com"
+                            />
+                          </div>
+                        )}
 
                         <div className="space-y-1">
                           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Descrição (Opcional)</label>
@@ -719,6 +777,51 @@ function SortableLinkItem({
                               )}
                             </div>
                           </div>
+
+                          {/* Instagram Account Switcher */}
+                          {profile.integrations?.find(i => i.provider === 'instagram')?.profile_data?.available_accounts?.length > 1 && (
+                            <div className="space-y-3 pb-6 border-b border-slate-100">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Alternar Conta do Instagram</label>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {profile.integrations?.find((i: any) => i.provider === 'instagram')?.profile_data?.available_accounts?.map((acc: any) => {
+                                  const isActive = acc.channel_id === profile.integrations?.find(i => i.provider === 'instagram')?.profile_data?.channel_id;
+                                  return (
+                                    <button
+                                      key={acc.channel_id}
+                                      onClick={async () => {
+                                        if (isActive) return;
+                                        try {
+                                          await apiClient.switchInstagramAccount(acc.channel_id);
+                                          // Force full page reload or update parent to see changes
+                                          window.location.reload();
+                                        } catch (err) {
+                                          console.error('Error switching account:', err);
+                                          alert('Erro ao trocar de conta. Tente novamente.');
+                                        }
+                                      }}
+                                      className={`flex items-center gap-3 p-2 rounded-xl border transition-all ${isActive
+                                        ? 'bg-purple-500/5 border-purple-200 ring-1 ring-purple-500/10'
+                                        : 'bg-white border-slate-100 hover:border-slate-200'
+                                        }`}
+                                    >
+                                      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-100">
+                                        <img src={acc.avatar_url} alt={acc.username} className="w-full h-full object-cover" />
+                                      </div>
+                                      <div className="flex-1 min-w-0 text-left">
+                                        <div className={`text-xs font-bold truncate ${isActive ? 'text-purple-600' : 'text-slate-700'}`}>@{acc.username}</div>
+                                        <div className="text-[9px] text-slate-400">{acc.follower_count} seguidores</div>
+                                      </div>
+                                      {isActive && (
+                                        <div className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center text-white shrink-0">
+                                          <Check size={12} strokeWidth={3} />
+                                        </div>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -803,6 +906,9 @@ interface LinkEditorProps {
   setExpandedLinks?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   expandedCollections?: Record<string, boolean>;
   setExpandedCollections?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  setActiveTab?: (tab: string) => void;
+  onAddProduct?: (collectionName: string) => void;
+  onAddIncentive?: (type: 'pix' | 'paypal', key: string) => void;
 }
 
 function LinkEditor({
@@ -810,6 +916,9 @@ function LinkEditor({
   onChange,
   level = 0,
   profile,
+  setActiveTab,
+  onAddProduct,
+  onAddIncentive,
   expandedLinks: externalExpandedLinks,
   setExpandedLinks: externalSetExpandedLinks,
   expandedCollections: externalExpandedCollections,
@@ -824,6 +933,7 @@ function LinkEditor({
   const setExpandedLinks = externalSetExpandedLinks || setInternalExpandedLinks;
   const [showArchive, setShowArchive] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Use effect to handle mounting state for Portals
   React.useEffect(() => {
@@ -850,12 +960,12 @@ function LinkEditor({
     }));
   };
 
-  const addLink = () => {
+  const addLink = (url?: string) => {
     const newLink: LinkItem = {
       id: Date.now().toString(),
       clientId: crypto.randomUUID(),
       title: 'Novo Link',
-      url: '',
+      url: url || '',
       isActive: true,
       clicks: 0,
       layout: 'classic',
@@ -881,6 +991,50 @@ function LinkEditor({
     setExpandedCollections(prev => ({ ...prev, [newCollection.id]: true }));
     // @ts-ignore
     onChange(prev => [newCollection, ...prev]);
+  };
+
+  const addSocialLink = (platformId: string) => {
+    const platform = SOCIAL_NETWORKS.find(p => p.id === platformId);
+    const newLink: LinkItem = {
+      id: Date.now().toString(),
+      clientId: crypto.randomUUID(),
+      title: platform?.name || 'Novo Link',
+      url: platform?.baseUrl || '',
+      isActive: true,
+      clicks: 0,
+      layout: 'classic',
+      type: 'link',
+      platform: platformId
+    };
+    setExpandedLinks(prev => ({ ...prev, [newLink.id]: true }));
+    // @ts-ignore
+    onChange(prev => [newLink, ...prev]);
+  };
+
+  const addProduct = (collectionName: string) => {
+    if (onAddProduct) {
+      onAddProduct(collectionName);
+      setIsAddModalOpen(false);
+    } else if (setActiveTab) {
+      setActiveTab('shop');
+      setIsAddModalOpen(false);
+    }
+  };
+
+  const addHeader = () => {
+    const newHeader: LinkItem = {
+      id: Date.now().toString(),
+      clientId: crypto.randomUUID(),
+      title: 'Nova Seção',
+      url: '',
+      isActive: true,
+      clicks: 0,
+      layout: 'classic',
+      type: 'header'
+    };
+    setExpandedLinks(prev => ({ ...prev, [newHeader.id]: true }));
+    // @ts-ignore
+    onChange(prev => [newHeader, ...prev]);
   };
 
   const updateLink = (id: string, field: keyof LinkItem, value: any) => {
@@ -945,7 +1099,7 @@ function LinkEditor({
                   </button>
 
                   <button
-                    onClick={addLink}
+                    onClick={() => setIsAddModalOpen(true)}
                     disabled={isLimitReached}
                     className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center transition-all active:scale-90 ${isLimitReached
                       ? 'text-slate-200 cursor-not-allowed'
@@ -960,15 +1114,15 @@ function LinkEditor({
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={addCollection}
+                  onClick={() => setIsAddModalOpen(true)}
                   disabled={isLimitReached}
                   className={`flex-1 flex items-center justify-center gap-2 h-11 text-sm font-medium transition-all border border-slate-100 rounded-2xl ${isLimitReached
                     ? 'text-slate-200 cursor-not-allowed'
                     : 'text-slate-500 hover:border-[#32a800] hover:text-[#32a800] bg-slate-50/50'
                     }`}
                 >
-                  <FolderHeart size={16} />
-                  <span>Adicionar Coleção</span>
+                  <Plus size={16} />
+                  <span>Adicionar à lista</span>
                 </button>
               </div>
             </div>
@@ -985,10 +1139,10 @@ function LinkEditor({
           </>
         ) : (
           <button
-            onClick={addLink}
+            onClick={() => setIsAddModalOpen(true)}
             className="w-full py-4 border border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium hover:border-[#32a800] hover:text-[#32a800] transition-colors flex items-center justify-center gap-2 text-sm"
           >
-            <Plus size={16} /> Novo Link na Coleção
+            <Plus size={16} /> Adicionar Link na Coleção
           </button>
         )}
       </div>
@@ -1124,6 +1278,24 @@ function LinkEditor({
                 </div>
               </motion.div>
             </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+
+      {mounted && createPortal(
+        <AnimatePresence>
+          {isAddModalOpen && (
+            <AddLinkModal
+              isOpen={isAddModalOpen}
+              onClose={() => setIsAddModalOpen(false)}
+              onAddLink={addLink}
+              onAddCollection={addCollection}
+              onAddProduct={addProduct}
+              onAddIncentive={onAddIncentive || (() => { })}
+              onAddSocial={addSocialLink}
+              onAddHeader={addHeader}
+            />
           )}
         </AnimatePresence>,
         document.body

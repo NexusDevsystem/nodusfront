@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../config/supabaseClient';
+import { apiClient } from '../services/apiClient';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Check, AlertCircle, Globe, Link as LinkIcon, X } from 'lucide-react';
 import { SiWhatsapp } from 'react-icons/si';
@@ -49,13 +49,8 @@ export default function OnboardingPage() {
         const timer = setTimeout(async () => {
             setChecking(true);
             try {
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('id')
-                    .eq('username', username.toLowerCase());
-
-                if (error) throw error;
-                setAvailable(data.length === 0);
+                const { available: isAvailable } = await apiClient.checkUsername(username.toLowerCase());
+                setAvailable(isAvailable);
             } catch (err) {
                 console.error('Availability check failed:', err);
                 setAvailable(false); // Assume unavailable on error as a safety measure
@@ -82,27 +77,16 @@ export default function OnboardingPage() {
         setError('');
 
         try {
-            // 1. Update Profile with all onboarding data
-            const { error: updateError } = await supabase
-                .from('users')
-                .update({
-                    username: username.toLowerCase(),
-                    onboarding_completed: true,
-                    user_category: userCategory,
-                    referral_source: referralSource || 'Não informado'
-                })
-                .eq('email', user.email);
+            // 1. Update Profile with all onboarding data via Backend
+            const updatedProfile = await apiClient.updateProfile({
+                username: username.toLowerCase(),
+                onboardingCompleted: true, // Backend uses onboardingCompleted (camelCase) usually, check types
+                userCategory: userCategory,
+                referralSource: referralSource || 'Não informado'
+            });
 
-            if (updateError) throw updateError;
-
-            // 2. Fetch fresh profile data
-            const { data: updatedProfile, error: fetchError } = await supabase
-                .from('users')
-                .select('*')
-                .eq('email', user.email)
-                .single();
-
-            if (fetchError) throw fetchError;
+            // 3. Update Global Context
+            setProfile(updatedProfile);
 
             // 3. Update Global Context
             setProfile(updatedProfile);

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../config/supabaseClient';
+import { apiClient } from '../services/apiClient';
 
 interface AuthContextType {
     user: any | null;
@@ -59,42 +59,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [loading, setLoading] = useState(true);
     const [token, setToken] = useState<string | null>(localStorage.getItem('nodus_access_token'));
 
-    const getOrCreateProfile = async (userData: { email: string, name?: string, picture?: string }) => {
+    const getOrCreateProfile = async () => {
         try {
-            // Find by email (Single source of truth in our manual flow)
-            const { data: existingProfile, error: fetchError } = await supabase
-                .from('users')
-                .select('*')
-                .eq('email', userData.email)
-                .maybeSingle();
-
-            if (fetchError) throw fetchError;
-
-            if (existingProfile) {
-                setProfile(existingProfile);
-                // No localStorage - profile is kept in React state only
-                return;
-            }
-
-            // New User: Create initial profile (DB will generate UUID)
-            const { data: newProfile, error: insertError } = await supabase
-                .from('users')
-                .insert({
-                    email: userData.email,
-                    name: '',
-                    avatar_url: null,
-                    auth_provider: 'google',
-                    onboarding_completed: false
-                })
-                .select()
-                .single();
-
-            if (insertError) throw insertError;
-            setProfile(newProfile);
-            // No localStorage - profile is kept in React state only
-        } catch (err) {
+            // Fetch fresh profile data via Backend
+            const profileData = await apiClient.getMyProfile();
+            setProfile(profileData);
+        } catch (err: any) {
             console.error('Profile sync error:', err);
-            // Don't clear existing profile if sync fails, just log it
+            // If 404, we might need onboarding, handled by route protection
+            if (err.message?.includes('404')) {
+                setProfile(null);
+            }
         } finally {
             setLoading(false);
         }
@@ -111,32 +86,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
 
             try {
-                const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                if (res.ok) {
-                    const googleProfile = await res.json();
-                    const userData = {
-                        id: googleProfile.sub,
-                        email: googleProfile.email,
-                        name: googleProfile.name,
-                        picture: googleProfile.picture
-                    };
+                // We no longer fetch from Google on EVERY mount.
+                // We rely on getOrCreateProfile which calls our backend, which in turn validates the token.
+                // This reduces redundant Google API calls and speeds up startup.
+                const savedUser = localStorage.getItem('nodus_user');
+                if (savedUser) {
+                    const userData = JSON.parse(savedUser);
                     setUser(userData);
-                    safeSetItem('nodus_user', JSON.stringify(userData));
-                    await getOrCreateProfile(userData);
+                    await getOrCreateProfile();
                 } else {
-                    // Token invalid, clear everything
-                    localStorage.removeItem('nodus_access_token');
-                    localStorage.removeItem('nodus_user');
-                    localStorage.removeItem('nodus_profile');
-                    setUser(null);
-                    setProfile(null);
-                    setLoading(false);
+                    // If no saved user info but we have a token, we still need to know who the user is.
+                    // THIS is a valid case for a single Google check.
+                    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    if (res.ok) {
+                        const googleProfile = await res.json();
+                        const userData = {
+                            id: googleProfile.sub,
+                            email: googleProfile.email,
+                            name: googleProfile.name,
+                            picture: googleProfile.picture
+                        };
+                        setUser(userData);
+                        safeSetItem('nodus_user', JSON.stringify(userData));
+                        await getOrCreateProfile();
+                    } else {
+                        throw new Error('Invalid token');
+                    }
                 }
             } catch (e) {
                 console.error('Failed to rehydrate session:', e);
+                localStorage.removeItem('nodus_access_token');
+                localStorage.removeItem('nodus_user');
+                setUser(null);
+                setProfile(null);
                 setLoading(false);
             }
         };
@@ -159,7 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setUser(userData);
         safeSetItem('nodus_user', JSON.stringify(userData));
-        await getOrCreateProfile(userData);
+        await getOrCreateProfile();
         return { error: null };
     };
 
@@ -179,7 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             user,
             profile,
             loading,
-            onboardingCompleted: !!profile?.onboarding_completed,
+            onboardingCompleted: !!profile?.onboardingCompleted,
             signInWithProfile,
             signOut,
             setProfile,

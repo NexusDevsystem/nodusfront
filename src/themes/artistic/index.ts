@@ -30,7 +30,7 @@ export const artisticThemes: Theme[] = [
         avatarBorder: 'rounded-full border-[1px] border-black p-2',
         fontFamily: "'Montserrat', sans-serif",
         category: 'creative',
-        isPro: true
+        isPro: false
     },
     // 3. Pop Art 💥
     {
@@ -60,7 +60,7 @@ export const artisticThemes: Theme[] = [
         avatarBorder: 'rounded-full border-4 border-white/50 backdrop-blur-md shadow-lg',
         fontFamily: "'Outfit', sans-serif",
         category: 'creative',
-        isPro: true
+        isPro: false
     },
     // 5. Geometric Bauhaus 🟥
     {

@@ -102,6 +102,7 @@ import { artisticThemes } from './themes/artistic';
 import { socialThemes } from './themes/social';
 import { technologyThemes } from './themes/technology';
 import { advocacyThemes } from './themes/advocacy';
+import { musicThemes } from './themes/music';
 
 export const THEMES: Theme[] = [
   {
@@ -121,6 +122,7 @@ export const THEMES: Theme[] = [
   kawaiiSakuraTheme,
   ...businessThemes,
   ...advocacyThemes,
+  ...musicThemes,
   ...engineeringThemes,
   ...medicineThemes,
   ...kawaiiThemes,

@@ -110,7 +110,7 @@ export default function PublicProfilePage() {
 
             {/* Main Profile Card - Responsive: Full Screen Mobile, Card Desktop */}
             <div
-                className="w-full h-full relative z-10 overflow-hidden md:max-w-[460px] md:shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.5)] md:rounded-t-[3rem] md:border-t md:border-x md:border-white/10"
+                className="w-full h-full relative z-10 overflow-hidden md:max-w-[500px] md:shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.5)] md:rounded-t-[3rem] md:border-t md:border-x md:border-white/10"
                 style={{ backgroundColor: profile.customSolidColor || currentTheme.solidColor || '#000' }}
             >
                 <ProfileRenderer

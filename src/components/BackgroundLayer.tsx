@@ -11,6 +11,7 @@ import SocialVisualizer from '../themes/social/SocialVisualizer';
 import EngineeringVisualizer from '../themes/engineering/EngineeringVisualizer';
 import MedicineVisualizer from '../themes/medicine/MedicineVisualizer';
 import TechnologyVisualizer from '../themes/technology/TechnologyVisualizer';
+import MusicVisualizer from '../themes/music/MusicVisualizer';
 
 // ... (in renderBackground switch)
 
@@ -164,6 +165,26 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
                 return <TechnologyVisualizer variant="startup-launch" />;
 
             // Music Themes (New Config)
+            case 'music-sinfonia-mecanica':
+                return <MusicVisualizer variant="sinfonia-mecanica" />;
+            case 'music-fita-analogica':
+                return <MusicVisualizer variant="fita-analogica" />;
+            case 'music-sopro-de-ouro':
+                return <MusicVisualizer variant="sopro-de-ouro" />;
+            case 'music-batida-botanica':
+                return <MusicVisualizer variant="batida-botanica" />;
+            case 'music-grave-urbano':
+                return <MusicVisualizer variant="grave-urbano" />;
+            case 'music-hino-de-vitral':
+                return <MusicVisualizer variant="hino-de-vitral" />;
+            case 'music-jardim-zen-sonoro':
+                return <MusicVisualizer variant="jardim-zen-sonoro" />;
+            case 'music-harpa-cosmica':
+                return <MusicVisualizer variant="harpa-cosmica" />;
+            case 'music-horizonte-neon':
+                return <MusicVisualizer variant="horizonte-neon" />;
+            case 'music-orquestra-origami':
+                return <MusicVisualizer variant="orquestra-origami" />;
 
             default:
                 return (

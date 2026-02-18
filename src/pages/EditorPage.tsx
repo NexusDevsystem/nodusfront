@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserProfile, LinkItem, Product } from '../types';
+import { UserProfile, LinkItem, Product, PaymentMethod } from '../types';
 import { THEMES, FONTS } from '../constants';
 import ThemeSelector from '../components/ThemeSelector';
 
@@ -58,8 +58,10 @@ export default function EditorPage() {
     // Load data from API on mount - but only after auth profile exists
     React.useEffect(() => {
         if (authLoading) {
-            setIsLoading(true);
-            setLoadingProgress(10); // Auth is loading
+            if (!hasLoadedOnce) {
+                setIsLoading(true);
+                setLoadingProgress(10); // Auth is loading
+            }
             return;
         }
 
@@ -72,16 +74,11 @@ export default function EditorPage() {
 
         const loadData = async () => {
             try {
-                // Load each item separately to track progress
+                // Load all items in a single bootstrap call for maximum efficiency
                 setLoadingProgress(30);
-                const profileData = await apiClient.getMyProfile();
-                setLoadingProgress(50);
+                const { profile: profileData, links: linksDataRaw, products: productsDataRaw } = await apiClient.getBootstrapData();
 
-                const linksDataRaw = await apiClient.getMyLinks();
-                setLoadingProgress(70);
-
-                const productsDataRaw = await apiClient.getMyProducts();
-                setLoadingProgress(90);
+                setLoadingProgress(80);
 
                 // Helper to assign clientIds recursively
                 const withClientIds = (items: any[]): any[] => items.map(item => ({
@@ -90,28 +87,27 @@ export default function EditorPage() {
                     children: item.children ? withClientIds(item.children) : undefined
                 }));
 
-                const linksData = withClientIds(linksDataRaw);
+                const linksData = withClientIds(linksDataRaw).map(l => {
+                    // Proactive tagging for legacy collections to ensure they don't lose identity on name change
+                    if (l.type === 'collection' && l.title === 'Posts do Instagram' && !l.platform) {
+                        return { ...l, platform: 'instagram' };
+                    }
+                    return l;
+                });
                 const productsData = withClientIds(productsDataRaw);
-
 
                 setProfile(profileData);
                 setLinks(linksData);
                 setProducts(productsData);
 
                 // --- AUTOMATIC PAYMENT RECONCILIATION ---
-                // If user is currently marked as Free, check Stripe silently for an active subscription
+                // Trigger silently in background
                 if (profileData.planType === 'free' || !profileData.planType) {
-                    console.log('🔄 Free plan detected. Silently checking for active subscriptions...');
-                    try {
-                        const reconciledProfile = await apiClient.autoReconcile();
+                    apiClient.autoReconcile().then(reconciledProfile => {
                         if (reconciledProfile.planType && reconciledProfile.planType !== 'free') {
-                            setProfile(reconciledProfile);
-                            console.log('✨ Account upgraded automatically!');
+                            setProfile(prev => ({ ...prev, ...reconciledProfile }));
                         }
-                    } catch (reconcileError) {
-                        // Fail silently for auto-reconcile to not disturb user flow
-                        console.error('Silent reconcile failed:', reconcileError);
-                    }
+                    }).catch(err => console.error('Silent reconcile failed:', err));
                 }
 
                 // Data loaded successfully
@@ -314,6 +310,38 @@ export default function EditorPage() {
         return () => clearTimeout(timeoutId);
     }, [products, hasLoadedOnce]);
 
+    const addProductToShop = (collectionName: string) => {
+        const newProduct: Product = {
+            id: crypto.randomUUID(),
+            clientId: crypto.randomUUID(),
+            name: 'Novo Produto',
+            url: '',
+            image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&auto=format&fit=crop&q=60',
+            clicks: 0,
+            collection: collectionName,
+            price: '',
+            discountCode: ''
+        };
+        setProducts(prev => [...prev, newProduct]);
+        setActiveTab('shop');
+    };
+
+    const handleAddIncentive = (type: 'pix' | 'paypal', key: string) => {
+        const newMethod: PaymentMethod = {
+            id: Date.now().toString(),
+            type,
+            key,
+            label: type === 'pix' ? 'Meu Pix Principal' : 'Meu PayPal',
+            isActive: true
+        };
+
+        setProfile(prev => ({
+            ...prev,
+            paymentMethods: [newMethod, ...(prev.paymentMethods || [])]
+        }));
+        setActiveTab('earn');
+    };
+
     React.useEffect(() => {
         const handleOpenBilling = () => setIsBillingModalOpen(true);
         window.addEventListener('open-billing-modal', handleOpenBilling);
@@ -385,7 +413,6 @@ export default function EditorPage() {
                         </div>
                     </div>
                 )}
-
                 {/* Error State - Non-intrusive Banner */}
                 {loadError && (
                     <div className="absolute top-0 left-0 w-full bg-red-50 border-b border-red-200 z-[100] px-4 py-2 flex items-center justify-between">
@@ -553,11 +580,14 @@ export default function EditorPage() {
                                 {activeTab === 'links' && (
                                     <div className="space-y-6">
 
-                                        <SocialLinksEditor links={links} onChange={setLinks} />
+                                        <SocialLinksEditor links={links} onChange={setLinks} profile={profile} setProfile={setProfile} />
                                         <LinkEditor
                                             links={links}
                                             onChange={setLinks}
                                             profile={profile}
+                                            setActiveTab={setActiveTab}
+                                            onAddProduct={addProductToShop}
+                                            onAddIncentive={handleAddIncentive}
                                             expandedLinks={expandedLinks}
                                             setExpandedLinks={setExpandedLinks}
                                             expandedCollections={expandedCollections}

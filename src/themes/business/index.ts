@@ -10,7 +10,7 @@ export const executiveBlueTheme: Theme = {
     cardClass: 'bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg shadow-sm hover:bg-slate-800/70 transition-all text-white',
     textClass: 'text-white font-medium tracking-normal',
     avatarBorder: 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 rounded-full',
-    isPro: true,
+    isPro: false,
     textHex: '#ffffff',
     buttonHex: '#ffffff',
     category: 'business',
@@ -93,7 +93,7 @@ export const nordicTrustTheme: Theme = {
     cardClass: 'bg-slate-50 border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-all text-slate-600',
     textClass: 'text-slate-600 font-medium tracking-tight',
     avatarBorder: 'ring-4 ring-slate-100 rounded-full',
-    isPro: true,
+    isPro: false,
     buttonHex: '#334155',
     category: 'business',
     fontFamily: "'Inter', sans-serif"

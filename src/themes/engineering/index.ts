@@ -28,7 +28,7 @@ export const engineeringBlueprintTheme: Theme = {
     cardClass: 'bg-blue-900/50 backdrop-blur-md border border-white/20 rounded-none shadow-none text-blue-100',
     textClass: 'text-white font-mono tracking-wide',
     avatarBorder: 'border-2 border-white dashed rounded-full',
-    isPro: true,
+    isPro: false,
     buttonHex: '#1e40af',
     category: 'engineering',
     fontFamily: "'Space Mono', monospace"
@@ -77,7 +77,7 @@ export const engineeringStructureTheme: Theme = {
     cardClass: 'bg-slate-900/80 backdrop-blur-md border border-cyan-500/20 rounded-none text-cyan-100',
     textClass: 'text-cyan-400 font-light tracking-widest uppercase',
     avatarBorder: 'border border-cyan-500 rounded-none',
-    isPro: true,
+    isPro: false,
     buttonHex: '#0f172a',
     textHex: '#22d3ee',
     category: 'engineering',

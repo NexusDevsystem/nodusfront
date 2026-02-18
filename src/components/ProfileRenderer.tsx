@@ -33,6 +33,7 @@ import verifiedBadge from '../assets/verified-badge.png';
 import BackgroundLayer from './BackgroundLayer';
 import { apiClient } from '../services/apiClient';
 import { SiSpotify } from 'react-icons/si';
+import { InstagramCard } from './InstagramCard';
 // @ts-ignore
 import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
 
@@ -118,7 +119,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const socialLinks = activeLinks.filter(l => l.layout === 'social' && l.type !== 'collection');
 
     // Button links
-    const buttonLinks = activeLinks.filter(l => l.layout !== 'social' || l.type === 'collection');
+    const buttonLinks = activeLinks.filter(l => (l.layout !== 'social' || l.type === 'collection'));
 
     const getLuminance = (hex: string) => {
         const rgb = hex.replace('#', '').match(/.{1,2}/g)?.map(x => parseInt(x, 16)) || [255, 255, 255];
@@ -146,6 +147,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const tiktokIntegration = profile.integrations?.find(i => i.provider === 'tiktok');
     const tiktokFollowers = tiktokIntegration?.profile_data?.follower_count;
     const tiktokUsername = tiktokIntegration?.profile_data?.username;
+
+    const instagramIntegration = profile.integrations?.find(i => i.provider === 'instagram');
+    const instagramFollowers = instagramIntegration?.profile_data?.follower_count;
+    const instagramUsername = instagramIntegration?.profile_data?.username;
+    const instagramAvatar = instagramIntegration?.profile_data?.avatar_url;
+    const instagramMedia = (instagramIntegration?.profile_data as any)?.media || [];
 
     const getHighlightClass = (type?: string) => {
         switch (type) {
@@ -178,17 +185,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         );
     };
 
+    const DeezerIcon = ({ size, color }: { size: number, color?: string }) => (
+        <svg width={size} height={size} viewBox="0 0 1433 1431" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill={color || "currentColor"} fillRule="evenodd" d="M1201.8 218.3c13.2-76.7 32.7-125 54.2-125.1h.1c40.2.2 72.7 167.5 72.7 374.1 0 206.7-32.6 374.1-72.8 374.1-16.5 0-31.7-28.4-44-76.1-19.3 174.5-59.5 294.4-106 294.4-36 0-68.3-72-90-185.6-14.8 216-52.1 369.3-95.6 369.3-27.3 0-52.3-60.7-70.7-159.6-22.2 204.1-73.5 347.2-133.2 347.2-59.8 0-111.1-143-133.2-347.2-18.3 98.9-43.3 159.6-70.7 159.6-43.6 0-80.8-153.3-95.6-369.3-21.7 113.6-53.9 185.6-90 185.6-46.5 0-86.7-119.9-106.1-294.4-12.1 47.8-27.4 76.1-43.9 76.1-40.3 0-72.9-167.4-72.9-374.1 0-206.6 32.6-374.1 72.9-374.1 21.6 0 40.9 48.4 54.3 125.1C252.7 86 287.6 0 327 0c46.8 0 87.3 121.6 106.5 298.2 18.8-128.5 47.2-210.4 79.1-210.4 44.7 0 82.7 161.1 96.8 385.9 26.4-115.2 64.8-187.5 107.2-187.5s80.7 72.3 107.1 187.5c14.1-224.8 52.1-385.9 96.8-385.9 31.8 0 60.2 81.9 79.1 210.4C1018.7 121.6 1059.3 0 1106.1 0c39.2 0 74.2 86 95.7 218.3M41.3 597.8C18.5 597.8 0 523 0 430.5s18.5-167.2 41.3-167.2c22.9 0 41.4 74.7 41.4 167.2S64.2 597.8 41.3 597.8m1350.3 0c-22.9 0-41.3-74.8-41.3-167.3s18.4-167.2 41.3-167.2c22.8 0 41.3 74.7 41.3 167.2s-18.5 167.3-41.3 167.3" />
+        </svg>
+    );
+
     const MusicRichCard: React.FC<{ link: LinkItem, handleLinkClick: (id: string) => void }> = ({ link, handleLinkClick }) => {
         const musicTitle = link.title || 'Música';
         const musicArtist = link.subtitle || 'Artista';
         const isDeezer = link.embedType === 'deezer' || link.url.includes('deezer');
         const platformColor = isDeezer ? '#a238ff' : '#a49a2a'; // Deezer purple vs Spotify yellowish-olive
 
-        const DeezerIcon = ({ size }: { size: number }) => (
-            <svg width={size} height={size} viewBox="0 0 1433 1431" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill="currentColor" fillRule="evenodd" d="M1201.8 218.3c13.2-76.7 32.7-125 54.2-125.1h.1c40.2.2 72.7 167.5 72.7 374.1 0 206.7-32.6 374.1-72.8 374.1-16.5 0-31.7-28.4-44-76.1-19.3 174.5-59.5 294.4-106 294.4-36 0-68.3-72-90-185.6-14.8 216-52.1 369.3-95.6 369.3-27.3 0-52.3-60.7-70.7-159.6-22.2 204.1-73.5 347.2-133.2 347.2-59.8 0-111.1-143-133.2-347.2-18.3 98.9-43.3 159.6-70.7 159.6-43.6 0-80.8-153.3-95.6-369.3-21.7 113.6-53.9 185.6-90 185.6-46.5 0-86.7-119.9-106.1-294.4-12.1 47.8-27.4 76.1-43.9 76.1-40.3 0-72.9-167.4-72.9-374.1 0-206.6 32.6-374.1 72.9-374.1 21.6 0 40.9 48.4 54.3 125.1C252.7 86 287.6 0 327 0c46.8 0 87.3 121.6 106.5 298.2 18.8-128.5 47.2-210.4 79.1-210.4 44.7 0 82.7 161.1 96.8 385.9 26.4-115.2 64.8-187.5 107.2-187.5s80.7 72.3 107.1 187.5c14.1-224.8 52.1-385.9 96.8-385.9 31.8 0 60.2 81.9 79.1 210.4C1018.7 121.6 1059.3 0 1106.1 0c39.2 0 74.2 86 95.7 218.3M41.3 597.8C18.5 597.8 0 523 0 430.5s18.5-167.2 41.3-167.2c22.9 0 41.4 74.7 41.4 167.2S64.2 597.8 41.3 597.8m1350.3 0c-22.9 0-41.3-74.8-41.3-167.3s18.4-167.2 41.3-167.2c22.8 0 41.3 74.7 41.3 167.2s-18.5 167.3-41.3 167.3" />
-            </svg>
-        );
 
         return (
             <div className={`${roundedClass || 'rounded-2xl'} relative overflow-hidden group min-h-[80px] w-full isolate transform transition-all duration-300 hover:scale-[1.01]`}>
@@ -213,10 +221,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             alt={musicTitle}
                             className="w-full h-full object-cover"
                         />
-                        {/* Tiny Platform Icon on Album Art */}
-                        <div className="absolute bottom-1 right-1 bg-black/60 backdrop-blur-md rounded-full p-[3px]">
-                            {isDeezer ? <DeezerIcon size={10} /> : <SiSpotify size={10} color="#1DB954" />}
-                        </div>
                     </div>
 
                     {/* Text Info */}
@@ -228,14 +232,19 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             {musicArtist}
                         </p>
 
-                        {/* Audio Wave / "Preview" Indicator */}
-                        <div className="flex items-center gap-1.5 mt-1">
-                            <div className="flex items-end gap-0.5 h-2">
-                                <span className="w-0.5 h-full bg-green-400 animate-[music-bar_0.8s_ease-in-out_infinite]" />
-                                <span className="w-0.5 h-1/2 bg-green-400 animate-[music-bar_1.1s_ease-in-out_infinite]" />
-                                <span className="w-0.5 h-3/4 bg-green-400 animate-[music-bar_1.3s_ease-in-out_infinite]" />
+                        {/* Audio Wave / "Preview" Indicator & Platform Icon */}
+                        <div className="flex items-center justify-between mt-1">
+                            <div className="flex items-center gap-1.5">
+                                <div className="flex items-end gap-0.5 h-2">
+                                    <span className="w-0.5 h-full bg-green-400 animate-[music-bar_0.8s_ease-in-out_infinite]" />
+                                    <span className="w-0.5 h-1/2 bg-green-400 animate-[music-bar_1.1s_ease-in-out_infinite]" />
+                                    <span className="w-0.5 h-3/4 bg-green-400 animate-[music-bar_1.3s_ease-in-out_infinite]" />
+                                </div>
+                                <span className="text-[9px] uppercase tracking-wider text-green-400 font-bold opacity-90">Preview</span>
                             </div>
-                            <span className="text-[9px] uppercase tracking-wider text-green-400 font-bold opacity-90">Preview</span>
+                            <div className="opacity-80">
+                                {isDeezer ? <DeezerIcon size={12} color="white" /> : <SiSpotify size={12} color="#1DB954" />}
+                            </div>
                         </div>
                     </div>
 
@@ -516,7 +525,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         />
                                     ) : (
                                         <h3
-                                            className={`mb-1 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[2em]' : 'text-[1.5em]'}`}
+                                            className={`mb-0 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[1.6em]' : 'text-[1.3em]'}`}
                                             style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                         >
                                             {profile.name}
@@ -549,6 +558,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         {profile.bio}
                                     </p>
                                 )}
+
                             </div>
                         </motion.div>
 
@@ -713,7 +723,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         <ChevronLeft size={12} strokeWidth={3} />
                                                         <span>Voltar</span>
                                                     </button>
-                                                    <h2 className={`text-2xl font-black tracking-tight`} style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                    <h2 className={`text-xl font-black tracking-tight`} style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                         {activeCollection}
                                                     </h2>
                                                 </div>
@@ -755,7 +765,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     {product.name}
                                                                 </span>
                                                                 {product.price && (
-                                                                    <span className={`text-[11px] font-medium opacity-70`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                    <span className={`text-[11px] font-medium opacity-70 mt-2`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                                         {product.price}
                                                                     </span>
                                                                 )}
@@ -794,6 +804,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 >
                                     {(() => {
                                         const renderedItems: React.ReactNode[] = [];
+
+                                        // We no longer inject here at the top.
+                                        // It will be rendered at its position in the loop below.
 
                                         const themeButtonHex = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#0f172a');
                                         const cardAccentColor = themeButtonHex;
@@ -867,8 +880,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         )}
                                                                     </div>
                                                                     <div className={`p-3.5 flex flex-col justify-center items-center text-center h-16 relative`}>
+                                                                        {/* Platform Icon Footer for Music in standard Cards */}
+                                                                        {isMusicLink(cardLink) && (
+                                                                            <div className="absolute top-1.5 right-1.5 opacity-60">
+                                                                                {cardLink.url.includes('deezer') ? (
+                                                                                    <DeezerIcon size={10} color={getSmartTextColor()} />
+                                                                                ) : (
+                                                                                    <SiSpotify size={10} color={isButtonLight ? "#1a2c14" : "#1DB954"} />
+                                                                                )}
+                                                                            </div>
+                                                                        )}
                                                                         <span className="text-[0.95em] leading-tight truncate px-1" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.title}</span>
-                                                                        {cardLink.subtitle && <span className="text-[0.75em] leading-tight truncate px-1 opacity-60 mt-0.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.subtitle}</span>}
+                                                                        {cardLink.subtitle && <span className="text-[0.75em] leading-tight truncate px-1 opacity-60 mt-1.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.subtitle}</span>}
                                                                     </div>
                                                                 </div>
                                                             );
@@ -897,7 +920,77 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         };
 
                                         buttonLinks.forEach(link => {
-                                            if (link.layout === 'icon') {
+                                            if (link.type === 'collection' && (link.platform === 'instagram' || link.title === 'Posts do Instagram')) {
+                                                // 1. Instagram Collection special rendering (Priority)
+                                                flushIcons();
+                                                flushCards();
+
+                                                if (instagramIntegration) {
+                                                    // Map children links to the format expected by InstagramCard
+                                                    const collectionMedia = (link.children || []).map(c => ({
+                                                        id: c.id,
+                                                        media_url: c.image,
+                                                        thumbnail_url: c.image,
+                                                        permalink: c.url,
+                                                        caption: c.title,
+                                                        media_type: c.videoUrl ? 'VIDEO' : 'IMAGE'
+                                                    }));
+
+                                                    renderedItems.push(
+                                                        <motion.div
+                                                            key={`instagram-card-${link.id}`}
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            whileInView={{ opacity: 1, y: 0 }}
+                                                            viewport={{ once: true }}
+                                                            className={`w-full mb-4 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
+                                                        >
+                                                            <div
+                                                                className={`text-center mb-2 opacity-90 text-sm font-bold uppercase tracking-widest`}
+                                                                style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                            >
+                                                                {link.title}
+                                                            </div>
+                                                            <InstagramCard
+                                                                username={instagramUsername || 'instagram_user'}
+                                                                followers={instagramFollowers || 0}
+                                                                avatarUrl={instagramAvatar || ''}
+                                                                media={collectionMedia.length > 0 ? collectionMedia : instagramMedia}
+                                                                themeButtonClass={baseCardClass}
+                                                                themeButtonStyle={mainButtonStyle}
+                                                                themeTextHex={getSmartTextColor()}
+                                                                buttonRoundness={roundedClass || undefined}
+                                                                isDark={isDarkTheme}
+                                                                variant={link.layout === 'classic' ? 'profile' : 'feed'}
+                                                                fontFamily={profile.fontFamily}
+                                                                fontWeight={profile.fontWeight || undefined}
+                                                                fontItalic={profile.fontItalic}
+                                                            />
+                                                        </motion.div>
+                                                    );
+                                                }
+                                            } else if (link.type === 'header') {
+                                                flushIcons();
+                                                flushCards();
+
+                                                renderedItems.push(
+                                                    <motion.div
+                                                        key={`header-${link.id}`}
+                                                        initial={{ opacity: 0, scale: 0.98 }}
+                                                        whileInView={{ opacity: 1, scale: 1 }}
+                                                        viewport={{ once: true }}
+                                                        className={`w-full text-center py-6 mb-2 mt-4 opacity-80`}
+                                                        style={{
+                                                            ...mainTextColorStyle,
+                                                            fontWeight: 'bold',
+                                                            fontSize: '1.1em',
+                                                            letterSpacing: '0.05em',
+                                                            textTransform: 'uppercase'
+                                                        }}
+                                                    >
+                                                        {link.title}
+                                                    </motion.div>
+                                                );
+                                            } else if (link.layout === 'icon') {
                                                 flushCards();
                                                 currentIconGroup.push(link);
                                             } else if (link.layout === 'card') {
@@ -923,9 +1016,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         };
 
                                                         renderedItems.push(
-                                                            <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-1 pb-1 group/carousel">
+                                                            <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 group/carousel ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
                                                                 <div
-                                                                    className={`text-center mb-2 font-bold opacity-90 text-lg`}
+                                                                    className={`text-center mb-2 font-bold opacity-90 text-sm uppercase tracking-widest`}
                                                                     style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                                 >
                                                                     {link.title}
@@ -937,11 +1030,27 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             const childContent = (
                                                                                 <div className="relative z-10 flex flex-col h-full w-full">
                                                                                     <div className="relative overflow-hidden h-36 w-full bg-white">
-                                                                                        {child.image ? <img src={child.image} alt="" className="w-full h-full block object-contain" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
+                                                                                        {child.image ? (
+                                                                                            <img src={child.image} alt="" className="w-full h-full block object-contain" />
+                                                                                        ) : (
+                                                                                            <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400">
+                                                                                                <ShoppingBag size={20} />
+                                                                                            </div>
+                                                                                        )}
                                                                                     </div>
                                                                                     <div className={`p-2 flex flex-col justify-center items-center text-center h-12 relative`}>
+                                                                                        {/* Platform Icon Footer for Music in Carousel */}
+                                                                                        {isMusicLink(child) && (
+                                                                                            <div className="absolute top-1 right-1.5 opacity-60">
+                                                                                                {child.url.includes('deezer') ? (
+                                                                                                    <DeezerIcon size={10} color={getSmartTextColor()} />
+                                                                                                ) : (
+                                                                                                    <SiSpotify size={10} color={isButtonLight ? "#1a2c14" : "#1DB954"} />
+                                                                                                )}
+                                                                                            </div>
+                                                                                        )}
                                                                                         <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
-                                                                                        {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60 w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
+                                                                                        {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60 w-full mt-1.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
                                                                                     </div>
                                                                                 </div>
                                                                             );
@@ -968,9 +1077,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         );
                                                     } else {
                                                         renderedItems.push(
-                                                            <motion.div key={link.id} transition={{ duration: 0 }} className="w-full pt-1 pb-1">
+                                                            <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
                                                                 <div
-                                                                    className={`text-center mb-2 opacity-90 text-lg`}
+                                                                    className={`text-center mb-2 opacity-90 text-sm font-bold uppercase tracking-widest`}
                                                                     style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                                 >
                                                                     {link.title}
@@ -996,7 +1105,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
                                                                                     <div className="flex-1 px-1 flex flex-col justify-center text-center">
                                                                                         <span className="text-[0.9em] leading-tight break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
-                                                                                        {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
+                                                                                        {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-2 break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
                                                                                     </div>
                                                                                     <span className="w-8 shrink-0"></span>
                                                                                 </div>
@@ -1029,7 +1138,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
                                                                 <div className="flex-1 px-1 flex flex-col justify-center text-center">
                                                                     <span className="text-[0.9em] leading-tight line-clamp-2 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
-                                                                    {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-0.5 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.subtitle}</span>}
+                                                                    {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-2 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.subtitle}</span>}
                                                                 </div>
                                                                 <span className="w-8 shrink-0"></span>
                                                             </div>

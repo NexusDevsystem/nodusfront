@@ -116,8 +116,11 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
             { title: 'Negócios & Corporativo', category: 'business' },
             { title: 'Gradientes Vibrantes', category: 'gradient' },
             { title: 'Minimalista & Sólido', category: 'solid' },
-            { title: 'Música & Artístico', category: 'music' }, // Combined for brevity or separate if needed
+            { title: 'Música & Melodia', category: 'music' },
+            { title: 'Arte & Criatividade', category: 'artistic' },
             { title: 'Kawaii & Fofo', category: 'kawaii' },
+            { title: 'Exclusivo Nodus', category: 'animated' },
+            { title: 'Estilo Social', category: 'social' },
             { title: 'Criativo & Animado', category: 'creative' }, // Fallback for others
         ];
 
@@ -153,8 +156,34 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                     </div>
                 </div>
 
+                {/* Priority: Free Themes Section */}
+                <div className="flex flex-col gap-4">
+                    <h3 className="text-sm font-bold text-[#32a800] uppercase tracking-wider flex items-center gap-2 border-b border-[#32a800]/10 pb-2">
+                        <Zap size={16} className="fill-[#32a800]" />
+                        Explorar Gratuitos
+                    </h3>
+                    <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3">
+                        {THEMES.filter(t => !t.isPro && t.id !== 'custom').map(renderThemeCard)}
+                    </div>
+                </div>
+
                 {groups.map((group) => {
-                    const groupThemes = THEMES.filter(t => t.id !== 'custom' && t.category === group.category);
+                    const groupThemes = THEMES.filter(t => {
+                        if (t.id === 'custom') return false;
+                        if (t.category !== group.category) return false;
+
+                        // ONLY PRO themes stay in their original categories
+                        // to avoid duplication since we have 'Gratuitos' now
+                        if (!t.isPro) return false;
+
+                        // Exclusivity Logic: Nodus Official theme only for noduscc profile
+                        if (t.id === 'animated-nodus-official') {
+                            return profile.username === 'noduscc';
+                        }
+
+                        return true;
+                    });
+
                     if (groupThemes.length === 0) return null;
 
                     return (

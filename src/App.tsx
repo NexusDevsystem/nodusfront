@@ -20,8 +20,6 @@ export default function App() {
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/payment/success" element={<CheckoutSuccessPage />} />
-          <Route path="/:username" element={<PublicProfilePage />} />
-
           {/* Protected routes */}
           <Route
             path="/admin"
@@ -45,6 +43,9 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/terms" element={<TermsPage />} />
+
+          {/* Public Profile (Dynamic Username) */}
+          <Route path="/:username" element={<PublicProfilePage />} />
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/admin" replace />} />

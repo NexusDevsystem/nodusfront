@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, Wallet, CreditCard, AlertCircle, Zap, Layout, Plus, Trash2, X, Check, GripVertical, ChevronDown } from 'lucide-react';
 import { UserProfile, PaymentMethod } from '../types';
-import { AnimatePresence, motion, Reorder, useDragControls } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { SiPaypal } from 'react-icons/si';
+
+const PixIcon = ({ size = 18, className = "" }: { size?: number, className?: string }) => (
+    <svg
+        width={size}
+        height={size}
+        viewBox="0 0 16 16"
+        className={className}
+        fill="currentColor"
+    >
+        <path d="M11.917 11.71a2.046 2.046 0 0 1-1.454-.602l-2.1-2.1a.4.4 0 0 0-.551 0l-2.108 2.108a2.044 2.044 0 0 1-1.454.602h-.414l2.66 2.66c.83.83 2.177.83 3.007 0l2.667-2.668h-.253zM4.25 4.282c.55 0 1.066.214 1.454.602l2.108 2.108a.39.39 0 0 0 .552 0l2.1-2.1a2.044 2.044 0 0 1 1.453-.602h.253L9.503 1.623a2.127 2.127 0 0 0-3.007 0l-2.66 2.66h.414z" /><path d="m14.377 6.496-1.612-1.612a.307.307 0 0 1-.114.023h-.733c-.379 0-.75.154-1.017.422l-2.1 2.1a1.005 1.005 0 0 1-1.425 0L5.268 5.32a1.448 1.448 0 0 0-1.018-.422h-.9a.306.306 0 0 1-.109-.021L1.623 6.496c-.83.83-.83 2.177 0 3.008l1.618 1.618a.305.305 0 0 1 .108-.022h.901c.38 0 .75-.153 1.018-.421L7.375 8.57a1.034 1.034 0 0 1 1.426 0l2.1 2.1c.267.268.638.421 1.017.421h.733c.04 0 .079.01.114.024l1.612-1.612c.83-.83.83-2.178 0-3.008z" />
+    </svg>
+);
 
 interface MonetizationViewProps {
     profile: UserProfile;
@@ -104,8 +117,8 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
 
                                     {/* Icon */}
                                     <div className="shrink-0 mx-4">
-                                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-white shadow-sm ${method.type === 'pix' ? 'bg-emerald-500' : 'bg-blue-500'}`}>
-                                            {method.type === 'pix' ? <Zap size={20} /> : <CreditCard size={20} />}
+                                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-white shadow-sm ${method.type === 'pix' ? 'bg-[#32bcad]' : 'bg-[#003087]'}`}>
+                                            {method.type === 'pix' ? <PixIcon size={20} /> : <SiPaypal size={20} />}
                                         </div>
                                     </div>
 
@@ -167,17 +180,17 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                                                     <div className="grid grid-cols-2 gap-3">
                                                         <button
                                                             onClick={() => handleUpdateMethod(method.id, { type: 'pix' })}
-                                                            className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${method.type === 'pix' ? 'bg-[#32a800]/10 border-[#32a800] text-[#32a800]' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+                                                            className={`flex items-center justify-center gap-2.5 p-3 rounded-xl border transition-all ${method.type === 'pix' ? 'bg-[#32bcad]/10 border-[#32bcad] text-[#32bcad]' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
                                                         >
-                                                            <Zap size={18} />
-                                                            <span className="text-xs font-bold">PIX</span>
+                                                            <PixIcon size={18} />
+                                                            <span className="text-xs font-bold leading-none">PIX</span>
                                                         </button>
                                                         <button
                                                             onClick={() => handleUpdateMethod(method.id, { type: 'paypal' })}
-                                                            className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${method.type === 'paypal' ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+                                                            className={`flex items-center justify-center gap-2.5 p-3 rounded-xl border transition-all ${method.type === 'paypal' ? 'bg-[#003087]/5 border-[#003087] text-[#003087]' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
                                                         >
-                                                            <CreditCard size={18} />
-                                                            <span className="text-xs font-bold">PAYPAL</span>
+                                                            <SiPaypal size={16} />
+                                                            <span className="text-xs font-bold leading-none">PAYPAL</span>
                                                         </button>
                                                     </div>
                                                 </div>

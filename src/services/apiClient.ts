@@ -30,7 +30,7 @@ class ApiClient {
     private async request(path: string, options: RequestInit = {}) {
         const headers = await this.getHeaders();
         const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), 15000); // 15s timeout
+        const id = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
         try {
             const response = await fetch(`${API_URL}${path}`, {
@@ -49,7 +49,7 @@ class ApiClient {
                 let errorMessage = `Request failed with status ${response.status}`;
                 try {
                     const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.error || errorMessage;
+                    errorMessage = errorJson.message || (typeof errorJson.error === 'string' ? errorJson.error : errorMessage);
                 } catch (e) {
                     errorMessage = errorText || errorMessage;
                 }
@@ -189,8 +189,12 @@ class ApiClient {
         });
     }
 
-    async getTikTokAuthUrl(userId: string): Promise<{ url: string }> {
-        return this.request(`/api/integrations/tiktok/auth-url?userId=${userId}`);
+    async getTikTokAuthUrl(userId: string, origin?: string): Promise<{ url: string }> {
+        return this.request(`/api/integrations/tiktok/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);
+    }
+
+    async getInstagramAuthUrl(userId: string, origin?: string): Promise<{ url: string }> {
+        return this.request(`/api/integrations/instagram/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);
     }
 
     async handleTikTokCallback(code: string, userId: string): Promise<any> {
@@ -202,6 +206,23 @@ class ApiClient {
 
     async getMyIntegrations(): Promise<SocialIntegration[]> {
         return this.request('/api/integrations/me');
+    }
+
+    async getBootstrapData(): Promise<{ profile: UserProfile, links: LinkItem[], products: Product[] }> {
+        return this.request('/api/profile/bootstrap');
+    }
+
+    async disconnectIntegration(provider: string): Promise<any> {
+        return this.request(`/api/integrations/${provider}`, {
+            method: 'DELETE'
+        });
+    }
+
+    async switchInstagramAccount(channelId: string): Promise<any> {
+        return this.request('/api/integrations/instagram/switch', {
+            method: 'POST',
+            body: JSON.stringify({ channelId })
+        });
     }
 }
 
