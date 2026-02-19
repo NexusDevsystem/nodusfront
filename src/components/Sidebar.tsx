@@ -139,7 +139,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
           <div className="flex-1 overflow-hidden">
             <h3 className="text-sm font-bold text-slate-800 truncate leading-none mb-1">{userProfile.name}</h3>
             <div className="flex items-center gap-1 text-xs text-slate-400">
-              <span className="truncate">noduscc/{userProfile.username || userProfile.name.toLowerCase().replace(/\s/g, '')}</span>
+              <span className="truncate">nodus.my/{userProfile.username || userProfile.name.toLowerCase().replace(/\s/g, '')}</span>
             </div>
           </div>
         </div>
