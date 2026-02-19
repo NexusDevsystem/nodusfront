@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Loader2, ArrowLeft, Star } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 
 export default function LoginPage() {
+    const location = useLocation();
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState(location.state?.error || '');
     const { signInWithProfile } = useAuth();
     const navigate = useNavigate();
 

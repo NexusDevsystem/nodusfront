@@ -10,6 +10,7 @@ interface AuthContextType {
     signOut: () => void;
     setProfile: React.Dispatch<React.SetStateAction<any | null>>;
     token: string | null;
+    authError: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -58,18 +59,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Always start with loading=true to fetch fresh profile data
     const [loading, setLoading] = useState(true);
     const [token, setToken] = useState<string | null>(localStorage.getItem('nodus_access_token'));
+    const [authError, setAuthError] = useState<string | null>(null);
 
     const getOrCreateProfile = async () => {
         try {
+            setAuthError(null);
             // Fetch fresh profile data via Backend
             const profileData = await apiClient.getMyProfile();
             setProfile(profileData);
+            return { success: true };
         } catch (err: any) {
             console.error('Profile sync error:', err);
+
+            // If 401, session expired - clear auth
+            if (err.message?.includes('401') || err.message?.includes('Unauthorized')) {
+                signOut();
+                return { success: false, error: 'unauthorized' };
+            }
+
             // If 404, we might need onboarding, handled by route protection
             if (err.message?.includes('404')) {
                 setProfile(null);
+                return { success: true }; // 404 is "successful" in terms of auth, just no profile yet
             }
+
+            setAuthError(err.message || 'Erro de conexão com o servidor');
+            return { success: false, error: 'server_error' };
         } finally {
             setLoading(false);
         }
@@ -86,17 +101,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
 
             try {
-                // We no longer fetch from Google on EVERY mount.
-                // We rely on getOrCreateProfile which calls our backend, which in turn validates the token.
-                // This reduces redundant Google API calls and speeds up startup.
                 const savedUser = localStorage.getItem('nodus_user');
                 if (savedUser) {
                     const userData = JSON.parse(savedUser);
                     setUser(userData);
                     await getOrCreateProfile();
                 } else {
-                    // If no saved user info but we have a token, we still need to know who the user is.
-                    // THIS is a valid case for a single Google check.
                     const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                         headers: { Authorization: `Bearer ${token}` },
                     });
@@ -118,10 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }
             } catch (e) {
                 console.error('Failed to rehydrate session:', e);
-                localStorage.removeItem('nodus_access_token');
-                localStorage.removeItem('nodus_user');
-                setUser(null);
-                setProfile(null);
+                signOut();
                 setLoading(false);
             }
         };
@@ -144,7 +151,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setUser(userData);
         safeSetItem('nodus_user', JSON.stringify(userData));
-        await getOrCreateProfile();
+        // NOTE: We do NOT call getOrCreateProfile() here to avoid a slow double-call to Google's API.
+        // The AuthMiddleware on the backend will handle token validation on the next protected route.
+        // Instead, we fetch the profile immediately after setting the token.
+        try {
+            const profileData = await apiClient.getMyProfile();
+            setProfile(profileData);
+        } catch (err: any) {
+            console.error('Post-login profile fetch error:', err);
+            // It's fine if this fails - they'll be redirected to onboarding or the error will surface naturally.
+            setProfile(null);
+        } finally {
+            setLoading(false);
+        }
         return { error: null };
     };
 
@@ -159,16 +178,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('nodus_products');
     };
 
+    // An existing user is considered to have completed onboarding if:
+    // 1. The field is explicitly true, OR
+    // 2. They already have a username set (meaning they onboarded before this field was added to the DB)
+    const hasCompletedOnboarding = !!profile?.onboardingCompleted || !!(profile?.username);
+
     return (
         <AuthContext.Provider value={{
             user,
             profile,
             loading,
-            onboardingCompleted: !!profile?.onboardingCompleted,
+            onboardingCompleted: hasCompletedOnboarding,
             signInWithProfile,
             signOut,
             setProfile,
-            token
+            token,
+            authError
         }}>
             {children}
         </AuthContext.Provider>

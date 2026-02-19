@@ -3,8 +3,16 @@ export const compressImage = (file: File, maxWidth = 800, quality = 0.7): Promis
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (event) => {
+            const result = event.target?.result as string;
+
+            // If it's a GIF, don't compress it as canvas would make it static
+            if (file.type === 'image/gif') {
+                resolve(result);
+                return;
+            }
+
             const img = new Image();
-            img.src = event.target?.result as string;
+            img.src = result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
                 let width = img.width;

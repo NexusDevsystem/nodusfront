@@ -191,6 +191,19 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         </svg>
     );
 
+    const PixIcon = ({ size = 18, className = "" }: { size?: number, className?: string }) => (
+        <svg
+            width={size}
+            height={size}
+            viewBox="0 0 16 16"
+            className={className}
+            fill="currentColor"
+        >
+            <path d="M7.40875 15.7481L1.07437 9.41438C0.84 9.18 0.84 8.79938 1.07437 8.565L3.385 6.25437C3.4975 6.14187 3.65125 6.07875 3.81062 6.07875H6.07812V3.81188C6.07812 3.6525 6.14125 3.49812 6.25375 3.38625L8.56437 1.07563C8.68125 0.95875 8.835 0.9 8.995 0.9C9.155 0.9 9.30875 0.95875 9.42562 1.07563L15.76 7.41C15.9944 7.64438 15.9944 8.025 15.76 8.25938L13.4494 10.57C13.3369 10.6825 13.1831 10.7456 13.0237 10.7456H10.7562V13.0131C10.7562 13.1725 10.6931 13.3269 10.5806 13.4388L8.27 15.7494C8.15125 15.8662 7.99937 15.925 7.83937 15.925C7.67937 15.925 7.52562 15.8662 7.40875 15.7481ZM8.995 1.96813L6.97812 3.985V6.57875C6.97812 6.85438 6.75375 7.07875 6.47812 7.07875H3.88437L1.96875 8.99438L7.84 14.8656L9.85687 12.8488V10.255C9.85687 9.97938 10.0812 9.755 10.3569 9.755H12.9506L14.8662 7.83938L8.995 1.96813ZM6.59125 7.57938H7.47625L7.995 8.09875L8.51375 7.57938H9.39875V8.46563L8.88 8.98438L9.39875 9.50313V10.3881H8.51375L7.995 9.86875L7.47625 10.3881H6.59125V9.50313L7.11 8.98438L6.59125 8.46563V7.57938Z" />
+            <path d="M11.2338 6.07812C11.3931 6.07812 11.5469 6.14125 11.6594 6.25375L13.97 8.56437C14.0869 8.68125 14.1456 8.835 14.1456 8.995C14.1456 9.155 14.0869 9.30875 13.97 9.42562L11.6594 11.7362C11.5469 11.8487 11.3931 11.9119 11.2338 11.9119H8.97312C8.6975 11.9119 8.47313 11.6875 8.47313 11.4119V9.14375C8.47313 8.98438 8.41 8.83 8.2975 8.71812L5.98687 6.4075C5.87 6.29062 5.81125 6.13687 5.81125 5.97687C5.81125 5.81687 5.87 5.66312 5.98687 5.54625L8.2975 3.23563C8.41 3.12313 8.56375 3.06 8.72312 3.06H10.9906C11.2662 3.06 11.4906 3.28438 11.4906 3.56V5.82812C11.4906 5.9875 11.5537 6.14188 11.6662 6.25375L13.9769 8.56437C14.0938 8.68125 14.1525 8.835 14.1525 8.995C14.1525 9.155 14.0938 9.30875 13.9769 9.42562L11.6662 11.7362C11.5537 11.8487 11.4 11.9119 11.2406 11.9119H8.97312" stroke="white" strokeWidth="0.2" />
+        </svg>
+    );
+
     const MusicRichCard: React.FC<{ link: LinkItem, handleLinkClick: (id: string) => void }> = ({ link, handleLinkClick }) => {
         const musicTitle = link.title || 'Música';
         const musicArtist = link.subtitle || 'Artista';
@@ -441,653 +454,616 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     fontStyle: (profile.fontItalic) ? 'italic' : 'normal'
                 }}
             >
-                <div>
-                    {/* Status Bar - Only for Preview Mode */}
-                    {isPreview && (
-                        <div className={`w-full px-6 pt-3 pb-2 flex justify-between items-center z-20 ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white' : 'text-slate-900'}`}>
-                            <span className="text-xs font-semibold tracking-wide">9:41</span>
-                            <div className="flex items-center gap-1.5 opacity-90">
-                                <Signal size={12} strokeWidth={2.5} />
-                                <Wifi size={12} strokeWidth={2.5} />
-                                <Battery size={14} strokeWidth={2.5} />
-                            </div>
+                {/* Status Bar - Only for Preview Mode */}
+                {isPreview && (
+                    <div className={`w-full px-6 pt-3 pb-2 flex justify-between items-center z-20 ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white' : 'text-slate-900'}`}>
+                        <span className="text-xs font-semibold tracking-wide">9:41</span>
+                        <div className="flex items-center gap-1.5 opacity-90">
+                            <Signal size={12} strokeWidth={2.5} />
+                            <Wifi size={12} strokeWidth={2.5} />
+                            <Battery size={14} strokeWidth={2.5} />
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    {/* Share Button */}
-                    {/* 
+                {/* Share Button */}
+                {/* 
             For public profile, we might want a real share button. 
             For now putting the mock one but maybe enabling it? 
             Let's keep it mock/visual for now as per original.
         */}
-                    <div className="absolute top-[34px] right-6 z-20">
-                        <button
-                            onClick={onShare}
-                            className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all"
-                        >
-                            <Share size={18} />
-                        </button>
+                <div className="absolute top-[34px] right-6 z-20">
+                    <button
+                        onClick={onShare}
+                        className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all"
+                    >
+                        <Share size={18} />
+                    </button>
+                </div>
+                {/* Menu / Options Button */}
+                <div className="absolute top-[34px] left-6 z-20">
+                    <div className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 transition-all">
+                        <img src="/icons/logo_icone.png" alt="Nodus" className="w-6 h-6 object-contain opacity-90 rounded-full" />
                     </div>
-                    {/* Menu / Options Button */}
-                    <div className="absolute top-[34px] left-6 z-20">
-                        <div className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 transition-all">
-                            <img src="/icons/logo_icone.png" alt="Nodus" className="w-6 h-6 object-contain opacity-90 rounded-full" />
+                </div>
+
+
+
+                {/* Custom CSS Injection */}
+                {profile.customCSS && (
+                    <style dangerouslySetInnerHTML={{ __html: profile.customCSS }} />
+                )}
+
+                <div className={`px-6 pb-2 ${isPreview ? 'pt-12' : 'pt-16'} flex flex-col`}>
+
+                    {/* Profile Section */}
+                    <motion.div className={`w-full mb-1 ${profile.headerLayout === 'compact'
+                        ? 'flex flex-row items-center gap-4 text-left'
+                        : 'flex flex-col items-center text-center'
+                        }`}>
+                        {/* Avatar */}
+                        {profile.avatarUrl && (
+                            <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? 'mb-0' : 'mb-4'
+                                }`}>
+                                <div className={`rounded-full overflow-hidden border-4 shadow-lg ${currentTheme.avatarBorder
+                                    } ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
+                                        profile.avatarSize === 'lg' ? 'w-32 h-32' :
+                                            'w-24 h-24' // default (md)
+                                    } ${profile.headerLayout === 'hero' ? 'w-40 h-40 border-[6px]' : ''
+                                    }`}>
+                                    <img
+                                        src={profile.avatarUrl}
+                                        alt={profile.name}
+                                        className="w-full h-full object-cover rounded-full"
+                                        onError={(e) => {
+                                            e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Name/Logo & Bio */}
+                        <div className={`flex flex-col ${profile.headerLayout === 'compact' ? 'items-start' : 'items-center'} ${profile.headerLayout === 'compact' ? 'flex-1 min-w-0' : ''}`}>
+                            <div className="flex items-center gap-2 justify-center w-full">
+                                {profile.headerStyle === 'logo' && profile.logoUrl ? (
+                                    <img
+                                        src={profile.logoUrl}
+                                        alt={profile.name}
+                                        className={`mb-2 object-contain ${profile.headerLayout === 'hero' ? 'h-20' : 'h-12'
+                                            }`}
+                                    />
+                                ) : (
+                                    <h3
+                                        className={`mb-0 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[1.6em]' : 'text-[1.3em]'}`}
+                                        style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                    >
+                                        {profile.name}
+                                        {profile.isVerified && (
+                                            <img
+                                                src={verifiedBadge}
+                                                alt="Verificado"
+                                                className="w-6 h-6 object-contain shrink-0"
+                                                title="Conta Verificada"
+                                            />
+                                        )}
+                                    </h3>
+                                )}
+                            </div>
+
+                            {tiktokFollowers !== undefined && (
+                                <div
+                                    className="flex items-center gap-1.5 mb-2 px-3 py-1 bg-black/10 backdrop-blur-md rounded-full text-[0.75rem] font-bold"
+                                    style={{ color: getSmartTextColor() }}
+                                >
+                                    <Music size={12} fill="currentColor" />
+                                    <span>{tiktokFollowers.toLocaleString()} Seguidores</span>
+                                </div>
+                            )}
+
+                            {profile.bio && (
+                                <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'}`}
+                                    style={{ ...mainTextColorStyle, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                >
+                                    {profile.bio}
+                                </p>
+                            )}
+
                         </div>
-                    </div>
+                    </motion.div>
 
+                    {/* Social Icons Row */}
+                    {socialLinks.length > 0 && (
+                        <div className="flex items-center justify-center gap-2 mb-1 flex-wrap relative">
+                            {socialLinks.map(link => {
+                                const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
+                                    SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id)) ||
+                                    SOCIAL_NETWORKS[0];
 
+                                const Icon = network.icon || Globe;
 
-                    {/* Custom CSS Injection */}
-                    {profile.customCSS && (
-                        <style dangerouslySetInnerHTML={{ __html: profile.customCSS }} />
+                                return (
+                                    <motion.a
+                                        key={link.id}
+                                        layout
+                                        initial={{ scale: 0.8, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                                        href={link.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        onClick={() => handleLinkClick(link.id)}
+                                        className={`transition-all duration-300 ${roundedClass || 'rounded-full'} p-2`}
+                                        style={{
+                                            ...mainTextColorStyle
+                                        }}
+                                    >
+                                        <Icon size={24} />
+                                    </motion.a>
+                                );
+                            })}
+                        </div>
                     )}
 
-                    {/* Content Scrollable Area */}
-                    <div className={`px-6 pb-32 ${isPreview ? 'pt-12' : 'pt-16'} flex-1 flex flex-col min-h-full`}>
 
-                        {/* Profile Section */}
-                        <motion.div className={`w-full mb-1 ${profile.headerLayout === 'compact'
-                            ? 'flex flex-row items-center gap-4 text-left'
-                            : 'flex flex-col items-center text-center'
-                            }`}>
-                            {/* Avatar */}
-                            {profile.avatarUrl && (
-                                <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? 'mb-0' : 'mb-4'
-                                    }`}>
-                                    <div className={`rounded-full overflow-hidden border-4 shadow-lg ${currentTheme.avatarBorder
-                                        } ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
-                                            profile.avatarSize === 'lg' ? 'w-32 h-32' :
-                                                'w-24 h-24' // default (md)
-                                        } ${profile.headerLayout === 'hero' ? 'w-40 h-40 border-[6px]' : ''
-                                        }`}>
-                                        <img
-                                            src={profile.avatarUrl}
-                                            alt={profile.name}
-                                            className="w-full h-full object-cover rounded-full"
-                                            onError={(e) => {
-                                                e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            )}
 
-                            {/* Name/Logo & Bio */}
-                            <div className={`flex flex-col ${profile.headerLayout === 'compact' ? 'items-start' : 'items-center'} ${profile.headerLayout === 'compact' ? 'flex-1 min-w-0' : ''}`}>
-                                <div className="flex items-center gap-2 justify-center w-full">
-                                    {profile.headerStyle === 'logo' && profile.logoUrl ? (
-                                        <img
-                                            src={profile.logoUrl}
-                                            alt={profile.name}
-                                            className={`mb-2 object-contain ${profile.headerLayout === 'hero' ? 'h-20' : 'h-12'
-                                                }`}
-                                        />
-                                    ) : (
-                                        <h3
-                                            className={`mb-0 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[1.6em]' : 'text-[1.3em]'}`}
+                    {/* TABS (Links / Shop) - Only if products exist */}
+                    {products.length > 0 && (
+                        <div className="w-full mb-6 px-1 flex justify-center">
+                            <div className={`w-auto min-w-[180px] p-1 rounded-full flex relative ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'bg-white/10' : 'bg-slate-200/60'}`}>
+                                {/* Sliding background could be complex, sticking to simple conditional classes for now */}
+                                <button
+                                    onClick={() => setActiveTab('links')}
+                                    className={`flex-1 py-1.5 rounded-full text-sm transition-all duration-300 ${activeTab === 'links'
+                                        ? 'bg-white text-slate-900 shadow-sm'
+                                        : 'opacity-70 hover:opacity-100'
+                                        }`}
+                                    style={{
+                                        ...(activeTab === 'links' ? {} : mainTextColorStyle),
+                                        fontWeight: (profile.fontWeight || undefined),
+                                        fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                                    }}
+                                >
+                                    Links
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('shop')}
+                                    className={`flex-1 py-1.5 rounded-full text-sm transition-all duration-300 ${activeTab === 'shop'
+                                        ? 'bg-white text-slate-900 shadow-sm'
+                                        : 'opacity-70 hover:opacity-100'
+                                        }`}
+                                    style={{
+                                        ...(activeTab === 'shop' ? {} : mainTextColorStyle),
+                                        fontWeight: (profile.fontWeight || undefined),
+                                        fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                                    }}
+                                >
+                                    Loja
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+
+                    {/* Main Dynamic Content Area */}
+                    <AnimatePresence mode="popLayout" initial={false}>
+                        {/* SHOP VIEW (Collections or Grid) */}
+                        {products.length > 0 && activeTab === 'shop' && (
+                            <motion.div
+                                key="shop-tab"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0 }}
+                                className="w-full space-y-4"
+                            >
+
+                                {/* Collection List View */}
+                                {!activeCollection ? (
+                                    <div className="space-y-6">
+                                        <div
+                                            className={`flex items-center gap-2.5 mb-2 text-xs font-bold uppercase tracking-widest opacity-60 px-1`}
                                             style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                         >
-                                            {profile.name}
-                                            {profile.isVerified && (
-                                                <img
-                                                    src={verifiedBadge}
-                                                    alt="Verificado"
-                                                    className="w-6 h-6 object-contain shrink-0"
-                                                    title="Conta Verificada"
-                                                />
-                                            )}
-                                        </h3>
-                                    )}
-                                </div>
+                                            <ShoppingBag size={14} className="stroke-[2.5]" />
+                                            <span>Categorias</span>
+                                        </div>
 
-                                {tiktokFollowers !== undefined && (
-                                    <div
-                                        className="flex items-center gap-1.5 mb-2 px-3 py-1 bg-black/10 backdrop-blur-md rounded-full text-[0.75rem] font-bold"
-                                        style={{ color: getSmartTextColor() }}
-                                    >
-                                        <Music size={12} fill="currentColor" />
-                                        <span>{tiktokFollowers.toLocaleString()} Seguidores</span>
-                                    </div>
-                                )}
-
-                                {profile.bio && (
-                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'}`}
-                                        style={{ ...mainTextColorStyle, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                    >
-                                        {profile.bio}
-                                    </p>
-                                )}
-
-                            </div>
-                        </motion.div>
-
-                        {/* Social Icons Row */}
-                        {socialLinks.length > 0 && (
-                            <div className="flex items-center justify-center gap-2 mb-1 flex-wrap relative">
-                                {socialLinks.map(link => {
-                                    const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
-                                        SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id)) ||
-                                        SOCIAL_NETWORKS[0];
-
-                                    const Icon = network.icon || Globe;
-
-                                    return (
-                                        <motion.a
-                                            key={link.id}
-                                            layout
-                                            initial={{ scale: 0.8, opacity: 0 }}
-                                            animate={{ scale: 1, opacity: 1 }}
-                                            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                                            href={link.url}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            onClick={() => handleLinkClick(link.id)}
-                                            className={`transition-all duration-300 ${roundedClass || 'rounded-full'} p-2`}
-                                            style={{
-                                                ...mainTextColorStyle
-                                            }}
-                                        >
-                                            <Icon size={24} />
-                                        </motion.a>
-                                    );
-                                })}
-                            </div>
-                        )}
-
-
-
-                        {/* TABS (Links / Shop) - Only if products exist */}
-                        {products.length > 0 && (
-                            <div className="w-full mb-6 px-1 flex justify-center">
-                                <div className={`w-auto min-w-[180px] p-1 rounded-full flex relative ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'bg-white/10' : 'bg-slate-200/60'}`}>
-                                    {/* Sliding background could be complex, sticking to simple conditional classes for now */}
-                                    <button
-                                        onClick={() => setActiveTab('links')}
-                                        className={`flex-1 py-1.5 rounded-full text-sm transition-all duration-300 ${activeTab === 'links'
-                                            ? 'bg-white text-slate-900 shadow-sm'
-                                            : 'opacity-70 hover:opacity-100'
-                                            }`}
-                                        style={{
-                                            ...(activeTab === 'links' ? {} : mainTextColorStyle),
-                                            fontWeight: (profile.fontWeight || undefined),
-                                            fontStyle: profile.fontItalic ? 'italic' : 'normal'
-                                        }}
-                                    >
-                                        Links
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab('shop')}
-                                        className={`flex-1 py-1.5 rounded-full text-sm transition-all duration-300 ${activeTab === 'shop'
-                                            ? 'bg-white text-slate-900 shadow-sm'
-                                            : 'opacity-70 hover:opacity-100'
-                                            }`}
-                                        style={{
-                                            ...(activeTab === 'shop' ? {} : mainTextColorStyle),
-                                            fontWeight: (profile.fontWeight || undefined),
-                                            fontStyle: profile.fontItalic ? 'italic' : 'normal'
-                                        }}
-                                    >
-                                        Loja
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-
-                        {/* Main Dynamic Content Area */}
-                        <AnimatePresence mode="popLayout" initial={false}>
-                            {/* SHOP VIEW (Collections or Grid) */}
-                            {products.length > 0 && activeTab === 'shop' && (
-                                <motion.div
-                                    key="shop-tab"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0 }}
-                                    className="w-full space-y-4"
-                                >
-
-                                    {/* Collection List View */}
-                                    {!activeCollection ? (
-                                        <div className="space-y-6">
-                                            <div
-                                                className={`flex items-center gap-2.5 mb-2 text-xs font-bold uppercase tracking-widest opacity-60 px-1`}
-                                                style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                        {Object.entries(collections).map(([name, items]) => (
+                                            <button
+                                                key={name}
+                                                onClick={() => handleCollectionClick(name)}
+                                                className={`w-full group relative transition-all duration-300 ${cleanClass(baseCardClass, ['bg', 'text']).replace('overflow-hidden', '')}`}
+                                                style={{
+                                                    ...mainButtonStyle,
+                                                    backgroundColor: buttonHex,
+                                                    color: getSmartTextColor()
+                                                }}
                                             >
-                                                <ShoppingBag size={14} className="stroke-[2.5]" />
-                                                <span>Categorias</span>
-                                            </div>
-
-                                            {Object.entries(collections).map(([name, items]) => (
+                                                <div className={`flex flex-col w-full h-full overflow-hidden ${roundedClass}`}>
+                                                    {/* Preview Images Collage - Refined */}
+                                                    <div className="flex h-48 w-full gap-1 p-1 bg-black/5">
+                                                        {items.length === 1 ? (
+                                                            <div className="flex-1 h-full relative overflow-hidden rounded-xl">
+                                                                <img src={items[0].image} alt={items[0].name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" />
+                                                                <div className="absolute inset-0 bg-black/5" />
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                {items.slice(0, 3).map((item, i) => (
+                                                                    <div key={item.id} className={`flex-1 h-full relative overflow-hidden ${i === 0 ? 'rounded-l-xl' : i === items.slice(0, 3).length - 1 ? 'rounded-r-xl' : ''}`}>
+                                                                        <img src={item.image} alt={item.name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" />
+                                                                        <div className="absolute inset-0 bg-black/5" />
+                                                                    </div>
+                                                                ))}
+                                                                {/* Placeholder if less than 3 items */}
+                                                                {items.length < 3 && Array.from({ length: 3 - items.length }).map((_, i) => (
+                                                                    <div key={`empty-${i}`} className="flex-1 h-full bg-slate-100/50 flex items-center justify-center text-slate-300">
+                                                                        <ShoppingBag size={24} strokeWidth={1.5} />
+                                                                    </div>
+                                                                ))}
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                    <div className="p-4 flex items-center justify-between bg-black/5">
+                                                        <div className="text-left">
+                                                            <h3 className="text-sm font-bold" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
+                                                            <p className="text-[10px] font-bold uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                {items.length} {items.length === 1 ? 'Produto' : 'Produtos'}
+                                                            </p>
+                                                        </div>
+                                                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center transition-colors">
+                                                            <ChevronRight size={16} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    /* Filtered Product Grid - Refined Storefront */
+                                    <div className="relative">
+                                        <div className="flex items-center justify-between mb-8 px-1">
+                                            <div className="flex flex-col">
                                                 <button
-                                                    key={name}
-                                                    onClick={() => handleCollectionClick(name)}
-                                                    className={`w-full group relative transition-all duration-300 ${cleanClass(baseCardClass, ['bg', 'text']).replace('overflow-hidden', '')}`}
-                                                    style={{
-                                                        ...mainButtonStyle,
-                                                        backgroundColor: buttonHex,
-                                                        color: getSmartTextColor()
-                                                    }}
+                                                    onClick={() => setActiveCollection(null)}
+                                                    className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest opacity-50 hover:opacity-100 transition-all mb-1.5`}
+                                                    style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                 >
-                                                    <div className={`flex flex-col w-full h-full overflow-hidden ${roundedClass}`}>
-                                                        {/* Preview Images Collage - Refined */}
-                                                        <div className="flex h-48 w-full gap-1 p-1 bg-black/5">
-                                                            {items.length === 1 ? (
-                                                                <div className="flex-1 h-full relative overflow-hidden rounded-xl">
-                                                                    <img src={items[0].image} alt={items[0].name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" />
-                                                                    <div className="absolute inset-0 bg-black/5" />
+                                                    <ChevronLeft size={12} strokeWidth={3} />
+                                                    <span>Voltar</span>
+                                                </button>
+                                                <h2 className={`text-xl font-black tracking-tight`} style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                    {activeCollection}
+                                                </h2>
+                                            </div>
+                                            <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
+                                                <ShoppingBag size={20} className="opacity-40" />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4 pb-12">
+                                            {activeCollection && collections[activeCollection]?.map(product => {
+                                                const productContent = (
+                                                    <div className="flex flex-col w-full h-full relative">
+                                                        <div className={`relative w-full aspect-[4/5] transform transition-transform group-hover:scale-[1.02] duration-300`}>
+                                                            <div className={`absolute inset-0 overflow-hidden ${roundedClass} border-none shadow-none`} style={{ backgroundColor: buttonHex, ...mainButtonStyle }}>
+                                                                <img src={product.image} alt={product.name} className="w-full h-full block object-cover" />
+                                                                <div className="absolute inset-0 bg-black/5" />
+
+                                                                {/* Badge container with high z-index and clip safety */}
+                                                                <div className="absolute top-2 left-2 z-10">
+                                                                    {product.discountCode && (
+                                                                        <div className="bg-slate-950/90 text-white text-[9px] font-black uppercase tracking-tighter px-2 py-1 rounded-lg">
+                                                                            -{product.discountCode}
+                                                                        </div>
+                                                                    )}
                                                                 </div>
-                                                            ) : (
-                                                                <>
-                                                                    {items.slice(0, 3).map((item, i) => (
-                                                                        <div key={item.id} className={`flex-1 h-full relative overflow-hidden ${i === 0 ? 'rounded-l-xl' : i === items.slice(0, 3).length - 1 ? 'rounded-r-xl' : ''}`}>
-                                                                            <img src={item.image} alt={item.name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" />
-                                                                            <div className="absolute inset-0 bg-black/5" />
-                                                                        </div>
-                                                                    ))}
-                                                                    {/* Placeholder if less than 3 items */}
-                                                                    {items.length < 3 && Array.from({ length: 3 - items.length }).map((_, i) => (
-                                                                        <div key={`empty-${i}`} className="flex-1 h-full bg-slate-100/50 flex items-center justify-center text-slate-300">
-                                                                            <ShoppingBag size={24} strokeWidth={1.5} />
-                                                                        </div>
-                                                                    ))}
-                                                                </>
+                                                            </div>
+
+                                                            {/* Hover Action Overlay - Also needs to be clipped by the same shape */}
+                                                            <div className={`absolute inset-0 ${roundedClass} bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none`}>
+                                                                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-950 shadow-xl scale-90 group-hover:scale-100 transition-transform">
+                                                                    <Plus size={20} />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Product Info */}
+                                                        <div className="flex flex-col gap-0.5 mt-2 px-1 text-left">
+                                                            <span className={`text-[13px] font-bold truncate`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                {product.name}
+                                                            </span>
+                                                            {product.price && (
+                                                                <span className={`text-[11px] font-medium opacity-70 mt-2`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                    {product.price}
+                                                                </span>
                                                             )}
                                                         </div>
-                                                        <div className="p-4 flex items-center justify-between bg-black/5">
-                                                            <div className="text-left">
-                                                                <h3 className="text-sm font-bold" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
-                                                                <p className="text-[10px] font-bold uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                    {items.length} {items.length === 1 ? 'Produto' : 'Produtos'}
-                                                                </p>
-                                                            </div>
-                                                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center transition-colors">
-                                                                <ChevronRight size={16} />
-                                                            </div>
-                                                        </div>
                                                     </div>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        /* Filtered Product Grid - Refined Storefront */
-                                        <div className="relative">
-                                            <div className="flex items-center justify-between mb-8 px-1">
-                                                <div className="flex flex-col">
-                                                    <button
-                                                        onClick={() => setActiveCollection(null)}
-                                                        className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest opacity-50 hover:opacity-100 transition-all mb-1.5`}
-                                                        style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                );
+
+                                                return (
+                                                    <a
+                                                        key={product.id}
+                                                        href={product.url}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        onClick={() => handleLinkClick(product.id)}
+                                                        className={`flex flex-col group relative transition-all duration-300`}
                                                     >
-                                                        <ChevronLeft size={12} strokeWidth={3} />
-                                                        <span>Voltar</span>
-                                                    </button>
-                                                    <h2 className={`text-xl font-black tracking-tight`} style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                        {activeCollection}
-                                                    </h2>
-                                                </div>
-                                                <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
-                                                    <ShoppingBag size={20} className="opacity-40" />
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-4 pb-12">
-                                                {activeCollection && collections[activeCollection]?.map(product => {
-                                                    const productContent = (
-                                                        <div className="flex flex-col w-full h-full relative">
-                                                            <div className={`relative w-full aspect-[4/5] transform transition-transform group-hover:scale-[1.02] duration-300`}>
-                                                                <div className={`absolute inset-0 overflow-hidden ${roundedClass} border-none shadow-none`} style={{ backgroundColor: buttonHex, ...mainButtonStyle }}>
-                                                                    <img src={product.image} alt={product.name} className="w-full h-full block object-cover" />
-                                                                    <div className="absolute inset-0 bg-black/5" />
-
-                                                                    {/* Badge container with high z-index and clip safety */}
-                                                                    <div className="absolute top-2 left-2 z-10">
-                                                                        {product.discountCode && (
-                                                                            <div className="bg-slate-950/90 text-white text-[9px] font-black uppercase tracking-tighter px-2 py-1 rounded-lg">
-                                                                                -{product.discountCode}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-
-                                                                {/* Hover Action Overlay - Also needs to be clipped by the same shape */}
-                                                                <div className={`absolute inset-0 ${roundedClass} bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none`}>
-                                                                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-950 shadow-xl scale-90 group-hover:scale-100 transition-transform">
-                                                                        <Plus size={20} />
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Product Info */}
-                                                            <div className="flex flex-col gap-0.5 mt-2 px-1 text-left">
-                                                                <span className={`text-[13px] font-bold truncate`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                    {product.name}
-                                                                </span>
-                                                                {product.price && (
-                                                                    <span className={`text-[11px] font-medium opacity-70 mt-2`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                        {product.price}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    );
-
-                                                    return (
-                                                        <a
-                                                            key={product.id}
-                                                            href={product.url}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            onClick={() => handleLinkClick(product.id)}
-                                                            className={`flex flex-col group relative transition-all duration-300`}
-                                                        >
-                                                            {productContent}
-                                                        </a>
-                                                    );
-                                                })}
-                                            </div>
+                                                        {productContent}
+                                                    </a>
+                                                );
+                                            })}
                                         </div>
-                                    )}
-                                </motion.div>
-                            )}
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
 
-                            {/* Button Links List - Show if activeTab matches OR no products */}
-                            {(products.length === 0 || activeTab === 'links') && (
-                                <motion.div
-                                    key="links-tab"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0 }}
-                                    className="flex flex-col gap-4 w-full flex-1 relative"
-                                >
-                                    {(() => {
-                                        const renderedItems: React.ReactNode[] = [];
+                        {/* Button Links List - Show if activeTab matches OR no products */}
+                        {(products.length === 0 || activeTab === 'links') && (
+                            <motion.div
+                                key="links-tab"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0 }}
+                                className="flex flex-col gap-4 w-full relative"
+                            >
+                                {(() => {
+                                    const renderedItems: React.ReactNode[] = [];
 
-                                        // We no longer inject here at the top.
-                                        // It will be rendered at its position in the loop below.
+                                    // We no longer inject here at the top.
+                                    // It will be rendered at its position in the loop below.
 
-                                        const themeButtonHex = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#0f172a');
-                                        const cardAccentColor = themeButtonHex;
-                                        const cardTextColor = (isDarkTheme || currentTheme.id === 'glass' ? '#ffffff' : '#0f172a');
+                                    const themeButtonHex = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#0f172a');
+                                    const cardAccentColor = themeButtonHex;
+                                    const cardTextColor = (isDarkTheme || currentTheme.id === 'glass' ? '#ffffff' : '#0f172a');
 
-                                        let currentIconGroup: LinkItem[] = [];
-                                        let currentCardGroup: LinkItem[] = [];
+                                    let currentIconGroup: LinkItem[] = [];
+                                    let currentCardGroup: LinkItem[] = [];
 
-                                        const flushIcons = () => {
-                                            if (currentIconGroup.length > 0) {
-                                                const group = [...currentIconGroup];
-                                                renderedItems.push(
-                                                    <div key={`social-row-${group[0].id}`} className="flex items-center justify-center gap-2 w-full mb-3 flex-wrap relative">
-                                                        {group.map(iconLink => {
-                                                            const network = SOCIAL_NETWORKS.find(n => iconLink.title.toLowerCase().includes(n.id)) ||
-                                                                SOCIAL_NETWORKS.find(n => iconLink.url.toLowerCase().includes(n.id)) ||
-                                                                SOCIAL_NETWORKS[0];
+                                    const flushIcons = () => {
+                                        if (currentIconGroup.length > 0) {
+                                            const group = [...currentIconGroup];
+                                            renderedItems.push(
+                                                <div key={`social-row-${group[0].id}`} className="flex items-center justify-center gap-2 w-full mb-3 flex-wrap relative">
+                                                    {group.map(iconLink => {
+                                                        const network = SOCIAL_NETWORKS.find(n => iconLink.title.toLowerCase().includes(n.id)) ||
+                                                            SOCIAL_NETWORKS.find(n => iconLink.url.toLowerCase().includes(n.id)) ||
+                                                            SOCIAL_NETWORKS[0];
 
-                                                            const Icon = network.icon || Globe;
+                                                        const Icon = network.icon || Globe;
 
-                                                            return (
-                                                                <motion.a
-                                                                    key={iconLink.id}
-                                                                    initial={{ scale: 0.8, opacity: 0 }}
-                                                                    animate={{ scale: 1, opacity: 1 }}
-                                                                    transition={{ duration: 0 }}
-                                                                    href={iconLink.url}
-                                                                    onClick={() => handleLinkClick(iconLink.id)}
-                                                                    // AQUI: Aplicamos buttonClass (limpa) para que o ícone social tenha o mesmo "feel" do botão (hover, shadow)
-                                                                    // Removemos classes de layout/padding do botão para que não quebre o ícone
-                                                                    className={`relative group flex items-center justify-center w-12 h-12 transition-all duration-300 ${buttonClass.replace(/\b(block|w-full|min-h-\[.*?\]|px-\d+(\.\d+)?|py-\d+(\.\d+)?|justify-between|text-center)\b/g, '').trim()}`}
-                                                                    style={{ ...mainButtonStyle, borderRadius: borderRadiusValue }} // Força o estilo do botão (cor e redondura)
-                                                                >
-                                                                    <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${currentTheme.id.includes('dark') ? 'bg-white' : 'bg-black'}`}></div>
+                                                        return (
+                                                            <motion.a
+                                                                key={iconLink.id}
+                                                                initial={{ scale: 0.8, opacity: 0 }}
+                                                                animate={{ scale: 1, opacity: 1 }}
+                                                                transition={{ duration: 0 }}
+                                                                href={iconLink.url}
+                                                                onClick={() => handleLinkClick(iconLink.id)}
+                                                                // AQUI: Aplicamos buttonClass (limpa) para que o ícone social tenha o mesmo "feel" do botão (hover, shadow)
+                                                                // Removemos classes de layout/padding do botão para que não quebre o ícone
+                                                                className={`relative group flex items-center justify-center w-12 h-12 transition-all duration-300 ${buttonClass.replace(/\b(block|w-full|min-h-\[.*?\]|px-\d+(\.\d+)?|py-\d+(\.\d+)?|justify-between|text-center)\b/g, '').trim()}`}
+                                                                style={{ ...mainButtonStyle, borderRadius: borderRadiusValue }} // Força o estilo do botão (cor e redondura)
+                                                            >
+                                                                <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${currentTheme.id.includes('dark') ? 'bg-white' : 'bg-black'}`}></div>
 
-                                                                    <div className="relative z-10 p-1">
-                                                                        {iconLink.image ? (
-                                                                            <img src={iconLink.image} alt="" className="w-8 h-8 rounded-lg object-cover" />
-                                                                        ) : (
-                                                                            <Icon size={28} />
-                                                                        )}
-                                                                    </div>
-                                                                </motion.a>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                );
-                                                currentIconGroup = [];
-                                            }
-                                        };
-
-                                        const flushCards = () => {
-                                            if (currentCardGroup.length > 0) {
-                                                const group = [...currentCardGroup];
-                                                renderedItems.push(
-                                                    <div key={`card-grid-${group[0].id}`} className="flex flex-col gap-4 mb-8">
-                                                        {group.map((cardLink) => {
-                                                            const cardBg = cardAccentColor;
-                                                            const cardContent = (
-                                                                <div className="relative z-10 flex flex-col h-full w-full">
-                                                                    <div
-                                                                        className="relative overflow-hidden h-44 md:h-52"
-                                                                        style={{ backgroundColor: cardBg + '1A' }}
-                                                                    >
-                                                                        {cardLink.image ? (
-                                                                            <img src={cardLink.image} alt="" className="w-full h-full object-cover transition-transform duration-700" />
-                                                                        ) : (
-                                                                            <div className="w-full h-full flex items-center justify-center opacity-10">
-                                                                                <Globe size={40} />
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                    <div className={`p-3.5 flex flex-col justify-center items-center text-center h-16 relative`}>
-                                                                        {/* Platform Icon Footer for Music in standard Cards */}
-                                                                        {isMusicLink(cardLink) && (
-                                                                            <div className="absolute top-1.5 right-1.5 opacity-60">
-                                                                                {cardLink.url.includes('deezer') ? (
-                                                                                    <DeezerIcon size={10} color={getSmartTextColor()} />
-                                                                                ) : (
-                                                                                    <SiSpotify size={10} color={isButtonLight ? "#1a2c14" : "#1DB954"} />
-                                                                                )}
-                                                                            </div>
-                                                                        )}
-                                                                        <span className="text-[0.95em] leading-tight truncate px-1" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.title}</span>
-                                                                        {cardLink.subtitle && <span className="text-[0.75em] leading-tight truncate px-1 opacity-60 mt-1.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.subtitle}</span>}
-                                                                    </div>
+                                                                <div className="relative z-10 p-1">
+                                                                    {iconLink.image ? (
+                                                                        <img src={iconLink.image} alt="" className="w-8 h-8 rounded-lg object-cover" />
+                                                                    ) : (
+                                                                        <Icon size={28} />
+                                                                    )}
                                                                 </div>
-                                                            );
+                                                            </motion.a>
+                                                        );
+                                                    })}
+                                                </div>
+                                            );
+                                            currentIconGroup = [];
+                                        }
+                                    };
 
-                                                            return (
-                                                                <motion.a
-                                                                    key={cardLink.id}
-                                                                    initial={{ scale: 0.95, opacity: 0 }}
-                                                                    whileInView={{ scale: 1, opacity: 1 }}
-                                                                    viewport={{ once: true }}
-                                                                    href={cardLink.url}
-                                                                    target="_blank"
-                                                                    rel="noreferrer"
-                                                                    onClick={() => handleLinkClick(cardLink.id)}
-                                                                    className={`group relative overflow-hidden transition-all duration-300 w-full ${baseCardClass}`}
-                                                                    style={{ ...mainButtonStyle, backgroundColor: buttonHex }}
+                                    const flushCards = () => {
+                                        if (currentCardGroup.length > 0) {
+                                            const group = [...currentCardGroup];
+                                            renderedItems.push(
+                                                <div key={`card-grid-${group[0].id}`} className="flex flex-col gap-4 mb-8">
+                                                    {group.map((cardLink) => {
+                                                        const cardBg = cardAccentColor;
+                                                        const cardContent = (
+                                                            <div className="relative z-10 flex flex-col h-full w-full">
+                                                                <div
+                                                                    className="relative overflow-hidden h-44 md:h-52"
+                                                                    style={{ backgroundColor: cardBg + '1A' }}
                                                                 >
-                                                                    {cardContent}
-                                                                </motion.a>
-                                                            );
-                                                        })}
-                                                    </div>
+                                                                    {cardLink.image ? (
+                                                                        <img src={cardLink.image} alt="" className="w-full h-full object-cover transition-transform duration-700" />
+                                                                    ) : (
+                                                                        <div className="w-full h-full flex items-center justify-center opacity-10">
+                                                                            <Globe size={40} />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                <div className={`p-3.5 flex flex-col justify-center items-center text-center h-16 relative`}>
+                                                                    {/* Platform Icon Footer for Music in standard Cards */}
+                                                                    {isMusicLink(cardLink) && (
+                                                                        <div className="absolute top-1.5 right-1.5 opacity-60">
+                                                                            {cardLink.url.includes('deezer') ? (
+                                                                                <DeezerIcon size={10} color={getSmartTextColor()} />
+                                                                            ) : (
+                                                                                <SiSpotify size={10} color={isButtonLight ? "#1a2c14" : "#1DB954"} />
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                    <span className="text-[0.95em] leading-tight truncate px-1" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.title}</span>
+                                                                    {cardLink.subtitle && <span className="text-[0.75em] leading-tight truncate px-1 opacity-60 mt-1.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.subtitle}</span>}
+                                                                </div>
+                                                            </div>
+                                                        );
+
+                                                        return (
+                                                            <motion.a
+                                                                key={cardLink.id}
+                                                                initial={{ scale: 0.95, opacity: 0 }}
+                                                                whileInView={{ scale: 1, opacity: 1 }}
+                                                                viewport={{ once: true }}
+                                                                href={cardLink.url}
+                                                                target="_blank"
+                                                                rel="noreferrer"
+                                                                onClick={() => handleLinkClick(cardLink.id)}
+                                                                className={`group relative overflow-hidden transition-all duration-300 w-full ${baseCardClass}`}
+                                                                style={{ ...mainButtonStyle, backgroundColor: buttonHex }}
+                                                            >
+                                                                {cardContent}
+                                                            </motion.a>
+                                                        );
+                                                    })}
+                                                </div>
+                                            );
+                                            currentCardGroup = [];
+                                        }
+                                    };
+
+                                    buttonLinks.forEach(link => {
+                                        if (link.type === 'collection' && (link.platform === 'instagram' || link.title === 'Posts do Instagram')) {
+                                            // 1. Instagram Collection special rendering (Priority)
+                                            flushIcons();
+                                            flushCards();
+
+                                            if (instagramIntegration) {
+                                                // Map children links to the format expected by InstagramCard
+                                                const collectionMedia = (link.children || []).map(c => ({
+                                                    id: c.id,
+                                                    media_url: c.image,
+                                                    thumbnail_url: c.image,
+                                                    permalink: c.url,
+                                                    caption: c.title,
+                                                    media_type: c.videoUrl ? 'VIDEO' : 'IMAGE'
+                                                }));
+
+                                                renderedItems.push(
+                                                    <motion.div
+                                                        key={`instagram-card-${link.id}`}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        whileInView={{ opacity: 1, y: 0 }}
+                                                        viewport={{ once: true }}
+                                                        className={`w-full mb-4 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
+                                                    >
+                                                        <div
+                                                            className={`text-center mb-2 opacity-90 text-sm font-bold uppercase tracking-widest`}
+                                                            style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                        >
+                                                            {link.title}
+                                                        </div>
+                                                        <InstagramCard
+                                                            username={instagramUsername || 'instagram_user'}
+                                                            followers={instagramFollowers || 0}
+                                                            avatarUrl={instagramAvatar || ''}
+                                                            media={collectionMedia.length > 0 ? collectionMedia : instagramMedia}
+                                                            themeButtonClass={baseCardClass}
+                                                            themeButtonStyle={mainButtonStyle}
+                                                            themeTextHex={getSmartTextColor()}
+                                                            buttonRoundness={roundedClass || undefined}
+                                                            isDark={isDarkTheme}
+                                                            variant={link.layout === 'classic' ? 'profile' : 'feed'}
+                                                            fontFamily={profile.fontFamily}
+                                                            fontWeight={profile.fontWeight || undefined}
+                                                            fontItalic={profile.fontItalic}
+                                                        />
+                                                    </motion.div>
                                                 );
-                                                currentCardGroup = [];
                                             }
-                                        };
+                                        } else if (link.type === 'header') {
+                                            flushIcons();
+                                            flushCards();
 
-                                        buttonLinks.forEach(link => {
-                                            if (link.type === 'collection' && (link.platform === 'instagram' || link.title === 'Posts do Instagram')) {
-                                                // 1. Instagram Collection special rendering (Priority)
-                                                flushIcons();
-                                                flushCards();
+                                            renderedItems.push(
+                                                <motion.div
+                                                    key={`header-${link.id}`}
+                                                    initial={{ opacity: 0, scale: 0.98 }}
+                                                    whileInView={{ opacity: 1, scale: 1 }}
+                                                    viewport={{ once: true }}
+                                                    className={`w-full text-center py-2 mb-1 mt-1 opacity-80`}
+                                                    style={{
+                                                        ...mainTextColorStyle,
+                                                        fontWeight: 'bold',
+                                                        fontSize: '1.1em',
+                                                        letterSpacing: '0.05em',
+                                                        textTransform: 'uppercase'
+                                                    }}
+                                                >
+                                                    {link.title}
+                                                </motion.div>
+                                            );
+                                        } else if (link.layout === 'icon') {
+                                            flushCards();
+                                            currentIconGroup.push(link);
+                                        } else if (link.layout === 'card') {
+                                            flushIcons();
+                                            currentCardGroup.push(link);
+                                        } else {
+                                            flushIcons();
+                                            flushCards();
 
-                                                if (instagramIntegration) {
-                                                    // Map children links to the format expected by InstagramCard
-                                                    const collectionMedia = (link.children || []).map(c => ({
-                                                        id: c.id,
-                                                        media_url: c.image,
-                                                        thumbnail_url: c.image,
-                                                        permalink: c.url,
-                                                        caption: c.title,
-                                                        media_type: c.videoUrl ? 'VIDEO' : 'IMAGE'
-                                                    }));
+                                            const activeChildren = link.children?.filter(c => c.isActive) || [];
+
+                                            if (activeChildren.length > 0) {
+                                                const collectionLayout = (link.layout === 'carousel') ? 'carousel' : (link.layout === 'grid' ? 'grid' : 'stacked');
+
+                                                if (collectionLayout === 'carousel') {
+                                                    const scrollContainerId = `scroll-${link.id}`;
+                                                    const scroll = (direction: 'left' | 'right') => {
+                                                        const container = document.getElementById(scrollContainerId);
+                                                        if (container) {
+                                                            const scrollAmount = 250;
+                                                            container.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+                                                        }
+                                                    };
 
                                                     renderedItems.push(
-                                                        <motion.div
-                                                            key={`instagram-card-${link.id}`}
-                                                            initial={{ opacity: 0, y: 10 }}
-                                                            whileInView={{ opacity: 1, y: 0 }}
-                                                            viewport={{ once: true }}
-                                                            className={`w-full mb-4 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
-                                                        >
+                                                        <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 group/carousel ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
                                                             <div
-                                                                className={`text-center mb-2 opacity-90 text-sm font-bold uppercase tracking-widest`}
+                                                                className={`text-center mb-2 font-bold opacity-90 text-sm uppercase tracking-widest`}
                                                                 style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                             >
                                                                 {link.title}
                                                             </div>
-                                                            <InstagramCard
-                                                                username={instagramUsername || 'instagram_user'}
-                                                                followers={instagramFollowers || 0}
-                                                                avatarUrl={instagramAvatar || ''}
-                                                                media={collectionMedia.length > 0 ? collectionMedia : instagramMedia}
-                                                                themeButtonClass={baseCardClass}
-                                                                themeButtonStyle={mainButtonStyle}
-                                                                themeTextHex={getSmartTextColor()}
-                                                                buttonRoundness={roundedClass || undefined}
-                                                                isDark={isDarkTheme}
-                                                                variant={link.layout === 'classic' ? 'profile' : 'feed'}
-                                                                fontFamily={profile.fontFamily}
-                                                                fontWeight={profile.fontWeight || undefined}
-                                                                fontItalic={profile.fontItalic}
-                                                            />
-                                                        </motion.div>
-                                                    );
-                                                }
-                                            } else if (link.type === 'header') {
-                                                flushIcons();
-                                                flushCards();
-
-                                                renderedItems.push(
-                                                    <motion.div
-                                                        key={`header-${link.id}`}
-                                                        initial={{ opacity: 0, scale: 0.98 }}
-                                                        whileInView={{ opacity: 1, scale: 1 }}
-                                                        viewport={{ once: true }}
-                                                        className={`w-full text-center py-2 mb-1 mt-1 opacity-80`}
-                                                        style={{
-                                                            ...mainTextColorStyle,
-                                                            fontWeight: 'bold',
-                                                            fontSize: '1.1em',
-                                                            letterSpacing: '0.05em',
-                                                            textTransform: 'uppercase'
-                                                        }}
-                                                    >
-                                                        {link.title}
-                                                    </motion.div>
-                                                );
-                                            } else if (link.layout === 'icon') {
-                                                flushCards();
-                                                currentIconGroup.push(link);
-                                            } else if (link.layout === 'card') {
-                                                flushIcons();
-                                                currentCardGroup.push(link);
-                                            } else {
-                                                flushIcons();
-                                                flushCards();
-
-                                                const activeChildren = link.children?.filter(c => c.isActive) || [];
-
-                                                if (activeChildren.length > 0) {
-                                                    const collectionLayout = (link.layout === 'carousel') ? 'carousel' : (link.layout === 'grid' ? 'grid' : 'stacked');
-
-                                                    if (collectionLayout === 'carousel') {
-                                                        const scrollContainerId = `scroll-${link.id}`;
-                                                        const scroll = (direction: 'left' | 'right') => {
-                                                            const container = document.getElementById(scrollContainerId);
-                                                            if (container) {
-                                                                const scrollAmount = 250;
-                                                                container.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
-                                                            }
-                                                        };
-
-                                                        renderedItems.push(
-                                                            <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 group/carousel ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
-                                                                <div
-                                                                    className={`text-center mb-2 font-bold opacity-90 text-sm uppercase tracking-widest`}
-                                                                    style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                                >
-                                                                    {link.title}
-                                                                </div>
-                                                                <div className="relative w-full">
-                                                                    <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
-                                                                    <div id={scrollContainerId} className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
-                                                                        {activeChildren.map(child => {
-                                                                            const childContent = (
-                                                                                <div className="relative z-10 flex flex-col h-full w-full">
-                                                                                    <div className="relative overflow-hidden h-36 w-full bg-white">
-                                                                                        {child.image ? (
-                                                                                            <img src={child.image} alt="" className="w-full h-full block object-contain" />
-                                                                                        ) : (
-                                                                                            <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400">
-                                                                                                <ShoppingBag size={20} />
-                                                                                            </div>
-                                                                                        )}
-                                                                                    </div>
-                                                                                    <div className={`p-2 flex flex-col justify-center items-center text-center h-12 relative`}>
-                                                                                        {/* Platform Icon Footer for Music in Carousel */}
-                                                                                        {isMusicLink(child) && (
-                                                                                            <div className="absolute top-1 right-1.5 opacity-60">
-                                                                                                {child.url.includes('deezer') ? (
-                                                                                                    <DeezerIcon size={10} color={getSmartTextColor()} />
-                                                                                                ) : (
-                                                                                                    <SiSpotify size={10} color={isButtonLight ? "#1a2c14" : "#1DB954"} />
-                                                                                                )}
-                                                                                            </div>
-                                                                                        )}
-                                                                                        <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
-                                                                                        {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60 w-full mt-1.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
-                                                                                    </div>
-                                                                                </div>
-                                                                            );
-
-                                                                            return (
-                                                                                <motion.a
-                                                                                    key={child.id}
-                                                                                    transition={{ duration: 0 }}
-                                                                                    href={child.url}
-                                                                                    target="_blank"
-                                                                                    rel="noreferrer"
-                                                                                    onClick={() => handleLinkClick(child.id)}
-                                                                                    className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass}`}
-                                                                                    style={mainButtonStyle}
-                                                                                >
-                                                                                    {childContent}
-                                                                                </motion.a>
-                                                                            );
-                                                                        })}
-                                                                    </div>
-                                                                    <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronRight size={20} /></button>
-                                                                </div >
-                                                            </motion.div >
-                                                        );
-                                                    } else {
-                                                        renderedItems.push(
-                                                            <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
-                                                                <div
-                                                                    className={`text-center mb-2 opacity-90 text-sm font-bold uppercase tracking-widest`}
-                                                                    style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                                >
-                                                                    {link.title}
-                                                                </div>
-                                                                <div className={collectionLayout === 'grid' ? "grid grid-cols-2 gap-3 relative" : "flex flex-col gap-4 relative"}>
+                                                            <div className="relative w-full">
+                                                                <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
+                                                                <div id={scrollContainerId} className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
                                                                     {activeChildren.map(child => {
-                                                                        if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
-                                                                        if (child.embedType === 'youtube') return <motion.div key={child.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} /></motion.div>;
-                                                                        if (child.embedType === 'tiktok') return <motion.div key={child.id} transition={{ duration: 0 }} className="mb-4 w-full"><TikTokEmbed url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>;
+                                                                        const childContent = (
+                                                                            <div className="relative z-10 flex flex-col h-full w-full">
+                                                                                <div className="relative overflow-hidden h-36 w-full bg-white">
+                                                                                    {child.image ? (
+                                                                                        <img src={child.image} alt="" className="w-full h-full block object-contain" />
+                                                                                    ) : (
+                                                                                        <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400">
+                                                                                            <ShoppingBag size={20} />
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                                <div className={`p-2 flex flex-col justify-center items-center text-center h-12 relative`}>
+                                                                                    {/* Platform Icon Footer for Music in Carousel */}
+                                                                                    {isMusicLink(child) && (
+                                                                                        <div className="absolute top-1 right-1.5 opacity-60">
+                                                                                            {child.url.includes('deezer') ? (
+                                                                                                <DeezerIcon size={10} color={getSmartTextColor()} />
+                                                                                            ) : (
+                                                                                                <SiSpotify size={10} color={isButtonLight ? "#1a2c14" : "#1DB954"} />
+                                                                                            )}
+                                                                                        </div>
+                                                                                    )}
+                                                                                    <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
+                                                                                    {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60 w-full mt-1.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
+                                                                                </div>
+                                                                            </div>
+                                                                        );
 
                                                                         return (
                                                                             <motion.a
@@ -1097,167 +1073,199 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 target="_blank"
                                                                                 rel="noreferrer"
                                                                                 onClick={() => handleLinkClick(child.id)}
-                                                                                className={`block w-full text-center text-base transform group relative py-4 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
-                                                                                style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                                className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass}`}
+                                                                                style={mainButtonStyle}
                                                                             >
-                                                                                <div className="relative z-10 w-full flex items-center justify-between">
-                                                                                    {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                                                    <div className="flex-1 px-1 flex flex-col justify-center text-center">
-                                                                                        <span className="text-[0.9em] leading-tight break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
-                                                                                        {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-2 break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
-                                                                                    </div>
-                                                                                    <span className="w-8 shrink-0"></span>
-                                                                                </div>
+                                                                                {childContent}
                                                                             </motion.a>
                                                                         );
                                                                     })}
                                                                 </div>
-                                                            </motion.div>
-                                                        );
-                                                    }
-                                                } else if (isMusicLink(link)) {
-                                                    renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full mb-5"><MusicRichCard link={link} handleLinkClick={handleLinkClick} /></motion.div>);
-                                                } else if (link.embedType === 'youtube') {
-                                                    renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} /></motion.div>);
-                                                } else if (link.embedType === 'tiktok') {
-                                                    renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="mb-4 w-full"><TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>);
+                                                                <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronRight size={20} /></button>
+                                                            </div >
+                                                        </motion.div >
+                                                    );
                                                 } else {
                                                     renderedItems.push(
-                                                        <motion.a
-                                                            key={link.id}
-                                                            transition={{ duration: 0 }}
-                                                            href={link.url}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            onClick={() => handleLinkClick(link.id)}
-                                                            className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`}
-                                                            style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                        >
-                                                            <div className="relative z-10 w-full flex items-center justify-between px-2">
-                                                                {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                                <div className="flex-1 px-1 flex flex-col justify-center text-center">
-                                                                    <span className="text-[0.9em] leading-tight line-clamp-2 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
-                                                                    {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-2 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.subtitle}</span>}
-                                                                </div>
-                                                                <span className="w-8 shrink-0"></span>
+                                                        <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                            <div
+                                                                className={`text-center mb-2 opacity-90 text-sm font-bold uppercase tracking-widest`}
+                                                                style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                            >
+                                                                {link.title}
                                                             </div>
-                                                        </motion.a>
+                                                            <div className={collectionLayout === 'grid' ? "grid grid-cols-2 gap-3 relative" : "flex flex-col gap-4 relative"}>
+                                                                {activeChildren.map(child => {
+                                                                    if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
+                                                                    if (child.embedType === 'youtube') return <motion.div key={child.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} /></motion.div>;
+                                                                    if (child.embedType === 'tiktok') return <motion.div key={child.id} transition={{ duration: 0 }} className="mb-4 w-full"><TikTokEmbed url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>;
+
+                                                                    return (
+                                                                        <motion.a
+                                                                            key={child.id}
+                                                                            transition={{ duration: 0 }}
+                                                                            href={child.url}
+                                                                            target="_blank"
+                                                                            rel="noreferrer"
+                                                                            onClick={() => handleLinkClick(child.id)}
+                                                                            className={`block w-full text-center text-base transform group relative py-4 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
+                                                                            style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                        >
+                                                                            <div className="relative z-10 w-full flex items-center justify-between">
+                                                                                {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                                                <div className="flex-1 px-1 flex flex-col justify-center text-center">
+                                                                                    <span className="text-[0.9em] leading-tight break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
+                                                                                    {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-2 break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
+                                                                                </div>
+                                                                                <span className="w-8 shrink-0"></span>
+                                                                            </div>
+                                                                        </motion.a>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </motion.div>
                                                     );
                                                 }
+                                            } else if (isMusicLink(link)) {
+                                                renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full mb-5"><MusicRichCard link={link} handleLinkClick={handleLinkClick} /></motion.div>);
+                                            } else if (link.embedType === 'youtube') {
+                                                renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} /></motion.div>);
+                                            } else if (link.embedType === 'tiktok') {
+                                                renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="mb-4 w-full"><TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>);
+                                            } else {
+                                                renderedItems.push(
+                                                    <motion.a
+                                                        key={link.id}
+                                                        transition={{ duration: 0 }}
+                                                        href={link.url}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        onClick={() => handleLinkClick(link.id)}
+                                                        className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`}
+                                                        style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                    >
+                                                        <div className="relative z-10 w-full flex items-center justify-between px-2">
+                                                            {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
+                                                            <div className="flex-1 px-1 flex flex-col justify-center text-center">
+                                                                <span className="text-[0.9em] leading-tight line-clamp-2 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
+                                                                {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-2 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.subtitle}</span>}
+                                                            </div>
+                                                            <span className="w-8 shrink-0"></span>
+                                                        </div>
+                                                    </motion.a>
+                                                );
                                             }
-                                        });
-
-                                        flushIcons();
-                                        flushCards();
-                                        return renderedItems;
-                                    })()}
-
-
-
-                                    {/* Payment Methods (Monetization) - Always Last */}
-                                    {profile.paymentMethods && profile.paymentMethods.length > 0 && (
-                                        <div className="flex flex-col gap-3 w-full mb-2">
-                                            {profile.paymentMethods.filter(pm => pm.isActive !== false).map(method => (
-                                                <motion.button
-                                                    key={method.id}
-                                                    whileHover={{ scale: 1.02 }}
-                                                    whileTap={{ scale: 0.98 }}
-                                                    onClick={() => {
-                                                        if (method.type === 'paypal') {
-                                                            window.open(method.key.startsWith('http') ? method.key : `https://${method.key}`, '_blank');
-                                                        } else {
-                                                            navigator.clipboard.writeText(method.key);
-                                                            alert('Chave Pix copiada!');
-                                                        }
-                                                    }}
-                                                    className={`relative w-full overflow-hidden transition-all duration-300 group ${buttonClass} min-h-[56px] flex items-center justify-center`}
-                                                    style={{
-                                                        ...mainButtonStyle,
-                                                        backgroundColor: buttonHex,
-                                                        color: getSmartTextColor(),
-                                                        borderRadius: borderRadiusValue
-                                                    }}
-                                                >
-                                                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                                                    <div className="relative z-10 flex items-center justify-center gap-3">
-                                                        {method.type === 'pix' ? <Zap size={20} fill="currentColor" /> : <CreditCard size={20} />}
-                                                        <span className="font-semibold text-sm">
-                                                            {method.label || (method.type === 'pix' ? 'Fazer um Pix' : 'Pagar com PayPal')}
-                                                        </span>
-                                                    </div>
-                                                </motion.button>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    {activeLinks.length === 0 && (
-                                        <div className="flex flex-col items-center justify-center py-10 opacity-50 space-y-2">
-                                            <span className="text-sm">Nenhum link ativo</span>
-                                        </div>
-                                    )}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                        {/* Theme-Integrated Support Button & Newsletter */}
-                        <div className="mt-4 flex flex-col gap-4">
-                            {profile.supportKey && (
-                                <motion.a
-                                    transition={{ duration: 0 }}
-                                    href={profile.supportType === 'paypal' ? `https://${profile.supportKey}` : '#'}
-                                    onClick={(e) => {
-                                        if (profile.supportType === 'pix') {
-                                            e.preventDefault();
-                                            alert(`Chave Pix copiada: ${profile.supportKey}`);
-                                            navigator.clipboard.writeText(profile.supportKey || '');
                                         }
-                                    }}
-                                    className={`block w-full min-h-[64px] text-center text-base transition-all duration-300 transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} overflow-hidden`}
-                                    style={{ fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                >
-                                    <div className="relative z-10 w-full flex items-center justify-between">
-                                        {profile.supportType === 'pix' ? (
-                                            <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" />
-                                        ) : (
-                                            <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
-                                        )}
-                                        <span className="truncate flex-1 px-3" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Apoiar</span>
-                                        <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={20} /></span>
+                                    });
+
+                                    flushIcons();
+                                    flushCards();
+                                    return renderedItems;
+                                })()}
+
+
+
+                                {/* Payment Methods (Monetization) - Always Last */}
+                                {profile.paymentMethods && profile.paymentMethods.length > 0 && (
+                                    <div className="flex flex-col gap-3 w-full mb-2">
+                                        {profile.paymentMethods.filter(pm => pm.isActive !== false).map(method => (
+                                            <motion.button
+                                                key={method.id}
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                onClick={() => {
+                                                    if (method.type === 'paypal') {
+                                                        window.open(method.key.startsWith('http') ? method.key : `https://${method.key}`, '_blank');
+                                                    } else {
+                                                        navigator.clipboard.writeText(method.key);
+                                                        alert('Chave Pix copiada!');
+                                                    }
+                                                }}
+                                                className={`relative w-full overflow-hidden transition-all duration-300 group ${buttonClass} min-h-[56px] flex items-center justify-center`}
+                                                style={{
+                                                    ...mainButtonStyle,
+                                                    backgroundColor: buttonHex,
+                                                    color: getSmartTextColor(),
+                                                    borderRadius: borderRadiusValue
+                                                }}
+                                            >
+                                                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                                                <div className="relative z-10 flex items-center justify-center gap-3">
+                                                    {method.type === 'pix' ? <Zap size={20} fill="currentColor" /> : <CreditCard size={20} />}
+                                                    <span className="font-semibold text-sm">
+                                                        {method.label || (method.type === 'pix' ? 'Fazer um Pix' : 'Pagar com PayPal')}
+                                                    </span>
+                                                </div>
+                                            </motion.button>
+                                        ))}
                                     </div>
-                                </motion.a>
-                            )}
-                        </div>
+                                )}
 
-                        <motion.div layout className="mt-auto pt-10 mb-8 flex flex-col items-center gap-1 w-full px-4">
-                            {(() => {
-                                const isWhiteBg = (profile.customSolidColor?.toLowerCase() === '#ffffff' || profile.customSolidColor?.toLowerCase() === '#fff') ||
-                                    (!profile.customSolidColor && !profile.customBackground && (currentTheme.solidColor?.toLowerCase() === '#ffffff' || currentTheme.id === 'default'));
-                                const btnClass = isWhiteBg ? 'bg-slate-950 text-white' : 'bg-white text-slate-900';
-
-                                return (
-                                    <a
-                                        href="https://www.noduscc.com.br"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={`group flex items-center justify-center gap-2 px-5 py-2 rounded-full transition-all duration-300 shadow-sm ${btnClass}`}
-                                    >
-                                        <span
-                                            className="text-[11px] font-medium tracking-tight font-sans whitespace-nowrap"
-                                        >
-                                            Junte-se a {profile.name} no Nodus
-                                        </span>
-                                    </a>
-                                );
-                            })()}
-
-                            {/* Legal Links (Minimalist) */}
-                            <div
-                                className={`flex items-center gap-2 text-[10px] transition-opacity duration-300 ${isDarkTheme ? 'text-white/40 hover:text-white/80' : 'text-slate-400 hover:text-slate-600'}`}
-                                style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                {activeLinks.length === 0 && (
+                                    <div className="flex flex-col items-center justify-center py-10 opacity-50 space-y-2">
+                                        <span className="text-sm">Nenhum link ativo</span>
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                    {/* Theme-Integrated Support Button & Newsletter */}
+                    <div className="mt-4 flex flex-col gap-4">
+                        {profile.supportKey && (
+                            <motion.a
+                                transition={{ duration: 0 }}
+                                href={profile.supportType === 'paypal' ? `https://${profile.supportKey}` : '#'}
+                                onClick={(e) => {
+                                    if (profile.supportType === 'pix') {
+                                        e.preventDefault();
+                                        alert(`Chave Pix copiada: ${profile.supportKey}`);
+                                        navigator.clipboard.writeText(profile.supportKey || '');
+                                    }
+                                }}
+                                className={`block w-full min-h-[64px] text-center text-base transition-all duration-300 transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} overflow-hidden`}
+                                style={{ fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                             >
-                                <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-60 hover:opacity-100">Termos</a>
-                                <span className="opacity-40">•</span>
-                                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-60 hover:opacity-100">Privacidade</a>
+                                <div className="relative z-10 w-full flex items-center justify-between">
+                                    {profile.supportType === 'pix' ? (
+                                        <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" />
+                                    ) : (
+                                        <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
+                                    )}
+                                    <span className="truncate flex-1 px-3" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Apoiar</span>
+                                    <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={20} /></span>
+                                </div>
+                            </motion.a>
+                        )}
+
+                        <motion.div layout className="mt-2 mb-8 flex flex-col items-center gap-4 w-full px-4 font-sans text-center">
+
+                            <div className="flex flex-col items-center gap-6">
+                                <a
+                                    href="https://www.nodus.my"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex flex-col items-center gap-0 group no-underline"
+                                >
+                                    <span className="text-[7px] font-bold tracking-[0.4em] uppercase text-white opacity-40 transition-opacity group-hover:opacity-70">
+                                        Powered by
+                                    </span>
+                                    <img
+                                        src="/icons/logo sem fundo.png"
+                                        alt="Nodus"
+                                        className="h-28 object-contain transition-all duration-300 group-hover:scale-105 invert brightness-[10] opacity-100 -mt-8"
+                                    />
+                                </a>
+
+                                {/* Legal Links (Minimalist) */}
+                                <div
+                                    className={`flex items-center gap-3 text-[7.5px] transition-opacity duration-300 font-normal ${isDarkTheme ? 'text-white/20 hover:text-white/60' : 'text-slate-400 hover:text-slate-600'} -mt-12`}
+                                    style={{ fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                >
+                                    <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-60 hover:opacity-100 tracking-widest">TERMOS</a>
+                                    <span className="opacity-20 text-[6px]">•</span>
+                                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-60 hover:opacity-100 tracking-widest">PRIVACIDADE</a>
+                                </div>
                             </div>
                         </motion.div>
                     </div>

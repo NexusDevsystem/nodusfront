@@ -64,6 +64,14 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
         return () => setMounted(false);
     }, []);
 
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const socialLinks = links.filter(link => link.layout === 'social' && link.type !== 'collection');
     const instagramIntegration = profile?.integrations?.find((i: any) => i.provider === 'instagram');
     const isInstagramConnected = !!instagramIntegration;
@@ -193,14 +201,39 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
             {mounted && createPortal(
                 <AnimatePresence>
                     {isModalOpen && (
-                        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-                            <div
+                        <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
                                 className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
                                 onClick={handleCloseModal}
                             />
-                            <div
-                                className="relative bg-white w-full max-w-lg max-h-[80vh] rounded-[32px] overflow-hidden shadow-2xl flex flex-col"
+                            <motion.div
+                                initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
+                                animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                                exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
+                                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                                drag={isMobile ? "y" : false}
+                                dragConstraints={isMobile ? { top: 0, bottom: 0 } : undefined}
+                                dragElastic={isMobile ? 0.8 : 1}
+                                onDragEnd={(_, info) => {
+                                    if (isMobile && info.offset.y > 100) {
+                                        handleCloseModal();
+                                    }
+                                }}
+                                className={`
+                                    relative bg-white shadow-2xl flex flex-col overflow-hidden
+                                    ${isMobile ? 'w-full h-[90vh] rounded-t-[2.5rem] touch-none' : 'w-full max-w-lg max-h-[80vh] rounded-[32px]'}
+                                `}
                             >
+                                {/* Drag Handle for Mobile */}
+                                {isMobile && (
+                                    <div className="flex justify-center p-3 pt-4 shrink-0">
+                                        <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
+                                    </div>
+                                )}
+
                                 <div className="p-6 flex items-center justify-between shrink-0 relative">
                                     <button
                                         onClick={() => configuringPlatform ? setConfiguringPlatform(null) : handleCloseModal()}
@@ -209,18 +242,21 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                         <ChevronLeft size={24} />
                                     </button>
 
-                                    <h3 className="absolute left-1/2 -translate-x-1/2 text-lg font-medium text-slate-900 truncate max-w-[240px]">
+                                    <h3 className={`absolute left-1/2 -translate-x-1/2 font-medium text-slate-900 truncate max-w-[240px] ${isMobile ? 'text-base' : 'text-lg'}`}>
                                         {configuringPlatform
                                             ? (links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform)))) ? `Editar ${activeConfigPlatform?.name}` : `Adicionar ${activeConfigPlatform?.name}`)
                                             : 'Adicionar ícone social'}
                                     </h3>
 
-                                    <button
-                                        onClick={handleCloseModal}
-                                        className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors"
-                                    >
-                                        <X size={24} />
-                                    </button>
+                                    {!isMobile && (
+                                        <button
+                                            onClick={handleCloseModal}
+                                            className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors"
+                                        >
+                                            <X size={24} />
+                                        </button>
+                                    )}
+                                    {isMobile && <div className="w-10" />}
                                 </div>
 
                                 {!configuringPlatform ? (
@@ -528,7 +564,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                         </div>
                                     </div>
                                 )}
-                            </div>
+                            </motion.div>
                         </div>
                     )}
                 </AnimatePresence>,

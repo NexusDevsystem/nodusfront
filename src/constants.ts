@@ -164,9 +164,10 @@ export const SOCIAL_NETWORKS = [
   { id: 'discord', name: 'Discord', icon: SiDiscord, baseUrl: 'https://discord.gg/', placeholder: 'convite' },
   { id: 'steam', name: 'Steam', icon: SiSteam, baseUrl: 'https://steamcommunity.com/id/', placeholder: 'usuario' },
 
-  // Vendas / Monetização
+  // Vendas / Monetização / Apoio
   { id: 'shopee', name: 'Shopee', icon: SiShopee, baseUrl: 'https://shopee.com.br/', placeholder: 'loja' },
   { id: 'amazon', name: 'Amazon Store', icon: SiAmazon, baseUrl: 'https://amazon.com/shop/', placeholder: 'storefront' },
+  { id: 'livepix', name: 'Livepix', icon: Globe, baseUrl: 'https://livepix.gg/', placeholder: 'usuario' },
 
   // Contato
   { id: 'email', name: 'Email', icon: Mail, baseUrl: 'mailto:', placeholder: 'seu@email.com' },

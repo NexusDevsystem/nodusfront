@@ -371,7 +371,7 @@ export default function EditorPage() {
     // Sidebar Toggle State
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    const shareUrl = `https://www.noduscc.com.br/${profile.username || profile.name.toLowerCase().replace(/\s/g, '')}`;
+    const shareUrl = `https://www.nodus.my/${profile.username || profile.name.toLowerCase().replace(/\s/g, '')}`;
 
     return (
         <div className="h-screen bg-[#0D0E12] flex flex-col overflow-hidden">

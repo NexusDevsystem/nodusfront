@@ -27,15 +27,11 @@ export default function PublicProfilePage() {
                 if (!username) {
                     throw new Error('Username is required');
                 }
-                const [profileData, linksData, productsData] = await Promise.all([
-                    apiClient.getPublicProfile(username),
-                    apiClient.getPublicLinks(username),
-                    apiClient.getPublicProducts(username)
-                ]);
+                const response = await apiClient.getPublicBootstrap(username);
 
-                setProfile(profileData);
-                setLinks(linksData.filter(l => l.isActive));
-                setProducts(productsData);
+                setProfile(response.profile);
+                setLinks(response.links.filter(l => l.isActive));
+                setProducts(response.products);
 
                 setLoading(false);
             } catch (err) {

@@ -27,7 +27,7 @@ export default function VectorFooter() {
                         <div>
                             <div className="flex items-center gap-3 mb-8">
                                 <img src="/icons/logo sem fundo.png" alt="NODUS" className="h-16 w-auto object-contain" />
-                                <span className="text-3xl font-black tracking-tighter uppercase">Nodus.cc</span>
+                                <span className="text-3xl font-black tracking-tighter uppercase">Nodus.my</span>
                             </div>
                             <p className="text-xl font-bold max-w-md border-l-4 border-black pl-6 mb-12">
                                 Ferramentas poderosas para criadores que não aceitam o básico.

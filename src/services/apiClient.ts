@@ -1,6 +1,6 @@
 import { UserProfile, LinkItem, Product, SocialIntegration } from '../types';
 
-const rawUrl = import.meta.env.VITE_API_URL || 'https://nodusback-production.up.railway.app';
+const rawUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : 'https://nodusback-production.up.railway.app');
 
 // Ensure URL has protocol (prevent relative path issues)
 const API_URL = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
@@ -78,6 +78,12 @@ class ApiClient {
     async getPublicProfile(username: string): Promise<UserProfile> {
         const response = await fetch(`${API_URL}/api/profile/public/${username}`);
         if (!response.ok) throw new Error('Perfil não encontrado');
+        return response.json();
+    }
+
+    async getPublicBootstrap(username: string): Promise<{ profile: UserProfile, links: LinkItem[], products: Product[] }> {
+        const response = await fetch(`${API_URL}/api/profile/public-bootstrap/${username}`);
+        if (!response.ok) throw new Error('Falha ao carregar dados do perfil');
         return response.json();
     }
 

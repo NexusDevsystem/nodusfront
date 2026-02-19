@@ -173,7 +173,7 @@ function SortableLinkItem({
       dragControls={dragControls}
       id={link.id}
       layout
-      className={`relative mb-4 overflow-hidden rounded-2xl border ${isExpanded ? 'border-[#32a800] ring-1 ring-[#32a800]/10' : 'border-slate-200'} bg-white`}
+      className={`relative mb-4 overflow-hidden rounded-2xl border ${isExpanded ? 'border-[#32a800] ring-1 ring-[#32a800]/10' : 'border-slate-200'} bg-white select-none`}
       whileDrag={{
         zIndex: 50
       }}
@@ -202,7 +202,7 @@ function SortableLinkItem({
                     type="text"
                     value={link.title}
                     onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                    className="w-full font-semibold text-slate-800 bg-transparent border-none focus:ring-0 p-0 text-sm placeholder:text-slate-300 truncate"
+                    className="w-full font-semibold text-slate-800 bg-transparent border-none focus:ring-0 p-0 text-sm placeholder:text-slate-300 truncate select-text"
                     placeholder="Nome da Coleção"
                   />
                   <div className="text-[10px] text-slate-400 font-medium mt-0.5 truncate">
@@ -495,7 +495,7 @@ function SortableLinkItem({
                             type="text"
                             value={link.title}
                             onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                            className="w-full font-semibold text-xl text-slate-900 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all placeholder:text-slate-200"
+                            className="w-full font-semibold text-xl text-slate-900 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all placeholder:text-slate-200 select-text"
                             placeholder={link.type === 'header' ? 'Ex: Redes Sociais' : 'Nome do link'}
                           />
                         </div>
@@ -527,6 +527,14 @@ function SortableLinkItem({
                                 const isDeezer = newUrl.includes('deezer.com/') || newUrl.includes('deezer.page.link/');
                                 const isYoutube = newUrl.includes('youtube.com/') || newUrl.includes('youtu.be/');
                                 const isTiktok = newUrl.includes('tiktok.com');
+                                const isLivepix = newUrl.includes('livepix.gg/') || newUrl.includes('livepix.');
+
+                                if (isLivepix) {
+                                  updates.platform = 'livepix';
+                                  if (!link.title || link.title === 'Novo Link' || link.title === 'Link sem título') {
+                                    updates.title = 'Apoio via Livepix';
+                                  }
+                                }
 
                                 let detectedType: 'none' | 'youtube' | 'spotify' | 'deezer' | 'tiktok' = 'none';
 
@@ -616,7 +624,7 @@ function SortableLinkItem({
                                 // Apply immediate updates (URL + Type)
                                 updateLinkFields(link.id, updates);
                               }}
-                              className="w-full text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all placeholder:text-slate-200"
+                              className="w-full text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all placeholder:text-slate-200 select-text"
                               placeholder="https://exemplo.com"
                             />
                           </div>
@@ -908,6 +916,7 @@ interface LinkEditorProps {
   setExpandedCollections?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   setActiveTab?: (tab: string) => void;
   onAddProduct?: (collectionName: string) => void;
+  onAddCollection?: (name: string, url?: string) => void;
   onAddIncentive?: (type: 'pix' | 'paypal', key: string) => void;
 }
 
@@ -918,6 +927,7 @@ function LinkEditor({
   profile,
   setActiveTab,
   onAddProduct,
+  onAddCollection: externalAddCollection,
   onAddIncentive,
   expandedLinks: externalExpandedLinks,
   setExpandedLinks: externalSetExpandedLinks,
@@ -976,21 +986,45 @@ function LinkEditor({
     onChange(prev => [newLink, ...prev]);
   };
 
-  const addCollection = () => {
+  const addCollection = (name?: string, url?: string) => {
+    const newCollectionId = Date.now().toString();
+    const children: LinkItem[] = [];
+
+    if (url) {
+      children.push({
+        id: (Date.now() + 1).toString(),
+        clientId: crypto.randomUUID(),
+        title: 'Novo Link',
+        url: url,
+        isActive: true,
+        clicks: 0,
+        layout: 'classic',
+        type: 'link'
+      });
+    }
+
     const newCollection: LinkItem = {
-      id: Date.now().toString(),
+      id: newCollectionId,
       clientId: crypto.randomUUID(),
-      title: 'Nova Coleção',
+      title: name || 'Nova Coleção',
       url: '',
       isActive: true,
       clicks: 0,
       layout: 'stacked',
       type: 'collection',
-      children: []
+      children: children
     };
+
     setExpandedCollections(prev => ({ ...prev, [newCollection.id]: true }));
     // @ts-ignore
     onChange(prev => [newCollection, ...prev]);
+
+    // If it was called externally (e.g. from a sub-component that doesn't have the state)
+    // this might not be needed but keeping for consistency if we ever use the prop
+    if (externalAddCollection && !name) {
+      // This part is tricky because the prop is usually passed DOWN
+      // But here we are PROVIDING the implementation.
+    }
   };
 
   const addSocialLink = (platformId: string) => {
@@ -1112,19 +1146,6 @@ function LinkEditor({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsAddModalOpen(true)}
-                  disabled={isLimitReached}
-                  className={`flex-1 flex items-center justify-center gap-2 h-11 text-sm font-medium transition-all border border-slate-100 rounded-2xl ${isLimitReached
-                    ? 'text-slate-200 cursor-not-allowed'
-                    : 'text-slate-500 hover:border-[#32a800] hover:text-[#32a800] bg-slate-50/50'
-                    }`}
-                >
-                  <Plus size={16} />
-                  <span>Adicionar à lista</span>
-                </button>
-              </div>
             </div>
 
             {isLimitReached && (

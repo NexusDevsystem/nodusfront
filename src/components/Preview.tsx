@@ -13,11 +13,11 @@ interface PreviewProps {
 
 const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShare, forcedTab }) => {
   return (
-    <div className="flex flex-col items-center select-none w-full h-full overflow-hidden">
+    <div className="flex flex-col items-center justify-center select-none w-full h-full overflow-hidden">
       {/* Public URL Preview Bar - Hidden on mobile for immersive feel */}
       <div className="hidden lg:flex mb-4 items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200 text-slate-500 text-xs font-medium">
         <Globe size={12} />
-        <span>noduscc/{profile.username || profile.name.toLowerCase().replace(/\s+/g, '')}</span>
+        <span>nodus.my/{profile.username || profile.name.toLowerCase().replace(/\s+/g, '')}</span>
         <button
           onClick={() => window.open(`/${profile.username || profile.name.toLowerCase().replace(/\s+/g, '')}`, '_blank')}
           className="hover:text-brand-600 transition-colors"
@@ -27,7 +27,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShar
       </div>
 
       {/* Frame Container - Full screen on mobile, centered frame on desktop */}
-      <div className={`relative origin-top flex items-center justify-center w-full h-full lg:w-[340px] lg:h-[700px] lg:scale-[0.85] xl:scale-100`}>
+      <div className={`relative origin-center flex items-center justify-center w-full h-full lg:w-[340px] lg:h-[700px] lg:scale-[0.85] xl:scale-100`}>
         <div className="relative w-full h-full lg:border-gray-900 lg:bg-gray-900 lg:border-[12px] lg:rounded-[3rem] lg:shadow-2xl flex flex-col overflow-hidden lg:ring-1 lg:ring-white/20">
 
           {/* Dynamic Island - Only on Desktop Frame */}

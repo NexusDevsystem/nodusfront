@@ -13,11 +13,11 @@ export default function LandingPage() {
 
     const faqs = [
         {
-            q: "O que é o Nodus.cc e para que ele serve?",
-            a: "O Nodus.cc é uma plataforma de gerenciamento de links que permite centralizar toda a sua presença digital em uma única página. Como redes sociais como Instagram e TikTok limitam a biografia a apenas um link externo, o Nodus resolve esse problema criando um \"hub\" onde você pode agrupar seu site, WhatsApp, vídeos, produtos e outras redes sociais de forma organizada e visualmente atraente."
+            q: "O que é o Nodus.my e para que ele serve?",
+            a: "O Nodus.my é uma plataforma de gerenciamento de links que permite centralizar toda a sua presença digital em uma única página. Como redes sociais como Instagram e TikTok limitam a biografia a apenas um link externo, o Nodus resolve esse problema criando um \"hub\" onde você pode agrupar seu site, WhatsApp, vídeos, produtos e outras redes sociais de forma organizada e visualmente atraente."
         },
         {
-            q: "O Nodus.cc substitui um site tradicional?",
+            q: "O Nodus.my substitui um site tradicional?",
             a: "Para muitos profissionais e criadores, sim. O Nodus funciona como um \"cartão de visita digital\" ou um \"mini-site\" de alta conversão. Ele é focado em direcionar seu público para ações específicas (comprar, agendar, assistir) sem a complexidade e o custo de manutenção de um site convencional."
         },
         {
@@ -30,14 +30,14 @@ export default function LandingPage() {
         },
         {
             q: "Posso vender produtos ou serviços diretamente pelo meu link?",
-            a: "Sim. O Nodus.cc oferece funcionalidades de integração para lojas e catálogos. Você pode destacar seus produtos principais, criar links diretos para checkout ou vitrines virtuais, facilitando a jornada de compra do seu cliente."
+            a: "Sim. O Nodus.my oferece funcionalidades de integração para lojas e catálogos. Você pode destacar seus produtos principais, criar links diretos para checkout ou vitrines virtuais, facilitando a jornada de compra do seu cliente."
         },
         {
             q: "Como funciona o recurso de QR Code?",
             a: "Cada perfil criado no Nodus gera automaticamente um QR Code exclusivo e personalizado. Você pode baixá-lo e utilizá-lo em materiais offline, como cardápios, cartões de visita impressos, embalagens ou banners, conectando o mundo físico ao seu digital instantaneamente."
         },
         {
-            q: "O Nodus.cc é gratuito?",
+            q: "O Nodus.my é gratuito?",
             a: "Sim, oferecemos um plano gratuito robusto que permite criar sua página, adicionar links ilimitados e personalizar o visual básico. Também oferecemos planos Pro para usuários que desejam recursos avançados, como remoção da marca Nodus, análises detalhadas de tráfego (analytics), domínios personalizados e suporte prioritário."
         },
         {
@@ -46,7 +46,7 @@ export default function LandingPage() {
         },
         {
             q: "Posso usar o Nodus em mais de uma rede social?",
-            a: "Sim! O seu link (ex: nodus.cc/voce) é único e universal. Você pode (e deve) utilizá-lo no Instagram, TikTok, Twitter, LinkedIn, na assinatura do seu e-mail e até no WhatsApp Business."
+            a: "Sim! O seu link (ex: nodus.my/voce) é único e universal. Você pode (e deve) utilizá-lo no Instagram, TikTok, Twitter, LinkedIn, na assinatura do seu e-mail e até no WhatsApp Business."
         },
         {
             q: "Meus dados e os dos meus visitantes estão seguros?",

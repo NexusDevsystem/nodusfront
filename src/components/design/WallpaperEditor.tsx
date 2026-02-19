@@ -55,7 +55,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange }) 
                             <Upload size={20} className="text-slate-400" />
                             <div className="text-center">
                                 <span className="block text-xs font-semibold text-slate-600">Carregar Imagem</span>
-                                <span className="text-[10px] text-slate-400">JPG ou PNG, max 5MB</span>
+                                <span className="text-[10px] text-slate-400">JPG, PNG ou GIF, max 5MB</span>
                             </div>
                         </label>
                     )}

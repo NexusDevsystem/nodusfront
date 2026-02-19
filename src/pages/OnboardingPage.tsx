@@ -171,7 +171,7 @@ export default function OnboardingPage() {
                                         group-focus-within:text-[#97cd7a] group-focus-within:translate-x-[2px] group-focus-within:translate-y-[2px]
                                         group-hover:translate-x-[1px] group-hover:translate-y-[1px]
                                         transition-all duration-200">
-                                        noduscc<span className="opacity-30">/</span>
+                                        nodus.my<span className="opacity-30">/</span>
                                     </div>
                                     <div className="absolute right-5 inset-y-0 flex items-center gap-3 bg-white pl-2 z-10
                                         group-focus-within:translate-x-[2px] group-focus-within:translate-y-[2px]
