@@ -66,9 +66,9 @@ export default function LandingPage() {
                 <div className="flex items-center justify-between h-20 px-6 max-w-[1600px] mx-auto">
                     <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
                         <img
-                            src="/icons/logo sem fundo.png"
+                            src="/icons/logo.png"
                             alt="NODUS"
-                            className="h-40 w-auto object-contain transition-transform group-hover:scale-105"
+                            className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
                         />
                     </div>
 

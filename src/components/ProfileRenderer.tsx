@@ -140,6 +140,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             currentTheme.id === 'modern-retro' ||
             currentTheme.id === 'modern-royal-gold' ||
             currentTheme.id === 'crimson-strategy' ||
+            currentTheme.id === 'modern-nature' ||
             currentTheme.id === 'social-tiktok' ||
             currentTheme.id === 'social-twitch' ||
             currentTheme.id === 'social-youtube';
@@ -483,7 +484,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 {/* Menu / Options Button */}
                 <div className="absolute top-[34px] left-6 z-20">
                     <div className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 transition-all">
-                        <img src="/icons/logo_icone.png" alt="Nodus" className="w-6 h-6 object-contain opacity-90 rounded-full" />
+                        <img src="/icons/marcadagua.gif" alt="Nodus" className="w-9 h-9 object-contain" />
                     </div>
                 </div>
 
@@ -1247,24 +1248,33 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     rel="noopener noreferrer"
                                     className="flex flex-col items-center gap-0 group no-underline"
                                 >
-                                    <span className="text-[7px] font-bold tracking-[0.4em] uppercase text-white opacity-40 transition-opacity group-hover:opacity-70">
+                                    <span
+                                        className="text-[10px] font-bold tracking-[0.5em] uppercase transition-opacity group-hover:opacity-70 leading-none"
+                                        style={{ color: isDarkTheme ? '#ffffff' : '#000000', opacity: 0.4 }}
+                                    >
                                         Powered by
                                     </span>
                                     <img
-                                        src="/icons/logo sem fundo.png"
+                                        src="/icons/logo.png"
                                         alt="Nodus"
-                                        className="h-28 object-contain transition-all duration-300 group-hover:scale-105 invert brightness-[10] opacity-100 -mt-8"
+                                        className="w-[110px] h-auto object-contain transition-all duration-300 group-hover:scale-105 opacity-100 -mt-8"
+                                        style={{
+                                            filter: isDarkTheme ? 'invert(1) brightness(10)' : 'brightness(1)'
+                                        }}
                                     />
                                 </a>
 
                                 {/* Legal Links (Minimalist) */}
                                 <div
-                                    className={`flex items-center gap-3 text-[7.5px] transition-opacity duration-300 font-normal ${isDarkTheme ? 'text-white/20 hover:text-white/60' : 'text-slate-400 hover:text-slate-600'} -mt-12`}
-                                    style={{ fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                    className="flex items-center gap-3 text-[7.5px] transition-opacity duration-300 font-normal -mt-14"
+                                    style={{
+                                        color: isDarkTheme ? '#ffffff' : '#000000',
+                                        fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                                    }}
                                 >
-                                    <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-60 hover:opacity-100 tracking-widest">TERMOS</a>
+                                    <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-40 hover:opacity-100 tracking-widest">TERMOS</a>
                                     <span className="opacity-20 text-[6px]">•</span>
-                                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-60 hover:opacity-100 tracking-widest">PRIVACIDADE</a>
+                                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-40 hover:opacity-100 tracking-widest">PRIVACIDADE</a>
                                 </div>
                             </div>
                         </motion.div>

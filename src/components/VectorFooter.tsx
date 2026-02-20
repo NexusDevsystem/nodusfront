@@ -26,7 +26,7 @@ export default function VectorFooter() {
                     <div className="p-12 md:p-24 border-b-2 lg:border-b-0 lg:border-r-2 border-black flex flex-col justify-between min-h-[400px]">
                         <div>
                             <div className="flex items-center gap-3 mb-8">
-                                <img src="/icons/logo sem fundo.png" alt="NODUS" className="h-16 w-auto object-contain" />
+                                <img src="/icons/logo.png" alt="NODUS" className="h-8 w-auto object-contain" />
                                 <span className="text-3xl font-black tracking-tighter uppercase">Nodus.my</span>
                             </div>
                             <p className="text-xl font-bold max-w-md border-l-4 border-black pl-6 mb-12">

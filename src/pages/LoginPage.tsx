@@ -126,9 +126,9 @@ export default function LoginPage() {
                     {/* Floating Center Icon */}
                     <div className="absolute inset-0 flex items-center justify-center animate-float">
                         <img
-                            src="/icons/logo sem fundo.png"
+                            src="/icons/logo.png"
                             alt="Nodus"
-                            className="w-1/2 h-1/2 object-contain"
+                            className="w-1/3 h-1/3 object-contain invert brightness-[10]"
                         />
                     </div>
 
