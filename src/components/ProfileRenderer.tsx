@@ -663,7 +663,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     <div className="space-y-6">
                                         <div
                                             className={`flex items-center gap-2.5 mb-2 text-xs font-bold uppercase tracking-widest opacity-60 px-1`}
-                                            style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                            style={{ ...mainTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                         >
                                             <ShoppingBag size={14} className="stroke-[2.5]" />
                                             <span>Categorias</span>
@@ -707,8 +707,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     </div>
                                                     <div className="p-4 flex items-center justify-between bg-black/5">
                                                         <div className="text-left">
-                                                            <h3 className="text-sm font-bold" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
-                                                            <p className="text-[10px] font-bold uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                            <h3 className="text-sm font-bold" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
+                                                            <p className="text-[10px] font-bold uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                                 {items.length} {items.length === 1 ? 'Produto' : 'Produtos'}
                                                             </p>
                                                         </div>
@@ -728,12 +728,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 <button
                                                     onClick={() => setActiveCollection(null)}
                                                     className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest opacity-50 hover:opacity-100 transition-all mb-1.5`}
-                                                    style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                    style={{ ...mainTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                 >
                                                     <ChevronLeft size={12} strokeWidth={3} />
                                                     <span>Voltar</span>
                                                 </button>
-                                                <h2 className={`text-xl font-black tracking-tight`} style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                <h2 className={`text-xl font-black tracking-tight`} style={{ ...mainTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                     {activeCollection}
                                                 </h2>
                                             </div>
@@ -771,11 +771,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                         {/* Product Info */}
                                                         <div className="flex flex-col gap-0.5 mt-2 px-1 text-left">
-                                                            <span className={`text-[13px] font-bold truncate`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                            <span className={`text-[13px] font-bold truncate`} style={{ ...mainTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                                 {product.name}
                                                             </span>
                                                             {product.price && (
-                                                                <span className={`text-[11px] font-medium opacity-70 mt-2`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                <span className={`text-[11px] font-medium opacity-70 mt-2`} style={{ ...mainTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                                     {product.price}
                                                                 </span>
                                                             )}

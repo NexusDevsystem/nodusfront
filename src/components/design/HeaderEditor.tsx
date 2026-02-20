@@ -87,7 +87,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange }) => {
                             type="file"
                             ref={avatarInputRef}
                             className="hidden"
-                            accept="image/*"
+                            accept="image/*, image/gif"
                             onChange={handleAvatarUpload}
                         />
                     </div>

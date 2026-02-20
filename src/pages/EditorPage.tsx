@@ -310,19 +310,12 @@ export default function EditorPage() {
         return () => clearTimeout(timeoutId);
     }, [products, hasLoadedOnce]);
 
+    const [pendingShopCollection, setPendingShopCollection] = useState<string | null>(null);
+
     const addProductToShop = (collectionName: string) => {
-        const newProduct: Product = {
-            id: crypto.randomUUID(),
-            clientId: crypto.randomUUID(),
-            name: 'Novo Produto',
-            url: '',
-            image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&auto=format&fit=crop&q=60',
-            clicks: 0,
-            collection: collectionName,
-            price: '',
-            discountCode: ''
-        };
-        setProducts(prev => [...prev, newProduct]);
+        // Instead of adding a placeholder, we set the pending collection
+        // ShopEditor will pick this up and open the "Add Product" form
+        setPendingShopCollection(collectionName);
         setActiveTab('shop');
     };
 
@@ -598,7 +591,12 @@ export default function EditorPage() {
 
                                 {activeTab === 'shop' && (
                                     <div className="space-y-6">
-                                        <ShopEditor products={products} onChange={setProducts} />
+                                        <ShopEditor
+                                            products={products}
+                                            onChange={setProducts}
+                                            pendingCollection={pendingShopCollection}
+                                            onPendingCollectionConsumed={() => setPendingShopCollection(null)}
+                                        />
                                     </div>
                                 )}
 

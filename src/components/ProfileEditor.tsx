@@ -55,7 +55,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
               ref={fileInputRef}
               type="file"
               className="hidden"
-              accept="image/*"
+              accept="image/*, image/gif"
               onChange={handleImageUpload}
             />
           </div>

@@ -7,9 +7,11 @@ import { compressImage } from '../utils/imageUtils';
 interface ShopEditorProps {
     products: Product[];
     onChange: (products: Product[]) => void;
+    pendingCollection?: string | null;
+    onPendingCollectionConsumed?: () => void;
 }
 
-export default function ShopEditor({ products, onChange }: ShopEditorProps) {
+export default function ShopEditor({ products, onChange, pendingCollection, onPendingCollectionConsumed }: ShopEditorProps) {
     const [isAddingCollection, setIsAddingCollection] = useState(false);
     const [newCollectionName, setNewCollectionName] = useState('');
     const [expandedCollections, setExpandedCollections] = useState<string[]>([]);
@@ -22,6 +24,16 @@ export default function ShopEditor({ products, onChange }: ShopEditorProps) {
     // Deletion states
     const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
     const [deletingCollection, setDeletingCollection] = useState<string | null>(null);
+
+    // Auto-open form for pending collection if provided
+    React.useEffect(() => {
+        if (pendingCollection) {
+            setAddingToCollection(pendingCollection);
+            if (onPendingCollectionConsumed) {
+                onPendingCollectionConsumed();
+            }
+        }
+    }, [pendingCollection]);
 
     // Grouping
     const collections = Array.from(new Set(products.map(p => p.collection).filter(Boolean) as string[])).sort();

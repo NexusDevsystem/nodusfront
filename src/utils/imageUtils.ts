@@ -6,7 +6,7 @@ export const compressImage = (file: File, maxWidth = 800, quality = 0.7): Promis
             const result = event.target?.result as string;
 
             // If it's a GIF, don't compress it as canvas would make it static
-            if (file.type === 'image/gif') {
+            if (file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif')) {
                 resolve(result);
                 return;
             }
