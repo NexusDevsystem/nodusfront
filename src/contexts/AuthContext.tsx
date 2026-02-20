@@ -126,9 +126,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         throw new Error('Invalid token');
                     }
                 }
-            } catch (e) {
+            } catch (e: any) {
                 console.error('Failed to rehydrate session:', e);
-                signOut();
+                // Clear session if it's explicitly unauthorized (401/403)
+                if (e.message?.includes('401') || e.message?.includes('Unauthorized')) {
+                    signOut();
+                } else {
+                    // Just stop loading if it's a server/network error, don't kick user out
+                    setAuthError('O servidor demorou a responder, mas sua sessão foi mantida. Recarregue a página.');
+                }
                 setLoading(false);
             }
         };
@@ -159,8 +165,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setProfile(profileData);
         } catch (err: any) {
             console.error('Post-login profile fetch error:', err);
-            // It's fine if this fails - they'll be redirected to onboarding or the error will surface naturally.
-            setProfile(null);
+            // If it's a 404, they just need onboarding, so we set profile to null and return success
+            if (err.message?.includes('404')) {
+                setProfile(null);
+            } else {
+                // For other errors (500, timeout), returning the error will keep them on the login page
+                setLoading(false);
+                return { error: err };
+            }
         } finally {
             setLoading(false);
         }

@@ -24,7 +24,8 @@ import {
     SkipForward,
     Music2,
     Zap,
-    CreditCard
+    CreditCard,
+    Youtube
 } from 'lucide-react';
 import YouTubeEmbed from './YouTubeEmbed';
 import TikTokEmbed from './TikTokEmbed';
@@ -502,9 +503,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             >
                                 {profile.name}
                                 {profile.isVerified && (
-                                    <img src={verifiedBadge} alt="Verified" className="w-[1.2em] h-[1.2em] shrink-0" />
+                                    <img src={verifiedBadge} alt="Verified" className="w-[0.7em] h-[0.7em] shrink-0" />
                                 )}
                             </h3>
+
 
                             {/* 2. Bio Text (Moved up and Bold) */}
                             {profile.bio && (
@@ -627,7 +629,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 <img
                                                     src={verifiedBadge}
                                                     alt="Verificado"
-                                                    className="w-6 h-6 object-contain shrink-0"
+                                                    className="w-3.5 h-3.5 object-contain shrink-0"
                                                     title="Conta Verificada"
                                                 />
                                             )}
@@ -1193,14 +1195,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             target="_blank"
                                                                             rel="noreferrer"
                                                                             onClick={() => handleLinkClick(child.id)}
-                                                                            className={`block w-full text-center text-base transform group relative py-4 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
+                                                                            className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
                                                                             style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                                         >
                                                                             <div className="relative z-10 w-full flex items-center justify-between">
                                                                                 {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
                                                                                 <div className="flex-1 px-1 flex flex-col justify-center text-center">
-                                                                                    <span className="text-[0.9em] leading-tight break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
-                                                                                    {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-2 break-words" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
+                                                                                    <span className={`text-[0.9em] leading-tight ${child.subtitle ? 'line-clamp-1 truncate' : 'break-words'}`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
+                                                                                    {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
                                                                                 </div>
                                                                                 <span className="w-8 shrink-0"></span>
                                                                             </div>
@@ -1232,8 +1234,16 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         <div className="relative z-10 w-full flex items-center justify-between px-2">
                                                             {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
                                                             <div className="flex-1 px-1 flex flex-col justify-center text-center">
-                                                                <span className="text-[0.9em] leading-tight line-clamp-2 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
-                                                                {link.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-2 break-words" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.subtitle}</span>}
+                                                                <span className={`text-[0.9em] leading-tight ${link.subtitle ? 'line-clamp-1 truncate' : 'line-clamp-2 break-words'}`} style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
+                                                                {link.subtitle && (
+                                                                    <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                        {(link.url.includes('youtube.com') || link.url.includes('youtu.be')) &&
+                                                                            !link.url.includes('watch?v=') && !link.url.includes('/shorts/') && !link.url.includes('/live/') &&
+                                                                            <Youtube size={12} className="shrink-0" />}
+                                                                        {link.url.includes('tiktok.com') && <Music size={12} fill="currentColor" className="shrink-0" />}
+                                                                        {link.subtitle}
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                             <span className="w-8 shrink-0"></span>
                                                         </div>

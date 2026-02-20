@@ -14,6 +14,7 @@ export interface MusicMetadata {
     resolvedUrl?: string;
     videoId?: string;
     videoUrl?: string;
+    followers?: string;
 }
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';

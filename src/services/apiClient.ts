@@ -27,24 +27,31 @@ class ApiClient {
         });
     }
 
-    private async request(path: string, options: RequestInit = {}) {
+    private async request(path: string, options: RequestInit = {}, retries = 2): Promise<any> {
         const headers = await this.getHeaders();
         const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), 30000); // 30s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout
 
         try {
             const response = await fetch(`${API_URL}${path}`, {
                 ...options,
-                cache: 'no-store', // Prevent caching of API responses
+                cache: 'no-store',
                 signal: controller.signal,
                 headers: {
                     ...headers,
                     ...(options.headers || {})
                 }
             });
-            clearTimeout(id);
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
+                // If it's a server error (5xx) and we have retries left, try again
+                if (response.status >= 500 && retries > 0) {
+                    console.warn(`⚠️ Server error ${response.status} on ${path}. Retrying... (${retries} left)`);
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+                    return this.request(path, options, retries - 1);
+                }
+
                 const errorText = await response.text();
                 let errorMessage = `Request failed with status ${response.status}`;
                 try {
@@ -59,14 +66,25 @@ class ApiClient {
             const text = await response.text();
             return text ? JSON.parse(text) : {};
         } catch (error: any) {
-            clearTimeout(id);
+            clearTimeout(timeoutId);
+
             if (error.name === 'AbortError') {
-                throw new Error('Connection timeout - Backend unresponsive');
+                if (retries > 0) {
+                    console.warn(`⏱️ Timeout on ${path}. Retrying... (${retries} left)`);
+                    return this.request(path, options, retries - 1);
+                }
+                throw new Error('Timeout de conexão - O servidor demorou muito para responder.');
             }
+
+            // Network error (not a fetch error response)
+            if (retries > 0 && !(error.message?.includes('40'))) {
+                console.warn(`🌐 Network error on ${path}. Retrying... (${retries} left)`);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                return this.request(path, options, retries - 1);
+            }
+
             throw error;
         }
-
-
     }
 
     // Profile

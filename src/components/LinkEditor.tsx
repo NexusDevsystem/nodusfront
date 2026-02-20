@@ -6,6 +6,7 @@ import { LinkItem, UserProfile } from '../types';
 import { SiSpotify } from 'react-icons/si';
 import { compressImage } from '../utils/imageUtils';
 import { fetchMusicMetadata } from '../utils/musicUtils';
+import { fetchYoutubeChannelInfo, isYoutubeChannelUrl } from '../utils/socialUtils';
 import {
   Trash2,
   GripVertical,
@@ -83,6 +84,7 @@ function SortableLinkItem({
   const dragControls = useDragControls();
   const [openAnimationMenu, setOpenAnimationMenu] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isRefreshingMeta, setIsRefreshingMeta] = useState(false);
 
   const isExpanded = !!expandedLinks[link.id];
   const toggleLink = (id: string) => {
@@ -104,14 +106,35 @@ function SortableLinkItem({
       const isSpotify = url.includes('open.spotify.com/') && (url.includes('/track/') || url.includes('/album/') || url.includes('/playlist/'));
       const isDeezer = url.includes('deezer.com/') || url.includes('deezer.page.link/');
       const isTiktok = url.includes('tiktok.com');
-      const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
+      const isYoutubeChannel = isYoutubeChannelUrl(url);
+      const isYoutubeVideo = (url.includes('youtube.com') || url.includes('youtu.be')) && !isYoutubeChannel;
 
-      if ((isSpotify || isDeezer || isTiktok || isYoutube) && (!link.title || link.title === 'Novo Link' || link.title === 'Link sem título')) {
+      const needsAutoFetch = !link.title || link.title === 'Novo Link' || link.title === 'Link sem título' || link.title === 'Link Desconhecido';
+
+      // YouTube Channel — use socialUtils
+      if (isYoutubeChannel && needsAutoFetch) {
+        try {
+          const info = await fetchYoutubeChannelInfo(url);
+          if (info) {
+            updateLinkFields(link.id, {
+              title: info.name,
+              subtitle: info.subscribers,
+              image: info.avatarUrl,
+            });
+          }
+        } catch (err) {
+          console.error('[LinkEditor] YouTube channel fetch error:', err);
+        }
+        return;
+      }
+
+      // Music / TikTok video / YouTube video — use musicUtils
+      if ((isSpotify || isDeezer || isTiktok || isYoutubeVideo) && needsAutoFetch) {
         let type: 'spotify' | 'deezer' | 'tiktok' | 'youtube' | 'none' = 'none';
         if (isSpotify) type = 'spotify';
         else if (isDeezer) type = 'deezer';
         else if (isTiktok) type = 'tiktok';
-        else if (isYoutube) type = 'youtube';
+        else if (isYoutubeVideo) type = 'youtube';
 
         try {
           // Special handling for TikTok to distinguish video vs profile
@@ -151,7 +174,7 @@ function SortableLinkItem({
             console.log('🎵 Metadata fetched via useEffect:', metadata);
             updateLinkFields(link.id, {
               title: metadata.title,
-              subtitle: metadata.artist,
+              subtitle: metadata.platform === 'youtube' ? metadata.followers : (metadata.followers || metadata.artist),
               image: metadata.thumbnailUrl,
               embedType: type
             });
@@ -502,7 +525,44 @@ function SortableLinkItem({
 
                         {link.type !== 'header' && (
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">URL / Link</label>
+                            <div className="flex items-center justify-between px-1">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">URL / Link</label>
+                              {(link.url.includes('youtube.com') || link.url.includes('tiktok.com') || link.url.includes('youtu.be')) && (
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    setIsRefreshingMeta(true);
+                                    try {
+                                      // Use correct service based on link type
+                                      if (isYoutubeChannelUrl(link.url)) {
+                                        const info = await fetchYoutubeChannelInfo(link.url);
+                                        if (info) {
+                                          updateLinkFields(link.id, {
+                                            title: info.name,
+                                            subtitle: info.subscribers,
+                                            image: info.avatarUrl
+                                          });
+                                        }
+                                      } else {
+                                        const meta = await fetchMusicMetadata(link.url);
+                                        if (meta) {
+                                          updateLinkFields(link.id, {
+                                            title: meta.title,
+                                            subtitle: meta.artist,
+                                            image: meta.thumbnailUrl
+                                          });
+                                        }
+                                      }
+                                    } catch (e) { console.error(e); }
+                                    finally { setIsRefreshingMeta(false); }
+                                  }}
+                                  className="text-[10px] font-bold text-[#32a800] uppercase tracking-widest flex items-center gap-1 hover:opacity-70 transition-opacity disabled:opacity-40"
+                                  disabled={isRefreshingMeta}
+                                >
+                                  {isRefreshingMeta ? '...' : '↻ Recarregar'}
+                                </button>
+                              )}
+                            </div>
                             <input
                               type="text"
                               value={link.url}
@@ -598,7 +658,7 @@ function SortableLinkItem({
 
                                         updateLinkFields(link.id, {
                                           title: metadata.title,
-                                          subtitle: metadata.artist,
+                                          subtitle: metadata.followers || metadata.artist,
                                           image: metadata.thumbnailUrl,
                                           type: 'collection' as const,
                                           layout: 'grid' as const, // Provide grid layout for collection
@@ -609,7 +669,7 @@ function SortableLinkItem({
                                         // Normal single track update
                                         updateLinkFields(link.id, {
                                           title: metadata.title,
-                                          subtitle: metadata.artist,
+                                          subtitle: metadata.platform === 'youtube' ? metadata.followers : (metadata.followers || metadata.artist),
                                           image: metadata.thumbnailUrl,
                                           embedType: detectedType,
                                           url: newUrl
@@ -996,7 +1056,7 @@ function LinkEditor({
           if (metadata) {
             updateLinkFields(newLinkId, {
               title: metadata.title,
-              subtitle: metadata.artist,
+              subtitle: metadata.platform === 'youtube' ? metadata.followers : (metadata.followers || metadata.artist),
               image: metadata.thumbnailUrl,
               embedType: metadata.platform as any
             });
