@@ -895,7 +895,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0 }}
-                                className="flex flex-col gap-4 w-full relative"
+                                className="flex flex-col gap-3 w-full relative"
                             >
                                 {(() => {
                                     const renderedItems: React.ReactNode[] = [];
@@ -1179,11 +1179,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             >
                                                                 {link.title}
                                                             </div>
-                                                            <div className={collectionLayout === 'grid' ? "grid grid-cols-2 gap-3 relative" : "flex flex-col gap-4 relative"}>
+                                                            <div className={collectionLayout === 'grid' ? "grid grid-cols-2 gap-3 relative" : "flex flex-col gap-3 relative"}>
                                                                 {activeChildren.map(child => {
                                                                     if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
-                                                                    if (child.embedType === 'youtube') return <motion.div key={child.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} /></motion.div>;
-                                                                    if (child.embedType === 'tiktok') return <motion.div key={child.id} transition={{ duration: 0 }} className="mb-4 w-full"><TikTokEmbed url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>;
+                                                                    if (child.embedType === 'youtube') return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} /></motion.div>;
+                                                                    if (child.embedType === 'tiktok') return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><TikTokEmbed url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>;
 
                                                                     return (
                                                                         <motion.a
@@ -1212,11 +1212,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     );
                                                 }
                                             } else if (isMusicLink(link)) {
-                                                renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full mb-5"><MusicRichCard link={link} handleLinkClick={handleLinkClick} /></motion.div>);
+                                                renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={link} handleLinkClick={handleLinkClick} /></motion.div>);
                                             } else if (link.embedType === 'youtube') {
-                                                renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="mb-4"><YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} /></motion.div>);
+                                                renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full"><YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} /></motion.div>);
                                             } else if (link.embedType === 'tiktok') {
-                                                renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="mb-4 w-full"><TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>);
+                                                renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full"><TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>);
                                             } else {
                                                 renderedItems.push(
                                                     <motion.a

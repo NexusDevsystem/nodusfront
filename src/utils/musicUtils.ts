@@ -3,7 +3,7 @@ export interface MusicMetadata {
     artist: string;
     thumbnailUrl: string;
     type: string;
-    platform: 'spotify' | 'deezer';
+    platform: 'spotify' | 'deezer' | 'youtube' | 'tiktok';
     tracks?: Array<{
         title: string;
         artist: string;

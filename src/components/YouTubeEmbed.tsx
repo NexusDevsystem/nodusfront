@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Play } from 'lucide-react';
+import { FaYoutube } from 'react-icons/fa';
 
 interface YouTubeEmbedProps {
     url: string;
@@ -10,7 +11,7 @@ interface YouTubeEmbedProps {
 const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, title, className = '' }) => {
     const [isPlaying, setIsPlaying] = useState(false);
 
-    const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+    const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
 
     if (!videoId) return null;
 
@@ -46,13 +47,30 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, title, className = '' 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
 
-            {/* Overlay Gradient */}
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300" />
+            {/* Overlays / Gradients for readability */}
+            <div className="absolute inset-0 bg-black/5 group-hover:bg-black/15 transition-colors duration-300" />
 
-            {/* Custom Play Button */}
-            <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:bg-white/30">
-                    <Play size={32} fill="white" className="text-white ml-1" />
+            {/* Bottom Gradient for title */}
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90" />
+
+            {/* YouTube Logo (Top Left) - Scaled down even more */}
+            <div className="absolute top-2.5 left-2.5 z-10 transition-transform group-hover:scale-110">
+                <div className="w-6 h-6 bg-[#FF0000] rounded-full flex items-center justify-center shadow-lg">
+                    <FaYoutube size={12} className="text-white" />
+                </div>
+            </div>
+
+            {/* Video Title (Bottom Left) - More compact size */}
+            <div className="absolute bottom-0 left-0 w-full p-3.5 z-10">
+                <h3 className="text-white text-[12px] md:text-[13px] font-bold leading-tight drop-shadow-md text-left tracking-tight line-clamp-2 uppercase">
+                    {title}
+                </h3>
+            </div>
+
+            {/* Custom Play Button - Scaled down even more, NO BACKGROUND */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 opacity-80 drop-shadow-[0_0_15px_rgba(0,0,0,0.4)]">
+                    <Play size={32} fill="white" className="text-white ml-0.5" />
                 </div>
             </div>
         </div>

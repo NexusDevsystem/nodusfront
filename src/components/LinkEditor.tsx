@@ -542,7 +542,7 @@ function SortableLinkItem({
                                 else if (isDeezer) detectedType = 'deezer';
                                 else if (isYoutube) {
                                   // Only set as youtube embed if it has a valid video ID
-                                  const videoId = newUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+                                  const videoId = newUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
                                   if (videoId) {
                                     detectedType = 'youtube';
                                   }
@@ -576,7 +576,7 @@ function SortableLinkItem({
                                 // Update embedType based on detection
                                 updates.embedType = detectedType;
 
-                                if (isSpotify || isDeezer) {
+                                if (isSpotify || isDeezer || isYoutube) {
                                   // Call fetch intentionally without awaiting to not block UI
                                   fetchMusicMetadata(newUrl).then(metadata => {
                                     if (metadata) {
@@ -970,9 +970,10 @@ function LinkEditor({
     }));
   };
 
-  const addLink = (url?: string) => {
+  const addLink = async (url?: string) => {
+    const newLinkId = Date.now().toString();
     const newLink: LinkItem = {
-      id: Date.now().toString(),
+      id: newLinkId,
       clientId: crypto.randomUUID(),
       title: 'Novo Link',
       url: url || '',
@@ -981,9 +982,30 @@ function LinkEditor({
       layout: 'classic',
       type: 'link'
     };
-    setExpandedLinks(prev => ({ ...prev, [newLink.id]: true }));
+
+    setExpandedLinks(prev => ({ ...prev, [newLinkId]: true }));
     // @ts-ignore
     onChange(prev => [newLink, ...prev]);
+
+    // If URL is provided, try to fetch metadata immediately
+    if (url) {
+      const isMusic = url.includes('spotify') || url.includes('deezer') || url.includes('youtube') || url.includes('youtu.be') || url.includes('tiktok');
+      if (isMusic) {
+        try {
+          const metadata = await fetchMusicMetadata(url);
+          if (metadata) {
+            updateLinkFields(newLinkId, {
+              title: metadata.title,
+              subtitle: metadata.artist,
+              image: metadata.thumbnailUrl,
+              embedType: metadata.platform as any
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching metadata in addLink:', error);
+        }
+      }
+    }
   };
 
   const addCollection = (name?: string, url?: string) => {
@@ -991,8 +1013,9 @@ function LinkEditor({
     const children: LinkItem[] = [];
 
     if (url) {
+      const childId = (Date.now() + 1).toString();
       children.push({
-        id: (Date.now() + 1).toString(),
+        id: childId,
         clientId: crypto.randomUUID(),
         title: 'Novo Link',
         url: url,
@@ -1001,6 +1024,21 @@ function LinkEditor({
         layout: 'classic',
         type: 'link'
       });
+
+      // Fetch metadata in background
+      const isMusic = url.includes('spotify') || url.includes('deezer') || url.includes('youtube') || url.includes('youtu.be') || url.includes('tiktok');
+      if (isMusic) {
+        fetchMusicMetadata(url).then(metadata => {
+          if (metadata) {
+            // Need to update the child inside the collection
+            // Since onChange hasn't finished or we just pushed it, 
+            // the most reliable way is to update via the parent state after a small delay 
+            // or just let the SortableLinkItem useEffect handle it when child mounts.
+            // Actually, SortableLinkItem will mount when this finishes, so the useEffect there 
+            // should catch it if the URL is set.
+          }
+        });
+      }
     }
 
     const newCollection: LinkItem = {
