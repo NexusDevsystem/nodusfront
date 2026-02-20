@@ -26,6 +26,24 @@ interface BackgroundLayerProps {
 
 const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme, className = "", isStatic = false }) => {
     const renderBackground = () => {
+        // Special Case: Banner Layout uses the avatar as a blurred adaptive background
+        if (profile.headerLayout === 'banner') {
+            const hasAvatar = !!profile.avatarUrl;
+            return (
+                <div className="absolute inset-0 bg-[#121212] overflow-hidden">
+                    {hasAvatar && (
+                        <img
+                            src={profile.avatarUrl}
+                            alt="Background"
+                            className="w-full h-full object-cover scale-[1.4] blur-[160px] opacity-80 transform-gpu"
+                        />
+                    )}
+                    {/* Subtle top darkening for UI visibility, and a clean fade to the bottom palette */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent"></div>
+                </div>
+            );
+        }
+
         // If static, return a simplified version for performance (previews)
         if (isStatic) {
             return (

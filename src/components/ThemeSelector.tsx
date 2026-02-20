@@ -37,10 +37,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
             buttonRoundness: null, // Force NULL to clear DB value
             fontWeight: null,
             fontItalic: false,
-            fontSize: null,
-            // Reset layout
-            headerLayout: 'classic',
-            headerStyle: 'text'
+            fontSize: null
         });
     };
 

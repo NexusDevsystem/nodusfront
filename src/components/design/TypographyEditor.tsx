@@ -7,9 +7,10 @@ import { motion } from 'framer-motion';
 interface TypographyEditorProps {
     profile: UserProfile;
     onChange: (profile: UserProfile) => void;
+    updateProfile?: (updates: Partial<UserProfile>) => void;
 }
 
-const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }) => {
+const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, updateProfile }) => {
     return (
         <div className="space-y-6 animate-fade-in pb-10">
 
@@ -35,7 +36,11 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
                             max="32"
                             step="1"
                             value={profile.fontSize || 16}
-                            onChange={(e) => onChange({ ...profile, fontSize: parseInt(e.target.value) })}
+                            onChange={(e) => {
+                                const val = parseInt(e.target.value);
+                                if (updateProfile) updateProfile({ fontSize: val });
+                                else onChange({ ...profile, fontSize: val });
+                            }}
                             className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#32a800]"
                         />
                         <div className="flex justify-between text-[10px] text-slate-400 font-medium uppercase tracking-widest px-1">
@@ -52,7 +57,10 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
                                 {['100', '400', '700', '900'].map((weight) => (
                                     <button
                                         key={weight}
-                                        onClick={() => onChange({ ...profile, fontWeight: weight })}
+                                        onClick={() => {
+                                            if (updateProfile) updateProfile({ fontWeight: weight });
+                                            else onChange({ ...profile, fontWeight: weight });
+                                        }}
                                         className={`flex-1 py-2 rounded text-[10px] font-bold transition-all border ${(profile.fontWeight || '400') === weight
                                             ? 'bg-slate-50 border-[#32a800] text-[#32a800]'
                                             : 'bg-white border-slate-100 text-slate-400 hover:text-slate-600'
@@ -68,7 +76,11 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
                         <div className="space-y-4">
                             <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Estilo</span>
                             <button
-                                onClick={() => onChange({ ...profile, fontItalic: !profile.fontItalic })}
+                                onClick={() => {
+                                    const val = !profile.fontItalic;
+                                    if (updateProfile) updateProfile({ fontItalic: val });
+                                    else onChange({ ...profile, fontItalic: val });
+                                }}
                                 className={`flex items-center justify-between px-4 py-3 rounded-md border transition-all w-full ${profile.fontItalic
                                     ? 'border-[#32a800] bg-slate-50 text-[#32a800]'
                                     : 'border-slate-100 text-slate-400 hover:text-slate-600'
@@ -101,7 +113,10 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
                             <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Cabeçalhos e Texto</span>
                             {profile.customTextColor && (
                                 <button
-                                    onClick={() => onChange({ ...profile, customTextColor: null })}
+                                    onClick={() => {
+                                        if (updateProfile) updateProfile({ customTextColor: null });
+                                        else onChange({ ...profile, customTextColor: null });
+                                    }}
                                     className="text-[10px] text-red-500 font-bold uppercase hover:underline"
                                 >
                                     Resetar
@@ -113,14 +128,22 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
                                 <input
                                     type="color"
                                     value={profile.customTextColor || '#000000'}
-                                    onChange={(e) => onChange({ ...profile, themeId: 'custom', customTextColor: e.target.value })}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (updateProfile) updateProfile({ themeId: 'custom', customTextColor: val });
+                                        else onChange({ ...profile, themeId: 'custom', customTextColor: val });
+                                    }}
                                     className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer"
                                 />
                             </div>
                             <input
                                 type="text"
                                 value={profile.customTextColor || ''}
-                                onChange={(e) => onChange({ ...profile, themeId: 'custom', customTextColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}` })}
+                                onChange={(e) => {
+                                    const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
+                                    if (updateProfile) updateProfile({ themeId: 'custom', customTextColor: val });
+                                    else onChange({ ...profile, themeId: 'custom', customTextColor: val });
+                                }}
                                 placeholder="#000000"
                                 className="flex-1 h-12 px-4 rounded-xl border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-mono uppercase font-bold"
                             />
@@ -133,7 +156,10 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
                             <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Texto do Botão</span>
                             {profile.customButtonTextColor && (
                                 <button
-                                    onClick={() => onChange({ ...profile, customButtonTextColor: null })}
+                                    onClick={() => {
+                                        if (updateProfile) updateProfile({ customButtonTextColor: null });
+                                        else onChange({ ...profile, customButtonTextColor: null });
+                                    }}
                                     className="text-[10px] text-red-500 font-bold uppercase hover:underline"
                                 >
                                     Resetar
@@ -145,14 +171,22 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
                                 <input
                                     type="color"
                                     value={profile.customButtonTextColor || '#ffffff'}
-                                    onChange={(e) => onChange({ ...profile, customButtonTextColor: e.target.value })}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (updateProfile) updateProfile({ customButtonTextColor: val });
+                                        else onChange({ ...profile, customButtonTextColor: val });
+                                    }}
                                     className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer"
                                 />
                             </div>
                             <input
                                 type="text"
                                 value={profile.customButtonTextColor || ''}
-                                onChange={(e) => onChange({ ...profile, customButtonTextColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}` })}
+                                onChange={(e) => {
+                                    const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
+                                    if (updateProfile) updateProfile({ customButtonTextColor: val });
+                                    else onChange({ ...profile, customButtonTextColor: val });
+                                }}
                                 placeholder="#FFFFFF"
                                 className="flex-1 h-12 px-4 rounded-xl border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-mono uppercase font-bold"
                             />
@@ -184,7 +218,8 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange }
                                         (window as any).dispatchEvent(new CustomEvent('open-billing-modal'));
                                         return;
                                     }
-                                    onChange({ ...profile, fontFamily: font.family });
+                                    if (updateProfile) updateProfile({ fontFamily: font.family });
+                                    else onChange({ ...profile, fontFamily: font.family });
                                 }}
                                 className={`flex items-center justify-between p-4 rounded-md border transition-all text-left relative ${isSelected
                                     ? 'border-[#32a800] bg-slate-50'

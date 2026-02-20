@@ -129,23 +129,25 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     };
 
     const isDarkTheme =
-        (profile.themeId === 'custom' && profile.customSolidColor)
-            ? getLuminance(profile.customSolidColor) < 0.5
-            : currentTheme.id.includes('dark') ||
-            currentTheme.id.includes('black') ||
-            currentTheme.id.includes('animated-') ||
-            (currentTheme.category === 'advocacy' && currentTheme.id !== 'advocacy-equity') ||
-            currentTheme.category === 'technology' ||
-            currentTheme.category === 'engineering' || // Most engineering are dark
-            currentTheme.id === 'modern-cyberpunk' ||
-            currentTheme.id === 'modern-industrial' ||
-            currentTheme.id === 'modern-retro' ||
-            currentTheme.id === 'modern-royal-gold' ||
-            currentTheme.id === 'crimson-strategy' ||
-            currentTheme.id === 'modern-nature' ||
-            currentTheme.id === 'social-tiktok' ||
-            currentTheme.id === 'social-twitch' ||
-            currentTheme.id === 'social-youtube';
+        profile.headerLayout === 'banner' // Banner layout is always on a dark adaptive background
+            ? true
+            : (profile.themeId === 'custom' && profile.customSolidColor)
+                ? getLuminance(profile.customSolidColor) < 0.5
+                : currentTheme.id.includes('dark') ||
+                currentTheme.id.includes('black') ||
+                currentTheme.id.includes('animated-') ||
+                (currentTheme.category === 'advocacy' && currentTheme.id !== 'advocacy-equity') ||
+                currentTheme.category === 'technology' ||
+                currentTheme.category === 'engineering' || // Most engineering are dark
+                currentTheme.id === 'modern-cyberpunk' ||
+                currentTheme.id === 'modern-industrial' ||
+                currentTheme.id === 'modern-retro' ||
+                currentTheme.id === 'modern-royal-gold' ||
+                currentTheme.id === 'crimson-strategy' ||
+                currentTheme.id === 'modern-nature' ||
+                currentTheme.id === 'social-tiktok' ||
+                currentTheme.id === 'social-twitch' ||
+                currentTheme.id === 'social-youtube';
 
     const tiktokIntegration = profile.integrations?.find(i => i.provider === 'tiktok');
     const tiktokFollowers = tiktokIntegration?.profile_data?.follower_count;
@@ -429,14 +431,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             `}</style>
             {/* Background Layer */}
             <BackgroundLayer profile={profile} currentTheme={currentTheme} isStatic={isStatic} />
-            {!isStatic && currentTheme.id.startsWith('brutalist-') && (
+            {!isStatic && currentTheme.id.startsWith('brutalist-') && profile.headerLayout !== 'banner' && (
                 <BrutalistVisualizer profile={profile} currentTheme={currentTheme} />
             )}
 
-            {/* GLOBAL BLUR FADE OVERLAY */}
-            {profile.enableBlur && (
+            {/* GLOBAL BLUR FADE OVERLAY - Only for other layouts */}
+            {(profile.enableBlur && profile.headerLayout !== 'banner') && (
                 <>
-                    {/* Final Refined Backdrop Blur Overlay */}
                     <div
                         className="absolute inset-0 z-10 pointer-events-none"
                         style={{
@@ -460,9 +461,90 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     fontStyle: (profile.fontItalic) ? 'italic' : 'normal'
                 }}
             >
-                {/* Status Bar - Only for Preview Mode */}
+                {/* Custom CSS Injection */}
+                {profile.customCSS && (
+                    <style dangerouslySetInnerHTML={{ __html: profile.customCSS }} />
+                )}
+
+                {profile.headerLayout === 'banner' && (
+                    <div className="relative w-full h-[55vh] min-h-[380px] shrink-0 overflow-hidden">
+                        {/* Image wrapper with mask to reveal BackgroundLayer blur */}
+                        <div
+                            className="absolute inset-0"
+                            style={{
+                                maskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 95%)',
+                                WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 95%)'
+                            }}
+                        >
+                            {/* The Large Image */}
+                            <img
+                                src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`}
+                                alt={profile.name}
+                                className="w-full h-full object-cover"
+                            />
+
+                            {/* Subtle text readability gradient (doesn't cut to black) */}
+                            {/* Subtle text readability gradient (doesn't cut to black) */}
+                            <div
+                                className="absolute inset-0 z-10"
+                                style={{
+                                    background: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.3) 100%)',
+                                }}
+                            />
+                        </div>
+
+                        {/* Content Overlaid at Bottom */}
+                        <div className="absolute bottom-0 left-0 w-full px-8 pt-4 pb-2 z-20 flex flex-col items-center text-center">
+                            {/* 1. Name */}
+                            <h3
+                                className="text-[2.2em] font-black text-white mb-0.5 tracking-tight flex items-center gap-2 drop-shadow-xl"
+                                style={{ fontFamily: effectiveFontFamily }}
+                            >
+                                {profile.name}
+                                {profile.isVerified && (
+                                    <img src={verifiedBadge} alt="Verified" className="w-[1.2em] h-[1.2em] shrink-0" />
+                                )}
+                            </h3>
+
+                            {/* 2. Bio Text (Moved up and Bold) */}
+                            {profile.bio && (
+                                <p className="text-white font-bold text-[1.1rem] max-w-[340px] leading-relaxed drop-shadow-lg mb-3">
+                                    {profile.bio}
+                                </p>
+                            )}
+
+                            {/* 3. Social Icons (Simplified - No Background) */}
+                            {socialLinks.length > 0 && (
+                                <div className="flex flex-wrap justify-center gap-4 mb-0.5">
+                                    {socialLinks.map(link => {
+                                        const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
+                                            SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id)) ||
+                                            SOCIAL_NETWORKS[0];
+                                        const Icon = network.icon || Globe;
+                                        return (
+                                            <a
+                                                key={link.id}
+                                                href={link.url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="text-white hover:scale-110 active:scale-95 transition-all drop-shadow-2xl"
+                                            >
+                                                <Icon size={24} />
+                                            </a>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Status Bar - Only for Preview Mode (Absolute if Banner) */}
                 {isPreview && (
-                    <div className={`w-full px-6 pt-3 pb-2 flex justify-between items-center z-20 ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'text-white' : 'text-slate-900'}`}>
+                    <div className={`w-full px-6 pt-3 pb-2 flex justify-between items-center z-30 ${profile.headerLayout === 'banner' ? 'absolute top-0 left-0 pt-3' : ''} ${(isDarkTheme || profile.customBackground || currentTheme.id === 'glass' || profile.headerLayout === 'banner')
+                        ? 'text-white'
+                        : 'text-slate-900'
+                        }`}>
                         <span className="text-xs font-semibold tracking-wide">9:41</span>
                         <div className="flex items-center gap-1.5 opacity-90">
                             <Signal size={12} strokeWidth={2.5} />
@@ -472,13 +554,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     </div>
                 )}
 
-                {/* Share Button */}
-                {/* 
-            For public profile, we might want a real share button. 
-            For now putting the mock one but maybe enabling it? 
-            Let's keep it mock/visual for now as per original.
-        */}
-                <div className="absolute top-[34px] right-6 z-20">
+                {/* Share Button (Adjusted for Banner) */}
+                <div className={`absolute ${profile.headerLayout === 'banner' ? 'top-10' : 'top-[34px]'} right-6 z-20`}>
                     <button
                         onClick={onShare}
                         className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all"
@@ -486,8 +563,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <Share size={18} />
                     </button>
                 </div>
-                {/* Menu / Options Button */}
-                <div className="absolute top-[34px] left-6 z-20">
+                {/* Menu / Options Button (Adjusted for Banner) */}
+                <div className={`absolute ${profile.headerLayout === 'banner' ? 'top-10' : 'top-[34px]'} left-6 z-20`}>
                     <div className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 transition-all">
                         <img src="/icons/marcadagua.gif" alt="Nodus" className="w-9 h-9 object-contain" />
                     </div>
@@ -495,91 +572,93 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
 
-                {/* Custom CSS Injection */}
-                {profile.customCSS && (
-                    <style dangerouslySetInnerHTML={{ __html: profile.customCSS }} />
-                )}
+                <div
+                    className={`px-6 pb-2 ${profile.headerLayout === 'banner' ? 'pt-2' : (isPreview ? 'pt-12' : 'pt-16')} flex flex-col`}
+                    style={profile.headerLayout === 'banner' ? {
+                        minHeight: '40vh'
+                    } : {}}
+                >
 
-                <div className={`px-6 pb-2 ${isPreview ? 'pt-12' : 'pt-16'} flex flex-col`}>
-
-                    {/* Profile Section */}
-                    <motion.div className={`w-full mb-1 ${profile.headerLayout === 'compact'
-                        ? 'flex flex-row items-center gap-4 text-left'
-                        : 'flex flex-col items-center text-center'
-                        }`}>
-                        {/* Avatar */}
-                        {profile.avatarUrl && (
-                            <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? 'mb-0' : 'mb-4'
-                                }`}>
-                                <div className={`rounded-full overflow-hidden border-4 shadow-lg ${currentTheme.avatarBorder
-                                    } ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
-                                        profile.avatarSize === 'lg' ? 'w-32 h-32' :
-                                            'w-24 h-24' // default (md)
-                                    } ${profile.headerLayout === 'hero' ? 'w-40 h-40 border-[6px]' : ''
+                    {/* Profile Section - Shared for other layouts */}
+                    {profile.headerLayout !== 'banner' && (
+                        <motion.div className={`w-full mb-1 ${profile.headerLayout === 'compact'
+                            ? 'flex flex-row items-center gap-4 text-left'
+                            : 'flex flex-col items-center text-center'
+                            }`}>
+                            {/* Avatar */}
+                            {profile.avatarUrl && (
+                                <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? 'mb-0' : 'mb-4'
                                     }`}>
-                                    <img
-                                        src={profile.avatarUrl}
-                                        alt={profile.name}
-                                        className="w-full h-full object-cover rounded-full"
-                                        onError={(e) => {
-                                            e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
-                                        }}
-                                    />
+                                    <div className={`rounded-full overflow-hidden border-4 shadow-lg ${currentTheme.avatarBorder
+                                        } ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
+                                            profile.avatarSize === 'lg' ? 'w-32 h-32' :
+                                                'w-24 h-24' // default (md)
+                                        } ${profile.headerLayout === 'hero' ? 'w-40 h-40 border-[6px]' : ''
+                                        }`}>
+                                        <img
+                                            src={profile.avatarUrl}
+                                            alt={profile.name}
+                                            className="w-full h-full object-cover rounded-full"
+                                            onError={(e) => {
+                                                e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
+                                            }}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {/* Name/Logo & Bio */}
-                        <div className={`flex flex-col ${profile.headerLayout === 'compact' ? 'items-start' : 'items-center'} ${profile.headerLayout === 'compact' ? 'flex-1 min-w-0' : ''}`}>
-                            <div className="flex items-center gap-2 justify-center w-full">
-                                {profile.headerStyle === 'logo' && profile.logoUrl ? (
-                                    <img
-                                        src={profile.logoUrl}
-                                        alt={profile.name}
-                                        className={`mb-2 object-contain ${profile.headerLayout === 'hero' ? 'h-20' : 'h-12'
-                                            }`}
-                                    />
-                                ) : (
-                                    <h3
-                                        className={`mb-0 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[1.6em]' : 'text-[1.3em]'}`}
-                                        style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                            {/* Name/Logo & Bio */}
+                            <div className={`flex flex-col ${profile.headerLayout === 'compact' ? 'items-start' : 'items-center'} ${profile.headerLayout === 'compact' ? 'flex-1 min-w-0' : ''}`}>
+                                <div className="flex items-center gap-2 justify-center w-full">
+                                    {profile.headerStyle === 'logo' && profile.logoUrl ? (
+                                        <img
+                                            src={profile.logoUrl}
+                                            alt={profile.name}
+                                            className={`mb-2 object-contain ${profile.headerLayout === 'hero' ? 'h-20' : 'h-12'
+                                                }`}
+                                        />
+                                    ) : (
+                                        <h3
+                                            className={`mb-0 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[1.6em]' : 'text-[1.3em]'}`}
+                                            style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                        >
+                                            {profile.name}
+                                            {profile.isVerified && (
+                                                <img
+                                                    src={verifiedBadge}
+                                                    alt="Verificado"
+                                                    className="w-6 h-6 object-contain shrink-0"
+                                                    title="Conta Verificada"
+                                                />
+                                            )}
+                                        </h3>
+                                    )}
+                                </div>
+
+                                {tiktokFollowers !== undefined && (
+                                    <div
+                                        className="flex items-center gap-1.5 mb-2 px-3 py-1 bg-black/10 backdrop-blur-md rounded-full text-[0.75rem] font-bold"
+                                        style={{ color: getSmartTextColor() }}
                                     >
-                                        {profile.name}
-                                        {profile.isVerified && (
-                                            <img
-                                                src={verifiedBadge}
-                                                alt="Verificado"
-                                                className="w-6 h-6 object-contain shrink-0"
-                                                title="Conta Verificada"
-                                            />
-                                        )}
-                                    </h3>
+                                        <Music size={12} fill="currentColor" />
+                                        <span>{tiktokFollowers.toLocaleString()} Seguidores</span>
+                                    </div>
                                 )}
+
+                                {profile.bio && (
+                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'}`}
+                                        style={{ ...mainTextColorStyle, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                    >
+                                        {profile.bio}
+                                    </p>
+                                )}
+
                             </div>
+                        </motion.div>
+                    )}
 
-                            {tiktokFollowers !== undefined && (
-                                <div
-                                    className="flex items-center gap-1.5 mb-2 px-3 py-1 bg-black/10 backdrop-blur-md rounded-full text-[0.75rem] font-bold"
-                                    style={{ color: getSmartTextColor() }}
-                                >
-                                    <Music size={12} fill="currentColor" />
-                                    <span>{tiktokFollowers.toLocaleString()} Seguidores</span>
-                                </div>
-                            )}
-
-                            {profile.bio && (
-                                <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'}`}
-                                    style={{ ...mainTextColorStyle, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                >
-                                    {profile.bio}
-                                </p>
-                            )}
-
-                        </div>
-                    </motion.div>
-
-                    {/* Social Icons Row */}
-                    {socialLinks.length > 0 && (
+                    {/* Social Icons Row - Shared for other layouts */}
+                    {profile.headerLayout !== 'banner' && socialLinks.length > 0 && (
                         <div className="flex items-center justify-center gap-2 mb-1 flex-wrap relative">
                             {socialLinks.map(link => {
                                 const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
@@ -1287,7 +1366,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 </div >
             </div >
             {/* Foreground Layer (For themes like Sakura) */}
-            {currentTheme.id === 'kawaii-sakura' && <KawaiiSakuraForeground />}
+            {currentTheme.id === 'kawaii-sakura' && profile.headerLayout !== 'banner' && <KawaiiSakuraForeground />}
         </div >
     );
 };

@@ -84,7 +84,7 @@ export default function PublicProfilePage() {
     }
 
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
-    const themeBgColor = profile.customSolidColor || currentTheme.solidColor || currentTheme.buttonHex || '#000000';
+    const themeBgColor = profile.headerLayout === 'banner' ? '#121212' : (profile.customSolidColor || currentTheme.solidColor || currentTheme.buttonHex || '#000000');
 
     return (
         <div className="w-full h-screen relative flex justify-center overflow-hidden md:pt-8" style={{ backgroundColor: themeBgColor }}>
@@ -107,7 +107,7 @@ export default function PublicProfilePage() {
             {/* Main Profile Card - Responsive: Full Screen Mobile, Card Desktop */}
             <div
                 className="w-full h-full relative z-10 overflow-hidden md:max-w-[500px] md:shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.5)] md:rounded-t-[3rem] md:border-t md:border-x md:border-white/10"
-                style={{ backgroundColor: profile.customSolidColor || currentTheme.solidColor || '#000' }}
+                style={{ backgroundColor: profile.headerLayout === 'banner' ? '#121212' : (profile.customSolidColor || currentTheme.solidColor || '#000') }}
             >
                 <ProfileRenderer
                     profile={profile}

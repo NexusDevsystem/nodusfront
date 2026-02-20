@@ -142,6 +142,18 @@ export default function EditorPage() {
     const [isSavingProfile, setIsSavingProfile] = React.useState(false);
     const [isSavingLinks, setIsSavingLinks] = React.useState(false);
     const [isSavingProducts, setIsSavingProducts] = React.useState(false);
+
+    // Keep saving states active for at least 500ms for visual feedback
+    const [visualSavingProfile, setVisualSavingProfile] = React.useState(false);
+    React.useEffect(() => {
+        if (isSavingProfile) {
+            setVisualSavingProfile(true);
+        } else {
+            const timer = setTimeout(() => setVisualSavingProfile(false), 500);
+            return () => clearTimeout(timer);
+        }
+    }, [isSavingProfile]);
+
     const [expandedLinks, setExpandedLinks] = React.useState<Record<string, boolean>>({});
     const [expandedCollections, setExpandedCollections] = React.useState<Record<string, boolean>>({});
 
@@ -161,13 +173,22 @@ export default function EditorPage() {
         const currentProfileString = JSON.stringify(profile);
         if (currentProfileString === lastSavedProfile.current) return;
 
+        console.log('🔄 [EditorPage] Profile change detected, scheduling auto-save...');
+
         const saveProfile = async () => {
+            console.log('💾 [EditorPage] Executing auto-save for profile:', {
+                headerLayout: profile.headerLayout,
+                id: profile.id
+            });
             setIsSavingProfile(true);
             try {
-                await apiClient.updateProfile(profile);
+                const response = await apiClient.updateProfile(profile);
+                console.log('✅ [EditorPage] Auto-save profile success:', response);
                 lastSavedProfile.current = JSON.stringify(profile);
-            } catch (error) {
-                console.error('Auto-save profile failed:', error);
+            } catch (error: any) {
+                console.error('❌ [EditorPage] Auto-save profile failed:', error);
+                // Log detailed error info if available
+                if (error.response) console.error('Response details:', error.response.data);
             } finally {
                 setIsSavingProfile(false);
             }
@@ -449,7 +470,7 @@ export default function EditorPage() {
                         </div>
                         <div className="flex gap-1 items-center">
                             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-300">
-                                {isSaving ? (
+                                {(isSaving || visualSavingProfile) ? (
                                     <>
                                         <Loader2 size={12} className="animate-spin text-[#32a800]" />
                                         <span className="text-[9px] font-bold uppercase tracking-widest text-[#32a800]">Salvando</span>
@@ -512,7 +533,7 @@ export default function EditorPage() {
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-300 border border-transparent mr-2 shrink-0 whitespace-nowrap">
-                                    {isSaving ? (
+                                    {(isSaving || visualSavingProfile) ? (
                                         <>
                                             <Loader2 size={14} className="animate-spin text-[#32a800]" />
                                             <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#32a800]">Sincronizando</span>
@@ -646,7 +667,7 @@ export default function EditorPage() {
                                             </h2>
 
                                             {activeDesignSection === 'header' && (
-                                                <HeaderEditor profile={profile} onChange={setProfile} />
+                                                <HeaderEditor profile={profile} onChange={setProfile} updateProfile={updateProfile} />
                                             )}
 
                                             {activeDesignSection === 'theme' && (
@@ -654,7 +675,7 @@ export default function EditorPage() {
                                             )}
 
                                             {activeDesignSection === 'wallpaper' && (
-                                                <WallpaperEditor profile={profile} onChange={setProfile} />
+                                                <WallpaperEditor profile={profile} onChange={setProfile} updateProfile={updateProfile} />
                                             )}
 
                                             {activeDesignSection === 'buttons' && (
@@ -662,7 +683,7 @@ export default function EditorPage() {
                                             )}
 
                                             {activeDesignSection === 'text' && (
-                                                <TypographyEditor profile={profile} onChange={setProfile} />
+                                                <TypographyEditor profile={profile} onChange={setProfile} updateProfile={updateProfile} />
                                             )}
                                         </div>
                                     </div>

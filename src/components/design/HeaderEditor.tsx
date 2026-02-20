@@ -6,10 +6,20 @@ import { compressImage } from '../../utils/imageUtils';
 interface HeaderEditorProps {
     profile: UserProfile;
     onChange: (profile: UserProfile) => void;
+    updateProfile?: (updates: Partial<UserProfile>) => void;
 }
 
-const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange }) => {
+const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updateProfile }) => {
     const avatarInputRef = useRef<HTMLInputElement>(null);
+
+    const handleLayoutChange = (layoutId: string) => {
+        console.log(`🎯 [HeaderEditor] Layout click: ${layoutId}`);
+        if (updateProfile) {
+            updateProfile({ headerLayout: layoutId as any });
+        } else {
+            onChange({ ...profile, headerLayout: layoutId as any });
+        }
+    };
 
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -31,15 +41,16 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange }) => {
                     <h3 className="text-sm font-semibold uppercase tracking-wider">Layout do Perfil</h3>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {[
                         { id: 'classic', label: 'Clássico', icon: UserCircle },
                         { id: 'hero', label: 'Hero', icon: User },
                         { id: 'compact', label: 'Compacto', icon: AlignLeft },
+                        { id: 'banner', label: 'Banner', icon: Camera },
                     ].map((layout) => (
                         <button
                             key={layout.id}
-                            onClick={() => onChange({ ...profile, headerLayout: layout.id as any })}
+                            onClick={() => handleLayoutChange(layout.id)}
                             className={`flex flex-col items-center justify-center gap-2 p-4 rounded-md border transition-all ${(profile.headerLayout || 'classic') === layout.id
                                 ? 'border-[#32a800] bg-slate-50 text-slate-900'
                                 : 'border-slate-100 hover:border-slate-200 text-slate-500'

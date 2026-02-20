@@ -38,7 +38,7 @@ export interface UserProfile {
   themeId: string;
   fontFamily: string;
   buttonRoundness?: 'square' | 'round' | 'rounder' | 'full' | null;
-  headerLayout?: 'classic' | 'compact' | 'hero';
+  headerLayout?: 'classic' | 'compact' | 'hero' | 'banner';
   headerStyle?: 'text' | 'logo';
   logoUrl?: string;
   avatarSize?: 'sm' | 'md' | 'lg';
