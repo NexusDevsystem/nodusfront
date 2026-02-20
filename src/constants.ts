@@ -103,6 +103,7 @@ import { socialThemes } from './themes/social';
 import { technologyThemes } from './themes/technology';
 import { advocacyThemes } from './themes/advocacy';
 import { musicThemes } from './themes/music';
+import { brutalistThemes } from './themes/brutalist';
 
 export const THEMES: Theme[] = [
   {
@@ -129,7 +130,8 @@ export const THEMES: Theme[] = [
   ...modernThemes,
   ...artisticThemes,
   ...socialThemes,
-  ...technologyThemes
+  ...technologyThemes,
+  ...brutalistThemes
 ];
 
 export const SOCIAL_NETWORKS = [

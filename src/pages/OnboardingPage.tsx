@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../services/apiClient';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Check, AlertCircle, Globe, Link as LinkIcon, X } from 'lucide-react';
+import { Loader2, Check, AlertCircle, Globe, Link as LinkIcon, X, ArrowLeft } from 'lucide-react';
 import { SiWhatsapp } from 'react-icons/si';
 
 // Safe localStorage setter that handles quota errors
@@ -115,7 +115,7 @@ export default function OnboardingPage() {
                         className="group flex items-center gap-2 font-bold text-sm uppercase hover:text-[#97cd7a] transition-colors"
                     >
                         <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none transition-all">
-                            <LinkIcon size={16} />
+                            <ArrowLeft size={16} />
                         </div>
                         Voltar
                     </button>
@@ -149,14 +149,14 @@ export default function OnboardingPage() {
                     {step === 1 && (
                         <form onSubmit={handleNextStep} className="space-y-8">
                             <div className="space-y-3">
-                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">Claim your username</label>
+                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">Reserve seu nome de usuário</label>
                                 <div className="group relative">
                                     <input
                                         type="text"
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9._]/g, ''))}
                                         className={`
-                                            w-full bg-white border-2 border-black py-6 pl-[110px] pr-12 text-xl font-black
+                                            w-full bg-white border-2 border-black py-6 pl-[135px] pr-12 text-xl font-black
                                             shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
                                             focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] 
                                             transition-all duration-200
@@ -164,7 +164,7 @@ export default function OnboardingPage() {
                                                 available === false ? 'border-red-500' :
                                                     'border-black hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}
                                         `}
-                                        placeholder="você"
+                                        placeholder="seu-nome"
                                         required
                                     />
                                     <div className="absolute left-5 inset-y-0 flex items-center gap-1 text-black font-black text-xl select-none pointer-events-none z-10 
@@ -286,14 +286,7 @@ export default function OnboardingPage() {
                     {error && <p className="mt-4 text-red-500 text-sm font-medium text-center">{error}</p>}
                 </div>
 
-                <div className="mt-auto pt-8 flex justify-between items-end border-t-2 border-black/10">
-                    <div className="text-xs font-bold text-black/30 uppercase">
-                        V 2.0.0
-                    </div>
-                    <div className="text-xs font-bold text-black/30 uppercase">
-                        Secure Onboarding
-                    </div>
-                </div>
+
             </div>
 
             {/* Right Side: Visual Banner */}
@@ -308,16 +301,14 @@ export default function OnboardingPage() {
                     {/* Circle Background */}
                     <div className="absolute inset-0 bg-white rounded-full border-4 border-black shadow-[20px_20px_0px_0px_rgba(0,0,0,1)]"></div>
 
-                    {/* Premium Phone Frame */}
-                    <div className="absolute inset-0 flex items-center justify-center z-10">
-                        <div className="relative w-auto h-[85%] aspect-[9/19] bg-slate-950 rounded-[2.5rem] shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] overflow-hidden border-[6px] border-black ring-1 ring-white/10 transition-transform hover:scale-[1.02] duration-500 animate-float">
+                    {/* Center Logo instead of Mockup */}
+                    <div className="absolute inset-0 flex items-center justify-center z-10 p-12">
+                        <div className="relative w-full flex items-center justify-center transition-transform hover:scale-[1.05] duration-500 animate-float">
                             <img
-                                src="/mockup.jpeg"
-                                alt="Mockup Preview"
-                                className="w-full h-full object-cover"
+                                src="/icons/logo.png"
+                                alt="Nodus Logo"
+                                className="w-[85%] h-auto object-contain drop-shadow-[8px_8px_0px_rgba(0,0,0,0.1)]"
                             />
-                            {/* Mobile Notch Bar */}
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[35%] h-5 bg-black rounded-b-xl z-20"></div>
                         </div>
                     </div>
 
@@ -354,15 +345,15 @@ export default function OnboardingPage() {
                             <div className="w-2 h-2 bg-white/10 border-[1px] border-white/20"></div>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[9px] text-white/40 font-black uppercase tracking-widest leading-none mb-1">Theme</span>
-                            <span className="font-black text-white text-[10px] uppercase">Brutalism</span>
+                            <span className="text-[9px] text-white/40 font-black uppercase tracking-widest leading-none mb-1">Tema</span>
+                            <span className="font-black text-white text-[10px] uppercase">Brutalismo</span>
                         </div>
                     </div>
 
                     {/* 4. Realtime Badge */}
                     <div className="absolute -bottom-4 right-10 bg-white border-2 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black text-[10px] font-black uppercase flex items-center gap-2 z-20">
                         <div className="w-3 h-3 bg-red-500 border-2 border-black animate-pulse"></div>
-                        Live Preview
+                        Preview ao Vivo
                     </div>
                 </div>
             </div>

@@ -36,6 +36,7 @@ import { SiSpotify } from 'react-icons/si';
 import { InstagramCard } from './InstagramCard';
 // @ts-ignore
 import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
+import BrutalistVisualizer from './themes/BrutalistVisualizer';
 
 
 interface ProfileRendererProps {
@@ -110,8 +111,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     React.useEffect(() => {
         if (!isPreview && profile.id && apiClient) {
             try {
+                console.log(`📊 [ProfileRenderer] Tracking page view for profile: ${profile.id} (isPreview=${isPreview})`);
                 apiClient.trackPageView(profile.id);
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error('❌ [ProfileRenderer] trackPageView error:', e); }
         }
     }, [profile.id, isPreview]);
 
@@ -168,10 +170,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
     const handleLinkClick = async (id: string) => {
         try {
-            // Track click via API
+            console.log(`📊 [ProfileRenderer] Tracking click for item: ${id}`);
             if (apiClient) await apiClient.trackClick(id);
         } catch (e) {
-            console.error('Failed to track click:', e);
+            console.error('❌ [ProfileRenderer] Failed to track click:', e);
         }
     };
 
@@ -427,6 +429,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             `}</style>
             {/* Background Layer */}
             <BackgroundLayer profile={profile} currentTheme={currentTheme} isStatic={isStatic} />
+            {!isStatic && currentTheme.id.startsWith('brutalist-') && (
+                <BrutalistVisualizer profile={profile} currentTheme={currentTheme} />
+            )}
 
             {/* GLOBAL BLUR FADE OVERLAY */}
             {profile.enableBlur && (

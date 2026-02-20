@@ -37,14 +37,14 @@ export default function VectorFooter() {
                         {/* Socials */}
                         <div className="flex gap-4">
                             {[
-                                { icon: Instagram, href: "#" },
-                                { icon: Twitter, href: "#" },
-                                { icon: Linkedin, href: "#" },
-                                { icon: Github, href: "#" }
+                                { icon: Instagram, href: "https://instagram.com/nodus.my" },
+                                { icon: Linkedin, href: "https://linkedin.com/company/nodus-my" }
                             ].map((item, i) => (
                                 <a
                                     key={i}
                                     href={item.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="w-12 h-12 border-2 border-black rounded-lg flex items-center justify-center hover:bg-black hover:text-white hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#000] transition-all"
                                 >
                                     <item.icon size={24} strokeWidth={2.5} />
@@ -54,55 +54,40 @@ export default function VectorFooter() {
                     </div>
 
                     {/* Links Grid - Right */}
-                    <div className="grid grid-cols-2">
+                    <div className="grid grid-cols-2 lg:h-full">
                         {/* Column 1 */}
-                        <div className="p-12 border-r-2 border-b-2 border-black flex flex-col gap-6">
+                        <div className="p-12 border-r-2 border-black flex flex-col gap-6">
                             <h4 className="font-black uppercase text-lg bg-[#ffdf00] inline-block px-2 self-start border-2 border-black shadow-[4px_4px_0px_0px_#000]">Produto</h4>
-                            <nav className="flex flex-col gap-4 font-bold">
+                            <nav className="flex flex-col gap-4 font-bold text-sm">
                                 <a href="#features" className="hover:translate-x-2 transition-transform flex items-center gap-2">
-                                    <ArrowRight size={16} /> Funcionalidades
+                                    <ArrowRight size={14} /> Funcionalidades
                                 </a>
                                 <a href="#showcase" className="hover:translate-x-2 transition-transform flex items-center gap-2">
-                                    <ArrowRight size={16} /> Showcase
+                                    <ArrowRight size={14} /> Showcase
                                 </a>
                                 <a href="#pricing" className="hover:translate-x-2 transition-transform flex items-center gap-2">
-                                    <ArrowRight size={16} /> Preços
+                                    <ArrowRight size={14} /> Preços
                                 </a>
                                 <a href="/login" className="hover:translate-x-2 transition-transform flex items-center gap-2">
-                                    <ArrowRight size={16} /> Login
+                                    <ArrowRight size={14} /> Login
                                 </a>
                             </nav>
                         </div>
 
                         {/* Column 2 */}
-                        <div className="p-12 border-b-2 border-black flex flex-col gap-6">
+                        <div className="p-12 flex flex-col gap-6">
                             <h4 className="font-black uppercase text-lg bg-[#97cd7a] inline-block px-2 self-start border-2 border-black shadow-[4px_4px_0px_0px_#000]">Legal</h4>
-                            <nav className="flex flex-col gap-4 font-bold">
+                            <nav className="flex flex-col gap-4 font-bold text-sm">
                                 <a href="/privacy" className="hover:translate-x-2 transition-transform flex items-center gap-2">
-                                    <ArrowRight size={16} /> Privacidade
+                                    <ArrowRight size={14} /> Privacidade
                                 </a>
                                 <a href="/terms" className="hover:translate-x-2 transition-transform flex items-center gap-2">
-                                    <ArrowRight size={16} /> Termos
+                                    <ArrowRight size={14} /> Termos
                                 </a>
                                 <a href="#cookies" className="hover:translate-x-2 transition-transform flex items-center gap-2">
-                                    <ArrowRight size={16} /> Cookies
+                                    <ArrowRight size={14} /> Cookies
                                 </a>
                             </nav>
-                        </div>
-
-                        {/* Newsletter / Input Area */}
-                        <div className="col-span-2 p-12 flex flex-col justify-center bg-[#f8f8f8]">
-                            <h4 className="font-black uppercase text-xl mb-4">Receba novidades</h4>
-                            <div className="flex gap-2">
-                                <input
-                                    type="email"
-                                    placeholder="seu@email.com"
-                                    className="flex-1 bg-white border-2 border-black p-4 font-bold outline-none focus:shadow-[4px_4px_0px_0px_#000] transition-shadow rounded-lg"
-                                />
-                                <button className="bg-black text-white px-6 font-bold uppercase border-2 border-black hover:bg-white hover:text-black hover:shadow-[4px_4px_0px_0px_#000] transition-all rounded-lg">
-                                    OK
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>

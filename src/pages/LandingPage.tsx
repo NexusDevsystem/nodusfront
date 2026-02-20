@@ -68,7 +68,7 @@ export default function LandingPage() {
                         <img
                             src="/icons/logo.png"
                             alt="NODUS"
-                            className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
+                            className="h-16 w-auto object-contain transition-transform group-hover:scale-105"
                         />
                     </div>
 
@@ -127,7 +127,7 @@ export default function LandingPage() {
                         </button>
                     </div>
 
-                    <div className="relative h-[500px] flex items-center justify-center">
+                    <div className="relative lg:h-[700px] h-[680px] flex items-center justify-center">
                         <ShowcaseCards />
                     </div>
                 </div>
