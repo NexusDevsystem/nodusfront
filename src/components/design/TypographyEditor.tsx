@@ -12,197 +12,205 @@ interface TypographyEditorProps {
 
 const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, updateProfile }) => {
     return (
-        <div className="space-y-6 animate-fade-in pb-10">
-
-            {/* Advanced Controls (Moved to Top) */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex items-center gap-2 mb-8 text-slate-500">
-                    <Zap size={18} />
-                    <h3 className="text-sm font-semibold uppercase tracking-wider">Ajustes Finos</h3>
-                </div>
-
-                <div className="space-y-10">
-                    {/* Font Size */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Tamanho da Fonte</span>
-                            <span className="text-xs font-bold text-[#32a800] bg-slate-50 px-2 py-1 rounded border border-slate-100 uppercase">
-                                {profile.fontSize || 16}PX
-                            </span>
-                        </div>
-                        <input
-                            type="range"
-                            min="12"
-                            max="32"
-                            step="1"
-                            value={profile.fontSize || 16}
-                            onChange={(e) => {
-                                const val = parseInt(e.target.value);
-                                if (updateProfile) updateProfile({ fontSize: val });
-                                else onChange({ ...profile, fontSize: val });
-                            }}
-                            className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-[#32a800]"
-                        />
-                        <div className="flex justify-between text-[10px] text-slate-400 font-medium uppercase tracking-widest px-1">
-                            <span>12px</span>
-                            <span>32px</span>
-                        </div>
+        <div className="space-y-5 animate-fade-in pb-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                {/* Advanced Controls */}
+                <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">
+                    <div className="flex items-center gap-2 mb-4 text-black border-b border-black pb-2">
+                        <Zap size={16} strokeWidth={3} />
+                        <h3 className="text-xs font-black uppercase tracking-widest text-black">Ajustes Finos</h3>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-slate-100">
-                        {/* Font Weight */}
-                        <div className="space-y-4">
-                            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Peso do Texto</span>
-                            <div className="flex gap-1.5">
-                                {['100', '400', '700', '900'].map((weight) => (
-                                    <button
-                                        key={weight}
-                                        onClick={() => {
-                                            if (updateProfile) updateProfile({ fontWeight: weight });
-                                            else onChange({ ...profile, fontWeight: weight });
-                                        }}
-                                        className={`flex-1 py-2 rounded text-[10px] font-bold transition-all border ${(profile.fontWeight || '400') === weight
-                                            ? 'bg-slate-50 border-[#32a800] text-[#32a800]'
-                                            : 'bg-white border-slate-100 text-slate-400 hover:text-slate-600'
-                                            }`}
-                                    >
-                                        {weight === '100' ? 'LIGHT' : weight === '400' ? 'REGULAR' : weight === '700' ? 'BOLD' : 'BLACK'}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Font Style (Italic) */}
-                        <div className="space-y-4">
-                            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Estilo</span>
-                            <button
-                                onClick={() => {
-                                    const val = !profile.fontItalic;
-                                    if (updateProfile) updateProfile({ fontItalic: val });
-                                    else onChange({ ...profile, fontItalic: val });
-                                }}
-                                className={`flex items-center justify-between px-4 py-3 rounded-md border transition-all w-full ${profile.fontItalic
-                                    ? 'border-[#32a800] bg-slate-50 text-[#32a800]'
-                                    : 'border-slate-100 text-slate-400 hover:text-slate-600'
-                                    }`}
-                            >
-                                <span className="text-[11px] font-bold uppercase tracking-wide">Texto em Itálico</span>
-                                <div className={`w-8 h-4 rounded-full transition-colors relative ${profile.fontItalic ? 'bg-[#32a800]' : 'bg-slate-200'}`}>
-                                    <motion.div
-                                        animate={{ x: profile.fontItalic ? 18 : 2 }}
-                                        className="absolute top-0.5 left-0 w-3 h-3 bg-white rounded-full shadow-sm"
-                                    />
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Colors (Moved Up) */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex items-center gap-2 mb-8 text-slate-500">
-                    <div className="w-4 h-4 rounded-sm bg-gradient-to-br from-purple-500 to-pink-500"></div>
-                    <h3 className="text-sm font-semibold uppercase tracking-wider">Cores do Texto</h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Header/Main Text Color */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Cabeçalhos e Texto</span>
-                            {profile.customTextColor && (
-                                <button
-                                    onClick={() => {
-                                        if (updateProfile) updateProfile({ customTextColor: null });
-                                        else onChange({ ...profile, customTextColor: null });
-                                    }}
-                                    className="text-[10px] text-red-500 font-bold uppercase hover:underline"
-                                >
-                                    Resetar
-                                </button>
-                            )}
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 shrink-0 shadow-sm">
-                                <input
-                                    type="color"
-                                    value={profile.customTextColor || '#000000'}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        if (updateProfile) updateProfile({ themeId: 'custom', customTextColor: val });
-                                        else onChange({ ...profile, themeId: 'custom', customTextColor: val });
-                                    }}
-                                    className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer"
-                                />
+                    <div className="space-y-6">
+                        {/* Font Size */}
+                        <div className="space-y-2.5">
+                            <div className="flex items-center justify-between px-1">
+                                <span className="text-[10px] font-black text-black uppercase tracking-widest">Tamanho da Fonte</span>
+                                <span className="text-[10px] font-black text-black bg-[#97cd7a] px-2 py-1 border border-black uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                    {profile.fontSize || 16}PX
+                                </span>
                             </div>
                             <input
-                                type="text"
-                                value={profile.customTextColor || ''}
+                                type="range"
+                                min="12"
+                                max="32"
+                                step="1"
+                                value={profile.fontSize || 16}
                                 onChange={(e) => {
-                                    const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
-                                    if (updateProfile) updateProfile({ themeId: 'custom', customTextColor: val });
-                                    else onChange({ ...profile, themeId: 'custom', customTextColor: val });
+                                    const val = parseInt(e.target.value);
+                                    if (updateProfile) updateProfile({ fontSize: val });
+                                    else onChange({ ...profile, fontSize: val });
                                 }}
-                                placeholder="#000000"
-                                className="flex-1 h-12 px-4 rounded-xl border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-mono uppercase font-bold"
+                                className="w-full h-1.5 bg-white border border-black appearance-none cursor-pointer accent-black"
                             />
+                            <div className="flex justify-between text-[8px] font-black text-black/50 uppercase tracking-widest px-1">
+                                <span>12PX</span>
+                                <span>32PX</span>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Button Text Color */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Texto do Botão</span>
-                            {profile.customButtonTextColor && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-black border-dashed">
+                            {/* Font Weight */}
+                            <div className="space-y-2">
+                                <span className="text-[9px] font-black text-black uppercase tracking-widest block px-1">Peso do Texto</span>
+                                <div className="flex bg-white border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+                                    {[
+                                        { label: 'FINA', val: '100' },
+                                        { label: 'NORM', val: '400' },
+                                        { label: 'NEGR', val: '700' },
+                                        { label: 'PRET', val: '900' }
+                                    ].map((w, idx) => (
+                                        <button
+                                            key={w.val}
+                                            onClick={() => {
+                                                if (updateProfile) updateProfile({ fontWeight: w.val });
+                                                else onChange({ ...profile, fontWeight: w.val });
+                                            }}
+                                            className={`flex-1 py-2 text-[10px] font-black transition-all ${idx !== 0 ? 'border-l border-black' : ''} ${(profile.fontWeight || '400') === w.val
+                                                ? 'bg-black text-[#97cd7a]'
+                                                : 'bg-white text-black hover:bg-black hover:text-white'
+                                                }`}
+                                        >
+                                            {w.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Font Style (Italic) */}
+                            <div className="space-y-2">
+                                <span className="text-[9px] font-black text-black uppercase tracking-widest block px-1">Estilo</span>
                                 <button
                                     onClick={() => {
-                                        if (updateProfile) updateProfile({ customButtonTextColor: null });
-                                        else onChange({ ...profile, customButtonTextColor: null });
+                                        const val = !profile.fontItalic;
+                                        if (updateProfile) updateProfile({ fontItalic: val });
+                                        else onChange({ ...profile, fontItalic: val });
                                     }}
-                                    className="text-[10px] text-red-500 font-bold uppercase hover:underline"
+                                    className={`flex items-center justify-between px-3 py-2 border border-black transition-all w-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${profile.fontItalic
+                                        ? 'bg-black text-[#97cd7a]'
+                                        : 'bg-white text-black hover:bg-slate-50'
+                                        }`}
                                 >
-                                    Resetar
+                                    <span className="text-[9px] font-black uppercase tracking-widest">Texto Itálico</span>
+                                    <div className={`w-8 h-4 border border-black transition-colors relative ${profile.fontItalic ? 'bg-[#97cd7a]' : 'bg-white'}`}>
+                                        <motion.div
+                                            animate={{ x: profile.fontItalic ? 16 : 0 }}
+                                            className="absolute top-0 bottom-0 left-0 w-3.5 h-full bg-black border-r border-black"
+                                        />
+                                    </div>
                                 </button>
-                            )}
+                            </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 shrink-0 shadow-sm">
+                    </div>
+                </div>
+
+                {/* Colors Section */}
+                <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">
+                    <div className="flex items-center gap-2 mb-4 text-black border-b border-black pb-2">
+                        <div className="w-4 h-4 border border-black bg-[#97cd7a] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"></div>
+                        <h3 className="text-xs font-black uppercase tracking-widest text-black">Cores do Texto</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
+                        {/* Header/Main Text Color */}
+                        <div className="space-y-2">
+                            <span className="text-[9px] font-black text-black uppercase tracking-widest block px-1">Cabeçalhos e Texto</span>
+                            <div className="flex items-center gap-2">
+                                <div className="relative w-10 h-10 overflow-hidden border border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white">
+                                    <input
+                                        type="color"
+                                        value={profile.customTextColor || '#000000'}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (updateProfile) updateProfile({ customTextColor: val });
+                                            else onChange({ ...profile, customTextColor: val });
+                                        }}
+                                        className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer border-none p-0"
+                                    />
+                                </div>
                                 <input
-                                    type="color"
-                                    value={profile.customButtonTextColor || '#ffffff'}
+                                    type="text"
+                                    value={profile.customTextColor || ''}
                                     onChange={(e) => {
-                                        const val = e.target.value;
+                                        const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
+                                        if (updateProfile) updateProfile({ customTextColor: val });
+                                        else onChange({ ...profile, customTextColor: val });
+                                    }}
+                                    placeholder="#000000"
+                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-black uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Collection Title Color */}
+                        <div className="space-y-2">
+                            <span className="text-[9px] font-black text-black uppercase tracking-widest block px-1">Título da Coleção</span>
+                            <div className="flex items-center gap-2">
+                                <div className="relative w-10 h-10 overflow-hidden border border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white">
+                                    <input
+                                        type="color"
+                                        value={profile.customCollectionTextColor || profile.customTextColor || '#000000'}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (updateProfile) updateProfile({ customCollectionTextColor: val });
+                                            else onChange({ ...profile, customCollectionTextColor: val });
+                                        }}
+                                        className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer border-none p-0"
+                                    />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={profile.customCollectionTextColor || ''}
+                                    onChange={(e) => {
+                                        const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
+                                        if (updateProfile) updateProfile({ customCollectionTextColor: val });
+                                        else onChange({ ...profile, customCollectionTextColor: val });
+                                    }}
+                                    placeholder={profile.customTextColor || "#000000"}
+                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-black uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Button Text Color */}
+                        <div className="space-y-2">
+                            <span className="text-[9px] font-black text-black uppercase tracking-widest block px-1">Texto do Botão</span>
+                            <div className="flex items-center gap-2">
+                                <div className="relative w-10 h-10 overflow-hidden border border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white">
+                                    <input
+                                        type="color"
+                                        value={profile.customButtonTextColor || '#ffffff'}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (updateProfile) updateProfile({ customButtonTextColor: val });
+                                            else onChange({ ...profile, customButtonTextColor: val });
+                                        }}
+                                        className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer border-none p-0"
+                                    />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={profile.customButtonTextColor || ''}
+                                    onChange={(e) => {
+                                        const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
                                         if (updateProfile) updateProfile({ customButtonTextColor: val });
                                         else onChange({ ...profile, customButtonTextColor: val });
                                     }}
-                                    className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer"
+                                    placeholder="#FFFFFF"
+                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-black uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
                                 />
                             </div>
-                            <input
-                                type="text"
-                                value={profile.customButtonTextColor || ''}
-                                onChange={(e) => {
-                                    const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
-                                    if (updateProfile) updateProfile({ customButtonTextColor: val });
-                                    else onChange({ ...profile, customButtonTextColor: val });
-                                }}
-                                placeholder="#FFFFFF"
-                                className="flex-1 h-12 px-4 rounded-xl border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-mono uppercase font-bold"
-                            />
                         </div>
                     </div>
+
                 </div>
-                <p className="text-[10px] text-slate-400 mt-6 italic bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    * A <b>cor do texto no botão</b> agora é aplicada em todos os temas. Alterar a cor dos <b>cabeçalhos e textos principais</b> ainda ativará o modo <b>Custom</b> para garantir a visibilidade.
-                </p>
             </div>
 
             {/* Font Library */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex items-center gap-2 mb-6 text-slate-500">
-                    <Type size={18} />
-                    <h3 className="text-sm font-semibold uppercase tracking-wider">Biblioteca de Fontes</h3>
+            <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mt-2">
+                <div className="flex items-center gap-2 mb-4 text-black border-b border-black pb-2">
+                    <Type size={16} strokeWidth={3} />
+                    <h3 className="text-xs font-black uppercase tracking-widest text-black">Biblioteca de Fontes</h3>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -221,65 +229,52 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                     if (updateProfile) updateProfile({ fontFamily: font.family });
                                     else onChange({ ...profile, fontFamily: font.family });
                                 }}
-                                className={`flex items-center justify-between p-4 rounded-md border transition-all text-left relative ${isSelected
-                                    ? 'border-[#32a800] bg-slate-50'
-                                    : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'
+                                className={`flex items-center justify-between p-2.5 border-2 transition-all text-left relative group ${isSelected
+                                    ? 'border-black bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                                    : 'border-black bg-white hover:bg-black hover:text-[#97cd7a] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none'
                                     } ${isLocked ? 'opacity-60 grayscale' : ''}`}
                             >
-                                <div className="flex items-center gap-4">
-                                    <span
-                                        className="bg-white w-10 h-10 rounded border border-slate-100 flex items-center justify-center text-slate-700 font-medium relative overflow-hidden"
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                    <div
+                                        className={`w-10 h-10 border-2 border-black flex items-center justify-center font-medium shrink-0 transition-colors ${isSelected ? 'bg-white text-black' : 'bg-white text-black group-hover:bg-black group-hover:text-white'}`}
                                         style={{
                                             fontFamily: font.family,
                                             fontWeight: profile.fontWeight || '400',
                                             fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                            fontSize: '16px'
+                                            fontSize: '14px'
                                         }}
                                     >
                                         Aa
-                                        {isLocked && (
-                                            <div className="absolute inset-0 bg-slate-100/80 flex items-center justify-center">
-                                                <Zap size={14} className="text-slate-400 fill-slate-400" />
-                                            </div>
-                                        )}
-                                    </span>
-                                    <div>
-                                        <div className="flex items-center gap-2">
+                                    </div>
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-1.5 mb-0.5">
                                             <span
-                                                className="text-sm font-semibold text-slate-900 block"
+                                                className={`text-[11px] font-black uppercase tracking-widest truncate transition-colors ${isSelected ? 'text-black' : 'text-black group-hover:text-[#ffdf00]'}`}
                                                 style={{
                                                     fontFamily: font.family,
-                                                    fontWeight: profile.fontWeight || '400',
-                                                    fontStyle: profile.fontItalic ? 'italic' : 'normal'
                                                 }}
                                             >
                                                 {font.name}
                                             </span>
                                             {font.isPro && (
-                                                <span className="text-[9px] font-black uppercase tracking-wider bg-black/5 text-black/40 px-1.5 py-0.5 rounded">
-                                                    PRO
-                                                </span>
+                                                <Zap size={10} className="text-[#ffdf00] fill-[#ffdf00] shrink-0" />
                                             )}
                                         </div>
-                                        <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{font.type}</span>
+                                        <span className={`text-[8px] font-bold uppercase tracking-widest block transition-colors ${isSelected ? 'text-black/50' : 'text-black/40 group-hover:text-white/60'}`}>{font.type}</span>
                                     </div>
                                 </div>
 
                                 {isSelected && (
-                                    <div className="w-4 h-4 rounded-full bg-[#32a800] flex items-center justify-center">
-                                        <Check size={10} className="text-white" strokeWidth={4} />
+                                    <div className="w-5 h-5 border border-black bg-black flex items-center justify-center shrink-0 ml-2">
+                                        <Check size={12} className="text-[#97cd7a]" strokeWidth={4} />
                                     </div>
-                                )}
-
-                                {isLocked && !isSelected && (
-                                    <Zap size={14} className="text-slate-300 fill-slate-300" />
                                 )}
                             </button>
                         );
                     })}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

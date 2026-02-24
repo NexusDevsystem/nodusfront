@@ -9,10 +9,14 @@ import {
     BarChart3,
     ArrowRight,
     MousePointer2,
-    Lock
+    Lock,
+    Filter,
+    PieChart,
+    Plus
 } from 'lucide-react';
 import { LinkItem, UserProfile } from '../types';
 import { apiClient } from '../services/apiClient';
+import BrutalistLoader from './BrutalistLoader';
 
 interface AnalyticsSummary {
     totalViews: number;
@@ -35,8 +39,8 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
     const [links, setLinks] = useState<LinkItem[]>([]);
     const [products, setProducts] = useState<any[]>([]);
 
-    // Default to 14d as before
-    const [dateRange, setDateRange] = useState<DateRange>('14d');
+    // Default to 7d for free users
+    const [dateRange, setDateRange] = useState<DateRange>('7d');
 
     // Helper to get numeric days
     const getDaysFromRange = (range: DateRange): number => {
@@ -53,7 +57,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
     const isPro = userProfile.planType === 'monthly' || userProfile.planType === 'annual';
 
     const handleRangeChange = (range: DateRange) => {
-        if ((range === '30d' || range === '1y' || range === 'all') && !isPro) {
+        if ((range === '14d' || range === '30d' || range === '1y' || range === 'all') && !isPro) {
             // Trigger upgrade modal via window event (standard pattern in this app)
             window.dispatchEvent(new CustomEvent('open-billing-modal'));
             return;
@@ -92,26 +96,27 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
 
     if (isLoading) {
         return (
-            <div className="w-full h-96 flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-10 h-10 border-2 border-slate-100 border-t-[#32a800] rounded-full animate-spin"></div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Carregando estatísticas...</span>
-                </div>
+            <div className="w-full h-[70vh] flex items-center justify-center p-6">
+                <BrutalistLoader
+                    message="Sincronizando Dados..."
+                    progress={75}
+                    subtext="ANALYTICS ENGINE LOAD"
+                />
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="w-full h-96 flex flex-col items-center justify-center text-center p-8">
-                <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mb-4">
-                    <Activity size={24} className="text-slate-400" />
+            <div className="w-full h-96 flex flex-col items-center justify-center text-center p-8 max-w-sm mx-auto">
+                <div className="w-16 h-16 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-6">
+                    <Activity size={24} strokeWidth={3} className="text-black" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Falha na conexão</h3>
-                <p className="text-slate-400 text-xs mt-2 mb-6 max-w-xs">{error}</p>
+                <h3 className="text-sm font-black text-black uppercase tracking-widest">Erro de Conexão</h3>
+                <p className="text-[10px] text-black/50 font-bold uppercase tracking-widest mt-2 mb-8">{error}</p>
                 <button
                     onClick={() => window.location.reload()}
-                    className="px-6 py-2 border border-slate-200 text-slate-600 rounded-md text-xs font-semibold hover:bg-slate-50 transition-colors"
+                    className="w-full py-3 bg-black text-[#97cd7a] border-2 border-black text-[10px] font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
                 >
                     Tentar Novamente
                 </button>
@@ -162,20 +167,34 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
         }
     }
 
+    const averageViews = summary.dailyData.length > 0
+        ? Math.round(summary.totalViews / summary.dailyData.length)
+        : 0;
+
+    const bestDayObj = summary.dailyData.length > 0
+        ? summary.dailyData.reduce((prev, current) => (prev.views > current.views) ? prev : current)
+        : null;
+
+    const bestDayDate = bestDayObj && bestDayObj.views > 0
+        ? new Date(bestDayObj.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+        : '--';
+
+    const activeLinksCount = summary.topLinks.length;
+
     return (
-        <div className="space-y-6 animate-fade-in w-full pb-20 max-w-4xl mx-auto">
+        <div className="space-y-6 animate-fade-in w-full pb-20 max-w-4xl mx-auto px-4">
             {/* Standard Header Card */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
-                    <div className="flex items-center gap-2 text-slate-500">
-                        <BarChart3 size={18} />
-                        <h3 className="text-sm font-semibold uppercase tracking-wider">Estatísticas</h3>
+            <div className="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 border-b border-black pb-4">
+                    <div className="flex items-center gap-2 text-black">
+                        <BarChart3 size={16} strokeWidth={3} />
+                        <h3 className="text-xs font-black uppercase tracking-widest">Analytics</h3>
                     </div>
 
                     {/* Date Range Selector */}
-                    <div className="flex items-center bg-slate-50 p-1 rounded-lg border border-slate-200 self-start md:self-auto overflow-x-auto max-w-full">
+                    <div className="flex bg-white border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden self-start md:self-auto">
                         {(['7d', '14d', '30d', '1y', 'all'] as DateRange[]).map((range) => {
-                            const isLocked = (range === '30d' || range === '1y' || range === 'all') && !isPro;
+                            const isLocked = (range === '14d' || range === '30d' || range === '1y' || range === 'all') && !isPro;
                             const isActive = dateRange === range;
 
                             return (
@@ -183,38 +202,38 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                                     key={range}
                                     onClick={() => handleRangeChange(range)}
                                     className={`
-                                        relative px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-md transition-all whitespace-nowrap
+                                        relative px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-r last:border-r-0 border-black
                                         ${isActive
-                                            ? 'bg-white text-slate-800 shadow-sm border border-slate-100'
-                                            : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}
-                                        ${isLocked ? 'opacity-70' : ''}
+                                            ? 'bg-black text-[#97cd7a]'
+                                            : 'bg-white text-black hover:bg-slate-50'}
+                                        ${isLocked ? 'opacity-80' : ''}
                                     `}
                                 >
                                     <div className="flex items-center gap-1.5">
-                                        {range === '7d' && '7 Dias'}
-                                        {range === '14d' && '14 Dias'}
-                                        {range === '30d' && '30 Dias'}
-                                        {range === '1y' && '1 Ano'}
-                                        {range === 'all' && 'Tudo'}
-                                        {isLocked && <Lock size={8} className="text-[#32a800]" />}
+                                        {range === '7d' && '7D'}
+                                        {range === '14d' && '14D'}
+                                        {range === '30d' && '30D'}
+                                        {range === '1y' && '1A'}
+                                        {range === 'all' && 'TUDO'}
+                                        {isLocked && <Lock size={8} strokeWidth={3} className="text-[#97cd7a]" />}
                                     </div>
                                 </button>
                             );
                         })}
                     </div>
                 </div>
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-slate-500 font-medium">
-                        Acompanhe o desempenho e engajamento do seu perfil em tempo real.
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <p className="text-[10px] text-black font-bold uppercase tracking-widest opacity-60">
+                        MONITORAMENTO DE DESEMPENHO E ENGAJAMENTO EM TEMPO REAL.
                     </p>
-                    <div className="hidden md:block px-3 py-1 bg-slate-50 border border-slate-100 rounded text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <div className="px-3 py-1.5 bg-black text-[#97cd7a] border border-black text-[9px] font-black uppercase tracking-widest shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
                         {getRangeLabel()}
                     </div>
                 </div>
             </div>
 
             {/* KPI Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <KpiCard
                     label="Visualizações"
                     value={summary.totalViews}
@@ -231,72 +250,96 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                     value={summary.ctr.toFixed(1) + '%'}
                     icon={TrendingUp}
                 />
+                <KpiCard
+                    label="Média Diária"
+                    value={averageViews}
+                    icon={BarChart3}
+                />
+                <KpiCard
+                    label="Melhor Dia"
+                    value={bestDayDate}
+                    icon={Calendar}
+                />
+                <KpiCard
+                    label="Links Ativos"
+                    value={activeLinksCount}
+                    icon={Zap}
+                />
             </div>
 
             {/* Performance Chart Section */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-2 text-slate-500">
-                        <Activity size={18} />
-                        <h3 className="text-sm font-semibold uppercase tracking-wider">Desempenho Diário</h3>
+            <div className="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex items-center justify-between mb-8 border-b border-black/5 pb-4">
+                    <div className="flex items-center gap-2 text-black">
+                        <Activity size={16} strokeWidth={3} />
+                        <h3 className="text-xs font-black uppercase tracking-widest">Tendência</h3>
                     </div>
 
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#32a800]"></div>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Views</span>
+                            <div className="w-2 h-2 border border-black bg-[#97cd7a]"></div>
+                            <span className="text-[9px] font-black text-black uppercase tracking-widest">Views</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-slate-900"></div>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cliques</span>
+                            <div className="w-2 h-2 border border-black bg-black"></div>
+                            <span className="text-[9px] font-black text-black uppercase tracking-widest">Cliques</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="h-48 w-full relative pt-4">
+                <div className="h-64 w-full relative pt-4 flex flex-col">
                     {summary.dailyData.length > 0 ? (
-                        <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
-                            {/* Area Gradient (Views) */}
-                            <path
-                                d={createPath(summary.dailyData.map(d => d.views), maxViews, true)}
-                                fill="url(#viewsGradient)"
-                                className="opacity-30"
-                            />
+                        <div className="relative flex-1 flex items-end justify-between gap-0.5 sm:gap-1 w-full pt-4 px-2">
+                            {summary.dailyData.map((d, i) => {
+                                const maxVal = Math.max(maxViews, 1);
+                                const heightViews = `${Math.max((d.views / maxVal) * 100, 1)}%`;
 
-                            {/* Views Line */}
-                            <path
-                                d={createPath(summary.dailyData.map(d => d.views), maxViews)}
-                                fill="none"
-                                stroke="#32a800"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
+                                return (
+                                    <div key={i} className="flex-1 h-full flex flex-col justify-end items-center group relative cursor-pointer">
+                                        {/* Tooltip */}
+                                        <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white border-2 border-black p-2.5 z-20 pointer-events-none whitespace-nowrap shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-1.5">
+                                            <p className="text-[10px] text-black font-black uppercase tracking-widest leading-none border-b-2 border-black pb-2 text-center">
+                                                {new Date(d.date).toLocaleDateString('pt-BR')}
+                                            </p>
+                                            <div className="flex items-center justify-between gap-4 mt-1">
+                                                <span className="text-[9px] text-black font-black uppercase tracking-widest flex items-center gap-1">
+                                                    <span className="w-2 h-2 bg-[#97cd7a] border border-black inline-block"></span> VIEWS
+                                                </span>
+                                                <span className="text-[10px] font-black">{d.views}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between gap-4">
+                                                <span className="text-[9px] text-black font-black uppercase tracking-widest flex items-center gap-1">
+                                                    <span className="w-2 h-2 bg-black border border-black inline-block"></span> CLIQUES
+                                                </span>
+                                                <span className="text-[10px] font-black">{d.clicks}</span>
+                                            </div>
+                                        </div>
 
-                            {/* Clicks Line */}
-                            <path
-                                d={createPath(summary.dailyData.map(d => d.clicks), maxViews)}
-                                fill="none"
-                                stroke="#0f172a"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-
-                            <defs>
-                                <linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#32a800" stopOpacity="0.4" />
-                                    <stop offset="100%" stopColor="#32a800" stopOpacity="0" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
+                                        {/* Bars Container */}
+                                        <div className="relative w-full max-w-[32px] flex flex-col justify-end items-center h-full">
+                                            {/* Views Bar */}
+                                            <div
+                                                className="w-full bg-[#97cd7a] border-2 border-b-0 border-black transition-all group-hover:-translate-y-1 absolute bottom-0 flex flex-col justify-end group-hover:bg-[#aef18e]"
+                                                style={{ height: heightViews }}
+                                            >
+                                                {/* Clicks Bar Nested (Colors the bottom of the Views bar black natively proportional to clicks/views) */}
+                                                <div
+                                                    className="w-full bg-black border-t-2 border-black"
+                                                    style={{ height: `${(d.clicks / Math.max(d.views, 1)) * 100}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">
+                        <div className="w-full h-full flex items-center justify-center text-[10px] font-black text-black opacity-20 uppercase tracking-widest">
                             Sem dados para o período selecionado
                         </div>
                     )}
 
-                    <div className="flex justify-between mt-6 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                    <div className="flex justify-between mt-4 text-[8px] font-black text-black uppercase tracking-widest border-t-2 border-black pt-4">
                         {/* Intelligent date labelling based on range */}
                         {(() => {
                             const data = summary.dailyData;
@@ -309,41 +352,176 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                 </div>
             </div>
 
-            {/* Top Links Section */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex items-center gap-2 mb-6 text-slate-500">
-                    <Zap size={18} />
-                    <h3 className="text-sm font-semibold uppercase tracking-wider">Links mais acessados</h3>
+            {/* Advanced Analytics Grids */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Funil de Conversão */}
+                <div className="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col">
+                    <div className="flex items-center justify-between mb-8 border-b border-black/5 pb-4">
+                        <div className="flex items-center gap-2 text-black">
+                            <Filter size={16} strokeWidth={3} />
+                            <h3 className="text-xs font-black uppercase tracking-widest">Funil de Retenção</h3>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 flex flex-col justify-center gap-4">
+                        <div className="w-full relative group">
+                            <div className="w-full bg-[#97cd7a] border-2 border-black h-12 flex items-center justify-between px-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-transform group-hover:-translate-y-1">
+                                <span className="text-[10px] font-black text-black uppercase tracking-widest">1. Visualizações totais</span>
+                                <span className="text-sm font-black text-black">{summary.totalViews}</span>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-center w-full">
+                            <div className="w-1 h-4 bg-black"></div>
+                        </div>
+
+                        <div className="w-full relative flex justify-center group">
+                            <div
+                                className="bg-black border-2 border-black h-12 flex items-center justify-between px-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-transform group-hover:-translate-y-1"
+                                style={{ width: summary.totalViews > 0 ? `${Math.max((summary.totalClicks / summary.totalViews) * 100, 30)}%` : '100%' }}
+                            >
+                                <span className="text-[10px] font-black text-white uppercase tracking-widest truncate mr-2">2. Cliques</span>
+                                <span className="text-sm font-black text-[#97cd7a]">{summary.totalClicks}</span>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-center w-full">
+                            <div className="w-1 h-4 bg-black"></div>
+                        </div>
+
+                        <div className="w-full flex justify-center mt-2">
+                            <div className="border-2 border-black bg-white px-6 py-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-center cursor-default hover:bg-black hover:text-[#97cd7a] transition-colors group">
+                                <p className="text-[8px] font-black uppercase tracking-widest opacity-50 group-hover:opacity-100 group-hover:text-white mb-1">Taxa de Conversão</p>
+                                <p className="text-2xl font-black">{summary.ctr.toFixed(1)}%</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="space-y-3">
+                {/* Distribuição de Cliques */}
+                <div className="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col">
+                    <div className="flex items-center justify-between mb-8 border-b border-black/5 pb-4">
+                        <div className="flex items-center gap-2 text-black">
+                            <PieChart size={16} strokeWidth={3} />
+                            <h3 className="text-xs font-black uppercase tracking-widest">Composição de Cliques</h3>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 flex flex-col justify-center">
+                        {summary.totalClicks === 0 ? (
+                            <div className="text-center py-8 text-[10px] font-black text-black opacity-20 uppercase tracking-widest border-2 border-dashed border-black">
+                                Sem interações nesse período
+                            </div>
+                        ) : (
+                            <div className="space-y-6">
+                                {/* Barra Compartilhada */}
+                                <div className="h-8 w-full border-2 border-black flex shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+                                    {enrichedTopLinks.slice(0, 3).map((link, i) => {
+                                        const percent = (link.clicks / summary.totalClicks) * 100;
+                                        const colors = ['bg-[#97cd7a]', 'bg-black', 'bg-slate-300'];
+                                        return (
+                                            <div
+                                                key={link.id}
+                                                style={{ width: `${percent}%` }}
+                                                className={`h-full ${colors[i % colors.length]} ${i > 0 ? 'border-l-2 border-black' : ''} transition-all hover:opacity-80`}
+                                                title={`${link.metadata.title}: ${link.clicks} cliques`}
+                                            ></div>
+                                        )
+                                    })}
+                                    {/* Restante */}
+                                    {(() => {
+                                        const top3Clicks = enrichedTopLinks.slice(0, 3).reduce((acc, curr) => acc + curr.clicks, 0);
+                                        const remainingClicks = summary.totalClicks - top3Clicks;
+                                        if (remainingClicks > 0) {
+                                            const percent = (remainingClicks / summary.totalClicks) * 100;
+                                            return (
+                                                <div
+                                                    style={{ width: `${percent}%` }}
+                                                    className="h-full bg-white border-l-2 border-black pattern-diagonal-lines pattern-black pattern-bg-white pattern-size-2 pattern-opacity-20"
+                                                    title={`Outros: ${remainingClicks} cliques`}
+                                                ></div>
+                                            );
+                                        }
+                                        return null;
+                                    })()}
+                                </div>
+
+                                {/* Legenda */}
+                                <div className="space-y-3">
+                                    {enrichedTopLinks.slice(0, 3).map((link, i) => {
+                                        const percent = ((link.clicks / summary.totalClicks) * 100).toFixed(1);
+                                        const colors = ['bg-[#97cd7a]', 'bg-black', 'bg-slate-300'];
+                                        return (
+                                            <div key={link.id} className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
+                                                <div className="flex items-center gap-2 truncate">
+                                                    <div className={`w-3 h-3 border border-black ${colors[i % colors.length]} shrink-0`}></div>
+                                                    <span className="truncate">{link.metadata.title}</span>
+                                                </div>
+                                                <span className="ml-4 tabular-nums">{percent}%</span>
+                                            </div>
+                                        )
+                                    })}
+
+                                    {/* Restante Legenda */}
+                                    {(() => {
+                                        const top3Clicks = enrichedTopLinks.slice(0, 3).reduce((acc, curr) => acc + curr.clicks, 0);
+                                        const remainingClicks = summary.totalClicks - top3Clicks;
+                                        if (remainingClicks > 0) {
+                                            const percent = ((remainingClicks / summary.totalClicks) * 100).toFixed(1);
+                                            return (
+                                                <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest opacity-60 pt-2 border-t border-black/10">
+                                                    <div className="flex items-center gap-2 truncate">
+                                                        <div className="w-3 h-3 border border-black bg-white pattern-diagonal-lines pattern-black pattern-bg-white pattern-size-2 pattern-opacity-20 shrink-0"></div>
+                                                        <span className="truncate">Outros links</span>
+                                                    </div>
+                                                    <span className="ml-4 tabular-nums">{percent}%</span>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    })()}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Top Links Section */}
+            <div className="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex items-center gap-2 mb-6 border-b border-black pb-4">
+                    <Zap size={16} strokeWidth={3} className="text-black" />
+                    <h3 className="text-xs font-black uppercase tracking-widest">Ranking de Cliques</h3>
+                </div>
+
+                <div className="space-y-2.5">
                     {enrichedTopLinks.length === 0 ? (
-                        <div className="py-10 text-center bg-slate-50/50 rounded-md border border-slate-100">
-                            <p className="text-xs text-slate-400 font-medium">Aguardando mais dados de engajamento...</p>
+                        <div className="py-10 text-center border-2 border-dashed border-black">
+                            <p className="text-[10px] text-black/30 font-black uppercase tracking-widest">Aguardando engajamento...</p>
                         </div>
                     ) : (
                         enrichedTopLinks.map((link, i) => (
-                            <div key={link.id} className="flex items-center justify-between p-4 rounded-md border border-slate-100 bg-slate-50/30 hover:bg-slate-50 hover:border-slate-200 transition-all group">
+                            <div key={link.id} className="flex items-center justify-between p-4 border border-black bg-white hover:bg-[#97cd7a]/10 transition-all group shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]">
                                 <div className="flex items-center gap-4 overflow-hidden">
-                                    <div className="w-6 h-6 rounded bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400 shrink-0">
+                                    <div className="w-8 h-8 border border-black bg-black text-[#97cd7a] flex items-center justify-center text-[10px] font-black shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                                         {i + 1}
                                     </div>
                                     <div className="min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <h4 className="text-sm font-bold text-slate-800 truncate">{link.metadata.title}</h4>
-                                            <span className={`text-[8px] px-1.5 py-0.5 rounded font-black uppercase tracking-tighter ${link.metadata.type === 'Produto' ? 'bg-indigo-50 text-indigo-500' : 'bg-slate-100 text-slate-400'
+                                            <h4 className="text-[11px] font-black text-black uppercase tracking-widest truncate">{link.metadata.title}</h4>
+                                            <span className={`text-[7px] px-1.5 py-0.5 border border-black font-black uppercase tracking-tighter ${link.metadata.type === 'Produto' ? 'bg-[#97cd7a] text-black' : 'bg-black text-white'
                                                 }`}>
                                                 {link.metadata.type}
                                             </span>
                                         </div>
-                                        <p className="text-[10px] text-slate-400 truncate font-medium uppercase tracking-wider">
-                                            {link.metadata.url && link.metadata.url !== '#' ? new URL(link.metadata.url).hostname : 'Link Direto'}
+                                        <p className="text-[8px] text-black font-bold truncate opacity-40 uppercase tracking-widest mt-0.5">
+                                            {link.metadata.url && link.metadata.url !== '#' ? new URL(link.metadata.url).hostname : 'DIRECT ACCESS'}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="text-right pl-4">
-                                    <span className="block text-sm font-black text-slate-900">{link.clicks}</span>
-                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Cliques</span>
+                                    <span className="block text-lg font-black text-black tracking-widest leading-none">{link.clicks}</span>
+                                    <span className="text-[8px] font-black text-black opacity-30 uppercase tracking-widest">Cliques</span>
                                 </div>
                             </div>
                         ))
@@ -356,40 +534,22 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
 
 function KpiCard({ label, value, icon: Icon, isActive }: any) {
     return (
-        <div className={`p-6 rounded-lg border transition-all ${isActive
-            ? 'bg-slate-50 border-[#32a800] text-slate-900'
-            : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+        <div className={`p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all ${isActive
+            ? 'bg-[#97cd7a] text-black'
+            : 'bg-white text-black'
             }`}>
-            <div className="flex items-center justify-between mb-4">
-                <div className={`p-2 rounded ${isActive ? 'bg-[#32a800] text-white' : 'bg-slate-50 text-slate-400'}`}>
-                    <Icon size={16} />
+            <div className="flex items-center justify-between mb-6">
+                <div className={`p-2 border border-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] ${isActive ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
+                    <Icon size={16} strokeWidth={3} />
                 </div>
-                <TrendingUp size={12} className={isActive ? 'text-[#32a800]' : 'text-slate-300'} />
+                <div className="w-2 h-2 border border-black bg-black"></div>
             </div>
             <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1">{label}</p>
-                <p className="text-2xl font-black tracking-tight">{typeof value === 'number' ? value.toLocaleString() : value}</p>
+                <p className="text-[9px] font-black text-black uppercase tracking-widest mb-1 opacity-50">{label}</p>
+                <p className="text-2xl font-black tracking-widest leading-none">
+                    {typeof value === 'number' ? value.toLocaleString() : value}
+                </p>
             </div>
         </div>
     );
-}
-
-function createPath(data: number[], max: number, close: boolean = false): string {
-    if (!data.length) return "";
-    const points = data.map((val, i) => {
-        const x = i * (100 / (data.length - 1));
-        const y = 100 - (val / (max || 1)) * 80 - 10;
-        return `${x},${y}`;
-    });
-    let path = `M ${points[0]}`;
-    for (let i = 1; i < points.length; i++) {
-        const [prevX, prevY] = points[i - 1].split(',').map(Number);
-        const [currX, currY] = points[i].split(',').map(Number);
-        const cp1x = prevX + (currX - prevX) / 2;
-        path += ` C ${cp1x},${prevY} ${cp1x},${currY} ${currX},${currY}`;
-    }
-    if (close) {
-        path += ` L 100,100 L 0,100 Z`;
-    }
-    return path;
 }

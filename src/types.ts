@@ -38,7 +38,7 @@ export interface UserProfile {
   themeId: string;
   fontFamily: string;
   buttonRoundness?: 'square' | 'round' | 'rounder' | 'full' | null;
-  headerLayout?: 'classic' | 'compact' | 'hero' | 'banner';
+  headerLayout?: 'classic' | 'compact' | 'banner';
   headerStyle?: 'text' | 'logo';
   logoUrl?: string;
   avatarSize?: 'sm' | 'md' | 'lg';
@@ -65,6 +65,7 @@ export interface UserProfile {
   fontItalic?: boolean;
   customSecondaryColor?: string | null;
   customTextColor?: string | null;
+  customCollectionTextColor?: string | null;
   customButtonTextColor?: string | null;
   customButtonColor?: string | null;
   integrations?: any[];

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, File as FileIcon, Trash2, Copy, Check, X, Loader2, Image as ImageIcon, FileText, Download, ExternalLink } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { UserProfile } from '../../types';
 
 interface FileItem {
     filename: string;
@@ -10,7 +11,11 @@ interface FileItem {
     uploadedAt: string;
 }
 
-const FileManager: React.FC = () => {
+interface FileManagerProps {
+    userProfile?: UserProfile;
+}
+
+const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
     const { token } = useAuth();
     const [files, setFiles] = useState<FileItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -46,6 +51,12 @@ const FileManager: React.FC = () => {
 
     // Handle File Upload
     const handleFileUpload = async (file: File) => {
+        const isFree = userProfile?.planType === 'free' || !userProfile?.planType;
+        if (isFree && files.length >= 2) {
+            window.dispatchEvent(new CustomEvent('open-billing-modal'));
+            return;
+        }
+
         setIsUploading(true);
         const formData = new FormData();
         formData.append('file', file);
@@ -73,9 +84,14 @@ const FileManager: React.FC = () => {
         }
     };
 
+    const [deletingFilename, setDeletingFilename] = useState<string | null>(null);
+
     // Handle Delete
-    const handleDelete = async (filename: string) => {
-        if (!confirm('Tem certeza que deseja excluir este arquivo? O link deixará de funcionar.')) return;
+    const handleDelete = async (filename: string, confirmed = false) => {
+        if (!confirmed) {
+            setDeletingFilename(filename);
+            return;
+        }
 
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/files/${filename}`, {
@@ -93,6 +109,8 @@ const FileManager: React.FC = () => {
             }
         } catch (error) {
             console.error('Delete error:', error);
+        } finally {
+            setDeletingFilename(null);
         }
     };
 
@@ -142,118 +160,197 @@ const FileManager: React.FC = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-8 animate-fade-in">
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-slate-800 mb-2">Gerenciador de Arquivos</h1>
-                <p className="text-slate-500">Hospede arquivos (PDFs, Imagens, Cardápios) e gere links diretos para usar no seu perfil.</p>
-            </div>
+        <div className="w-full animate-fade-in pb-20">
+            {/* Minimalist Brutalist Header Area is handled by EditorPage, so we start with content */}
 
-            {/* Upload Area */}
-            <div
-                className={`border-2 border-dashed rounded-xl p-10 text-center transition-all mb-10 ${dragActive ? 'border-[#32a800] bg-green-50' : 'border-slate-200 hover:border-slate-300 bg-slate-50'}`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-            >
-                <div className="flex flex-col items-center gap-4">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${dragActive ? 'bg-[#32a800] text-white' : 'bg-slate-200 text-slate-400'}`}>
-                        {isUploading ? <Loader2 size={32} className="animate-spin" /> : <Upload size={32} />}
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-semibold text-slate-700">
-                            {isUploading ? 'Enviando arquivo...' : (dragActive ? 'Solte o arquivo aqui' : 'Arraste e solte ou clique para enviar')}
-                        </h3>
-                        <p className="text-sm text-slate-400 mt-1">PDF, PNG, JPG até 10MB</p>
-                    </div>
-                    {!isUploading && (
-                        <button
-                            onClick={() => fileInputRef.current?.click()}
-                            className="px-6 py-2 bg-slate-900 text-white rounded-md font-medium hover:bg-slate-800 transition-colors"
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+                {/* 1. Upload Section */}
+                <div className="xl:col-span-1 space-y-4">
+                    <div className="bg-white p-6 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        <div className="flex items-center gap-2 mb-4 border-b border-black pb-2">
+                            <Upload size={16} strokeWidth={3} className="text-black" />
+                            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black">Upload</h3>
+                        </div>
+
+                        <div
+                            className={`border-2 border-dashed p-6 text-center transition-all relative flex flex-col items-center gap-4 ${dragActive ? 'border-black bg-[#97cd7a]/20' : 'border-black/20 bg-slate-50 hover:bg-white hover:border-black/40'}`}
+                            onDragEnter={handleDrag}
+                            onDragLeave={handleDrag}
+                            onDragOver={handleDrag}
+                            onDrop={handleDrop}
                         >
-                            Selecionar Arquivo
-                        </button>
-                    )}
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        className="hidden"
-                        onChange={(e) => e.target.files && handleFileUpload(e.target.files[0])}
-                        accept="image/*,application/pdf"
-                    />
-                </div>
-            </div>
+                            <div className={`w-12 h-12 flex items-center justify-center border-2 border-black ${dragActive || isUploading ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'} shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-colors`}>
+                                {isUploading ? <Loader2 size={24} className="animate-spin" strokeWidth={3} /> : <Upload size={24} strokeWidth={3} />}
+                            </div>
 
-            {/* Files List */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                    <h3 className="font-semibold text-slate-700">Seus Arquivos ({files.length})</h3>
-                </div>
+                            <div className="space-y-1">
+                                <h3 className="text-[10px] font-black uppercase tracking-widest text-black leading-tight">
+                                    {isUploading ? 'Processando...' : (dragActive ? 'Pode Soltar!' : 'Arraste ou Clique')}
+                                </h3>
+                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-tighter">PDF, PNG ou JPG (MAX 10MB)</p>
+                            </div>
 
-                {isLoading ? (
-                    <div className="p-10 flex justify-center">
-                        <Loader2 className="animate-spin text-slate-400" />
-                    </div>
-                ) : files.length === 0 ? (
-                    <div className="p-10 text-center text-slate-400">
-                        <FileIcon size={48} className="mx-auto mb-3 opacity-20" />
-                        <p>Nenhum arquivo enviado ainda.</p>
-                    </div>
-                ) : (
-                    <div className="divide-y divide-slate-100">
-                        <AnimatePresence>
-                            {files.map((file) => (
-                                <motion.div
-                                    key={file.filename}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    className="p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors group"
+                            {!isUploading && (
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-full py-2 bg-black text-white text-[9px] font-black uppercase tracking-[0.2em] hover:bg-[#97cd7a] hover:text-black transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
                                 >
-                                    <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-                                        {getFileIcon(file.filename)}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h4 className="font-medium text-slate-800 truncate mb-0.5">{file.filename}</h4>
-                                        <div className="flex items-center gap-3 text-xs text-slate-400">
-                                            <span>{formatBytes(file.size)}</span>
-                                            <span>•</span>
-                                            <span>{new Date(file.uploadedAt).toLocaleDateString()}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => copyLink(file.url, file.filename)}
-                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${copiedId === file.filename
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                                }`}
-                                        >
-                                            {copiedId === file.filename ? <Check size={14} /> : <Copy size={14} />}
-                                            {copiedId === file.filename ? 'Copiado!' : 'Copiar Link'}
-                                        </button>
-                                        <a
-                                            href={file.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors"
-                                            title="Abrir"
-                                        >
-                                            <ExternalLink size={16} />
-                                        </a>
-                                        <button
-                                            onClick={() => handleDelete(file.filename)}
-                                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
-                                            title="Excluir"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
+                                    Abrir Arquivos
+                                </button>
+                            )}
+
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                className="hidden"
+                                onChange={(e) => e.target.files && handleFileUpload(e.target.files[0])}
+                                accept="image/*,application/pdf"
+                            />
+                        </div>
                     </div>
-                )}
+
+                    {/* Pro Tip Card */}
+                    <div className="bg-[#ffdf00] p-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        <div className="flex gap-3">
+                            <FileText size={16} strokeWidth={3} className="shrink-0" />
+                            <div>
+                                <h4 className="text-[9px] font-black uppercase tracking-widest mb-1">Dica Pro</h4>
+                                <p className="text-[8px] font-bold uppercase leading-relaxed text-black/60">Use links diretos para cardápios, portfólios ou downloads que não pesam seu perfil.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 2. Files List Section */}
+                <div className="xl:col-span-2">
+                    <div className="bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col min-h-[400px]">
+                        <div className="p-4 border-b-2 border-black flex justify-between items-center bg-white sticky top-0 z-10">
+                            <div className="flex items-center gap-2">
+                                <FileIcon size={16} strokeWidth={3} />
+                                <h3 className="text-[11px] font-black uppercase tracking-[0.15em] text-black">Seus Arquivos <span className="opacity-30 ml-1">({files.length})</span></h3>
+                            </div>
+                            {isLoading && <Loader2 size={12} className="animate-spin text-black" strokeWidth={3} />}
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto max-h-[600px] scrollbar-hide">
+                            {isLoading ? (
+                                <div className="h-[300px] flex items-center justify-center">
+                                    <Loader2 className="animate-spin text-black/20" size={32} strokeWidth={3} />
+                                </div>
+                            ) : files.length === 0 ? (
+                                <div className="p-20 text-center space-y-4">
+                                    <div className="w-16 h-16 border-2 border-black/10 mx-auto flex items-center justify-center rotate-3">
+                                        <FileIcon size={32} className="text-black/10" strokeWidth={3} />
+                                    </div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/20">Ainda não há arquivos por aqui.</p>
+                                </div>
+                            ) : (
+                                <div className="divide-y-2 divide-black">
+                                    <AnimatePresence mode="popLayout">
+                                        {files.map((file) => (
+                                            <motion.div
+                                                key={file.filename}
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, scale: 0.95 }}
+                                                className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:bg-slate-50 transition-colors group relative"
+                                            >
+                                                {/* File Icon / Preview Container */}
+                                                <div className="w-9 h-9 sm:w-10 sm:h-10 border-2 border-black bg-white flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:bg-[#97cd7a] transition-colors overflow-hidden">
+                                                    {file.filename.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                                                        <img src={file.url} alt="" className="w-full h-full object-cover" />
+                                                    ) : getFileIcon(file.filename)}
+                                                </div>
+
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-[9px] sm:text-[10px] font-black uppercase tracking-wide text-black truncate">{file.filename}</h4>
+                                                    <div className="flex items-center gap-2 sm:gap-3 mt-0.5">
+                                                        <span className="text-[7px] sm:text-[8px] font-black text-black/40 uppercase tracking-widest bg-black/5 px-1 py-0.5">{formatBytes(file.size)}</span>
+                                                        <span className="text-[7px] sm:text-[8px] font-bold text-black/30 uppercase leading-none">{new Date(file.uploadedAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Actions */}
+                                                <div className="flex items-center gap-1.5 shrink-0">
+                                                    {deletingFilename === file.filename ? (
+                                                        <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-right-2 duration-300">
+                                                            <button
+                                                                onClick={() => handleDelete(file.filename, true)}
+                                                                className="w-8 h-8 flex items-center justify-center bg-red-600 text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                                                                title="Confirmar Exclusão"
+                                                            >
+                                                                <Check size={14} strokeWidth={4} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setDeletingFilename(null)}
+                                                                className="w-8 h-8 flex items-center justify-center bg-white text-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                                                                title="Cancelar"
+                                                            >
+                                                                <X size={14} strokeWidth={4} />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <button
+                                                                onClick={() => copyLink(file.url, file.filename)}
+                                                                title="Copiar Link"
+                                                                className={`w-8 h-8 flex items-center justify-center border-2 border-black transition-all ${copiedId === file.filename
+                                                                    ? 'bg-[#97cd7a] shadow-none translate-x-[1px] translate-y-[1px]'
+                                                                    : 'bg-white hover:bg-black hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]'
+                                                                    }`}
+                                                            >
+                                                                {copiedId === file.filename ? <Check size={14} strokeWidth={3} /> : <Copy size={14} strokeWidth={3} />}
+                                                            </button>
+
+                                                            <a
+                                                                href={file.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                                                                title="Visualizar"
+                                                            >
+                                                                <ExternalLink size={14} strokeWidth={3} />
+                                                            </a>
+                                                            <button
+                                                                onClick={() => handleDelete(file.filename)}
+                                                                className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-red-400 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                                                                title="Excluir"
+                                                            >
+                                                                <Trash2 size={14} strokeWidth={3} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer Info */}
+                        <div className="p-3 bg-black text-white flex justify-between items-center px-4">
+                            <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-60">Armazenamento Nodus</span>
+                            <div className="flex gap-1" title={userProfile?.planType === 'free' ? "Limite de 2 arquivos no plano free" : "Armazenamento Premium"}>
+                                {[1, 2, 3, 4, 5, 6, 7, 8].map(i => {
+                                    const isFree = userProfile?.planType === 'free' || !userProfile?.planType;
+                                    const limit = isFree ? 2 : 8;
+                                    const isFilled = i <= files.length;
+                                    const isAvailable = i <= limit;
+
+                                    if (!isAvailable && isFree) return null;
+
+                                    return (
+                                        <div
+                                            key={i}
+                                            className={`w-1.5 h-3 border border-white/20 ${isFilled ? 'bg-[#97cd7a]' : 'bg-white/10'}`}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

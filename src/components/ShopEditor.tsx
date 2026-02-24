@@ -9,9 +9,10 @@ interface ShopEditorProps {
     onChange: (products: Product[]) => void;
     pendingCollection?: string | null;
     onPendingCollectionConsumed?: () => void;
+    userProfile?: any;
 }
 
-export default function ShopEditor({ products, onChange, pendingCollection, onPendingCollectionConsumed }: ShopEditorProps) {
+export default function ShopEditor({ products, onChange, pendingCollection, onPendingCollectionConsumed, userProfile }: ShopEditorProps) {
     const [isAddingCollection, setIsAddingCollection] = useState(false);
     const [newCollectionName, setNewCollectionName] = useState('');
     const [expandedCollections, setExpandedCollections] = useState<string[]>([]);
@@ -45,8 +46,16 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
         );
     };
 
+    const isFree = userProfile?.planType === 'free' || !userProfile?.planType;
+
     const handleAddCollection = () => {
         if (!newCollectionName.trim()) return;
+
+        if (isFree && collections.length >= 2) {
+            window.dispatchEvent(new CustomEvent('open-billing-modal'));
+            return;
+        }
+
         setAddingToCollection(newCollectionName);
         setNewCollectionName('');
         setIsAddingCollection(false);
@@ -54,6 +63,12 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
 
     const handleAddProduct = (collectionName: string) => {
         if (!newProduct.name || !newProduct.url) return;
+
+        const colProducts = products.filter(p => p.collection === collectionName);
+        if (isFree && colProducts.length >= 4) {
+            window.dispatchEvent(new CustomEvent('open-billing-modal'));
+            return;
+        }
 
         const image = newProduct.image || 'https://placehold.co/200x200?text=No+Image';
 
@@ -95,17 +110,17 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
     };
 
     const renderProduct = (product: Product) => (
-        <div key={product.clientId || product.id} className="relative bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-slate-300 transition-all group flex gap-4 items-center overflow-hidden">
-            <div className="cursor-move text-slate-300 hover:text-slate-400 shrink-0">
-                <GripVertical size={16} />
+        <div key={product.clientId || product.id} className="relative bg-white p-2.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all group flex gap-2.5 items-center overflow-hidden mb-2.5">
+            <div className="cursor-move text-black hover:text-[#97cd7a] shrink-0">
+                <GripVertical size={18} strokeWidth={3} />
             </div>
 
             <div className="relative group/edit shrink-0">
-                <div className="w-14 h-14 rounded-md overflow-hidden border border-slate-100 bg-slate-50 shadow-inner">
+                <div className="w-10 h-10 border border-black bg-white overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                     <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                 </div>
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/edit:opacity-100 transition-opacity rounded-md">
-                    <Upload size={14} className="text-white" />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/edit:opacity-100 transition-opacity">
+                    <Upload size={20} className="text-white" strokeWidth={3} />
                 </div>
                 <input
                     type="file"
@@ -124,52 +139,52 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                 />
             </div>
 
-            <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-1">Nome</label>
+                    <label className="text-[8px] font-black uppercase tracking-[0.2em] text-black/70 block px-1">Nome</label>
                     <input
                         type="text"
                         value={product.name}
                         onChange={(e) => updateProduct(product.id, 'name', e.target.value)}
-                        className="w-full bg-slate-50/50 border border-slate-100 rounded-md py-1.5 px-2.5 text-sm font-medium text-slate-700 focus:bg-white focus:border-slate-300 outline-none transition"
+                        className="w-full bg-white border border-black py-1 px-2.5 text-[11px] font-black uppercase tracking-widest text-black focus:bg-[#f1f1f1] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
                         placeholder="Nome do produto"
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-1">Link</label>
-                    <div className="flex items-center bg-slate-50/50 border border-slate-100 rounded-md px-2.5 focus-within:bg-white focus-within:border-slate-300 transition">
-                        <ExternalLink size={12} className="text-slate-300 mr-2 shrink-0" />
+                    <label className="text-[8px] font-black uppercase tracking-[0.2em] text-black/70 block px-1">Link</label>
+                    <div className="flex items-center bg-white border border-black px-2.5 focus-within:bg-[#f1f1f1] transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                        <ExternalLink size={10} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
                             type="text"
                             value={product.url}
                             onChange={(e) => updateProduct(product.id, 'url', e.target.value)}
-                            className="w-full bg-transparent py-1.5 text-sm font-medium text-slate-700 outline-none truncate"
+                            className="w-full bg-transparent py-2 text-xs font-bold uppercase tracking-widest text-black outline-none truncate placeholder:text-black/30 placeholder:uppercase"
                             placeholder="https://..."
                         />
                     </div>
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-1">Preço</label>
-                    <div className="flex items-center bg-slate-50/50 border border-slate-100 rounded-md px-2.5 focus-within:bg-white focus-within:border-slate-300 transition">
-                        <DollarSign size={12} className="text-slate-300 mr-2 shrink-0" />
+                    <label className="text-[9px] font-black uppercase tracking-[0.2em] text-black/70 block px-1">Preço</label>
+                    <div className="flex items-center bg-white border-2 border-black px-3 focus-within:bg-[#f1f1f1] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        <DollarSign size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
                             type="text"
                             value={product.price || ''}
                             onChange={(e) => updateProduct(product.id, 'price', e.target.value)}
-                            className="w-full bg-transparent py-1.5 text-sm font-medium text-slate-700 outline-none"
+                            className="w-full bg-transparent py-2 text-xs font-bold uppercase tracking-widest text-black outline-none placeholder:text-black/30 placeholder:uppercase"
                             placeholder="Ex: R$ 99,90"
                         />
                     </div>
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-1">Cupom</label>
-                    <div className="flex items-center bg-slate-50/50 border border-slate-100 rounded-md px-2.5 focus-within:bg-white focus-within:border-slate-300 transition">
-                        <Tag size={12} className="text-slate-300 mr-2 shrink-0" />
+                    <label className="text-[9px] font-black uppercase tracking-[0.2em] text-black/70 block px-1">Cupom</label>
+                    <div className="flex items-center bg-white border-2 border-black px-3 focus-within:bg-[#f1f1f1] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        <Tag size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
                             type="text"
                             value={product.discountCode || ''}
                             onChange={(e) => updateProduct(product.id, 'discountCode', e.target.value)}
-                            className="w-full bg-transparent py-1.5 text-sm font-medium text-slate-700 outline-none"
+                            className="w-full bg-transparent py-2 text-xs font-bold uppercase tracking-widest text-black outline-none placeholder:text-black/30 placeholder:uppercase"
                             placeholder="Ex: SAVE10"
                         />
                     </div>
@@ -178,10 +193,10 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
 
             <button
                 onClick={() => setDeletingProductId(product.id)}
-                className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                className="p-2 bg-white text-black border border-black hover:text-white hover:bg-red-500 hover:translate-x-[0.5px] hover:translate-y-[0.5px] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ml-2"
                 title="Excluir"
             >
-                <Trash2 size={18} />
+                <Trash2 size={16} strokeWidth={3} />
             </button>
 
             {/* Product Deletion Confirm Panel */}
@@ -191,23 +206,23 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="absolute inset-x-0 bottom-0 z-20 bg-white border-t border-red-100 overflow-hidden"
+                        className="absolute inset-x-0 bottom-0 z-20 bg-[#97cd7a] border-t-2 border-black overflow-hidden"
                     >
                         <div className="p-4 flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-2 text-red-500">
-                                <AlertCircle size={16} />
-                                <span className="text-xs font-bold">Excluir produto?</span>
+                            <div className="flex items-center gap-2 text-black">
+                                <AlertCircle size={20} strokeWidth={3} />
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Excluir produto?</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setDeletingProductId(null)}
-                                    className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-slate-600 transition"
+                                    className="px-4 py-2 bg-white border-2 border-black text-[9px] font-black uppercase tracking-widest text-black hover:bg-black hover:text-white transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     onClick={() => handleDeleteProduct(product.id)}
-                                    className="px-4 py-1.5 bg-red-500 text-white rounded-md text-[10px] font-bold uppercase tracking-wider hover:bg-red-600 transition shadow-sm"
+                                    className="px-4 py-2 bg-red-400 border-2 border-black text-black text-[9px] font-black uppercase tracking-widest hover:bg-red-500 transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                 >
                                     Confirmar
                                 </button>
@@ -220,61 +235,61 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
     );
 
     const renderAddForm = (collectionName: string) => (
-        <div className="bg-slate-50 p-6 rounded-lg border border-slate-200 mt-4 animate-fade-in space-y-4">
-            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                <Plus size={14} />
+        <div className="bg-[#f8f8f8] p-6 border-2 border-black border-dashed mt-4 animate-fade-in space-y-6 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-black border-b border-black/10 pb-3">
+                <Plus size={18} strokeWidth={3} />
                 <span>Adicionar Novo Produto</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-1">Nome do Produto</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                    <label className="text-[9px] font-black uppercase tracking-[0.2em] text-black/70 block px-1">Nome do Produto</label>
                     <input
                         type="text"
                         placeholder="Ex: Camiseta Nodus Edition"
-                        className="w-full px-3 py-2.5 rounded-md border border-slate-200 bg-white text-sm font-medium outline-none focus:border-[#32a800] transition"
+                        className="w-full px-4 py-3 bg-white border-2 border-black text-xs font-black uppercase tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30 placeholder:font-bold"
                         value={newProduct.name || ''}
                         onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
                     />
                 </div>
-                <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-1">URL de Destino</label>
+                <div className="space-y-2">
+                    <label className="text-[9px] font-black uppercase tracking-[0.2em] text-black/70 block px-1">URL de Destino</label>
                     <input
                         type="url"
                         placeholder="https://minhaloja.com/produto"
-                        className="w-full px-3 py-2.5 rounded-md border border-slate-200 bg-white text-sm font-medium outline-none focus:border-[#32a800] transition"
+                        className="w-full px-4 py-3 bg-white border-2 border-black text-xs font-bold tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30 placeholder:uppercase"
                         value={newProduct.url || ''}
                         onChange={e => setNewProduct({ ...newProduct, url: e.target.value })}
                     />
                 </div>
-                <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-1">Preço (Opcional)</label>
+                <div className="space-y-2">
+                    <label className="text-[9px] font-black uppercase tracking-[0.2em] text-black/70 block px-1">Preço (Opcional)</label>
                     <input
                         type="text"
                         placeholder="R$ 0,00"
-                        className="w-full px-3 py-2.5 rounded-md border border-slate-200 bg-white text-sm font-medium outline-none focus:border-[#32a800] transition"
+                        className="w-full px-4 py-3 bg-white border-2 border-black text-xs font-bold tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
                         value={newProduct.price || ''}
                         onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
                     />
                 </div>
-                <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-1">Cupom (Opcional)</label>
+                <div className="space-y-2">
+                    <label className="text-[9px] font-black uppercase tracking-[0.2em] text-black/70 block px-1">Cupom (Opcional)</label>
                     <input
                         type="text"
                         placeholder="Ex: NODUS10"
-                        className="w-full px-3 py-2.5 rounded-md border border-slate-200 bg-white text-sm font-medium outline-none focus:border-[#32a800] transition"
+                        className="w-full px-4 py-3 bg-white border-2 border-black text-xs font-bold uppercase tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
                         value={newProduct.discountCode || ''}
                         onChange={e => setNewProduct({ ...newProduct, discountCode: e.target.value })}
                     />
                 </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-white border border-slate-100 rounded-lg">
-                <div className="relative w-20 h-20 rounded-md border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:border-[#32a800] transition group">
+            <div className="flex items-start gap-4 p-4 bg-white border-4 border-black border-dashed">
+                <div className="relative w-24 h-24 border-2 border-black bg-white flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:bg-[#ffdf00] transition group shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
                     {newProduct.image ? (
                         <img src={newProduct.image} className="w-full h-full object-cover" />
                     ) : (
-                        <ImageIcon size={24} className="text-slate-300 group-hover:text-[#32a800] transition" />
+                        <ImageIcon size={32} strokeWidth={3} className="text-black group-hover:text-black transition" />
                     )}
                     <input
                         type="file"
@@ -288,25 +303,25 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                         }}
                     />
                 </div>
-                <div className="flex-1 space-y-1">
-                    <p className="text-xs font-bold text-slate-700">Miniatura do Produto</p>
-                    <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
-                        Recomendamos uma imagem quadrada (1:1). Clique no quadro para carregar.
+                <div className="flex-1 space-y-2 py-2">
+                    <p className="text-sm font-black text-black uppercase tracking-widest">Miniatura do Produto</p>
+                    <p className="text-xs font-bold text-black/60 leading-relaxed uppercase tracking-widest max-w-sm">
+                        Recomendamos imagem quadrada (1:1). Clique no quadro para enviar.
                     </p>
                 </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex justify-end gap-3 pt-4 border-t-2 border-black/10">
                 <button
                     onClick={() => { setAddingToCollection(null); setNewProduct({}); }}
-                    className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-slate-600 transition"
+                    className="px-6 py-2.5 bg-white border-2 border-black text-[9px] font-black uppercase tracking-widest text-black hover:bg-black hover:text-white transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                 >
                     Cancelar
                 </button>
                 <button
                     onClick={() => handleAddProduct(collectionName)}
                     disabled={!newProduct.name || !newProduct.url}
-                    className="px-6 py-2 bg-[#1a1a1a] text-white rounded-md text-xs font-bold uppercase tracking-widest hover:bg-black disabled:opacity-30 transition-all shadow-md"
+                    className="px-6 py-2.5 bg-[#97cd7a] border-2 border-black text-black text-[9px] font-black uppercase tracking-widest hover:bg-black hover:text-[#97cd7a] disabled:opacity-50 disabled:grayscale transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                 >
                     Salvar Produto
                 </button>
@@ -315,38 +330,38 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
     );
 
     return (
-        <div className="space-y-10">
-            <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-                <div className="flex items-center justify-between gap-4 mb-6">
-                    <div className="flex items-center gap-3">
-                        <ShoppingBag size={18} className="text-slate-500" />
-                        <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Configurar Vitrine</h2>
+        <div className="space-y-6">
+            <div className="bg-white p-4 rounded-none border-[1.5px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex items-center justify-between gap-4 mb-4 border-b border-black pb-2.5">
+                    <div className="flex items-center gap-2.5">
+                        <ShoppingBag size={18} strokeWidth={3} className="text-black" />
+                        <h2 className="text-base font-black uppercase tracking-widest text-black">Configurar Vitrine</h2>
                     </div>
                     <button
                         onClick={() => setIsAddingCollection(true)}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 text-slate-600 hover:bg-[#32a800] hover:text-white rounded-md text-xs font-bold transition-all border border-slate-100"
+                        className="flex items-center gap-2 px-4 py-2 bg-black text-[#97cd7a] hover:bg-black hover:text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none text-[9px] font-black uppercase tracking-widest transition-all"
                         title="Nova Coleção"
                     >
-                        <FolderPlus size={16} />
+                        <FolderPlus size={18} strokeWidth={3} />
                         <span className="hidden sm:inline">NOVA CATEGORIA</span>
                     </button>
                 </div>
 
-                <p className="text-xs md:text-sm text-slate-400 bg-slate-50/70 p-4 rounded-md border border-slate-100 leading-relaxed font-medium mb-6">
+                <p className="text-[10px] md:text-xs text-black/60 font-bold bg-[#f1f1f1] p-4 border-l-4 border-[#97cd7a] leading-relaxed mb-6 uppercase tracking-[0.1em]">
                     Mantenha sua vitrine organizada agrupando produtos por categorias.
                     Produtos sem categoria serão listados automaticamente em uma seção geral.
                 </p>
 
                 {isAddingCollection && (
-                    <div className="animate-fade-in bg-slate-50 p-3 sm:p-4 rounded-md border border-slate-200 mb-6">
+                    <div className="animate-fade-in bg-[#ffdf00] p-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-6">
                         <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
-                                <Folder size={18} className="text-slate-400 shrink-0" />
+                                <Folder size={20} strokeWidth={3} className="text-black shrink-0" />
                                 <input
                                     autoFocus
                                     type="text"
                                     placeholder="Ex: Lançamentos 2024"
-                                    className="flex-1 min-w-0 bg-white border border-slate-200 rounded-md px-4 py-2 text-sm font-medium outline-none focus:border-[#32a800] transition"
+                                    className="flex-1 min-w-0 bg-white border-2 border-black px-4 py-2 text-sm font-bold text-black outline-none placeholder:text-black/30 transition-all focus:border-black focus:ring-0"
                                     value={newCollectionName}
                                     onChange={e => setNewCollectionName(e.target.value)}
                                     onKeyDown={(e) => { if (e.key === 'Enter') handleAddCollection() }}
@@ -355,15 +370,15 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                             <div className="flex items-center gap-2 justify-end sm:justify-start">
                                 <button
                                     onClick={handleAddCollection}
-                                    className="flex-1 sm:flex-none whitespace-nowrap bg-[#32a800] text-white px-5 py-2 rounded-md hover:bg-[#32a800]/90 font-bold text-xs transition-all uppercase tracking-widest shadow-sm"
+                                    className="flex-1 sm:flex-none whitespace-nowrap bg-black text-[#97cd7a] px-6 py-2 border-2 border-black hover:text-white font-black text-[10px] transition-all uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                                 >
                                     CRIAR
                                 </button>
                                 <button
                                     onClick={() => setIsAddingCollection(false)}
-                                    className="p-2 text-slate-400 hover:text-slate-600 transition-all shrink-0"
+                                    className="p-2 text-black hover:text-red-600 transition-all shrink-0"
                                 >
-                                    <X size={20} />
+                                    <X size={24} strokeWidth={3} />
                                 </button>
                             </div>
                         </div>
@@ -373,8 +388,8 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
 
             <div className="space-y-6">
                 <div className="flex items-center gap-2 px-1">
-                    <Folder size={16} className="text-slate-400" />
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Suas Categorias</span>
+                    <Folder size={20} strokeWidth={3} className="text-black" />
+                    <span className="text-xs font-black uppercase tracking-[0.2em] text-black">Suas Categorias</span>
                 </div>
 
                 {addingToCollection && !collections.includes(addingToCollection) && (
@@ -396,63 +411,69 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                     const isExpanded = expandedCollections.includes(collectionName);
 
                     return (
-                        <div key={collectionName} className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm hover:border-slate-300 transition-all">
+                        <div key={collectionName} className="bg-white border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all">
                             <div
-                                className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50/50 transition border-b border-transparent"
+                                className="flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50 transition border-b border-transparent"
                                 onClick={() => toggleCollection(collectionName)}
-                                style={{ borderBottomColor: isExpanded ? '#f1f5f9' : 'transparent' }}
+                                style={{ borderBottomColor: isExpanded ? 'black' : 'transparent' }}
                             >
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2.5">
                                     <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-                                        <ChevronDown size={18} className="text-slate-300" />
+                                        <ChevronDown size={18} className="text-black" strokeWidth={3} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <h3 className="font-bold text-slate-800 text-sm uppercase tracking-tight">{collectionName}</h3>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{colProducts.length} itens cadastrados</span>
+                                        <h3 className="font-black text-black text-sm uppercase tracking-tight">{collectionName}</h3>
+                                        <span className="text-[9px] font-bold text-black/60 uppercase tracking-widest">{colProducts.length} itens cadastrados</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                                     <button
-                                        onClick={() => setAddingToCollection(collectionName === addingToCollection ? null : collectionName)}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 text-[#32a800] hover:bg-[#32a800]/5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all"
+                                        onClick={() => {
+                                            const colProducts = products.filter(p => p.collection === collectionName);
+                                            if (isFree && colProducts.length >= 4 && addingToCollection !== collectionName) {
+                                                window.dispatchEvent(new CustomEvent('open-billing-modal'));
+                                                return;
+                                            }
+                                            setAddingToCollection(collectionName === addingToCollection ? null : collectionName);
+                                        }}
+                                        className="flex items-center gap-1.5 px-3 py-2 bg-white text-black border-2 border-black hover:bg-[#ffdf00] text-[10px] font-black uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                     >
-                                        <PlusCircle size={14} strokeWidth={2.5} /> PRODUTO
+                                        <PlusCircle size={14} strokeWidth={3} /> PRODUTO
                                     </button>
                                     <button
                                         onClick={() => setDeletingCollection(collectionName)}
-                                        className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
+                                        className="p-2 bg-white text-black border-2 border-black hover:bg-red-500 hover:text-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                     >
-                                        <Trash2 size={16} />
+                                        <Trash2 size={18} strokeWidth={3} />
                                     </button>
                                 </div>
                             </div>
-
                             <AnimatePresence>
                                 {deletingCollection === collectionName && (
                                     <motion.div
                                         initial={{ height: 0, opacity: 0 }}
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
-                                        className="bg-red-50/50 border-t border-red-100 overflow-hidden"
+                                        className="bg-[#97cd7a] border-t-2 border-black overflow-hidden"
                                     >
                                         <div className="p-4 px-6 flex items-center justify-between gap-4">
                                             <div className="flex flex-col">
-                                                <div className="flex items-center gap-2 text-red-600">
-                                                    <Trash2 size={14} />
-                                                    <span className="text-xs font-bold uppercase tracking-tight">Excluir Categoria?</span>
+                                                <div className="flex items-center gap-2 text-black">
+                                                    <Trash2 size={16} strokeWidth={3} />
+                                                    <span className="text-xs font-black uppercase tracking-widest">Excluir Categoria?</span>
                                                 </div>
-                                                <span className="text-[10px] text-red-600/60 font-medium">Todos os produtos desta categoria serão removidos.</span>
+                                                <span className="text-[10px] text-black/70 font-bold uppercase tracking-widest mt-1">Todos os produtos desta categoria serão removidos.</span>
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <button
                                                     onClick={() => setDeletingCollection(null)}
-                                                    className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-600 transition"
+                                                    className="px-4 py-2 bg-white border-2 border-black text-[9px] font-black uppercase tracking-widest text-black hover:bg-black hover:text-white transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                                 >
                                                     Cancelar
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteCollection(collectionName)}
-                                                    className="px-5 py-2 bg-red-500 text-white rounded-md text-[11px] font-black uppercase tracking-widest hover:bg-red-600 transition shadow-sm"
+                                                    className="px-4 py-2 bg-red-400 border-2 border-black text-black text-[9px] font-black uppercase tracking-widest hover:bg-red-500 transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                                 >
                                                     Confirmar
                                                 </button>
@@ -482,22 +503,22 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                 })}
 
                 {uncategorizedProducts.length > 0 && (
-                    <div className="bg-white rounded-lg border border-slate-200 border-dashed opacity-80 overflow-hidden shadow-sm">
+                    <div className="bg-white border-2 border-dashed border-black opacity-80 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                         <div
-                            className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50/50 transition"
+                            className="flex items-center justify-between p-4 cursor-pointer hover:bg-[#ffdf00] transition-colors"
                             onClick={() => toggleCollection('uncategorized')}
                         >
                             <div className="flex items-center gap-4">
-                                <ChevronDown size={18} className="text-slate-300" />
+                                <ChevronDown size={24} strokeWidth={3} className="text-black" />
                                 <div className="flex flex-col">
-                                    <h3 className="font-bold text-slate-400 text-sm uppercase italic tracking-tight">Produtos sem Categoria</h3>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{uncategorizedProducts.length} itens</span>
+                                    <h3 className="font-black text-black text-sm uppercase tracking-widest">Produtos sem Categoria</h3>
+                                    <span className="text-[10px] font-bold text-black/70 uppercase tracking-widest">{uncategorizedProducts.length} itens</span>
                                 </div>
                             </div>
                         </div>
 
                         {expandedCollections.includes('uncategorized') && (
-                            <div className="p-6 bg-slate-50/10">
+                            <div className="p-6 bg-slate-50 border-t-2 border-black border-dashed">
                                 <div className="space-y-4">
                                     {uncategorizedProducts.map(renderProduct)}
                                 </div>
@@ -507,12 +528,12 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                 )}
 
                 {collections.length === 0 && uncategorizedProducts.length === 0 && !addingToCollection && (
-                    <div className="text-center py-16 px-6 bg-white border border-dashed border-slate-200 rounded-lg">
-                        <div className="w-16 h-16 bg-slate-50 text-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
-                            <ShoppingBag size={28} />
+                    <div className="text-center py-16 px-6 bg-white border-4 border-dashed border-black">
+                        <div className="w-16 h-16 bg-[#ffdf00] text-black border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-full flex items-center justify-center mx-auto mb-6">
+                            <ShoppingBag size={28} strokeWidth={3} />
                         </div>
-                        <h3 className="text-slate-800 font-bold text-sm uppercase tracking-wider mb-2">Sua vitrine está vazia</h3>
-                        <p className="text-slate-400 text-xs font-medium max-w-xs mx-auto leading-relaxed">
+                        <h3 className="text-black font-black text-xl uppercase tracking-wider mb-2">Sua vitrine está vazia</h3>
+                        <p className="text-black/60 text-sm font-bold max-w-xs mx-auto leading-relaxed">
                             Crie sua primeira categoria no botão acima para começar a expor seus produtos no seu perfil Nodus.
                         </p>
                     </div>

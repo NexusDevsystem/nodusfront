@@ -1,7 +1,9 @@
 import React, { useRef } from 'react';
+import { motion } from 'framer-motion';
 import { UserProfile } from '../../types';
-import { Camera, Trash2, Upload, Layout, UserCircle, AlignLeft, User, Scaling } from 'lucide-react';
+import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle } from 'lucide-react';
 import { compressImage } from '../../utils/imageUtils';
+import { THEMES } from '../../constants';
 
 interface HeaderEditorProps {
     profile: UserProfile;
@@ -11,6 +13,8 @@ interface HeaderEditorProps {
 
 const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updateProfile }) => {
     const avatarInputRef = useRef<HTMLInputElement>(null);
+    const bannerInputRef = useRef<HTMLInputElement>(null);
+    const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
 
     const handleLayoutChange = (layoutId: string) => {
         console.log(`🎯 [HeaderEditor] Layout click: ${layoutId}`);
@@ -32,152 +36,286 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
         }
     };
 
+    const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            try {
+                const compressed = await compressImage(e.target.files[0], 1200, 0.7);
+                onChange({ ...profile, customBackground: compressed });
+            } catch (error) {
+                console.error('Error processing image:', error);
+            }
+        }
+    };
+
     return (
         <div className="space-y-6 animate-fade-in pb-10">
             {/* Header Layout Section */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex items-center gap-2 mb-6 text-slate-500">
-                    <Layout size={18} />
-                    <h3 className="text-sm font-semibold uppercase tracking-wider">Layout do Perfil</h3>
+            <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex items-center gap-2 mb-4 text-black border-b border-black pb-2">
+                    <Layout size={16} strokeWidth={3} />
+                    <h3 className="text-xs font-black uppercase tracking-widest text-black">Layout do Perfil</h3>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                     {[
-                        { id: 'classic', label: 'Clássico', icon: UserCircle },
-                        { id: 'hero', label: 'Hero', icon: User },
-                        { id: 'compact', label: 'Compacto', icon: AlignLeft },
-                        { id: 'banner', label: 'Banner', icon: Camera },
+                        { id: 'classic', label: 'Clássico', icon: UserCircle, color: 'bg-[#85e1e1]' },
+                        { id: 'compact', label: 'Perfil', icon: User, color: 'bg-[#97cd7a]' },
+                        { id: 'banner', label: 'Banner', icon: Camera, color: 'bg-[#ffdf00]' },
                     ].map((layout) => (
                         <button
                             key={layout.id}
                             onClick={() => handleLayoutChange(layout.id)}
-                            className={`flex flex-col items-center justify-center gap-2 p-4 rounded-md border transition-all ${(profile.headerLayout || 'classic') === layout.id
-                                ? 'border-[#32a800] bg-slate-50 text-slate-900'
-                                : 'border-slate-100 hover:border-slate-200 text-slate-500'
+                            className={`flex flex-col items-center justify-center gap-1.5 p-3 border-2 transition-all ${(profile.headerLayout || 'classic') === layout.id
+                                ? `border-black ${layout.color} text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[1px] -translate-y-[1px]`
+                                : 'border-slate-100 bg-white text-black/30 hover:border-black hover:text-black hover:bg-slate-50'
                                 }`}
                         >
-                            <layout.icon size={20} />
-                            <span className="text-[11px] font-medium">{layout.label}</span>
+                            <layout.icon size={20} strokeWidth={3} />
+                            <span className="text-[8px] font-black uppercase tracking-widest">{layout.label}</span>
                         </button>
                     ))}
                 </div>
+
+                {/* Compatibility Warning */}
+                {(profile.headerLayout === 'compact' || profile.headerLayout === 'banner') && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-4 p-3 bg-[#f8f8f8] border border-black flex gap-3 items-start shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    >
+                        <div className="p-1.5 bg-white border border-black text-black shrink-0">
+                            <Info size={14} strokeWidth={3} />
+                        </div>
+                        <div>
+                            <h4 className="text-[9px] font-black text-black uppercase tracking-widest mb-1 border-b border-black inline-block">Nota de Estilo</h4>
+                            <p className="text-[9px] text-black font-bold uppercase tracking-widest leading-relaxed">
+                                Nos modos <span className="font-black bg-white px-1 border border-black">Perfil</span> e <span className="font-black bg-white px-1 border border-black">Banner</span>, fundos e animações são pausados para focar em sua foto.
+                                <br />
+                                <span className="mt-1.5 block text-[8px] bg-black text-[#97cd7a] px-1.5 py-0.5 border border-black inline-block">Apenas fontes e botões permanecem.</span>
+                            </p>
+                        </div>
+                    </motion.div>
+                )}
             </div>
 
-            {/* Profile Picture Section */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex items-center gap-2 mb-6 text-slate-500">
-                    <Camera size={18} />
-                    <h3 className="text-sm font-semibold uppercase tracking-wider">Imagem de Perfil</h3>
-                </div>
-
-                <div className="flex flex-col items-center sm:flex-row gap-8">
-                    <div className="relative shrink-0">
-                        <div className="w-20 h-20 rounded-full overflow-hidden border border-slate-200 bg-slate-50">
-                            {profile.avatarUrl ? (
-                                <img
-                                    src={profile.avatarUrl}
-                                    alt="Avatar"
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                        e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
-                                    }}
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-slate-300">
-                                    <Camera size={24} />
-                                </div>
-                            )}
-                        </div>
-                        <button
-                            onClick={() => avatarInputRef.current?.click()}
-                            className="absolute -bottom-1 -right-1 p-2 bg-[#32a800] text-white rounded-full shadow-sm hover:scale-105 transition-transform"
-                        >
-                            <Camera size={14} />
-                        </button>
-                        <input
-                            type="file"
-                            ref={avatarInputRef}
-                            className="hidden"
-                            accept="image/*, image/gif"
-                            onChange={handleAvatarUpload}
-                        />
+            {/* Layout Customization Section - Only for Perfil (compact) */}
+            {profile.headerLayout === 'compact' && (
+                <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-slide-up mt-4">
+                    <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
+                        <Scaling size={16} strokeWidth={3} />
+                        <h3 className="text-xs font-black uppercase tracking-widest text-black">Ajustes do Layout</h3>
                     </div>
 
-                    <div className="flex-1 w-full space-y-4">
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => avatarInputRef.current?.click()}
-                                className="flex-1 px-4 py-2 border border-slate-200 text-slate-600 rounded-md text-xs font-semibold hover:bg-slate-50 transition-colors"
-                            >
-                                Escolher Imagem
-                            </button>
-                            {profile.avatarUrl && (
+                    <div className="flex flex-col">
+                        <h4 className="text-[9px] font-black text-black uppercase tracking-[0.2em] mb-2 px-1">Cor do Fundo do Card</h4>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                                <div className="relative w-10 h-10 overflow-hidden border border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white">
+                                    <input
+                                        type="color"
+                                        value={profile.customSecondaryColor || (currentTheme.id.includes('dark') || currentTheme.id.includes('black') ? '#0f172a' : '#ffffff')}
+                                        onChange={(e) => onChange({ ...profile, customSecondaryColor: e.target.value })}
+                                        className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer border-none p-0"
+                                    />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={profile.customSecondaryColor || ''}
+                                    onChange={(e) => onChange({ ...profile, customSecondaryColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}` })}
+                                    placeholder="HEX"
+                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-black uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
+                                />
+                            </div>
+                            {profile.customSecondaryColor && (
                                 <button
-                                    onClick={() => onChange({ ...profile, avatarUrl: '' })}
-                                    className="px-3 py-2 text-slate-400 hover:text-red-500 transition-colors"
+                                    onClick={() => onChange({ ...profile, customSecondaryColor: null })}
+                                    className="text-[9px] text-black border border-black bg-white px-3 h-10 font-black uppercase tracking-widest shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none hover:bg-black hover:text-white transition-all w-full sm:w-auto"
                                 >
-                                    <Trash2 size={16} />
+                                    Limpar
                                 </button>
                             )}
                         </div>
+                    </div>
+                </div>
+            )}
 
-                        {/* Size Selector */}
-                        <div className="flex items-center gap-4">
-                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Tamanho</span>
-                            <div className="flex bg-slate-50 p-1 rounded-md border border-slate-100 flex-1">
-                                {[
-                                    { id: 'sm', label: 'P' },
-                                    { id: 'md', label: 'M' },
-                                    { id: 'lg', label: 'G' },
-                                ].map((size) => (
-                                    <button
-                                        key={size.id}
-                                        onClick={() => onChange({ ...profile, avatarSize: size.id as any })}
-                                        className={`flex-1 py-1 text-[10px] font-bold rounded transition-all ${(profile.avatarSize || 'md') === size.id
-                                            ? 'bg-white text-[#32a800] shadow-sm'
-                                            : 'text-slate-400 hover:text-slate-600'
-                                            }`}
-                                    >
-                                        {size.label}
-                                    </button>
-                                ))}
+            <div className={`grid grid-cols-1 ${['compact', 'banner'].includes(profile.headerLayout || 'classic') ? 'lg:grid-cols-2' : ''} gap-4 items-start mt-4`}>
+                {/* Profile Picture Section */}
+                <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">
+                    <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
+                        <Camera size={16} strokeWidth={3} />
+                        <h3 className="text-xs font-black uppercase tracking-widest text-black">Imagem de Perfil</h3>
+                    </div>
+
+                    <div className="flex flex-col items-center sm:flex-row gap-5">
+                        <div className="relative shrink-0">
+                            <div className="w-20 h-20 border border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                {profile.avatarUrl ? (
+                                    <img
+                                        src={profile.avatarUrl}
+                                        alt="Avatar"
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-black">
+                                        <Camera size={24} strokeWidth={3} />
+                                    </div>
+                                )}
                             </div>
+                            <button
+                                onClick={() => avatarInputRef.current?.click()}
+                                className="absolute -bottom-2 -right-2 p-2 bg-[#97cd7a] text-black border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all"
+                            >
+                                <Camera size={14} strokeWidth={3} />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 w-full space-y-4">
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => avatarInputRef.current?.click()}
+                                    className="flex-1 px-4 py-2.5 border border-black bg-white text-black text-[9px] font-black uppercase tracking-widest hover:bg-black hover:text-[#97cd7a] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
+                                >
+                                    Escolher Imagem
+                                </button>
+                                {profile.avatarUrl && (
+                                    <button
+                                        onClick={() => onChange({ ...profile, avatarUrl: '' })}
+                                        className="px-3 py-2.5 bg-white border border-black text-black hover:text-white hover:bg-red-400 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
+                                    >
+                                        <Trash2 size={16} strokeWidth={3} />
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Size Selector */}
+                            {!['compact', 'banner'].includes(profile.headerLayout || 'classic') && (
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                                    <h4 className="text-[9px] font-black text-black uppercase tracking-[0.2em]">Tamanho</h4>
+                                    <div className="flex bg-white border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                        {['sm', 'md', 'lg'].map((size, idx) => (
+                                            <button
+                                                key={size}
+                                                onClick={() => onChange({ ...profile, avatarSize: size as any })}
+                                                className={`px-4 py-2 text-[8px] font-black uppercase tracking-widest transition-all ${profile.avatarSize === size
+                                                    ? 'bg-black text-[#97cd7a]'
+                                                    : 'bg-white text-black hover:bg-slate-50'
+                                                    } ${idx !== 0 ? 'border-l border-black' : ''}`}
+                                            >
+                                                {size === 'sm' ? 'Pequeno' : size === 'md' ? 'Médio' : 'Grande'}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Banner Upload for Profile Layout */}
+                {profile.headerLayout === 'compact' && (
+                    <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">
+                        <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
+                            <ImageIcon size={16} strokeWidth={3} />
+                            <h3 className="text-xs font-black uppercase tracking-widest text-black">Banner do Perfil</h3>
+                        </div>
+
+                        <div className="flex flex-col items-center sm:flex-row gap-5">
+                            <div className="relative shrink-0">
+                                <div className="w-36 h-16 border border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                    {profile.customBackground ? (
+                                        <img
+                                            src={profile.customBackground}
+                                            alt="Banner"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-black">
+                                            <ImageIcon size={20} strokeWidth={3} />
+                                        </div>
+                                    )}
+                                </div>
+                                <button
+                                    onClick={() => bannerInputRef.current?.click()}
+                                    className="absolute -bottom-2 -right-2 p-2 bg-[#97cd7a] text-black border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all"
+                                >
+                                    <Camera size={14} strokeWidth={3} />
+                                </button>
+                            </div>
+
+                            <div className="flex-1 w-full space-y-2">
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => bannerInputRef.current?.click()}
+                                        className="flex-1 px-4 py-2 border border-black bg-white text-black text-[9px] font-black uppercase tracking-widest hover:bg-black hover:text-[#97cd7a] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
+                                    >
+                                        Escolher Banner
+                                    </button>
+                                    {profile.customBackground && (
+                                        <button
+                                            onClick={() => onChange({ ...profile, customBackground: null })}
+                                            className="px-3 py-2 bg-white border border-black text-black hover:text-white hover:bg-red-400 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
+                                        >
+                                            <Trash2 size={16} strokeWidth={3} />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Title / Identity Section */}
+                <div className={`bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${profile.headerLayout === 'compact' ? 'lg:col-span-2' : ''}`}>
+                    <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
+                        <User size={16} strokeWidth={3} />
+                        <h3 className="text-xs font-black uppercase tracking-widest text-black">Identidade</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-[9px] font-black text-black uppercase tracking-[0.2em] mb-2 px-1">Nome de Exibição</label>
+                            <input
+                                type="text"
+                                value={profile.name}
+                                onChange={(e) => onChange({ ...profile, name: e.target.value })}
+                                className="w-full px-3 py-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-black uppercase tracking-widest text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
+                                placeholder="@seuusuario"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[9px] font-black text-black uppercase tracking-[0.2em] mb-2 px-1">Bio / Descrição</label>
+                            <textarea
+                                value={profile.bio || ''}
+                                onChange={(e) => onChange({ ...profile, bio: e.target.value })}
+                                rows={2}
+                                className="w-full px-3 py-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-bold uppercase tracking-widest text-black resize-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
+                                placeholder="Conte um pouco sobre você..."
+                            />
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Title / Identity Section */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex items-center gap-2 mb-6 text-slate-500">
-                    <User size={18} />
-                    <h3 className="text-sm font-semibold uppercase tracking-wider">Identidade</h3>
-                </div>
-
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Nome de Exibição</label>
-                        <input
-                            type="text"
-                            value={profile.name}
-                            onChange={(e) => onChange({ ...profile, name: e.target.value })}
-                            className="w-full px-4 py-2.5 rounded-md border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-medium"
-                            placeholder="@seuusuario"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Bio / Descrição</label>
-                        <textarea
-                            value={profile.bio || ''}
-                            onChange={(e) => onChange({ ...profile, bio: e.target.value })}
-                            rows={3}
-                            className="w-full px-4 py-2.5 rounded-md border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-medium resize-none"
-                            placeholder="Conte um pouco sobre você..."
-                        />
-                    </div>
-                </div>
-            </div>
-        </div >
+            {/* Hidden file inputs - REQUIRED for upload to work */}
+            <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarUpload}
+            />
+            <input
+                ref={bannerInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleBannerUpload}
+            />
+        </div>
     );
 };
 

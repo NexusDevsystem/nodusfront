@@ -74,211 +74,208 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
     const isFree = !profile.planType || profile.planType === 'free';
 
     return (
-        <div className="max-w-4xl mx-auto space-y-10 pb-20 animate-fade-in">
+        <div className="max-w-4xl mx-auto space-y-6 pb-20 animate-fade-in px-4">
             {/* Minimal Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-100 pb-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-black pb-6">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Faturamento</h2>
-                    <p className="text-slate-500 mt-2 font-medium">Gerencie sua assinatura e visualize seu histórico de pagamentos.</p>
+                    <h2 className="text-xl font-black text-black uppercase tracking-widest">Faturamento</h2>
+                    <p className="text-[10px] text-black font-black uppercase tracking-widest mt-1 opacity-60">Gerencie sua assinatura e histórico de pagamentos.</p>
                 </div>
                 {!isFree && profile.stripeCustomerId && (
                     <button
                         onClick={handleManageBilling}
                         disabled={loadingPortal}
-                        className="flex items-center gap-2 text-xs font-bold text-[#32a800] hover:text-[#2a8c00] transition-all py-2.5 px-5 bg-emerald-50 rounded-full border border-emerald-100 disabled:opacity-50 active:scale-95"
+                        className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#97cd7a] bg-black hover:bg-zinc-900 py-3 px-6 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all disabled:opacity-50"
                     >
-                        {loadingPortal ? <Loader2 size={14} className="animate-spin" /> : <ExternalLink size={14} />}
-                        Portal Financeiro Stripe
+                        {loadingPortal ? <Loader2 size={12} className="animate-spin" /> : <ExternalLink size={12} strokeWidth={3} />}
+                        Portal Stripe
                     </button>
                 )}
             </div>
 
             {/* Status Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-[24px] border border-slate-200 shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[140px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden flex flex-col justify-between min-h-[140px]">
                     <div className="flex items-start justify-between relative z-10">
                         <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Assinatura Atual</p>
-                            <h3 className="text-xl font-bold text-slate-900">
+                            <p className="text-[9px] font-black text-black/50 uppercase tracking-widest mb-2">Assinatura Atual</p>
+                            <h3 className="text-lg font-black text-black uppercase tracking-widest leading-none">
                                 {isFree ? 'Nodus Free' : `Nodus Premium ${profile.planType === 'monthly' ? 'Mensal' : 'Anual'}`}
                             </h3>
                         </div>
-                        <div className={`p-4 rounded-2xl ${isFree ? 'bg-slate-50 text-slate-300' : 'bg-emerald-50 text-[#32a800]'}`}>
-                            <Zap size={24} className={!isFree ? 'fill-[#32a800]/20' : ''} />
+                        <div className={`p-3 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${isFree ? 'bg-slate-50 text-black/20' : 'bg-[#97cd7a] text-black'}`}>
+                            <Zap size={20} strokeWidth={3} className={!isFree ? 'fill-black/10' : ''} />
                         </div>
                     </div>
                     {!isFree && (
-                        <div className="flex items-center gap-2 mt-4 text-xs font-bold text-emerald-600 bg-emerald-50 w-fit px-3 py-1 rounded-full border border-emerald-100/50">
-                            <CheckCircle2 size={14} />
+                        <div className="flex items-center gap-2 mt-4 text-[9px] font-black text-black uppercase tracking-widest bg-[#97cd7a] w-fit px-3 py-1.5 border border-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                            <CheckCircle2 size={12} strokeWidth={3} />
                             Ativo até {profile.subscriptionExpiryDate ? new Date(profile.subscriptionExpiryDate).toLocaleDateString('pt-BR') : '--/--/----'}
                         </div>
                     )}
                 </div>
 
-                <div className="bg-white p-6 rounded-[24px] border border-slate-200 shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[140px]">
+                <div className="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden flex flex-col justify-between min-h-[140px]">
                     <div className="flex items-start justify-between relative z-10">
                         <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Método de Cobrança</p>
-                            <h3 className="text-xl font-bold text-slate-900">
-                                {isFree ? 'Faturas Manuais' : (profile.stripeCustomerId ? 'Cartão de Crédito' : 'Sistema Interno')}
+                            <p className="text-[9px] font-black text-black/50 uppercase tracking-widest mb-2">Método de Cobrança</p>
+                            <h3 className="text-lg font-black text-black uppercase tracking-widest leading-none">
+                                {isFree ? 'Faturas Manuais' : (profile.stripeCustomerId ? 'Cartão de Crédito' : 'Interno')}
                             </h3>
                         </div>
-                        <div className="p-4 rounded-2xl bg-slate-50 text-slate-300">
-                            <CreditCard size={24} />
+                        <div className="p-3 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white text-black">
+                            <CreditCard size={20} strokeWidth={3} />
                         </div>
                     </div>
-                    <p className="text-xs text-slate-400 font-medium leading-tight">
+                    <p className="text-[9px] text-black font-bold uppercase tracking-widest leading-tight opacity-40">
                         {profile.stripeCustomerId
-                            ? 'Segurança garantida pela infraestrutura de pagamentos Stripe.'
-                            : 'Assinatura gerenciada manualmente pela administração.'}
+                            ? 'Segurança garantida pela infraestrutura Stripe.'
+                            : 'Assinatura gerenciada manualmente.'}
                     </p>
                 </div>
             </div>
 
             {/* Invoices Section */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-slate-50 rounded-xl">
-                        <Receipt size={20} className="text-slate-500" />
-                    </div>
-                    <h3 className="text-lg font-bold text-slate-900 tracking-tight">Histórico de Recibos</h3>
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 border-b border-black pb-2">
+                    <Receipt size={16} strokeWidth={3} className="text-black" />
+                    <h3 className="text-xs font-black text-black uppercase tracking-widest">Histórico de Recibos</h3>
                 </div>
 
                 {loadingInvoices ? (
-                    <div className="flex flex-col items-center justify-center py-16 bg-white rounded-[32px] border border-slate-200 border-dashed">
-                        <Loader2 size={32} className="text-[#32a800] animate-spin mb-4" />
-                        <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">Sincronizando faturas...</p>
+                    <div className="flex flex-col items-center justify-center py-12 bg-white border-2 border-black border-dashed">
+                        <Loader2 size={24} className="text-black animate-spin mb-4" />
+                        <p className="text-[10px] text-black font-black uppercase tracking-widest">Sincronizando faturas...</p>
                     </div>
                 ) : invoices.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-3">
+                    <div className="grid grid-cols-1 gap-2.5">
                         {invoices.map((invoice) => (
                             <div
                                 key={invoice.id}
-                                className="bg-white p-5 rounded-[24px] border border-slate-100 hover:border-emerald-100 hover:shadow-lg hover:shadow-emerald-500/[0.04] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group cursor-pointer"
+                                className="bg-white p-4 border border-black hover:bg-slate-50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group cursor-pointer shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
                                 onClick={() => setSelectedInvoice(invoice)}
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-[#32a800] transition-colors">
-                                        <Receipt size={20} />
+                                    <div className="w-10 h-10 border border-black bg-white flex items-center justify-center text-black group-hover:bg-black group-hover:text-[#97cd7a] transition-colors shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-none">
+                                        <Receipt size={16} strokeWidth={3} />
                                     </div>
                                     <div>
-                                        <h4 className="text-sm font-bold text-slate-800">{invoice.number || 'Recibo Nodus'}</h4>
-                                        <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">{formatDate(invoice.created)}</p>
+                                        <h4 className="text-[11px] font-black text-black uppercase tracking-widest">{invoice.number || 'RECIBO NODUS'}</h4>
+                                        <p className="text-[8px] text-black/50 font-black uppercase tracking-widest mt-0.5">{formatDate(invoice.created)}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-t-0 border-slate-50 pt-4 sm:pt-0">
+                                <div className="flex items-center justify-between sm:justify-end gap-6 sm:border-t-0 border-t border-black/5 pt-4 sm:pt-0">
                                     <div className="text-left sm:text-right">
-                                        <p className="text-lg font-bold text-slate-900">{formatCurrency(invoice.amount_paid, invoice.currency)}</p>
-                                        <div className="flex items-center gap-1 sm:justify-end text-[10px] font-bold uppercase text-emerald-600">
-                                            <CheckCircle2 size={10} />
-                                            Pago
+                                        <p className="text-md font-black text-black tracking-widest">{formatCurrency(invoice.amount_paid, invoice.currency)}</p>
+                                        <div className="flex items-center gap-1 sm:justify-end text-[8px] font-black uppercase tracking-widest text-[#32a800]">
+                                            <CheckCircle2 size={10} strokeWidth={4} />
+                                            PAGO
                                         </div>
                                     </div>
-                                    <div className="p-2 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-[#32a800] group-hover:text-white transition-all transform group-hover:scale-110">
-                                        <ChevronRight size={18} strokeWidth={3} />
+                                    <div className="p-1.5 border border-black bg-white group-hover:bg-black group-hover:text-[#97cd7a] transition-all">
+                                        <ChevronRight size={14} strokeWidth={4} />
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-white p-12 rounded-[32px] border border-dashed border-slate-200 text-center">
-                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
-                            <Receipt size={32} />
+                    <div className="bg-white p-10 border-2 border-black border-dashed text-center">
+                        <div className="w-12 h-12 bg-slate-50 border border-black flex items-center justify-center mx-auto mb-4 text-black/10 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                            <Receipt size={24} strokeWidth={3} />
                         </div>
-                        <h4 className="text-slate-900 font-bold mb-2">Nenhum recibo encontrado</h4>
-                        <p className="text-slate-400 text-sm max-w-[240px] mx-auto font-medium">Seus recibos aparecerão aqui automaticamente após cada pagamento bem-sucedido.</p>
+                        <h4 className="text-black font-black uppercase tracking-widest text-xs mb-1">Sem recibos</h4>
+                        <p className="text-black font-bold uppercase tracking-widest text-[8px] opacity-40 max-w-[200px] mx-auto">Seus recibos aparecerão aqui automaticamente.</p>
                     </div>
                 )}
             </div>
 
             {/* Receipt Modal */}
             {selectedInvoice && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-md animate-fade-in">
-                    <div className="bg-white w-full max-w-xl rounded-[40px] shadow-2xl overflow-hidden relative animate-scale-in">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-[2px] animate-fade-in">
+                    <div className="bg-white w-full max-w-lg border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden relative animate-scale-in">
                         {/* Close Button */}
                         <button
                             onClick={() => setSelectedInvoice(null)}
-                            className="absolute top-8 right-8 p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all z-20"
+                            className="absolute top-6 right-6 p-2 bg-black text-[#97cd7a] hover:bg-zinc-800 transition-all z-20"
                         >
-                            <X size={20} strokeWidth={2.5} />
+                            <X size={18} strokeWidth={3} />
                         </button>
 
-                        <div className="p-10 sm:p-14">
+                        <div className="p-8 sm:p-10">
                             {/* Receipt Header */}
-                            <div className="flex flex-col items-center text-center mb-10">
-                                <div className="w-16 h-16 bg-[#32a800] text-white rounded-3xl flex items-center justify-center mb-8 shadow-2xl shadow-[#32a800]/20 rotate-6 transform hover:rotate-0 transition-all cursor-pointer">
-                                    <span className="text-3xl font-bold italic select-none">N</span>
+                            <div className="flex flex-col items-center text-center mb-8">
+                                <div className="w-12 h-12 bg-black text-[#97cd7a] border-2 border-black flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -rotate-3">
+                                    <span className="text-2xl font-black italic">N</span>
                                 </div>
-                                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Comprovante de Pagamento</h3>
-                                <p className="text-slate-400 font-bold text-[11px] uppercase tracking-[0.2em] mt-2">{formatDate(selectedInvoice.created)}</p>
+                                <h3 className="text-xl font-black text-black uppercase tracking-widest">Comprovante</h3>
+                                <p className="text-black/50 font-black text-[9px] uppercase tracking-widest mt-2">EMITIDO EM {formatDate(selectedInvoice.created)}</p>
                             </div>
 
-                            {/* Ticket Divider */}
-                            <div className="flex items-center gap-4 mb-8">
-                                <div className="h-[1px] flex-1 bg-slate-100" />
-                                <span className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.3em]">Resumo Fiscal</span>
-                                <div className="h-[1px] flex-1 bg-slate-100" />
+                            {/* Divider with labels */}
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="h-0.5 flex-1 bg-black" />
+                                <span className="text-[8px] font-black text-black uppercase tracking-[0.3em] whitespace-nowrap">DETALHES DO PAGAMENTO</span>
+                                <div className="h-0.5 flex-1 bg-black" />
                             </div>
 
                             {/* Details List */}
-                            <div className="space-y-3 mb-12">
-                                <div className="flex justify-between items-center bg-slate-50/50 p-4 rounded-2xl">
-                                    <span className="text-slate-500 font-bold text-xs uppercase tracking-wider">Número</span>
-                                    <span className="text-slate-900 font-bold text-sm font-mono uppercase">{selectedInvoice.number || '---'}</span>
+                            <div className="space-y-2.5 mb-10">
+                                <div className="flex justify-between items-center bg-slate-50 border border-black p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                    <span className="text-black font-black text-[8px] uppercase tracking-widest">Número</span>
+                                    <span className="text-black font-black text-[10px] font-mono uppercase">{selectedInvoice.number || '---'}</span>
                                 </div>
-                                <div className="flex justify-between items-center p-4 rounded-2xl border border-slate-50">
-                                    <span className="text-slate-500 font-bold text-xs uppercase tracking-wider">Produto</span>
-                                    <span className="text-slate-900 font-bold text-sm">Nodus Premium</span>
+                                <div className="flex justify-between items-center border border-black p-3">
+                                    <span className="text-black font-black text-[8px] uppercase tracking-widest">Produto</span>
+                                    <span className="text-black font-black text-[10px] uppercase tracking-widest">Nodus Premium</span>
                                 </div>
-                                <div className="flex justify-between items-center p-4 rounded-2xl border border-slate-50">
-                                    <span className="text-slate-500 font-bold text-xs uppercase tracking-wider">Status</span>
-                                    <div className="flex items-center gap-1.5 text-emerald-600 font-bold text-[10px] uppercase bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100/50">
-                                        <ShieldCheck size={12} />
+                                <div className="flex justify-between items-center border border-black p-3">
+                                    <span className="text-black font-black text-[8px] uppercase tracking-widest">Status</span>
+                                    <div className="flex items-center gap-1 text-[#32a800] font-black text-[8px] uppercase">
+                                        <ShieldCheck size={10} strokeWidth={4} />
                                         Processado
                                     </div>
                                 </div>
-                                <div className="mt-8 pt-8 border-t-2 border-slate-50 border-dashed flex justify-between items-end">
+
+                                <div className="mt-8 pt-8 border-t-2 border-black border-dashed flex justify-between items-end">
                                     <div>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Valor Total</p>
-                                        <h4 className="text-4xl font-bold text-slate-900 tracking-tight">{formatCurrency(selectedInvoice.amount_paid, selectedInvoice.currency)}</h4>
+                                        <p className="text-[9px] font-black text-black/40 uppercase tracking-widest mb-1">Valor Total</p>
+                                        <h4 className="text-3xl font-black text-black tracking-widest">{formatCurrency(selectedInvoice.amount_paid, selectedInvoice.currency)}</h4>
                                     </div>
                                     <div className="text-right">
-                                        <div className="w-12 h-12 ml-auto mb-2 opacity-10">
-                                            <Zap size={48} className="fill-slate-900" />
-                                        </div>
-                                        <p className="text-[10px] font-bold text-slate-300 tracking-widest leading-none">STRIPE INFRASTRUCTURE</p>
+                                        <Zap size={32} strokeWidth={3} className="text-black mb-1 opacity-20" />
+                                        <p className="text-[7px] font-black text-black/30 tracking-widest uppercase">STRIPE SERVICE</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Actions */}
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-3">
                                 <a
                                     href={selectedInvoice.invoice_pdf}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-2 px-6 py-4 bg-slate-900 text-white rounded-2xl font-bold text-[11px] uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-900/10 active:scale-95"
+                                    className="flex items-center justify-center gap-2 px-4 py-3 bg-black text-[#97cd7a] font-black text-[9px] uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
                                 >
-                                    <Download size={16} />
+                                    <Download size={14} strokeWidth={3} />
                                     PDF
                                 </a>
                                 <a
                                     href={selectedInvoice.hosted_invoice_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-2 px-6 py-4 bg-slate-50 text-slate-500 rounded-2xl font-bold text-[11px] uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-200 active:scale-95"
+                                    className="flex items-center justify-center gap-2 px-4 py-3 bg-white text-black font-black text-[9px] uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
                                 >
-                                    <Eye size={16} />
+                                    <Eye size={14} strokeWidth={3} />
                                     Online
                                 </a>
                             </div>
                         </div>
 
                         {/* Bottom Decoration */}
-                        <div className="p-6 bg-slate-50 flex items-center justify-center border-t border-slate-100">
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-2 select-none">
-                                <CheckCircle2 size={12} className="text-emerald-500" />
+                        <div className="p-4 bg-black flex items-center justify-center">
+                            <p className="text-[7px] text-[#97cd7a] font-black uppercase tracking-widest flex items-center gap-2">
+                                <CheckCircle2 size={10} strokeWidth={4} />
                                 Documento gerado pela Nodus Technologies
                             </p>
                         </div>

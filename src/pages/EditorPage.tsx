@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { UserProfile, LinkItem, Product, PaymentMethod } from '../types';
 import { THEMES, FONTS } from '../constants';
+import { motion, AnimatePresence } from 'framer-motion';
 import ThemeSelector from '../components/ThemeSelector';
+import BrutalistLoader from '../components/BrutalistLoader';
 
 import LinkEditor from '../components/LinkEditor';
 import ShopEditor from '../components/ShopEditor';
@@ -388,44 +390,23 @@ export default function EditorPage() {
     const shareUrl = `https://www.nodus.my/${profile.username || profile.name.toLowerCase().replace(/\s/g, '')}`;
 
     return (
-        <div className="h-screen bg-[#0D0E12] flex flex-col overflow-hidden">
+        <div className="h-screen w-full bg-white font-sans text-black selection:bg-black selection:text-[#ffdf00] flex flex-col overflow-hidden">
             {/* Top Banner for Free Users */}
             {profile.planType === 'free' && (
                 <UpgradeBanner onUpgradeClick={() => setIsBillingModalOpen(true)} />
             )}
 
-            <div className={`flex-1 flex overflow-hidden relative bg-white shadow-2xl ${profile.planType === 'free' ? 'rounded-t-[24px] md:rounded-t-[32px]' : ''
-                }`}>
-                {/* Loading Overlay */}
+            <div className={`flex-1 flex overflow-hidden relative bg-white`}>
+                {/* Loading Overlay - Brutalist Version */}
                 {isLoading && (
-                    <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center">
-                        {/* Minimal Loader */}
-                        <div className="flex flex-col items-center">
-                            {/* Logo Text */}
-                            <div className="mb-8">
-                                <span className="text-3xl font-black tracking-tight text-slate-800">
-                                    N<span className="text-[#acc8a2]">o</span>dus
-                                </span>
-                            </div>
-
-                            {/* Minimal Circular Spinner */}
-                            <div className="relative w-12 h-12 mb-6">
-                                <svg className="animate-spin w-full h-full text-[#acc8a2]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </div>
-
-                            {/* Progress Text */}
-                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">
-                                {loadingProgress < 30 ? 'Autenticando' :
-                                    loadingProgress < 50 ? 'Perfil' :
-                                        loadingProgress < 70 ? 'Links' :
-                                            loadingProgress < 90 ? 'Produtos' :
-                                                'Pronto'}
-                            </p>
-                        </div>
-                    </div>
+                    <BrutalistLoader
+                        message={loadingProgress < 30 ? 'Autenticando...' :
+                            loadingProgress < 50 ? 'Carregando Perfil...' :
+                                loadingProgress < 70 ? 'Sincronizando Links...' :
+                                    loadingProgress < 90 ? 'Organizando Produtos...' :
+                                        'Finalizando...'}
+                        progress={loadingProgress}
+                    />
                 )}
                 {/* Error State - Non-intrusive Banner */}
                 {loadError && (
@@ -460,39 +441,43 @@ export default function EditorPage() {
                 <main className="flex-1 flex flex-col md:flex-row min-w-0 h-full relative transition-all duration-300">
 
                     {/* Mobile Header */}
-                    <div className={`md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shrink-0 z-30 shadow-sm ${profile.planType === 'free' ? 'rounded-t-[24px]' : ''
-                        }`}>
+                    <div className={`md:hidden bg-white border-b-2 border-black px-4 py-4 flex items-center justify-between shrink-0 z-[45] shadow-sm`}>
                         <div className="flex items-center gap-3">
                             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                                <Menu size={24} className="text-slate-700" />
+                                <Menu size={24} className="text-black" />
                             </button>
-                            <h1 className="font-bold text-slate-800">Nodus</h1>
+                            <h1 className="font-black uppercase tracking-tight text-xl text-black">Nodus</h1>
                         </div>
-                        <div className="flex gap-1 items-center">
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-300">
+                        <div className="flex gap-2 items-center">
+                            {/* Sync Status - Brutalist */}
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                                 {(isSaving || visualSavingProfile) ? (
                                     <>
-                                        <Loader2 size={12} className="animate-spin text-[#32a800]" />
-                                        <span className="text-[9px] font-bold uppercase tracking-widest text-[#32a800]">Salvando</span>
+                                        <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
+                                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Sync</span>
                                     </>
                                 ) : (
                                     <>
-                                        <Check size={12} className="text-slate-400 font-bold" />
-                                        <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Salvo</span>
+                                        <Check size={10} className="text-[#97cd7a]" strokeWidth={4} />
+                                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Salvo</span>
                                     </>
                                 )}
                             </div>
+
+                            {/* Share Button - Brutalist */}
                             <button
                                 onClick={() => setIsShareModalOpen(true)}
-                                className="p-2 text-slate-500 hover:text-[#32a800] active:bg-slate-50 rounded-lg transition-all"
+                                className="w-9 h-9 flex items-center justify-center bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all text-black"
                             >
-                                <Share size={20} />
+                                <Share size={18} strokeWidth={2.5} />
                             </button>
+
+                            {/* Preview Button - Brutalist */}
                             <button
-                                className="p-2 text-slate-500 active:text-[#32a800] active:bg-slate-50 rounded-lg transition-all"
+                                className="w-9 h-9 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
                                 onClick={() => setShowMobilePreview(!showMobilePreview)}
                             >
-                                {showMobilePreview ? <X size={20} /> : <Eye size={20} />}
+                                {showMobilePreview ? <X size={18} strokeWidth={3} /> : <Eye size={18} strokeWidth={2.5} />}
                             </button>
                         </div>
                     </div>
@@ -500,10 +485,10 @@ export default function EditorPage() {
                     {/* Mobile Sidebar (Drawer) */}
                     {isMobileMenuOpen && (
                         <div className="fixed inset-0 z-50 md:hidden flex">
-                            <div className="w-64 h-full bg-white shadow-xl rounded-tr-[24px] overflow-hidden">
-                                <Sidebar activeTab={activeTab} setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }} userProfile={profile} onUpgradeClick={() => { setIsBillingModalOpen(true); setIsMobileMenuOpen(false); }} className="flex h-full" />
+                            <div className="w-72 h-full bg-white border-r-4 border-black flex flex-col overflow-hidden">
+                                <Sidebar activeTab={activeTab} setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }} userProfile={profile} onUpgradeClick={() => { setIsBillingModalOpen(true); setIsMobileMenuOpen(false); }} className="flex-1 overflow-y-auto" />
                             </div>
-                            <div className="flex-1 bg-black/50" onClick={() => setIsMobileMenuOpen(false)}></div>
+                            <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)}></div>
                         </div>
                     )}
 
@@ -516,57 +501,59 @@ export default function EditorPage() {
                     <div className={`flex-1 h-full overflow-y-auto scrollbar-hide ${showMobilePreview ? 'hidden lg:block' : 'block'}`}>
 
                         {/* Desktop Header (Sticky) */}
-                        <header className={`hidden md:flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 sticky top-0 z-20 ${profile.planType === 'free' ? 'rounded-tr-[24px] md:rounded-tr-[32px]' : ''
-                            }`}>
+                        <header className={`hidden md:flex items-center justify-between px-8 py-3 bg-white border-b-2 border-black sticky top-0 z-20`}>
                             <div className="flex items-center gap-2">
                                 {!isSidebarOpen && (
                                     <button
                                         onClick={() => setIsSidebarOpen(true)}
-                                        className="p-2 -ml-2 text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-colors"
+                                        className="p-1.5 -ml-1 text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-colors"
                                         title="Abrir Menu"
                                     >
                                         <ChevronsRight size={20} />
                                     </button>
                                 )}
                                 {/* Breadcrumb or Title */}
-                                <h1 className="text-xl font-bold text-slate-800">Editor</h1>
+                                <h1 className="text-base font-black uppercase tracking-widest text-black">Editor</h1>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-300 border border-transparent mr-2 shrink-0 whitespace-nowrap">
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 transition-all">
                                     {(isSaving || visualSavingProfile) ? (
                                         <>
-                                            <Loader2 size={14} className="animate-spin text-[#32a800]" />
-                                            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#32a800]">Sincronizando</span>
+                                            <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
+                                            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Sincronizando...</span>
                                         </>
                                     ) : (
                                         <>
-                                            <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
-                                            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Alterações Salvas</span>
+                                            <div className="w-1.5 h-1.5 bg-[#97cd7a] border border-black" />
+                                            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Ambiente Sincronizado</span>
                                         </>
                                     )}
                                 </div>
-                                <button
-                                    onClick={() => setIsShareModalOpen(true)}
-                                    title="Compartilhar"
-                                    className="p-2 text-slate-500 hover:text-[#32a800] hover:bg-slate-50 rounded-lg transition-all active:scale-95"
-                                >
-                                    <Share size={20} />
-                                </button>
-                                <a
-                                    href={shareUrl}
-                                    target="_blank"
-                                    title="Abrir Link Público"
-                                    className="p-2 text-slate-500 hover:text-[#32a800] hover:bg-slate-50 rounded-lg transition-all active:scale-95"
-                                >
-                                    <ExternalLink size={20} />
-                                </a>
+
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setIsShareModalOpen(true)}
+                                        className="w-9 h-9 flex items-center justify-center bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all text-black"
+                                        title="Compartilhar"
+                                    >
+                                        <Share size={18} strokeWidth={2.5} />
+                                    </button>
+                                    <a
+                                        href={shareUrl}
+                                        target="_blank"
+                                        className="w-9 h-9 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
+                                        title="Abrir Link Público"
+                                    >
+                                        <ExternalLink size={18} strokeWidth={2.5} />
+                                    </a>
+                                </div>
                             </div>
                         </header>
-                        <div className="w-full py-6 md:py-10 px-4 md:px-10 lg:px-12 pb-32">
+                        <div className="w-full py-4 md:py-6 px-4 md:px-6 pb-24">
 
                             {/* Page Title */}
-                            <div className="mb-4 md:mb-8">
-                                <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+                            <div className="mb-4 md:mb-6 border-l-2 border-[#97cd7a] pl-4">
+                                <h1 className="text-xl md:text-2xl font-black uppercase text-black tracking-widest leading-[0.9]">
                                     {activeTab === 'links' && 'Links'}
                                     {activeTab === 'appearance' && 'Design'}
                                     {activeTab === 'shop' && 'Loja'}
@@ -574,7 +561,7 @@ export default function EditorPage() {
                                     {activeTab === 'files' && 'Arquivos'}
                                     {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'earn' && activeTab !== 'support' && activeTab !== 'files' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                                 </h1>
-                                <p className="text-slate-500 mt-2 text-base">
+                                <p className="text-black/70 font-bold mt-2 text-xs md:text-sm">
                                     {activeTab === 'links' && 'Gerencie seus links e informações do perfil.'}
                                     {activeTab === 'appearance' && 'Personalize as cores e o tema do seu Nodus.'}
                                     {activeTab === 'shop' && 'Gerencie os produtos da sua vitrine.'}
@@ -615,6 +602,7 @@ export default function EditorPage() {
                                         <ShopEditor
                                             products={products}
                                             onChange={setProducts}
+                                            userProfile={profile}
                                             pendingCollection={pendingShopCollection}
                                             onPendingCollectionConsumed={() => setPendingShopCollection(null)}
                                         />
@@ -635,11 +623,11 @@ export default function EditorPage() {
                                 )}
 
                                 {activeTab === 'support' && (
-                                    <SupportView />
+                                    <SupportView userProfile={profile} />
                                 )}
 
                                 {activeTab === 'files' && (
-                                    <FileManager />
+                                    <FileManager userProfile={profile} />
                                 )}
 
 
@@ -709,15 +697,20 @@ export default function EditorPage() {
         */}
                     <div className={`
             lg:flex flex-col items-center justify-center 
-            border-l border-slate-200 bg-white 
+            border-l-4 border-black bg-white 
             w-full lg:w-[350px] xl:w-[450px] shrink-0
-            ${!showMobilePreview ? 'hidden' : 'fixed inset-0 top-[60px] md:top-[64px] z-40 lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0'}
+            ${!showMobilePreview ? 'hidden' : 'flex-1 z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0'}
         `}>
 
-                        <div className="relative w-full h-full lg:flex items-center justify-center overflow-hidden lg:bg-[#FAFBFC] lg:bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
+                        <div className="relative w-full h-full lg:flex items-center justify-center overflow-y-auto bg-slate-50">
+                            {/* Dots Pattern */}
+                            <div className="absolute inset-0 opacity-20 pointer-events-none"
+                                style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '24px 24px' }}>
+                            </div>
+
                             {/* Scale container to fit phone nicely on different laptop screens - Only on Desktop */}
                             <div className={`
-              w-full h-full transform transition-transform duration-300 origin-center flex items-center justify-center
+                               w-full min-h-full transform transition-transform duration-300 origin-center flex items-center justify-center relative z-10
             `}>
                                 <Preview
                                     profile={profile}
@@ -729,7 +722,7 @@ export default function EditorPage() {
                             </div>
                         </div>
 
-                        <div className="hidden lg:block absolute bottom-6 px-4 py-2 bg-white/80 backdrop-blur border border-slate-200 rounded-full text-xs font-medium text-slate-500 shadow-sm">
+                        <div className="hidden lg:block absolute bottom-6 px-4 py-1.5 bg-black text-[#97cd7a] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-[8px] font-black uppercase tracking-[0.3em]">
                             Preview ao vivo
                         </div>
                     </div>

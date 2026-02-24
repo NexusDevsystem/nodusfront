@@ -3,8 +3,10 @@ import {
     Search,
     ChevronDown,
     ChevronRight,
-    ExternalLink
+    ExternalLink,
+    Lock
 } from 'lucide-react';
+import { UserProfile } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FAQItem {
@@ -19,7 +21,7 @@ const FAQS: FAQItem[] = [
         id: '1',
         category: 'financeiro',
         question: 'Como faço o upgrade para o plano Pro?',
-        answer: 'Você pode fazer o upgrade acessando a aba "Faturamento" na barra lateral e clicando em "Fazer Upgrade". Aceitamos cartões de crédito e Pix.'
+        answer: 'Você pode fazer o upgrade acessando a aba "Faturamento" na barra lateral e clicando em "Fazer Upgrade". Aceitamos cartões de crédito via Stripe.'
     },
     {
         id: '2',
@@ -62,7 +64,11 @@ const CATEGORIES = [
     { id: 'outros', label: 'Geral' }
 ];
 
-const SupportView: React.FC = () => {
+interface SupportViewProps {
+    userProfile?: UserProfile;
+}
+
+const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
     const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
@@ -88,44 +94,44 @@ const SupportView: React.FC = () => {
     };
 
     return (
-        <div className="max-w-5xl mx-auto pb-20 px-6 font-sans">
-            {/* Header - Corporate / Clean */}
-            <div className="border-b border-slate-200 pb-8 mb-8 pt-8">
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">Central de Ajuda</h1>
-                <p className="text-slate-500 text-sm">Documentação e suporte para usuários.</p>
+        <div className="max-w-5xl mx-auto pb-20 px-6 animate-fade-in">
+            {/* Header - Brutalist */}
+            <div className="border-b-2 border-black pb-6 mb-8 pt-8">
+                <h1 className="text-xl font-black text-black uppercase tracking-widest">Central de Ajuda</h1>
+                <p className="text-[10px] text-black font-black uppercase tracking-widest mt-1 opacity-60">Documentação e suporte para usuários.</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-12">
 
                 {/* Left Column - Navigation / Categories */}
-                <div className="w-full md:w-64 shrink-0 space-y-8">
+                <div className="w-full md:w-64 shrink-0 space-y-6">
                     {/* Search */}
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                    <div className="relative group">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-black" size={14} strokeWidth={3} />
                         <input
                             type="text"
-                            placeholder="Buscar..."
+                            placeholder="BUSCAR TÓPICO..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-slate-400 focus:bg-white transition-colors"
+                            className="w-full pl-9 pr-4 py-3 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-[10px] font-black uppercase tracking-widest focus:outline-none focus:translate-x-[1px] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/20"
                         />
                     </div>
 
                     {/* Categories List */}
                     <div>
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Tópicos</h3>
-                        <div className="space-y-1">
+                        <h3 className="text-[10px] font-black text-black uppercase tracking-widest mb-4 px-1">Tópicos</h3>
+                        <div className="flex flex-col gap-2">
                             <button
                                 onClick={() => setActiveCategory(null)}
-                                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${!activeCategory ? 'bg-slate-100 text-slate-900 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}
+                                className={`w-full text-left px-4 py-2.5 border-2 border-black text-[10px] font-black uppercase tracking-widest transition-all ${!activeCategory ? 'bg-black text-[#97cd7a] shadow-none translate-x-[1px] translate-y-[1px]' : 'bg-white text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#97cd7a]'}`}
                             >
-                                Todos
+                                TODOS
                             </button>
                             {CATEGORIES.map(cat => (
                                 <button
                                     key={cat.id}
                                     onClick={() => setActiveCategory(cat.id)}
-                                    className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${activeCategory === cat.id ? 'bg-slate-100 text-slate-900 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}
+                                    className={`w-full text-left px-4 py-2.5 border-2 border-black text-[10px] font-black uppercase tracking-widest transition-all ${activeCategory === cat.id ? 'bg-black text-[#97cd7a] shadow-none translate-x-[1px] translate-y-[1px]' : 'bg-white text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#97cd7a]'}`}
                                 >
                                     {cat.label}
                                 </button>
@@ -133,24 +139,45 @@ const SupportView: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Contact Links - Corporate Style */}
-                    <div className="pt-8 border-t border-slate-200">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Contato Direto</h3>
-                        <div className="space-y-4 text-sm">
-                            <div>
-                                <p className="font-semibold text-slate-900 mb-1">Suporte via Email</p>
-                                <a href="mailto:nexusdevsystem@gmail.com" className="text-slate-600 hover:text-slate-900 flex items-center gap-1 group">
+                    {/* Contact Links - Brutalist */}
+                    <div className="pt-6 border-t border-black border-dashed">
+                        <h3 className="text-[10px] font-black text-black uppercase tracking-widest mb-4 px-1">Contato Direto</h3>
+                        <div className="space-y-3">
+                            <div className="p-3 bg-white border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                <p className="text-[8px] font-black text-black/40 uppercase tracking-widest mb-1">E-mail</p>
+                                <a href="mailto:nexusdevsystem@gmail.com" className="text-[9px] font-black text-black hover:text-[#32a800] uppercase tracking-widest flex items-center gap-1 group truncate">
                                     nexusdevsystem@gmail.com
-                                    <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <ExternalLink size={10} className="shrink-0" strokeWidth={3} />
                                 </a>
                             </div>
 
-                            <div>
-                                <p className="font-semibold text-slate-900 mb-1">Atendimento WhatsApp</p>
-                                <a href="https://wa.me/559180519442" target="_blank" rel="noreferrer" className="text-slate-600 hover:text-slate-900 flex items-center gap-1 group">
-                                    (91) 8051-9442
-                                    <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </a>
+                            <div
+                                className={`p-3 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all ${userProfile?.planType === 'free' || !userProfile?.planType ? 'bg-slate-50 opacity-100 cursor-pointer group' : 'bg-white'}`}
+                                onClick={() => {
+                                    if (userProfile?.planType === 'free' || !userProfile?.planType) {
+                                        window.dispatchEvent(new CustomEvent('open-billing-modal'));
+                                    }
+                                }}
+                            >
+                                <div className="flex justify-between items-start mb-1">
+                                    <p className="text-[8px] font-black text-black/40 uppercase tracking-widest">WhatsApp</p>
+                                    {(userProfile?.planType === 'free' || !userProfile?.planType) && (
+                                        <div className="flex items-center gap-1 bg-black px-1.5 py-0.5 -mt-1 -mr-1">
+                                            <Lock size={8} className="text-[#97cd7a]" strokeWidth={3} />
+                                            <span className="text-[7px] font-black text-[#97cd7a] uppercase tracking-tighter">PREMIUM</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${userProfile?.planType === 'free' || !userProfile?.planType ? 'text-black/30' : 'text-black hover:text-[#32a800] cursor-pointer'}`}>
+                                    {userProfile?.planType === 'free' || !userProfile?.planType ? (
+                                        <>SUPORTE PRIORITÁRIO</>
+                                    ) : (
+                                        <a href="https://wa.me/559180519442" target="_blank" rel="noreferrer" className="flex items-center gap-1">
+                                            (91) 8051-9442
+                                            <ExternalLink size={10} className="shrink-0" strokeWidth={3} />
+                                        </a>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -161,41 +188,43 @@ const SupportView: React.FC = () => {
                     {activeCategory === 'feedback' ? (
                         <div className="animate-fade-in">
                             <div className="mb-6">
-                                <h2 className="text-lg font-semibold text-slate-900">Feedback & Report de Bugs</h2>
-                                <p className="text-slate-500 text-sm mt-2">Sua opinião é fundamental para melhorarmos o Nodus. Caso tenha encontrado um erro ou queira sugerir uma funcionalidade, utilize o campo abaixo.</p>
+                                <h2 className="text-lg font-black text-black uppercase tracking-widest">Feedback & Relatos</h2>
+                                <p className="text-[10px] text-black font-bold uppercase tracking-widest mt-2 opacity-60 leading-relaxed">
+                                    SUA OPINIÃO É FUNDAMENTAL. CASO TENHA ENCONTRADO UM ERRO OU QUEIRA SUGERIR ALGO, USE O CAMPO ABAIXO.
+                                </p>
                             </div>
 
-                            <div className="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                            <div className="bg-white p-6 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                                 {isSubmitted ? (
                                     <div className="text-center py-8">
-                                        <div className="text-slate-900 font-bold mb-2">Obrigado pelo seu feedback!</div>
-                                        <p className="text-slate-500 text-sm">Nossa equipe analisará seu relato em breve.</p>
+                                        <div className="text-black font-black uppercase tracking-widest mb-2">RELATO ENVIADO!</div>
+                                        <p className="text-[10px] text-black font-bold uppercase tracking-widest opacity-60">ANALISAREMOS SEU RELATO EM BREVE.</p>
                                         <button
                                             onClick={() => setIsSubmitted(false)}
-                                            className="mt-6 text-sm font-semibold text-slate-900 underline underline-offset-4"
+                                            className="mt-6 text-[10px] font-black text-black underline underline-offset-4 uppercase tracking-widest hover:text-[#32a800]"
                                         >
-                                            Enviar outro relato
+                                            ENVIAR OUTRO RELATO
                                         </button>
                                     </div>
                                 ) : (
                                     <form onSubmit={handleFeedbackSubmit} className="space-y-4">
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Relato</label>
+                                            <label className="block text-[10px] font-black text-black uppercase tracking-widest mb-3 px-1">Sua Mensagem</label>
                                             <textarea
                                                 value={feedbackText}
                                                 onChange={(e) => setFeedbackText(e.target.value)}
                                                 rows={6}
-                                                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-md text-sm focus:outline-none focus:border-slate-400 transition-colors resize-none"
-                                                placeholder="Descreva o problema ou sugestão com o máximo de detalhes possível..."
+                                                className="w-full px-4 py-4 bg-white border border-black text-[11px] font-bold uppercase tracking-widest focus:outline-none focus:bg-slate-50 transition-colors resize-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/10"
+                                                placeholder="DESCREVA O PROBLEMA OU SUGESTÃO COM DETALHES..."
                                                 required
                                             />
                                         </div>
                                         <div className="flex justify-end">
                                             <button
                                                 type="submit"
-                                                className="px-6 py-2 bg-slate-900 text-white rounded-md text-sm font-semibold hover:bg-slate-800 transition-colors"
+                                                className="px-8 py-3 bg-black text-[#97cd7a] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[10px] font-black uppercase tracking-widest hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
                                             >
-                                                Enviar Relato
+                                                ENVIAR RELATO
                                             </button>
                                         </div>
                                     </form>
@@ -205,28 +234,31 @@ const SupportView: React.FC = () => {
                     ) : (
                         <div className="animate-fade-in">
                             <div className="mb-6">
-                                <h2 className="text-lg font-semibold text-slate-900">
-                                    {searchQuery ? `Resultados para "${searchQuery}"` : (
-                                        activeCategory ? CATEGORIES.find(c => c.id === activeCategory)?.label : 'Perguntas Frequentes'
+                                <h2 className="text-lg font-black text-black uppercase tracking-widest px-1">
+                                    {searchQuery ? `RESULTADOS: "${searchQuery}"` : (
+                                        activeCategory ? CATEGORIES.find(c => c.id === activeCategory)?.label : 'FAQ / PERGUNTAS'
                                     )}
                                 </h2>
                             </div>
 
-                            <div className="border-t border-slate-200">
+                            <div className="border-t-2 border-black">
                                 {filteredFaqs.length > 0 ? (
                                     filteredFaqs.map(faq => (
-                                        <div key={faq.id} className="border-b border-slate-200">
+                                        <div key={faq.id} className="border-b border-black">
                                             <button
                                                 onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
-                                                className="w-full flex items-start justify-between py-4 text-left group hover:bg-slate-50/50 transition-colors px-2 -mx-2 rounded-md"
+                                                className="w-full flex items-start justify-between py-5 text-left group hover:bg-[#97cd7a]/10 transition-colors px-2"
                                             >
-                                                <span className={`text-sm font-medium pr-8 ${expandedFaq === faq.id ? 'text-slate-900' : 'text-slate-700 group-hover:text-slate-900'}`}>
+                                                <span className={`text-[11px] font-black uppercase tracking-widest pr-8 ${expandedFaq === faq.id ? 'text-black' : 'text-black opacity-70 group-hover:opacity-100'}`}>
                                                     {faq.question}
                                                 </span>
-                                                <ChevronDown
-                                                    size={16}
-                                                    className={`text-slate-400 mt-0.5 shrink-0 transition-transform duration-200 ${expandedFaq === faq.id ? 'rotate-180 text-slate-600' : ''}`}
-                                                />
+                                                <div className={`shrink-0 border border-black p-0.5 transition-all ${expandedFaq === faq.id ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
+                                                    <ChevronDown
+                                                        size={14}
+                                                        strokeWidth={4}
+                                                        className={`transition-transform duration-200 ${expandedFaq === faq.id ? 'rotate-180' : ''}`}
+                                                    />
+                                                </div>
                                             </button>
                                             <AnimatePresence>
                                                 {expandedFaq === faq.id && (
@@ -236,7 +268,7 @@ const SupportView: React.FC = () => {
                                                         exit={{ height: 0, opacity: 0 }}
                                                         transition={{ duration: 0.15, ease: "easeInOut" }}
                                                     >
-                                                        <div className="pb-4 pr-12 pl-0 text-sm text-slate-600 leading-relaxed">
+                                                        <div className="pb-6 pr-12 pl-2 text-[10px] font-bold text-black opacity-60 uppercase tracking-widest leading-relaxed">
                                                             {faq.answer}
                                                         </div>
                                                     </motion.div>
@@ -245,8 +277,8 @@ const SupportView: React.FC = () => {
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="py-12 text-center text-slate-500 text-sm">
-                                        Nenhum tópico encontrado.
+                                    <div className="py-12 text-center text-[10px] font-black text-black/30 uppercase tracking-widest">
+                                        NENHUM TÓPICO ENCONTRADO.
                                     </div>
                                 )}
                             </div>

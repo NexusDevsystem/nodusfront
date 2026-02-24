@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { apiClient } from '../services/apiClient';
 
 interface AuthContextType {
@@ -7,6 +7,8 @@ interface AuthContextType {
     loading: boolean;
     onboardingCompleted: boolean;
     signInWithProfile: (googleUser: any, token: string) => Promise<{ error: any }>;
+    signInWithEmail: (email: string, password: string) => Promise<{ error: any }>;
+    registerWithEmail: (email: string, password: string, name: string) => Promise<{ error: any }>;
     signOut: () => void;
     setProfile: React.Dispatch<React.SetStateAction<any | null>>;
     token: string | null;
@@ -105,7 +107,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (savedUser) {
                     const userData = JSON.parse(savedUser);
                     setUser(userData);
-                    await getOrCreateProfile();
+                    const result = await getOrCreateProfile();
+                    if (!result.success && result.error === 'unauthorized') {
+                        // signOut() already called inside getOrCreateProfile
+                        setLoading(false);
+                        return;
+                    }
                 } else {
                     const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                         headers: { Authorization: `Bearer ${token}` },
@@ -121,7 +128,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         };
                         setUser(userData);
                         safeSetItem('nodus_user', JSON.stringify(userData));
-                        await getOrCreateProfile();
+                        const result = await getOrCreateProfile();
+                        if (!result.success && result.error === 'unauthorized') {
+                            setLoading(false);
+                            return;
+                        }
                     } else {
                         throw new Error('Invalid token');
                     }
@@ -140,6 +151,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
 
         initAuth();
+    }, []);
+
+    // Listen for session-expired events dispatched by apiClient on 401 responses
+    // This handles the case where the Google token expires after ~1h of use
+    const signOutRef = useRef<(() => void) | undefined>(undefined);
+    signOutRef.current = () => {
+        setUser(null);
+        setProfile(null);
+        setToken(null);
+        localStorage.removeItem('nodus_access_token');
+        localStorage.removeItem('nodus_user');
+        localStorage.removeItem('nodus_profile');
+        localStorage.removeItem('nodus_links');
+        localStorage.removeItem('nodus_products');
+        window.location.href = '/login';
+    };
+
+    useEffect(() => {
+        const handleSessionExpired = () => {
+            console.warn('🔑 [AuthContext] Session expired event received. Signing out...');
+            signOutRef.current?.();
+        };
+        window.addEventListener('nodus:session-expired', handleSessionExpired);
+        return () => window.removeEventListener('nodus:session-expired', handleSessionExpired);
     }, []);
 
     const signInWithProfile = async (googleUser: any, token: string) => {
@@ -190,6 +225,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('nodus_products');
     };
 
+    const signInWithEmail = async (email: string, password: string) => {
+        try {
+            setLoading(true);
+            const { token: jwtToken, user: userData } = await apiClient.loginWithEmail(email, password);
+
+            safeSetItem('nodus_access_token', jwtToken);
+            setToken(jwtToken);
+
+            const userObj = { id: userData.id, email: userData.email, name: userData.name, picture: null };
+            setUser(userObj);
+            safeSetItem('nodus_user', JSON.stringify(userObj));
+
+            try {
+                const profileData = await apiClient.getMyProfile();
+                setProfile(profileData);
+            } catch (err: any) {
+                if (err.message?.includes('404')) setProfile(null);
+                else { setLoading(false); return { error: err }; }
+            }
+            setLoading(false);
+            return { error: null };
+        } catch (err: any) {
+            setLoading(false);
+            return { error: err };
+        }
+    };
+
+    const registerWithEmail = async (email: string, password: string, name: string) => {
+        try {
+            setLoading(true);
+            const { token: jwtToken, user: userData } = await apiClient.registerWithEmail(email, password, name);
+
+            safeSetItem('nodus_access_token', jwtToken);
+            setToken(jwtToken);
+
+            const userObj = { id: userData.id, email: userData.email, name: userData.name, picture: null };
+            setUser(userObj);
+            safeSetItem('nodus_user', JSON.stringify(userObj));
+            setProfile(null); // New users need onboarding
+            setLoading(false);
+            return { error: null };
+        } catch (err: any) {
+            setLoading(false);
+            return { error: err };
+        }
+    };
+
     // An existing user is considered to have completed onboarding if:
     // 1. The field is explicitly true, OR
     // 2. They already have a username set (meaning they onboarded before this field was added to the DB)
@@ -202,6 +284,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             loading,
             onboardingCompleted: hasCompletedOnboarding,
             signInWithProfile,
+            signInWithEmail,
+            registerWithEmail,
             signOut,
             setProfile,
             token,

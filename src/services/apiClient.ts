@@ -52,6 +52,12 @@ class ApiClient {
                     return this.request(path, options, retries - 1);
                 }
 
+                // If 401, the Google token expired — dispatch a global event for AuthContext to handle
+                if (response.status === 401) {
+                    console.warn(`🔑 [ApiClient] 401 Unauthorized on ${path}. Dispatching session-expired event.`);
+                    window.dispatchEvent(new CustomEvent('nodus:session-expired'));
+                }
+
                 const errorText = await response.text();
                 let errorMessage = `Request failed with status ${response.status}`;
                 try {
@@ -170,6 +176,33 @@ class ApiClient {
     // Analytics
     async getAnalytics(days?: number): Promise<any> {
         return this.request(`/api/analytics/summary?days=${days || 14}`);
+    }
+
+    // Email/Password Auth - using plain fetch to bypass the 401 session-expired interceptor
+    async loginWithEmail(email: string, password: string): Promise<{ token: string; user: any }> {
+        const response = await fetch(`${API_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || `Erro ${response.status}`);
+        }
+        return data;
+    }
+
+    async registerWithEmail(email: string, password: string, name: string): Promise<{ token: string; user: any }> {
+        const response = await fetch(`${API_URL}/api/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, name })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || `Erro ${response.status}`);
+        }
+        return data;
     }
 
     async trackPageView(profileId: string): Promise<void> {

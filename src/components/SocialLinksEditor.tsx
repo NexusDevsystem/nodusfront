@@ -148,19 +148,19 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
     const activeConfigPlatform = SOCIAL_NETWORKS.find(p => p.id === configuringPlatform);
 
     return (
-        <div className="bg-white rounded-[24px] md:rounded-[32px] shadow-sm border border-slate-100 mb-6 group transition-all overflow-hidden">
-            <div className="p-6 md:p-10">
-                <div className="flex items-start justify-between gap-4 mb-8">
+        <div className="bg-white border-2 border-black mb-4 group transition-all overflow-hidden shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            <div className="p-4 md:p-5">
+                <div className="flex items-center justify-between gap-4 mb-4">
                     <div>
-                        <h3 className="text-lg md:text-xl font-medium text-slate-900 tracking-tight">Redes Sociais</h3>
-                        <p className="text-xs md:text-sm text-slate-500 mt-1">Ícones rápidos exibidos no topo do seu perfil</p>
+                        <h3 className="text-xs md:text-sm font-black text-black uppercase tracking-widest leading-none">Redes Sociais</h3>
+                        <p className="text-[9px] md:text-[10px] text-black font-bold uppercase tracking-wider mt-1 opacity-60 leading-none">Ícones rápidos exibidos no topo do seu perfil</p>
                     </div>
                     <button
                         onClick={handleOpenModal}
-                        className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-[#32a800] hover:text-[#32a800]/80 transition-all active:scale-90 shrink-0"
+                        className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center text-black bg-white border-2 border-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none shrink-0"
                         title="Gerenciar Redes Sociais"
                     >
-                        <Plus size={20} className="md:w-6 md:h-6" />
+                        <Plus size={16} className="md:w-5 md:h-5" strokeWidth={3} />
                     </button>
                 </div>
 
@@ -170,10 +170,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                         {isInstagramConnected && !socialLinks.some(l => l.platform === 'instagram') && (
                             <button
                                 onClick={() => toggleSocialLink('instagram')}
-                                className="text-slate-900 transition-all hover:scale-110 active:scale-90 p-1 relative"
+                                className="text-black transition-all hover:scale-110 active:scale-90 p-0.5 relative"
                             >
-                                <Instagram size={28} className="md:w-8 md:h-8" />
-                                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#32a800] rounded-full border-2 border-white" />
+                                <Instagram size={22} className="md:w-6 md:h-6" />
+                                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#32a800] rounded-full border border-white" />
                             </button>
                         )}
 
@@ -188,9 +188,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                 <button
                                     key={link.id}
                                     onClick={() => toggleSocialLink(link.platform!)}
-                                    className="text-slate-900 transition-all hover:scale-110 active:scale-90 p-1"
+                                    className="text-black transition-all hover:scale-110 active:scale-90 p-0.5"
                                 >
-                                    <Icon size={28} className="md:w-8 md:h-8" />
+                                    <Icon size={22} className="md:w-6 md:h-6" />
                                 </button>
                             );
                         })}
@@ -223,59 +223,59 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                     }
                                 }}
                                 className={`
-                                    relative bg-white shadow-2xl flex flex-col overflow-hidden
-                                    ${isMobile ? 'w-full h-[90vh] rounded-t-[2.5rem] touch-none' : 'w-full max-w-lg max-h-[80vh] rounded-[32px]'}
+                                    relative bg-white flex flex-col overflow-hidden border-t-4 border-l-4 border-r-4 md:border-b-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
+                                    ${isMobile ? 'w-full h-[80vh] touch-none' : 'w-full max-w-sm max-h-[70vh]'}
                                 `}
                             >
                                 {/* Drag Handle for Mobile */}
                                 {isMobile && (
-                                    <div className="flex justify-center p-3 pt-4 shrink-0">
-                                        <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
+                                    <div className="flex justify-center p-2 pt-3 shrink-0">
+                                        <div className="w-8 h-1 bg-black" />
                                     </div>
                                 )}
 
-                                <div className="p-6 flex items-center justify-between shrink-0 relative">
+                                <div className="p-4 flex items-center justify-between shrink-0 relative border-b-2 border-dashed border-black">
                                     <button
                                         onClick={() => configuringPlatform ? setConfiguringPlatform(null) : handleCloseModal()}
-                                        className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors"
+                                        className="p-1.5 text-black border-2 border-transparent hover:border-black hover:bg-[#ffdf00] transition-colors"
                                     >
-                                        <ChevronLeft size={24} />
+                                        <ChevronLeft size={20} strokeWidth={3} />
                                     </button>
 
-                                    <h3 className={`absolute left-1/2 -translate-x-1/2 font-medium text-slate-900 truncate max-w-[240px] ${isMobile ? 'text-base' : 'text-lg'}`}>
+                                    <h3 className={`absolute left-1/2 -translate-x-1/2 font-black uppercase tracking-widest text-black truncate max-w-[200px] ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
                                         {configuringPlatform
                                             ? (links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform)))) ? `Editar ${activeConfigPlatform?.name}` : `Adicionar ${activeConfigPlatform?.name}`)
-                                            : 'Adicionar ícone social'}
+                                            : 'Ícones Sociais'}
                                     </h3>
 
                                     {!isMobile && (
                                         <button
                                             onClick={handleCloseModal}
-                                            className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors"
+                                            className="p-1.5 text-black border-2 border-transparent hover:border-black hover:bg-[#ffdf00] transition-colors"
                                         >
-                                            <X size={24} />
+                                            <X size={20} strokeWidth={3} />
                                         </button>
                                     )}
-                                    {isMobile && <div className="w-10" />}
+                                    {isMobile && <div className="w-8" />}
                                 </div>
 
                                 {!configuringPlatform ? (
                                     <div className="flex flex-col flex-1 min-h-0">
-                                        <div className="px-6 pb-4">
+                                        <div className="p-4 pb-3">
                                             <div className="relative">
-                                                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                                <Search size={14} strokeWidth={3} className="absolute left-3 top-1/2 -translate-y-1/2 text-black opacity-40" />
                                                 <input
                                                     type="text"
                                                     value={searchTerm}
                                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                                    placeholder="Buscar"
-                                                    className="w-full bg-slate-50 border-none rounded-2xl py-3.5 pl-11 pr-4 text-sm font-normal outline-none focus:ring-2 focus:ring-slate-100 placeholder:text-slate-400"
+                                                    placeholder="BUSCAR..."
+                                                    className="w-full bg-white border border-black py-2 pl-9 pr-4 text-[10px] font-black uppercase tracking-widest text-black outline-none focus:bg-[#ffdf00] placeholder:text-black/30 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                                                 />
                                             </div>
                                         </div>
 
                                         <div className="flex-1 overflow-y-auto px-6 pb-6 scrollbar-hide">
-                                            <div className="space-y-1">
+                                            <div className="grid grid-cols-2 gap-3 px-1">
                                                 {SOCIAL_NETWORKS.filter(p =>
                                                     p.name.toLowerCase().includes(searchTerm.toLowerCase())
                                                 ).map(platform => {
@@ -288,8 +288,8 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             key={platform.id}
                                                             onClick={() => toggleSocialLink(platform.id)}
                                                             className={`
-                                                                w-full flex items-center justify-between p-4 rounded-2xl group cursor-pointer
-                                                                ${isSelected ? 'bg-slate-50' : 'bg-white hover:bg-slate-50'}
+                                                                relative flex flex-col items-center justify-center p-3 group cursor-pointer border transition-all
+                                                                ${isSelected ? 'bg-[#97cd7a] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'bg-white border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none hover:bg-[#ffdf00]'}
                                                             `}
                                                             role="button"
                                                             tabIndex={0}
@@ -300,40 +300,33 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 }
                                                             }}
                                                         >
-                                                            <div className="flex items-center gap-4">
-                                                                <div className="text-slate-900">
-                                                                    <Icon size={24} />
-                                                                </div>
-                                                                <span className="text-base font-medium text-slate-900 tracking-tight">
-                                                                    {platform.name}
-                                                                </span>
-                                                                {isConnected && (
-                                                                    <span className="ml-2 px-1.5 py-0.5 bg-green-100 text-[#32a800] text-[9px] font-bold uppercase rounded-md tracking-widest">
-                                                                        Conectado
-                                                                    </span>
-                                                                )}
+                                                            <div className="text-black mb-1 flex items-center justify-center h-6">
+                                                                <Icon size={20} />
                                                             </div>
+                                                            <span className="text-[8px] font-black text-black uppercase tracking-widest text-center truncate w-full leading-none">
+                                                                {platform.name}
+                                                            </span>
 
-                                                            <div className="text-slate-400">
-                                                                {isSelected ? (
-                                                                    <div className="flex items-center gap-2">
-                                                                        <div className="bg-[#32a800] w-2 h-2 rounded-full" />
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={(e) => {
-                                                                                e.stopPropagation();
-                                                                                onChange(links.filter(l => !(l.layout === 'social' && (l.platform === platform.id || (platform.id !== 'site' && platform.id !== 'custom' && l.url.includes(platform.id))))));
-                                                                            }}
-                                                                            className="p-2 text-slate-300 hover:text-red-500 hover:bg-slate-100 rounded-xl transition-colors"
-                                                                            title="Remover"
-                                                                        >
-                                                                            <Trash2 size={18} />
-                                                                        </button>
-                                                                    </div>
-                                                                ) : (
-                                                                    <ChevronRight size={20} />
-                                                                )}
-                                                            </div>
+                                                            {isConnected && (
+                                                                <div className="absolute top-1 left-1 px-1 py-0.5 bg-black text-[#97cd7a] text-[6px] font-black uppercase tracking-widest border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center gap-0.5">
+                                                                    <div className="w-1 h-1 bg-[#97cd7a] rounded-full animate-pulse"></div>
+                                                                    SYNC
+                                                                </div>
+                                                            )}
+
+                                                            {isSelected && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        onChange(links.filter(l => !(l.layout === 'social' && (l.platform === platform.id || (platform.id !== 'site' && platform.id !== 'custom' && l.url.includes(platform.id))))));
+                                                                    }}
+                                                                    className="absolute top-1.5 right-1.5 p-1 text-black border-2 border-transparent hover:border-black hover:bg-red-500 hover:text-white transition-colors"
+                                                                    title="Remover"
+                                                                >
+                                                                    <Trash2 size={14} strokeWidth={3} />
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     );
                                                 })}
@@ -348,20 +341,19 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                 ) : (
                                     <div className="flex flex-col flex-1 px-8 pb-10">
                                         <div className="mt-4 space-y-6">
-                                            {/* Normal Input Section - Hidden for Instagram if connected */}
                                             {!(configuringPlatform === 'instagram' && isInstagramConnected) && (
-                                                <div className="space-y-3">
+                                                <div className="space-y-2">
                                                     <input
                                                         autoFocus
                                                         type="text"
                                                         value={tempUrl}
                                                         onChange={(e) => setTempUrl(e.target.value)}
-                                                        placeholder={`Inserir ${activeConfigPlatform?.id === 'email' || activeConfigPlatform?.id === 'spotify' ? 'Link' : 'Usuário'} do ${activeConfigPlatform?.name}*`}
+                                                        placeholder={`INSERIR ${activeConfigPlatform?.id === 'email' || activeConfigPlatform?.id === 'spotify' ? 'LINK' : 'USUÁRIO'}...`}
                                                         onKeyDown={(e) => e.key === 'Enter' && confirmPlatform()}
-                                                        className="w-full bg-slate-50/80 border-none focus:bg-slate-50 rounded-2xl px-5 py-5 text-slate-900 font-normal outline-none placeholder:text-slate-500"
+                                                        className="w-full bg-white border border-black px-4 py-3 text-black text-[10px] font-black uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/30 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-colors"
                                                     />
-                                                    <p className="text-sm text-slate-400 px-1">
-                                                        Exemplo: @{activeConfigPlatform?.placeholder || 'usuario'}
+                                                    <p className="text-[8px] font-bold text-black uppercase tracking-widest px-1 opacity-50 italic">
+                                                        EX: @{activeConfigPlatform?.placeholder || 'USUARIO'}
                                                     </p>
                                                 </div>
                                             )}
@@ -487,22 +479,22 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             }
                                                         }}
                                                         disabled={isConnectingInstagram}
-                                                        className={`w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all py-4 px-6 rounded-2xl flex items-center justify-between group/ig ${isConnectingInstagram ? 'opacity-70 cursor-wait' : ''}`}
+                                                        className={`w-full bg-white hover:bg-[#ffdf00] border-2 border-black transition-all py-4 px-6 flex items-center justify-between group/ig shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none ${isConnectingInstagram ? 'opacity-70 cursor-wait' : ''}`}
                                                     >
                                                         <div className="flex items-center gap-3">
                                                             {isConnectingInstagram ? (
-                                                                <Loader2 size={20} className="animate-spin text-[#dc2743]" />
+                                                                <Loader2 size={20} className="animate-spin text-black" />
                                                             ) : (
-                                                                <Instagram size={20} className="text-[#dc2743]" />
+                                                                <Instagram size={20} className="text-black" />
                                                             )}
-                                                            <div className="text-left">
-                                                                <span className="block text-sm font-medium text-slate-800">
-                                                                    {isConnectingInstagram ? 'Iniciando...' : 'Conectar Conta Profissional'}
+                                                            <div className="text-left leading-none space-y-1">
+                                                                <span className="block text-xs font-black uppercase tracking-widest text-black">
+                                                                    {isConnectingInstagram ? 'INICIANDO...' : 'CONECTAR CONTA PROFISSIONAL'}
                                                                 </span>
-                                                                <span className="block text-[10px] text-slate-500">Seguidores e posts em tempo real</span>
+                                                                <span className="block text-[9px] font-bold uppercase tracking-wider text-black/70">Seguidores e posts em tempo real</span>
                                                             </div>
                                                         </div>
-                                                        <ChevronRight size={16} className="text-slate-400 group-hover/ig:translate-x-0.5 transition-transform" />
+                                                        <ChevronRight size={16} strokeWidth={3} className="text-black group-hover/ig:translate-x-0.5 transition-transform" />
                                                     </button>
                                                     {connectionError && (
                                                         <p className="text-[10px] text-red-500 font-medium px-1 italic">{connectionError}</p>
@@ -526,22 +518,22 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                         }
                                                     }}
                                                     disabled={isConnectingTikTok}
-                                                    className={`w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all py-4 px-6 rounded-2xl flex items-center justify-between group/tt ${isConnectingTikTok ? 'opacity-70 cursor-wait' : ''}`}
+                                                    className={`w-full bg-white hover:bg-[#ffdf00] border-2 border-black transition-all py-4 px-6 flex items-center justify-between group/tt shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none ${isConnectingTikTok ? 'opacity-70 cursor-wait' : ''}`}
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         {isConnectingTikTok ? (
                                                             <Loader2 size={18} className="animate-spin text-black" />
                                                         ) : (
-                                                            <SiTiktok size={18} className="text-[#000000]" />
+                                                            <SiTiktok size={18} className="text-black" />
                                                         )}
-                                                        <div className="text-left">
-                                                            <span className="block text-sm font-medium text-slate-800">
-                                                                {isConnectingTikTok ? 'Iniciando...' : 'Conectar TikTok'}
+                                                        <div className="text-left leading-none space-y-1">
+                                                            <span className="block text-xs font-black uppercase tracking-widest text-black">
+                                                                {isConnectingTikTok ? 'INICIANDO...' : 'CONECTAR TIKTOK'}
                                                             </span>
-                                                            <span className="block text-[10px] text-slate-500">Sincronizar seguidores e verificação</span>
+                                                            <span className="block text-[9px] font-bold uppercase tracking-wider text-black/70">Sincronizar seguidores e verificação</span>
                                                         </div>
                                                     </div>
-                                                    <ChevronRight size={16} className="text-slate-400 group-hover/tt:translate-x-0.5 transition-transform" />
+                                                    <ChevronRight size={16} strokeWidth={3} className="text-black group-hover/tt:translate-x-0.5 transition-transform" />
                                                 </button>
                                             )}
 
@@ -551,10 +543,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                     onClick={confirmPlatform}
                                                     disabled={!tempUrl}
                                                     className={`
-                                                        w-full py-5 rounded-[24px] font-medium text-base transition-all
+                                                        w-full mt-2 py-3 font-black text-[10px] uppercase tracking-widest transition-all border border-black
                                                         ${tempUrl
-                                                            ? 'bg-[#32a800] text-white shadow-lg shadow-[#32a800]/20 active:scale-[0.98]'
-                                                            : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                                                            ? 'bg-[#97cd7a] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                                                            : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
                                                         }
                                                     `}
                                                 >

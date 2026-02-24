@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { X, Download, Copy } from 'lucide-react';
+import { X, Download, Copy, Check } from 'lucide-react';
 
 interface QRCodeModalProps {
     url: string;
@@ -10,6 +10,7 @@ interface QRCodeModalProps {
 
 export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalProps) {
     const canvasRef = useRef<HTMLDivElement>(null);
+    const [copied, setCopied] = useState(false);
 
     const handleDownload = () => {
         const canvas = canvasRef.current?.querySelector('canvas');
@@ -27,21 +28,27 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
     const handleCopyLink = () => {
         const shortUrl = url.replace(/^https?:\/\/(www\.)?/, '');
         navigator.clipboard.writeText(shortUrl);
-        alert('Link copiado!');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
-            <div className="bg-white rounded-3xl p-8 w-full max-w-sm relative shadow-2xl m-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
+            <div className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-6 sm:p-8 w-full max-w-[400px] relative animate-in zoom-in-95 duration-200">
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1"
+                    className="absolute top-4 right-4 text-black hover:bg-black hover:text-[#ffdf00] transition-all p-1 border-2 border-transparent hover:border-black"
                 >
-                    <X size={24} />
+                    <X size={24} strokeWidth={3} />
                 </button>
 
-                <div className="flex flex-col items-center text-center pt-8">
-                    <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm mb-6" ref={canvasRef}>
+                <div className="flex flex-col items-center">
+                    <div className="mb-6 w-full">
+                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-black">Compartilhar Perfil</h3>
+                        <div className="h-1 w-12 bg-black mt-1"></div>
+                    </div>
+
+                    <div className="bg-white p-6 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mb-8" ref={canvasRef}>
                         <QRCodeCanvas
                             value={url.startsWith('http') ? url : `https://${url}`}
                             size={200}
@@ -49,7 +56,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                             fgColor={"#000000"}
                             level={"H"}
                             imageSettings={{
-                                src: "/icons/logo_icone.png",
+                                src: "/faviconnodus.png",
                                 x: undefined,
                                 y: undefined,
                                 height: 50,
@@ -59,18 +66,19 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                         />
                     </div>
 
-                    <div className="flex gap-3 w-full">
+                    <div className="flex flex-col sm:flex-row gap-4 w-full">
                         <button
                             onClick={handleCopyLink}
-                            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 text-slate-700 font-semibold rounded-xl hover:bg-slate-200 transition-colors text-sm"
+                            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-black font-black uppercase tracking-widest text-[10px] transition-all ${copied ? 'bg-[#97cd7a]' : 'bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]'}`}
                         >
-                            <Copy size={18} /> Copiar Link
+                            {copied ? <Check size={16} strokeWidth={3} /> : <Copy size={16} strokeWidth={3} />}
+                            {copied ? 'Copiado' : 'Copiar Link'}
                         </button>
                         <button
                             onClick={handleDownload}
-                            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 text-white font-semibold rounded-xl hover:bg-slate-800 transition-colors text-sm"
+                            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-black text-white border-2 border-black font-black uppercase tracking-widest text-[10px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                         >
-                            <Download size={18} /> Salvar QR
+                            <Download size={16} strokeWidth={3} /> Salvar QR
                         </button>
                     </div>
                 </div>

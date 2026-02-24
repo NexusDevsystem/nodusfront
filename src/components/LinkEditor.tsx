@@ -82,7 +82,6 @@ function SortableLinkItem({
   setExpandedCollections
 }: SortableLinkItemProps) {
   const dragControls = useDragControls();
-  const [openAnimationMenu, setOpenAnimationMenu] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isRefreshingMeta, setIsRefreshingMeta] = useState(false);
 
@@ -196,43 +195,52 @@ function SortableLinkItem({
       dragControls={dragControls}
       id={link.id}
       layout
-      className={`relative mb-4 overflow-hidden rounded-2xl border ${isExpanded ? 'border-[#32a800] ring-1 ring-[#32a800]/10' : 'border-slate-200'} bg-white select-none`}
+      onDrag={(e, info) => {
+        // We keep this clear since drag-to-drop into collections using Reorder caused visual swapping issues.
+        // We now rely on the 'Move' button action for moving items into collections.
+      }}
+      onDragEnd={(e, info) => {
+      }}
+      className={`relative mb-3 border-2 border-black ${isExpanded ? 'bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]' : 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'} select-none`}
       whileDrag={{
+        scale: 1,
+        boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)",
         zIndex: 50
       }}
-      transition={{ duration: 0.2 }}
     >
-      <div className="bg-white">
+      <div className={`${isExpanded ? 'bg-[#ffdf00]' : 'bg-white'}`}>
         {/* RENDER COLLECTION ITEM */}
         {link.type === 'collection' ? (
           <div className="overflow-hidden">
-            <div className="flex border-b border-slate-100">
+            <div className={`flex border-b border-black items-stretch ${level > 0 ? 'min-h-[44px]' : 'min-h-[50px]'}`}>
               {/* Drag Handle */}
               <div
-                className="w-10 md:w-12 flex items-center justify-center cursor-move text-slate-300 hover:text-slate-500 touch-none"
+                className={`${level > 0 ? 'w-8' : 'w-10'} flex items-center justify-center cursor-move text-black hover:bg-black hover:text-white touch-none border-r border-black transition-colors`}
                 onPointerDown={(e) => dragControls.start(e)}
               >
-                <GripVertical size={16} />
+                <GripVertical size={level > 0 ? 14 : 18} strokeWidth={3} />
               </div>
 
               {/* Header Content */}
-              <div className="flex-1 py-4 md:py-5 pr-3 md:pr-5 flex items-center gap-2 md:gap-4 overflow-hidden">
-                <div onClick={() => toggleCollection(link.id)} className="cursor-pointer text-slate-400 hover:text-slate-900 transition-colors shrink-0">
-                  {isCollectionExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+              <div
+                className={`flex-1 ${level > 0 ? 'py-1.5 md:py-2' : 'py-2 md:py-2.5'} pr-3 md:pr-4 flex items-center gap-2 md:gap-3 overflow-hidden bg-white hover:bg-slate-50 transition-colors duration-200`}
+              >
+                <div onClick={() => toggleCollection(link.id)} className="cursor-pointer text-black hover:bg-[#97cd7a] p-0.5 border border-transparent hover:border-black transition-colors shrink-0">
+                  {isCollectionExpanded ? <ChevronDown size={level > 0 ? 14 : 18} strokeWidth={3} /> : <ChevronRight size={level > 0 ? 14 : 18} strokeWidth={3} />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <input
                     type="text"
                     value={link.title}
                     onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                    className="w-full font-semibold text-slate-800 bg-transparent border-none focus:ring-0 p-0 text-sm placeholder:text-slate-300 truncate select-text"
+                    className="w-full font-black text-black uppercase tracking-widest bg-transparent border-none focus:ring-0 p-0 text-xs md:text-sm placeholder:text-black/30 truncate select-text"
                     placeholder="Nome da Coleção"
                   />
-                  <div className="text-[10px] text-slate-400 font-medium mt-0.5 truncate">
+                  <div className="text-[10px] text-black/70 font-bold uppercase tracking-[0.2em] mt-0.5 truncate leading-none">
                     {link.children?.length || 0} {(link.children?.length === 1) ? 'item configurado' : 'itens configurados'}
                   </div>
                 </div>
-                <div className="flex items-center gap-3 md:gap-6 shrink-0">
+                <div className="flex items-center gap-3 md:gap-4 shrink-0">
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -240,17 +248,35 @@ function SortableLinkItem({
                       onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#32a800]"></div>
+                    <div className="w-8 h-4 border border-black bg-white peer-focus:outline-none peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-black after:h-3 after:w-3 after:border after:border-black after:transition-all peer-checked:bg-[#97cd7a]"></div>
                   </label>
                   <button
-                    onClick={() => removeLink(link.id)}
-                    className="p-2 text-slate-300 hover:text-red-500 transition-colors bg-slate-50 rounded-lg hover:bg-red-50"
+                    onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
+                    className={`p-1.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ${showDeleteConfirm ? 'bg-red-500 text-white' : 'bg-white text-black hover:bg-red-400'}`}
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={16} strokeWidth={3} />
                   </button>
                 </div>
               </div>
             </div>
+            <AnimatePresence>
+              {showDeleteConfirm && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden bg-red-50 border-t border-black border-dashed"
+                >
+                  <div className="p-3 flex items-center justify-between gap-3 px-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-red-600">Excluir coleção?</span>
+                    <div className="flex gap-2">
+                      <button onClick={() => removeLink(link.id)} className="px-3 py-1.5 bg-red-600 text-white border border-black text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Confirmar</button>
+                      <button onClick={() => setShowDeleteConfirm(false)} className="px-3 py-1.5 bg-white text-black border border-black text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Cancelar</button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Expanded Content (Nested Editor) */}
             <AnimatePresence>
@@ -263,57 +289,57 @@ function SortableLinkItem({
                   className="overflow-hidden bg-slate-50/50"
                 >
                   <div className="overflow-hidden bg-slate-50/50">
-                    <div className="p-3 md:p-6 md:pl-12 border-t border-slate-100 space-y-5 md:space-y-8">
+                    <div className="p-2 md:p-3 md:pl-5 border-t border-black space-y-3 md:space-y-4">
                       {/* Collection Layout Picker */}
                       {link.platform === 'instagram' || link.title === 'Posts do Instagram' ? (
-                        <div className="space-y-3 pb-6 border-b border-slate-100">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Layout do Instagram</label>
-                          <div className="flex flex-col gap-2">
+                        <div className="space-y-3 pb-6 border-b border-black">
+                          <label className="text-[9px] font-black text-black uppercase tracking-[0.2em] px-1">Layout do Instagram</label>
+                          <div className="flex flex-col gap-2.5">
                             {[
-                              { id: 'card', label: 'Feed de Posts', desc: 'Visual premium com seus últimos posts', icon: <LayoutGrid size={16} /> },
-                              { id: 'classic', label: 'Botão de Perfil', desc: 'Apenas informações de perfil e seguidores', icon: <User size={16} /> }
+                              { id: 'card', label: 'Feed de Posts', desc: 'Visual premium com seus últimos posts', icon: <LayoutGrid size={24} strokeWidth={3} /> },
+                              { id: 'classic', label: 'Botão de Perfil', desc: 'Apenas informações de perfil e seguidores', icon: <User size={24} strokeWidth={3} /> }
                             ].map((opt) => (
                               <button
                                 key={opt.id}
                                 onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                className={`flex-1 p-3 rounded-xl border text-left flex items-center sm:items-start gap-3 transition-all ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id
-                                  ? 'bg-purple-500/5 border-purple-200 ring-1 ring-purple-500/10 shadow-sm'
-                                  : 'bg-white border-slate-200 hover:border-slate-300'
+                                className={`flex-1 p-3 border-[1.5px] text-left flex items-center sm:items-start gap-3.5 transition-all ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id
+                                  ? 'bg-[#97cd7a] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                                  : 'bg-white border-black hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none hover:bg-[#ffdf00] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
                                   }`}
                               >
-                                <div className={`shrink-0 flex items-center justify-center p-2 rounded-lg ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id ? 'bg-gradient-to-tr from-purple-500 to-pink-500 text-white' : 'bg-slate-50 text-slate-400'}`}>
-                                  {opt.icon}
+                                <div className={`shrink-0 flex items-center justify-center p-2 border border-black ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
+                                  <opt.icon.type {...opt.icon.props} size={18} strokeWidth={3} />
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className={`text-xs truncate ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id ? 'text-purple-700 font-bold' : 'text-slate-700'}`}>{opt.label}</div>
-                                  <div className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-1">{opt.desc}</div>
+                                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                  <div className={`text-xs md:text-sm font-black uppercase tracking-widest truncate ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id ? 'text-black' : 'text-black'}`}>{opt.label}</div>
+                                  <div className="text-[10px] text-black/70 font-bold uppercase tracking-wider leading-tight line-clamp-1">{opt.desc}</div>
                                 </div>
                               </button>
                             ))}
                           </div>
                         </div>
                       ) : (
-                        <div className="space-y-3 pb-6 border-b border-slate-100">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Layout do Grupo</label>
-                          <div className="flex flex-col gap-2">
+                        <div className="space-y-3 pb-6 border-b border-black">
+                          <label className="text-[9px] font-black text-black uppercase tracking-[0.2em] px-1">Layout do Grupo</label>
+                          <div className="flex flex-col gap-2.5">
                             {[
-                              { id: 'stacked', label: 'Lista Empilhada', desc: 'Links um abaixo do outro', icon: <LayoutGrid size={16} /> },
-                              { id: 'carousel', label: 'Carrossel', desc: 'Deslize lateral para ver', icon: <Sparkles size={16} /> }
+                              { id: 'stacked', label: 'Lista Empilhada', desc: 'Links um abaixo do outro', icon: <LayoutGrid size={24} strokeWidth={3} /> },
+                              { id: 'carousel', label: 'Carrossel', desc: 'Deslize lateral para ver', icon: <Sparkles size={24} strokeWidth={3} /> }
                             ].map((opt) => (
                               <button
                                 key={opt.id}
                                 onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                className={`flex-1 p-3 rounded-xl border text-left flex items-center sm:items-start gap-3 transition-all ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id
-                                  ? 'bg-[#32a800]/5 border-[#32a800] ring-1 ring-[#32a800]/10'
-                                  : 'bg-white border-slate-200 hover:border-slate-300'
+                                className={`flex-1 p-3 border-[1.5px] text-left flex items-center sm:items-start gap-3.5 transition-all ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id
+                                  ? 'bg-[#97cd7a] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                                  : 'bg-white border-black hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:bg-[#f1f1f1] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
                                   }`}
                               >
-                                <div className={`shrink-0 flex items-center justify-center p-2 rounded-lg ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'bg-[#32a800] text-white' : 'bg-slate-50 text-slate-400'}`}>
-                                  {opt.icon}
+                                <div className={`shrink-0 flex items-center justify-center p-2 border border-black ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
+                                  <opt.icon.type {...opt.icon.props} size={18} strokeWidth={3} />
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className={`text-xs truncate ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'text-[#32a800]' : 'text-slate-700'}`}>{opt.label}</div>
-                                  <div className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-1">{opt.desc}</div>
+                                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                  <div className={`text-xs md:text-sm font-black uppercase tracking-widest truncate text-black`}>{opt.label}</div>
+                                  <div className="text-[10px] text-black/70 font-bold uppercase tracking-wider leading-tight line-clamp-1">{opt.desc}</div>
                                 </div>
                               </button>
                             ))}
@@ -321,7 +347,7 @@ function SortableLinkItem({
                         </div>
                       )}
 
-                      <div className="md:px-0">
+                      <div className="md:px-0 pt-6">
                         <LinkEditor
                           links={link.children || []}
                           onChange={(newChildren) => updateLink(link.id, 'children', newChildren)}
@@ -343,23 +369,23 @@ function SortableLinkItem({
           /* RENDER STANDARD LINK ITEM */
           <div className="flex flex-col">
             {/* Header Row (Always Visible) */}
-            <div className="flex border-b border-slate-100 items-stretch min-h-[72px]">
+            <div className={`flex border-b border-black items-stretch ${level > 0 ? 'min-h-[44px]' : 'min-h-[50px]'} bg-white`}>
               {/* Drag Handle */}
               <div
-                className="w-10 md:w-12 flex items-center justify-center cursor-move text-slate-300 hover:text-slate-500 touch-none"
+                className={`${level > 0 ? 'w-8' : 'w-10'} flex items-center justify-center cursor-move text-black hover:bg-black hover:text-white border-r border-black touch-none transition-colors`}
                 onPointerDown={(e) => dragControls.start(e)}
               >
-                <GripVertical size={16} />
+                <GripVertical size={level > 0 ? 14 : 18} strokeWidth={3} />
               </div>
 
               {/* Header Content Wrapper (Matching Collection Style) */}
-              <div className="flex-1 py-4 md:py-5 pr-3 md:pr-6 flex items-center gap-2 md:gap-4 overflow-hidden">
+              <div className={`flex-1 ${level > 0 ? 'py-1.5 md:py-2' : 'py-2 md:py-2.5'} pr-3 md:pr-4 flex items-center gap-2 md:gap-3 overflow-hidden`}>
                 {/* Expand Toggle (Left) */}
                 <div
                   onClick={() => toggleLink(link.id)}
-                  className="cursor-pointer text-slate-400 hover:text-slate-900 transition-colors shrink-0"
+                  className="cursor-pointer text-black hover:bg-[#97cd7a] p-0.5 border border-transparent hover:border-black transition-colors shrink-0"
                 >
-                  {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                  {isExpanded ? <ChevronDown size={level > 0 ? 14 : 18} strokeWidth={3} /> : <ChevronRight size={level > 0 ? 14 : 18} strokeWidth={3} />}
                 </div>
 
                 {/* Image Thumbnail */}
@@ -382,15 +408,15 @@ function SortableLinkItem({
                       }}
                     />
                     {link.image ? (
-                      <div className="w-11 h-11 rounded-xl overflow-hidden shadow-sm border border-slate-100">
+                      <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}>
                         <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
                       </div>
                     ) : (
                       <button
                         onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                        className="w-11 h-11 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-[#32a800] hover:bg-white hover:border-[#32a800] transition-all"
+                        className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black hover:bg-black hover:text-white transition-all`}
                       >
-                        <ImageIcon size={18} />
+                        <ImageIcon size={level > 0 ? 14 : 16} strokeWidth={3} />
                       </button>
                     )}
                   </div>
@@ -402,50 +428,52 @@ function SortableLinkItem({
                   onClick={() => toggleLink(link.id)}
                 >
                   <div className="flex items-center gap-2 mb-0.5">
-                    <div className="font-semibold text-slate-800 truncate text-xs md:text-sm flex items-center gap-2">
+                    <div className="font-black uppercase tracking-widest text-black truncate text-[11px] md:text-xs flex items-center gap-1.5">
                       {link.title || (link.type === 'header' ? 'Nova Seção' : 'Link sem título')}
+
+                      {/* Tags */}
                       {link.scheduleStart && new Date(link.scheduleStart) > new Date() && (
-                        <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-blue-50 text-[9px] font-bold text-blue-600 border border-blue-100 uppercase tracking-tighter flex items-center gap-1">
-                          🕒 {level === 0 ? 'Agendado' : ''}
+                        <span className="shrink-0 px-1.5 py-0.5 bg-[#97cd7a] text-[8px] font-black text-black border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                          AGENDADO
                         </span>
                       )}
                       {link.scheduleEnd && new Date(link.scheduleEnd) < new Date() && (
-                        <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-red-50 text-[9px] font-bold text-red-600 border border-red-100 uppercase tracking-tighter flex items-center gap-1">
-                          🔴 {level === 0 ? 'Expirado' : ''}
+                        <span className="shrink-0 px-1.5 py-0.5 bg-red-400 text-[8px] font-black text-black border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                          EXPIRADO
                         </span>
                       )}
                       {link.embedType === 'youtube' && (
-                        <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-red-50 text-[9px] font-bold text-red-600 border border-red-100 uppercase tracking-tighter flex items-center gap-1">
-                          VÍDEO YOUTUBE
+                        <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-black text-white border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                          YOUTUBE
                         </span>
                       )}
                       {link.embedType === 'tiktok' && (
-                        <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-slate-900 text-[9px] font-bold text-white border border-slate-800 uppercase tracking-tighter flex items-center gap-1">
-                          VÍDEO TIKTOK
+                        <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-black text-white border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                          TIKTOK
                         </span>
                       )}
                     </div>
                     {link.type === 'header' ? (
-                      <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-slate-100 text-[9px] font-bold text-slate-600 border border-slate-200 uppercase tracking-tighter">
+                      <span className="shrink-0 px-1.5 py-0.5 bg-white text-[8px] font-black text-black border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                         Cabeçalho
                       </span>
                     ) : link.layout === 'social' ? (
-                      <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-emerald-50 text-[9px] font-bold text-emerald-600 border border-emerald-100 uppercase tracking-tighter">
+                      <span className="shrink-0 px-1.5 py-0.5 bg-white text-[8px] font-black text-black border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                         Topo
                       </span>
                     ) : (
-                      <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-blue-50 text-[9px] font-bold text-blue-600 border border-blue-100 uppercase tracking-tighter">
+                      <span className="shrink-0 px-1.5 py-0.5 bg-[#97cd7a] text-[8px] font-black text-black border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                         Lista
                       </span>
                     )}
                   </div>
-                  <div className="text-[10px] md:text-xs text-slate-400 truncate">
+                  <div className="text-[9px] md:text-[10px] text-black/60 font-bold uppercase tracking-[0.1em] truncate leading-none">
                     {link.type === 'header' ? 'Texto de separação entre links' : (link.url || 'Suas redes ou site')}
                   </div>
                 </div>
 
                 {/* Right Actions: Switch & Delete */}
-                <div className="flex items-center gap-3 md:gap-6 shrink-0">
+                <div className="flex items-center gap-2 md:gap-3 shrink-0">
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -453,18 +481,36 @@ function SortableLinkItem({
                       onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-8 md:w-9 h-4 md:h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 md:after:h-4 after:w-3 md:after:w-4 after:transition-all peer-checked:bg-[#32a800]"></div>
+                    <div className="w-8 h-4 border border-black bg-white peer-focus:outline-none peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-black after:h-3 after:w-3 after:border after:border-black after:transition-all peer-checked:bg-[#97cd7a]"></div>
                   </label>
 
                   <button
-                    onClick={() => removeLink(link.id)}
-                    className="p-2 text-slate-300 hover:text-red-500 transition-colors bg-slate-50 rounded-lg hover:bg-red-50"
+                    onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
+                    className={`p-1.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ${showDeleteConfirm ? 'bg-red-500 text-white' : 'bg-white text-black hover:bg-red-400'}`}
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={16} strokeWidth={3} />
                   </button>
                 </div>
               </div>
             </div>
+            <AnimatePresence>
+              {showDeleteConfirm && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden bg-red-50 border-b border-black border-dashed"
+                >
+                  <div className="p-3 px-4 flex items-center justify-between gap-3 text-red-600">
+                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">Excluir este link?</span>
+                    <div className="flex gap-2">
+                      <button onClick={() => removeLink(link.id)} className="px-3 py-1.5 bg-red-600 text-white border border-black text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Excluir</button>
+                      <button onClick={() => setShowDeleteConfirm(false)} className="px-3 py-1.5 bg-white text-black border border-black text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Cancelar</button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Expanded Body Content */}
             <AnimatePresence>
@@ -474,51 +520,51 @@ function SortableLinkItem({
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="overflow-hidden bg-slate-50/20"
+                  className="overflow-hidden bg-[#f8f8f8] border-t border-black border-dashed"
                 >
-                  <div className="px-4 md:px-10 pb-6 md:pb-10 pt-6 md:pt-8 border-t border-slate-100">
+                  <div className={`${level > 0 ? 'p-3' : 'px-4 md:px-6 pb-6 pt-5'}`}>
                     {/* Main Edit Form */}
-                    <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 mb-8 md:mb-10">
+                    <div className={`flex flex-col md:flex-row items-center md:items-start ${level > 0 ? 'gap-3 mb-4' : 'gap-4 md:gap-6 mb-6'}`}>
                       {/* Expanded Image (Larger with controls) */}
                       <div className="relative shrink-0">
                         {link.image ? (
-                          <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden border border-slate-200 relative group/img shadow-sm">
+                          <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border border-black bg-white relative group/img shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                             <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                            <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
                               <button
                                 onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                                className="p-2.5 bg-white rounded-full text-slate-600 hover:text-[#32a800] shadow-md border border-slate-100"
+                                className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"
                               >
-                                <Pencil size={18} />
+                                <Pencil size={14} strokeWidth={3} />
                               </button>
                               <button
                                 onClick={() => updateLink(link.id, 'image', undefined)}
-                                className="p-2.5 bg-white rounded-full text-slate-400 hover:text-red-500 shadow-md border border-slate-100"
+                                className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"
                               >
-                                <Trash2 size={18} />
+                                <Trash2 size={14} strokeWidth={3} />
                               </button>
                             </div>
                           </div>
                         ) : (
                           <button
                             onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                            className="w-20 h-20 md:w-24 md:h-24 bg-white border border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:border-[#32a800] hover:text-[#32a800] transition-all group/btn"
+                            className="w-14 h-14 md:w-16 md:h-16 bg-white border border-dashed border-black flex flex-col items-center justify-center text-black hover:bg-black hover:text-[#ffdf00] transition-all group/btn shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
                           >
-                            <ImageIcon size={20} className="mb-1" />
-                            <span className="text-[9px] font-bold uppercase tracking-wider">Imagem</span>
+                            <ImageIcon size={18} className="mb-0.5" strokeWidth={3} />
+                            <span className="text-[8px] font-black uppercase tracking-widest">Imagem</span>
                           </button>
                         )}
                       </div>
 
                       {/* Inputs */}
-                      <div className="flex-1 min-w-0 space-y-6">
+                      <div className="flex-1 min-w-0 space-y-4">
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Título</label>
+                          <label className="text-[9px] font-black text-black uppercase tracking-[0.2em] px-1">Título</label>
                           <input
                             type="text"
                             value={link.title}
                             onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                            className="w-full font-semibold text-xl text-slate-900 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all placeholder:text-slate-200 select-text"
+                            className="w-full font-black text-base text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
                             placeholder={link.type === 'header' ? 'Ex: Redes Sociais' : 'Nome do link'}
                           />
                         </div>
@@ -526,7 +572,7 @@ function SortableLinkItem({
                         {link.type !== 'header' && (
                           <div className="space-y-1">
                             <div className="flex items-center justify-between px-1">
-                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">URL / Link</label>
+                              <label className="text-[9px] font-black text-black uppercase tracking-[0.2em]">URL / Link</label>
                               {(link.url.includes('youtube.com') || link.url.includes('tiktok.com') || link.url.includes('youtu.be')) && (
                                 <button
                                   type="button"
@@ -556,7 +602,7 @@ function SortableLinkItem({
                                     } catch (e) { console.error(e); }
                                     finally { setIsRefreshingMeta(false); }
                                   }}
-                                  className="text-[10px] font-bold text-[#32a800] uppercase tracking-widest flex items-center gap-1 hover:opacity-70 transition-opacity disabled:opacity-40"
+                                  className="text-[8px] font-black text-black bg-[#97cd7a] border border-black px-1.5 py-0.5 uppercase tracking-widest flex items-center gap-1 hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50"
                                   disabled={isRefreshingMeta}
                                 >
                                   {isRefreshingMeta ? '...' : '↻ Recarregar'}
@@ -684,283 +730,232 @@ function SortableLinkItem({
                                 // Apply immediate updates (URL + Type)
                                 updateLinkFields(link.id, updates);
                               }}
-                              className="w-full text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all placeholder:text-slate-200 select-text"
+                              className="w-full text-xs font-black uppercase tracking-widest text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
                               placeholder="https://exemplo.com"
                             />
                           </div>
                         )}
 
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Descrição (Opcional)</label>
+                          <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1">Descrição (Opcional)</label>
                           <input
                             type="text"
                             value={link.subtitle || ''}
                             onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)}
-                            className="w-full text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-2.5 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all"
+                            className="w-full text-xs font-bold uppercase tracking-wider text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
                             placeholder="Breve descrição ou subtítulo"
                           />
                         </div>
                       </div>
                     </div>
 
-                    {/* Settings & Config */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mb-8 md:mb-10 pt-6 md:pt-8 border-t border-slate-100/50">
-                      <div className="space-y-6 md:space-y-8">
-
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Animação</label>
-                          <div className="relative">
+                    <div className="space-y-4 md:space-y-6 mb-6 md:mb-8 pt-4 md:pt-6 border-t border-black border-dashed">
+                      {/* Layout Picker */}
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black text-black uppercase tracking-[0.2em] px-1">Layout do Botão</label>
+                        <div className="flex flex-col gap-1.5">
+                          {[
+                            { id: 'classic', label: 'Botão Clássico', desc: 'Largura total com ícone', icon: <LayoutGrid size={24} strokeWidth={3} /> },
+                            { id: 'card', label: 'Card Moderno', desc: 'Arredondado e sombra', icon: <LayoutTemplate size={24} strokeWidth={3} /> },
+                            { id: 'social', label: 'Rede Social (Topo)', desc: 'Ícone pequeno no topo', icon: <Share2 size={24} strokeWidth={3} /> }
+                          ].map((opt) => (
                             <button
-                              onClick={() => setOpenAnimationMenu(prev => prev === link.id ? null : link.id)}
-                              className={`flex items-center justify-between w-full h-11 px-4 text-sm font-medium border rounded-xl transition-all ${link.highlight && link.highlight !== 'none' ? 'border-[#32a800] text-[#32a800] bg-[#32a800]/5' : 'border-slate-200 text-slate-600 bg-white hover:border-slate-300'}`}
+                              key={opt.id}
+                              onClick={() => updateLink(link.id, 'layout', opt.id)}
+                              className={`p-2 border text-left flex items-start gap-2.5 transition-all ${link.layout === opt.id
+                                ? 'bg-[#97cd7a] border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
+                                : 'bg-white border-black hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:bg-[#f1f1f1] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
+                                }`}
                             >
-                              <span className="capitalize">{link.highlight === 'none' || !link.highlight ? 'Sem efeito' : link.highlight}</span>
-                              <ChevronDown size={18} className={`transition-transform duration-300 ${openAnimationMenu === link.id ? 'rotate-180' : ''}`} />
-                            </button>
-
-                            <AnimatePresence>
-                              {openAnimationMenu === link.id && (
-                                <motion.div
-                                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                                  className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-slate-200 rounded-2xl z-50 p-2 shadow-xl"
-                                >
-                                  {['none', 'pulse', 'bounce', 'shake', 'glow', 'wobble'].map((anim) => (
-                                    <button
-                                      key={anim}
-                                      onClick={() => {
-                                        updateLink(link.id, 'highlight', anim);
-                                        setOpenAnimationMenu(null);
-                                      }}
-                                      className={`w-full text-left px-4 py-2.5 text-sm font-medium rounded-xl transition-colors ${link.highlight === anim ? 'bg-[#32a800] text-white' : 'text-slate-600 hover:bg-slate-50 hover:text-[#32a800]'}`}
-                                    >
-                                      {anim === 'none' ? 'Nenhuma' : anim.charAt(0).toUpperCase() + anim.slice(1)}
-                                    </button>
-                                  ))}
-                                </motion.div>
+                              <div className={`flex items-center justify-center p-1 border border-black ${link.layout === opt.id ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
+                                {opt.icon.type === LayoutGrid || opt.icon.type === LayoutTemplate || opt.icon.type === Share2 ? React.cloneElement(opt.icon, { size: 16 }) : opt.icon}
+                              </div>
+                              <div className="flex-1 mt-0">
+                                <div className={`text-[11px] font-black uppercase tracking-widest leading-none mb-1 ${link.layout === opt.id ? 'text-black' : 'text-black'}`}>{opt.label}</div>
+                                <div className="text-[9px] text-black/70 font-bold uppercase tracking-wider leading-none">{opt.desc}</div>
+                              </div>
+                              {link.layout === opt.id && (
+                                <div className="w-3.5 h-3.5 bg-black border border-black mt-0.5 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
+                                  <Check size={10} strokeWidth={4} className="text-[#97cd7a]" />
+                                </div>
                               )}
-                            </AnimatePresence>
-                          </div>
+                            </button>
+                          ))}
                         </div>
                       </div>
 
-                      <div className="space-y-6 md:space-y-8">
-                        {/* Layout Picker */}
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Layout do Botão</label>
-                          <div className="flex flex-col gap-2">
-                            {[
-                              { id: 'classic', label: 'Botão Clássico', desc: 'Largura total com ícone', icon: <LayoutGrid size={16} /> },
-                              { id: 'card', label: 'Card Moderno', desc: 'Arredondado e sombra', icon: <LayoutTemplate size={16} /> },
-                              { id: 'social', label: 'Rede Social (Topo)', desc: 'Ícone pequeno no topo', icon: <Share2 size={16} /> }
-                            ].map((opt) => (
-                              <button
-                                key={opt.id}
-                                onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                className={`p-3 md:p-4 rounded-xl border text-left flex items-start gap-4 transition-all ${link.layout === opt.id
-                                  ? 'bg-[#32a800]/5 border-[#32a800] ring-1 ring-[#32a800]/10'
-                                  : 'bg-white border-slate-200 hover:border-slate-300'
-                                  }`}
-                              >
-                                <div className={`flex items-center justify-center p-2 rounded-lg ${link.layout === opt.id ? 'bg-[#32a800] text-white' : 'bg-slate-50 text-slate-400'}`}>
-                                  {opt.icon}
-                                </div>
-                                <div className="flex-1">
-                                  <div className={`text-xs md:text-sm font-semibold mb-0.5 ${link.layout === opt.id ? 'text-[#32a800]' : 'text-slate-700'}`}>{opt.label}</div>
-                                  <div className="text-[9px] md:text-[10px] text-slate-400 font-medium leading-tight">{opt.desc}</div>
-                                </div>
-                                {link.layout === opt.id && (
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#32a800] mt-2" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Scheduling Section (PRO) */}
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Agendamento (PRO)</label>
-                            {(!profile.planType || profile.planType === 'free') && (
-                              <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-tight">Bloqueado</span>
-                            )}
-                          </div>
-
-                          <div className={`p-4 rounded-xl border ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-50 border-slate-200 opacity-70 pointer-events-none' : 'bg-white border-slate-200'}`}>
-                            <div className="grid grid-cols-1 gap-4">
-                              {/* Start Date */}
-                              <div className="space-y-1.5">
-                                <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
-                                  <div className={`w-2 h-2 rounded-full ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-blue-500' : 'bg-slate-300'}`}></div>
-                                  Início (Agendar para o futuro)
-                                </div>
-                                <input
-                                  type="datetime-local"
-                                  value={link.scheduleStart ? new Date(link.scheduleStart).toISOString().slice(0, 16) : ''}
-                                  onChange={(e) => {
-                                    const date = e.target.value ? new Date(e.target.value).toISOString() : null;
-                                    updateLink(link.id, 'scheduleStart', date);
-                                  }}
-                                  disabled={!profile.planType || profile.planType === 'free'}
-                                  className="w-full text-xs font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all"
-                                />
-                              </div>
-
-                              {/* End Date */}
-                              <div className="space-y-1.5">
-                                <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
-                                  <div className={`w-2 h-2 rounded-full ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-slate-300'}`}></div>
-                                  Fim (Expirar automaticamente)
-                                </div>
-                                <input
-                                  type="datetime-local"
-                                  value={link.scheduleEnd ? new Date(link.scheduleEnd).toISOString().slice(0, 16) : ''}
-                                  onChange={(e) => {
-                                    const date = e.target.value ? new Date(e.target.value).toISOString() : null;
-                                    updateLink(link.id, 'scheduleEnd', date);
-                                  }}
-                                  disabled={!profile.planType || profile.planType === 'free'}
-                                  className="w-full text-xs font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:border-[#32a800] focus:ring-1 focus:ring-[#32a800]/5 outline-none transition-all"
-                                />
-                              </div>
-
-                              {/* Status Message */}
-                              {(link.scheduleStart || link.scheduleEnd) && (
-                                <div className="pt-2 border-t border-slate-100">
-                                  {link.scheduleStart && new Date(link.scheduleStart) > new Date() ? (
-                                    <div className="text-[10px] font-semibold text-blue-600 flex items-center gap-1.5">
-                                      <Sparkles size={12} /> Link agendado para aparecer em {new Date(link.scheduleStart).toLocaleDateString()}
-                                    </div>
-                                  ) : link.scheduleEnd && new Date(link.scheduleEnd) < new Date() ? (
-                                    <div className="text-[10px] font-semibold text-red-500 flex items-center gap-1.5">
-                                      <Archive size={12} /> Link expirado e oculto do perfil
-                                    </div>
-                                  ) : (
-                                    <div className="text-[10px] font-bold text-emerald-600 flex items-center gap-1.5">
-                                      <Zap size={12} fill="currentColor" /> Atualmente visível (Dentro do agendamento)
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Instagram Account Switcher */}
-                          {profile.integrations?.find(i => i.provider === 'instagram')?.profile_data?.available_accounts?.length > 1 && (
-                            <div className="space-y-3 pb-6 border-b border-slate-100">
-                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Alternar Conta do Instagram</label>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {profile.integrations?.find((i: any) => i.provider === 'instagram')?.profile_data?.available_accounts?.map((acc: any) => {
-                                  const isActive = acc.channel_id === profile.integrations?.find(i => i.provider === 'instagram')?.profile_data?.channel_id;
-                                  return (
-                                    <button
-                                      key={acc.channel_id}
-                                      onClick={async () => {
-                                        if (isActive) return;
-                                        try {
-                                          await apiClient.switchInstagramAccount(acc.channel_id);
-                                          // Force full page reload or update parent to see changes
-                                          window.location.reload();
-                                        } catch (err) {
-                                          console.error('Error switching account:', err);
-                                          alert('Erro ao trocar de conta. Tente novamente.');
-                                        }
-                                      }}
-                                      className={`flex items-center gap-3 p-2 rounded-xl border transition-all ${isActive
-                                        ? 'bg-purple-500/5 border-purple-200 ring-1 ring-purple-500/10'
-                                        : 'bg-white border-slate-100 hover:border-slate-200'
-                                        }`}
-                                    >
-                                      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-100">
-                                        <img src={acc.avatar_url} alt={acc.username} className="w-full h-full object-cover" />
-                                      </div>
-                                      <div className="flex-1 min-w-0 text-left">
-                                        <div className={`text-xs font-bold truncate ${isActive ? 'text-purple-600' : 'text-slate-700'}`}>@{acc.username}</div>
-                                        <div className="text-[9px] text-slate-400">{acc.follower_count} seguidores</div>
-                                      </div>
-                                      {isActive && (
-                                        <div className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center text-white shrink-0">
-                                          <Check size={12} strokeWidth={3} />
-                                        </div>
-                                      )}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
+                      {/* Scheduling Section (PRO) */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1">Agendamento (PRO)</label>
+                          {(!profile.planType || profile.planType === 'free') && (
+                            <span className="px-2 py-0.5 bg-black text-[#97cd7a] border-2 border-black text-[9px] font-black uppercase tracking-tight shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">Bloqueado</span>
                           )}
                         </div>
+
+                        <div className={`p-2 border mt-1 ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-black opacity-60 pointer-events-none grayscale' : 'bg-white border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'}`}>
+                          <div className="grid grid-cols-1 gap-2.5">
+                            {/* Start Date */}
+                            <div className="space-y-1.5">
+                              <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-black">
+                                <div className={`w-2.5 h-2.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-[#97cd7a]' : 'bg-white'}`}></div>
+                                Início (Agendar)
+                              </div>
+                              <input
+                                type="datetime-local"
+                                value={link.scheduleStart ? new Date(link.scheduleStart).toISOString().slice(0, 16) : ''}
+                                onChange={(e) => {
+                                  const date = e.target.value ? new Date(e.target.value).toISOString() : null;
+                                  updateLink(link.id, 'scheduleStart', date);
+                                }}
+                                disabled={!profile.planType || profile.planType === 'free'}
+                                className="w-full text-[10px] font-black uppercase tracking-widest text-black bg-white border border-black px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                              />
+                            </div>
+
+                            {/* End Date */}
+                            <div className="space-y-1.5">
+                              <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-black">
+                                <div className={`w-2.5 h-2.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-white'}`}></div>
+                                Fim (Expirar)
+                              </div>
+                              <input
+                                type="datetime-local"
+                                value={link.scheduleEnd ? new Date(link.scheduleEnd).toISOString().slice(0, 16) : ''}
+                                onChange={(e) => {
+                                  const date = e.target.value ? new Date(e.target.value).toISOString() : null;
+                                  updateLink(link.id, 'scheduleEnd', date);
+                                }}
+                                disabled={!profile.planType || profile.planType === 'free'}
+                                className="w-full text-[10px] font-black uppercase tracking-widest text-black bg-white border border-black px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                              />
+                            </div>
+
+                            {/* Status Message */}
+                            {(link.scheduleStart || link.scheduleEnd) && (
+                              <div className="pt-2 border-t border-slate-100">
+                                {link.scheduleStart && new Date(link.scheduleStart) > new Date() ? (
+                                  <div className="text-[10px] font-semibold text-blue-600 flex items-center gap-1.5">
+                                    <Sparkles size={12} /> Link agendado para aparecer em {new Date(link.scheduleStart).toLocaleDateString()}
+                                  </div>
+                                ) : link.scheduleEnd && new Date(link.scheduleEnd) < new Date() ? (
+                                  <div className="text-[10px] font-semibold text-red-500 flex items-center gap-1.5">
+                                    <Archive size={12} /> Link expirado e oculto do perfil
+                                  </div>
+                                ) : (
+                                  <div className="text-[10px] font-bold text-emerald-600 flex items-center gap-1.5">
+                                    <Zap size={12} fill="currentColor" /> Atualmente visível (Dentro do agendamento)
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Instagram Account Switcher */}
+                        {profile.integrations?.find(i => i.provider === 'instagram')?.profile_data?.available_accounts?.length > 1 && (
+                          <div className="space-y-3 pb-6 border-b border-slate-100">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Alternar Conta do Instagram</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {profile.integrations?.find((i: any) => i.provider === 'instagram')?.profile_data?.available_accounts?.map((acc: any) => {
+                                const isActive = acc.channel_id === profile.integrations?.find(i => i.provider === 'instagram')?.profile_data?.channel_id;
+                                return (
+                                  <button
+                                    key={acc.channel_id}
+                                    onClick={async () => {
+                                      if (isActive) return;
+                                      try {
+                                        await apiClient.switchInstagramAccount(acc.channel_id);
+                                        // Force full page reload or update parent to see changes
+                                        window.location.reload();
+                                      } catch (err) {
+                                        console.error('Error switching account:', err);
+                                        alert('Erro ao trocar de conta. Tente novamente.');
+                                      }
+                                    }}
+                                    className={`flex items-center gap-3 p-2 rounded-xl border transition-all ${isActive
+                                      ? 'bg-purple-500/5 border-purple-200 ring-1 ring-purple-500/10'
+                                      : 'bg-white border-slate-100 hover:border-slate-200'
+                                      }`}
+                                  >
+                                    <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-100">
+                                      <img src={acc.avatar_url} alt={acc.username} className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="flex-1 min-w-0 text-left">
+                                      <div className={`text-xs font-bold truncate ${isActive ? 'text-purple-600' : 'text-slate-700'}`}>@{acc.username}</div>
+                                      <div className="text-[9px] text-slate-400">{acc.follower_count} seguidores</div>
+                                    </div>
+                                    {isActive && (
+                                      <div className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center text-white shrink-0">
+                                        <Check size={12} strokeWidth={3} />
+                                      </div>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="flex items-center justify-between pt-8 border-t border-slate-100">
-                      <div className="flex items-center gap-2 text-slate-500 font-medium text-xs">
-                        <BarChart2 size={16} className="text-[#32a800]" />
-                        <span className="font-bold text-[#32a800]">{link.clicks || 0}</span>
-                        <span>cliques no total</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 mt-4 border-t border-black border-dashed gap-4">
+                      <div className="flex items-center gap-2 text-black font-black uppercase tracking-widest text-[10px] sm:shrink-0">
+                        <BarChart2 size={14} strokeWidth={3} className="text-black" />
+                        <span className="text-black leading-none">{link.clicks || 0} CLIQUES NO TOTAL</span>
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                        <button
+                          onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))}
+                          className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-white border border-black text-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                        >
+                          Mover
+                        </button>
+
                         <button
                           onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)}
-                          className={`px-4 h-10 rounded-xl text-xs font-semibold transition-all ${link.isArchived ? 'bg-slate-900 text-white shadow-sm' : 'bg-transparent text-slate-400 hover:text-slate-600'}`}
+                          className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-black text-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'bg-white border-black text-black hover:bg-black hover:text-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none'}`}
                         >
                           {link.isArchived ? 'Restaurar' : 'Arquivar'}
                         </button>
 
                         <button
-                          onClick={() => setShowDeleteConfirm(true)}
-                          className="px-4 h-10 rounded-xl text-xs font-semibold bg-transparent text-red-500 hover:text-red-600 transition-all"
+                          onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
+                          className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-black text-white' : 'bg-white border-black text-black hover:bg-red-500 hover:text-white'}`}
                         >
                           Excluir
                         </button>
                       </div>
                     </div>
-
-                    {/* Delete Confirmation Overlay */}
                     <AnimatePresence>
                       {showDeleteConfirm && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden mt-4"
+                          className="overflow-hidden bg-red-50 border-t border-black border-dashed mt-4 pt-4"
                         >
-                          <div className="pt-8 flex items-center justify-between border-t border-slate-100">
-                            <div className="flex items-center gap-3 text-red-500">
-                              <Trash2 size={18} />
-                              <span className="text-sm font-bold">Tem certeza que deseja excluir?</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <button
-                                onClick={() => setShowDeleteConfirm(false)}
-                                className="px-5 h-10 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-600 transition-all"
-                              >
-                                Cancelar
-                              </button>
-                              <button
-                                onClick={() => {
-                                  removeLink(link.id);
-                                  setShowDeleteConfirm(false);
-                                }}
-                                className="px-6 h-10 rounded-xl text-xs font-bold bg-red-500 text-white hover:bg-red-600 transition-all active:scale-95 shadow-sm shadow-red-100"
-                              >
-                                Confirmar Exclusão
-                              </button>
+                          <div className="flex items-center justify-between gap-4">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-red-600">Confirmar exclusão?</span>
+                            <div className="flex gap-2">
+                              <button onClick={() => removeLink(link.id)} className="px-4 py-2 bg-red-600 text-white border-2 border-black text-[10px] font-black uppercase tracking-widest shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Sim, excluir</button>
+                              <button onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 bg-white text-black border-2 border-black text-[10px] font-black uppercase tracking-widest shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Cancelar</button>
                             </div>
                           </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
+
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
-        )}
-      </div>
+        )
+        }
+      </div >
     </Reorder.Item >
   );
 }
@@ -1004,12 +999,88 @@ function LinkEditor({
   const [showArchive, setShowArchive] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [moveModalLinkId, setMoveModalLinkId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Use effect to handle mounting state for Portals
   React.useEffect(() => {
     setMounted(true);
     return () => setMounted(false);
   }, []);
+
+  // Handle cross-list drops into Collections
+  React.useEffect(() => {
+    if (level !== 0) return;
+
+    const handleMoveLink = (e: any) => {
+      const { sourceId, targetId } = e.detail;
+      if (!sourceId || !targetId) return;
+
+      // @ts-ignore
+      onChange((prevLinks: LinkItem[]) => {
+        let newLinks = JSON.parse(JSON.stringify(prevLinks)) as LinkItem[];
+        let movedLink: LinkItem | null = null;
+
+        const removeRec = (list: LinkItem[]): LinkItem[] => {
+          return list.filter(item => {
+            if (item.id === sourceId) {
+              movedLink = item;
+              return false;
+            }
+            if (item.children) {
+              item.children = removeRec(item.children);
+            }
+            return true;
+          });
+        };
+
+        newLinks = removeRec(newLinks);
+        if (!movedLink) return prevLinks;
+
+        if (targetId === 'root') {
+          newLinks.unshift(movedLink!);
+          return newLinks;
+        }
+
+        const insertRec = (list: LinkItem[]) => {
+          for (const item of list) {
+            if (item.id === targetId && item.type === 'collection') {
+              if (!item.children) item.children = [];
+              item.children.unshift(movedLink!);
+              return true;
+            }
+            if (item.children && insertRec(item.children)) return true;
+          }
+          return false;
+        };
+
+        if (insertRec(newLinks)) {
+          setExpandedCollections((prev) => ({ ...prev, [targetId]: true }));
+          return newLinks;
+        }
+
+        return prevLinks;
+      });
+    };
+
+    const handleOpenMove = (e: any) => {
+      setMoveModalLinkId(e.detail.linkId);
+    };
+
+    window.addEventListener('nodus:move-link', handleMoveLink);
+    window.addEventListener('nodus:open-move-modal', handleOpenMove);
+    return () => {
+      window.removeEventListener('nodus:move-link', handleMoveLink);
+      window.removeEventListener('nodus:open-move-modal', handleOpenMove);
+    };
+  }, [level, onChange, setExpandedCollections]);
 
   const isLimitReached = (profile.planType === 'free' || !profile.planType) && links.length >= 5;
 
@@ -1200,31 +1271,33 @@ function LinkEditor({
   };
 
   const handleReorder = (newActiveLinks: LinkItem[]) => {
+    // @ts-ignore
+    if (window.__nodusIsDraggingIntoCollection) return;
     // Combine new active links with existing archived links to preserve full state
     onChange([...newActiveLinks, ...archivedLinks]);
   };
 
   return (
-    <div className={`space-y-6 ${level === 0 ? 'bg-white border border-slate-100 p-6 md:p-8 pt-8 md:pt-10 rounded-[24px] md:rounded-[32px] shadow-sm' : ''}`}>
-      <div className="space-y-6">
+    <div className={`space-y-3 ${level === 0 ? 'bg-white border-[1.5px] border-black p-3 md:p-4 pt-4 md:pt-5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : ''}`}>
+      <div className="space-y-3">
         {level === 0 ? (
           <>
-            <div className="flex flex-col gap-8 mb-8">
-              <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 mb-4">
+              <div className="flex items-center justify-between border-b border-black pb-3">
                 <div>
-                  <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Meus Links</h2>
-                  <p className="text-xs md:text-sm text-slate-500 mt-1">Gerencie seu perfil e suas conexões</p>
+                  <h2 className="text-base md:text-lg font-black uppercase text-black tracking-tight">Meus Links</h2>
+                  <p className="text-[10px] font-bold text-black/60 mt-0.5 uppercase tracking-widest leading-none">Gerencie seu perfil e suas conexões</p>
                 </div>
 
-                <div className="flex items-center gap-1 md:gap-2">
+                <div className="flex items-center gap-2 md:gap-2.5">
                   <button
                     onClick={() => setShowArchive(true)}
-                    className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all active:scale-90"
+                    className="w-10 h-10 flex items-center justify-center border border-black bg-white hover:bg-[#ffdf00] shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
                     title="Ver Arquivo"
                   >
-                    <Archive size={20} className="md:w-6 md:h-6" />
+                    <Archive size={18} className="text-black" />
                     {archivedLinks.length > 0 && (
-                      <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-100 text-[9px] font-bold text-slate-500">
+                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center border border-black bg-[#97cd7a] text-[8px] font-black uppercase text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                         {archivedLinks.length}
                       </span>
                     )}
@@ -1233,13 +1306,13 @@ function LinkEditor({
                   <button
                     onClick={() => setIsAddModalOpen(true)}
                     disabled={isLimitReached}
-                    className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center transition-all active:scale-90 ${isLimitReached
-                      ? 'text-slate-200 cursor-not-allowed'
-                      : 'text-[#32a800] hover:text-[#32a800]/80'
+                    className={`w-10 h-10 flex items-center justify-center border transition-all hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none ${isLimitReached
+                      ? 'border-black bg-slate-200 text-black/30 cursor-not-allowed shadow-none'
+                      : 'border-black bg-[#97cd7a] text-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] hover:bg-[#86b567]'
                       }`}
                     title="Adicionar Novo Link"
                   >
-                    <Plus size={20} className="md:w-6 md:h-6" />
+                    <Plus size={18} className="text-black" strokeWidth={3} />
                   </button>
                 </div>
               </div>
@@ -1259,21 +1332,21 @@ function LinkEditor({
         ) : (
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="w-full py-4 border border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium hover:border-[#32a800] hover:text-[#32a800] transition-colors flex items-center justify-center gap-2 text-sm"
+            className={`w-full ${level > 0 ? 'py-1.5 text-[10px]' : 'py-2.5 text-xs'} border border-dashed border-black bg-white font-black uppercase text-black hover:bg-[#ffdf00] transition-colors flex items-center justify-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none`}
           >
-            <Plus size={16} /> Adicionar Link na Coleção
+            <Plus size={level > 0 ? 14 : 16} strokeWidth={3} /> Adicionar Link na Coleção
           </button>
         )}
       </div>
 
       <div className="space-y-4">
         {activeLinks.length === 0 && (
-          <div className="text-center py-10 md:py-16 bg-slate-50/50 rounded-[24px] md:rounded-[32px] border border-dashed border-slate-200">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-slate-100 text-slate-200">
-              <Ban size={24} />
+          <div className="text-center py-10 md:py-16 bg-[#ffdf00] border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-white border-4 border-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black">
+              <Ban size={32} strokeWidth={3} />
             </div>
-            <p className="text-xs md:text-sm font-medium text-slate-400">Sua lista de links está vazia</p>
-            <p className="text-[10px] md:text-xs text-slate-300 mt-1">Adicione seu primeiro link para começar</p>
+            <p className="text-lg md:text-xl font-black uppercase tracking-widest text-black">Sua lista de links está vazia</p>
+            <p className="text-xs md:text-sm text-black/70 font-bold uppercase tracking-wider mt-2">Adicione seu primeiro link para começar</p>
           </div>
         )}
 
@@ -1281,8 +1354,7 @@ function LinkEditor({
           axis="y"
           values={activeLinks}
           onReorder={handleReorder}
-          className="space-y-4"
-          transition={{ duration: 0 }}
+          className="space-y-3"
         >
           {activeLinks.map((link) => (
             <SortableLinkItem
@@ -1322,64 +1394,64 @@ function LinkEditor({
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-2xl max-h-[85vh] bg-white rounded-[32px] md:rounded-[40px] p-6 md:p-14 transition-all flex flex-col shadow-2xl overflow-hidden"
+                className="relative w-full max-w-xl max-h-[85vh] bg-white border-[1.5px] border-black p-6 md:p-10 transition-all flex flex-col shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden"
               >
                 {/* Header */}
-                <div className="mb-10 flex items-center justify-between shrink-0">
+                <div className="mb-6 flex items-center justify-between shrink-0">
                   <div>
-                    <h3 className="text-2xl font-semibold text-slate-900 tracking-tight">Itens Arquivados</h3>
-                    <p className="text-sm text-slate-500 mt-1">{archivedLinks.length} links guardados no seu arquivo</p>
+                    <h3 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-black">Itens Arquivados</h3>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-black/70 mt-0.5">{archivedLinks.length} links no arquivo</p>
                   </div>
                   <button
                     onClick={() => setShowArchive(false)}
-                    className="p-3 bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-2xl transition-all active:scale-95"
+                    className="p-2 bg-white text-black border border-black hover:bg-red-500 hover:text-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
                   >
-                    <X size={24} />
+                    <X size={18} strokeWidth={3} />
                   </button>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-hide">
+                <div className="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-hide py-2">
                   {archivedLinks.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center py-20">
-                      <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                        <Archive size={32} className="text-slate-200" />
+                    <div className="h-full flex flex-col items-center justify-center py-20 border-4 border-dashed border-black">
+                      <div className="w-20 h-20 bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-6">
+                        <Archive size={32} strokeWidth={3} className="text-black" />
                       </div>
-                      <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest leading-none">Arquivo Vazio</p>
+                      <p className="text-sm font-black text-black uppercase tracking-widest leading-none">Arquivo Vazio</p>
                     </div>
                   ) : (
                     archivedLinks.map((link) => (
                       <motion.div
                         key={link.id}
                         layout
-                        className="flex items-center justify-between p-5 bg-white border border-slate-100 rounded-[24px] transition-all hover:border-[#32a800] group/item"
+                        className="flex items-center justify-between p-3 bg-white border border-black transition-all hover:bg-[#ffdf00] group/item shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-3"
                       >
                         <div className="flex items-center gap-5 min-w-0">
-                          <div className="w-14 h-14 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                          <div className="w-14 h-14 bg-white border-2 border-black flex items-center justify-center shrink-0 overflow-hidden shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                             {link.image ? (
-                              <img src={link.image} alt="" className="w-full h-full object-cover grayscale group-hover/item:grayscale-0 transition-all" />
+                              <img src={link.image} alt="" className="w-full h-full object-cover grayscale group-hover/item:grayscale-0 transition-all border-none" />
                             ) : (
-                              <LinkIcon size={20} className="text-slate-300" />
+                              <LinkIcon size={24} strokeWidth={3} className="text-black" />
                             )}
                           </div>
                           <div className="min-w-0">
-                            <h4 className="text-sm font-semibold text-slate-800 truncate mb-0.5">{link.title || 'Sem título'}</h4>
-                            <p className="text-xs text-slate-400 truncate font-medium">{link.url || 'Sem URL'}</p>
+                            <h4 className="text-sm font-black uppercase tracking-widest text-black truncate mb-0.5">{link.title || 'Sem título'}</h4>
+                            <p className="text-xs text-black/70 font-bold uppercase tracking-widest truncate">{link.url || 'Sem URL'}</p>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3 shrink-0">
+                        <div className="flex items-center gap-2 shrink-0">
                           <button
                             onClick={() => updateLink(link.id, 'isArchived', false)}
-                            className="h-10 px-5 bg-slate-50 text-slate-600 rounded-xl text-xs font-bold hover:bg-[#32a800] hover:text-white transition-all shadow-sm active:scale-95"
+                            className="h-8 px-3 bg-white border border-black text-black text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-[#ffdf00] transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
                           >
                             Restaurar
                           </button>
                           <button
                             onClick={() => removeLink(link.id)}
-                            className="p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                            className="p-2 bg-white border border-black text-black hover:text-white hover:bg-red-500 transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
                           >
-                            <Trash2 size={18} />
+                            <Trash2 size={16} strokeWidth={3} />
                           </button>
                         </div>
                       </motion.div>
@@ -1387,10 +1459,10 @@ function LinkEditor({
                   )}
                 </div>
 
-                <div className="mt-10 pt-8 border-t border-slate-50 shrink-0">
+                <div className="mt-8 pt-6 border-t border-black border-dashed shrink-0">
                   <button
                     onClick={() => setShowArchive(false)}
-                    className="w-full h-14 bg-slate-900 text-white rounded-[20px] font-bold text-sm tracking-wide hover:shadow-xl transition-all active:scale-[0.98]"
+                    className="w-full h-11 bg-black text-[#ffdf00] font-black uppercase tracking-widest text-xs transition-all border border-black hover:bg-white hover:text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
                   >
                     Voltar aos Meus Links
                   </button>
@@ -1416,6 +1488,89 @@ function LinkEditor({
               onAddHeader={addHeader}
             />
           )}
+
+          {level === 0 && moveModalLinkId && (
+            <div className={`fixed inset-0 z-[9999] flex ${isMobile ? 'items-end' : 'items-center justify-center p-4 md:p-8'}`}>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMoveModalLinkId(null)}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={isMobile ? { y: '100%', opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={isMobile ? { y: '100%', opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95, y: 20 }}
+                transition={isMobile ? { duration: 0.3, ease: [0.32, 0.72, 0, 1] } : { type: 'spring', damping: 25, stiffness: 200 }}
+                drag={isMobile ? "y" : false}
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={0.8}
+                onDragEnd={(_, info) => {
+                  if (info.offset.y > 100 || info.velocity.y > 500) {
+                    setMoveModalLinkId(null);
+                  }
+                }}
+                className={`
+                  relative bg-white border-4 border-black flex flex-col shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden touch-none
+                  ${isMobile ? 'w-full p-8 pb-12' : 'w-full max-w-sm p-6'}
+                `}
+              >
+                {isMobile && (
+                  <div className="w-12 h-1.5 bg-black mx-auto mb-6 shrink-0" />
+                )}
+
+                <div className="mb-6 flex items-center justify-between">
+                  <h3 className={`${isMobile ? 'text-2xl' : 'text-lg'} font-black uppercase tracking-tighter text-black`}>Mover para...</h3>
+                  {!isMobile && (
+                    <button
+                      onClick={() => setMoveModalLinkId(null)}
+                      className="p-1.5 bg-white text-black border-2 border-black hover:bg-black hover:text-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                    >
+                      <X size={16} strokeWidth={4} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <button
+                    onClick={() => {
+                      window.dispatchEvent(new CustomEvent('nodus:move-link', { detail: { sourceId: moveModalLinkId, targetId: 'root' } }));
+                      setMoveModalLinkId(null);
+                    }}
+                    className="w-full text-left flex items-center gap-4 p-4 bg-white border-2 border-black hover:bg-[#ffdf00] transition-all font-black uppercase tracking-widest text-[11px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                  >
+                    <Folder size={18} strokeWidth={3} className="text-black" /> Meus Links (Raiz)
+                  </button>
+
+                  <div className="pt-2">
+                    <p className="text-[10px] font-black uppercase text-black/40 mb-3 tracking-[0.2em] px-1">Suas Coleções</p>
+                    <div className="space-y-3">
+                      {links.filter(l => l.type === 'collection' && l.id !== moveModalLinkId).length > 0 ? (
+                        links.filter(l => l.type === 'collection' && l.id !== moveModalLinkId).map(c => (
+                          <button
+                            key={c.id}
+                            onClick={() => {
+                              window.dispatchEvent(new CustomEvent('nodus:move-link', { detail: { sourceId: moveModalLinkId, targetId: c.id } }));
+                              setMoveModalLinkId(null);
+                            }}
+                            className="w-full text-left flex items-center gap-4 p-4 bg-white border-2 border-black hover:bg-[#97cd7a] transition-all font-black uppercase tracking-widest text-[11px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                          >
+                            <FolderHeart size={18} strokeWidth={3} className="text-black" /> {c.title || 'Coleção sem nome'}
+                          </button>
+                        ))
+                      ) : (
+                        <div className="p-8 border-2 border-dashed border-black/10 flex flex-col items-center justify-center text-center">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-black/20">Nenhuma coleção encontrada</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+
         </AnimatePresence>,
         document.body
       )}

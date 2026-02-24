@@ -333,6 +333,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     if (isCustomTheme && profile.customButtonColor) overrideTypes.push('bg');
     if (isCustomTheme && profile.customButtonTextColor) overrideTypes.push('text');
 
+    const isProfileMode = profile.headerLayout === 'compact';
+
     // 1. Button Class - Start with theme base and apply surgical overrides
     let buttonClass = cleanClass(currentTheme.buttonClass, overrideTypes);
     if (roundedClass) buttonClass += ` ${roundedClass}`;
@@ -344,6 +346,26 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     // 2.5 Font Logic - Always prioritize profile settings if available
     const effectiveFontFamily = profile.fontFamily || currentTheme.fontFamily || "'Inter', sans-serif";
     const containerStyle = { fontFamily: effectiveFontFamily };
+
+    // Helper to get contrast color (Black or White) based on a hex color
+    const getContrastColor = (hex: string) => {
+        if (!hex) return 'white';
+        // Remove # if present
+        const color = hex.replace('#', '');
+        const r = parseInt(color.substr(0, 2), 16);
+        const g = parseInt(color.substr(2, 2), 16);
+        const b = parseInt(color.substr(4, 2), 16);
+        const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        return (yiq >= 128) ? 'text-slate-900' : 'text-white';
+    };
+
+    const headerContentBg = isProfileMode
+        ? (profile.customSecondaryColor || (isDarkTheme ? '#0f172a' : '#ffffff'))
+        : 'transparent';
+
+    const headerTextColorClass = isProfileMode
+        ? getContrastColor(headerContentBg)
+        : '';
 
     // 3. Card/Container Logic - STRICT UNIFICATION
     // User Requirement: "Tudo vai ser tratado como botao" & "Mesma cor"
@@ -365,7 +387,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         baseCardClass = cleanClass(baseCardClass, ['rounded']) + ` ${roundedClass}`;
     }
 
-    // Note: We do NOT use currentTheme.cardClass anymore because it often introduces deviant colors (white/black) 
+    // Note: We do NOT use currentTheme.cardClass anymore because it often introduces deviant colors (white/black)
     // that break the "Everything is a Button" rule.
 
     // Lower threshold for more aggressive light button detection (white is 1, so 0.6 is quite early)
@@ -389,15 +411,20 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         return undefined;
     };
 
-    const effectiveTextColor = profile.customTextColor || currentTheme.textHex || (isDarkTheme ? '#ffffff' : '#0f172a');
+    const effectiveTextColor = (profile.customTextColor || currentTheme.textHex || (isDarkTheme ? '#ffffff' : '#0f172a'));
+
     const mainTextColorStyle = effectiveTextColor ? { color: effectiveTextColor } : {};
+
+    // Collection Title Style
+    const effectiveCollectionTextColor = (profile.customCollectionTextColor || profile.customTextColor || currentTheme.textHex || (isDarkTheme ? '#ffffff' : '#0f172a'));
+    const collectionTextColorStyle = effectiveCollectionTextColor ? { color: effectiveCollectionTextColor } : {};
 
     const textClass = currentTheme.textClass;
 
 
     return (
         <div
-            className="relative w-full h-full flex flex-col overflow-hidden isolate"
+            className={`relative w-full ${isPreview ? 'min-h-full' : 'min-h-[100dvh]'} flex flex-col isolate`}
             style={{ fontFamily: profile.fontFamily }}
         >
             <style>{`
@@ -430,14 +457,16 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     75% { border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%; }
                 }
             `}</style>
-            {/* Background Layer */}
-            <BackgroundLayer profile={profile} currentTheme={currentTheme} isStatic={isStatic} />
-            {!isStatic && currentTheme.id.startsWith('brutalist-') && profile.headerLayout !== 'banner' && (
+            {/* Background Layer - Hidden in Perfil Mode */}
+            {profile.headerLayout !== 'compact' && (
+                <BackgroundLayer profile={profile} currentTheme={currentTheme} isStatic={isStatic} />
+            )}
+            {!isStatic && currentTheme.id.startsWith('brutalist-') && profile.headerLayout !== 'banner' && profile.headerLayout !== 'compact' && (
                 <BrutalistVisualizer profile={profile} currentTheme={currentTheme} />
             )}
 
             {/* GLOBAL BLUR FADE OVERLAY - Only for other layouts */}
-            {(profile.enableBlur && profile.headerLayout !== 'banner') && (
+            {(profile.enableBlur && profile.headerLayout !== 'banner' && profile.headerLayout !== 'compact') && (
                 <>
                     <div
                         className="absolute inset-0 z-10 pointer-events-none"
@@ -454,7 +483,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
             {/* Content Container */}
             <div
-                className={`w-full h-full overflow-y-auto scrollbar-hide flex flex-col relative z-20 ${currentTheme.id === 'glass' ? 'text-white' : currentTheme.textClass}`}
+                className={`w-full ${isPreview ? 'h-full overflow-y-auto scrollbar-hide' : 'flex-1'} flex flex-col relative z-20 ${currentTheme.id === 'glass' ? 'text-white' : currentTheme.textClass}`}
                 style={{
                     ...containerStyle,
                     fontSize: `${(profile.fontSize || undefined) || 16}px`,
@@ -468,7 +497,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 )}
 
                 {profile.headerLayout === 'banner' && (
-                    <div className="relative w-full h-[55vh] min-h-[380px] shrink-0 overflow-hidden">
+                    <div className="relative w-full h-[62vh] min-h-[380px] shrink-0 overflow-visible">
                         {/* Image wrapper with mask to reveal BackgroundLayer blur */}
                         <div
                             className="absolute inset-0"
@@ -494,8 +523,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             />
                         </div>
 
-                        {/* Content Overlaid at Bottom */}
-                        <div className="absolute bottom-0 left-0 w-full px-8 pt-4 pb-2 z-20 flex flex-col items-center text-center">
+                        {/* Content Overlaid at Bottom (Shifted Down) */}
+                        <div className="absolute bottom-0 left-0 w-full px-8 pt-4 pb-2 z-20 flex flex-col items-center text-center translate-y-10">
                             {/* 1. Name */}
                             <h3
                                 className="text-[2.2em] font-black text-white mb-0.5 tracking-tight flex items-center gap-2 drop-shadow-xl"
@@ -541,11 +570,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     </div>
                 )}
 
-                {/* Status Bar - Only for Preview Mode (Absolute if Banner) */}
+                {/* Status Bar - Only for Preview Mode (Absolute if Banner or Perfil) */}
                 {isPreview && (
-                    <div className={`w-full px-6 pt-3 pb-2 flex justify-between items-center z-30 ${profile.headerLayout === 'banner' ? 'absolute top-0 left-0 pt-3' : ''} ${(isDarkTheme || profile.customBackground || currentTheme.id === 'glass' || profile.headerLayout === 'banner')
+                    <div className={`w-full px-6 pt-3 pb-2 flex justify-between items-center z-30 ${(['banner', 'compact'].includes(profile.headerLayout || '')) ? 'absolute top-0 left-0 pt-3' : ''} ${(isDarkTheme || profile.customBackground || currentTheme.id === 'glass' || profile.headerLayout === 'banner')
                         ? 'text-white'
-                        : 'text-slate-900'
+                        : (profile.headerLayout === 'compact' ? 'text-white/80' : 'text-slate-900')
                         }`}>
                         <span className="text-xs font-semibold tracking-wide">9:41</span>
                         <div className="flex items-center gap-1.5 opacity-90">
@@ -556,8 +585,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     </div>
                 )}
 
-                {/* Share Button (Adjusted for Banner) */}
-                <div className={`absolute ${profile.headerLayout === 'banner' ? 'top-10' : 'top-[34px]'} right-6 z-20`}>
+                {/* Share Button (Adjusted for Banner/Perfil) */}
+                <div className={`absolute ${(['banner', 'compact'].includes(profile.headerLayout || '')) ? 'top-4' : 'top-[34px]'} right-6 z-30`}>
                     <button
                         onClick={onShare}
                         className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all"
@@ -565,8 +594,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <Share size={18} />
                     </button>
                 </div>
-                {/* Menu / Options Button (Adjusted for Banner) */}
-                <div className={`absolute ${profile.headerLayout === 'banner' ? 'top-10' : 'top-[34px]'} left-6 z-20`}>
+                {/* Menu / Options Button (Adjusted for Banner/Perfil) */}
+                <div className={`absolute ${(['banner', 'compact'].includes(profile.headerLayout || '')) ? 'top-4' : 'top-[34px]'} left-6 z-30`}>
                     <div className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 transition-all">
                         <img src="/icons/marcadagua.gif" alt="Nodus" className="w-9 h-9 object-contain" />
                     </div>
@@ -575,27 +604,44 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
                 <div
-                    className={`px-6 pb-2 ${profile.headerLayout === 'banner' ? 'pt-2' : (isPreview ? 'pt-12' : 'pt-16')} flex flex-col`}
+                    className={`px-6 ${profile.headerLayout === 'banner' ? 'pt-12 pb-2' : (profile.headerLayout === 'compact' ? 'pt-0 pb-20' : (isPreview ? 'pt-12 pb-2' : 'pt-16 pb-2'))} flex flex-col relative flex-1`}
                     style={profile.headerLayout === 'banner' ? {
-                        minHeight: '40vh'
+                        minHeight: '35vh'
                     } : {}}
                 >
 
+                    {/* Compact/Social Header Banner - Full Width & Clean */}
+                    {profile.headerLayout === 'compact' && (
+                        <>
+                            <div className="absolute top-0 -left-6 w-[calc(100%+3rem)] h-[24vh] min-h-[160px] z-0 overflow-hidden">
+                                <img
+                                    src={profile.customBackground || profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`}
+                                    alt=""
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            {/* Full-length Intelligent Backdrop for Social Layout */}
+                            <div
+                                className={`absolute top-[18vh] -left-6 w-[calc(100%+3rem)] bottom-0 rounded-t-[32px] z-0 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]`}
+                                style={{ backgroundColor: headerContentBg }}
+                            />
+                        </>
+                    )}
+
                     {/* Profile Section - Shared for other layouts */}
                     {profile.headerLayout !== 'banner' && (
-                        <motion.div className={`w-full mb-1 ${profile.headerLayout === 'compact'
-                            ? 'flex flex-row items-center gap-4 text-left'
-                            : 'flex flex-col items-center text-center'
-                            }`}>
+                        <motion.div
+                            className={`w-full mb-1 flex flex-col items-center text-center relative z-10 ${profile.headerLayout === 'compact' ? 'mt-[18vh] pt-0 pb-4 px-4' : ''}`}
+                        >
                             {/* Avatar */}
                             {profile.avatarUrl && (
-                                <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? 'mb-0' : 'mb-4'
-                                    }`}>
-                                    <div className={`rounded-full overflow-hidden border-4 shadow-lg ${currentTheme.avatarBorder
-                                        } ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
+                                <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? '-mt-12 mb-4 z-20' : 'mb-4'}`}>
+                                    <div className={`rounded-full overflow-hidden shadow-xl ${profile.headerLayout === 'compact'
+                                        ? 'w-24 h-24 border-0'
+                                        : `border-4 ${currentTheme.avatarBorder} ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
                                             profile.avatarSize === 'lg' ? 'w-32 h-32' :
-                                                'w-24 h-24' // default (md)
-                                        } ${profile.headerLayout === 'hero' ? 'w-40 h-40 border-[6px]' : ''
+                                                'w-24 h-24'
+                                        }`
                                         }`}>
                                         <img
                                             src={profile.avatarUrl}
@@ -610,19 +656,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             )}
 
                             {/* Name/Logo & Bio */}
-                            <div className={`flex flex-col ${profile.headerLayout === 'compact' ? 'items-start' : 'items-center'} ${profile.headerLayout === 'compact' ? 'flex-1 min-w-0' : ''}`}>
+                            <div className={`flex flex-col items-center flex-1 min-w-0 ${headerTextColorClass}`}>
                                 <div className="flex items-center gap-2 justify-center w-full">
                                     {profile.headerStyle === 'logo' && profile.logoUrl ? (
                                         <img
                                             src={profile.logoUrl}
                                             alt={profile.name}
-                                            className={`mb-2 object-contain ${profile.headerLayout === 'hero' ? 'h-20' : 'h-12'
-                                                }`}
+                                            className="mb-2 object-contain h-12"
                                         />
                                     ) : (
                                         <h3
-                                            className={`mb-0 tracking-tight flex items-center gap-2 text-wrap break-words ${profile.headerLayout === 'hero' ? 'text-[1.6em]' : 'text-[1.3em]'}`}
-                                            style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                            className="mb-0 tracking-tight flex items-center gap-2 text-wrap break-words text-[1.3em]"
+                                            style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                         >
                                             {profile.name}
                                             {profile.isVerified && (
@@ -648,13 +693,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 )}
 
                                 {profile.bio && (
-                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line ${profile.headerLayout === 'compact' ? 'text-left' : 'text-center max-w-[300px]'}`}
-                                        style={{ ...mainTextColorStyle, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line text-center ${profile.headerLayout === 'compact' ? '' : 'max-w-[300px]'}`}
+                                        style={{ ...collectionTextColorStyle, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                     >
                                         {profile.bio}
                                     </p>
                                 )}
-
                             </div>
                         </motion.div>
                     )}
@@ -750,7 +794,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     <div className="space-y-6">
                                         <div
                                             className={`flex items-center gap-2.5 mb-2 text-xs font-bold uppercase tracking-widest opacity-60 px-1`}
-                                            style={{ ...mainTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                            style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                         >
                                             <ShoppingBag size={14} className="stroke-[2.5]" />
                                             <span>Categorias</span>
@@ -815,12 +859,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 <button
                                                     onClick={() => setActiveCollection(null)}
                                                     className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest opacity-50 hover:opacity-100 transition-all mb-1.5`}
-                                                    style={{ ...mainTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                    style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                 >
                                                     <ChevronLeft size={12} strokeWidth={3} />
                                                     <span>Voltar</span>
                                                 </button>
-                                                <h2 className={`text-xl font-black tracking-tight`} style={{ ...mainTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                <h2 className={`text-xl font-black tracking-tight`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                     {activeCollection}
                                                 </h2>
                                             </div>
@@ -858,11 +902,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                         {/* Product Info */}
                                                         <div className="flex flex-col gap-0.5 mt-2 px-1 text-left">
-                                                            <span className={`text-[13px] font-bold truncate`} style={{ ...mainTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                            <span className={`text-[13px] font-bold truncate`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                                 {product.name}
                                                             </span>
                                                             {product.price && (
-                                                                <span className={`text-[11px] font-medium opacity-70 mt-2`} style={{ ...mainTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                <span className={`text-[11px] font-medium opacity-70 mt-2`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                                     {product.price}
                                                                 </span>
                                                             )}
@@ -1043,7 +1087,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     >
                                                         <div
                                                             className={`text-center mb-2 opacity-90 text-sm font-bold uppercase tracking-widest`}
-                                                            style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                            style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                         >
                                                             {link.title}
                                                         </div>
@@ -1116,7 +1160,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 group/carousel ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
                                                             <div
                                                                 className={`text-center mb-2 font-bold opacity-90 text-sm uppercase tracking-widest`}
-                                                                style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                             >
                                                                 {link.title}
                                                             </div>
@@ -1177,7 +1221,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
                                                             <div
                                                                 className={`text-center mb-2 opacity-90 text-sm font-bold uppercase tracking-widest`}
-                                                                style={{ ...mainTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                             >
                                                                 {link.title}
                                                             </div>
@@ -1186,6 +1230,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
                                                                     if (child.embedType === 'youtube') return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} /></motion.div>;
                                                                     if (child.embedType === 'tiktok') return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><TikTokEmbed url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>;
+
+                                                                    const childNetwork = SOCIAL_NETWORKS.find(n => child.title.toLowerCase().includes(n.id)) ||
+                                                                        SOCIAL_NETWORKS.find(n => child.url.toLowerCase().includes(n.id));
+                                                                    const ChildSocialIcon = childNetwork?.icon;
 
                                                                     return (
                                                                         <motion.a
@@ -1198,13 +1246,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
                                                                             style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                                         >
-                                                                            <div className="relative z-10 w-full flex items-center justify-between">
-                                                                                {child.image ? <img src={child.image} alt="" className="w-12 h-12 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                                                <div className="flex-1 px-1 flex flex-col justify-center text-center">
+                                                                            <div className="relative z-10 w-full flex items-center justify-center min-h-[48px]">
+                                                                                {child.image ? (
+                                                                                    <img src={child.image} alt="" className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg block object-cover border-2 border-white/20" />
+                                                                                ) : ChildSocialIcon ? (
+                                                                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center opacity-80">
+                                                                                        <ChildSocialIcon size={24} />
+                                                                                    </div>
+                                                                                ) : null}
+                                                                                <div className="px-12 flex flex-col justify-center text-center w-full">
                                                                                     <span className={`text-[0.9em] leading-tight ${child.subtitle ? 'line-clamp-1 truncate' : 'break-words'}`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
                                                                                     {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
                                                                                 </div>
-                                                                                <span className="w-8 shrink-0"></span>
                                                                             </div>
                                                                         </motion.a>
                                                                     );
@@ -1220,6 +1273,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             } else if (link.embedType === 'tiktok') {
                                                 renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full"><TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>);
                                             } else {
+                                                // Find matching social network
+                                                const network = SOCIAL_NETWORKS.find(n => link.title.toLowerCase().includes(n.id)) ||
+                                                    SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id));
+                                                const SocialIcon = network?.icon;
+
                                                 renderedItems.push(
                                                     <motion.a
                                                         key={link.id}
@@ -1231,9 +1289,15 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`}
                                                         style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                     >
-                                                        <div className="relative z-10 w-full flex items-center justify-between px-2">
-                                                            {link.image ? <img src={link.image} alt="" className="w-10 h-10 rounded-full block object-cover border-2 border-white/20 shrink-0" /> : <span className="w-8"></span>}
-                                                            <div className="flex-1 px-1 flex flex-col justify-center text-center">
+                                                        <div className="relative z-10 w-full flex items-center justify-center min-h-[40px]">
+                                                            {link.image ? (
+                                                                <img src={link.image} alt="" className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg block object-cover border-2 border-white/20" />
+                                                            ) : SocialIcon ? (
+                                                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center opacity-80">
+                                                                    <SocialIcon size={24} />
+                                                                </div>
+                                                            ) : null}
+                                                            <div className="px-12 flex flex-col justify-center text-center w-full">
                                                                 <span className={`text-[0.9em] leading-tight ${link.subtitle ? 'line-clamp-1 truncate' : 'line-clamp-2 break-words'}`} style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
                                                                 {link.subtitle && (
                                                                     <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
@@ -1245,7 +1309,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     </span>
                                                                 )}
                                                             </div>
-                                                            <span className="w-8 shrink-0"></span>
                                                         </div>
                                                     </motion.a>
                                                 );
@@ -1335,7 +1398,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                         <motion.div layout className="mt-2 mb-8 flex flex-col items-center gap-4 w-full px-4 font-sans text-center">
 
-                            <div className="flex flex-col items-center gap-6">
+                            <div className="flex flex-col items-center gap-4">
                                 <a
                                     href="https://www.nodus.my"
                                     target="_blank"
@@ -1343,15 +1406,15 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     className="flex flex-col items-center gap-0 group no-underline"
                                 >
                                     <span
-                                        className="text-[10px] font-bold tracking-[0.5em] uppercase transition-opacity group-hover:opacity-70 leading-none"
-                                        style={{ color: isDarkTheme ? '#ffffff' : '#000000', opacity: 0.4 }}
+                                        className="text-[8px] font-bold tracking-[0.5em] uppercase transition-opacity group-hover:opacity-70 leading-none"
+                                        style={{ color: isDarkTheme ? '#ffffff' : '#000000', opacity: 0.3 }}
                                     >
                                         Powered by
                                     </span>
                                     <img
                                         src="/icons/logo.png"
                                         alt="Nodus"
-                                        className="w-[110px] h-auto object-contain transition-all duration-300 group-hover:scale-105 opacity-100 -mt-8"
+                                        className="w-[80px] h-auto object-contain transition-all duration-300 group-hover:scale-105 opacity-100 -mt-6"
                                         style={{
                                             filter: isDarkTheme ? 'invert(1) brightness(10)' : 'brightness(1)'
                                         }}
@@ -1360,24 +1423,24 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                 {/* Legal Links (Minimalist) */}
                                 <div
-                                    className="flex items-center gap-3 text-[7.5px] transition-opacity duration-300 font-normal -mt-14"
+                                    className="flex items-center gap-3 text-[7px] transition-opacity duration-300 font-normal -mt-10"
                                     style={{
                                         color: isDarkTheme ? '#ffffff' : '#000000',
                                         fontStyle: profile.fontItalic ? 'italic' : 'normal'
                                     }}
                                 >
-                                    <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-40 hover:opacity-100 tracking-widest">TERMOS</a>
-                                    <span className="opacity-20 text-[6px]">•</span>
-                                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-40 hover:opacity-100 tracking-widest">PRIVACIDADE</a>
+                                    <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-30 hover:opacity-100 tracking-[0.2em]">TERMOS</a>
+                                    <span className="opacity-15 text-[5px]">•</span>
+                                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-30 hover:opacity-100 tracking-[0.2em]">PRIVACIDADE</a>
                                 </div>
                             </div>
                         </motion.div>
                     </div>
-                </div >
-            </div >
+                </div>
+            </div>
             {/* Foreground Layer (For themes like Sakura) */}
             {currentTheme.id === 'kawaii-sakura' && profile.headerLayout !== 'banner' && <KawaiiSakuraForeground />}
-        </div >
+        </div>
     );
 };
 

@@ -16,7 +16,7 @@ const DESIGN_MENU_ITEMS = [
 
 const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveSection }) => {
     return (
-        <div className="w-full bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div className="w-full bg-white border-b-4 border-black sticky top-0 z-30">
             <div className="max-w-7xl mx-auto px-4 md:px-8">
                 <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
                     {DESIGN_MENU_ITEMS.map((item) => {
@@ -25,16 +25,16 @@ const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveS
                             <button
                                 key={item.id}
                                 onClick={() => setActiveSection(item.id)}
-                                className={`py-4 px-1 text-sm font-semibold transition-all relative whitespace-nowrap ${isActive
-                                    ? 'text-slate-900'
-                                    : 'text-slate-500 hover:text-slate-700'
+                                className={`py-4 px-1 text-xs font-black uppercase tracking-widest transition-all relative whitespace-nowrap ${isActive
+                                    ? 'text-black'
+                                    : 'text-black/50 hover:text-black'
                                     }`}
                             >
                                 {item.label}
                                 {isActive && (
                                     <motion.div
                                         layoutId="sidebarActiveTab"
-                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#32a800]"
+                                        className="absolute bottom-0 left-0 right-0 h-1 bg-black"
                                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                     />
                                 )}

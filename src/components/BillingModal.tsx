@@ -11,24 +11,25 @@ interface BillingModalProps {
 
 const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose }) => {
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-md animate-fade-in p-4 overflow-y-auto">
-            <div className="bg-slate-50 rounded-[44px] w-full max-w-6xl relative shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] my-8 flex flex-col max-h-[90vh] overflow-hidden border border-white/20">
-                {/* Minimalist Header */}
-                <div className="flex items-center justify-between p-8 md:p-10 shrink-0">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4 overflow-y-auto">
+            <div className="bg-white border-4 border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] w-full max-w-6xl relative my-8 flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200">
+                {/* Brutalist Header */}
+                <div className="flex items-center justify-between p-6 md:p-8 border-b-4 border-black shrink-0">
                     <div>
-                        <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Upgrade para Premium</h2>
-                        <p className="text-slate-500 font-bold text-[11px] uppercase tracking-[0.2em] mt-2">Desbloqueie todo o potencial da sua marca.</p>
+                        <h2 className="text-3xl md:text-4xl font-black text-black uppercase tracking-tighter leading-none">Upgrade para Premium</h2>
+                        <div className="h-1.5 w-24 bg-black mt-2"></div>
+                        <p className="text-black/60 font-black text-[10px] uppercase tracking-[0.3em] mt-3">Desbloqueie todo o potencial da sua marca.</p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-3 text-slate-400 hover:text-slate-900 hover:bg-slate-200/50 rounded-2xl transition-all duration-300 active:scale-95"
+                        className="p-3 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-transparent hover:border-black transition-all active:translate-x-[2px] active:translate-y-[2px]"
                     >
-                        <X size={24} strokeWidth={2.5} />
+                        <X size={32} strokeWidth={4} />
                     </button>
                 </div>
 
                 {/* Content Area - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-8 lg:p-12 pt-0 scrollbar-hide">
+                <div className="flex-1 overflow-y-auto p-6 md:p-10 lg:p-12 pt-8 scrollbar-hide bg-[#f8fafc]">
                     <BillingView profile={profile} onChange={onChange} />
                 </div>
             </div>

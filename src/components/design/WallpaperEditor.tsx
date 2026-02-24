@@ -28,45 +28,50 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
     };
 
     return (
-        <div className="space-y-6 animate-fade-in pb-10">
-            {/* Custom Image Upload */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex items-center gap-2 mb-6 text-slate-500">
-                    <ImageIcon size={18} />
-                    <h3 className="text-sm font-semibold uppercase tracking-wider">Imagem de Fundo</h3>
-                </div>
+        <div className="space-y-4 animate-fade-in pb-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start mt-4">
+                {/* Custom Image Upload */}
+                <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">
+                    <div className="flex items-center gap-2 mb-4 text-black border-b border-black pb-2">
+                        <ImageIcon size={16} strokeWidth={3} />
+                        <h3 className="text-xs font-black uppercase tracking-widest text-black">Imagem de Fundo</h3>
+                    </div>
 
-                <div className="w-full">
-                    {profile.customBackground ? (
-                        <div className="relative group rounded-lg overflow-hidden border border-slate-200 aspect-[16/9]">
-                            <img src={profile.customBackground} alt="Custom Background" className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
-                                <label htmlFor="bg-upload-refresh" className="p-2 bg-white text-slate-900 rounded-md cursor-pointer hover:bg-slate-100 transition-colors font-semibold text-xs flex items-center gap-2">
-                                    <Upload size={14} /> Trocar
-                                </label>
-                                <button
-                                    onClick={() => {
-                                        if (updateProfile) updateProfile({ themeId: 'custom', customBackground: null });
-                                        else onChange({ ...profile, themeId: 'custom', customBackground: null });
-                                    }}
-                                    className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
+                    <div className="flex flex-col gap-4">
+                        <div className="relative group overflow-hidden border border-black w-full h-24 bg-[#f8f8f8] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                            {profile.customBackground ? (
+                                <>
+                                    <img src={profile.customBackground} alt="Custom Background" className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
+                                        <button
+                                            onClick={() => {
+                                                if (updateProfile) updateProfile({ themeId: 'custom', customBackground: null });
+                                                else onChange({ ...profile, themeId: 'custom', customBackground: null });
+                                            }}
+                                            className="p-2 bg-white border border-black text-black hover:bg-red-400 hover:text-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
+                                        >
+                                            <Trash2 size={16} strokeWidth={3} />
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="w-full h-full flex flex-col items-center justify-center gap-1 opacity-20">
+                                    <ImageIcon size={20} strokeWidth={3} />
+                                    <span className="text-[8px] font-black uppercase tracking-widest">Sem Imagem</span>
+                                </div>
+                            )}
                         </div>
-                    ) : (
-                        <label
-                            htmlFor="bg-upload"
-                            className={`w-full aspect-[16/9] border border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center gap-2 transition-colors cursor-pointer hover:border-[#32a800] hover:bg-slate-50/50`}
-                        >
-                            <Upload size={20} className="text-slate-400" />
-                            <div className="text-center">
-                                <span className="block text-xs font-semibold text-slate-600">Carregar Imagem</span>
-                                <span className="text-[10px] text-slate-400">JPG, PNG ou GIF, max 5MB</span>
-                            </div>
-                        </label>
-                    )}
+
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="bg-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-black text-black cursor-pointer hover:bg-black hover:text-[#97cd7a] transition-all font-black text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none">
+                                <Upload size={14} strokeWidth={3} /> {profile.customBackground ? 'Trocar Imagem' : 'Carregar Imagem'}
+                            </label>
+                            <p className="text-[8px] font-bold text-black/50 uppercase tracking-widest text-center px-2">
+                                JPG, PNG ou GIF, máx 5MB
+                            </p>
+                        </div>
+                    </div>
+
                     <input
                         type="file"
                         id="bg-upload"
@@ -74,63 +79,65 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                         accept="image/*"
                         onChange={handleCustomBackground}
                     />
-                    <input
-                        type="file"
-                        id="bg-upload-refresh"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleCustomBackground}
-                    />
-                </div>
-            </div>
-
-            {/* Solid Color */}
-            <div className="bg-white p-6 rounded-lg border border-slate-200">
-                <div className="flex items-center gap-2 mb-6 text-slate-500">
-                    <div className="w-4 h-4 rounded-sm bg-gradient-to-br from-blue-400 to-purple-500"></div>
-                    <h3 className="text-sm font-semibold uppercase tracking-wider">Cor Sólida / Flat</h3>
                 </div>
 
-                <div>
-                    <div className="flex items-center gap-3">
-                        <div className="relative w-11 h-11 rounded-md overflow-hidden border border-slate-200 shrink-0">
-                            <input
-                                type="color"
-                                value={profile.customSolidColor || '#ffffff'}
-                                onChange={(e) => {
-                                    const val = e.target.value;
-                                    if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: val, customBackground: null });
-                                    else onChange({ ...profile, themeId: 'custom', customSolidColor: val, customBackground: null });
-                                }}
-                                className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer"
-                            />
-                        </div>
-                        <input
-                            type="text"
-                            value={profile.customSolidColor || ''}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: val, customBackground: null });
-                                else onChange({ ...profile, themeId: 'custom', customSolidColor: val, customBackground: null });
-                            }}
-                            placeholder="#FFFFFF"
-                            className="flex-1 h-11 px-4 rounded-md border border-slate-100 bg-slate-50/50 focus:bg-white focus:border-[#32a800] outline-none transition-all text-sm font-mono uppercase"
-                        />
-                        {(profile.customSolidColor) && (
-                            <button
-                                onClick={() => {
-                                    if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: null });
-                                    else onChange({ ...profile, themeId: 'custom', customSolidColor: null });
-                                }}
-                                className="h-11 w-11 flex items-center justify-center text-slate-400 hover:text-red-500 rounded-md border border-slate-200 hover:bg-red-50 transition-colors"
-                            >
-                                <Trash2 size={18} />
-                            </button>
-                        )}
+                {/* Solid Color */}
+                <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">
+                    <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
+                        <div className="w-4 h-4 border border-black bg-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"></div>
+                        <h3 className="text-xs font-black uppercase tracking-widest text-black">Cor Sólida / Flat</h3>
                     </div>
-                    <p className="text-[10px] text-slate-400 mt-4 italic">
-                        * Definir uma cor sólida irá remover a imagem de fundo atual.
-                    </p>
+
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <div className="relative w-12 h-12 overflow-hidden border-2 border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white ring-1 ring-black/5 hover:scale-105 transition-transform cursor-pointer">
+                                <input
+                                    type="color"
+                                    value={profile.customSolidColor || '#ffffff'}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: val, customBackground: null });
+                                        else onChange({ ...profile, themeId: 'custom', customSolidColor: val, customBackground: null });
+                                    }}
+                                    className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0"
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <label className="block text-[8px] font-black text-black uppercase tracking-[0.2em] mb-1.5 px-0.5">Código Hex</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={profile.customSolidColor || ''}
+                                        onChange={(e) => {
+                                            const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
+                                            if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: val, customBackground: null });
+                                            else onChange({ ...profile, themeId: 'custom', customSolidColor: val, customBackground: null });
+                                        }}
+                                        placeholder="#FFFFFF"
+                                        className="w-full h-8 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-black uppercase text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] tracking-widest placeholder:text-black/20"
+                                    />
+                                    {profile.customSolidColor && (
+                                        <button
+                                            onClick={() => {
+                                                if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: null });
+                                                else onChange({ ...profile, themeId: 'custom', customSolidColor: null });
+                                            }}
+                                            className="px-2 h-8 flex items-center justify-center text-black bg-white border border-black hover:bg-black hover:text-red-400 transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                                        >
+                                            <Trash2 size={14} strokeWidth={3} />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-2.5 bg-[#f8f8f8] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                            <p className="text-[8px] font-bold text-black/60 uppercase tracking-[0.15em] leading-tight">
+                                <Zap size={10} className="inline-block mr-1 text-black" fill="currentColor" />
+                                Definir cor removerá o fundo atual.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
