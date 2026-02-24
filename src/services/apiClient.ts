@@ -170,6 +170,51 @@ class ApiClient {
         });
     }
 
+    // Admin
+    async getAdminStats(): Promise<{
+        summary: {
+            totalUsers: number;
+            proUsers: number;
+            freeUsers: number;
+            totalLinks: number;
+            totalProducts: number;
+            totalViews: number;
+            totalClicks: number;
+            globalCTR: string;
+        };
+        growth: {
+            today: number;
+            thisWeek: number;
+        };
+        latestUsers: {
+            id: string;
+            username: string;
+            email: string;
+            name: string;
+            created_at: string;
+            plan_type: string;
+            bio?: string;
+            avatar_url?: string;
+            is_verified?: boolean;
+            user_category?: string;
+        }[];
+    }> {
+        return this.request('/api/admin/stats');
+    }
+
+    async updateAdminUser(userId: string, updates: any): Promise<any> {
+        return this.request(`/api/admin/users/${userId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(updates)
+        });
+    }
+
+    async deleteAdminUser(userId: string): Promise<any> {
+        return this.request(`/api/admin/users/${userId}`, {
+            method: 'DELETE'
+        });
+    }
+
     // Analytics
     async getAnalytics(days?: number): Promise<any> {
         return this.request(`/api/analytics/summary?days=${days || 14}`);

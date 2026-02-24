@@ -223,8 +223,8 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                     }
                                 }}
                                 className={`
-                                    relative bg-white flex flex-col overflow-hidden border-t-4 border-l-4 border-r-4 md:border-b-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
-                                    ${isMobile ? 'w-full h-[80vh] touch-none' : 'w-full max-w-sm max-h-[70vh]'}
+                                    relative bg-white flex flex-col overflow-hidden border-t-4 border-l-4 border-r-4 md:border-b-4 border-black
+                                    ${isMobile ? 'w-full h-[65vh] shadow-none' : 'w-full max-w-sm max-h-[70vh] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'}
                                 `}
                             >
                                 {/* Drag Handle for Mobile */}
@@ -274,7 +274,13 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                             </div>
                                         </div>
 
-                                        <div className="flex-1 overflow-y-auto px-6 pb-6 scrollbar-hide">
+                                        <div
+                                            className={`flex-1 overflow-y-auto px-6 pb-6 ${isMobile ? 'scrollbar-hide' : 'custom-scrollbar'}`}
+                                            style={isMobile ? {
+                                                msOverflowStyle: 'none',
+                                                scrollbarWidth: 'none'
+                                            } : {}}
+                                        >
                                             <div className="grid grid-cols-2 gap-3 px-1">
                                                 {SOCIAL_NETWORKS.filter(p =>
                                                     p.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -288,7 +294,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             key={platform.id}
                                                             onClick={() => toggleSocialLink(platform.id)}
                                                             className={`
-                                                                relative flex flex-col items-center justify-center p-3 group cursor-pointer border transition-all
+                                                                relative flex flex-col items-center justify-center p-5 group cursor-pointer border transition-all
                                                                 ${isSelected ? 'bg-[#97cd7a] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'bg-white border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none hover:bg-[#ffdf00]'}
                                                             `}
                                                             role="button"
@@ -300,10 +306,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 }
                                                             }}
                                                         >
-                                                            <div className="text-black mb-1 flex items-center justify-center h-6">
-                                                                <Icon size={20} />
+                                                            <div className="text-black mb-1 flex items-center justify-center h-8">
+                                                                <Icon size={24} />
                                                             </div>
-                                                            <span className="text-[8px] font-black text-black uppercase tracking-widest text-center truncate w-full leading-none">
+                                                            <span className="text-[9px] font-black text-black uppercase tracking-widest text-center truncate w-full leading-none">
                                                                 {platform.name}
                                                             </span>
 
@@ -360,9 +366,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
                                             {/* Instagram Rich Profile Card */}
                                             {configuringPlatform === 'instagram' && isInstagramConnected && (
-                                                <div className="bg-slate-50 rounded-[24px] p-6 border border-slate-100 flex flex-col items-center text-center animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                                <div className="bg-white p-6 border-2 border-black flex flex-col items-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in fade-in slide-in-from-bottom-2 duration-500">
                                                     <div className="relative mb-4">
-                                                        <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-md">
+                                                        <div className="w-20 h-20 overflow-hidden border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] bg-white">
                                                             <img
                                                                 src={instagramIntegration.profile_data?.avatar_url || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'}
                                                                 alt={instagramIntegration.profile_data?.username}
@@ -372,42 +378,41 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 }}
                                                             />
                                                         </div>
-                                                        <div className="absolute -bottom-1 -right-1 bg-[#32a800] p-1.5 rounded-full border-2 border-white text-white">
+                                                        <div className="absolute -bottom-1 -right-1 bg-[#97cd7a] p-1.5 border-2 border-black text-black">
                                                             <Check size={12} strokeWidth={4} />
                                                         </div>
                                                     </div>
 
-                                                    <h4 className="text-lg font-medium text-slate-900 tracking-tight flex items-center gap-1.5">
+                                                    <h4 className="text-xl font-black text-black uppercase tracking-tighter">
                                                         @{instagramIntegration.profile_data?.username}
                                                     </h4>
-                                                    <div className="flex items-center gap-3 mt-1.5">
-                                                        <span className="text-xs font-normal text-slate-500 flex items-center gap-1">
-                                                            <Instagram size={12} className="text-[#dc2743]" />
+                                                    <div className="flex flex-col items-center gap-1.5 mt-2">
+                                                        <span className="text-[10px] font-black text-black/50 uppercase tracking-widest flex items-center justify-center gap-1 bg-black/5 px-2 py-0.5">
+                                                            <Instagram size={10} className="text-black" />
                                                             Instagram Business
                                                         </span>
-                                                        <span className="w-1 h-1 rounded-full bg-slate-200" />
-                                                        <span className="text-xs font-medium text-[#32a800]">
+                                                        <span className="text-[12px] font-black text-[#32a800] uppercase tracking-widest">
                                                             {instagramIntegration.profile_data?.follower_count?.toLocaleString()} seguidores
                                                         </span>
                                                     </div>
 
-                                                    <div className="w-full h-px bg-slate-200/60 my-6" />
+                                                    <div className="w-full h-0.5 bg-black/10 my-6" />
 
-                                                    <div className="w-full space-y-3">
+                                                    <div className="w-full space-y-4">
                                                         <button
                                                             onClick={() => setShowDisconnectConfirm(!showDisconnectConfirm)}
                                                             disabled={isConnectingInstagram}
-                                                            className={`w-full py-3.5 px-6 rounded-xl transition-all font-medium text-xs flex items-center justify-center gap-2 active:scale-[0.98] ${showDisconnectConfirm
-                                                                ? 'bg-slate-100 text-slate-500'
-                                                                : 'bg-white border border-red-100 text-red-500 hover:bg-red-50'
+                                                            className={`w-full py-4 px-6 border-2 border-black transition-all font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${showDisconnectConfirm
+                                                                ? 'bg-black text-white'
+                                                                : 'bg-white text-red-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] hover:bg-[#fff0f0]'
                                                                 }`}
                                                         >
                                                             {isConnectingInstagram ? (
                                                                 <Loader2 size={14} className="animate-spin" />
                                                             ) : (
-                                                                <Trash2 size={14} />
+                                                                <Trash2 size={14} strokeWidth={3} />
                                                             )}
-                                                            {showDisconnectConfirm ? 'Voltar' : 'Desconectar Conta'}
+                                                            {showDisconnectConfirm ? 'CANCELAR' : 'DESCONECTAR CONTA'}
                                                         </button>
 
                                                         <AnimatePresence>
@@ -416,15 +421,15 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                     initial={{ height: 0, opacity: 0 }}
                                                                     animate={{ height: 'auto', opacity: 1 }}
                                                                     exit={{ height: 0, opacity: 0 }}
-                                                                    className="overflow-hidden bg-red-50 rounded-xl border border-red-100"
+                                                                    className="overflow-hidden bg-[#fff0f0] border-2 border-black"
                                                                 >
                                                                     <div className="p-4 space-y-4">
                                                                         <div className="text-left">
-                                                                            <p className="text-xs font-medium text-red-900 leading-tight">
-                                                                                Confirmar desconexão?
+                                                                            <p className="text-[10px] font-black text-red-900 uppercase tracking-widest leading-tight">
+                                                                                CONFIRMAR DESCONEXÃO?
                                                                             </p>
-                                                                            <p className="text-[10px] text-red-600 mt-1 leading-relaxed">
-                                                                                Isso removerá o card do seu perfil e o acesso aos posts.
+                                                                            <p className="text-[9px] font-bold text-red-600 mt-2 uppercase tracking-tighter leading-relaxed">
+                                                                                ISSO REMOVERÁ O CARD DO SEU PERFIL E O ACESSO AOS POSTS DO INSTAGRAM.
                                                                             </p>
                                                                         </div>
 

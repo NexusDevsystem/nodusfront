@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, Wallet, CreditCard, AlertCircle, Zap, Layout, Plus, Trash2, X, Check, GripVertical, ChevronDown } from 'lucide-react';
+import { DollarSign, Wallet, CreditCard, AlertCircle, Zap, Layout, Plus, Trash2, X, Check, GripVertical, ChevronDown, Trash } from 'lucide-react';
 import { UserProfile, PaymentMethod } from '../types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SiPaypal } from 'react-icons/si';
@@ -41,7 +41,7 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                 supportType: undefined
             });
         }
-    }, []);
+    }, [profile, onChange]);
 
     const handleAddMethod = () => {
         const newMethod: PaymentMethod = {
@@ -79,23 +79,30 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
     };
 
     return (
-        <div className="space-y-6 animate-fade-in pb-20 max-w-4xl mx-auto">
+        <div className="space-y-8 animate-fade-in pb-20 max-w-4xl mx-auto">
 
-            {/* Header / Add Button */}
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Monetização</h2>
-
-                <button
-                    onClick={handleAddMethod}
-                    className="ml-auto w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-[#32a800] hover:text-[#32a800]/80 transition-all active:scale-90 bg-transparent"
-                    title="Adicionar Novo Método"
-                >
-                    <Plus size={24} />
-                </button>
+            {/* Header Content - Action Card */}
+            <div className="bg-[#ffdf00] border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-3xl font-[900] text-black uppercase tracking-tighter leading-none mb-2">Métodos de Recebimento</h2>
+                        <div className="h-1.5 w-12 bg-black"></div>
+                    </div>
+                    <button
+                        onClick={handleAddMethod}
+                        className="w-14 h-14 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-black hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] transition-all shrink-0"
+                        title="Adicionar Novo"
+                    >
+                        <Plus size={32} strokeWidth={4} />
+                    </button>
+                </div>
+                <p className="mt-6 text-[10px] font-black text-black/60 uppercase tracking-widest leading-tight max-w-xl">
+                    ADICIONE E GERENCIE SUAS CHAVES PIX OU LINKS DO PAYPAL PARA RECEBER DIRETAMENTE.
+                </p>
             </div>
 
             {/* Methods List */}
-            <div className="space-y-4">
+            <div className="space-y-6">
                 <AnimatePresence>
                     {profile.paymentMethods?.map((method) => {
                         const isExpanded = expandedId === method.id;
@@ -103,130 +110,132 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                         return (
                             <motion.div
                                 key={method.id}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className={`relative overflow-hidden rounded-2xl border transition-all bg-white ${isExpanded ? 'border-[#32a800] ring-1 ring-[#32a800]/10' : 'border-slate-200'}`}
+                                layout
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className={`
+                                    bg-white border-4 border-black transition-all relative overflow-hidden
+                                    ${isExpanded ? 'shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]' : 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'}
+                                `}
                             >
-                                {/* Collapsed Header (Always Visible) */}
-                                <div className="flex items-center w-full min-h-[72px]">
-                                    {/* Drag Handle (Visual mimic) */}
-                                    <div className="w-10 md:w-12 flex items-center justify-center text-slate-300 hover:text-[#32a800] hover:bg-[#32a800]/5 self-stretch border-r border-slate-50 transition-colors cursor-grab active:cursor-grabbing">
-                                        <GripVertical size={16} />
-                                    </div>
-
-                                    {/* Icon */}
-                                    <div className="shrink-0 mx-4">
-                                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-white shadow-sm ${method.type === 'pix' ? 'bg-[#32bcad]' : 'bg-[#003087]'}`}>
-                                            {method.type === 'pix' ? <PixIcon size={20} /> : <SiPaypal size={20} />}
-                                        </div>
-                                    </div>
-
-                                    {/* Main Content */}
+                                {/* Header */}
+                                <div className="flex items-center w-full min-h-[80px]">
                                     <div
-                                        className="flex-1 min-w-0 pr-2 py-4 cursor-pointer"
+                                        className={`w-20 self-stretch flex items-center justify-center border-r-4 border-black ${method.type === 'pix' ? 'bg-[#32bcad]' : 'bg-[#003087]'} text-white`}
+                                    >
+                                        {method.type === 'pix' ? <PixIcon size={28} /> : <SiPaypal size={28} />}
+                                    </div>
+
+                                    <div
+                                        className="flex-1 px-6 py-4 cursor-pointer select-none"
                                         onClick={() => setExpandedId(isExpanded ? null : method.id)}
                                     >
-                                        <div className="flex items-center gap-2 mb-0.5">
-                                            <div className="font-semibold text-slate-800 truncate text-xs md:text-sm">
+                                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                                            <h3 className="text-sm font-[900] text-black uppercase tracking-widest truncate">
                                                 {method.label || (method.type === 'pix' ? 'Chave Pix' : 'PayPal')}
-                                            </div>
-                                            <span className={`shrink-0 px-1.5 py-0.5 rounded-md text-[9px] font-bold border uppercase tracking-tighter ${method.type === 'pix'
-                                                ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                                                : 'bg-blue-50 text-blue-600 border-blue-100'
-                                                }`}>
-                                                {method.type === 'pix' ? 'PIX' : 'PAYPAL'}
-                                            </span>
+                                            </h3>
+                                            {!method.isActive && (
+                                                <span className="bg-red-500 text-white text-[8px] font-black px-2 py-0.5 border border-black uppercase tracking-widest">
+                                                    Inativo
+                                                </span>
+                                            )}
                                         </div>
-                                        <div className="text-[10px] md:text-xs text-slate-400 truncate">
-                                            {method.key || 'Configure sua chave...'}
+                                        <div className="text-[10px] font-bold text-black/40 uppercase tracking-widest truncate">
+                                            {method.key || 'CONFIGURAÇÃO PENDENTE...'}
                                         </div>
                                     </div>
 
-                                    {/* Right Actions */}
-                                    <div className="flex items-center gap-2 md:gap-6 pr-3 md:pr-6 shrink-0">
-                                        <button
-                                            onClick={() => setExpandedId(isExpanded ? null : method.id)}
-                                            className={`p-1.5 md:p-2 rounded-xl transition-all ${isExpanded ? 'text-[#32a800] bg-[#32a800]/5 rotate-180' : 'text-slate-300 hover:text-slate-600 bg-slate-50 hover:bg-slate-100'}`}
-                                        >
-                                            <ChevronDown size={18} />
-                                        </button>
-
+                                    <div className="flex items-center gap-4 pr-6">
                                         <label className="relative inline-flex items-center cursor-pointer">
                                             <input
                                                 type="checkbox"
-                                                checked={method.isActive !== false} // Default true
+                                                checked={method.isActive !== false}
                                                 onChange={(e) => handleUpdateMethod(method.id, { isActive: e.target.checked })}
                                                 className="sr-only peer"
                                             />
-                                            <div className="w-8 md:w-9 h-4 md:h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 md:after:h-4 after:w-3 md:after:w-4 after:transition-all peer-checked:bg-[#32a800]"></div>
+                                            <div className="w-12 h-6 bg-black/10 border-2 border-black peer-focus:outline-none peer peer-checked:bg-[#97cd7a] transition-all relative after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-black after:h-[16px] after:w-[16px] after:transition-all peer-checked:after:translate-x-6"></div>
                                         </label>
+
+                                        <button
+                                            onClick={() => setExpandedId(isExpanded ? null : method.id)}
+                                            className={`w-10 h-10 border-2 border-black flex items-center justify-center transition-all ${isExpanded ? 'bg-black text-white rotate-180' : 'bg-white text-black hover:bg-black/5'}`}
+                                        >
+                                            <ChevronDown size={24} strokeWidth={3} />
+                                        </button>
                                     </div>
                                 </div>
 
-                                {/* Expanded Content */}
+                                {/* Content */}
                                 <AnimatePresence>
                                     {isExpanded && (
                                         <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: 'auto', opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            className="bg-slate-50/20 border-t border-slate-100"
+                                            initial={{ height: 0 }}
+                                            animate={{ height: 'auto' }}
+                                            exit={{ height: 0 }}
+                                            className="border-t-4 border-black bg-slate-50"
                                         >
-                                            <div className="p-6 space-y-6">
-                                                {/* Type Selection */}
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1 mb-2 block">Tipo de Método</label>
-                                                    <div className="grid grid-cols-2 gap-3">
-                                                        <button
-                                                            onClick={() => handleUpdateMethod(method.id, { type: 'pix' })}
-                                                            className={`flex items-center justify-center gap-2.5 p-3 rounded-xl border transition-all ${method.type === 'pix' ? 'bg-[#32bcad]/10 border-[#32bcad] text-[#32bcad]' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-                                                        >
-                                                            <PixIcon size={18} />
-                                                            <span className="text-xs font-bold leading-none">PIX</span>
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleUpdateMethod(method.id, { type: 'paypal' })}
-                                                            className={`flex items-center justify-center gap-2.5 p-3 rounded-xl border transition-all ${method.type === 'paypal' ? 'bg-[#003087]/5 border-[#003087] text-[#003087]' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-                                                        >
-                                                            <SiPaypal size={16} />
-                                                            <span className="text-xs font-bold leading-none">PAYPAL</span>
-                                                        </button>
+                                            <div className="p-8 space-y-8">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                    {/* Selection */}
+                                                    <div className="space-y-4">
+                                                        <label className="text-[10px] font-[900] text-black uppercase tracking-widest block">Tipo de Recebimento</label>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <button
+                                                                onClick={() => handleUpdateMethod(method.id, { type: 'pix' })}
+                                                                className={`flex flex-col items-center justify-center gap-3 p-6 border-2 border-black transition-all ${method.type === 'pix' ? 'bg-[#32bcad] text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'bg-white text-black hover:bg-black/5'}`}
+                                                            >
+                                                                <PixIcon size={24} />
+                                                                <span className="text-[10px] font-black uppercase tracking-widest">PIX</span>
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleUpdateMethod(method.id, { type: 'paypal' })}
+                                                                className={`flex flex-col items-center justify-center gap-3 p-6 border-2 border-black transition-all ${method.type === 'paypal' ? 'bg-[#003087] text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'bg-white text-black hover:bg-black/5'}`}
+                                                            >
+                                                                <SiPaypal size={24} />
+                                                                <span className="text-[10px] font-black uppercase tracking-widest">PAYPAL</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Details */}
+                                                    <div className="space-y-6">
+                                                        <div>
+                                                            <label className="text-[10px] font-[900] text-black uppercase tracking-widest block mb-2">Nome Personalizado</label>
+                                                            <input
+                                                                type="text"
+                                                                value={method.label}
+                                                                onChange={(e) => handleUpdateMethod(method.id, { label: e.target.value })}
+                                                                placeholder="EX: PIX PRINCIPAL"
+                                                                className="w-full bg-white border-2 border-black p-3 text-xs font-bold uppercase tracking-widest outline-none focus:bg-[#ffdf00] shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] transition-all"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-[10px] font-[900] text-black uppercase tracking-widest block mb-2">
+                                                                {method.type === 'pix' ? 'Chave do Pix' : 'E-mail ou Link'}
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                value={method.key}
+                                                                onChange={(e) => handleUpdateMethod(method.id, { key: e.target.value })}
+                                                                placeholder={method.type === 'pix' ? 'CPF, EMAIL OU CELULAR' : 'SEU-EMAIL@EXEMPLO.COM'}
+                                                                className="w-full bg-white border-2 border-black p-3 text-xs font-bold uppercase tracking-widest outline-none focus:bg-[#ffdf00] shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] transition-all"
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1 mb-1 block">Rótulo / Nome</label>
-                                                        <input
-                                                            type="text"
-                                                            value={method.label}
-                                                            onChange={(e) => handleUpdateMethod(method.id, { label: e.target.value })}
-                                                            placeholder="Ex: Pix Principal"
-                                                            className="w-full text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl px-4 py-2.5 focus:border-[#32a800] outline-none"
-                                                        />
+                                                <div className="flex items-center justify-between pt-8 border-t-2 border-black/10">
+                                                    <div className="text-[10px] font-bold text-black/30 uppercase tracking-widest italic flex items-center gap-2">
+                                                        <AlertCircle size={14} />
+                                                        Certifique-se de que os dados estão corretos
                                                     </div>
-                                                    <div>
-                                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1 mb-1 block">
-                                                            {method.type === 'pix' ? 'Chave Pix' : 'Link PayPal'}
-                                                        </label>
-                                                        <input
-                                                            type="text"
-                                                            value={method.key}
-                                                            onChange={(e) => handleUpdateMethod(method.id, { key: e.target.value })}
-                                                            placeholder={method.type === 'pix' ? 'CPF, Email ou Aleatória' : 'paypal.me/usuario'}
-                                                            className="w-full text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-2.5 focus:border-[#32a800] outline-none"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex items-center justify-end pt-4 border-t border-slate-100/50">
                                                     <button
                                                         onClick={() => handleRemoveMethod(method.id)}
-                                                        className="px-4 h-10 rounded-xl text-xs font-bold text-red-500 hover:text-red-600 hover:bg-red-50 transition-all flex items-center gap-2"
+                                                        className="px-6 py-3 bg-red-500 text-white border-2 border-black text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center gap-2"
                                                     >
-                                                        <Trash2 size={16} />
-                                                        Excluir Método
+                                                        <Trash2 size={14} strokeWidth={3} />
+                                                        Remover Método
                                                     </button>
                                                 </div>
                                             </div>
@@ -238,12 +247,19 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                     })}
                 </AnimatePresence>
 
-                <button
-                    onClick={handleAddMethod}
-                    className="w-full py-4 border border-dashed border-slate-200 rounded-2xl text-slate-400 font-medium hover:border-[#32a800] hover:text-[#32a800] transition-colors flex items-center justify-center gap-2 text-sm"
-                >
-                    <Plus size={16} /> Adicionar Novo Método
-                </button>
+                {(!profile.paymentMethods || profile.paymentMethods.length === 0) && (
+                    <div className="p-12 border-4 border-dashed border-black/20 flex flex-col items-center justify-center text-center">
+                        <Wallet size={48} className="text-black/10 mb-4" />
+                        <h3 className="text-sm font-black text-black/40 uppercase tracking-widest">Nenhum método configurado</h3>
+                        <p className="text-[10px] font-bold text-black/30 uppercase tracking-widest mt-2">Adicione um Pix ou PayPal para começar a receber.</p>
+                        <button
+                            onClick={handleAddMethod}
+                            className="mt-6 px-8 py-4 bg-black text-[#ffdf00] border-2 border-black text-xs font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                        >
+                            Configurar Agora
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

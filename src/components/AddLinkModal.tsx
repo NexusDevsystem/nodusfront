@@ -530,8 +530,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     }
                 }}
                 className={`
-                    relative bg-white shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] flex flex-col border-4 border-black overflow-hidden
-                    ${isMobile ? 'w-full h-[95vh] touch-none' : 'w-[850px] h-[620px]'}
+                    relative bg-white flex flex-col border-4 border-black overflow-hidden
+                    ${isMobile ? 'w-full h-[65vh] shadow-none' : 'w-[850px] h-[620px] shadow-[16px_16px_0px_0px_rgba(0,0,0,1)]'}
                 `}
             >
                 {/* Global Header for Desktop (Unified across sidebar and content) */}

@@ -23,8 +23,10 @@ import {
   ReceiptText,
   User,
   FolderOpen,
-  ChevronsLeft
+  ChevronsLeft,
+  ShieldAlert
 } from 'lucide-react';
+
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 
@@ -139,6 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
       <div className="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-2 relative z-10">
         {MENU_GROUPS.map((group) => {
           const isOpen = openMenus[group.id];
+
           const GroupIcon = group.groupIcon;
 
           return (
@@ -218,6 +221,16 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
             <CreditCard size={13} strokeWidth={3} />
             Upgrade & Planos
           </button>
+
+          {userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com' ? (
+            <button
+              onClick={() => setActiveTab('admin')}
+              className={`flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'admin' ? 'border-black bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-black/5'}`}
+            >
+              <ShieldAlert size={13} strokeWidth={3} />
+              Administração
+            </button>
+          ) : null}
 
           <button
             onClick={() => setActiveTab('support')}

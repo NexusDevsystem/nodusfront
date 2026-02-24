@@ -15,6 +15,7 @@ import AnalyticsView from '../components/AnalyticsView';
 import MonetizationView from '../components/MonetizationView';
 import SupportView from '../components/SupportView';
 import ManageBillingView from '../components/ManageBillingView';
+import AdminView from '../components/AdminView';
 import BillingModal from '../components/BillingModal';
 import QRCodeModal from '../components/QRCodeModal';
 import UpgradeBanner from '../components/UpgradeBanner';
@@ -551,26 +552,42 @@ export default function EditorPage() {
                         </header>
                         <div className="w-full py-4 md:py-6 px-4 md:px-6 pb-24">
 
-                            {/* Page Title */}
-                            <div className="mb-4 md:mb-6 border-l-2 border-[#97cd7a] pl-4">
-                                <h1 className="text-xl md:text-2xl font-black uppercase text-black tracking-widest leading-[0.9]">
-                                    {activeTab === 'links' && 'Links'}
-                                    {activeTab === 'appearance' && 'Design'}
-                                    {activeTab === 'shop' && 'Loja'}
-                                    {activeTab === 'support' && 'Suporte'}
-                                    {activeTab === 'files' && 'Arquivos'}
-                                    {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'earn' && activeTab !== 'support' && activeTab !== 'files' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                                </h1>
-                                <p className="text-black/70 font-bold mt-2 text-xs md:text-sm">
-                                    {activeTab === 'links' && 'Gerencie seus links e informações do perfil.'}
-                                    {activeTab === 'appearance' && 'Personalize as cores e o tema do seu Nodus.'}
-                                    {activeTab === 'shop' && 'Gerencie os produtos da sua vitrine.'}
-                                    {activeTab === 'billing' && 'Gerencie sua assinatura, visualize recibos e detalhes de pagamento.'}
-                                    {activeTab === 'support' && 'Entre em contato com nossa equipe para resolver dúvidas.'}
-                                    {activeTab === 'files' && 'Hospede arquivos e documentos para usar no seu perfil.'}
-
-                                </p>
-                            </div>
+                            {/* Page Title - Brutalist Design */}
+                            {activeTab !== 'admin' && activeTab !== 'support' && (
+                                <div className="mb-8 border-l-4 border-black pl-6 py-2 relative">
+                                    <div className="absolute -left-[4px] top-0 bottom-0 w-[4px] bg-[#97cd7a]"></div>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="px-2 py-0.5 bg-black text-[#97cd7a] text-[8px] font-black uppercase tracking-[0.2em]">
+                                            Nodus System
+                                        </div>
+                                        {profile?.planType === 'free' && (
+                                            <div className="px-2 py-0.5 bg-[#ffdf00] border border-black text-black text-[8px] font-black uppercase tracking-[0.2em]">
+                                                Plano Free
+                                            </div>
+                                        )}
+                                    </div>
+                                    <h1 className="text-3xl md:text-4xl font-black uppercase text-black tracking-tighter leading-none mb-1">
+                                        {activeTab === 'links' && 'Meus Links'}
+                                        {activeTab === 'appearance' && 'Estilo & Design'}
+                                        {activeTab === 'shop' && 'Vitrine Digital'}
+                                        {activeTab === 'analytics' && 'Analytics'}
+                                        {activeTab === 'earn' && 'Monetização'}
+                                        {activeTab === 'files' && 'Arquivos'}
+                                        {activeTab === 'billing' && 'Faturamento'}
+                                        {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'earn' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'billing' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                                    </h1>
+                                    <p className="text-black/50 font-bold text-[10px] md:text-xs uppercase tracking-widest max-w-lg">
+                                        {activeTab === 'links' && 'Gerencie seus links, redes sociais e informações do perfil público.'}
+                                        {activeTab === 'appearance' && 'Personalize as cores, temas, fontes e estilo visual do seu Nodus.'}
+                                        {activeTab === 'shop' && 'Organize e gerencie seus produtos digitais e links de vendas.'}
+                                        {activeTab === 'analytics' && 'Acompanhe o desempenho do seu perfil, veja cliques e visualizações.'}
+                                        {activeTab === 'earn' && 'Configure seus métodos de recebimento para aceitar incentivos e pagamentos.'}
+                                        {activeTab === 'files' && 'Hospede arquivos e documentos para usar no seu perfil.'}
+                                        {activeTab === 'billing' && 'Gerencie sua assinatura, visualize recibos e detalhes de pagamento.'}
+                                    </p>
+                                    <div className="mt-4 w-full h-[1px] bg-black/10"></div>
+                                </div>
+                            )}
 
 
 
@@ -630,6 +647,10 @@ export default function EditorPage() {
                                     <FileManager userProfile={profile} />
                                 )}
 
+                                {activeTab === 'admin' && (profile.username === 'nodus' || authProfile?.email === 'jaoomarcos75@gmail.com') && (
+                                    <AdminView />
+                                )}
+
 
 
 
@@ -677,7 +698,7 @@ export default function EditorPage() {
                                     </div>
                                 )}
 
-                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'integrations' && (
+                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'integrations' && activeTab !== 'admin' && (
                                     <div className="bg-white p-12 rounded-[20px] border border-dashed border-slate-300 text-center">
                                         <div className="text-4xl mb-4 text-slate-300 flex justify-center"><Construction size={48} /></div>
                                         <h3 className="text-lg font-medium text-slate-700">Em Desenvolvimento</h3>
@@ -696,7 +717,7 @@ export default function EditorPage() {
            --------------------------------------------------
         */}
                     <div className={`
-            lg:flex flex-col items-center justify-center 
+            ${activeTab !== 'admin' ? 'lg:flex' : 'hidden'} flex-col items-center justify-center 
             border-l-4 border-black bg-white 
             w-full lg:w-[350px] xl:w-[450px] shrink-0
             ${!showMobilePreview ? 'hidden' : 'flex-1 z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0'}
