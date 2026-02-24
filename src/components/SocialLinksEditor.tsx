@@ -57,7 +57,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
     const [isConnectingTikTok, setIsConnectingTikTok] = useState(false);
     const [connectionError, setConnectionError] = useState<string | null>(null);
     const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
-    const isAuthorized = profile?.username === 'noduscc' || profile?.username === 'nexus';
+    const isAuthorized = profile?.username === 'nodus' || profile?.username === 'nexus';
 
     useEffect(() => {
         setMounted(true);
