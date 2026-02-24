@@ -5,7 +5,6 @@ const rawUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://lo
 // Ensure URL has protocol (prevent relative path issues)
 const API_URL = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
 
-console.log('📡 Nodus API Client using:', API_URL);
 
 class ApiClient {
     private async getHeaders() {
@@ -143,13 +142,11 @@ class ApiClient {
     }
 
     async trackClick(id: string): Promise<void> {
-        console.log(`📊 [Nodus] Tracking click for item: ${id}`);
         try {
             // Track via link route (increments counter + inserts analytics event)
             await this.request(`/api/links/track/${id}`, {
                 method: 'POST'
             });
-            console.log(`✅ [Nodus] Click tracked for: ${id}`);
         } catch (e: any) {
             console.error(`❌ [Nodus] Failed to track click for ${id}:`, e?.message || e);
         }
@@ -206,13 +203,11 @@ class ApiClient {
     }
 
     async trackPageView(profileId: string): Promise<void> {
-        console.log(`📊 [Nodus] Tracking page view for profile: ${profileId}`);
         try {
             await this.request('/api/analytics/track-view', {
                 method: 'POST',
                 body: JSON.stringify({ profileId })
             });
-            console.log(`✅ [Nodus] Page view tracked for: ${profileId}`);
         } catch (e: any) {
             console.error(`❌ [Nodus] Failed to track page view for ${profileId}:`, e?.message || e);
         }
