@@ -507,7 +507,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 z-[10000] flex items-end md:items-center justify-center">
+        <div className={`fixed inset-0 z-[10000] flex ${isMobile ? 'items-end' : 'items-end md:items-center'} justify-center`}>
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -531,7 +531,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 }}
                 className={`
                     relative bg-white flex flex-col border-4 border-black overflow-hidden
-                    ${isMobile ? 'w-full h-[65vh] shadow-none' : 'w-[850px] h-[620px] shadow-[16px_16px_0px_0px_rgba(0,0,0,1)]'}
+                    ${isMobile ? 'w-full h-[65vh] rounded-none border-b-0 shadow-none' : 'w-[850px] h-[620px] shadow-[16px_16px_0px_0px_rgba(0,0,0,1)]'}
                 `}
             >
                 {/* Global Header for Desktop (Unified across sidebar and content) */}
@@ -552,7 +552,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
 
                 {/* Drag Handle for Mobile - Brutalist */}
                 {isMobile && (
-                    <div className="flex justify-center p-4 pt-5 shrink-0">
+                    <div className="flex justify-center p-4 pt-5 shrink-0 cursor-grab active:cursor-grabbing">
                         <div className="w-12 h-1.5 bg-black" />
                     </div>
                 )}
@@ -591,7 +591,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     )}
 
                     {/* Content Area */}
-                    <div className="flex-1 flex flex-col min-w-0 bg-[#f8fafc]">
+                    <div className="flex-1 flex flex-col min-w-0 bg-[#f8fafc] overflow-hidden">
                         {/* Header for Mobile (Removed Close Button as requested) */}
                         {isMobile && (
                             <div className="flex items-center justify-between px-6 pt-2 shrink-0">
@@ -650,7 +650,11 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         </div>
 
                         {/* Scrollable Area */}
-                        <div className={`flex-1 overflow-y-auto custom-scrollbar ${isMobile ? 'px-6 pb-12' : 'p-8 pt-6'}`}>
+                        <div
+                            className={`flex-1 overflow-y-auto custom-scrollbar touch-pan-y overscroll-contain ${isMobile ? 'px-6 pb-20' : 'p-8 pt-6'}`}
+                            onPointerDown={(e) => isMobile && e.stopPropagation()}
+                            style={{ WebkitOverflowScrolling: 'touch' }}
+                        >
                             {renderContent()}
                         </div>
                     </div>

@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { UserProfile } from '../../types';
-import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle } from 'lucide-react';
+import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle, Loader2, Check } from 'lucide-react';
+import { apiClient } from '../../services/apiClient';
 import { compressImage } from '../../utils/imageUtils';
 import { THEMES } from '../../constants';
 
@@ -12,8 +13,57 @@ interface HeaderEditorProps {
 }
 
 const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updateProfile }) => {
+    const [localUsername, setLocalUsername] = React.useState(profile.username || '');
+    const [isChecking, setIsChecking] = React.useState(false);
+    const [usernameError, setUsernameError] = React.useState<string | null>(null);
+    const [usernameSuccess, setUsernameSuccess] = React.useState(false);
+    const [showConfirm, setShowConfirm] = React.useState(false);
+
     const avatarInputRef = useRef<HTMLInputElement>(null);
     const bannerInputRef = useRef<HTMLInputElement>(null);
+    const checkTimeout = useRef<NodeJS.Timeout | null>(null);
+    const usernameOriginal = profile.username || '';
+
+    const handleUsernameChange = (newUsername: string) => {
+        const sanitized = newUsername.toLowerCase().replace(/[^a-z0-9._]/g, '');
+        setLocalUsername(sanitized);
+        setUsernameError(null);
+        setUsernameSuccess(false);
+        setShowConfirm(false);
+
+        if (sanitized === usernameOriginal) return;
+
+        if (sanitized.length < 3) {
+            setUsernameError('Mínimo 3 caracteres');
+            return;
+        }
+
+        // Debounce check
+        if (checkTimeout.current) clearTimeout(checkTimeout.current);
+
+        setIsChecking(true);
+        checkTimeout.current = setTimeout(async () => {
+            try {
+                const { available } = await apiClient.checkUsername(sanitized);
+                if (!available) {
+                    setUsernameError('Nome de usuário indisponível');
+                } else {
+                    setUsernameSuccess(true);
+                }
+            } catch (error) {
+                console.error('Error checking username:', error);
+            } finally {
+                setIsChecking(false);
+            }
+        }, 500);
+    };
+
+    const confirmUsernameChange = () => {
+        onChange({ ...profile, username: localUsername });
+        setUsernameSuccess(false);
+        setShowConfirm(false);
+    };
+
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
 
     const handleLayoutChange = (layoutId: string) => {
@@ -277,13 +327,70 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                     <div className="space-y-4">
                         <div>
+                            <label className="block text-[9px] font-black text-black uppercase tracking-[0.2em] mb-2 px-1 flex justify-between items-center">
+                                <span>Nome de Usuário (@)</span>
+                                {profile.usernameUpdatedAt && (
+                                    <span className="text-[7px] text-black/40 normal-case font-bold">
+                                        Última alteração: {new Date(profile.usernameUpdatedAt).toLocaleDateString()}
+                                    </span>
+                                )}
+                            </label>
+                            <div className="relative">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-black text-black/30">@</div>
+                                <input
+                                    type="text"
+                                    value={localUsername}
+                                    onChange={(e) => handleUsernameChange(e.target.value)}
+                                    className={`w-full pl-7 pr-3 py-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30 ${usernameError ? 'border-red-500 ring-1 ring-red-500' : ''}`}
+                                    placeholder={usernameOriginal || 'seu_usuario'}
+                                />
+                                {isChecking && (
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                        <Loader2 size={14} className="animate-spin text-black/40" />
+                                    </div>
+                                )}
+                                {usernameSuccess && !isChecking && (
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
+                                        <Check size={14} strokeWidth={4} />
+                                    </div>
+                                )}
+                            </div>
+                            {usernameError && (
+                                <p className="text-[8px] font-black text-red-500 uppercase tracking-widest mt-1.5 px-1 flex items-center gap-1">
+                                    <AlertCircle size={10} /> {usernameError}
+                                </p>
+                            )}
+
+                            {usernameSuccess && localUsername !== usernameOriginal && !isChecking && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mt-3 p-3 bg-[#97cd7a]/10 border border-[#97cd7a] border-dashed"
+                                >
+                                    <p className="text-[9px] font-black text-black uppercase mb-3 flex items-center gap-2">
+                                        <Check size={12} className="text-[#3c6d25]" /> Username disponível!
+                                    </p>
+                                    <button
+                                        onClick={confirmUsernameChange}
+                                        className="w-full py-2 bg-[#97cd7a] text-black text-[9px] font-black uppercase tracking-widest border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                                    >
+                                        Confirmar Troca de @
+                                    </button>
+                                </motion.div>
+                            )}
+
+                            <p className="text-[7px] font-black text-black/50 uppercase tracking-widest mt-2 px-1 border-t border-black/5 pt-2 italic">
+                                * Se você mudar seu @, só poderá mudar novamente após <span className="text-black">7 dias</span>.
+                            </p>
+                        </div>
+                        <div>
                             <label className="block text-[9px] font-black text-black uppercase tracking-[0.2em] mb-2 px-1">Nome de Exibição</label>
                             <input
                                 type="text"
                                 value={profile.name}
                                 onChange={(e) => onChange({ ...profile, name: e.target.value })}
-                                className="w-full px-3 py-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-black uppercase tracking-widest text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
-                                placeholder="@seuusuario"
+                                className="w-full px-3 py-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-black text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
+                                placeholder="Seu Nome Visível"
                             />
                         </div>
                         <div>
@@ -292,7 +399,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                 value={profile.bio || ''}
                                 onChange={(e) => onChange({ ...profile, bio: e.target.value })}
                                 rows={2}
-                                className="w-full px-3 py-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-bold uppercase tracking-widest text-black resize-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
+                                className="w-full px-3 py-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-bold text-black resize-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
                                 placeholder="Conte um pouco sobre você..."
                             />
                         </div>

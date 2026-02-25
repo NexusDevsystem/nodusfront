@@ -247,6 +247,45 @@ class ApiClient {
         return data;
     }
 
+    async requestPasswordReset(email: string): Promise<{ message: string }> {
+        const response = await fetch(`${API_URL}/api/auth/request-reset`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || `Erro ${response.status}`);
+        }
+        return data;
+    }
+
+    async verifyResetCode(email: string, code: string): Promise<{ message: string; resetToken: string }> {
+        const response = await fetch(`${API_URL}/api/auth/verify-reset`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, code })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || `Erro ${response.status}`);
+        }
+        return data;
+    }
+
+    async resetPassword(resetToken: string, newPassword: string): Promise<{ message: string }> {
+        const response = await fetch(`${API_URL}/api/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ resetToken, newPassword })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || `Erro ${response.status}`);
+        }
+        return data;
+    }
+
     async trackPageView(profileId: string): Promise<void> {
         try {
             await this.request('/api/analytics/track-view', {

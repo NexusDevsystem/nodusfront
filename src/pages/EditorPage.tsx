@@ -188,9 +188,21 @@ export default function EditorPage() {
                 const response = await apiClient.updateProfile(profile);
                 console.log('✅ [EditorPage] Auto-save profile success:', response);
                 lastSavedProfile.current = JSON.stringify(profile);
+                // Sync any backend updates (like business logic timestamps)
+                if (response.usernameUpdatedAt && response.usernameUpdatedAt !== profile.usernameUpdatedAt) {
+                    setProfile(prev => ({ ...prev, usernameUpdatedAt: response.usernameUpdatedAt }));
+                }
             } catch (error: any) {
                 console.error('❌ [EditorPage] Auto-save profile failed:', error);
-                // Log detailed error info if available
+
+                // If it's a validation error (like the 7-day rule), we should probably alert the user 
+                // and revert the local state to the last known good state
+                if (error.message && (error.message.includes('7 dias') || error.message.includes('usuário'))) {
+                    alert(error.message);
+                    const lastGoodProfile = JSON.parse(lastSavedProfile.current);
+                    setProfile(lastGoodProfile);
+                }
+
                 if (error.response) console.error('Response details:', error.response.data);
             } finally {
                 setIsSavingProfile(false);

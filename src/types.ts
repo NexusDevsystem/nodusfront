@@ -69,6 +69,7 @@ export interface UserProfile {
   customButtonTextColor?: string | null;
   customButtonColor?: string | null;
   integrations?: any[];
+  usernameUpdatedAt?: string | null;
 }
 
 export interface Theme {

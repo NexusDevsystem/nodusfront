@@ -66,6 +66,7 @@ interface SortableLinkItemProps {
   setExpandedLinks: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   expandedCollections: Record<string, boolean>;
   setExpandedCollections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  isAnyExpanded: boolean;
 }
 
 function SortableLinkItem({
@@ -79,7 +80,8 @@ function SortableLinkItem({
   expandedLinks,
   setExpandedLinks,
   expandedCollections,
-  setExpandedCollections
+  setExpandedCollections,
+  isAnyExpanded
 }: SortableLinkItemProps) {
   const dragControls = useDragControls();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -208,7 +210,7 @@ function SortableLinkItem({
         zIndex: 50
       }}
     >
-      <div className={`${isExpanded ? 'bg-[#ffdf00]' : 'bg-white'}`}>
+      <div className={`transition-all duration-300 ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40 grayscale-[0.5] scale-[0.98]' : 'opacity-100'} ${isExpanded ? 'bg-[#ffdf00]' : 'bg-white'}`}>
         {/* RENDER COLLECTION ITEM */}
         {link.type === 'collection' ? (
           <div className="overflow-hidden">
@@ -1087,6 +1089,8 @@ function LinkEditor({
   const activeLinks = links.filter(l => !l.isArchived);
   const archivedLinks = links.filter(l => l.isArchived);
 
+  const isAnyExpanded = Object.values(expandedLinks).some(Boolean) || Object.values(expandedCollections).some(Boolean);
+
   const toggleCollection = (id: string) => {
     setExpandedCollections(prev => ({
       ...prev,
@@ -1373,6 +1377,7 @@ function LinkEditor({
               setExpandedLinks={setExpandedLinks}
               expandedCollections={expandedCollections}
               setExpandedCollections={setExpandedCollections}
+              isAnyExpanded={isAnyExpanded}
             />
           ))}
         </Reorder.Group>
