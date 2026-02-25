@@ -32,7 +32,16 @@ class ApiClient {
     }
 
     private async request(path: string, options: RequestInit = {}, retries = 2): Promise<any> {
-        const headers = await this.getHeaders();
+        const isFormData = options.body instanceof FormData;
+        const token = localStorage.getItem('nodus_access_token');
+        const baseHeaders: Record<string, string> = {
+            'Authorization': token ? `Bearer ${token}` : ''
+        };
+        // Do NOT set Content-Type for FormData — browser must set it with boundary
+        if (!isFormData) {
+            baseHeaders['Content-Type'] = 'application/json';
+        }
+
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout
 
@@ -42,7 +51,7 @@ class ApiClient {
                 cache: 'no-store',
                 signal: controller.signal,
                 headers: {
-                    ...headers,
+                    ...baseHeaders,
                     ...(options.headers || {})
                 }
             });
@@ -388,15 +397,15 @@ class ApiClient {
         const formData = new FormData();
         formData.append('file', file);
 
+        // Pass FormData directly — request() will auto-detect and skip Content-Type
         return this.request('/api/files', {
             method: 'POST',
-            body: formData,
-            headers: await this.getHeaders(true)
+            body: formData
         });
     }
 
     async deleteFile(filename: string): Promise<{ success: boolean; message?: string }> {
-        return this.request(`/api/files/${filename}`, {
+        return this.request(`/api/files/${encodeURIComponent(filename)}`, {
             method: 'DELETE'
         });
     }
