@@ -78,6 +78,20 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.touchAction = 'none';
+        } else {
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+        };
+    }, [isOpen]);
+
+    useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
@@ -152,17 +166,17 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     </div>
 
                     <div className="space-y-4">
-                        <p className="text-sm font-bold text-black/70 leading-relaxed uppercase tracking-widest">
+                        <p className="text-sm font-normal text-black/70 leading-relaxed uppercase tracking-widest">
                             Dê um nome para este grupo de links. {url.trim() ? "O link que você colou será adicionado automaticamente dentro dela." : ""}
                         </p>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-black uppercase tracking-widest text-black px-1">Nome da Coleção</label>
+                            <label className="text-xs font-medium uppercase tracking-widest text-black px-1">Nome da Coleção</label>
                             <input
                                 autoFocus
                                 type="text"
                                 placeholder="Ex: Meus Cursos, Redes Sociais..."
-                                className="w-full bg-white border border-black rounded-none py-2 px-3 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:border-black transition-all placeholder:text-black/30"
+                                className="w-full bg-white border border-black rounded-none py-2 px-3 text-sm font-normal text-black focus:outline-none focus:ring-0 focus:border-black transition-all placeholder:text-black/30"
                                 value={collectionName}
                                 onChange={(e) => setCollectionName(e.target.value)}
                                 onKeyDown={(e) => {
@@ -180,7 +194,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 onAddCollection(collectionName, url);
                                 onClose();
                             }}
-                            className="w-full py-3 bg-[#97cd7a] text-black border-[1.5px] border-black rounded-none text-xs font-black uppercase tracking-widest hover:bg-[#ffdf00] disabled:opacity-50 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none flex items-center justify-center gap-2"
+                            className="w-full py-3 bg-[#97cd7a] text-black border-[1.5px] border-black rounded-none text-xs font-medium uppercase tracking-widest hover:bg-[#ffdf00] disabled:opacity-50 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none flex items-center justify-center gap-2"
                         >
                             <span>Criar Coleção</span>
                             <Plus size={16} strokeWidth={3} />
@@ -204,18 +218,18 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     </div>
 
                     <div className="space-y-4">
-                        <p className="text-sm font-bold text-black/70 leading-relaxed uppercase tracking-widest">
+                        <p className="text-sm font-normal text-black/70 leading-relaxed uppercase tracking-widest">
                             Digite o nome da categoria para seus produtos (ex: "E-books", "Cursos", "Lançamentos").
                             Você será levado à aba Loja para finalizar a configuração.
                         </p>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-black uppercase tracking-widest text-black px-1">Nome da Categoria</label>
+                            <label className="text-xs font-medium uppercase tracking-widest text-black px-1">Nome da Categoria</label>
                             <input
                                 autoFocus
                                 type="text"
                                 placeholder="Ex: Minha Coleção"
-                                className="w-full bg-white border border-black rounded-none py-2 px-3 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:border-black transition-all placeholder:text-black/30"
+                                className="w-full bg-white border border-black rounded-none py-2 px-3 text-sm font-normal text-black focus:outline-none focus:ring-0 focus:border-black transition-all placeholder:text-black/30"
                                 value={shopCollectionName}
                                 onChange={(e) => setShopCollectionName(e.target.value)}
                                 onKeyDown={(e) => {
@@ -233,7 +247,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 onAddProduct(shopCollectionName);
                                 onClose();
                             }}
-                            className="w-full py-3 bg-[#ffdf00] text-black border-[1.5px] border-black rounded-none text-xs font-black uppercase tracking-widest hover:bg-[#97cd7a] disabled:opacity-50 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none flex items-center justify-center gap-2"
+                            className="w-full py-3 bg-[#ffdf00] text-black border-[1.5px] border-black rounded-none text-xs font-medium uppercase tracking-widest hover:bg-[#97cd7a] disabled:opacity-50 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none flex items-center justify-center gap-2"
                         >
                             <span>Continuar para Loja</span>
                             <ChevronRight size={16} strokeWidth={3} />
@@ -265,13 +279,13 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                                 {item.icon}
                                             </div>
                                         </div>
-                                        <span className="text-[10px] font-black text-black uppercase tracking-widest leading-none">{item.label}</span>
+                                        <span className="text-[10px] font-medium text-black uppercase tracking-widest leading-none">{item.label}</span>
                                     </button>
                                 ))}
                             </div>
 
                             <div className="space-y-4">
-                                <h4 className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1 border-b-2 border-black pb-1 inline-block">Links Populares</h4>
+                                <h4 className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1 border-b-2 border-black pb-1 inline-block">Links Populares</h4>
                                 <div className="space-y-3">
                                     {[
                                         { id: 'instagram', icon: <Instagram size={20} className="text-black" strokeWidth={3} />, title: 'Instagram', desc: 'Posts e Reels', action: () => onAddSocial('instagram') },
@@ -289,8 +303,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                                 {item.icon}
                                             </div>
                                             <div className="flex-1 text-left min-w-0">
-                                                <div className="text-[13px] font-black text-black uppercase tracking-widest leading-none mb-1">{item.title}</div>
-                                                <div className="text-[9px] text-black/50 font-black uppercase tracking-widest">{item.desc}</div>
+                                                <div className="text-[13px] font-medium text-black uppercase tracking-widest leading-none mb-1">{item.title}</div>
+                                                <div className="text-[9px] text-black/50 font-normal uppercase tracking-widest">{item.desc}</div>
                                             </div>
                                             <ChevronRight size={18} strokeWidth={3} className="text-black group-active:translate-x-0.5 transition-all" />
                                         </button>
@@ -301,50 +315,53 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     );
                 }
                 return (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-1 duration-300">
-                        {/* Desktop Grid */}
-                        <div className="grid grid-cols-3 gap-3">
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                        {/* Desktop Grid - Premium Brutalist */}
+                        <div className="grid grid-cols-3 gap-4">
                             {[
-                                { id: 'link', icon: <LinkIcon size={24} strokeWidth={3} />, label: 'Link', color: 'text-black', hoverBg: 'hover:bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
-                                { id: 'collection', icon: <Layout size={24} strokeWidth={3} />, label: 'Coleção', color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
-                                { id: 'product', icon: <ShoppingBag size={24} strokeWidth={3} />, label: 'Produto', color: 'text-black', hoverBg: 'hover:bg-cyan-400', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
+                                { id: 'link', icon: <LinkIcon size={32} strokeWidth={3} />, label: 'Link Externo', desc: 'Sites, Redes, PDFs', color: 'text-black', hoverBg: 'hover:bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
+                                { id: 'collection', icon: <Layout size={32} strokeWidth={3} />, label: 'Coleção', desc: 'Agrupe seus links', color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
+                                { id: 'product', icon: <ShoppingBag size={32} strokeWidth={3} />, label: 'Novo Produto', desc: 'Venda diretamente', color: 'text-black', hoverBg: 'hover:bg-cyan-400', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
                             ].map((item) => (
                                 <button
                                     key={item.id}
                                     onClick={item.action}
-                                    className={`flex flex-col items-center justify-center p-4 bg-white border-[1.5px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none ${item.hoverBg} transition-all group`}
+                                    className={`flex flex-col items-center text-center p-6 bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${item.hoverBg} transition-all group`}
                                 >
-                                    <div className={`mb-2 ${item.color} group-hover:scale-105 transition-transform`}>
+                                    <div className={`mb-4 ${item.color} group-hover:scale-110 transition-transform duration-300`}>
                                         {item.icon}
                                     </div>
-                                    <span className="text-xs font-black text-black uppercase tracking-widest">{item.label}</span>
+                                    <span className="text-xs font-medium text-black uppercase tracking-widest mb-1">{item.label}</span>
+                                    <span className="text-[10px] font-normal text-black/50 uppercase tracking-tighter leading-tight">{item.desc}</span>
                                 </button>
                             ))}
                         </div>
 
-                        <div className="space-y-4">
-                            <h4 className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1 border-b-[3px] border-black pb-1.5 inline-block">Links Populares</h4>
-                            <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-4">
+                                <h4 className="text-[11px] font-medium text-black uppercase tracking-[0.2em] whitespace-nowrap">Links Populares</h4>
+                                <div className="h-[2px] flex-1 bg-black/10"></div>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4">
                                 {[
-                                    { id: 'instagram', icon: <Instagram size={18} strokeWidth={3} className="text-[#dc2743]" />, title: 'Instagram', desc: 'Posts e Reels', action: () => onAddSocial('instagram') },
-                                    { id: 'tiktok', icon: <SiTiktok size={16} />, title: 'TikTok', desc: 'Vídeos curtos', action: () => onAddSocial('tiktok') },
-                                    { id: 'youtube', icon: <Youtube size={18} strokeWidth={3} className="text-[#ff0000]" />, title: 'YouTube', desc: 'Canal ou vídeos', action: () => onAddSocial('youtube') },
-                                    { id: 'spotify', icon: <SiSpotify size={16} className="text-[#1db954]" />, title: 'Spotify', desc: 'Músicas e playlists', action: () => onAddSocial('spotify') },
-                                    { id: 'whatsapp', icon: <SiWhatsapp size={18} className="text-[#25d366]" />, title: 'WhatsApp', desc: 'Chat direto', action: () => onAddSocial('whatsapp') },
+                                    { id: 'instagram', icon: <Instagram size={22} strokeWidth={3} className="text-black" />, title: 'Instagram', desc: 'Posts e Reels', color: 'bg-[#ffdf00]', action: () => onAddSocial('instagram') },
+                                    { id: 'tiktok', icon: <SiTiktok size={20} className="text-black" />, title: 'TikTok', desc: 'Vídeos curtos', color: 'bg-[#97cd7a]', action: () => onAddSocial('tiktok') },
+                                    { id: 'youtube', icon: <Youtube size={22} strokeWidth={3} className="text-black" />, title: 'YouTube', desc: 'Canal ou vídeos', color: 'bg-red-400', action: () => onAddSocial('youtube') },
+                                    { id: 'spotify', icon: <SiSpotify size={20} className="text-black" />, title: 'Spotify', desc: 'Músicas e playlists', color: 'bg-green-400', action: () => onAddSocial('spotify') },
+                                    { id: 'whatsapp', icon: <SiWhatsapp size={22} className="text-black" />, title: 'WhatsApp', desc: 'Chat direto', color: 'bg-cyan-300', action: () => onAddSocial('whatsapp') },
                                 ].map((item) => (
                                     <button
                                         key={item.id}
                                         onClick={() => { item.action(); onClose(); }}
-                                        className="w-full flex items-center gap-3 p-3 bg-white border border-black hover:bg-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all group"
+                                        className="w-full flex items-center gap-4 p-4 bg-white border-2 border-black hover:bg-black group transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
                                     >
-                                        <div className="w-8 h-8 flex items-center justify-center shrink-0 border border-black bg-white shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                                        <div className={`w-12 h-12 flex items-center justify-center shrink-0 border-2 border-black ${item.color} shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
                                             {item.icon}
                                         </div>
                                         <div className="flex-1 text-left min-w-0">
-                                            <div className="text-xs font-black uppercase text-black leading-none mb-0.5">{item.title}</div>
-                                            <div className="text-[9px] text-black/70 font-bold uppercase tracking-widest truncate">{item.desc}</div>
+                                            <div className="text-[11px] font-medium uppercase text-black group-hover:text-white leading-none mb-1.5">{item.title}</div>
+                                            <div className="text-[9px] text-black/50 group-hover:text-white/50 font-normal uppercase tracking-widest truncate">{item.desc}</div>
                                         </div>
-                                        <ChevronRight size={14} strokeWidth={3} className="text-black group-hover:translate-x-0.5 transition-all" />
                                     </button>
                                 ))}
                             </div>
@@ -418,8 +435,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 return (
                     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-1 duration-300">
                         <div className="p-4 border-[1.5px] border-black bg-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4">
-                            <h4 className="font-black text-black text-lg uppercase tracking-widest leading-none">Monetize seu perfil</h4>
-                            <p className="text-[10px] font-bold text-black/70 mt-2 uppercase tracking-widest">Venda produtos e receba incentivos direto no Nodus.</p>
+                            <h4 className="font-medium text-black text-lg uppercase tracking-widest leading-none">Monetize seu perfil</h4>
+                            <p className="text-[10px] font-normal text-black/70 mt-2 uppercase tracking-widest">Venda produtos e receba incentivos direto no Nodus.</p>
                         </div>
                         {[
                             { id: 'product', icon: <ShoppingBag size={18} strokeWidth={3} />, title: 'Produto / Loja', desc: 'Físicos ou digitais', action: () => setShowShopCollectionStep(true) },
@@ -435,8 +452,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                     {item.icon}
                                 </div>
                                 <div className="flex-1 text-left min-w-0">
-                                    <div className="text-xs font-black text-black uppercase tracking-wider">{item.title}</div>
-                                    <div className="text-[10px] text-black/70 font-bold uppercase tracking-widest truncate">{item.desc}</div>
+                                    <div className="text-xs font-medium text-black uppercase tracking-wider">{item.title}</div>
+                                    <div className="text-[10px] text-black/70 font-normal uppercase tracking-widest truncate">{item.desc}</div>
                                 </div>
                                 <Plus size={18} strokeWidth={3} className="text-black group-hover:rotate-90 transition-transform" />
                             </button>
@@ -448,8 +465,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 return (
                     <div className="space-y-3.5 animate-in fade-in slide-in-from-bottom-1 duration-300">
                         <div className="p-4 border-[1.5px] border-black bg-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4">
-                            <h4 className="font-black text-black text-lg uppercase tracking-widest leading-none">Integrações de Mídia</h4>
-                            <p className="text-[10px] font-bold text-black/70 mt-2 uppercase tracking-widest">Adicione vídeos, músicas e muito mais diretamente no seu perfil.</p>
+                            <h4 className="font-medium text-black text-lg uppercase tracking-widest leading-none">Integrações de Mídia</h4>
+                            <p className="text-[10px] font-normal text-black/70 mt-2 uppercase tracking-widest">Adicione vídeos, músicas e muito mais diretamente no seu perfil.</p>
                         </div>
                         {[
                             { id: 'youtube', icon: <Youtube size={18} strokeWidth={3} />, title: 'YouTube', desc: 'Vídeos ou Shorts', color: 'text-red-500' },
@@ -466,8 +483,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                     {item.icon}
                                 </div>
                                 <div className="flex-1 text-left min-w-0">
-                                    <div className="text-xs font-black text-black uppercase tracking-wider">{item.title}</div>
-                                    <div className="text-[10px] text-black/70 font-bold uppercase tracking-widest truncate">{item.desc}</div>
+                                    <div className="text-xs font-medium text-black uppercase tracking-wider">{item.title}</div>
+                                    <div className="text-[10px] text-black/70 font-normal uppercase tracking-widest truncate">{item.desc}</div>
                                 </div>
                                 <Plus size={18} strokeWidth={3} className="text-black group-hover:rotate-90 transition-transform" />
                             </button>
@@ -495,7 +512,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 <div className="w-8 h-8 flex items-center justify-center text-black shrink-0 border border-black bg-white shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                                     {item.icon}
                                 </div>
-                                <span className="text-xs font-black text-black uppercase tracking-wider leading-none">{item.title}</span>
+                                <span className="text-xs font-medium text-black uppercase tracking-wider leading-none">{item.title}</span>
                             </button>
                         ))}
                     </div>
@@ -530,22 +547,22 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     }
                 }}
                 className={`
-                    relative bg-white flex flex-col border-4 border-black overflow-hidden
-                    ${isMobile ? 'w-full h-[65vh] rounded-none border-b-0 shadow-none' : 'w-[850px] h-[620px] shadow-[16px_16px_0px_0px_rgba(0,0,0,1)]'}
+                    relative bg-white flex flex-col border-2 border-black overflow-hidden
+                    ${isMobile ? 'w-full h-[65dvh] h-[65svh] h-[65vh] rounded-none border-b-0 shadow-none touch-none' : 'w-[820px] h-[580px] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]'}
                 `}
             >
                 {/* Global Header for Desktop (Unified across sidebar and content) */}
                 {!isMobile && (
-                    <div className="flex items-center justify-between p-8 shrink-0 border-b-4 border-black bg-white">
+                    <div className="flex items-center justify-between p-6 shrink-0 border-b-2 border-black bg-white">
                         <div>
-                            <h2 className="text-3xl font-black text-black uppercase tracking-tighter leading-none">Adicionar Elemento</h2>
-                            <div className="h-1.5 w-16 bg-[#97cd7a] mt-2"></div>
+                            <h2 className="text-2xl font-medium text-black uppercase tracking-tighter leading-none">Adicionar Elemento</h2>
+                            <div className="h-1 w-12 bg-[#97cd7a] mt-2"></div>
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-transparent hover:border-black transition-all active:translate-x-[2px] active:translate-y-[2px]"
+                            className="p-1.5 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-transparent hover:border-black transition-all active:translate-x-[1px] active:translate-y-[1px]"
                         >
-                            <X size={32} strokeWidth={4} />
+                            <X size={24} strokeWidth={4} />
                         </button>
                     </div>
                 )}
@@ -557,105 +574,97 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     </div>
                 )}
 
-                <div className={`flex flex-1 overflow-hidden ${isMobile ? 'flex-col' : 'flex-row'}`}>
-                    {/* Sidebar (Desktop only) */}
+                <div className="flex flex-col flex-1 overflow-hidden">
+                    {/* Category Tabs - The "Command Bar" */}
                     {!isMobile && (
-                        <div className="w-56 bg-white border-r-[1.5px] border-black flex flex-col overflow-y-auto shrink-0 custom-scrollbar">
-                            <div className="flex flex-col">
-                                {CATEGORIES.map((cat) => (
-                                    <button
-                                        key={cat.id}
-                                        onClick={() => {
-                                            setActiveCategory(cat.id);
-                                            setShowShopCollectionStep(false);
-                                            setShowIncentiveStep(false);
-                                            setShowCollectionStep(false);
-                                        }}
-                                        className={`
-                                            flex items-center gap-4 px-6 py-6 transition-all relative border-b-2 border-black
-                                            ${activeCategory === cat.id
-                                                ? 'bg-black text-[#97cd7a]'
-                                                : 'bg-white text-black/40 hover:bg-slate-50'}
-                                        `}
-                                    >
-                                        <span className={`shrink-0 ${activeCategory === cat.id ? 'scale-105 text-black' : ''}`}>
-                                            {cat.icon}
-                                        </span>
-                                        <span className={`text-xs uppercase tracking-widest whitespace-nowrap leading-none`}>
-                                            {cat.label}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
+                        <div className="flex bg-black border-b-2 border-black shrink-0 overflow-x-auto no-scrollbar">
+                            {CATEGORIES.map((cat) => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => {
+                                        setActiveCategory(cat.id);
+                                        setShowShopCollectionStep(false);
+                                        setShowIncentiveStep(false);
+                                        setShowCollectionStep(false);
+                                    }}
+                                    className={`
+                                        flex-1 min-w-[120px] flex items-center justify-center gap-3 py-3.5 px-4 transition-all relative border-r-2 border-black
+                                        ${activeCategory === cat.id
+                                            ? 'bg-[#ffdf00] text-black'
+                                            : 'bg-white text-black/50 hover:bg-[#97cd7a] hover:text-black'}
+                                    `}
+                                >
+                                    <span className={`shrink-0 flex items-center justify-center ${activeCategory === cat.id ? 'scale-110 text-black' : ''}`}>
+                                        {cat.icon}
+                                    </span>
+                                    <span className="text-[9px] font-medium uppercase tracking-[0.2em] leading-none text-black/70">
+                                        {cat.label}
+                                    </span>
+                                    {activeCategory === cat.id && (
+                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black"></div>
+                                    )}
+                                </button>
+                            ))}
                         </div>
                     )}
 
-                    {/* Content Area */}
-                    <div className="flex-1 flex flex-col min-w-0 bg-[#f8fafc] overflow-hidden">
-                        {/* Header for Mobile (Removed Close Button as requested) */}
-                        {isMobile && (
-                            <div className="flex items-center justify-between px-6 pt-2 shrink-0">
-                                <div className="w-8" /> {/* spacer */}
-                                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-widest hidden">Adicionar</h2>
-                                <div className="w-8" /> {/* spacer replacing the close button */}
+                    {/* Main Workbench Area */}
+                    <div className="flex-1 flex flex-col min-w-0 bg-white overflow-hidden relative">
+                        {/* URL Terminal Input */}
+                        <div className={`${isMobile ? 'px-6 py-4' : 'px-8 py-5 border-b-2 border-black'} shrink-0 bg-slate-50`}>
+                            <div className="mb-2 flex items-center gap-2">
+                                <div className="w-1 h-3 bg-[#97cd7a]"></div>
+                                <span className="text-[9px] font-normal uppercase tracking-[0.3em] text-black/40">Entrada de Link</span>
                             </div>
-                        )}
-
-                        {/* Search / Top Bar */}
-                        <div className={`${isMobile ? 'px-6 py-4' : 'px-6 py-6 pb-0'} shrink-0`}>
                             <form onSubmit={handleUrlSubmit} className="relative group">
-                                <div className={`absolute inset-y-0 ${isMobile ? 'left-5' : 'left-3.5'} flex items-center pointer-events-none`}>
-                                    <Search size={18} strokeWidth={3} className={`transition-colors text-black`} />
+                                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none z-10">
+                                    <Zap size={18} strokeWidth={4} className="text-black" />
                                 </div>
                                 <input
                                     type="text"
-                                    placeholder={isMobile ? " COLE OU BUSQUE UM LINK..." : "Cole um link do Spotify, Instagram, YouTube..."}
+                                    placeholder={isMobile ? " COLE SEU LINK AQUI..." : "URL DO INSTAGRAM, SPOTIFY, YOUTUBE..."}
                                     value={url}
                                     onChange={(e) => setUrl(e.target.value)}
                                     className={`
-                                        w-full bg-white border-4 border-black rounded-none py-4 pr-24 text-[11px] font-black text-black
-                                        focus:outline-none focus:ring-0 focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all
-                                        placeholder:text-black/20 uppercase tracking-[0.1em]
-                                        ${isMobile ? 'pl-12 pr-10' : 'pl-12'}
+                                        w-full bg-white border-2 border-black rounded-none py-4 pr-24 text-xs font-medium text-black
+                                        focus:outline-none focus:ring-0 focus:shadow-[6px_6px_0px_0px_rgba(151,205,122,1)] transition-all
+                                        placeholder:text-black/10 uppercase tracking-[0.1em]
+                                        ${isMobile ? 'pl-14 pr-10' : 'pl-12'}
                                     `}
                                 />
                                 {!isMobile && (
-                                    <div className="absolute inset-y-0 right-4 flex items-center gap-3">
+                                    <div className="absolute inset-y-0 right-5 flex items-center">
                                         <AnimatePresence>
-                                            {detectedInfo && (
+                                            {detectedInfo ? (
                                                 <motion.div
-                                                    initial={{ opacity: 0, x: 10 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    exit={{ opacity: 0, x: 10 }}
-                                                    className="hidden sm:flex items-center gap-2 px-2 py-1 bg-white rounded-md border border-slate-200 shadow-sm"
+                                                    initial={{ opacity: 0, scale: 0.8 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    exit={{ opacity: 0, scale: 0.8 }}
+                                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                                                 >
-                                                    <span className="text-slate-500">{detectedInfo.icon}</span>
-                                                    <span className="text-[10px] font-medium text-slate-600 uppercase tracking-tight">{detectedInfo.platform}</span>
+                                                    <span className="text-black">{detectedInfo.icon}</span>
+                                                    <span className="text-[9px] font-medium text-black uppercase tracking-widest">{detectedInfo.platform} PRONTO</span>
                                                 </motion.div>
+                                            ) : (
+                                                <div className="px-3 py-1.5 border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                                    <span className="text-[9px] font-medium text-black/30 uppercase tracking-widest">Aguardando...</span>
+                                                </div>
                                             )}
                                         </AnimatePresence>
-                                        <span className="hidden sm:inline text-[9px] font-medium text-slate-300 uppercase tracking-tight">Enter</span>
                                     </div>
-                                )}
-                                {isMobile && url && (
-                                    <button
-                                        type="button"
-                                        onClick={() => setUrl('')}
-                                        className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600"
-                                    >
-                                        <X size={18} />
-                                    </button>
                                 )}
                             </form>
                         </div>
 
-                        {/* Scrollable Area */}
+                        {/* Scrollable Content Modules */}
                         <div
-                            className={`flex-1 overflow-y-auto custom-scrollbar touch-pan-y overscroll-contain ${isMobile ? 'px-6 pb-20' : 'p-8 pt-6'}`}
+                            className={`flex-1 overflow-y-auto custom-scrollbar touch-pan-y overscroll-contain ${isMobile ? 'px-6 pb-[calc(5rem+env(safe-area-inset-bottom))]' : 'px-8 py-6'}`}
                             onPointerDown={(e) => isMobile && e.stopPropagation()}
                             style={{ WebkitOverflowScrolling: 'touch' }}
                         >
-                            {renderContent()}
+                            <div className="max-w-3xl mx-auto w-full">
+                                {renderContent()}
+                            </div>
                         </div>
                     </div>
                 </div>

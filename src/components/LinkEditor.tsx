@@ -67,6 +67,7 @@ interface SortableLinkItemProps {
   expandedCollections: Record<string, boolean>;
   setExpandedCollections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   isAnyExpanded: boolean;
+  isMobile: boolean;
 }
 
 function SortableLinkItem({
@@ -81,7 +82,8 @@ function SortableLinkItem({
   setExpandedLinks,
   expandedCollections,
   setExpandedCollections,
-  isAnyExpanded
+  isAnyExpanded,
+  isMobile
 }: SortableLinkItemProps) {
   const dragControls = useDragControls();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -203,7 +205,7 @@ function SortableLinkItem({
       }}
       onDragEnd={(e, info) => {
       }}
-      className={`relative mb-3 border-2 border-black ${isExpanded ? 'bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]' : 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'} select-none`}
+      className={`relative border-2 border-black ${isExpanded ? 'bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]' : 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'} select-none`}
       whileDrag={{
         scale: 1,
         boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)",
@@ -235,14 +237,17 @@ function SortableLinkItem({
                     type="text"
                     value={link.title}
                     onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                    className="w-full font-black text-black uppercase tracking-widest bg-transparent border-none focus:ring-0 p-0 text-xs md:text-sm placeholder:text-black/30 truncate select-text"
+                    className="w-full font-black text-black uppercase tracking-widest bg-transparent border-none focus:ring-0 p-0 text-xs md:text-sm placeholder:text-black/30 truncate select-text mb-0.5"
                     placeholder="Nome da Coleção"
                   />
-                  <div className="text-[10px] text-black/70 font-bold uppercase tracking-[0.2em] mt-0.5 truncate leading-none">
+                  <div className="text-[9px] md:text-[10px] text-black/70 font-bold uppercase tracking-[0.2em] truncate leading-none">
                     {link.children?.length || 0} {(link.children?.length === 1) ? 'item configurado' : 'itens configurados'}
                   </div>
                 </div>
-                <div className="flex items-center gap-3 md:gap-4 shrink-0">
+                <div className="flex items-center gap-1.5 md:gap-4 shrink-0">
+                  <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#ffdf00] text-[9px] md:text-[10px] font-black text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
+                    Coleção
+                  </span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -250,13 +255,13 @@ function SortableLinkItem({
                       onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-8 h-4 border border-black bg-white peer-focus:outline-none peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-black after:h-3 after:w-3 after:border after:border-black after:transition-all peer-checked:bg-[#97cd7a]"></div>
+                    <div className={`w-8 h-4 border border-black bg-white peer-focus:outline-none peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-black after:h-3 after:w-3 after:border after:border-black after:transition-all peer-checked:bg-[#97cd7a]`}></div>
                   </label>
                   <button
                     onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
-                    className={`p-1.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ${showDeleteConfirm ? 'bg-red-500 text-white' : 'bg-white text-black hover:bg-red-400'}`}
+                    className={`p-1.5 md:p-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ${showDeleteConfirm ? 'bg-red-500 text-white' : 'bg-white text-black hover:bg-red-400'}`}
                   >
-                    <Trash2 size={16} strokeWidth={3} />
+                    <Trash2 size={isMobile ? 14 : 18} strokeWidth={3} />
                   </button>
                 </div>
               </div>
@@ -455,19 +460,6 @@ function SortableLinkItem({
                         </span>
                       )}
                     </div>
-                    {link.type === 'header' ? (
-                      <span className="shrink-0 px-1.5 py-0.5 bg-white text-[8px] font-black text-black border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                        Cabeçalho
-                      </span>
-                    ) : link.layout === 'social' ? (
-                      <span className="shrink-0 px-1.5 py-0.5 bg-white text-[8px] font-black text-black border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                        Topo
-                      </span>
-                    ) : (
-                      <span className="shrink-0 px-1.5 py-0.5 bg-[#97cd7a] text-[8px] font-black text-black border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                        Lista
-                      </span>
-                    )}
                   </div>
                   <div className="text-[9px] md:text-[10px] text-black/60 font-bold uppercase tracking-[0.1em] truncate leading-none">
                     {link.type === 'header' ? 'Texto de separação entre links' : (link.url || 'Suas redes ou site')}
@@ -475,7 +467,21 @@ function SortableLinkItem({
                 </div>
 
                 {/* Right Actions: Switch & Delete */}
-                <div className="flex items-center gap-2 md:gap-3 shrink-0">
+                <div className="flex items-center gap-1.5 md:gap-4 shrink-0">
+                  {link.type === 'header' ? (
+                    <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-black text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
+                      Cabeçalho
+                    </span>
+                  ) : link.layout === 'social' ? (
+                    <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-black text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
+                      Topo
+                    </span>
+                  ) : (
+                    <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-black text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
+                      Link
+                    </span>
+                  )}
+
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -483,14 +489,14 @@ function SortableLinkItem({
                       onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-8 h-4 border border-black bg-white peer-focus:outline-none peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-black after:h-3 after:w-3 after:border after:border-black after:transition-all peer-checked:bg-[#97cd7a]"></div>
+                    <div className={`w-8 h-4 border border-black bg-white peer-focus:outline-none peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-black after:h-3 after:w-3 after:border after:border-black after:transition-all peer-checked:bg-[#97cd7a]`}></div>
                   </label>
 
                   <button
                     onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
-                    className={`p-1.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ${showDeleteConfirm ? 'bg-red-500 text-white' : 'bg-white text-black hover:bg-red-400'}`}
+                    className={`p-1.5 md:p-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ${showDeleteConfirm ? 'bg-red-500 text-white' : 'bg-white text-black hover:bg-red-400'}`}
                   >
-                    <Trash2 size={16} strokeWidth={3} />
+                    <Trash2 size={isMobile ? 14 : 18} strokeWidth={3} />
                   </button>
                 </div>
               </div>
@@ -1282,8 +1288,8 @@ function LinkEditor({
   };
 
   return (
-    <div className={`space-y-3 ${level === 0 ? 'bg-white border-[1.5px] border-black p-3 md:p-4 pt-4 md:pt-5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : ''}`}>
-      <div className="space-y-3">
+    <div className={`space-y-5 ${level === 0 ? 'bg-white border-[1.5px] border-black p-3 md:p-4 pt-4 md:pt-5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : ''}`}>
+      <div className="space-y-5">
         {level === 0 ? (
           <>
             <div className="flex flex-col gap-4 mb-4">
@@ -1343,7 +1349,7 @@ function LinkEditor({
         )}
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {activeLinks.length === 0 && (
           <div className="text-center py-10 md:py-16 bg-[#ffdf00] border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <div className="w-16 h-16 md:w-20 md:h-20 bg-white border-4 border-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black">
@@ -1358,7 +1364,7 @@ function LinkEditor({
           axis="y"
           values={activeLinks}
           onReorder={handleReorder}
-          className="space-y-3"
+          className="space-y-5"
         >
           {activeLinks.map((link) => (
             <SortableLinkItem
@@ -1378,6 +1384,7 @@ function LinkEditor({
               expandedCollections={expandedCollections}
               setExpandedCollections={setExpandedCollections}
               isAnyExpanded={isAnyExpanded}
+              isMobile={isMobile}
             />
           ))}
         </Reorder.Group>
