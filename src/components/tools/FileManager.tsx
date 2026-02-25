@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, File as FileIcon, Trash2, Copy, Check, X, Loader2, Image as ImageIcon, FileText, Download, ExternalLink } from 'lucide-react';
+import { apiClient } from '../../services/apiClient';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserProfile } from '../../types';
 
@@ -27,12 +28,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
     // Fetch files
     const fetchFiles = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/files`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
+            const data = await apiClient.listFiles();
             if (data.success) {
                 setFiles(data.files);
             }
@@ -58,27 +54,17 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
         }
 
         setIsUploading(true);
-        const formData = new FormData();
-        formData.append('file', file);
-
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/files`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
-            });
-            const data = await response.json();
+            const data = await apiClient.uploadFile(file);
 
             if (data.success) {
                 fetchFiles(); // Refresh list
             } else {
                 alert(data.message || 'Erro ao enviar arquivo');
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Upload error:', error);
-            alert('Erro ao enviar arquivo');
+            alert(error.message || 'Erro ao enviar arquivo');
         } finally {
             setIsUploading(false);
         }
@@ -94,13 +80,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
         }
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/files/${filename}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const data = await response.json();
+            const data = await apiClient.deleteFile(filename);
 
             if (data.success) {
                 setFiles(prev => prev.filter(f => f.filename !== filename));

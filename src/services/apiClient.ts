@@ -3,16 +3,21 @@ import { UserProfile, LinkItem, Product, SocialIntegration } from '../types';
 const rawUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : 'https://nodusback-production.up.railway.app');
 
 // Ensure URL has protocol (prevent relative path issues)
-const API_URL = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
+export const API_URL = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
 
 
 class ApiClient {
-    private async getHeaders() {
+    private async getHeaders(isMultipart = false) {
         const token = localStorage.getItem('nodus_access_token');
-        return {
-            'Content-Type': 'application/json',
+        const headers: any = {
             'Authorization': token ? `Bearer ${token}` : ''
         };
+
+        if (!isMultipart) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        return headers;
     }
 
     public async get(path: string) {
@@ -371,6 +376,28 @@ class ApiClient {
         return this.request('/api/integrations/instagram/switch', {
             method: 'POST',
             body: JSON.stringify({ channelId })
+        });
+    }
+
+    // File Management
+    async listFiles(): Promise<{ success: boolean; files: any[] }> {
+        return this.request('/api/files');
+    }
+
+    async uploadFile(file: File): Promise<{ success: boolean; file?: any; message?: string }> {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        return this.request('/api/files', {
+            method: 'POST',
+            body: formData,
+            headers: await this.getHeaders(true)
+        });
+    }
+
+    async deleteFile(filename: string): Promise<{ success: boolean; message?: string }> {
+        return this.request(`/api/files/${filename}`, {
+            method: 'DELETE'
         });
     }
 }

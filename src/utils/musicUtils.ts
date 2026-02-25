@@ -17,7 +17,7 @@ export interface MusicMetadata {
     followers?: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL } from '../services/apiClient';
 
 export const fetchMusicMetadata = async (url: string): Promise<MusicMetadata | null> => {
     try {
