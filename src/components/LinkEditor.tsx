@@ -75,6 +75,9 @@ function SortableLinkItem({
   updateLink,
   updateLinkFields,
   removeLink,
+  toggleLink,
+  isExpanded,
+  toggleCollection,
   isCollectionExpanded,
   profile,
   level,
@@ -89,14 +92,7 @@ function SortableLinkItem({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isRefreshingMeta, setIsRefreshingMeta] = useState(false);
 
-  const isExpanded = !!expandedLinks[link.id];
-  const toggleLink = (id: string) => {
-    setExpandedLinks(prev => ({ ...prev, [id]: !prev[id] }));
-  };
 
-  const toggleCollection = (id: string) => {
-    setExpandedCollections(prev => ({ ...prev, [id]: !prev[id] }));
-  };
 
   // LinkEditor is used recursively here. It must be hoisted or available.
 
@@ -212,7 +208,7 @@ function SortableLinkItem({
         zIndex: 50
       }}
     >
-      <div className={`transition-all duration-300 ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40 grayscale-[0.5] scale-[0.98]' : 'opacity-100'} ${isExpanded ? 'bg-[#ffdf00]' : 'bg-white'}`}>
+      <div className={`transition-all duration-300 ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${isExpanded ? 'bg-[#ffdf00]' : 'bg-white'}`}>
         {/* RENDER COLLECTION ITEM */}
         {link.type === 'collection' ? (
           <div className="overflow-hidden">
@@ -227,28 +223,25 @@ function SortableLinkItem({
 
               {/* Header Content */}
               <div
-                className={`flex-1 ${level > 0 ? 'py-1.5 md:py-2' : 'py-2 md:py-2.5'} pr-3 md:pr-4 flex items-center gap-2 md:gap-3 overflow-hidden bg-white hover:bg-slate-50 transition-colors duration-200`}
+                onClick={() => toggleCollection(link.id)}
+                className={`flex-1 ${level > 0 ? 'py-1.5 md:py-2' : 'py-2 md:py-2.5'} pr-3 md:pr-4 flex items-center gap-2 md:gap-3 overflow-hidden bg-white hover:bg-slate-50 transition-colors duration-200 cursor-pointer`}
               >
-                <div onClick={() => toggleCollection(link.id)} className="cursor-pointer text-black hover:bg-[#97cd7a] p-0.5 border border-transparent hover:border-black transition-colors shrink-0">
+                <div className="text-black p-0.5 transition-colors shrink-0">
                   {isCollectionExpanded ? <ChevronDown size={level > 0 ? 14 : 18} strokeWidth={3} /> : <ChevronRight size={level > 0 ? 14 : 18} strokeWidth={3} />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <input
-                    type="text"
-                    value={link.title}
-                    onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                    className="w-full font-black text-black uppercase tracking-widest bg-transparent border-none focus:ring-0 p-0 text-xs md:text-sm placeholder:text-black/30 truncate select-text mb-0.5"
-                    placeholder="Nome da Coleção"
-                  />
-                  <div className="text-[9px] md:text-[10px] text-black/70 font-bold uppercase tracking-[0.2em] truncate leading-none">
+                  <div className="w-full font-medium text-black uppercase tracking-widest p-0 text-xs md:text-sm truncate mb-0.5">
+                    {link.title || 'Coleção sem nome'}
+                  </div>
+                  <div className="text-[9px] md:text-[10px] text-black/70 font-normal uppercase tracking-[0.2em] truncate leading-none">
                     {link.children?.length || 0} {(link.children?.length === 1) ? 'item configurado' : 'itens configurados'}
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 md:gap-4 shrink-0">
-                  <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#ffdf00] text-[9px] md:text-[10px] font-black text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
+                  <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#ffdf00] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
                     Coleção
                   </span>
-                  <label className="relative inline-flex items-center cursor-pointer">
+                  <label className="relative inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
                     <input
                       type="checkbox"
                       checked={link.isActive}
@@ -258,7 +251,7 @@ function SortableLinkItem({
                     <div className={`w-8 h-4 border border-black bg-white peer-focus:outline-none peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-black after:h-3 after:w-3 after:border after:border-black after:transition-all peer-checked:bg-[#97cd7a]`}></div>
                   </label>
                   <button
-                    onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
+                    onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(!showDeleteConfirm); }}
                     className={`p-1.5 md:p-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ${showDeleteConfirm ? 'bg-red-500 text-white' : 'bg-white text-black hover:bg-red-400'}`}
                   >
                     <Trash2 size={isMobile ? 14 : 18} strokeWidth={3} />
@@ -275,10 +268,10 @@ function SortableLinkItem({
                   className="overflow-hidden bg-red-50 border-t border-black border-dashed"
                 >
                   <div className="p-3 flex items-center justify-between gap-3 px-4">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-red-600">Excluir coleção?</span>
+                    <span className="text-[10px] font-medium uppercase tracking-widest text-red-600">Excluir coleção?</span>
                     <div className="flex gap-2">
-                      <button onClick={() => removeLink(link.id)} className="px-3 py-1.5 bg-red-600 text-white border border-black text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Confirmar</button>
-                      <button onClick={() => setShowDeleteConfirm(false)} className="px-3 py-1.5 bg-white text-black border border-black text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Cancelar</button>
+                      <button onClick={() => removeLink(link.id)} className="px-3 py-1.5 bg-red-600 text-white border border-black text-[9px] font-medium uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Confirmar</button>
+                      <button onClick={() => setShowDeleteConfirm(false)} className="px-3 py-1.5 bg-white text-black border border-black text-[9px] font-medium uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Cancelar</button>
                     </div>
                   </div>
                 </motion.div>
@@ -297,10 +290,22 @@ function SortableLinkItem({
                 >
                   <div className="overflow-hidden bg-slate-50/50">
                     <div className="p-2 md:p-3 md:pl-5 border-t border-black space-y-3 md:space-y-4">
+                      {/* Name Input */}
+                      <div className="space-y-1 pb-6 border-b border-black">
+                        <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">Nome da Coleção</label>
+                        <input
+                          type="text"
+                          value={link.title}
+                          onChange={(e) => updateLink(link.id, 'title', e.target.value)}
+                          className="w-full font-medium text-sm text-black bg-white border border-black px-3 py-2.5 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                          placeholder="Ex: Meus Trabalhos"
+                        />
+                      </div>
+
                       {/* Collection Layout Picker */}
                       {link.platform === 'instagram' || link.title === 'Posts do Instagram' ? (
                         <div className="space-y-3 pb-6 border-b border-black">
-                          <label className="text-[9px] font-black text-black uppercase tracking-[0.2em] px-1">Layout do Instagram</label>
+                          <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">Layout do Instagram</label>
                           <div className="flex flex-col gap-2.5">
                             {[
                               { id: 'card', label: 'Feed de Posts', desc: 'Visual premium com seus últimos posts', icon: <LayoutGrid size={24} strokeWidth={3} /> },
@@ -318,8 +323,8 @@ function SortableLinkItem({
                                   <opt.icon.type {...opt.icon.props} size={18} strokeWidth={3} />
                                 </div>
                                 <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                  <div className={`text-xs md:text-sm font-black uppercase tracking-widest truncate ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id ? 'text-black' : 'text-black'}`}>{opt.label}</div>
-                                  <div className="text-[10px] text-black/70 font-bold uppercase tracking-wider leading-tight line-clamp-1">{opt.desc}</div>
+                                  <div className={`text-xs md:text-sm font-medium uppercase tracking-widest truncate ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id ? 'text-black' : 'text-black'}`}>{opt.label}</div>
+                                  <div className="text-[10px] text-black/70 font-normal uppercase tracking-wider leading-tight line-clamp-1">{opt.desc}</div>
                                 </div>
                               </button>
                             ))}
@@ -327,7 +332,7 @@ function SortableLinkItem({
                         </div>
                       ) : (
                         <div className="space-y-3 pb-6 border-b border-black">
-                          <label className="text-[9px] font-black text-black uppercase tracking-[0.2em] px-1">Layout do Grupo</label>
+                          <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">Layout do Grupo</label>
                           <div className="flex flex-col gap-2.5">
                             {[
                               { id: 'stacked', label: 'Lista Empilhada', desc: 'Links um abaixo do outro', icon: <LayoutGrid size={24} strokeWidth={3} /> },
@@ -345,8 +350,8 @@ function SortableLinkItem({
                                   <opt.icon.type {...opt.icon.props} size={18} strokeWidth={3} />
                                 </div>
                                 <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                  <div className={`text-xs md:text-sm font-black uppercase tracking-widest truncate text-black`}>{opt.label}</div>
-                                  <div className="text-[10px] text-black/70 font-bold uppercase tracking-wider leading-tight line-clamp-1">{opt.desc}</div>
+                                  <div className={`text-xs md:text-sm font-medium uppercase tracking-widest truncate text-black`}>{opt.label}</div>
+                                  <div className="text-[10px] text-black/70 font-normal uppercase tracking-wider leading-tight line-clamp-1">{opt.desc}</div>
                                 </div>
                               </button>
                             ))}
@@ -386,11 +391,13 @@ function SortableLinkItem({
               </div>
 
               {/* Header Content Wrapper (Matching Collection Style) */}
-              <div className={`flex-1 ${level > 0 ? 'py-1.5 md:py-2' : 'py-2 md:py-2.5'} pr-3 md:pr-4 flex items-center gap-2 md:gap-3 overflow-hidden`}>
+              <div
+                onClick={() => toggleLink(link.id)}
+                className={`flex-1 ${level > 0 ? 'py-1.5 md:py-2' : 'py-2 md:py-2.5'} pr-3 md:pr-4 flex items-center gap-2 md:gap-3 overflow-hidden bg-white hover:bg-slate-50 transition-colors duration-200 cursor-pointer`}
+              >
                 {/* Expand Toggle (Left) */}
                 <div
-                  onClick={() => toggleLink(link.id)}
-                  className="cursor-pointer text-black hover:bg-[#97cd7a] p-0.5 border border-transparent hover:border-black transition-colors shrink-0"
+                  className="text-black p-0.5 transition-colors shrink-0"
                 >
                   {isExpanded ? <ChevronDown size={level > 0 ? 14 : 18} strokeWidth={3} /> : <ChevronRight size={level > 0 ? 14 : 18} strokeWidth={3} />}
                 </div>
@@ -420,7 +427,7 @@ function SortableLinkItem({
                       </div>
                     ) : (
                       <button
-                        onClick={() => document.getElementById(`file-${link.id}`)?.click()}
+                        onClick={(e) => { e.stopPropagation(); document.getElementById(`file-${link.id}`)?.click(); }}
                         className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black hover:bg-black hover:text-white transition-all`}
                       >
                         <ImageIcon size={level > 0 ? 14 : 16} strokeWidth={3} />
@@ -430,38 +437,35 @@ function SortableLinkItem({
                 </div>
 
                 {/* Title & URL (Click to Expand) */}
-                <div
-                  className="flex-1 min-w-0 cursor-pointer group/title"
-                  onClick={() => toggleLink(link.id)}
-                >
+                <div className="flex-1 min-w-0 group/title">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <div className="font-black uppercase tracking-widest text-black truncate text-[11px] md:text-xs flex items-center gap-1.5">
+                    <div className="font-medium uppercase tracking-widest text-black truncate text-[11px] md:text-xs flex items-center gap-1.5">
                       {link.title || (link.type === 'header' ? 'Nova Seção' : 'Link sem título')}
 
                       {/* Tags */}
                       {link.scheduleStart && new Date(link.scheduleStart) > new Date() && (
-                        <span className="shrink-0 px-1.5 py-0.5 bg-[#97cd7a] text-[8px] font-black text-black border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                        <span className="shrink-0 px-1.5 py-0.5 bg-[#97cd7a] text-[8px] font-medium text-black border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                           AGENDADO
                         </span>
                       )}
                       {link.scheduleEnd && new Date(link.scheduleEnd) < new Date() && (
-                        <span className="shrink-0 px-1.5 py-0.5 bg-red-400 text-[8px] font-black text-black border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                        <span className="shrink-0 px-1.5 py-0.5 bg-red-400 text-[8px] font-medium text-black border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                           EXPIRADO
                         </span>
                       )}
                       {link.embedType === 'youtube' && (
-                        <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-black text-white border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                        <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                           YOUTUBE
                         </span>
                       )}
                       {link.embedType === 'tiktok' && (
-                        <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-black text-white border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                        <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                           TIKTOK
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="text-[9px] md:text-[10px] text-black/60 font-bold uppercase tracking-[0.1em] truncate leading-none">
+                  <div className="text-[9px] md:text-[10px] text-black/60 font-normal uppercase tracking-[0.1em] truncate leading-none">
                     {link.type === 'header' ? 'Texto de separação entre links' : (link.url || 'Suas redes ou site')}
                   </div>
                 </div>
@@ -469,20 +473,20 @@ function SortableLinkItem({
                 {/* Right Actions: Switch & Delete */}
                 <div className="flex items-center gap-1.5 md:gap-4 shrink-0">
                   {link.type === 'header' ? (
-                    <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-black text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
+                    <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
                       Cabeçalho
                     </span>
                   ) : link.layout === 'social' ? (
-                    <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-black text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
+                    <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
                       Topo
                     </span>
                   ) : (
-                    <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-black text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
+                    <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
                       Link
                     </span>
                   )}
 
-                  <label className="relative inline-flex items-center cursor-pointer">
+                  <label className="relative inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
                     <input
                       type="checkbox"
                       checked={link.isActive}
@@ -493,7 +497,7 @@ function SortableLinkItem({
                   </label>
 
                   <button
-                    onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
+                    onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(!showDeleteConfirm); }}
                     className={`p-1.5 md:p-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ${showDeleteConfirm ? 'bg-red-500 text-white' : 'bg-white text-black hover:bg-red-400'}`}
                   >
                     <Trash2 size={isMobile ? 14 : 18} strokeWidth={3} />
@@ -510,10 +514,10 @@ function SortableLinkItem({
                   className="overflow-hidden bg-red-50 border-b border-black border-dashed"
                 >
                   <div className="p-3 px-4 flex items-center justify-between gap-3 text-red-600">
-                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">Excluir este link?</span>
+                    <span className="text-[10px] font-medium uppercase tracking-widest leading-none">Excluir este link?</span>
                     <div className="flex gap-2">
-                      <button onClick={() => removeLink(link.id)} className="px-3 py-1.5 bg-red-600 text-white border border-black text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Excluir</button>
-                      <button onClick={() => setShowDeleteConfirm(false)} className="px-3 py-1.5 bg-white text-black border border-black text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Cancelar</button>
+                      <button onClick={() => removeLink(link.id)} className="px-3 py-1.5 bg-red-600 text-white border border-black text-[9px] font-medium uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Excluir</button>
+                      <button onClick={() => setShowDeleteConfirm(false)} className="px-3 py-1.5 bg-white text-black border border-black text-[9px] font-medium uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Cancelar</button>
                     </div>
                   </div>
                 </motion.div>
@@ -559,7 +563,7 @@ function SortableLinkItem({
                             className="w-14 h-14 md:w-16 md:h-16 bg-white border border-dashed border-black flex flex-col items-center justify-center text-black hover:bg-black hover:text-[#ffdf00] transition-all group/btn shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
                           >
                             <ImageIcon size={18} className="mb-0.5" strokeWidth={3} />
-                            <span className="text-[8px] font-black uppercase tracking-widest">Imagem</span>
+                            <span className="text-[8px] font-medium uppercase tracking-widest">Imagem</span>
                           </button>
                         )}
                       </div>
@@ -567,12 +571,12 @@ function SortableLinkItem({
                       {/* Inputs */}
                       <div className="flex-1 min-w-0 space-y-4">
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black text-black uppercase tracking-[0.2em] px-1">Título</label>
+                          <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">Título</label>
                           <input
                             type="text"
                             value={link.title}
                             onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                            className="w-full font-black text-base text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                            className="w-full font-medium text-base text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
                             placeholder={link.type === 'header' ? 'Ex: Redes Sociais' : 'Nome do link'}
                           />
                         </div>
@@ -580,7 +584,7 @@ function SortableLinkItem({
                         {link.type !== 'header' && (
                           <div className="space-y-1">
                             <div className="flex items-center justify-between px-1">
-                              <label className="text-[9px] font-black text-black uppercase tracking-[0.2em]">URL / Link</label>
+                              <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em]">URL / Link</label>
                               {(link.url.includes('youtube.com') || link.url.includes('tiktok.com') || link.url.includes('youtu.be')) && (
                                 <button
                                   type="button"
@@ -610,7 +614,7 @@ function SortableLinkItem({
                                     } catch (e) { console.error(e); }
                                     finally { setIsRefreshingMeta(false); }
                                   }}
-                                  className="text-[8px] font-black text-black bg-[#97cd7a] border border-black px-1.5 py-0.5 uppercase tracking-widest flex items-center gap-1 hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50"
+                                  className="text-[8px] font-medium text-black bg-[#97cd7a] border border-black px-1.5 py-0.5 uppercase tracking-widest flex items-center gap-1 hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50"
                                   disabled={isRefreshingMeta}
                                 >
                                   {isRefreshingMeta ? '...' : '↻ Recarregar'}
@@ -738,19 +742,19 @@ function SortableLinkItem({
                                 // Apply immediate updates (URL + Type)
                                 updateLinkFields(link.id, updates);
                               }}
-                              className="w-full text-xs font-black uppercase tracking-widest text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                              className="w-full text-xs font-medium uppercase tracking-widest text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
                               placeholder="https://exemplo.com"
                             />
                           </div>
                         )}
 
                         <div className="space-y-1">
-                          <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1">Descrição (Opcional)</label>
+                          <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1">Descrição (Opcional)</label>
                           <input
                             type="text"
                             value={link.subtitle || ''}
                             onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)}
-                            className="w-full text-xs font-bold uppercase tracking-wider text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                            className="w-full text-xs font-normal uppercase tracking-wider text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
                             placeholder="Breve descrição ou subtítulo"
                           />
                         </div>
@@ -760,7 +764,7 @@ function SortableLinkItem({
                     <div className="space-y-4 md:space-y-6 mb-6 md:mb-8 pt-4 md:pt-6 border-t border-black border-dashed">
                       {/* Layout Picker */}
                       <div className="space-y-2">
-                        <label className="text-[9px] font-black text-black uppercase tracking-[0.2em] px-1">Layout do Botão</label>
+                        <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">Layout do Botão</label>
                         <div className="flex flex-col gap-1.5">
                           {[
                             { id: 'classic', label: 'Botão Clássico', desc: 'Largura total com ícone', icon: <LayoutGrid size={24} strokeWidth={3} /> },
@@ -779,8 +783,8 @@ function SortableLinkItem({
                                 {opt.icon.type === LayoutGrid || opt.icon.type === LayoutTemplate || opt.icon.type === Share2 ? React.cloneElement(opt.icon, { size: 16 }) : opt.icon}
                               </div>
                               <div className="flex-1 mt-0">
-                                <div className={`text-[11px] font-black uppercase tracking-widest leading-none mb-1 ${link.layout === opt.id ? 'text-black' : 'text-black'}`}>{opt.label}</div>
-                                <div className="text-[9px] text-black/70 font-bold uppercase tracking-wider leading-none">{opt.desc}</div>
+                                <div className={`text-[11px] font-medium uppercase tracking-widest leading-none mb-1 ${link.layout === opt.id ? 'text-black' : 'text-black'}`}>{opt.label}</div>
+                                <div className="text-[9px] text-black/70 font-normal uppercase tracking-wider leading-none">{opt.desc}</div>
                               </div>
                               {link.layout === opt.id && (
                                 <div className="w-3.5 h-3.5 bg-black border border-black mt-0.5 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
@@ -795,9 +799,9 @@ function SortableLinkItem({
                       {/* Scheduling Section (PRO) */}
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1">Agendamento (PRO)</label>
+                          <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1">Agendamento (PRO)</label>
                           {(!profile.planType || profile.planType === 'free') && (
-                            <span className="px-2 py-0.5 bg-black text-[#97cd7a] border-2 border-black text-[9px] font-black uppercase tracking-tight shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">Bloqueado</span>
+                            <span className="px-2 py-0.5 bg-black text-[#97cd7a] border-2 border-black text-[9px] font-medium uppercase tracking-tight shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">Bloqueado</span>
                           )}
                         </div>
 
@@ -1098,17 +1102,57 @@ function LinkEditor({
   const isAnyExpanded = Object.values(expandedLinks).some(Boolean) || Object.values(expandedCollections).some(Boolean);
 
   const toggleCollection = (id: string) => {
-    setExpandedCollections(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
+    const isCurrentlyExpanded = !!expandedCollections[id];
+    setExpandedCollections(prev => {
+      const next = { ...prev };
+      if (isCurrentlyExpanded) {
+        next[id] = false;
+      } else {
+        // Accordion: Close others at this level
+        activeLinks.forEach(l => {
+          if (l.id !== id && l.type === 'collection') next[l.id] = false;
+        });
+        next[id] = true;
+      }
+      return next;
+    });
+
+    if (!isCurrentlyExpanded) {
+      setExpandedLinks(prev => {
+        const next = { ...prev };
+        activeLinks.forEach(l => {
+          if (l.type !== 'collection') next[l.id] = false;
+        });
+        return next;
+      });
+    }
   };
 
   const toggleLink = (id: string) => {
-    setExpandedLinks(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
+    const isCurrentlyExpanded = !!expandedLinks[id];
+    setExpandedLinks(prev => {
+      const next = { ...prev };
+      if (isCurrentlyExpanded) {
+        next[id] = false;
+      } else {
+        // Accordion: Close others at this level
+        activeLinks.forEach(l => {
+          if (l.id !== id && l.type !== 'collection') next[l.id] = false;
+        });
+        next[id] = true;
+      }
+      return next;
+    });
+
+    if (!isCurrentlyExpanded) {
+      setExpandedCollections(prev => {
+        const next = { ...prev };
+        activeLinks.forEach(l => {
+          if (l.id !== id && l.type === 'collection') next[l.id] = false;
+        });
+        return next;
+      });
+    }
   };
 
   const addLink = async (url?: string) => {
@@ -1124,7 +1168,17 @@ function LinkEditor({
       type: 'link'
     };
 
-    setExpandedLinks(prev => ({ ...prev, [newLinkId]: true }));
+    setExpandedLinks(prev => {
+      const next = { ...prev };
+      activeLinks.forEach(l => { if (l.type !== 'collection') next[l.id] = false; });
+      next[newLinkId] = true;
+      return next;
+    });
+    setExpandedCollections(prev => {
+      const next = { ...prev };
+      activeLinks.forEach(l => { if (l.type === 'collection') next[l.id] = false; });
+      return next;
+    });
     // @ts-ignore
     onChange(prev => [newLink, ...prev]);
 
@@ -1194,7 +1248,17 @@ function LinkEditor({
       children: children
     };
 
-    setExpandedCollections(prev => ({ ...prev, [newCollection.id]: true }));
+    setExpandedCollections(prev => {
+      const next = { ...prev };
+      activeLinks.forEach(l => { if (l.type === 'collection') next[l.id] = false; });
+      next[newCollectionId] = true;
+      return next;
+    });
+    setExpandedLinks(prev => {
+      const next = { ...prev };
+      activeLinks.forEach(l => { if (l.type !== 'collection') next[l.id] = false; });
+      return next;
+    });
     // @ts-ignore
     onChange(prev => [newCollection, ...prev]);
 
@@ -1219,7 +1283,17 @@ function LinkEditor({
       type: 'link',
       platform: platformId
     };
-    setExpandedLinks(prev => ({ ...prev, [newLink.id]: true }));
+    setExpandedLinks(prev => {
+      const next = { ...prev };
+      activeLinks.forEach(l => { if (l.type !== 'collection') next[l.id] = false; });
+      next[newLink.id] = true;
+      return next;
+    });
+    setExpandedCollections(prev => {
+      const next = { ...prev };
+      activeLinks.forEach(l => { if (l.type === 'collection') next[l.id] = false; });
+      return next;
+    });
     // @ts-ignore
     onChange(prev => [newLink, ...prev]);
   };
@@ -1245,7 +1319,17 @@ function LinkEditor({
       layout: 'classic',
       type: 'header'
     };
-    setExpandedLinks(prev => ({ ...prev, [newHeader.id]: true }));
+    setExpandedLinks(prev => {
+      const next = { ...prev };
+      activeLinks.forEach(l => { if (l.type !== 'collection') next[l.id] = false; });
+      next[newHeader.id] = true;
+      return next;
+    });
+    setExpandedCollections(prev => {
+      const next = { ...prev };
+      activeLinks.forEach(l => { if (l.type === 'collection') next[l.id] = false; });
+      return next;
+    });
     // @ts-ignore
     onChange(prev => [newHeader, ...prev]);
   };

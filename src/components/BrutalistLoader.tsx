@@ -24,7 +24,7 @@ export default function BrutalistLoader({
                 <div className="flex flex-col items-center">
                     {/* Brutalist Logo */}
                     <div className="mb-8 flex flex-col items-center">
-                        <div className="px-4 py-2 bg-black text-white text-3xl font-black uppercase tracking-tighter transform -rotate-1 shadow-[4px_4px_0px_0px_#97cd7a]">
+                        <div className="px-4 py-2 bg-black text-white text-3xl font-medium uppercase tracking-tighter transform -rotate-1 shadow-[4px_4px_0px_0px_#97cd7a]">
                             Nodus
                         </div>
                         <div className="h-1.5 w-12 bg-black mt-3"></div>
@@ -32,11 +32,11 @@ export default function BrutalistLoader({
 
                     {/* Status Label */}
                     <div className="w-full mb-2 flex justify-between items-end">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-black">
+                        <span className="text-[10px] font-medium uppercase tracking-widest text-black">
                             {message}
                         </span>
                         {progress !== undefined && (
-                            <span className="text-[12px] font-black tabular-nums">{progress}%</span>
+                            <span className="text-[12px] font-medium tabular-nums">{progress}%</span>
                         )}
                     </div>
 
@@ -56,7 +56,7 @@ export default function BrutalistLoader({
                     </div>
 
                     {/* Decorative Footer Text */}
-                    <p className="mt-8 text-[8px] font-black text-black/30 uppercase tracking-[0.4em] text-center w-full border-t border-black/10 pt-4">
+                    <p className="mt-8 text-[8px] font-medium text-black/30 uppercase tracking-[0.4em] text-center w-full border-t border-black/10 pt-4">
                         {subtext}
                     </p>
                 </div>

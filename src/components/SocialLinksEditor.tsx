@@ -152,8 +152,8 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
             <div className="p-4 md:p-5">
                 <div className="flex items-center justify-between gap-4 mb-4">
                     <div>
-                        <h3 className="text-xs md:text-sm font-black text-black uppercase tracking-widest leading-none">Redes Sociais</h3>
-                        <p className="text-[9px] md:text-[10px] text-black font-bold uppercase tracking-wider mt-1 opacity-60 leading-none">Ícones rápidos exibidos no topo do seu perfil</p>
+                        <h3 className="text-xs md:text-sm font-medium text-black uppercase tracking-widest leading-none">Redes Sociais</h3>
+                        <p className="text-[9px] md:text-[10px] text-black font-normal uppercase tracking-wider mt-1 opacity-60 leading-none">Ícones rápidos exibidos no topo do seu perfil</p>
                     </div>
                     <button
                         onClick={handleOpenModal}
@@ -242,7 +242,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                         <ChevronLeft size={20} strokeWidth={3} />
                                     </button>
 
-                                    <h3 className={`absolute left-1/2 -translate-x-1/2 font-black uppercase tracking-widest text-black truncate max-w-[200px] ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
+                                    <h3 className={`absolute left-1/2 -translate-x-1/2 font-medium uppercase tracking-widest text-black truncate max-w-[200px] ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
                                         {configuringPlatform
                                             ? (links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform)))) ? `Editar ${activeConfigPlatform?.name}` : `Adicionar ${activeConfigPlatform?.name}`)
                                             : 'Ícones Sociais'}
@@ -269,7 +269,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                     value={searchTerm}
                                                     onChange={(e) => setSearchTerm(e.target.value)}
                                                     placeholder="BUSCAR..."
-                                                    className="w-full bg-white border border-black py-2 pl-9 pr-4 text-[10px] font-black uppercase tracking-widest text-black outline-none focus:bg-[#ffdf00] placeholder:text-black/30 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                                                    className="w-full bg-white border border-black py-2 pl-9 pr-4 text-[10px] font-medium uppercase tracking-widest text-black outline-none focus:bg-[#ffdf00] placeholder:text-black/30 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                                                 />
                                             </div>
                                         </div>
@@ -309,12 +309,12 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             <div className="text-black mb-1 flex items-center justify-center h-8">
                                                                 <Icon size={24} />
                                                             </div>
-                                                            <span className="text-[9px] font-black text-black uppercase tracking-widest text-center truncate w-full leading-none">
+                                                            <span className="text-[9px] font-medium text-black uppercase tracking-widest text-center truncate w-full leading-none">
                                                                 {platform.name}
                                                             </span>
 
                                                             {isConnected && (
-                                                                <div className="absolute top-1 left-1 px-1 py-0.5 bg-black text-[#97cd7a] text-[6px] font-black uppercase tracking-widest border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center gap-0.5">
+                                                                <div className="absolute top-1 left-1 px-1 py-0.5 bg-black text-[#97cd7a] text-[6px] font-medium uppercase tracking-widest border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center gap-0.5">
                                                                     <div className="w-1 h-1 bg-[#97cd7a] rounded-full animate-pulse"></div>
                                                                     SYNC
                                                                 </div>
@@ -356,9 +356,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                         onChange={(e) => setTempUrl(e.target.value)}
                                                         placeholder={`INSERIR ${activeConfigPlatform?.id === 'email' || activeConfigPlatform?.id === 'spotify' ? 'LINK' : 'USUÁRIO'}...`}
                                                         onKeyDown={(e) => e.key === 'Enter' && confirmPlatform()}
-                                                        className="w-full bg-white border border-black px-4 py-3 text-black text-[10px] font-black uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/30 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-colors"
+                                                        className="w-full bg-white border border-black px-4 py-3 text-black text-[10px] font-medium uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/30 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-colors"
                                                     />
-                                                    <p className="text-[8px] font-bold text-black uppercase tracking-widest px-1 opacity-50 italic">
+                                                    <p className="text-[8px] font-normal text-black uppercase tracking-widest px-1 opacity-50 italic">
                                                         EX: @{activeConfigPlatform?.placeholder || 'USUARIO'}
                                                     </p>
                                                 </div>
@@ -383,15 +383,15 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                         </div>
                                                     </div>
 
-                                                    <h4 className="text-xl font-black text-black uppercase tracking-tighter">
+                                                    <h4 className="text-xl font-medium text-black uppercase tracking-tighter">
                                                         @{instagramIntegration.profile_data?.username}
                                                     </h4>
                                                     <div className="flex flex-col items-center gap-1.5 mt-2">
-                                                        <span className="text-[10px] font-black text-black/50 uppercase tracking-widest flex items-center justify-center gap-1 bg-black/5 px-2 py-0.5">
+                                                        <span className="text-[10px] font-medium text-black/50 uppercase tracking-widest flex items-center justify-center gap-1 bg-black/5 px-2 py-0.5">
                                                             <Instagram size={10} className="text-black" />
                                                             Instagram Business
                                                         </span>
-                                                        <span className="text-[12px] font-black text-[#32a800] uppercase tracking-widest">
+                                                        <span className="text-[12px] font-medium text-[#32a800] uppercase tracking-widest">
                                                             {instagramIntegration.profile_data?.follower_count?.toLocaleString()} seguidores
                                                         </span>
                                                     </div>
@@ -402,7 +402,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                         <button
                                                             onClick={() => setShowDisconnectConfirm(!showDisconnectConfirm)}
                                                             disabled={isConnectingInstagram}
-                                                            className={`w-full py-4 px-6 border-2 border-black transition-all font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${showDisconnectConfirm
+                                                            className={`w-full py-4 px-6 border-2 border-black transition-all font-medium text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${showDisconnectConfirm
                                                                 ? 'bg-black text-white'
                                                                 : 'bg-white text-red-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] hover:bg-[#fff0f0]'
                                                                 }`}
@@ -425,10 +425,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 >
                                                                     <div className="p-4 space-y-4">
                                                                         <div className="text-left">
-                                                                            <p className="text-[10px] font-black text-red-900 uppercase tracking-widest leading-tight">
+                                                                            <p className="text-[10px] font-medium text-red-900 uppercase tracking-widest leading-tight">
                                                                                 CONFIRMAR DESCONEXÃO?
                                                                             </p>
-                                                                            <p className="text-[9px] font-bold text-red-600 mt-2 uppercase tracking-tighter leading-relaxed">
+                                                                            <p className="text-[9px] font-normal text-red-600 mt-2 uppercase tracking-tighter leading-relaxed">
                                                                                 ISSO REMOVERÁ O CARD DO SEU PERFIL E O ACESSO AOS POSTS DO INSTAGRAM.
                                                                             </p>
                                                                         </div>
@@ -454,7 +454,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                                 }
                                                                             }}
                                                                             disabled={isConnectingInstagram}
-                                                                            className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-[10px] uppercase tracking-widest rounded-lg shadow-sm shadow-red-200 transition-colors disabled:opacity-50"
+                                                                            className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-medium text-[10px] uppercase tracking-widest rounded-lg shadow-sm shadow-red-200 transition-colors disabled:opacity-50"
                                                                         >
                                                                             {isConnectingInstagram ? 'Desconectando...' : 'Sim, Desconectar agora'}
                                                                         </button>
@@ -493,10 +493,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 <Instagram size={20} className="text-black" />
                                                             )}
                                                             <div className="text-left leading-none space-y-1">
-                                                                <span className="block text-xs font-black uppercase tracking-widest text-black">
+                                                                <span className="block text-xs font-medium uppercase tracking-widest text-black">
                                                                     {isConnectingInstagram ? 'INICIANDO...' : 'CONECTAR CONTA PROFISSIONAL'}
                                                                 </span>
-                                                                <span className="block text-[9px] font-bold uppercase tracking-wider text-black/70">Seguidores e posts em tempo real</span>
+                                                                <span className="block text-[9px] font-normal uppercase tracking-wider text-black/70">Seguidores e posts em tempo real</span>
                                                             </div>
                                                         </div>
                                                         <ChevronRight size={16} strokeWidth={3} className="text-black group-hover/ig:translate-x-0.5 transition-transform" />
@@ -532,10 +532,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             <SiTiktok size={18} className="text-black" />
                                                         )}
                                                         <div className="text-left leading-none space-y-1">
-                                                            <span className="block text-xs font-black uppercase tracking-widest text-black">
+                                                            <span className="block text-xs font-medium uppercase tracking-widest text-black">
                                                                 {isConnectingTikTok ? 'INICIANDO...' : 'CONECTAR TIKTOK'}
                                                             </span>
-                                                            <span className="block text-[9px] font-bold uppercase tracking-wider text-black/70">Sincronizar seguidores e verificação</span>
+                                                            <span className="block text-[9px] font-normal uppercase tracking-wider text-black/70">Sincronizar seguidores e verificação</span>
                                                         </div>
                                                     </div>
                                                     <ChevronRight size={16} strokeWidth={3} className="text-black group-hover/tt:translate-x-0.5 transition-transform" />
@@ -548,7 +548,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                     onClick={confirmPlatform}
                                                     disabled={!tempUrl}
                                                     className={`
-                                                        w-full mt-2 py-3 font-black text-[10px] uppercase tracking-widest transition-all border border-black
+                                                        w-full mt-2 py-3 font-medium text-[10px] uppercase tracking-widest transition-all border border-black
                                                         ${tempUrl
                                                             ? 'bg-[#97cd7a] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
                                                             : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'

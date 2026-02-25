@@ -384,27 +384,27 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1 mb-2 block">Escolha o Método</label>
+                                    <label className="text-[10px] font-normal text-slate-400 uppercase tracking-widest px-1 mb-2 block">Escolha o Método</label>
                                     <div className="grid grid-cols-2 gap-3">
                                         <button
                                             onClick={() => setIncentiveType('pix')}
                                             className={`flex items-center justify-center gap-2.5 p-3.5 rounded-xl border transition-all ${incentiveType === 'pix' ? 'bg-[#32bcad]/10 border-[#32bcad] text-[#32bcad]' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
                                         >
                                             <PixIcon size={18} />
-                                            <span className="text-xs font-bold leading-none">PIX</span>
+                                            <span className="text-xs font-normal leading-none">PIX</span>
                                         </button>
                                         <button
                                             onClick={() => setIncentiveType('paypal')}
                                             className={`flex items-center justify-center gap-2.5 p-3.5 rounded-xl border transition-all ${incentiveType === 'paypal' ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
                                         >
                                             <SiPaypal size={16} />
-                                            <span className="text-xs font-bold leading-none">PAYPAL</span>
+                                            <span className="text-xs font-normal leading-none">PAYPAL</span>
                                         </button>
                                     </div>
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
+                                    <label className="text-[10px] font-normal uppercase tracking-widest text-slate-400 px-1">
                                         {incentiveType === 'pix' ? 'Chave Pix (CPF, Email ou Aleatória)' : 'Link PayPal (paypal.me/usuario)'}
                                     </label>
                                     <input
@@ -423,7 +423,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                         onAddIncentive(incentiveType, incentiveKey);
                                         onClose();
                                     }}
-                                    className="w-full py-4 bg-slate-900 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-black disabled:opacity-30 transition-all shadow-md flex items-center justify-center gap-2"
+                                    className="w-full py-4 bg-slate-900 text-white rounded-xl text-xs font-normal uppercase tracking-widest hover:bg-black disabled:opacity-30 transition-all shadow-md flex items-center justify-center gap-2"
                                 >
                                     <span>Salvar e Ir para Monetização</span>
                                     <ChevronRight size={14} />

@@ -18,15 +18,15 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                 <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">
                     <div className="flex items-center gap-2 mb-4 text-black border-b border-black pb-2">
                         <Zap size={16} strokeWidth={3} />
-                        <h3 className="text-xs font-black uppercase tracking-widest text-black">Ajustes Finos</h3>
+                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">Ajustes Finos</h3>
                     </div>
 
                     <div className="space-y-6">
                         {/* Font Size */}
                         <div className="space-y-2.5">
                             <div className="flex items-center justify-between px-1">
-                                <span className="text-[10px] font-black text-black uppercase tracking-widest">Tamanho da Fonte</span>
-                                <span className="text-[10px] font-black text-black bg-[#97cd7a] px-2 py-1 border border-black uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                <span className="text-[10px] font-medium text-black uppercase tracking-widest">Tamanho da Fonte</span>
+                                <span className="text-[10px] font-medium text-black bg-[#97cd7a] px-2 py-1 border border-black uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
                                     {profile.fontSize || 16}PX
                                 </span>
                             </div>
@@ -43,7 +43,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                 }}
                                 className="w-full h-1.5 bg-white border border-black appearance-none cursor-pointer accent-black"
                             />
-                            <div className="flex justify-between text-[8px] font-black text-black/50 uppercase tracking-widest px-1">
+                            <div className="flex justify-between text-[8px] font-medium text-black/50 uppercase tracking-widest px-1">
                                 <span>12PX</span>
                                 <span>32PX</span>
                             </div>
@@ -52,7 +52,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-black border-dashed">
                             {/* Font Weight */}
                             <div className="space-y-2">
-                                <span className="text-[9px] font-black text-black uppercase tracking-widest block px-1">Peso do Texto</span>
+                                <span className="text-[9px] font-medium text-black uppercase tracking-widest block px-1">Peso do Texto</span>
                                 <div className="flex bg-white border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
                                     {[
                                         { label: 'FINA', val: '100' },
@@ -66,7 +66,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                                 if (updateProfile) updateProfile({ fontWeight: w.val });
                                                 else onChange({ ...profile, fontWeight: w.val });
                                             }}
-                                            className={`flex-1 py-2 text-[10px] font-black transition-all ${idx !== 0 ? 'border-l border-black' : ''} ${(profile.fontWeight || '400') === w.val
+                                            className={`flex-1 py-2 text-[10px] font-medium transition-all ${idx !== 0 ? 'border-l border-black' : ''} ${(profile.fontWeight || '400') === w.val
                                                 ? 'bg-black text-[#97cd7a]'
                                                 : 'bg-white text-black hover:bg-black hover:text-white'
                                                 }`}
@@ -79,7 +79,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
 
                             {/* Font Style (Italic) */}
                             <div className="space-y-2">
-                                <span className="text-[9px] font-black text-black uppercase tracking-widest block px-1">Estilo</span>
+                                <span className="text-[9px] font-medium text-black uppercase tracking-widest block px-1">Estilo</span>
                                 <button
                                     onClick={() => {
                                         const val = !profile.fontItalic;
@@ -91,7 +91,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                         : 'bg-white text-black hover:bg-slate-50'
                                         }`}
                                 >
-                                    <span className="text-[9px] font-black uppercase tracking-widest">Texto Itálico</span>
+                                    <span className="text-[9px] font-medium uppercase tracking-widest">Texto Itálico</span>
                                     <div className={`w-8 h-4 border border-black transition-colors relative ${profile.fontItalic ? 'bg-[#97cd7a]' : 'bg-white'}`}>
                                         <motion.div
                                             animate={{ x: profile.fontItalic ? 16 : 0 }}
@@ -108,13 +108,13 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                 <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">
                     <div className="flex items-center gap-2 mb-4 text-black border-b border-black pb-2">
                         <div className="w-4 h-4 border border-black bg-[#97cd7a] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"></div>
-                        <h3 className="text-xs font-black uppercase tracking-widest text-black">Cores do Texto</h3>
+                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">Cores do Texto</h3>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4">
                         {/* Header/Main Text Color */}
                         <div className="space-y-2">
-                            <span className="text-[9px] font-black text-black uppercase tracking-widest block px-1">Cabeçalhos e Texto</span>
+                            <span className="text-[9px] font-medium text-black uppercase tracking-widest block px-1">Cabeçalhos e Texto</span>
                             <div className="flex items-center gap-2">
                                 <div className="relative w-10 h-10 overflow-hidden border border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white">
                                     <input
@@ -137,14 +137,14 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                         else onChange({ ...profile, customTextColor: val });
                                     }}
                                     placeholder="#000000"
-                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-black uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
+                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
                                 />
                             </div>
                         </div>
 
                         {/* Collection Title Color */}
                         <div className="space-y-2">
-                            <span className="text-[9px] font-black text-black uppercase tracking-widest block px-1">Título da Coleção</span>
+                            <span className="text-[9px] font-medium text-black uppercase tracking-widest block px-1">Título da Coleção</span>
                             <div className="flex items-center gap-2">
                                 <div className="relative w-10 h-10 overflow-hidden border border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white">
                                     <input
@@ -167,14 +167,14 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                         else onChange({ ...profile, customCollectionTextColor: val });
                                     }}
                                     placeholder={profile.customTextColor || "#000000"}
-                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-black uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
+                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
                                 />
                             </div>
                         </div>
 
                         {/* Button Text Color */}
                         <div className="space-y-2">
-                            <span className="text-[9px] font-black text-black uppercase tracking-widest block px-1">Texto do Botão</span>
+                            <span className="text-[9px] font-medium text-black uppercase tracking-widest block px-1">Texto do Botão</span>
                             <div className="flex items-center gap-2">
                                 <div className="relative w-10 h-10 overflow-hidden border border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white">
                                     <input
@@ -197,7 +197,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                         else onChange({ ...profile, customButtonTextColor: val });
                                     }}
                                     placeholder="#FFFFFF"
-                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-black uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
+                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
                                 />
                             </div>
                         </div>
@@ -210,7 +210,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
             <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mt-2">
                 <div className="flex items-center gap-2 mb-4 text-black border-b border-black pb-2">
                     <Type size={16} strokeWidth={3} />
-                    <h3 className="text-xs font-black uppercase tracking-widest text-black">Biblioteca de Fontes</h3>
+                    <h3 className="text-xs font-medium uppercase tracking-widest text-black">Biblioteca de Fontes</h3>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -249,7 +249,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                     <div className="min-w-0">
                                         <div className="flex items-center gap-1.5 mb-0.5">
                                             <span
-                                                className={`text-[11px] font-black uppercase tracking-widest truncate transition-colors ${isSelected ? 'text-black' : 'text-black group-hover:text-[#ffdf00]'}`}
+                                                className={`text-[11px] font-medium uppercase tracking-widest truncate transition-colors ${isSelected ? 'text-black' : 'text-black group-hover:text-[#ffdf00]'}`}
                                                 style={{
                                                     fontFamily: font.family,
                                                 }}
@@ -260,7 +260,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                                 <Zap size={10} className="text-[#ffdf00] fill-[#ffdf00] shrink-0" />
                                             )}
                                         </div>
-                                        <span className={`text-[8px] font-bold uppercase tracking-widest block transition-colors ${isSelected ? 'text-black/50' : 'text-black/40 group-hover:text-white/60'}`}>{font.type}</span>
+                                        <span className={`text-[8px] font-normal uppercase tracking-widest block transition-colors ${isSelected ? 'text-black/50' : 'text-black/40 group-hover:text-white/60'}`}>{font.type}</span>
                                     </div>
                                 </div>
 

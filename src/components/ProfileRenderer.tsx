@@ -244,7 +244,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                     {/* Text Info */}
                     <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
-                        <h3 className="text-white text-[14px] font-semibold truncate leading-tight tracking-tight shadow-black drop-shadow-sm" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                        <h3 className="text-white text-[14px] font-medium truncate leading-tight tracking-tight shadow-black drop-shadow-sm" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                             {musicTitle}
                         </h3>
                         <p className="text-white/80 text-[11px] truncate leading-tight font-medium" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
@@ -259,7 +259,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     <span className="w-0.5 h-1/2 bg-green-400 animate-[music-bar_1.1s_ease-in-out_infinite]" />
                                     <span className="w-0.5 h-3/4 bg-green-400 animate-[music-bar_1.3s_ease-in-out_infinite]" />
                                 </div>
-                                <span className="text-[9px] uppercase tracking-wider text-green-400 font-bold opacity-90">Preview</span>
+                                <span className="text-[9px] uppercase tracking-wider text-green-400 font-normal opacity-90">Preview</span>
                             </div>
                             <div className="opacity-80">
                                 {isDeezer ? <DeezerIcon size={12} color="white" /> : <SiSpotify size={12} color="#1DB954" />}
@@ -527,7 +527,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <div className="absolute bottom-0 left-0 w-full px-8 pt-4 pb-2 z-20 flex flex-col items-center text-center translate-y-10">
                             {/* 1. Name */}
                             <h3
-                                className="text-[2.2em] font-black text-white mb-0.5 tracking-tight flex items-center gap-2 drop-shadow-xl"
+                                className="text-[2.2em] font-medium text-white mb-0.5 tracking-tight flex items-center gap-2 drop-shadow-xl"
                                 style={{ fontFamily: effectiveFontFamily }}
                             >
                                 {profile.name}
@@ -539,7 +539,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                             {/* 2. Bio Text (Moved up and Bold) */}
                             {profile.bio && (
-                                <p className="text-white font-bold text-[1.1rem] max-w-[340px] leading-relaxed drop-shadow-lg mb-3">
+                                <p className="text-white font-normal text-[1.1rem] max-w-[340px] leading-relaxed drop-shadow-lg mb-3">
                                     {profile.bio}
                                 </p>
                             )}
@@ -576,7 +576,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         ? 'text-white'
                         : (profile.headerLayout === 'compact' ? 'text-white/80' : 'text-slate-900')
                         }`}>
-                        <span className="text-xs font-semibold tracking-wide">9:41</span>
+                        <span className="text-xs font-medium tracking-wide">9:41</span>
                         <div className="flex items-center gap-1.5 opacity-90">
                             <Signal size={12} strokeWidth={2.5} />
                             <Wifi size={12} strokeWidth={2.5} />
@@ -684,7 +684,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                 {tiktokFollowers !== undefined && (
                                     <div
-                                        className="flex items-center gap-1.5 mb-2 px-3 py-1 bg-black/10 backdrop-blur-md rounded-full text-[0.75rem] font-bold"
+                                        className="flex items-center gap-1.5 mb-2 px-3 py-1 bg-black/10 backdrop-blur-md rounded-full text-[0.75rem] font-normal"
                                         style={{ color: getSmartTextColor() }}
                                     >
                                         <Music size={12} fill="currentColor" />
@@ -793,7 +793,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 {!activeCollection ? (
                                     <div className="space-y-6">
                                         <div
-                                            className={`flex items-center gap-2.5 mb-2 text-xs font-bold uppercase tracking-widest opacity-60 px-1`}
+                                            className={`flex items-center gap-2.5 mb-2 text-xs font-normal uppercase tracking-widest opacity-60 px-1`}
                                             style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                         >
                                             <ShoppingBag size={14} className="stroke-[2.5]" />
@@ -838,8 +838,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     </div>
                                                     <div className="p-4 flex items-center justify-between bg-black/5">
                                                         <div className="text-left">
-                                                            <h3 className="text-sm font-bold" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
-                                                            <p className="text-[10px] font-bold uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                            <h3 className="text-sm font-normal" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
+                                                            <p className="text-[10px] font-normal uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                                 {items.length} {items.length === 1 ? 'Produto' : 'Produtos'}
                                                             </p>
                                                         </div>
@@ -858,13 +858,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             <div className="flex flex-col">
                                                 <button
                                                     onClick={() => setActiveCollection(null)}
-                                                    className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest opacity-50 hover:opacity-100 transition-all mb-1.5`}
+                                                    className={`flex items-center gap-1.5 text-[10px] font-normal uppercase tracking-widest opacity-50 hover:opacity-100 transition-all mb-1.5`}
                                                     style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                 >
                                                     <ChevronLeft size={12} strokeWidth={3} />
                                                     <span>Voltar</span>
                                                 </button>
-                                                <h2 className={`text-xl font-black tracking-tight`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                <h2 className={`text-xl font-medium tracking-tight`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                     {activeCollection}
                                                 </h2>
                                             </div>
@@ -885,7 +885,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 {/* Badge container with high z-index and clip safety */}
                                                                 <div className="absolute top-2 left-2 z-10">
                                                                     {product.discountCode && (
-                                                                        <div className="bg-slate-950/90 text-white text-[9px] font-black uppercase tracking-tighter px-2 py-1 rounded-lg">
+                                                                        <div className="bg-slate-950/90 text-white text-[9px] font-medium uppercase tracking-tighter px-2 py-1 rounded-lg">
                                                                             -{product.discountCode}
                                                                         </div>
                                                                     )}
@@ -902,7 +902,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                         {/* Product Info */}
                                                         <div className="flex flex-col gap-0.5 mt-2 px-1 text-left">
-                                                            <span className={`text-[13px] font-bold truncate`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                            <span className={`text-[13px] font-normal truncate`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                                 {product.name}
                                                             </span>
                                                             {product.price && (
@@ -1086,7 +1086,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         className={`w-full mb-4 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
                                                     >
                                                         <div
-                                                            className={`text-center mb-2 opacity-90 text-sm font-bold uppercase tracking-widest`}
+                                                            className={`text-center mb-2 opacity-90 text-sm font-normal uppercase tracking-widest`}
                                                             style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                         >
                                                             {link.title}
@@ -1159,7 +1159,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     renderedItems.push(
                                                         <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 group/carousel ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
                                                             <div
-                                                                className={`text-center mb-2 font-bold opacity-90 text-sm uppercase tracking-widest`}
+                                                                className={`text-center mb-2 font-normal opacity-90 text-sm uppercase tracking-widest`}
                                                                 style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                             >
                                                                 {link.title}
@@ -1220,7 +1220,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     renderedItems.push(
                                                         <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
                                                             <div
-                                                                className={`text-center mb-2 opacity-90 text-sm font-bold uppercase tracking-widest`}
+                                                                className={`text-center mb-2 opacity-90 text-sm font-normal uppercase tracking-widest`}
                                                                 style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                             >
                                                                 {link.title}
@@ -1351,7 +1351,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                 <div className="relative z-10 flex items-center justify-center gap-3">
                                                     {method.type === 'pix' ? <Zap size={20} fill="currentColor" /> : <CreditCard size={20} />}
-                                                    <span className="font-semibold text-sm">
+                                                    <span className="font-medium text-sm">
                                                         {method.label || (method.type === 'pix' ? 'Fazer um Pix' : 'Pagar com PayPal')}
                                                     </span>
                                                 </div>
@@ -1406,7 +1406,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     className="flex flex-col items-center gap-0 group no-underline"
                                 >
                                     <span
-                                        className="text-[8px] font-bold tracking-[0.5em] uppercase transition-opacity group-hover:opacity-70 leading-none"
+                                        className="text-[8px] font-normal tracking-[0.5em] uppercase transition-opacity group-hover:opacity-70 leading-none"
                                         style={{ color: isDarkTheme ? '#ffffff' : '#000000', opacity: 0.3 }}
                                     >
                                         Powered by

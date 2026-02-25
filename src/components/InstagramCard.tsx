@@ -33,8 +33,8 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
     fontWeight,
     fontItalic
 }) => {
-    // We only need 5 items for the specific grid layout (1 big + 4 small)
-    const displayMedia = media.slice(0, 5);
+    // We take up to 6 items for the dynamic grid layout
+    const displayMedia = media.slice(0, 6);
 
     if (variant === 'profile') {
         const formatFollowers = (count: number) => {
@@ -138,7 +138,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                     </div>
                 )}
 
-                {displayMedia.length >= 5 && (
+                {displayMedia.length === 5 && (
                     <div className="grid grid-cols-3 grid-rows-2 h-full gap-[2px]">
                         <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer"
                             className="row-span-2 relative overflow-hidden group/item">
@@ -164,6 +164,52 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                                 )}
                             </a>
                         ))}
+                    </div>
+                )}
+
+                {displayMedia.length >= 6 && (
+                    <div className="grid grid-cols-3 grid-rows-3 h-full gap-[2px]">
+                        <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer"
+                            className="col-span-2 row-span-2 relative overflow-hidden group/item">
+                            <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url}
+                                alt=""
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-105" />
+                            {displayMedia[0].media_type === 'VIDEO' && (
+                                <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
+                                    <Play size={10} fill="white" className="text-white" />
+                                </div>
+                            )}
+                        </a>
+                        <div className="grid grid-rows-2 gap-[2px] col-span-1">
+                            {displayMedia.slice(1, 3).map((item) => (
+                                <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer"
+                                    className="relative overflow-hidden group/item">
+                                    <img src={item.thumbnail_url || item.media_url}
+                                        alt=""
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" />
+                                    {item.media_type === 'VIDEO' && (
+                                        <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
+                                            <Play size={8} fill="white" className="text-white" />
+                                        </div>
+                                    )}
+                                </a>
+                            ))}
+                        </div>
+                        <div className="grid grid-cols-3 gap-[2px] col-span-3">
+                            {displayMedia.slice(3, 6).map((item) => (
+                                <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer"
+                                    className="relative overflow-hidden group/item">
+                                    <img src={item.thumbnail_url || item.media_url}
+                                        alt=""
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" />
+                                    {item.media_type === 'VIDEO' && (
+                                        <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
+                                            <Play size={8} fill="white" className="text-white" />
+                                        </div>
+                                    )}
+                                </a>
+                            ))}
+                        </div>
                     </div>
                 )}
 

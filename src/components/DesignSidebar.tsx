@@ -25,7 +25,7 @@ const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveS
                             <button
                                 key={item.id}
                                 onClick={() => setActiveSection(item.id)}
-                                className={`py-4 px-1 text-xs font-black uppercase tracking-widest transition-all relative whitespace-nowrap ${isActive
+                                className={`py-4 px-1 text-xs font-medium uppercase tracking-widest transition-all relative whitespace-nowrap ${isActive
                                     ? 'text-black'
                                     : 'text-black/50 hover:text-black'
                                     }`}

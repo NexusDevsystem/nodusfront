@@ -13,8 +13,8 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
         <div className="space-y-6 pb-10">
             <section className="space-y-4">
                 <div className="flex flex-col">
-                    <h3 className="text-sm font-black text-black uppercase tracking-widest">Formato</h3>
-                    <p className="text-xs font-bold uppercase tracking-widest text-black/70 mt-1">Ajuste o arredondamento dos cantos dos seus botões</p>
+                    <h3 className="text-sm font-medium text-black uppercase tracking-widest">Formato</h3>
+                    <p className="text-xs font-normal uppercase tracking-widest text-black/70 mt-1">Ajuste o arredondamento dos cantos dos seus botões</p>
                 </div>
 
                 <div className="grid grid-cols-4 gap-3">
@@ -36,7 +36,7 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                                     {roundness.icon}
                                 </svg>
                             </button>
-                            <span className={`text-[8px] text-center font-black uppercase tracking-widest mt-1 ${profile.buttonRoundness === roundness.id ? 'text-black' : 'text-black/40'}`}>
+                            <span className={`text-[8px] text-center font-medium uppercase tracking-widest mt-1 ${profile.buttonRoundness === roundness.id ? 'text-black' : 'text-black/40'}`}>
                                 {roundness.name}
                             </span>
                         </div>
@@ -46,8 +46,8 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
 
             <section className="space-y-4 pt-6 mt-6 border-t-2 border-black border-dashed">
                 <div className="flex flex-col">
-                    <h3 className="text-sm font-black text-black uppercase tracking-widest">Cores</h3>
-                    <p className="text-xs font-bold uppercase tracking-widest text-black/70 mt-1">Personalize a cor de fundo dos seus botões</p>
+                    <h3 className="text-sm font-medium text-black uppercase tracking-widest">Cores</h3>
+                    <p className="text-xs font-normal uppercase tracking-widest text-black/70 mt-1">Personalize a cor de fundo dos seus botões</p>
                 </div>
 
                 {profile.themeId === 'custom' ? (
@@ -67,13 +67,13 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                                     value={profile.customButtonColor || ''}
                                     onChange={(e) => updateProfile({ customButtonColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}` })}
                                     placeholder="Hex (#000000)"
-                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-sm font-black uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
+                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-sm font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
                                 />
                             </div>
                             {profile.customButtonColor && (
                                 <button
                                     onClick={() => updateProfile({ customButtonColor: null })}
-                                    className="text-[10px] text-black border border-black bg-white px-3 h-10 font-black uppercase tracking-widest shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none hover:bg-black hover:text-[#97cd7a] transition-all w-full sm:w-auto"
+                                    className="text-[10px] text-black border border-black bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none hover:bg-black hover:text-[#97cd7a] transition-all w-full sm:w-auto"
                                 >
                                     Resetar
                                 </button>
@@ -88,12 +88,12 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                             </svg>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-xs font-black uppercase tracking-widest text-black/80">Cores Bloqueadas</p>
-                            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-black/50 leading-relaxed max-w-xs mx-auto">Para editar a cor do botão, use o tema <span className="text-black font-black bg-white px-1 border border-black">CUSTOM</span>.</p>
+                            <p className="text-xs font-medium uppercase tracking-widest text-black/80">Cores Bloqueadas</p>
+                            <p className="text-[9px] font-normal uppercase tracking-[0.2em] text-black/50 leading-relaxed max-w-xs mx-auto">Para editar a cor do botão, use o tema <span className="text-black font-medium bg-white px-1 border border-black">CUSTOM</span>.</p>
                         </div>
                         <button
                             onClick={() => updateProfile({ themeId: 'custom' })}
-                            className="mt-1 text-[9px] font-black bg-black border border-black text-[#97cd7a] px-5 py-2.5 uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all hover:bg-black hover:text-white"
+                            className="mt-1 text-[9px] font-medium bg-black border border-black text-[#97cd7a] px-5 py-2.5 uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all hover:bg-black hover:text-white"
                         >
                             Ativar Tema Custom
                         </button>

@@ -430,7 +430,7 @@ export default function EditorPage() {
                         </div>
                         <button
                             onClick={() => window.location.reload()}
-                            className="px-3 py-1 bg-red-600 text-white rounded-md text-xs font-bold hover:bg-red-700 transition-colors"
+                            className="px-3 py-1 bg-red-600 text-white rounded-md text-xs font-normal hover:bg-red-700 transition-colors"
                         >
                             RECARREGAR
                         </button>
@@ -459,7 +459,7 @@ export default function EditorPage() {
                             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                                 <Menu size={24} className="text-black" />
                             </button>
-                            <h1 className="font-black uppercase tracking-tight text-xl text-black">Nodus</h1>
+                            <h1 className="font-medium uppercase tracking-tight text-xl text-black">Nodus</h1>
                         </div>
                         <div className="flex gap-2 items-center">
                             {/* Sync Status - Brutalist */}
@@ -467,12 +467,12 @@ export default function EditorPage() {
                                 {(isSaving || visualSavingProfile) ? (
                                     <>
                                         <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
-                                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Sync</span>
+                                        <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">Sync</span>
                                     </>
                                 ) : (
                                     <>
                                         <Check size={10} className="text-[#97cd7a]" strokeWidth={4} />
-                                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Salvo</span>
+                                        <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">Salvo</span>
                                     </>
                                 )}
                             </div>
@@ -526,19 +526,19 @@ export default function EditorPage() {
                                     </button>
                                 )}
                                 {/* Breadcrumb or Title */}
-                                <h1 className="text-base font-black uppercase tracking-widest text-black">Editor</h1>
+                                <h1 className="text-base font-medium uppercase tracking-widest text-black">Editor</h1>
                             </div>
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 transition-all">
                                     {(isSaving || visualSavingProfile) ? (
                                         <>
                                             <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
-                                            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Sincronizando...</span>
+                                            <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">Sincronizando...</span>
                                         </>
                                     ) : (
                                         <>
                                             <div className="w-1.5 h-1.5 bg-[#97cd7a] border border-black" />
-                                            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Ambiente Sincronizado</span>
+                                            <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">Ambiente Sincronizado</span>
                                         </>
                                     )}
                                 </div>
@@ -569,16 +569,16 @@ export default function EditorPage() {
                                 <div className="mb-8 border-l-4 border-black pl-6 py-2 relative">
                                     <div className="absolute -left-[4px] top-0 bottom-0 w-[4px] bg-[#97cd7a]"></div>
                                     <div className="flex items-center gap-2 mb-2">
-                                        <div className="px-2 py-0.5 bg-black text-[#97cd7a] text-[8px] font-black uppercase tracking-[0.2em]">
+                                        <div className="px-2 py-0.5 bg-black text-[#97cd7a] text-[8px] font-medium uppercase tracking-[0.2em]">
                                             Nodus System
                                         </div>
                                         {profile?.planType === 'free' && (
-                                            <div className="px-2 py-0.5 bg-[#ffdf00] border border-black text-black text-[8px] font-black uppercase tracking-[0.2em]">
+                                            <div className="px-2 py-0.5 bg-[#ffdf00] border border-black text-black text-[8px] font-medium uppercase tracking-[0.2em]">
                                                 Plano Free
                                             </div>
                                         )}
                                     </div>
-                                    <h1 className="text-3xl md:text-4xl font-black uppercase text-black tracking-tighter leading-none mb-1">
+                                    <h1 className="text-3xl md:text-4xl font-medium uppercase text-black tracking-tighter leading-none mb-1">
                                         {activeTab === 'links' && 'Meus Links'}
                                         {activeTab === 'appearance' && 'Estilo & Design'}
                                         {activeTab === 'shop' && 'Vitrine Digital'}
@@ -588,7 +588,7 @@ export default function EditorPage() {
                                         {activeTab === 'billing' && 'Faturamento'}
                                         {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'earn' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'billing' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                                     </h1>
-                                    <p className="text-black/50 font-bold text-[10px] md:text-xs uppercase tracking-widest max-w-lg">
+                                    <p className="text-black/50 font-normal text-[10px] md:text-xs uppercase tracking-widest max-w-lg">
                                         {activeTab === 'links' && 'Gerencie seus links, redes sociais e informações do perfil público.'}
                                         {activeTab === 'appearance' && 'Personalize as cores, temas, fontes e estilo visual do seu Nodus.'}
                                         {activeTab === 'shop' && 'Organize e gerencie seus produtos digitais e links de vendas.'}
@@ -679,7 +679,7 @@ export default function EditorPage() {
 
                                         {/* Design Content Area */}
                                         <div className="flex-1 p-4 md:p-8 pb-32 md:pb-8">
-                                            <h2 className="text-2xl font-bold text-slate-800 mb-6 hidden md:block">
+                                            <h2 className="text-2xl font-normal text-slate-800 mb-6 hidden md:block">
                                                 {activeDesignSection === 'header' && 'Cabeçalho'}
                                                 {activeDesignSection === 'theme' && 'Temas'}
                                                 {activeDesignSection === 'buttons' && 'Botões'}
@@ -755,7 +755,7 @@ export default function EditorPage() {
                             </div>
                         </div>
 
-                        <div className="hidden lg:block absolute bottom-6 px-4 py-1.5 bg-black text-[#97cd7a] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-[8px] font-black uppercase tracking-[0.3em]">
+                        <div className="hidden lg:block absolute bottom-6 px-4 py-1.5 bg-black text-[#97cd7a] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-[8px] font-medium uppercase tracking-[0.3em]">
                             Preview ao vivo
                         </div>
                     </div>

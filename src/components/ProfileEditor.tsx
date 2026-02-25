@@ -61,7 +61,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <div className="text-sm font-semibold text-slate-800">Foto de Perfil</div>
+            <div className="text-sm font-medium text-slate-800">Foto de Perfil</div>
             <div className="flex gap-3 text-xs">
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -84,7 +84,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
 
           {/* Name Field */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
               Nome de Exibição
             </label>
             <input
@@ -98,7 +98,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
 
           {/* Bio Field */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
               Biografia
             </label>
 
