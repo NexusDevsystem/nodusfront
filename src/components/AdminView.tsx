@@ -250,7 +250,7 @@ export default function AdminView() {
                             <h2 className="text-sm font-black uppercase tracking-[0.2em]">Novos Exploradores</h2>
                             <div className="text-[10px] font-black bg-[#97cd7a] text-black px-2 py-0.5">Registros Destacados</div>
                         </div>
-                        <div className="divide-y-2 divide-black">
+                        <div className="divide-y-2 divide-black max-h-[600px] overflow-y-auto custom-scrollbar">
                             {stats.latestUsers?.map((u) => (
                                 <div
                                     key={u.id}

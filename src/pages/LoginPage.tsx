@@ -264,12 +264,16 @@ export default function LoginPage() {
                 <div className="relative w-full max-w-lg aspect-square">
                     <div className="absolute inset-0 bg-white rounded-full border-4 border-black shadow-[20px_20px_0px_0px_rgba(0,0,0,1)]"></div>
 
-                    <div className="absolute inset-0 flex items-center justify-center animate-float">
-                        <img
-                            src="/icons/logo.png"
-                            alt="Nodus"
-                            className="w-1/3 h-1/3 object-contain"
-                        />
+                    <div className="absolute inset-0 flex items-center justify-center animate-float overflow-hidden rounded-full">
+                        <video
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-[92%] h-[92%] object-contain"
+                        >
+                            <source src="/icons/Anime_mascot_fixed_white_background_delpmaspu_.mp4" type="video/mp4" />
+                        </video>
                     </div>
 
                     <div className="absolute top-0 right-10 bg-black text-[#97cd7a] p-4 border-4 border-black shadow-[8px_8px_0px_0px_#fff] transform rotate-12 animate-float-delayed">

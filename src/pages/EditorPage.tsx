@@ -405,7 +405,7 @@ export default function EditorPage() {
     return (
         <div className="h-screen w-full bg-white font-sans text-black selection:bg-black selection:text-[#ffdf00] flex flex-col overflow-hidden">
             {/* Top Banner for Free Users */}
-            {profile.planType === 'free' && (
+            {(!profile.planType || profile.planType === 'free') && (
                 <UpgradeBanner onUpgradeClick={() => setIsBillingModalOpen(true)} />
             )}
 
@@ -445,7 +445,7 @@ export default function EditorPage() {
                         userProfile={profile}
                         onUpgradeClick={() => setIsBillingModalOpen(true)}
                         onClose={() => setIsSidebarOpen(false)}
-                        className={`hidden md:flex h-full ${profile.planType === 'free' ? 'rounded-tl-[24px] md:rounded-tl-[32px]' : ''
+                        className={`hidden md:flex h-full ${(!profile.planType || profile.planType === 'free') ? 'rounded-tl-[24px] md:rounded-tl-[32px]' : ''
                             }`}
                     />
                 )}
@@ -572,7 +572,7 @@ export default function EditorPage() {
                                         <div className="px-2 py-0.5 bg-black text-[#97cd7a] text-[8px] font-medium uppercase tracking-[0.2em]">
                                             Nodus System
                                         </div>
-                                        {profile?.planType === 'free' && (
+                                        {(!profile?.planType || profile.planType === 'free') && (
                                             <div className="px-2 py-0.5 bg-[#ffdf00] border border-black text-black text-[8px] font-medium uppercase tracking-[0.2em]">
                                                 Plano Free
                                             </div>

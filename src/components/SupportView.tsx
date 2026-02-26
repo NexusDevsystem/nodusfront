@@ -152,24 +152,24 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                             </div>
 
                             <div
-                                className={`p-3 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all ${userProfile?.planType === 'free' || !userProfile?.planType ? 'bg-slate-50 opacity-100 cursor-pointer group' : 'bg-white'}`}
+                                className={`p-3 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all ${!userProfile?.planType || userProfile.planType === 'free' ? 'bg-slate-50 opacity-100 cursor-pointer group' : 'bg-white'}`}
                                 onClick={() => {
-                                    if (userProfile?.planType === 'free' || !userProfile?.planType) {
+                                    if (!userProfile?.planType || userProfile.planType === 'free') {
                                         window.dispatchEvent(new CustomEvent('open-billing-modal'));
                                     }
                                 }}
                             >
                                 <div className="flex justify-between items-start mb-1">
                                     <p className="text-[8px] font-black text-black/40 uppercase tracking-widest">WhatsApp</p>
-                                    {(userProfile?.planType === 'free' || !userProfile?.planType) && (
+                                    {(!userProfile?.planType || userProfile.planType === 'free') && (
                                         <div className="flex items-center gap-1 bg-black px-1.5 py-0.5 -mt-1 -mr-1">
                                             <Lock size={8} className="text-[#97cd7a]" strokeWidth={3} />
                                             <span className="text-[7px] font-black text-[#97cd7a] uppercase tracking-tighter">PREMIUM</span>
                                         </div>
                                     )}
                                 </div>
-                                <div className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${userProfile?.planType === 'free' || !userProfile?.planType ? 'text-black/30' : 'text-black hover:text-[#32a800] cursor-pointer'}`}>
-                                    {userProfile?.planType === 'free' || !userProfile?.planType ? (
+                                <div className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${!userProfile?.planType || userProfile.planType === 'free' ? 'text-black/30' : 'text-black hover:text-[#32a800] cursor-pointer'}`}>
+                                    {!userProfile?.planType || userProfile.planType === 'free' ? (
                                         <>SUPORTE PRIORITÁRIO</>
                                     ) : (
                                         <a href="https://wa.me/559180519442" target="_blank" rel="noreferrer" className="flex items-center gap-1">

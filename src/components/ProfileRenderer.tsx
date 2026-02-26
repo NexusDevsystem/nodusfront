@@ -596,8 +596,16 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 </div>
                 {/* Menu / Options Button (Adjusted for Banner/Perfil) */}
                 <div className={`absolute ${(['banner', 'compact'].includes(profile.headerLayout || '')) ? 'top-4' : 'top-[34px]'} left-6 z-30`}>
-                    <div className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 transition-all">
-                        <img src="/icons/marcadagua.gif" alt="Nodus" className="w-9 h-9 object-contain" />
+                    <div className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 transition-all overflow-hidden">
+                        <video
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-[92%] h-[92%] object-contain"
+                        >
+                            <source src="/icons/Anime_mascot_fixed_white_background_delpmaspu_.mp4" type="video/mp4" />
+                        </video>
                     </div>
                 </div>
 
@@ -1399,27 +1407,29 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <motion.div layout className="mt-2 mb-8 flex flex-col items-center gap-4 w-full px-4 font-sans text-center">
 
                             <div className="flex flex-col items-center gap-4">
-                                <a
-                                    href="https://www.nodus.my"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex flex-col items-center gap-0 group no-underline"
-                                >
-                                    <span
-                                        className="text-[8px] font-normal tracking-[0.5em] uppercase transition-opacity group-hover:opacity-70 leading-none"
-                                        style={{ color: isDarkTheme ? '#ffffff' : '#000000', opacity: 0.3 }}
+                                {profile.planType !== 'annual' && (
+                                    <a
+                                        href="https://www.nodus.my"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex flex-col items-center gap-0 group no-underline"
                                     >
-                                        Powered by
-                                    </span>
-                                    <img
-                                        src="/icons/logo.png"
-                                        alt="Nodus"
-                                        className="w-[80px] h-auto object-contain transition-all duration-300 group-hover:scale-105 opacity-100 -mt-6"
-                                        style={{
-                                            filter: isDarkTheme ? 'invert(1) brightness(10)' : 'brightness(1)'
-                                        }}
-                                    />
-                                </a>
+                                        <span
+                                            className="text-[8px] font-normal tracking-[0.5em] uppercase transition-opacity group-hover:opacity-70 leading-none"
+                                            style={{ color: isDarkTheme ? '#ffffff' : '#000000', opacity: 0.3 }}
+                                        >
+                                            Powered by
+                                        </span>
+                                        <img
+                                            src="/icons/logo.png"
+                                            alt="Nodus"
+                                            className="w-[80px] h-auto object-contain transition-all duration-300 group-hover:scale-105 opacity-100 -mt-6"
+                                            style={{
+                                                filter: isDarkTheme ? 'invert(1) brightness(10)' : 'brightness(1)'
+                                            }}
+                                        />
+                                    </a>
+                                )}
 
                                 {/* Legal Links (Minimalist) */}
                                 <div

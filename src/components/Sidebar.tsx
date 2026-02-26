@@ -139,7 +139,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
               {/* Group Items */}
               <div className="space-y-1">
                 {group.items.map((item) => {
-                  const isLocked = (item.id === 'earn' || item.id === 'audience') && (userProfile.planType === 'free' || !userProfile.planType);
+                  const isLocked = (item.id === 'earn' || item.id === 'audience') && (!userProfile.planType || userProfile.planType === 'free');
                   const ItemIcon = item.icon;
                   const isActive = activeTab === item.id;
 

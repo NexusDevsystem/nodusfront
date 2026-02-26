@@ -704,13 +704,17 @@ export default function OnboardingPage() {
                             <div className="absolute inset-0 bg-white rounded-full border-4 border-black shadow-[20px_20px_0px_0px_rgba(0,0,0,1)]"></div>
 
                             {/* Center Logo instead of Mockup */}
-                            <div className="absolute inset-0 flex items-center justify-center z-10 p-12">
-                                <div className="relative w-full flex items-center justify-center transition-transform hover:scale-[1.05] duration-500 animate-float">
-                                    <img
-                                        src="/icons/logo.png"
-                                        alt="Nodus Logo"
-                                        className="w-[85%] h-auto object-contain drop-shadow-[8px_8px_0px_rgba(0,0,0,0.1)]"
-                                    />
+                            <div className="absolute inset-0 flex items-center justify-center z-10 p-12 overflow-hidden rounded-full">
+                                <div className="relative w-full h-full flex items-center justify-center transition-transform hover:scale-[1.05] duration-500 animate-float">
+                                    <video
+                                        autoPlay
+                                        loop
+                                        muted
+                                        playsInline
+                                        className="w-[92%] h-[92%] object-contain"
+                                    >
+                                        <source src="/icons/Anime_mascot_fixed_white_background_delpmaspu_.mp4" type="video/mp4" />
+                                    </video>
                                 </div>
                             </div>
 

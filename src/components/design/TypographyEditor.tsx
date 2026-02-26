@@ -216,7 +216,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {FONTS.map((font) => {
                         const isSelected = profile.fontFamily === font.family;
-                        const isLocked = font.isPro && profile.planType === 'free';
+                        const isLocked = font.isPro && (!profile.planType || profile.planType === 'free');
 
                         return (
                             <button

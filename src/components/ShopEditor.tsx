@@ -46,7 +46,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
         );
     };
 
-    const isFree = userProfile?.planType === 'free' || !userProfile?.planType;
+    const isFree = !userProfile?.planType || userProfile?.planType === 'free';
 
     const handleAddCollection = () => {
         if (!newCollectionName.trim()) return;
