@@ -44,49 +44,65 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
         };
 
         return (
-            <div className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${themeButtonClass} p-2 sm:p-2.5 gap-2.5 items-center pl-3 sm:pl-3.5`}
+            <div className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${themeButtonClass} h-[80px] p-0 items-center justify-between`}
                 style={themeButtonStyle}>
 
-                {/* Avatar with Ring - Even More Compact */}
-                <div className="relative shrink-0">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full p-[1px] bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]">
-                        <div className="w-full h-full rounded-full overflow-hidden border border-white bg-white">
-                            <img
-                                src={avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'}
-                                alt={username}
-                                className="w-full h-full object-cover"
-                            />
+                <div className="flex h-full items-center px-4 sm:px-5 gap-3.5 flex-1 min-w-0">
+                    {/* Avatar with Ring */}
+                    <div className="relative shrink-0 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] transition-transform duration-500 group-hover:scale-105">
+                            <div className="w-full h-full rounded-full overflow-hidden border-2 border-white bg-white">
+                                <img
+                                    src={avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'}
+                                    alt={username}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Info Column - Balanced Vertical Centering */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-center h-full text-left" style={{ fontFamily, fontWeight: (fontWeight || undefined), fontStyle: fontItalic ? 'italic' : 'normal' }}>
+                        {/* Header Label */}
+                        <div className="flex items-center gap-1.5 mb-1 opacity-50">
+                            <Instagram size={8} className="shrink-0" style={{ color: themeTextHex }} />
+                            <span className="text-[7px] uppercase tracking-[0.25em] leading-none font-bold" style={{ color: themeTextHex }}>
+                                Instagram
+                            </span>
+                        </div>
+
+                        {/* Name/Username */}
+                        <h4 className="text-[14px] sm:text-[16px] font-bold truncate tracking-tight uppercase leading-none mb-1.5" style={{ color: themeTextHex }}>
+                            @{username}
+                        </h4>
+
+                        {/* Stats Row */}
+                        <div className="flex items-center gap-2.5">
+                            <div className="flex items-center gap-1 opacity-80">
+                                <Users size={10} style={{ color: themeTextHex }} className="opacity-50" />
+                                <span className="text-[10px] sm:text-[11px] font-bold leading-none" style={{ color: themeTextHex }}>
+                                    {formatFollowers(followers)}
+                                </span>
+                                <span className="text-[9px] uppercase tracking-wider opacity-50 font-medium leading-none" style={{ color: themeTextHex }}>
+                                    seguidores
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Info Column - Tight Spacing */}
-                <div className="flex-1 min-w-0 flex flex-col justify-center text-left" style={{ fontFamily, fontWeight: (fontWeight || undefined), fontStyle: fontItalic ? 'italic' : 'normal' }}>
-                    <div className="flex items-center gap-1 mb-0">
-                        <Instagram size={7} className="shrink-0 opacity-70" style={{ color: themeTextHex }} />
-                        <span className="text-[7px] uppercase tracking-[0.05em] leading-none opacity-70" style={{ color: themeTextHex }}>
-                            Instagram
-                        </span>
-                    </div>
-                    <h4 className="text-[11px] sm:text-xs truncate tracking-tight uppercase leading-snug" style={{ color: themeTextHex }}>
-                        @{username}
-                    </h4>
-                    <div className="flex items-center gap-1 mt-0">
-                        <span className="text-[9px] sm:text-[10px]" style={{ color: themeTextHex }}>
-                            {formatFollowers(followers)}
-                        </span>
-                        <span className="text-[8px] sm:text-[9px] uppercase tracking-tight opacity-70" style={{ color: themeTextHex }}>
-                            seguidores
-                        </span>
+                {/* Action Area */}
+                <div className="shrink-0 h-full flex items-center pr-4 sm:pr-5">
+                    <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black/10 transition-colors">
+                        <ExternalLink size={14} style={{ color: themeTextHex }} className="opacity-40 group-hover:opacity-100 transition-opacity" />
                     </div>
                 </div>
 
-                {/* Arrow/Action */}
-                <div className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-black/5 group-hover:bg-black/10 transition-all mr-0.5">
-                    <ExternalLink size={10} style={{ color: themeTextHex }} />
-                </div>
+                {/* Overlay link */}
+                <a href={`https://instagram.com/${username}`} target="_blank" rel="noreferrer" className="absolute inset-0 z-30 cursor-pointer" />
 
-                <a href={`https://instagram.com/${username}`} target="_blank" rel="noreferrer" className="absolute inset-0 z-10" />
+                {/* Subtle gloss effect */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </div>
         );
     }

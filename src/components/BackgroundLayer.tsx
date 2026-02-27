@@ -30,16 +30,33 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
         if (profile.headerLayout === 'banner') {
             const hasAvatar = !!profile.avatarUrl;
             return (
-                <div className="absolute inset-0 bg-[#121212] overflow-hidden">
+                <div
+                    className="absolute inset-0 overflow-hidden"
+                    style={{ backgroundColor: profile.bannerBlurColor || '#000000' }}
+                >
                     {hasAvatar && (
                         <img
                             src={profile.avatarUrl}
                             alt="Background"
-                            className="w-full h-full object-cover scale-[1.4] blur-[160px] opacity-80 transform-gpu"
+                            className="w-full h-full object-cover scale-[1.3] blur-[100px] opacity-40 transform-gpu"
                         />
                     )}
-                    {/* Subtle top darkening for UI visibility, and a clean fade to the bottom palette */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent"></div>
+
+                    {/* Solid tint overlay: this makes the chosen color dominant everywhere */}
+                    <div
+                        className="absolute inset-0 z-10"
+                        style={{
+                            backgroundColor: profile.bannerBlurColor ? `${profile.bannerBlurColor}99` : 'rgba(0,0,0,0.6)'
+                        }}
+                    ></div>
+
+                    {/* Gradient to smooth bottom into 100% solid color */}
+                    <div
+                        className="absolute inset-0 z-20"
+                        style={{
+                            background: `linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 40%, ${profile.bannerBlurColor || '#000000'} 95%)`
+                        }}
+                    ></div>
                 </div>
             );
         }

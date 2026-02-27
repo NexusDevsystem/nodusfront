@@ -28,6 +28,7 @@ import { compressImage } from '../utils/imageUtils';
 import { apiClient } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
 import FileManager from '../components/tools/FileManager';
+import { IntegrationsView } from '../views/IntegrationsView';
 
 
 export default function EditorPage() {
@@ -496,14 +497,28 @@ export default function EditorPage() {
                     </div>
 
                     {/* Mobile Sidebar (Drawer) */}
-                    {isMobileMenuOpen && (
-                        <div className="fixed inset-0 z-50 md:hidden flex">
-                            <div className="w-72 h-full bg-white border-r-4 border-black flex flex-col overflow-hidden">
-                                <Sidebar activeTab={activeTab} setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }} userProfile={profile} onUpgradeClick={() => { setIsBillingModalOpen(true); setIsMobileMenuOpen(false); }} className="flex-1 overflow-y-auto" />
+                    <AnimatePresence>
+                        {isMobileMenuOpen && (
+                            <div className="fixed inset-0 z-50 md:hidden flex">
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                />
+                                <motion.div
+                                    initial={{ x: '-100%' }}
+                                    animate={{ x: 0 }}
+                                    exit={{ x: '-100%' }}
+                                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                                    className="relative w-72 h-full bg-white border-r-4 border-black flex flex-col overflow-hidden"
+                                >
+                                    <Sidebar activeTab={activeTab} setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }} userProfile={profile} onUpgradeClick={() => { setIsBillingModalOpen(true); setIsMobileMenuOpen(false); }} className="flex-1 overflow-y-auto" />
+                                </motion.div>
                             </div>
-                            <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)}></div>
-                        </div>
-                    )}
+                        )}
+                    </AnimatePresence>
 
                     {/* 
            --------------------------------------------------
@@ -586,7 +601,8 @@ export default function EditorPage() {
                                         {activeTab === 'earn' && 'Monetização'}
                                         {activeTab === 'files' && 'Arquivos'}
                                         {activeTab === 'billing' && 'Faturamento'}
-                                        {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'earn' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'billing' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                                        {activeTab === 'integrations' && 'Integrações Pro'}
+                                        {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'earn' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'billing' && activeTab !== 'integrations' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                                     </h1>
                                     <p className="text-black/50 font-normal text-[10px] md:text-xs uppercase tracking-widest max-w-lg">
                                         {activeTab === 'links' && 'Gerencie seus links, redes sociais e informações do perfil público.'}
@@ -596,6 +612,7 @@ export default function EditorPage() {
                                         {activeTab === 'earn' && 'Configure seus métodos de recebimento para aceitar incentivos e pagamentos.'}
                                         {activeTab === 'files' && 'Hospede arquivos e documentos para usar no seu perfil.'}
                                         {activeTab === 'billing' && 'Gerencie sua assinatura, visualize recibos e detalhes de pagamento.'}
+                                        {activeTab === 'integrations' && 'Conecte contas oficiais para automatizar seu perfil com dados reais.'}
                                     </p>
                                     <div className="mt-4 w-full h-[1px] bg-black/10"></div>
                                 </div>
@@ -657,6 +674,10 @@ export default function EditorPage() {
 
                                 {activeTab === 'files' && (
                                     <FileManager userProfile={profile} />
+                                )}
+
+                                {activeTab === 'integrations' && (
+                                    <IntegrationsView profile={profile} onChange={setProfile} />
                                 )}
 
                                 {activeTab === 'admin' && (profile.username === 'nodus' || authProfile?.email === 'jaoomarcos75@gmail.com') && (
@@ -730,14 +751,14 @@ export default function EditorPage() {
         */}
                     <div className={`
             ${activeTab !== 'admin' ? 'lg:flex' : 'hidden'} flex-col items-center justify-center 
-            border-l-4 border-black bg-white 
+            lg:border-l-4 lg:border-black lg:bg-white 
             w-full lg:w-[350px] xl:w-[450px] shrink-0
-            ${!showMobilePreview ? 'hidden' : 'flex-1 z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0'}
+            ${!showMobilePreview ? 'hidden' : 'flex-1 z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0 bg-white md:bg-transparent'}
         `}>
 
-                        <div className="relative w-full h-full lg:flex items-center justify-center overflow-y-auto bg-slate-50">
-                            {/* Dots Pattern */}
-                            <div className="absolute inset-0 opacity-20 pointer-events-none"
+                        <div className="relative w-full h-full lg:flex items-center justify-center overflow-y-auto bg-white lg:bg-slate-50">
+                            {/* Dots Pattern - Only on Desktop */}
+                            <div className="hidden lg:block absolute inset-0 opacity-20 pointer-events-none"
                                 style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '24px 24px' }}>
                             </div>
 

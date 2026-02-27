@@ -189,6 +189,47 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                 </div>
             )}
 
+            {/* Layout Customization Section - Only for Banner Mode */}
+            {profile.headerLayout === 'banner' && (
+                <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-slide-up mt-4">
+                    <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
+                        <Scaling size={16} strokeWidth={3} />
+                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">Ajustes do Banner</h3>
+                    </div>
+
+                    <div className="flex flex-col">
+                        <h4 className="text-[9px] font-medium text-black uppercase tracking-[0.2em] mb-2 px-1">Cor do Desfoque (Fundo)</h4>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                                <div className="relative w-10 h-10 overflow-hidden border border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white">
+                                    <input
+                                        type="color"
+                                        value={profile.bannerBlurColor || '#000000'}
+                                        onChange={(e) => onChange({ ...profile, bannerBlurColor: e.target.value })}
+                                        className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer border-none p-0"
+                                    />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={profile.bannerBlurColor || ''}
+                                    onChange={(e) => onChange({ ...profile, bannerBlurColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}` })}
+                                    placeholder="#000000"
+                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
+                                />
+                            </div>
+                            {profile.bannerBlurColor && (
+                                <button
+                                    onClick={() => onChange({ ...profile, bannerBlurColor: null })}
+                                    className="text-[9px] text-black border border-black bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none hover:bg-black hover:text-white transition-all w-full sm:w-auto"
+                                >
+                                    Limpar
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className={`grid grid-cols-1 ${['compact', 'banner'].includes(profile.headerLayout || 'classic') ? 'lg:grid-cols-2' : ''} gap-4 items-start mt-4`}>
                 {/* Profile Picture Section */}
                 <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">

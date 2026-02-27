@@ -13,7 +13,7 @@ interface PreviewProps {
 
 const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShare, forcedTab }) => {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full lg:overflow-hidden select-none px-4">
+    <div className="flex flex-col items-center justify-center w-full h-full lg:overflow-hidden select-none lg:px-4">
       {/* Public URL Preview Bar - Hidden on mobile for immersive feel */}
       <div className="hidden lg:flex mb-6 items-center gap-2 px-3 py-2 bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black text-[9px] font-black uppercase tracking-widest">
         <Globe size={12} strokeWidth={3} className="text-black/40" />
@@ -29,7 +29,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShar
 
       {/* Frame Container - Full screen on mobile, centered frame on desktop */}
       <div className={`relative origin-center flex items-center justify-center w-full h-full lg:w-[340px] lg:h-[700px] lg:scale-[0.85] xl:scale-100`}>
-        <div className="relative w-full h-full lg:border-gray-900 lg:bg-gray-900 lg:border-[12px] lg:rounded-[3rem] lg:shadow-2xl flex flex-col lg:overflow-hidden lg:ring-1 lg:ring-white/20">
+        <div className="relative w-full h-full lg:border-gray-900 lg:bg-gray-900 lg:border-[12px] lg:rounded-[3rem] lg:shadow-2xl flex flex-col overflow-hidden lg:ring-1 lg:ring-white/20">
 
           {/* Dynamic Island - Only on Desktop Frame */}
           <div className="hidden lg:flex absolute top-2 left-1/2 -translate-x-1/2 w-[90px] h-[24px] bg-black rounded-full z-40 items-center justify-center pointer-events-none">

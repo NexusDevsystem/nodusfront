@@ -70,6 +70,7 @@ export interface UserProfile {
   customButtonColor?: string | null;
   integrations?: any[];
   usernameUpdatedAt?: string | null;
+  bannerBlurColor?: string | null;
 }
 
 export interface Theme {

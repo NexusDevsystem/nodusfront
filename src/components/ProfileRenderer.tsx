@@ -35,6 +35,7 @@ import BackgroundLayer from './BackgroundLayer';
 import { apiClient } from '../services/apiClient';
 import { SiSpotify } from 'react-icons/si';
 import { InstagramCard } from './InstagramCard';
+import { TwitchCard } from './TwitchCard';
 // @ts-ignore
 import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
 import BrutalistVisualizer from './themes/BrutalistVisualizer';
@@ -118,10 +119,54 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         }
     }, [profile.id, isPreview]);
 
-    // Top level social links
-    const socialLinks = activeLinks.filter(l => l.layout === 'social' && l.type !== 'collection');
+    // Top level social links - Now includes any social network even if it's a classic button
+    const socialLinks = React.useMemo(() => {
+        const manualSocial = activeLinks.filter(l => {
+            if (l.type === 'collection') return false;
+            if (l.layout === 'social') return true;
+            const lowerUrl = l.url.toLowerCase();
+            const lowerTitle = l.title?.toLowerCase() || '';
+            return SOCIAL_NETWORKS.some(sn =>
+                sn.id !== 'custom' && sn.id !== 'site' && sn.id !== 'telefone' && sn.id !== 'email' &&
+                (lowerUrl.includes(sn.id) || (lowerTitle && lowerTitle.includes(sn.id)))
+            );
+        });
 
-    // Button links
+        const integrations = profile.integrations || [];
+        const result = [...manualSocial];
+
+        integrations.forEach(integration => {
+            const isDuplicate = result.some(l =>
+                l.url.toLowerCase().includes(integration.provider) ||
+                l.title?.toLowerCase().includes(integration.provider)
+            );
+
+            if (!isDuplicate) {
+                const network = SOCIAL_NETWORKS.find(sn => sn.id === integration.provider);
+                const username = integration.profile_data?.username;
+                if (network && username) {
+                    let url = '';
+                    if (integration.provider === 'instagram') url = `https://instagram.com/${username}`;
+                    else if (integration.provider === 'tiktok') url = `https://tiktok.com/@${username}`;
+                    else if (integration.provider === 'twitch') url = `https://twitch.tv/${username}`;
+
+                    if (url) {
+                        result.push({
+                            id: `integration-${integration.provider}`,
+                            title: network.name,
+                            url: url,
+                            isActive: true,
+                            layout: 'social',
+                            type: 'link'
+                        } as any);
+                    }
+                }
+            }
+        });
+        return result;
+    }, [activeLinks, profile.integrations]);
+
+    // Button links - remain unchanged (only exclude items explicitly set to social layout)
     const buttonLinks = activeLinks.filter(l => (l.layout !== 'social' || l.type === 'collection'));
 
     const getLuminance = (hex: string) => {
@@ -130,8 +175,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     };
 
     const isDarkTheme =
-        profile.headerLayout === 'banner' // Banner layout is always on a dark adaptive background
-            ? true
+        profile.headerLayout === 'banner'
+            ? (profile.bannerBlurColor ? getLuminance(profile.bannerBlurColor) < 0.5 : true)
             : (profile.themeId === 'custom' && profile.customSolidColor)
                 ? getLuminance(profile.customSolidColor) < 0.5
                 : currentTheme.id.includes('dark') ||
@@ -159,6 +204,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const instagramUsername = instagramIntegration?.profile_data?.username;
     const instagramAvatar = instagramIntegration?.profile_data?.avatar_url;
     const instagramMedia = (instagramIntegration?.profile_data as any)?.media || [];
+
+    const twitchIntegration = profile.integrations?.find(i => i.provider === 'twitch');
+    const twitchFollowers = twitchIntegration?.profile_data?.follower_count;
+    const twitchUsername = twitchIntegration?.profile_data?.username;
+    const twitchDisplayName = (twitchIntegration?.profile_data as any)?.display_name || twitchUsername;
+    const twitchAvatar = twitchIntegration?.profile_data?.avatar_url;
+    const twitchIsLive = (twitchIntegration?.profile_data as any)?.is_live;
+    const twitchStreamTitle = (twitchIntegration?.profile_data as any)?.stream_title;
 
     const getHighlightClass = (type?: string) => {
         switch (type) {
@@ -1110,6 +1163,39 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             buttonRoundness={roundedClass || undefined}
                                                             isDark={isDarkTheme}
                                                             variant={link.layout === 'classic' ? 'profile' : 'feed'}
+                                                            fontFamily={profile.fontFamily}
+                                                            fontWeight={profile.fontWeight || undefined}
+                                                            fontItalic={profile.fontItalic}
+                                                        />
+                                                    </motion.div>
+                                                );
+                                            }
+                                        } else if (link.platform === 'twitch' || link.title.toLowerCase().includes('twitch')) {
+                                            // 2. Twitch specialized card
+                                            flushIcons();
+                                            flushCards();
+
+                                            if (twitchIntegration) {
+                                                renderedItems.push(
+                                                    <motion.div
+                                                        key={`twitch-card-${link.id}`}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        whileInView={{ opacity: 1, y: 0 }}
+                                                        viewport={{ once: true }}
+                                                        className={`w-full mb-4 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
+                                                    >
+                                                        <TwitchCard
+                                                            username={twitchUsername || 'twitch_user'}
+                                                            displayName={twitchDisplayName || 'Twitch User'}
+                                                            followers={twitchFollowers || 0}
+                                                            avatarUrl={twitchAvatar || ''}
+                                                            isLive={twitchIsLive}
+                                                            streamTitle={twitchStreamTitle}
+                                                            themeButtonClass={baseCardClass}
+                                                            themeButtonStyle={mainButtonStyle}
+                                                            themeTextHex={getSmartTextColor()}
+                                                            buttonRoundness={roundedClass || undefined}
+                                                            isDark={isDarkTheme}
                                                             fontFamily={profile.fontFamily}
                                                             fontWeight={profile.fontWeight || undefined}
                                                             fontItalic={profile.fontItalic}

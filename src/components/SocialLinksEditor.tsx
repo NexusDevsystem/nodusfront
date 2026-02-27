@@ -55,6 +55,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
     const [isConnectingInstagram, setIsConnectingInstagram] = useState(false);
     const [isConnectingTikTok, setIsConnectingTikTok] = useState(false);
+    const [isConnectingTwitch, setIsConnectingTwitch] = useState(false);
     const [connectionError, setConnectionError] = useState<string | null>(null);
     const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
     const isAuthorized = profile?.username === 'nodus' || profile?.username === 'nexus';
@@ -75,6 +76,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
     const socialLinks = links.filter(link => link.layout === 'social' && link.type !== 'collection');
     const instagramIntegration = profile?.integrations?.find((i: any) => i.provider === 'instagram');
     const isInstagramConnected = !!instagramIntegration;
+
+    const twitchIntegration = profile?.integrations?.find((i: any) => i.provider === 'twitch');
+    const isTwitchConnected = !!twitchIntegration;
 
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => {
@@ -164,7 +168,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                     </button>
                 </div>
 
-                {(socialLinks.length > 0 || isInstagramConnected) && (
+                {(socialLinks.length > 0 || isInstagramConnected || isTwitchConnected) && (
                     <div className="flex flex-wrap gap-4 md:gap-5 py-1">
                         {/* Auto-render Instagram if connected but not explicitly added as link */}
                         {isInstagramConnected && !socialLinks.some(l => l.platform === 'instagram') && (
@@ -174,6 +178,17 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                             >
                                 <Instagram size={22} className="md:w-6 md:h-6" />
                                 <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#32a800] rounded-full border border-white" />
+                            </button>
+                        )}
+
+                        {/* Auto-render Twitch if connected */}
+                        {isTwitchConnected && !socialLinks.some(l => l.platform === 'twitch') && (
+                            <button
+                                onClick={() => toggleSocialLink('twitch')}
+                                className="text-black transition-all hover:scale-110 active:scale-90 p-0.5 relative"
+                            >
+                                <Twitch size={22} className="md:w-6 md:h-6" />
+                                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#6441a5] rounded-full border border-white" />
                             </button>
                         )}
 
@@ -347,7 +362,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                 ) : (
                                     <div className="flex flex-col flex-1 px-8 pb-10">
                                         <div className="mt-4 space-y-6">
-                                            {!(configuringPlatform === 'instagram' && isInstagramConnected) && (
+                                            {!((configuringPlatform === 'instagram' && isInstagramConnected) || (configuringPlatform === 'twitch' && isTwitchConnected)) && (
                                                 <div className="space-y-2">
                                                     <input
                                                         autoFocus
@@ -466,6 +481,82 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                 </div>
                                             )}
 
+                                            {/* Twitch Rich Profile Card */}
+                                            {configuringPlatform === 'twitch' && isTwitchConnected && (
+                                                <div className="bg-white p-6 border-2 border-black flex flex-col items-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                                    <div className="relative mb-4">
+                                                        <div className="w-20 h-20 overflow-hidden border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] bg-white">
+                                                            <img
+                                                                src={twitchIntegration.profile_data?.avatar_url}
+                                                                alt={twitchIntegration.profile_data?.username}
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    (e.target as HTMLImageElement).src = 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png';
+                                                                }}
+                                                            />
+                                                            {twitchIntegration.profile_data?.is_live && (
+                                                                <div className="absolute top-0 right-0 bg-red-600 text-white text-[8px] font-bold px-1 py-0.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                                                                    LIVE
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="absolute -bottom-1 -right-1 bg-[#6441a5] p-1.5 border-2 border-black text-white">
+                                                            <Twitch size={12} strokeWidth={4} />
+                                                        </div>
+                                                    </div>
+
+                                                    <h4 className="text-xl font-medium text-black uppercase tracking-tighter">
+                                                        @{twitchIntegration.profile_data?.display_name || twitchIntegration.profile_data?.username}
+                                                    </h4>
+                                                    <div className="flex flex-col items-center gap-1.5 mt-2">
+                                                        <span className="text-[10px] font-medium text-black/50 uppercase tracking-widest flex items-center justify-center gap-1 bg-black/5 px-2 py-0.5">
+                                                            <Twitch size={10} className="text-[#6441a5]" />
+                                                            Twitch Channel
+                                                        </span>
+                                                        <span className="text-[12px] font-medium text-[#6441a5] uppercase tracking-widest">
+                                                            {twitchIntegration.profile_data?.follower_count?.toLocaleString() || 0} seguidores
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="w-full h-0.5 bg-black/10 my-6" />
+
+                                                    <button
+                                                        onClick={() => setShowDisconnectConfirm(!showDisconnectConfirm)}
+                                                        disabled={isConnectingTwitch}
+                                                        className={`w-full py-4 px-6 border-2 border-black transition-all font-medium text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${showDisconnectConfirm
+                                                            ? 'bg-black text-white'
+                                                            : 'bg-white text-red-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] hover:bg-[#fff0f0]'
+                                                            }`}
+                                                    >
+                                                        {isConnectingTwitch ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} strokeWidth={3} />}
+                                                        {showDisconnectConfirm ? 'CANCELAR' : 'DESCONECTAR TWITCH'}
+                                                    </button>
+
+                                                    {showDisconnectConfirm && (
+                                                        <div className="mt-4 w-full">
+                                                            <button
+                                                                onClick={async () => {
+                                                                    try {
+                                                                        setIsConnectingTwitch(true);
+                                                                        await apiClient.disconnectIntegration('twitch');
+                                                                        const updatedIntegrations = profile.integrations?.filter((i: any) => i.provider !== 'twitch') || [];
+                                                                        setProfile({ ...profile, integrations: updatedIntegrations });
+                                                                        setShowDisconnectConfirm(false);
+                                                                    } catch (err: any) {
+                                                                        setConnectionError(err.message);
+                                                                    } finally {
+                                                                        setIsConnectingTwitch(false);
+                                                                    }
+                                                                }}
+                                                                className="w-full py-3 bg-red-600 text-white font-medium text-[10px] uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                                                            >
+                                                                CONFIRMAR DESCONEXÃO
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
                                             {/* Instagram Connect Button (Only if NOT connected and authorized) */}
                                             {configuringPlatform === 'instagram' && !isInstagramConnected && isAuthorized && (
                                                 <div className="space-y-3">
@@ -542,8 +633,49 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                 </button>
                                             )}
 
-                                            {/* Action Button - Hidden for Instagram if connected */}
-                                            {!(configuringPlatform === 'instagram' && isInstagramConnected) && (
+                                            {/* Twitch Connect Button */}
+                                            {configuringPlatform === 'twitch' && !isTwitchConnected && (
+                                                <div className="space-y-3">
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                setConnectionError(null);
+                                                                setIsConnectingTwitch(true);
+                                                                const userId = profile?.id || '';
+                                                                if (!userId) throw new Error('Usuário não identificado.');
+                                                                const { url } = await apiClient.getTwitchAuthUrl(userId, window.location.origin);
+                                                                window.location.href = url;
+                                                            } catch (err: any) {
+                                                                setConnectionError(err.message || 'Erro ao iniciar conexão');
+                                                                setIsConnectingTwitch(false);
+                                                            }
+                                                        }}
+                                                        disabled={isConnectingTwitch}
+                                                        className={`w-full bg-white hover:bg-[#ffdf00] border-2 border-black transition-all py-4 px-6 flex items-center justify-between group/tw shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none ${isConnectingTwitch ? 'opacity-70 cursor-wait' : ''}`}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            {isConnectingTwitch ? (
+                                                                <Loader2 size={18} className="animate-spin text-black" />
+                                                            ) : (
+                                                                <Twitch size={18} className="text-[#6441a5]" />
+                                                            )}
+                                                            <div className="text-left leading-none space-y-1">
+                                                                <span className="block text-xs font-medium uppercase tracking-widest text-black">
+                                                                    {isConnectingTwitch ? 'INICIANDO...' : 'CONECTAR TWITCH'}
+                                                                </span>
+                                                                <span className="block text-[9px] font-normal uppercase tracking-wider text-black/70">Seguidores e status online</span>
+                                                            </div>
+                                                        </div>
+                                                        <ChevronRight size={16} strokeWidth={3} className="text-black group-hover/tw:translate-x-0.5 transition-transform" />
+                                                    </button>
+                                                    {connectionError && (
+                                                        <p className="text-[10px] text-red-500 font-medium px-1 italic">{connectionError}</p>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* Action Button - Hidden for Instagram/Twitch if connected */}
+                                            {!((configuringPlatform === 'instagram' && isInstagramConnected) || (configuringPlatform === 'twitch' && isTwitchConnected)) && (
                                                 <button
                                                     onClick={confirmPlatform}
                                                     disabled={!tempUrl}

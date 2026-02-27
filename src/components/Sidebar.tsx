@@ -24,11 +24,12 @@ import {
   User,
   FolderOpen,
   ChevronsLeft,
-  ShieldAlert
+  ShieldAlert,
+  X
 } from 'lucide-react';
 
 import { useAuth } from '../contexts/AuthContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SidebarProps {
   activeTab: string;
@@ -66,6 +67,14 @@ const MENU_GROUPS: MenuGroup[] = [
     ]
   },
   {
+    id: 'connections',
+    label: 'Conexões',
+    groupIcon: Zap,
+    items: [
+      { id: 'integrations', label: 'Integrações', icon: Zap },
+    ]
+  },
+  {
     id: 'insights',
     label: 'Insights',
     groupIcon: BarChart2,
@@ -95,49 +104,86 @@ const MENU_GROUPS: MenuGroup[] = [
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile, className, onUpgradeClick, onClose }) => {
   const { user, signOut } = useAuth();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
-    <aside className={`w-64 shrink-0 bg-[#ffffff] border-r-2 border-black h-full flex flex-col select-none overflow-hidden relative ${className || ''}`}>
+    <aside className={`w-full md:w-64 shrink-0 bg-[#ffffff] md:border-r-2 border-black h-full flex flex-col select-none overflow-hidden relative ${className || ''}`}>
       {/* Subtle Grid Background Pattern */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
 
       {/* Profile Header - Compact & Brutalist */}
-      <div className="p-4 border-b-2 border-black bg-white flex flex-col gap-2 relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 border-2 border-black overflow-hidden shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 bg-white">
-            <img
-              src={userProfile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`}
-              alt="Public"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`;
-              }}
-            />
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <h3 className="text-[10px] font-medium text-black uppercase tracking-widest truncate leading-tight">{userProfile.name}</h3>
-            <div className="flex items-center gap-1 mt-0.5">
-              <span className="text-[8px] font-normal text-black/50 uppercase tracking-tighter truncate leading-none">nodus.my/{userProfile.username || userProfile.name.toLowerCase().replace(/\s/g, '')}</span>
+      <div className="p-5 md:p-4 border-b-2 border-black bg-white flex flex-col gap-2 relative z-10">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-12 h-12 md:w-10 md:h-10 border-2 border-black overflow-hidden shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] md:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 bg-white">
+              <img
+                src={userProfile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`}
+                alt="Public"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`;
+                }}
+              />
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <h3 className="text-xs md:text-[10px] font-bold md:font-medium text-black uppercase tracking-widest truncate leading-tight">{userProfile.name}</h3>
+              <div className="flex items-center gap-1 mt-1 md:mt-0.5">
+                <span className="text-[9px] md:text-[8px] font-normal text-black/50 uppercase tracking-tighter truncate leading-none">nodus.my/{userProfile.username || userProfile.name.toLowerCase().replace(/\s/g, '')}</span>
+              </div>
             </div>
           </div>
+
+          {/* Close button for mobile */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="md:hidden p-2 text-black hover:bg-black/5 transition-colors"
+            >
+              <X size={24} strokeWidth={2.5} />
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto scrollbar-hide p-4 pt-6 space-y-6 relative z-10">
+      <motion.div
+        className="flex-1 overflow-y-auto scrollbar-hide p-5 md:p-4 pt-8 md:pt-6 space-y-8 md:space-y-6 relative z-10"
+        initial="hidden"
+        animate="show"
+        variants={{
+          show: {
+            transition: {
+              staggerChildren: 0.1
+            }
+          }
+        }}
+      >
         {MENU_GROUPS.map((group) => {
           const GroupIcon = group.groupIcon;
 
           return (
-            <div key={group.id} className="space-y-3">
-              {/* Static Group Header */}
+            <motion.div
+              key={group.id}
+              className="space-y-4 md:space-y-3"
+              variants={{
+                hidden: { opacity: 0, x: -10 },
+                show: { opacity: 1, x: 0 }
+              }}
+            >
               <div className="flex items-center gap-2 px-1 mb-1 opacity-40">
-                <GroupIcon size={11} strokeWidth={2} />
-                <span className="text-[8px] font-medium uppercase tracking-[0.25em] text-black">{group.label}</span>
+                <GroupIcon size={isMobile ? 12 : 11} strokeWidth={2} />
+                <span className="text-[9px] md:text-[8px] font-bold md:font-medium uppercase tracking-[0.25em] text-black">{group.label}</span>
               </div>
 
               {/* Group Items */}
-              <div className="space-y-1">
+              <div className="space-y-2 md:space-y-1">
                 {group.items.map((item) => {
                   const isLocked = (item.id === 'earn' || item.id === 'audience') && (!userProfile.planType || userProfile.planType === 'free');
                   const ItemIcon = item.icon;
@@ -155,39 +201,39 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                       }}
                       disabled={item.disabled}
                       className={`
-                        w-full flex items-center justify-between px-3 py-2.5 transition-all border-2 group relative
+                        w-full flex items-center justify-between px-4 md:px-3 py-3.5 md:py-2.5 transition-all border-2 group relative
                         ${isActive
-                          ? 'bg-[#97cd7a] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[0.5px] -translate-y-[0.5px] text-black'
+                          ? 'bg-[#97cd7a] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] md:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[0.5px] -translate-y-[0.5px] text-black'
                           : 'bg-transparent border-transparent text-black/60 hover:text-black hover:bg-black/5'}
                         ${item.disabled ? 'opacity-30 cursor-not-allowed' : ''}
                       `}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4 md:gap-3">
                         <div className={`transition-transform ${isActive ? 'text-black' : 'text-black/40 group-hover:text-black'}`}>
-                          <ItemIcon size={14} strokeWidth={2} />
+                          <ItemIcon size={isMobile ? 18 : 14} strokeWidth={isMobile ? 2.5 : 2} />
                         </div>
-                        <span className={`text-[9.5px] font-medium uppercase tracking-widest ${isActive ? 'text-black' : ''}`}>{item.label}</span>
+                        <span className={`text-[11px] md:text-[9.5px] font-bold md:font-medium uppercase tracking-widest ${isActive ? 'text-black' : ''}`}>{item.label}</span>
                       </div>
 
                       {isLocked ? (
                         <div className="flex items-center gap-1.5 min-w-fit">
-                          <span className="text-[7px] bg-black text-[#97cd7a] px-1.5 py-0.5 font-medium uppercase tracking-widest">VIP</span>
+                          <span className="text-[8px] md:text-[7px] bg-black text-[#97cd7a] px-2 md:px-1.5 py-1 md:py-0.5 font-bold md:font-medium uppercase tracking-widest">VIP</span>
                         </div>
                       ) : isActive && (
-                        <div className="w-1.5 h-1.5 bg-black rounded-full" />
+                        <div className="w-2 h-2 md:w-1.5 md:h-1.5 bg-black rounded-full" />
                       )}
                     </button>
                   );
                 })}
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Footer Area */}
-      <div className="p-4 border-t-2 border-black bg-white relative z-10">
-        <div className="flex flex-col gap-1 mb-4">
+      <div className="p-5 md:p-4 border-t-2 border-black bg-white relative z-10 space-y-4 md:space-y-0">
+        <div className="hidden md:flex flex-col gap-1 mb-4">
           <button
             onClick={() => setActiveTab('billing')}
             className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'billing' ? 'border-black bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-black/5'}`}
@@ -216,23 +262,86 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
         </div>
 
         {/* Account Switcher / User Profile Mini Card */}
-        <div className="p-3 bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between group/user">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 border border-black overflow-hidden bg-slate-50 shrink-0">
-              {user?.picture ? (
-                <img src={user.picture} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-black text-white"><User size={14} /></div>
-              )}
+        <div className="relative">
+          <AnimatePresence>
+            {isMobile && isAccountMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute bottom-[calc(100%+8px)] left-0 right-0 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden z-20 flex flex-col"
+              >
+                <button
+                  onClick={() => { setActiveTab('billing'); setIsAccountMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-black/5 transition-colors border-b-2 border-black text-[11px] font-bold uppercase tracking-widest"
+                >
+                  <CreditCard size={18} strokeWidth={2.5} />
+                  Upgrade & Planos
+                </button>
+
+                {(userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com') && (
+                  <button
+                    onClick={() => { setActiveTab('admin'); setIsAccountMenuOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-black/5 transition-colors border-b-2 border-black text-[11px] font-bold uppercase tracking-widest"
+                  >
+                    <ShieldAlert size={18} strokeWidth={2.5} />
+                    Administração
+                  </button>
+                )}
+
+                <button
+                  onClick={() => { setActiveTab('support'); setIsAccountMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-black/5 transition-colors border-b-2 border-black text-[11px] font-bold uppercase tracking-widest"
+                >
+                  <HelpCircle size={18} strokeWidth={2.5} />
+                  Suporte
+                </button>
+
+                <button
+                  onClick={() => signOut()}
+                  className="w-full flex items-center gap-3 px-4 py-4 text-red-600 hover:bg-red-50 transition-colors text-[11px] font-bold uppercase tracking-widest"
+                >
+                  <LogOut size={18} strokeWidth={2.5} />
+                  Sair da Conta
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div
+            onClick={() => isMobile && setIsAccountMenuOpen(!isAccountMenuOpen)}
+            className="p-4 md:p-3 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] md:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between group/user cursor-pointer md:cursor-default"
+          >
+            <div className="flex items-center gap-3 md:gap-2.5 min-w-0">
+              <div className="w-10 h-10 md:w-8 md:h-8 border-2 md:border border-black overflow-hidden bg-slate-50 shrink-0">
+                {user?.picture ? (
+                  <img src={user.picture} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-black text-white"><User size={isMobile ? 16 : 14} /></div>
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="text-[10px] md:text-[9px] font-bold md:font-medium uppercase tracking-tight truncate text-black leading-none mb-1 md:mb-0.5">{user?.name || 'Usuário'}</div>
+                <div className="text-[8px] md:text-[7px] font-normal uppercase tracking-tighter truncate text-black/40 leading-none">{user?.email || 'email@exemplo.com'}</div>
+              </div>
             </div>
-            <div className="min-w-0">
-              <div className="text-[9px] font-medium uppercase tracking-tight truncate text-black leading-none mb-0.5">{user?.name || 'Usuário'}</div>
-              <div className="text-[7px] font-normal uppercase tracking-tighter truncate text-black/40 leading-none">{user?.email || 'email@exemplo.com'}</div>
-            </div>
+
+            {isMobile ? (
+              <motion.div
+                animate={{ rotate: isAccountMenuOpen ? 180 : 0 }}
+                className="p-2 text-black/40"
+              >
+                <ChevronDown size={20} strokeWidth={3} />
+              </motion.div>
+            ) : (
+              <button
+                onClick={(e) => { e.stopPropagation(); signOut(); }}
+                className="p-2 md:p-1 text-black/30 hover:text-red-500 transition-colors shrink-0"
+              >
+                <LogOut size={isMobile ? 16 : 13} strokeWidth={isMobile ? 2.5 : 2} />
+              </button>
+            )}
           </div>
-          <button onClick={() => signOut()} className="p-1 text-black/30 hover:text-red-500 transition-colors shrink-0">
-            <LogOut size={13} strokeWidth={2} />
-          </button>
         </div>
       </div>
     </aside>
