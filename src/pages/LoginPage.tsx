@@ -3,13 +3,15 @@ import { useAuth } from '../contexts/AuthContext';
 import { Loader2, ArrowLeft, Star, Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
-
 import PasswordResetFlow from '../components/PasswordResetFlow';
+import { useTranslation } from 'react-i18next';
+import LanguageToggle from '../components/LanguageToggle';
 
 type AuthMode = 'login' | 'register' | 'reset';
 
 export default function LoginPage() {
     const location = useLocation();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(location.state?.error || '');
     const [mode, setMode] = useState<AuthMode>('login');
@@ -42,7 +44,7 @@ export default function LoginPage() {
             }
         },
         onError: () => {
-            setError('Falha ao conectar com o Google');
+            setError(t('login.googleFail'));
         }
     });
 
@@ -58,7 +60,7 @@ export default function LoginPage() {
                 if (authError) throw authError;
             } else {
                 if (!name.trim()) {
-                    setError('Por favor, informe seu nome.');
+                    setError(t('login.nameRequired'));
                     setLoading(false);
                     return;
                 }
@@ -94,23 +96,26 @@ export default function LoginPage() {
                         <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none transition-all">
                             <ArrowLeft size={16} />
                         </div>
-                        Voltar
+                        {t('login.back')}
                     </button>
-                    <div className="font-black text-2xl tracking-tighter uppercase">NODUS</div>
+                    <div className="flex items-center gap-3">
+                        <LanguageToggle />
+                        <div className="font-black text-2xl tracking-tighter uppercase">NODUS</div>
+                    </div>
                 </div>
 
                 <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
                     {/* Title */}
                     <div className="mb-8">
-                        <h1 className="text-5xl md:text-6xl font-black uppercase leading-[0.9] mb-4">
-                            {mode === 'login' ? 'Boas\nVindas.' : 'Criar\nConta.'}
+                        <h1 className="text-5xl md:text-6xl font-black uppercase leading-[0.9] mb-4" style={{ whiteSpace: 'pre-line' }}>
+                            {mode === 'login' ? t('login.welcome') : t('login.createAccount')}
                         </h1>
                         <p className="font-medium text-sm text-black/60 border-l-4 border-[#97cd7a] pl-3">
                             {mode === 'login'
-                                ? 'Entre no seu painel e continue construindo.'
+                                ? t('login.subtitleLogin')
                                 : mode === 'register'
-                                    ? 'Crie sua conta grátis em segundos.'
-                                    : 'Recupere o acesso à sua conta via e-mail.'}
+                                    ? t('login.subtitleRegister')
+                                    : t('login.subtitleReset')}
                         </p>
                     </div>
 
@@ -127,13 +132,13 @@ export default function LoginPage() {
                                     onClick={() => switchMode('login')}
                                     className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${mode === 'login' ? 'bg-black text-[#97cd7a]' : 'bg-white text-black hover:bg-black/5'}`}
                                 >
-                                    Entrar
+                                    {t('login.signIn')}
                                 </button>
                                 <button
                                     onClick={() => switchMode('register')}
                                     className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest border-l-2 border-black transition-all ${mode === 'register' ? 'bg-black text-[#97cd7a]' : 'bg-white text-black hover:bg-black/5'}`}
                                 >
-                                    Cadastrar
+                                    {t('login.register')}
                                 </button>
                             </div>
 
@@ -146,7 +151,7 @@ export default function LoginPage() {
                                         </div>
                                         <input
                                             type="text"
-                                            placeholder="Seu nome"
+                                            placeholder={t('login.namePlaceholder')}
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
                                             className="w-full pl-11 pr-4 py-4 border-2 border-black text-sm font-bold placeholder:text-black/30 focus:outline-none focus:border-[#97cd7a] focus:shadow-[4px_4px_0px_0px_rgba(151,205,122,0.5)] transition-all bg-white"
@@ -161,7 +166,7 @@ export default function LoginPage() {
                                     </div>
                                     <input
                                         type="email"
-                                        placeholder="Seu email"
+                                        placeholder={t('login.emailPlaceholder')}
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         className="w-full pl-11 pr-4 py-4 border-2 border-black text-sm font-bold placeholder:text-black/30 focus:outline-none focus:border-[#97cd7a] focus:shadow-[4px_4px_0px_0px_rgba(151,205,122,0.5)] transition-all bg-white"
@@ -176,7 +181,7 @@ export default function LoginPage() {
                                     </div>
                                     <input
                                         type={showPassword ? 'text' : 'password'}
-                                        placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : 'Sua senha'}
+                                        placeholder={mode === 'register' ? t('login.passwordMinPlaceholder') : t('login.passwordPlaceholder')}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="w-full pl-11 pr-12 py-4 border-2 border-black text-sm font-bold placeholder:text-black/30 focus:outline-none focus:border-[#97cd7a] focus:shadow-[4px_4px_0px_0px_rgba(151,205,122,0.5)] transition-all bg-white"
@@ -197,7 +202,7 @@ export default function LoginPage() {
                                     disabled={loading}
                                     className="w-full py-4 bg-black text-[#97cd7a] border-2 border-black font-black text-sm uppercase tracking-widest shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
-                                    {loading ? <Loader2 className="animate-spin" size={18} /> : (mode === 'login' ? 'Entrar na Conta' : 'Criar Minha Conta')}
+                                    {loading ? <Loader2 className="animate-spin" size={18} /> : (mode === 'login' ? t('login.enterAccount') : t('login.createMyAccount'))}
                                 </button>
                             </form>
 
@@ -208,7 +213,7 @@ export default function LoginPage() {
                                         onClick={() => setMode('reset')}
                                         className="text-[10px] font-black uppercase tracking-widest text-black/30 hover:text-black transition-colors"
                                     >
-                                        Esqueceu a senha?
+                                        {t('login.forgotPassword')}
                                     </button>
                                 </div>
                             )}
@@ -216,7 +221,7 @@ export default function LoginPage() {
                             {/* Divider */}
                             <div className="relative flex items-center gap-4 mb-6">
                                 <div className="flex-1 h-[2px] bg-black/10"></div>
-                                <span className="text-[10px] font-black text-black/30 uppercase tracking-widest shrink-0">ou continue com</span>
+                                <span className="text-[10px] font-black text-black/30 uppercase tracking-widest shrink-0">{t('login.orContinueWith')}</span>
                                 <div className="flex-1 h-[2px] bg-black/10"></div>
                             </div>
 
@@ -245,13 +250,13 @@ export default function LoginPage() {
                     )}
 
                     <p className="text-[10px] font-bold text-center text-black/30 uppercase tracking-widest mt-6">
-                        Ao continuar, você aceita nossos <a href="#" className="underline text-black hover:text-[#97cd7a]">Termos de Uso</a>.
+                        {t('login.termsNotice')} <a href="#" className="underline text-black hover:text-[#97cd7a]">{t('login.termsLink')}</a>.
                     </p>
                 </div>
 
                 <div className="mt-auto pt-8 flex justify-between items-end border-t-2 border-black/10">
-                    <div className="text-xs font-bold text-black/30 uppercase">V 2.0.0</div>
-                    <div className="text-xs font-bold text-black/30 uppercase">Secure Auth</div>
+                    <div className="text-xs font-bold text-black/30 uppercase">{t('common.version')} 2.0.0</div>
+                    <div className="text-xs font-bold text-black/30 uppercase">{t('login.secureAuth')}</div>
                 </div>
             </div>
 
@@ -281,7 +286,7 @@ export default function LoginPage() {
                     </div>
 
                     <div className="absolute bottom-10 left-0 bg-black text-[#97cd7a] px-6 py-3 border-4 border-black shadow-[8px_8px_0px_0px_#fff] transform -rotate-6 font-black uppercase text-xl animate-float">
-                        {mode === 'login' ? 'Bem-vindo!' : 'Junte-se a nós!'}
+                        {mode === 'login' ? t('login.welcomeLabel') : t('login.joinLabel')}
                     </div>
                 </div>
             </div>

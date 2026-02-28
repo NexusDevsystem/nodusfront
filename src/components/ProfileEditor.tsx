@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { UserProfile } from '../types';
 import { Upload, Camera, X, User, FileText, Image as ImageIcon, Trash2 } from 'lucide-react';
 
@@ -8,6 +9,7 @@ interface ProfileEditorProps {
 }
 
 const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (field: keyof UserProfile, value: string | boolean | undefined) => {
@@ -61,19 +63,19 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <div className="text-sm font-medium text-slate-800">Foto de Perfil</div>
+            <div className="text-sm font-medium text-slate-800">{t('profile.avatarLabel')}</div>
             <div className="flex gap-3 text-xs">
               <button
                 onClick={() => fileInputRef.current?.click()}
                 className="text-brand-600 font-medium hover:text-brand-700"
               >
-                Alterar
+                {t('common.change')}
               </button>
               <button
                 onClick={handleRemoveImage}
                 className="text-slate-400 hover:text-red-500"
               >
-                Remover
+                {t('common.remove')}
               </button>
             </div>
           </div>
@@ -85,7 +87,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
           {/* Name Field */}
           <div>
             <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-              Nome de Exibição
+              {t('profile.displayName')}
             </label>
             <input
               type="text"
@@ -99,7 +101,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
           {/* Bio Field */}
           <div>
             <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5">
-              Biografia
+              {t('profile.bio')}
             </label>
 
             <div className="relative">
@@ -109,7 +111,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ profile, onChange }) => {
                 rows={3}
                 maxLength={80}
                 className="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm leading-relaxed placeholder:text-slate-400 focus:ring-1 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all resize-none"
-                placeholder="Escreva algo sobre você..."
+                placeholder={t('profile.bioPlaceholder')}
               />
               <div className={`absolute bottom-2 right-2 text-[9px] ${profile.bio.length >= 80 ? 'text-red-500' : 'text-slate-300'}`}>
                 {profile.bio.length}/80

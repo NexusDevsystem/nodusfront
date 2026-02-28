@@ -1,4 +1,4 @@
-import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { UserProfile } from '../../types';
 import { ImageIcon, Trash2, Upload, Video, Zap } from 'lucide-react';
 import { compressImage } from '../../utils/imageUtils';
@@ -10,6 +10,7 @@ interface WallpaperEditorProps {
 }
 
 const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, updateProfile }) => {
+    const { t } = useTranslation();
     const handleCustomBackground = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             try {
@@ -22,7 +23,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                 }
             } catch (error) {
                 console.error(error);
-                alert('Erro ao processar imagem.');
+                alert(t('design.errorProcessingImage'));
             }
         }
     };
@@ -34,7 +35,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                 <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">
                     <div className="flex items-center gap-2 mb-4 text-black border-b border-black pb-2">
                         <ImageIcon size={16} strokeWidth={3} />
-                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">Imagem de Fundo</h3>
+                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.backgroundImage')}</h3>
                     </div>
 
                     <div className="flex flex-col gap-4">
@@ -57,17 +58,17 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                             ) : (
                                 <div className="w-full h-full flex flex-col items-center justify-center gap-1 opacity-20">
                                     <ImageIcon size={20} strokeWidth={3} />
-                                    <span className="text-[8px] font-medium uppercase tracking-widest">Sem Imagem</span>
+                                    <span className="text-[8px] font-medium uppercase tracking-widest">{t('design.noImage')}</span>
                                 </div>
                             )}
                         </div>
 
                         <div className="flex flex-col gap-2">
                             <label htmlFor="bg-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-black text-black cursor-pointer hover:bg-black hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none">
-                                <Upload size={14} strokeWidth={3} /> {profile.customBackground ? 'Trocar Imagem' : 'Carregar Imagem'}
+                                <Upload size={14} strokeWidth={3} /> {profile.customBackground ? t('design.changeImage') : t('design.uploadImage')}
                             </label>
                             <p className="text-[8px] font-normal text-black/50 uppercase tracking-widest text-center px-2">
-                                JPG, PNG ou GIF, máx 5MB
+                                {t('design.imageTypes')}
                             </p>
                         </div>
                     </div>
@@ -85,7 +86,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                 <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">
                     <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
                         <div className="w-4 h-4 border border-black bg-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"></div>
-                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">Cor Sólida / Flat</h3>
+                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.solidColorTitle')}</h3>
                     </div>
 
                     <div className="space-y-4">
@@ -103,7 +104,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                                 />
                             </div>
                             <div className="flex-1">
-                                <label className="block text-[8px] font-medium text-black uppercase tracking-[0.2em] mb-1.5 px-0.5">Código Hex</label>
+                                <label className="block text-[8px] font-medium text-black uppercase tracking-[0.2em] mb-1.5 px-0.5">{t('design.hexCode')}</label>
                                 <div className="flex gap-2">
                                     <input
                                         type="text"
@@ -134,7 +135,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                         <div className="p-2.5 bg-[#f8f8f8] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                             <p className="text-[8px] font-normal text-black/60 uppercase tracking-[0.15em] leading-tight">
                                 <Zap size={10} className="inline-block mr-1 text-black" fill="currentColor" />
-                                Definir cor removerá o fundo atual.
+                                {t('design.colorRemovesBackground')}
                             </p>
                         </div>
                     </div>

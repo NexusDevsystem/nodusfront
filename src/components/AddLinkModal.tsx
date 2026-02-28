@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     X, Search, Link as LinkIcon, Layout, ShoppingBag,
@@ -21,13 +22,7 @@ interface AddLinkModalProps {
     onAddHeader: () => void;
 }
 
-const CATEGORIES = [
-    { id: 'suggested', label: 'Sugeridos', icon: <Plus size={16} strokeWidth={1.5} /> },
-    { id: 'commerce', label: 'Comércio', icon: <ShoppingBag size={16} strokeWidth={1.5} /> },
-    { id: 'social', label: 'Social', icon: <Share2 size={16} strokeWidth={1.5} /> },
-    { id: 'media', label: 'Mídia', icon: <Youtube size={16} strokeWidth={1.5} /> },
-    { id: 'contact', label: 'Contato', icon: <Smartphone size={16} strokeWidth={1.5} /> },
-];
+
 
 const FacebookIcon = (props: any) => (
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -64,7 +59,17 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     onAddSocial,
     onAddHeader
 }) => {
+    const { t } = useTranslation();
     const [url, setUrl] = useState('');
+
+    const CATEGORIES = useMemo(() => [
+        { id: 'suggested', label: t('links.suggested'), icon: <Plus size={16} strokeWidth={1.5} /> },
+        { id: 'commerce', label: t('links.commerce'), icon: <ShoppingBag size={16} strokeWidth={1.5} /> },
+        { id: 'social', label: t('links.social'), icon: <Share2 size={16} strokeWidth={1.5} /> },
+        { id: 'media', label: t('links.media'), icon: <Youtube size={16} strokeWidth={1.5} /> },
+        { id: 'contact', label: t('links.contact'), icon: <Smartphone size={16} strokeWidth={1.5} /> },
+    ], [t]);
+
     const [activeCategory, setActiveCategory] = useState('suggested');
     const [detectedInfo, setDetectedInfo] = useState<{ platform: string, icon: React.ReactNode, type: 'social' | 'link' } | null>(null);
     const [showShopCollectionStep, setShowShopCollectionStep] = useState(false);
@@ -134,7 +139,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
             } else if (lowerUrl.includes('livepix.gg') || lowerUrl.includes('livepix.')) {
                 setDetectedInfo({ platform: 'livepix', icon: <PixIcon size={16} />, type: 'link' });
             } else {
-                setDetectedInfo({ platform: 'Link Direto', icon: <LinkIcon size={16} />, type: 'link' });
+                setDetectedInfo({ platform: t('links.unknownLink'), icon: <LinkIcon size={16} />, type: 'link' });
             }
         };
 
@@ -162,20 +167,20 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         >
                             <ChevronRight size={18} className="rotate-180" />
                         </button>
-                        <h4 className="font-medium text-slate-900 text-sm">Criar Coleção de Links</h4>
+                        <h4 className="font-medium text-slate-900 text-sm">{t('links.createCollection')}</h4>
                     </div>
 
                     <div className="space-y-4">
                         <p className="text-sm font-normal text-black/70 leading-relaxed uppercase tracking-widest">
-                            Dê um nome para este grupo de links. {url.trim() ? "O link que você colou será adicionado automaticamente dentro dela." : ""}
+                            {t('links.collectionDesc', { extra: url.trim() ? t('links.collectionUrlHint') : "" })}
                         </p>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-medium uppercase tracking-widest text-black px-1">Nome da Coleção</label>
+                            <label className="text-xs font-medium uppercase tracking-widest text-black px-1">{t('links.collectionNameLabel')}</label>
                             <input
                                 autoFocus
                                 type="text"
-                                placeholder="Ex: Meus Cursos, Redes Sociais..."
+                                placeholder={t('links.collectionNamePlaceholder')}
                                 className="w-full bg-white border border-black rounded-none py-2 px-3 text-sm font-normal text-black focus:outline-none focus:ring-0 focus:border-black transition-all placeholder:text-black/30"
                                 value={collectionName}
                                 onChange={(e) => setCollectionName(e.target.value)}
@@ -196,7 +201,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             }}
                             className="w-full py-3 bg-[#97cd7a] text-black border-[1.5px] border-black rounded-none text-xs font-medium uppercase tracking-widest hover:bg-[#ffdf00] disabled:opacity-50 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none flex items-center justify-center gap-2"
                         >
-                            <span>Criar Coleção</span>
+                            <span>{t('links.createCollectionButton')}</span>
                             <Plus size={16} strokeWidth={3} />
                         </button>
                     </div>
@@ -214,21 +219,20 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         >
                             <ChevronRight size={18} className="rotate-180" />
                         </button>
-                        <h4 className="font-medium text-slate-900 text-sm">Criar Coleção de Produtos</h4>
+                        <h4 className="font-medium text-slate-900 text-sm">{t('links.createProductCollection')}</h4>
                     </div>
 
                     <div className="space-y-4">
                         <p className="text-sm font-normal text-black/70 leading-relaxed uppercase tracking-widest">
-                            Digite o nome da categoria para seus produtos (ex: "E-books", "Cursos", "Lançamentos").
-                            Você será levado à aba Loja para finalizar a configuração.
+                            {t('links.commerceCollectionDesc')}
                         </p>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-medium uppercase tracking-widest text-black px-1">Nome da Categoria</label>
+                            <label className="text-xs font-medium uppercase tracking-widest text-black px-1">{t('links.categoryNameLabel')}</label>
                             <input
                                 autoFocus
                                 type="text"
-                                placeholder="Ex: Minha Coleção"
+                                placeholder={t('links.categoryPlaceholder')}
                                 className="w-full bg-white border border-black rounded-none py-2 px-3 text-sm font-normal text-black focus:outline-none focus:ring-0 focus:border-black transition-all placeholder:text-black/30"
                                 value={shopCollectionName}
                                 onChange={(e) => setShopCollectionName(e.target.value)}
@@ -249,7 +253,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             }}
                             className="w-full py-3 bg-[#ffdf00] text-black border-[1.5px] border-black rounded-none text-xs font-medium uppercase tracking-widest hover:bg-[#97cd7a] disabled:opacity-50 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none flex items-center justify-center gap-2"
                         >
-                            <span>Continuar para Loja</span>
+                            <span>{t('common.continueTo')} {t('sidebar.shop')}</span>
                             <ChevronRight size={16} strokeWidth={3} />
                         </button>
                     </div>
@@ -265,9 +269,9 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             {/* Mobile Grid - Brutalist style */}
                             <div className="grid grid-cols-3 gap-4">
                                 {[
-                                    { id: 'link', icon: <LinkIcon size={24} strokeWidth={3} />, label: 'Link', color: 'text-black', action: () => { onAddLink(); onClose(); } },
-                                    { id: 'collection', icon: <Layout size={24} strokeWidth={3} />, label: 'Coleção', color: 'text-black', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
-                                    { id: 'product', icon: <ShoppingBag size={24} strokeWidth={3} />, label: 'Produto', color: 'text-black', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
+                                    { id: 'link', icon: <LinkIcon size={24} strokeWidth={3} />, label: t('links.linkLabel'), color: 'text-black', action: () => { onAddLink(); onClose(); } },
+                                    { id: 'collection', icon: <Layout size={24} strokeWidth={3} />, label: t('links.collectionLabel'), color: 'text-black', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
+                                    { id: 'product', icon: <ShoppingBag size={24} strokeWidth={3} />, label: t('links.productLabel'), color: 'text-black', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
                                 ].map((item) => (
                                     <button
                                         key={item.id}
@@ -285,14 +289,14 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             </div>
 
                             <div className="space-y-4">
-                                <h4 className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1 border-b-2 border-black pb-1 inline-block">Links Populares</h4>
+                                <h4 className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1 border-b-2 border-black pb-1 inline-block">{t('links.popularLinks')}</h4>
                                 <div className="space-y-3">
                                     {[
-                                        { id: 'instagram', icon: <Instagram size={20} className="text-black" strokeWidth={3} />, title: 'Instagram', desc: 'Posts e Reels', action: () => onAddSocial('instagram') },
-                                        { id: 'tiktok', icon: <SiTiktok size={18} />, title: 'TikTok', desc: 'Vídeos curtos', action: () => onAddSocial('tiktok') },
-                                        { id: 'youtube', icon: <Youtube size={20} className="text-black" strokeWidth={3} />, title: 'YouTube', desc: 'Canal ou vídeos', action: () => onAddSocial('youtube') },
-                                        { id: 'spotify', icon: <SiSpotify size={18} className="text-black" />, title: 'Spotify', desc: 'Músicas e playlists', action: () => onAddSocial('spotify') },
-                                        { id: 'whatsapp', icon: <SiWhatsapp size={20} className="text-black" />, title: 'WhatsApp', desc: 'Chat direto', action: () => onAddSocial('whatsapp') },
+                                        { id: 'instagram', icon: <Instagram size={20} className="text-black" strokeWidth={3} />, title: 'Instagram', desc: t('links.postsReels'), action: () => onAddSocial('instagram') },
+                                        { id: 'tiktok', icon: <SiTiktok size={18} />, title: 'TikTok', desc: t('links.shortVideos'), action: () => onAddSocial('tiktok') },
+                                        { id: 'youtube', icon: <Youtube size={20} className="text-black" strokeWidth={3} />, title: 'YouTube', desc: t('links.channelOrVideos'), action: () => onAddSocial('youtube') },
+                                        { id: 'spotify', icon: <SiSpotify size={18} className="text-black" />, title: 'Spotify', desc: t('links.musicPlaylists'), action: () => onAddSocial('spotify') },
+                                        { id: 'whatsapp', icon: <SiWhatsapp size={20} className="text-black" />, title: 'WhatsApp', desc: t('links.directChat'), action: () => onAddSocial('whatsapp') },
                                     ].map((item) => (
                                         <button
                                             key={item.id}
@@ -319,9 +323,9 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         {/* Desktop Grid - Premium Brutalist */}
                         <div className="grid grid-cols-3 gap-4">
                             {[
-                                { id: 'link', icon: <LinkIcon size={32} strokeWidth={3} />, label: 'Link Externo', desc: 'Sites, Redes, PDFs', color: 'text-black', hoverBg: 'hover:bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
-                                { id: 'collection', icon: <Layout size={32} strokeWidth={3} />, label: 'Coleção', desc: 'Agrupe seus links', color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
-                                { id: 'product', icon: <ShoppingBag size={32} strokeWidth={3} />, label: 'Novo Produto', desc: 'Venda diretamente', color: 'text-black', hoverBg: 'hover:bg-cyan-400', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
+                                { id: 'link', icon: <LinkIcon size={32} strokeWidth={3} />, label: t('links.externalLink'), desc: t('links.insertAnyUrl'), color: 'text-black', hoverBg: 'hover:bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
+                                { id: 'collection', icon: <Layout size={32} strokeWidth={3} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
+                                { id: 'product', icon: <ShoppingBag size={32} strokeWidth={3} />, label: t('links.newProduct'), desc: t('links.productDescShort'), color: 'text-black', hoverBg: 'hover:bg-cyan-400', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
                             ].map((item) => (
                                 <button
                                     key={item.id}
@@ -339,16 +343,16 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
 
                         <div className="space-y-6">
                             <div className="flex items-center gap-4">
-                                <h4 className="text-[11px] font-medium text-black uppercase tracking-[0.2em] whitespace-nowrap">Links Populares</h4>
+                                <h4 className="text-[11px] font-medium text-black uppercase tracking-[0.2em] whitespace-nowrap">{t('links.popularLinks')}</h4>
                                 <div className="h-[2px] flex-1 bg-black/10"></div>
                             </div>
                             <div className="grid grid-cols-3 gap-4">
                                 {[
-                                    { id: 'instagram', icon: <Instagram size={22} strokeWidth={3} className="text-black" />, title: 'Instagram', desc: 'Posts e Reels', color: 'bg-[#ffdf00]', action: () => onAddSocial('instagram') },
-                                    { id: 'tiktok', icon: <SiTiktok size={20} className="text-black" />, title: 'TikTok', desc: 'Vídeos curtos', color: 'bg-[#97cd7a]', action: () => onAddSocial('tiktok') },
-                                    { id: 'youtube', icon: <Youtube size={22} strokeWidth={3} className="text-black" />, title: 'YouTube', desc: 'Canal ou vídeos', color: 'bg-red-400', action: () => onAddSocial('youtube') },
-                                    { id: 'spotify', icon: <SiSpotify size={20} className="text-black" />, title: 'Spotify', desc: 'Músicas e playlists', color: 'bg-green-400', action: () => onAddSocial('spotify') },
-                                    { id: 'whatsapp', icon: <SiWhatsapp size={22} className="text-black" />, title: 'WhatsApp', desc: 'Chat direto', color: 'bg-cyan-300', action: () => onAddSocial('whatsapp') },
+                                    { id: 'instagram', icon: <Instagram size={22} strokeWidth={3} className="text-black" />, title: 'Instagram', desc: t('links.postsReels'), color: 'bg-[#ffdf00]', action: () => onAddSocial('instagram') },
+                                    { id: 'tiktok', icon: <SiTiktok size={20} className="text-black" />, title: 'TikTok', desc: t('links.shortVideos'), color: 'bg-[#97cd7a]', action: () => onAddSocial('tiktok') },
+                                    { id: 'youtube', icon: <Youtube size={22} strokeWidth={3} className="text-black" />, title: 'YouTube', desc: t('links.channelOrVideos'), color: 'bg-red-400', action: () => onAddSocial('youtube') },
+                                    { id: 'spotify', icon: <SiSpotify size={20} className="text-black" />, title: 'Spotify', desc: t('links.musicPlaylists'), color: 'bg-green-400', action: () => onAddSocial('spotify') },
+                                    { id: 'whatsapp', icon: <SiWhatsapp size={22} className="text-black" />, title: 'WhatsApp', desc: t('links.directChat'), color: 'bg-cyan-300', action: () => onAddSocial('whatsapp') },
                                 ].map((item) => (
                                     <button
                                         key={item.id}
@@ -379,12 +383,12 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 >
                                     <ChevronRight size={18} className="rotate-180" />
                                 </button>
-                                <h4 className="font-medium text-slate-900 text-sm">Configurar Incentivos</h4>
+                                <h4 className="font-medium text-slate-900 text-sm">{t('links.setupDonations')}</h4>
                             </div>
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="text-[10px] font-normal text-slate-400 uppercase tracking-widest px-1 mb-2 block">Escolha o Método</label>
+                                    <label className="text-[10px] font-normal text-slate-400 uppercase tracking-widest px-1 mb-2 block">{t('links.chooseMethod')}</label>
                                     <div className="grid grid-cols-2 gap-3">
                                         <button
                                             onClick={() => setIncentiveType('pix')}
@@ -405,12 +409,12 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
 
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-normal uppercase tracking-widest text-slate-400 px-1">
-                                        {incentiveType === 'pix' ? 'Chave Pix (CPF, Email ou Aleatória)' : 'Link PayPal (paypal.me/usuario)'}
+                                        {incentiveType === 'pix' ? t('links.pixKeyLabel') : t('links.paypalLinkLabel')}
                                     </label>
                                     <input
                                         autoFocus
                                         type="text"
-                                        placeholder={incentiveType === 'pix' ? 'ex: seu@email.com' : 'ex: paypal.me/seunome'}
+                                        placeholder={incentiveType === 'pix' ? t('links.pixPlaceholder') : t('links.paypalPlaceholder')}
                                         className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#32a800]/10 focus:bg-white transition-all font-medium"
                                         value={incentiveKey}
                                         onChange={(e) => setIncentiveKey(e.target.value)}
@@ -425,7 +429,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                     }}
                                     className="w-full py-4 bg-slate-900 text-white rounded-xl text-xs font-normal uppercase tracking-widest hover:bg-black disabled:opacity-30 transition-all shadow-md flex items-center justify-center gap-2"
                                 >
-                                    <span>Salvar e Ir para Monetização</span>
+                                    <span>{t('links.saveAndContinue')}</span>
                                     <ChevronRight size={14} />
                                 </button>
                             </div>
@@ -435,13 +439,13 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 return (
                     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-1 duration-300">
                         <div className="p-4 border-[1.5px] border-black bg-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4">
-                            <h4 className="font-medium text-black text-lg uppercase tracking-widest leading-none">Monetize seu perfil</h4>
-                            <p className="text-[10px] font-normal text-black/70 mt-2 uppercase tracking-widest">Venda produtos e receba incentivos direto no Nodus.</p>
+                            <h4 className="font-medium text-black text-lg uppercase tracking-widest leading-none">{t('links.monetizeProfile')}</h4>
+                            <p className="text-[10px] font-normal text-black/70 mt-2 uppercase tracking-widest">{t('links.monetizeProfileDesc')}</p>
                         </div>
                         {[
-                            { id: 'product', icon: <ShoppingBag size={18} strokeWidth={3} />, title: 'Produto / Loja', desc: 'Físicos ou digitais', action: () => setShowShopCollectionStep(true) },
-                            { id: 'incentive', icon: <DollarSign size={18} strokeWidth={3} />, title: 'Incentivos', desc: 'Receba apoios direto', action: () => setShowIncentiveStep(true) },
-                            { id: 'affiliate', icon: <Store size={18} strokeWidth={3} />, title: 'Link de Afiliado', desc: 'Amazon, Shopee, etc', action: () => { } },
+                            { id: 'product', icon: <ShoppingBag size={18} strokeWidth={3} />, title: t('links.productStore'), desc: t('links.physicalOrDigital'), action: () => setShowShopCollectionStep(true) },
+                            { id: 'incentive', icon: <DollarSign size={18} strokeWidth={3} />, title: t('links.incentives'), desc: t('links.receiveSupportDirectly'), action: () => setShowIncentiveStep(true) },
+                            { id: 'affiliate', icon: <Store size={18} strokeWidth={3} />, title: t('links.affiliateLink'), desc: t('links.affiliateDesc'), action: () => { } },
                         ].map((item, idx) => (
                             <button
                                 key={idx}
@@ -465,14 +469,14 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 return (
                     <div className="space-y-3.5 animate-in fade-in slide-in-from-bottom-1 duration-300">
                         <div className="p-4 border-[1.5px] border-black bg-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4">
-                            <h4 className="font-medium text-black text-lg uppercase tracking-widest leading-none">Integrações de Mídia</h4>
-                            <p className="text-[10px] font-normal text-black/70 mt-2 uppercase tracking-widest">Adicione vídeos, músicas e muito mais diretamente no seu perfil.</p>
+                            <h4 className="font-medium text-black text-lg uppercase tracking-widest leading-none">{t('links.mediaIntegrations')}</h4>
+                            <p className="text-[10px] font-normal text-black/70 mt-2 uppercase tracking-widest">{t('links.mediaIntegrationsDesc')}</p>
                         </div>
                         {[
-                            { id: 'youtube', icon: <Youtube size={18} strokeWidth={3} />, title: 'YouTube', desc: 'Vídeos ou Shorts', color: 'text-red-500' },
-                            { id: 'spotify', icon: <SiSpotify size={18} />, title: 'Spotify', desc: 'Músicas ou Playlists', color: 'text-emerald-500' },
-                            { id: 'tiktok', icon: <SiTiktok size={18} />, title: 'TikTok', desc: 'Vídeos virais', color: 'text-black' },
-                            { id: 'twitch', icon: <TwitchIcon size={18} />, title: 'Twitch', desc: 'Sua stream ao vivo', color: 'text-purple-500' },
+                            { id: 'youtube', icon: <Youtube size={18} strokeWidth={3} />, title: 'YouTube', desc: t('links.videosOrShorts'), color: 'text-red-500' },
+                            { id: 'spotify', icon: <SiSpotify size={18} />, title: 'Spotify', desc: t('links.musicOrPlaylists'), color: 'text-emerald-500' },
+                            { id: 'tiktok', icon: <SiTiktok size={18} />, title: 'TikTok', desc: t('links.viralVideos'), color: 'text-black' },
+                            { id: 'twitch', icon: <TwitchIcon size={18} />, title: 'Twitch', desc: t('links.yourLiveStream'), color: 'text-purple-500' },
                         ].map((item) => (
                             <button
                                 key={item.id}
@@ -519,7 +523,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 );
 
             default:
-                return <div className="p-10 text-center text-slate-400 text-xs font-medium">Coming soon 🚀</div>;
+                return <div className="p-10 text-center text-slate-400 text-xs font-medium">{t('common.comingSoon')} 🚀</div>;
         }
     };
 
@@ -555,7 +559,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 {!isMobile && (
                     <div className="flex items-center justify-between p-6 shrink-0 border-b-2 border-black bg-white">
                         <div>
-                            <h2 className="text-2xl font-medium text-black uppercase tracking-tighter leading-none">Adicionar Elemento</h2>
+                            <h2 className="text-2xl font-medium text-black uppercase tracking-tighter leading-none">{t('links.addElement')}</h2>
                             <div className="h-1 w-12 bg-[#97cd7a] mt-2"></div>
                         </div>
                         <button
@@ -614,7 +618,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         <div className={`${isMobile ? 'px-6 py-4' : 'px-8 py-5 border-b-2 border-black'} shrink-0 bg-slate-50`}>
                             <div className="mb-2 flex items-center gap-2">
                                 <div className="w-1 h-3 bg-[#97cd7a]"></div>
-                                <span className="text-[9px] font-normal uppercase tracking-[0.3em] text-black/40">Entrada de Link</span>
+                                <span className="text-[9px] font-normal uppercase tracking-[0.3em] text-black/40">{t('links.linkInputLabel')}</span>
                             </div>
                             <form onSubmit={handleUrlSubmit} className="relative group">
                                 <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none z-10">
@@ -622,7 +626,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 </div>
                                 <input
                                     type="text"
-                                    placeholder={isMobile ? " COLE SEU LINK AQUI..." : "URL DO INSTAGRAM, SPOTIFY, YOUTUBE..."}
+                                    placeholder={isMobile ? t('links.pasteUrlPlaceholder') : t('links.pasteUrlHint')}
                                     value={url}
                                     onChange={(e) => setUrl(e.target.value)}
                                     className={`
@@ -643,11 +647,11 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                                     className="flex items-center gap-2 px-3 py-1.5 bg-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                                                 >
                                                     <span className="text-black">{detectedInfo.icon}</span>
-                                                    <span className="text-[9px] font-medium text-black uppercase tracking-widest">{detectedInfo.platform} PRONTO</span>
+                                                    <span className="text-[9px] font-medium text-black uppercase tracking-widest">{detectedInfo.platform} {t('common.ready')}</span>
                                                 </motion.div>
                                             ) : (
                                                 <div className="px-3 py-1.5 border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                                    <span className="text-[9px] font-medium text-black/30 uppercase tracking-widest">Aguardando...</span>
+                                                    <span className="text-[9px] font-medium text-black/30 uppercase tracking-widest">{t('common.waiting')}...</span>
                                                 </div>
                                             )}
                                         </AnimatePresence>

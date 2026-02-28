@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, File as FileIcon, Trash2, Copy, Check, X, Loader2, Image as ImageIcon, FileText, Download, ExternalLink } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
@@ -17,6 +18,7 @@ interface FileManagerProps {
 }
 
 const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
+    const { t } = useTranslation();
     const { token } = useAuth();
     const [files, setFiles] = useState<FileItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -60,11 +62,11 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
             if (data.success) {
                 fetchFiles(); // Refresh list
             } else {
-                alert(data.message || 'Erro ao enviar arquivo');
+                alert(data.message || t('files.uploadError'));
             }
         } catch (error: any) {
             console.error('Upload error:', error);
-            alert(error.message || 'Erro ao enviar arquivo');
+            alert(error.message || t('files.uploadError'));
         } finally {
             setIsUploading(false);
         }
@@ -85,7 +87,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
             if (data.success) {
                 setFiles(prev => prev.filter(f => f.filename !== filename));
             } else {
-                alert(data.message || 'Erro ao excluir');
+                alert(data.message || t('files.deleteError'));
             }
         } catch (error) {
             console.error('Delete error:', error);
@@ -149,7 +151,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                     <div className="bg-white p-6 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                         <div className="flex items-center gap-2 mb-4 border-b border-black pb-2">
                             <Upload size={16} strokeWidth={3} className="text-black" />
-                            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black">Upload</h3>
+                            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black">{t('files.uploadTitle')}</h3>
                         </div>
 
                         <div
@@ -165,9 +167,9 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
 
                             <div className="space-y-1">
                                 <h3 className="text-[10px] font-black uppercase tracking-widest text-black leading-tight">
-                                    {isUploading ? 'Processando...' : (dragActive ? 'Pode Soltar!' : 'Arraste ou Clique')}
+                                    {isUploading ? t('files.processing') : (dragActive ? t('files.dropReady') : t('files.dragOrClick'))}
                                 </h3>
-                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-tighter">PDF, PNG ou JPG (MAX 10MB)</p>
+                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-tighter">{t('files.allowedFormats')}</p>
                             </div>
 
                             {!isUploading && (
@@ -175,7 +177,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                     onClick={() => fileInputRef.current?.click()}
                                     className="w-full py-2 bg-black text-white text-[9px] font-black uppercase tracking-[0.2em] hover:bg-[#97cd7a] hover:text-black transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
                                 >
-                                    Abrir Arquivos
+                                    {t('files.openFiles')}
                                 </button>
                             )}
 
@@ -194,8 +196,8 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                         <div className="flex gap-3">
                             <FileText size={16} strokeWidth={3} className="shrink-0" />
                             <div>
-                                <h4 className="text-[9px] font-black uppercase tracking-widest mb-1">Dica Pro</h4>
-                                <p className="text-[8px] font-bold uppercase leading-relaxed text-black/60">Use links diretos para cardápios, portfólios ou downloads que não pesam seu perfil.</p>
+                                <h4 className="text-[9px] font-black uppercase tracking-widest mb-1">{t('files.proTip')}</h4>
+                                <p className="text-[8px] font-bold uppercase leading-relaxed text-black/60">{t('files.proTipDesc')}</p>
                             </div>
                         </div>
                     </div>
@@ -207,7 +209,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                         <div className="p-4 border-b-2 border-black flex justify-between items-center bg-white sticky top-0 z-10">
                             <div className="flex items-center gap-2">
                                 <FileIcon size={16} strokeWidth={3} />
-                                <h3 className="text-[11px] font-black uppercase tracking-[0.15em] text-black">Seus Arquivos <span className="opacity-30 ml-1">({files.length})</span></h3>
+                                <h3 className="text-[11px] font-black uppercase tracking-[0.15em] text-black">{t('files.yourFiles')} <span className="opacity-30 ml-1">({files.length})</span></h3>
                             </div>
                             {isLoading && <Loader2 size={12} className="animate-spin text-black" strokeWidth={3} />}
                         </div>
@@ -222,7 +224,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                     <div className="w-16 h-16 border-2 border-black/10 mx-auto flex items-center justify-center rotate-3">
                                         <FileIcon size={32} className="text-black/10" strokeWidth={3} />
                                     </div>
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/20">Ainda não há arquivos por aqui.</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/20">{t('files.emptyFiles')}</p>
                                 </div>
                             ) : (
                                 <div className="divide-y-2 divide-black">
@@ -257,14 +259,14 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                                             <button
                                                                 onClick={() => handleDelete(file.filename, true)}
                                                                 className="w-8 h-8 flex items-center justify-center bg-red-600 text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                                                                title="Confirmar Exclusão"
+                                                                title={t('files.confirmDelete')}
                                                             >
                                                                 <Check size={14} strokeWidth={4} />
                                                             </button>
                                                             <button
                                                                 onClick={() => setDeletingFilename(null)}
                                                                 className="w-8 h-8 flex items-center justify-center bg-white text-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                                                                title="Cancelar"
+                                                                title={t('files.cancel')}
                                                             >
                                                                 <X size={14} strokeWidth={4} />
                                                             </button>
@@ -273,7 +275,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                                         <>
                                                             <button
                                                                 onClick={() => copyLink(file.url, file.filename)}
-                                                                title="Copiar Link"
+                                                                title={t('files.copyLink')}
                                                                 className={`w-8 h-8 flex items-center justify-center border-2 border-black transition-all ${copiedId === file.filename
                                                                     ? 'bg-[#97cd7a] shadow-none translate-x-[1px] translate-y-[1px]'
                                                                     : 'bg-white hover:bg-black hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]'
@@ -287,14 +289,14 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                                                                title="Visualizar"
+                                                                title={t('files.view')}
                                                             >
                                                                 <ExternalLink size={14} strokeWidth={3} />
                                                             </a>
                                                             <button
                                                                 onClick={() => handleDelete(file.filename)}
                                                                 className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-red-400 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                                                                title="Excluir"
+                                                                title={t('files.delete')}
                                                             >
                                                                 <Trash2 size={14} strokeWidth={3} />
                                                             </button>
@@ -310,8 +312,8 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
 
                         {/* Footer Info */}
                         <div className="p-3 bg-black text-white flex justify-between items-center px-4">
-                            <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-60">Armazenamento Nodus</span>
-                            <div className="flex gap-1" title={(!userProfile?.planType || userProfile.planType === 'free') ? "Limite de 2 arquivos no plano free" : "Armazenamento Premium"}>
+                            <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-60">{t('files.storageTitle')}</span>
+                            <div className="flex gap-1" title={(!userProfile?.planType || userProfile.planType === 'free') ? t('files.freeLimit') : t('files.premiumStorage')}>
                                 {[1, 2, 3, 4, 5, 6, 7, 8].map(i => {
                                     const isFree = !userProfile?.planType || userProfile.planType === 'free';
                                     const limit = isFree ? 2 : 8;

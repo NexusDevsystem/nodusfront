@@ -40,3 +40,65 @@ export const compressImage = (file: File, maxWidth = 800, quality = 0.7): Promis
         reader.onerror = (error) => reject(error);
     });
 };
+export const getCroppedImg = async (
+    imageSrc: string,
+    pixelCrop: { x: number; y: number; width: number; height: number },
+    flip = { horizontal: false, vertical: false }
+): Promise<Blob> => {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.addEventListener('load', () => resolve(img));
+        img.addEventListener('error', (error) => reject(error));
+        img.setAttribute('crossOrigin', 'anonymous'); // needed to avoid cross-origin issues on CodeSandbox
+        img.src = imageSrc;
+    });
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+        throw new Error('No 2d context');
+    }
+
+    // set canvas size to match the target crop
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+
+    // translate canvas context to a central point on the image to allow rotating/flipping (though we only need crop here)
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.scale(flip.horizontal ? -1 : 1, flip.vertical ? -1 : 1);
+    ctx.translate(-canvas.width / 2, -canvas.height / 2);
+
+    // draw rotated image and store data.
+    ctx.drawImage(
+        image,
+        pixelCrop.x,
+        pixelCrop.y,
+        pixelCrop.width,
+        pixelCrop.height,
+        0,
+        0,
+        pixelCrop.width,
+        pixelCrop.height
+    );
+
+    // As a blob
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+            if (!blob) {
+                reject(new Error('Canvas is empty'));
+                return;
+            }
+            resolve(blob);
+        }, 'image/jpeg');
+    });
+};
+
+export const blobToDataURL = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+};

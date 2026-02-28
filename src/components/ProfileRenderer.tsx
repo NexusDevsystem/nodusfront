@@ -36,6 +36,7 @@ import { apiClient } from '../services/apiClient';
 import { SiSpotify } from 'react-icons/si';
 import { InstagramCard } from './InstagramCard';
 import { TwitchCard } from './TwitchCard';
+import { YouTubeCard } from './YouTubeCard';
 // @ts-ignore
 import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
 import BrutalistVisualizer from './themes/BrutalistVisualizer';
@@ -149,6 +150,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     if (integration.provider === 'instagram') url = `https://instagram.com/${username}`;
                     else if (integration.provider === 'tiktok') url = `https://tiktok.com/@${username}`;
                     else if (integration.provider === 'twitch') url = `https://twitch.tv/${username}`;
+                    else if (integration.provider === 'youtube') url = `https://youtube.com/@${username}`;
 
                     if (url) {
                         result.push({
@@ -167,7 +169,45 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     }, [activeLinks, profile.integrations]);
 
     // Button links - remain unchanged (only exclude items explicitly set to social layout)
-    const buttonLinks = activeLinks.filter(l => (l.layout !== 'social' || l.type === 'collection'));
+    const buttonLinks = React.useMemo(() => {
+        const manual = activeLinks.filter(l => (l.layout !== 'social' || l.type === 'collection'));
+        const integrations = profile.integrations || [];
+        const result = [...manual];
+
+        const order = ['instagram', 'youtube', 'twitch'];
+        const providersToInject = order.filter(p =>
+            integrations.some(i => i.provider === p) &&
+            !result.some(l =>
+                l.url.toLowerCase().includes(p) ||
+                (l.title && l.title.toLowerCase().includes(p)) ||
+                l.platform === p
+            )
+        );
+
+        [...providersToInject].reverse().forEach(provider => {
+            const integration = integrations.find(i => i.provider === provider);
+            const username = integration?.profile_data?.username;
+            if (username) {
+                let url = '';
+                if (provider === 'instagram') url = `https://instagram.com/${username}`;
+                else if (provider === 'youtube') url = `https://youtube.com/@${username}`;
+                else if (provider === 'twitch') url = `https://twitch.tv/${username}`;
+
+                if (url) {
+                    result.unshift({
+                        id: `btn-integration-${provider}`,
+                        title: provider === 'instagram' ? 'Instagram' : (provider === 'youtube' ? 'Canal do YouTube' : 'Twitch Live'),
+                        url: url,
+                        isActive: true,
+                        layout: 'classic',
+                        type: 'link',
+                        platform: provider
+                    } as any);
+                }
+            }
+        });
+        return result;
+    }, [activeLinks, profile.integrations]);
 
     const getLuminance = (hex: string) => {
         const rgb = hex.replace('#', '').match(/.{1,2}/g)?.map(x => parseInt(x, 16)) || [255, 255, 255];
@@ -212,6 +252,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const twitchAvatar = twitchIntegration?.profile_data?.avatar_url;
     const twitchIsLive = (twitchIntegration?.profile_data as any)?.is_live;
     const twitchStreamTitle = (twitchIntegration?.profile_data as any)?.stream_title;
+
+    const youtubeIntegration = profile.integrations?.find(i => i.provider === 'youtube');
+    const youtubeSubscribers = youtubeIntegration?.profile_data?.subscriber_count;
+    const youtubeTitle = youtubeIntegration?.profile_data?.title;
+    const youtubeUsername = youtubeIntegration?.profile_data?.username;
+    const youtubeAvatar = youtubeIntegration?.profile_data?.avatar_url;
 
     const getHighlightClass = (type?: string) => {
         switch (type) {
@@ -412,12 +458,21 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         return (yiq >= 128) ? 'text-slate-900' : 'text-white';
     };
 
+    // Parse customSecondaryColor: supports "#color1" or "#color1|#color2" (gradient)
+    const rawSecondary = isProfileMode ? (profile.customSecondaryColor || null) : null;
+    const secParts = rawSecondary ? rawSecondary.split('|') : [];
+    const secColor1 = secParts[0] || (isDarkTheme ? '#0f172a' : '#ffffff');
+    const secColor2 = secParts[1] || null;
+
     const headerContentBg = isProfileMode
-        ? (profile.customSecondaryColor || (isDarkTheme ? '#0f172a' : '#ffffff'))
+        ? (secColor2
+            ? `linear-gradient(135deg, ${secColor1}, ${secColor2})`
+            : secColor1)
         : 'transparent';
 
+    // For getContrastColor, use the primary color only
     const headerTextColorClass = isProfileMode
-        ? getContrastColor(headerContentBg)
+        ? getContrastColor(secColor1)
         : '';
 
     // 3. Card/Container Logic - STRICT UNIFICATION
@@ -566,8 +621,26 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 className="w-full h-full object-cover"
                             />
 
-                            {/* Subtle text readability gradient (doesn't cut to black) */}
-                            {/* Subtle text readability gradient (doesn't cut to black) */}
+                            {/* Color tint overlay — tints the photo with the chosen banner color(s) */}
+                            {profile.bannerBlurColor && (() => {
+                                const parts = profile.bannerBlurColor!.split('|');
+                                const c1 = parts[0];
+                                const c2 = parts[1];
+                                return (
+                                    <div
+                                        className="absolute inset-0 z-[5]"
+                                        style={{
+                                            background: c2
+                                                ? `linear-gradient(135deg, ${c1}, ${c2})`
+                                                : c1,
+                                            opacity: 0.45,
+                                            mixBlendMode: 'multiply',
+                                        }}
+                                    />
+                                );
+                            })()}
+
+                            {/* Subtle text readability gradient */}
                             <div
                                 className="absolute inset-0 z-10"
                                 style={{
@@ -585,7 +658,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             >
                                 {profile.name}
                                 {profile.isVerified && (
-                                    <img src={verifiedBadge} alt="Verified" className="w-[0.7em] h-[0.7em] shrink-0" />
+                                    <img src={verifiedBadge} alt="Verified" className="w-[0.85em] h-[0.85em] shrink-0" />
                                 )}
                             </h3>
 
@@ -667,14 +740,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 <div
                     className={`px-6 ${profile.headerLayout === 'banner' ? 'pt-12 pb-2' : (profile.headerLayout === 'compact' ? 'pt-0 pb-20' : (isPreview ? 'pt-12 pb-2' : 'pt-16 pb-2'))} flex flex-col relative flex-1`}
                     style={profile.headerLayout === 'banner' ? {
-                        minHeight: '35vh'
+                        minHeight: '250px'
                     } : {}}
                 >
 
                     {/* Compact/Social Header Banner - Full Width & Clean */}
                     {profile.headerLayout === 'compact' && (
                         <>
-                            <div className="absolute top-0 -left-6 w-[calc(100%+3rem)] h-[24vh] min-h-[160px] z-0 overflow-hidden">
+                            <div className="absolute top-0 -left-6 w-[calc(100%+3rem)] h-[180px] z-0 overflow-hidden">
                                 <img
                                     src={profile.customBackground || profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`}
                                     alt=""
@@ -683,8 +756,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             </div>
                             {/* Full-length Intelligent Backdrop for Social Layout */}
                             <div
-                                className={`absolute top-[18vh] -left-6 w-[calc(100%+3rem)] bottom-0 rounded-t-[32px] z-0 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]`}
-                                style={{ backgroundColor: headerContentBg }}
+                                className={`absolute top-[140px] -left-6 w-[calc(100%+3rem)] bottom-0 rounded-t-[32px] z-0 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]`}
+                                style={{ background: headerContentBg }}
                             />
                         </>
                     )}
@@ -692,7 +765,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {/* Profile Section - Shared for other layouts */}
                     {profile.headerLayout !== 'banner' && (
                         <motion.div
-                            className={`w-full mb-1 flex flex-col items-center text-center relative z-10 ${profile.headerLayout === 'compact' ? 'mt-[18vh] pt-0 pb-4 px-4' : ''}`}
+                            className={`w-full mb-1 flex flex-col items-center text-center relative z-10 ${profile.headerLayout === 'compact' ? 'mt-[140px] pt-0 pb-1 px-4' : ''}`}
                         >
                             {/* Avatar */}
                             {profile.avatarUrl && (
@@ -735,7 +808,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 <img
                                                     src={verifiedBadge}
                                                     alt="Verificado"
-                                                    className="w-3.5 h-3.5 object-contain shrink-0"
+                                                    className="w-[0.85em] h-[0.85em] object-contain shrink-0"
                                                     title="Conta Verificada"
                                                 />
                                             )}
@@ -743,15 +816,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     )}
                                 </div>
 
-                                {tiktokFollowers !== undefined && (
-                                    <div
-                                        className="flex items-center gap-1.5 mb-2 px-3 py-1 bg-black/10 backdrop-blur-md rounded-full text-[0.75rem] font-normal"
-                                        style={{ color: getSmartTextColor() }}
-                                    >
-                                        <Music size={12} fill="currentColor" />
-                                        <span>{tiktokFollowers.toLocaleString()} Seguidores</span>
-                                    </div>
-                                )}
+
 
                                 {profile.bio && (
                                     <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line text-center ${profile.headerLayout === 'compact' ? '' : 'max-w-[300px]'}`}
@@ -766,7 +831,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                     {/* Social Icons Row - Shared for other layouts */}
                     {profile.headerLayout !== 'banner' && socialLinks.length > 0 && (
-                        <div className="flex items-center justify-center gap-2 mb-1 flex-wrap relative">
+                        <div className="flex items-center justify-center gap-2 mt-1 mb-1 flex-wrap relative">
                             {socialLinks.map(link => {
                                 const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
                                     SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id)) ||
@@ -852,7 +917,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                 {/* Collection List View */}
                                 {!activeCollection ? (
-                                    <div className="space-y-6">
+                                    <div className="space-y-4">
                                         <div
                                             className={`flex items-center gap-2.5 mb-2 text-xs font-normal uppercase tracking-widest opacity-60 px-1`}
                                             style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
@@ -1002,7 +1067,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0 }}
-                                className="flex flex-col gap-3 w-full relative"
+                                className="flex flex-col gap-1.5 w-full relative"
                             >
                                 {(() => {
                                     const renderedItems: React.ReactNode[] = [];
@@ -1144,7 +1209,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         initial={{ opacity: 0, y: 10 }}
                                                         whileInView={{ opacity: 1, y: 0 }}
                                                         viewport={{ once: true }}
-                                                        className={`w-full mb-4 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
+                                                        className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
                                                     >
                                                         <div
                                                             className={`text-center mb-2 opacity-90 text-sm font-normal uppercase tracking-widest`}
@@ -1170,6 +1235,69 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     </motion.div>
                                                 );
                                             }
+                                        } else if (link.platform === 'instagram' || (link.url.includes('instagram.com') && link.type !== 'collection')) {
+                                            // 1.5 Instagram Profile specialized card (for non-collections)
+                                            flushIcons();
+                                            flushCards();
+
+                                            if (instagramIntegration) {
+                                                renderedItems.push(
+                                                    <motion.div
+                                                        key={`instagram-profile-card-${link.id}`}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        whileInView={{ opacity: 1, y: 0 }}
+                                                        viewport={{ once: true }}
+                                                        className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
+                                                    >
+                                                        <InstagramCard
+                                                            username={instagramUsername || 'instagram_user'}
+                                                            followers={instagramFollowers || 0}
+                                                            avatarUrl={instagramAvatar || ''}
+                                                            media={instagramMedia}
+                                                            themeButtonClass={baseCardClass}
+                                                            themeButtonStyle={mainButtonStyle}
+                                                            themeTextHex={getSmartTextColor()}
+                                                            buttonRoundness={roundedClass || undefined}
+                                                            isDark={isDarkTheme}
+                                                            variant={link.layout === 'classic' ? 'profile' : 'feed'}
+                                                            fontFamily={profile.fontFamily}
+                                                            fontWeight={profile.fontWeight || undefined}
+                                                            fontItalic={profile.fontItalic}
+                                                        />
+                                                    </motion.div>
+                                                );
+                                            }
+                                        } else if (link.platform === 'youtube' || (link.url.includes('youtube.com') && !link.url.includes('watch?v=') && !link.url.includes('/shorts/'))) {
+                                            // 2.5 YouTube specialized card
+                                            flushIcons();
+                                            flushCards();
+
+                                            if (youtubeIntegration) {
+                                                renderedItems.push(
+                                                    <motion.div
+                                                        key={`youtube-card-${link.id}`}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        whileInView={{ opacity: 1, y: 0 }}
+                                                        viewport={{ once: true }}
+                                                        className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
+                                                    >
+                                                        <YouTubeCard
+                                                            username={youtubeUsername || link.url}
+                                                            title={youtubeTitle || link.title}
+                                                            subscribers={youtubeSubscribers || 0}
+                                                            avatarUrl={youtubeAvatar || ''}
+                                                            themeButtonClass={baseCardClass}
+                                                            themeButtonStyle={mainButtonStyle}
+                                                            themeTextHex={getSmartTextColor()}
+                                                            buttonRoundness={roundedClass || undefined}
+                                                            isDark={isDarkTheme}
+                                                            fontFamily={profile.fontFamily}
+                                                            fontWeight={profile.fontWeight || undefined}
+                                                            fontItalic={profile.fontItalic}
+                                                        />
+                                                    </motion.div>
+                                                );
+                                            }
                                         } else if (link.platform === 'twitch' || link.title.toLowerCase().includes('twitch')) {
                                             // 2. Twitch specialized card
                                             flushIcons();
@@ -1182,7 +1310,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         initial={{ opacity: 0, y: 10 }}
                                                         whileInView={{ opacity: 1, y: 0 }}
                                                         viewport={{ once: true }}
-                                                        className={`w-full mb-4 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
+                                                        className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
                                                     >
                                                         <TwitchCard
                                                             username={twitchUsername || 'twitch_user'}
@@ -1260,7 +1388,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             </div>
                                                             <div className="relative w-full">
                                                                 <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
-                                                                <div id={scrollContainerId} className="flex overflow-x-auto gap-3 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
+                                                                <div id={scrollContainerId} className="flex overflow-x-auto gap-2 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
                                                                     {activeChildren.map(child => {
                                                                         const childContent = (
                                                                             <div className="relative z-10 flex flex-col h-full w-full">
@@ -1319,7 +1447,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             >
                                                                 {link.title}
                                                             </div>
-                                                            <div className={collectionLayout === 'grid' ? "grid grid-cols-2 gap-3 relative" : "flex flex-col gap-3 relative"}>
+                                                            <div className={collectionLayout === 'grid' ? "grid grid-cols-2 gap-2 relative" : "flex flex-col gap-2 relative"}>
                                                                 {activeChildren.map(child => {
                                                                     if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
                                                                     if (child.embedType === 'youtube') return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} /></motion.div>;
@@ -1366,6 +1494,38 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full"><YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} /></motion.div>);
                                             } else if (link.embedType === 'tiktok') {
                                                 renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full"><TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>);
+                                            } else if (link.platform === 'instagram' || (link.url.includes('instagram.com') && link.type !== 'collection')) {
+                                                // 1.5 Instagram Profile specialized card (for non-collections)
+                                                flushIcons();
+                                                flushCards();
+
+                                                if (instagramIntegration) {
+                                                    renderedItems.push(
+                                                        <motion.div
+                                                            key={`instagram-profile-card-${link.id}`}
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            whileInView={{ opacity: 1, y: 0 }}
+                                                            viewport={{ once: true }}
+                                                            className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
+                                                        >
+                                                            <InstagramCard
+                                                                username={instagramUsername || 'instagram_user'}
+                                                                followers={instagramFollowers || 0}
+                                                                avatarUrl={instagramAvatar || ''}
+                                                                media={[]}
+                                                                themeButtonClass={baseCardClass}
+                                                                themeButtonStyle={mainButtonStyle}
+                                                                themeTextHex={getSmartTextColor()}
+                                                                buttonRoundness={roundedClass || undefined}
+                                                                isDark={isDarkTheme}
+                                                                variant="profile"
+                                                                fontFamily={profile.fontFamily}
+                                                                fontWeight={profile.fontWeight || undefined}
+                                                                fontItalic={profile.fontItalic}
+                                                            />
+                                                        </motion.div>
+                                                    );
+                                                }
                                             } else {
                                                 // Find matching social network
                                                 const network = SOCIAL_NETWORKS.find(n => link.title.toLowerCase().includes(n.id)) ||

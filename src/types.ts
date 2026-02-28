@@ -71,6 +71,7 @@ export interface UserProfile {
   integrations?: any[];
   usernameUpdatedAt?: string | null;
   bannerBlurColor?: string | null;
+  cardBackgroundColor?: string | null;
 }
 
 export interface Theme {

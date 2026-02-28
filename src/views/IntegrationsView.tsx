@@ -16,6 +16,7 @@ import {
 import { SiTiktok, SiSpotify } from 'react-icons/si';
 import { apiClient } from '../services/apiClient';
 import { UserProfile } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface IntegrationsViewProps {
     profile: UserProfile;
@@ -35,6 +36,7 @@ interface IntegrationCardProps {
     profileData?: any;
     color?: string;
     statusLabel?: string;
+    notice?: string;
 }
 
 const IntegrationCard: React.FC<IntegrationCardProps> = ({
@@ -49,16 +51,19 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
     isLoading,
     profileData,
     color = "#000",
-    statusLabel = "EM TESTES"
+    statusLabel,
+    notice
 }) => {
+    const { t } = useTranslation();
     const [showConfirm, setShowConfirm] = useState(false);
+    const finalStatusLabel = statusLabel || t('common.inTests');
 
     return (
         <div className={`relative border-2 border-black bg-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden ${!isAvailable ? 'opacity-60 grayscale' : ''}`}>
             {!isAvailable && (
                 <div className="absolute top-2 right-2 z-20">
                     <div className="bg-black text-[#ffdf00] text-[8px] font-medium uppercase tracking-[0.2em] px-2 py-0.5 border border-black flex items-center gap-1">
-                        <Lock size={8} /> {statusLabel}
+                        <Lock size={8} /> {finalStatusLabel}
                     </div>
                 </div>
             )}
@@ -81,6 +86,15 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                     )}
                 </div>
 
+                {notice && (
+                    <div className="mb-4 p-2.5 bg-yellow-50 border-2 border-black/10 flex items-start gap-2 animate-in fade-in slide-in-from-top-1">
+                        <AlertCircle size={12} className="text-yellow-600 shrink-0 mt-0.5" strokeWidth={3} />
+                        <p className="text-[8px] font-normal text-yellow-800 uppercase tracking-widest leading-relaxed">
+                            {notice}
+                        </p>
+                    </div>
+                )}
+
                 {isConnected && profileData && (
                     <div className="flex items-center gap-2 mb-4 p-2 bg-slate-50 border border-black/10">
                         <div className="w-8 h-8 rounded-full border border-black overflow-hidden bg-white shrink-0">
@@ -92,7 +106,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                         </div>
                         <div className="min-w-0">
                             <p className="text-[10px] font-bold uppercase tracking-tight truncate text-black leading-none">@{profileData.username || profileData.display_name}</p>
-                            <p className="text-[8px] uppercase tracking-widest text-[#97cd7a] font-bold bg-black px-1 mt-0.5 w-fit">CONECTADO</p>
+                            <p className="text-[8px] uppercase tracking-widest text-[#97cd7a] font-bold bg-black px-1 mt-0.5 w-fit">{t('common.connected')}</p>
                         </div>
                     </div>
                 )}
@@ -105,7 +119,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                                     onClick={() => setShowConfirm(!showConfirm)}
                                     className="w-full py-2 bg-white hover:bg-red-50 text-red-600 border-2 border-black text-[9px] font-bold uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
                                 >
-                                    {showConfirm ? 'CANCELAR' : 'DESCONECTAR'}
+                                    {showConfirm ? t('common.cancelCaps') : t('common.disconnect')}
                                 </button>
 
                                 <AnimatePresence>
@@ -118,7 +132,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                                             disabled={isLoading}
                                             className="w-full py-2 bg-red-600 text-white border-2 border-black text-[9px] font-bold uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-red-700 disabled:opacity-50"
                                         >
-                                            {isLoading ? <Loader2 size={12} className="animate-spin mx-auto" strokeWidth={3} /> : 'CONFIRMAR DESCONEXÃO'}
+                                            {isLoading ? <Loader2 size={12} className="animate-spin mx-auto" strokeWidth={3} /> : t('common.confirmDisconnect')}
                                         </motion.button>
                                     )}
                                 </AnimatePresence>
@@ -131,14 +145,14 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                             >
                                 {isLoading ? <Loader2 size={14} className="animate-spin" strokeWidth={3} /> : (
                                     <>
-                                        CONECTAR AGORA <ChevronRight size={14} strokeWidth={3} />
+                                        {t('common.connectNow')} <ChevronRight size={14} strokeWidth={3} />
                                     </>
                                 )}
                             </button>
                         )
                     ) : (
                         <div className="flex items-center justify-center py-3 px-4 bg-slate-100 border border-slate-200 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                            BLOQUEADO
+                            {t('common.blocked')}
                         </div>
                     )}
                 </div>
@@ -150,6 +164,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
 export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onChange }) => {
     const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const { t } = useTranslation();
 
     const integrations = profile.integrations || [];
     const isAuthorized = profile?.username === 'nodus' || profile?.username === 'nexus';
@@ -159,7 +174,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
             setError(null);
             const userId = profile.id;
             if (!userId) {
-                throw new Error('ID do usuário não encontrado. Tente recarregar a página.');
+                throw new Error(t('integrations.userIdNotFound'));
             }
             setLoadingProvider(provider);
 
@@ -170,13 +185,15 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
                 urlResponse = await apiClient.getInstagramAuthUrl(userId, window.location.origin);
             } else if (provider === 'twitch') {
                 urlResponse = await apiClient.getTwitchAuthUrl(userId, window.location.origin);
+            } else if (provider === 'youtube') {
+                urlResponse = await apiClient.getYoutubeAuthUrl(userId, window.location.origin);
             } else {
-                throw new Error('Provedor não suportado');
+                throw new Error(t('integrations.providerNotSupported'));
             }
 
             window.location.href = urlResponse.url;
         } catch (err: any) {
-            setError(`Erro ao iniciar conexão com ${provider}: ${err.message}`);
+            setError(`${t('integrations.errorConnecting')} ${provider}: ${err.message}`);
             setLoadingProvider(null);
         }
     };
@@ -194,7 +211,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
             onChange(updatedProfile);
             setLoadingProvider(null);
         } catch (err: any) {
-            setError(`Erro ao desconectar ${provider}: ${err.message}`);
+            setError(`${t('integrations.errorDisconnecting')} ${provider}: ${err.message}`);
             setLoadingProvider(null);
         }
     };
@@ -207,7 +224,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
         <div className="space-y-8 pb-32">
             <div>
                 <p className="text-black/50 text-[10px] uppercase font-medium tracking-widest mb-6 border-b border-black pb-2">
-                    Conecte suas contas para automatizar seu perfil, sincronizar seguidores e posts em tempo real.
+                    {t('integrations.viewDescription')}
                 </p>
 
                 {error && (
@@ -222,7 +239,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
                         id="instagram"
                         name="Instagram"
                         icon={Instagram}
-                        description="Business API: seguidores e posts."
+                        description={t('integrations.instagramDesc')}
                         isConnected={!!getIntegrationData('instagram')}
                         isAvailable={isAuthorized}
                         onConnect={() => handleConnect('instagram')}
@@ -230,14 +247,14 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
                         isLoading={loadingProvider === 'instagram'}
                         profileData={getIntegrationData('instagram')?.profile_data}
                         color="#E4405F"
-                        statusLabel="EM TESTES"
+                        statusLabel={t('common.inTests')}
                     />
 
                     <IntegrationCard
                         id="twitch"
                         name="Twitch"
                         icon={Twitch}
-                        description="Status ao vivo e seguidores."
+                        description={t('integrations.twitchDesc')}
                         isConnected={!!getIntegrationData('twitch')}
                         isAvailable={true}
                         onConnect={() => handleConnect('twitch')}
@@ -251,7 +268,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
                         id="tiktok"
                         name="TikTok"
                         icon={SiTiktok}
-                        description="Sincronize perfil e verificação."
+                        description={t('integrations.tiktokDesc')}
                         isConnected={!!getIntegrationData('tiktok')}
                         isAvailable={isAuthorized}
                         onConnect={() => handleConnect('tiktok')}
@@ -259,49 +276,50 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
                         isLoading={loadingProvider === 'tiktok'}
                         profileData={getIntegrationData('tiktok')?.profile_data}
                         color="#000000"
-                        statusLabel="EM TESTES"
+                        statusLabel={t('common.inTests')}
                     />
 
                     <IntegrationCard
                         id="youtube"
                         name="YouTube"
                         icon={Youtube}
-                        description="Inscritos e posts da comunidade."
-                        isConnected={false}
-                        isAvailable={false}
-                        onConnect={() => { }}
-                        onDisconnect={() => { }}
-                        isLoading={false}
+                        description={t('integrations.youtubeDesc')}
+                        isConnected={!!getIntegrationData('youtube')}
+                        isAvailable={true}
+                        onConnect={() => handleConnect('youtube')}
+                        onDisconnect={() => handleDisconnect('youtube')}
+                        isLoading={loadingProvider === 'youtube'}
+                        profileData={getIntegrationData('youtube')?.profile_data}
                         color="#FF0000"
-                        statusLabel="EM BREVE"
+                        notice={t('social.youtubeBetaNotice')}
                     />
 
                     <IntegrationCard
                         id="spotify"
                         name="Spotify"
                         icon={SiSpotify}
-                        description="Sincronize o que está ouvindo."
+                        description={t('integrations.spotifyDesc')}
                         isConnected={false}
                         isAvailable={false}
                         onConnect={() => { }}
                         onDisconnect={() => { }}
                         isLoading={false}
                         color="#1DB954"
-                        statusLabel="EM BREVE"
+                        statusLabel={t('common.comingSoon')}
                     />
 
                     <IntegrationCard
                         id="twitter"
                         name="X / Twitter"
                         icon={Twitter}
-                        description="Sincronize seus tweets (em breve)."
+                        description={t('integrations.twitterDesc')}
                         isConnected={false}
                         isAvailable={false}
                         onConnect={() => { }}
                         onDisconnect={() => { }}
                         isLoading={false}
                         color="#000000"
-                        statusLabel="EM BREVE"
+                        statusLabel={t('common.comingSoon')}
                     />
                 </div>
             </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -7,11 +8,11 @@ import {
 } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import BrutalistLoader from './BrutalistLoader';
-const translatePlan = (plan: string) => {
+const translatePlan = (plan: string, t: any) => {
     const p = plan?.toLowerCase() || 'free';
-    if (p === 'free') return 'GRATUITO';
-    if (p === 'monthly') return 'MENSAL';
-    if (p === 'yearly') return 'ANUAL';
+    if (p === 'free') return t('admin.free');
+    if (p === 'monthly') return t('admin.monthly');
+    if (p === 'yearly') return t('admin.yearly');
     return p.toUpperCase();
 };
 
@@ -45,6 +46,7 @@ interface AdminStats {
 }
 
 export default function AdminView() {
+    const { t } = useTranslation();
     const [stats, setStats] = useState<AdminStats | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -77,7 +79,7 @@ export default function AdminView() {
             setSelectedUser({ ...selectedUser, is_verified: updated.is_verified });
             loadStats(true); // Atualiza a lista por baixo
         } catch (err: any) {
-            alert('Erro: ' + (err.message || 'Falha ao processar verificação.'));
+            alert(t('common.error') + ': ' + (err.message || t('common.error')));
         } finally {
             setIsUpdating(false);
         }
@@ -92,7 +94,7 @@ export default function AdminView() {
             setDeleteConfirm(false);
             loadStats(true);
         } catch (err: any) {
-            alert('Erro: ' + (err.message || 'Falha ao deletar usuário.'));
+            alert(t('common.error') + ': ' + (err.message || t('common.error')));
         } finally {
             setIsUpdating(false);
         }
@@ -130,7 +132,7 @@ export default function AdminView() {
 
             setStats(data);
         } catch (err: any) {
-            setError(err.message || 'Erro ao carregar os dados administrativos.');
+            setError(err.message || t('admin.criticalError'));
             console.error(err);
         } finally {
             if (!silent) setIsLoading(false);
@@ -151,9 +153,9 @@ export default function AdminView() {
         return (
             <div className="w-full h-[70vh] flex items-center justify-center p-6">
                 <BrutalistLoader
-                    message="ACESSANDO CORE ENGINE..."
+                    message={t('admin.accessingEngine')}
                     progress={50}
-                    subtext="ESTATÍSTICAS DE NÍVEL DE SISTEMA"
+                    subtext={t('admin.systemStats')}
                 />
             </div>
         );
@@ -164,13 +166,13 @@ export default function AdminView() {
             <div className="w-full p-6 text-center">
                 <div className="bg-[#ff3333] border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] inline-block">
                     <ShieldAlert size={48} className="mx-auto mb-4 text-black" />
-                    <h2 className="text-xl font-black uppercase tracking-widest text-black mb-2">Erro Crítico de Acesso</h2>
+                    <h2 className="text-xl font-black uppercase tracking-widest text-black mb-2">{t('admin.criticalError')}</h2>
                     <p className="text-sm font-bold text-black uppercase">{error}</p>
                     <button
                         onClick={() => loadStats()}
                         className="mt-6 px-6 py-3 bg-white border-2 border-black text-xs font-black uppercase tracking-widest hover:bg-[#ffdf00] transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                     >
-                        Reconectar
+                        {t('admin.reconnect')}
                     </button>
                 </div>
             </div>
@@ -194,18 +196,22 @@ export default function AdminView() {
                     <div className="flex flex-wrap items-center gap-4 mb-6">
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-[#97cd7a] text-[10px] font-black uppercase tracking-[0.2em] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)]">
                             <span className="w-2 h-2 rounded-full bg-[#97cd7a] animate-pulse"></span>
-                            Nodus Admin Console
+                            {t('admin.console')}
                         </div>
                         <div className="px-3 py-1 bg-white border-2 border-black text-black text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
                             <RefreshCw size={10} className="animate-spin duration-[4000ms]" />
-                            Monitoramento em Tempo Real
+                            {t('admin.realTimeMonitoring')}
                         </div>
                     </div>
                     <h1 className="text-4xl md:text-6xl font-black text-black uppercase tracking-tighter leading-[0.85] mb-4">
-                        Centro de <br className="hidden md:block" /> Inteligência
+                        {t('admin.title').split(' ').map((word, i) => (
+                            <React.Fragment key={i}>
+                                {word} {i === 1 && <br className="hidden md:block" />}
+                            </React.Fragment>
+                        ))}
                     </h1>
                     <p className="text-xs md:text-base font-bold text-black/60 uppercase tracking-widest max-w-xl">
-                        Visão analítica completa sobre o ecossistema Nodus. Monitore o crescimento, conversão e saúde da plataforma em tempo real.
+                        {t('admin.subtitle')}
                     </p>
                 </div>
             </div>
@@ -213,32 +219,32 @@ export default function AdminView() {
             {/* Main KPIs Row */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
                 <KPIBox
-                    label="Usuários Totais"
+                    label={t('admin.totalUsers')}
                     value={stats.summary?.totalUsers || 0}
                     color="#e6b3ff"
                     icon={<Users size={20} />}
-                    sublabel={`+${stats.growth?.thisWeek || 0} esta semana`}
+                    sublabel={t('admin.thisWeek', { count: stats.growth?.thisWeek || 0 })}
                 />
                 <KPIBox
-                    label="Conversão Pro"
+                    label={t('admin.proConversion')}
                     value={`${conversionRate}%`}
                     color="#97cd7a"
                     icon={<ShieldAlert size={20} />}
-                    sublabel={`${stats.summary?.proUsers || 0} assinantes ativos`}
+                    sublabel={t('admin.activeSubscribers', { count: stats.summary?.proUsers || 0 })}
                 />
                 <KPIBox
-                    label="Taxa de Clique (CTR)"
+                    label={t('admin.ctr')}
                     value={`${stats.summary?.globalCTR || '0.00'}%`}
                     color="#ff66b2"
                     icon={<MousePointerClick size={20} />}
-                    sublabel="Eficiência global de links"
+                    sublabel={t('admin.globalEfficiency')}
                 />
                 <KPIBox
-                    label="Views Globais"
+                    label={t('admin.globalViews')}
                     value={stats.summary?.totalViews || 0}
                     color="#66ccff"
                     icon={<Eye size={20} />}
-                    sublabel="Alcance total da rede"
+                    sublabel={t('admin.networkReach')}
                 />
             </div>
 
@@ -247,8 +253,8 @@ export default function AdminView() {
                 <div className="lg:col-span-2 space-y-6">
                     <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col">
                         <div className="p-5 border-b-4 border-black bg-black text-white flex justify-between items-center">
-                            <h2 className="text-sm font-black uppercase tracking-[0.2em]">Novos Exploradores</h2>
-                            <div className="text-[10px] font-black bg-[#97cd7a] text-black px-2 py-0.5">Registros Destacados</div>
+                            <h2 className="text-sm font-black uppercase tracking-[0.2em]">{t('admin.newExplorers')}</h2>
+                            <div className="text-[10px] font-black bg-[#97cd7a] text-black px-2 py-0.5">{t('admin.featuredRecords')}</div>
                         </div>
                         <div className="divide-y-2 divide-black max-h-[600px] overflow-y-auto custom-scrollbar">
                             {stats.latestUsers?.map((u) => (
@@ -271,10 +277,10 @@ export default function AdminView() {
                                     </div>
                                     <div className="text-right">
                                         <div className={`text-[8px] font-black py-0.5 px-2 mb-1 inline-block border border-black ${u.plan_type !== 'free' ? 'bg-[#97cd7a] text-black' : 'bg-slate-100 text-black/40'}`}>
-                                            {translatePlan(u.plan_type)}
+                                            {translatePlan(u.plan_type, t)}
                                         </div>
                                         <p className="text-[9px] font-bold text-black/30 uppercase">
-                                            {new Date(u.created_at).toLocaleDateString('pt-BR')}
+                                            {new Date(u.created_at).toLocaleDateString(t('common.locale', { defaultValue: 'pt-BR' }))}
                                         </p>
                                     </div>
                                 </div>
@@ -285,30 +291,30 @@ export default function AdminView() {
                     {/* Platform Assets */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="bg-white border-4 border-black p-6 shadow-[6px_6px_0px_0px_rgba(151,205,122,1)]">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-2">Inventário de Conteúdo</h3>
+                            <h3 className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-2">{t('admin.contentInventory')}</h3>
                             <div className="flex items-center justify-between">
                                 <div>
                                     <span className="text-4xl font-black">{stats.summary?.totalLinks || 0}</span>
-                                    <p className="text-[10px] font-black uppercase">Links Ativos</p>
+                                    <p className="text-[10px] font-black uppercase">{t('admin.activeLinks')}</p>
                                 </div>
                                 <div className="h-12 w-[2px] bg-black/10"></div>
                                 <div>
                                     <span className="text-4xl font-black">{stats.summary?.totalProducts || 0}</span>
-                                    <p className="text-[10px] font-black uppercase">Produtos</p>
+                                    <p className="text-[10px] font-black uppercase">{t('admin.products')}</p>
                                 </div>
                             </div>
                         </div>
                         <div className="bg-white border-4 border-black p-6 shadow-[6px_6px_0px_0px_rgba(255,102,178,1)]">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-2">Interação Total</h3>
+                            <h3 className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-2">{t('admin.realTimeMonitoring')}</h3>
                             <div className="flex items-center justify-between">
                                 <div>
                                     <span className="text-4xl font-black">{stats.summary?.totalClicks || 0}</span>
-                                    <p className="text-[10px] font-black uppercase">Cliques</p>
+                                    <p className="text-[10px] font-black uppercase">{t('admin.clicks')}</p>
                                 </div>
                                 <div className="h-12 w-[2px] bg-black/10"></div>
                                 <div>
                                     <span className="text-4xl font-black">{stats.summary?.totalViews || 0}</span>
-                                    <p className="text-[10px] font-black uppercase">Views</p>
+                                    <p className="text-[10px] font-black uppercase">{t('admin.views')}</p>
                                 </div>
                             </div>
                         </div>
@@ -318,18 +324,18 @@ export default function AdminView() {
                 {/* Right Column: Growth & Charts */}
                 <div className="space-y-6">
                     <div className="bg-[#e6b3ff] border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                        <h2 className="text-lg font-black uppercase tracking-tighter mb-6">Crescimento</h2>
+                        <h2 className="text-lg font-black uppercase tracking-tighter mb-6">{t('admin.growth')}</h2>
 
                         <div className="space-y-8">
-                            <GrowthLine label="Novos Hoje" value={stats.growth?.today || 0} percentage={((stats.growth?.today || 0) / (stats.summary?.totalUsers || 1) * 100).toFixed(1)} />
-                            <GrowthLine label="Últimos 7 Dias" value={stats.growth?.thisWeek || 0} percentage={((stats.growth?.thisWeek || 0) / (stats.summary?.totalUsers || 1) * 100).toFixed(1)} />
+                            <GrowthLine label={t('admin.newToday')} value={stats.growth?.today || 0} percentage={((stats.growth?.today || 0) / (stats.summary?.totalUsers || 1) * 100).toFixed(1)} />
+                            <GrowthLine label={t('admin.last7Days')} value={stats.growth?.thisWeek || 0} percentage={((stats.growth?.thisWeek || 0) / (stats.summary?.totalUsers || 1) * 100).toFixed(1)} />
                         </div>
 
                         <div className="mt-10 pt-6 border-t-2 border-black/10">
                             <div className="flex justify-between items-end">
                                 <div>
-                                    <p className="text-[10px] font-black uppercase opacity-40">Média de Crescimento</p>
-                                    <h4 className="text-2xl font-black">+{Math.ceil((stats.growth?.thisWeek || 0) / 7)} / dia</h4>
+                                    <p className="text-[10px] font-black uppercase opacity-40">{t('admin.growthAverage')}</p>
+                                    <h4 className="text-2xl font-black">{t('admin.growthPerDay', { count: Math.ceil((stats.growth?.thisWeek || 0) / 7) })}</h4>
                                 </div>
                                 <div className="p-2 bg-black text-[#e6b3ff]">
                                     <RefreshCw size={24} strokeWidth={3} />
@@ -339,7 +345,7 @@ export default function AdminView() {
                     </div>
 
                     <div className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                        <h2 className="text-xs font-black uppercase tracking-widest mb-4">Saúde do Sistema</h2>
+                        <h2 className="text-xs font-black uppercase tracking-widest mb-4">{t('admin.systemHealth')}</h2>
                         <div className="space-y-3">
                             <StatusIndicator label="API Engine" status="ONLINE" />
                             <StatusIndicator label="DB Supabase" status="LATENCY OK" />
@@ -409,11 +415,13 @@ export default function AdminView() {
                                         </div>
 
                                         <div className="w-full space-y-3 mb-auto">
-                                            <div className={`w-full py-2.5 border-2 border-black text-[10px] font-black uppercase tracking-widest ${selectedUser.plan_type !== 'free' ? 'bg-[#ffdf00]' : 'bg-white'}`}>
-                                                PLANO: {translatePlan(selectedUser.plan_type)}
-                                            </div>
-                                            <div className="w-full py-2.5 border-2 border-black bg-black text-white text-[10px] font-black uppercase tracking-widest">
-                                                CAT: {selectedUser.user_category?.toUpperCase() || 'PADRÃO'}
+                                            <div className="w-full space-y-3 mb-auto">
+                                                <div className={`w-full py-2.5 border-2 border-black text-[10px] font-black uppercase tracking-widest ${selectedUser.plan_type !== 'free' ? 'bg-[#ffdf00]' : 'bg-white'}`}>
+                                                    {t('admin.plan')}: {translatePlan(selectedUser.plan_type, t)}
+                                                </div>
+                                                <div className="w-full py-2.5 border-2 border-black bg-black text-white text-[10px] font-black uppercase tracking-widest">
+                                                    {t('admin.category')}: {selectedUser.user_category?.toUpperCase() || t('admin.unidentified')}
+                                                </div>
                                             </div>
                                         </div>
 
@@ -427,7 +435,7 @@ export default function AdminView() {
                                         {/* Modal Header Tab */}
                                         <div className="bg-black text-white p-4 flex items-center gap-3">
                                             <div className="w-2 h-2 rounded-full bg-[#97cd7a] animate-pulse"></div>
-                                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em]">Registro Central de Exploradores</h3>
+                                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em]">{t('admin.userRecord')}</h3>
                                         </div>
 
                                         <div className={`p-6 flex-1 ${!isMobile ? 'overflow-y-auto max-h-[75vh]' : ''}`}>
@@ -456,7 +464,7 @@ export default function AdminView() {
                                                     <div className="flex items-center gap-3">
                                                         <Calendar size={16} className="text-black/30" />
                                                         <p className="text-[11px] font-bold text-black/60 capitalize">
-                                                            Membro ativo desde <span className="text-black">{new Date(selectedUser.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</span>.
+                                                            {t('admin.memberSince', { date: new Date(selectedUser.created_at).toLocaleDateString(t('common.locale', { defaultValue: 'pt-BR' }), { day: '2-digit', month: 'long', year: 'numeric' }) })}.
                                                         </p>
                                                     </div>
                                                 </div>
@@ -475,7 +483,7 @@ export default function AdminView() {
                                                 <div>
                                                     <h4 className="text-[10px] font-black uppercase border-b-2 border-black mb-4 pb-1 flex items-center gap-2">
                                                         <Activity size={12} strokeWidth={3} />
-                                                        Performance do Perfil
+                                                        {t('admin.profilePerformance')}
                                                     </h4>
                                                     <div className="grid grid-cols-3 gap-3">
                                                         <div className="bg-white border-2 border-black p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
@@ -501,7 +509,7 @@ export default function AdminView() {
                                         <div className="flex justify-between items-center mb-8">
                                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
                                                 <Briefcase size={14} />
-                                                Operações
+                                                {t('admin.operations')}
                                             </h4>
                                             <button
                                                 onClick={() => setSelectedUser(null)}
@@ -514,7 +522,7 @@ export default function AdminView() {
                                         <div className="space-y-6 flex-1">
                                             {/* Verification Toggle */}
                                             <div className="space-y-3">
-                                                <p className="text-[9px] font-black uppercase text-black/40">Status de Credibilidade</p>
+                                                <p className="text-[9px] font-black uppercase text-black/40">{t('admin.credibilityStatus')}</p>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); toggleVerification(); }}
                                                     disabled={isUpdating}
@@ -528,13 +536,13 @@ export default function AdminView() {
                                                     ) : (
                                                         <img src="/icons/icons8-verificado-48.png" className="w-8 h-8 object-contain" alt="Verified Icon" />
                                                     )}
-                                                    <span>{selectedUser.is_verified ? 'REVOGAR SELO' : 'CONCEDER SELO'}</span>
+                                                    <span>{selectedUser.is_verified ? t('admin.revokeBadge') : t('admin.grantBadge')}</span>
                                                 </button>
                                             </div>
 
                                             {/* Public Link */}
                                             <div className="space-y-3">
-                                                <p className="text-[9px] font-black uppercase text-black/40">Navegação Externa</p>
+                                                <p className="text-[9px] font-black uppercase text-black/40">{t('admin.externalNavigation')}</p>
                                                 <a
                                                     href={`/${selectedUser.username}`}
                                                     target="_blank"
@@ -542,7 +550,7 @@ export default function AdminView() {
                                                     className="flex flex-col items-center justify-center gap-2 w-full py-4 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#97cd7a] hover:text-black transition-all shadow-[6px_6px_0px_0px_rgba(151,205,122,0.3)] active:shadow-none active:translate-x-1 active:translate-y-1"
                                                 >
                                                     <ExternalLink size={20} strokeWidth={3} />
-                                                    <span>VISUALIZAR PÁGINA</span>
+                                                    <span>{t('admin.viewPage')}</span>
                                                 </a>
                                             </div>
 
@@ -552,7 +560,7 @@ export default function AdminView() {
                                             <div className={`mt-auto border-2 border-black p-4 transition-colors ${deleteConfirm ? 'bg-[#ff0000] text-white' : 'bg-[#fff0f0]'}`}>
                                                 <div className="flex items-center gap-2 mb-3">
                                                     <AlertCircle size={14} />
-                                                    <span className="text-[9px] font-black uppercase tracking-widest">Protocolo de Exclusão</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-widest">{t('admin.deletionProtocol')}</span>
                                                 </div>
 
                                                 {!deleteConfirm ? (
@@ -560,30 +568,30 @@ export default function AdminView() {
                                                         onClick={(e) => { e.stopPropagation(); setDeleteConfirm(true); }}
                                                         className="w-full py-2 bg-black text-white text-[9px] font-black uppercase tracking-widest hover:bg-red-600 transition-colors"
                                                     >
-                                                        APAGAR REGISTRO
+                                                        {t('admin.deleteRecord')}
                                                     </button>
                                                 ) : (
                                                     <div className="space-y-3">
                                                         <div className="space-y-1">
-                                                            <p className="text-[8px] font-black uppercase text-white/70">Digite 'deletar' para confirmar:</p>
+                                                            <p className="text-[8px] font-black uppercase text-white/70">{t('admin.typeDeleteToConfirm')}</p>
                                                             <input
                                                                 type="text"
                                                                 value={deleteInput}
                                                                 onChange={(e) => setDeleteInput(e.target.value)}
-                                                                placeholder="deletar"
+                                                                placeholder={t('admin.deleteRecord').toLowerCase()}
                                                                 className="w-full bg-white/10 border border-white/30 p-2 text-[10px] font-black text-white placeholder:text-white/20 focus:outline-none focus:border-white transition-colors"
                                                                 onClick={(e) => e.stopPropagation()}
                                                             />
                                                         </div>
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); handleDeleteUser(); }}
-                                                            disabled={isUpdating || deleteInput !== 'deletar'}
-                                                            className={`w-full py-2 text-[9px] font-black uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] active:shadow-none ${deleteInput === 'deletar'
+                                                            disabled={isUpdating || deleteInput !== t('admin.deleteRecord').toLowerCase()}
+                                                            className={`w-full py-2 text-[9px] font-black uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] active:shadow-none ${deleteInput === t('admin.deleteRecord').toLowerCase()
                                                                 ? 'bg-white text-red-600 opacity-100'
                                                                 : 'bg-white/20 text-white/40 cursor-not-allowed border-white/20 shadow-none'
                                                                 }`}
                                                         >
-                                                            CONFIRMAR EXCLUSÃO
+                                                            {t('admin.confirmDeletion')}
                                                         </button>
                                                         <button
                                                             onClick={(e) => {
@@ -593,7 +601,7 @@ export default function AdminView() {
                                                             }}
                                                             className="w-full py-2 bg-transparent text-white border border-white text-[8px] font-black uppercase tracking-widest"
                                                         >
-                                                            CANCELAR
+                                                            {t('admin.cancel')}
                                                         </button>
                                                     </div>
                                                 )}
@@ -612,6 +620,7 @@ export default function AdminView() {
 }
 
 function KPIBox({ label, value, color, icon, sublabel }: any) {
+    const { t } = useTranslation();
     return (
         <div className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div className="flex justify-between items-start mb-6">
@@ -621,7 +630,7 @@ function KPIBox({ label, value, color, icon, sublabel }: any) {
                 </div>
             </div>
             <div className="mt-auto">
-                <span className="text-4xl font-black tracking-tighter">{value.toLocaleString ? value.toLocaleString('pt-BR') : value}</span>
+                <span className="text-4xl font-black tracking-tighter">{value.toLocaleString ? value.toLocaleString(t('common.locale', { defaultValue: 'pt-BR' })) : value}</span>
                 <p className="text-[9px] font-bold text-black/40 uppercase tracking-widest mt-1">{sublabel}</p>
             </div>
             <div className="absolute bottom-0 left-0 h-1 w-0 group-hover:w-full transition-all duration-500" style={{ backgroundColor: color }}></div>
@@ -630,6 +639,7 @@ function KPIBox({ label, value, color, icon, sublabel }: any) {
 }
 
 function GrowthLine({ label, value, percentage }: any) {
+    const { t } = useTranslation();
     const numericPercentage = Number(percentage) || 0;
     // Cap at 100% and ensure a minimum visibility of 2% if there is any value
     const barWidth = Math.min(Math.max(numericPercentage, value > 0 ? 2 : 0), 100);
@@ -648,7 +658,7 @@ function GrowthLine({ label, value, percentage }: any) {
             </div>
             <div className="flex justify-end mt-1">
                 <span className="text-[8px] font-black uppercase tracking-tighter opacity-40 group-hover:opacity-100 transition-opacity">
-                    {percentage}% da base total
+                    {t('admin.percentageOfBase', { percentage })}
                 </span>
             </div>
         </div>
@@ -667,6 +677,7 @@ function StatusIndicator({ label, status }: any) {
 }
 
 function InfoCard({ label, value, icon, onCopy, isCopied }: any) {
+    const { t } = useTranslation();
     return (
         <div className="bg-white border-2 border-black p-3 relative group shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
             <div className="flex items-center justify-between mb-1">
@@ -685,7 +696,7 @@ function InfoCard({ label, value, icon, onCopy, isCopied }: any) {
             <p className="text-[11px] font-bold text-black truncate pr-4">{value}</p>
             {isCopied && (
                 <div className="absolute -top-6 right-0 bg-[#97cd7a] text-black text-[8px] font-black px-2 py-0.5 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-bounce">
-                    COPIADO!
+                    {t('common.copied').toUpperCase()}!
                 </div>
             )}
         </div>

@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { QRCodeCanvas } from 'qrcode.react';
 import { X, Download, Copy, Check } from 'lucide-react';
 
@@ -9,6 +10,7 @@ interface QRCodeModalProps {
 }
 
 export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalProps) {
+    const { t } = useTranslation();
     const canvasRef = useRef<HTMLDivElement>(null);
     const [copied, setCopied] = useState(false);
 
@@ -44,7 +46,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
 
                 <div className="flex flex-col items-center">
                     <div className="mb-6 w-full">
-                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-black">Compartilhar Perfil</h3>
+                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-black">{t('profile.shareTitle')}</h3>
                         <div className="h-1 w-12 bg-black mt-1"></div>
                     </div>
 
@@ -56,7 +58,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                             fgColor={"#000000"}
                             level={"H"}
                             imageSettings={{
-                                src: "/faviconnodus.png",
+                                src: "/favicon.png",
                                 x: undefined,
                                 y: undefined,
                                 height: 50,
@@ -72,13 +74,13 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-black font-black uppercase tracking-widest text-[10px] transition-all ${copied ? 'bg-[#97cd7a]' : 'bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]'}`}
                         >
                             {copied ? <Check size={16} strokeWidth={3} /> : <Copy size={16} strokeWidth={3} />}
-                            {copied ? 'Copiado' : 'Copiar Link'}
+                            {copied ? t('common.copied') : t('profile.copyLink')}
                         </button>
                         <button
                             onClick={handleDownload}
                             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-black text-white border-2 border-black font-black uppercase tracking-widest text-[10px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                         >
-                            <Download size={16} strokeWidth={3} /> Salvar QR
+                            <Download size={16} strokeWidth={3} /> {t('profile.saveQR')}
                         </button>
                     </div>
                 </div>

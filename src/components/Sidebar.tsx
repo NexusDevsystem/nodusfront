@@ -27,9 +27,10 @@ import {
   ShieldAlert,
   X
 } from 'lucide-react';
-
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
+import LanguageToggle from './LanguageToggle';
 
 interface SidebarProps {
   activeTab: string;
@@ -54,58 +55,49 @@ interface MenuGroup {
   items: MenuItem[];
 }
 
-const MENU_GROUPS: MenuGroup[] = [
-  {
-    id: 'my-linktree',
-    label: 'Meu Nodus',
-    groupIcon: Layers,
-    items: [
-      { id: 'links', label: 'Links', icon: LinkIcon },
-      { id: 'appearance', label: 'Design', icon: Palette },
-      { id: 'shop', label: 'Loja', icon: ShoppingBag, disabled: false },
-      { id: 'earn', label: 'Monetizar (Caixinha)', icon: DollarSign, disabled: false },
-    ]
-  },
-  {
-    id: 'connections',
-    label: 'Conexões',
-    groupIcon: Zap,
-    items: [
-      { id: 'integrations', label: 'Integrações', icon: Zap },
-    ]
-  },
-  {
-    id: 'insights',
-    label: 'Insights',
-    groupIcon: BarChart2,
-    items: [
-      {
-        id: 'analytics',
-        label: 'Estatísticas',
-        icon: BarChart2,
-        disabled: false
-      },
-    ]
-  },
-  {
-    id: 'tools',
-    label: 'Ferramentas',
-    groupIcon: Sparkles,
-    items: [
-      {
-        id: 'files',
-        label: 'Arquivos',
-        icon: FolderOpen,
-        disabled: false
-      }
-    ]
-  }
-];
-
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile, className, onUpgradeClick, onClose }) => {
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+
+  const MENU_GROUPS: MenuGroup[] = [
+    {
+      id: 'my-linktree',
+      label: t('sidebar.myNodus'),
+      groupIcon: Layers,
+      items: [
+        { id: 'links', label: t('sidebar.links'), icon: LinkIcon },
+        { id: 'appearance', label: t('sidebar.design'), icon: Palette },
+        { id: 'shop', label: t('sidebar.shop'), icon: ShoppingBag, disabled: false },
+        { id: 'earn', label: t('sidebar.monetize'), icon: DollarSign, disabled: false },
+      ]
+    },
+    {
+      id: 'connections',
+      label: t('sidebar.connections'),
+      groupIcon: Zap,
+      items: [
+        { id: 'integrations', label: t('sidebar.integrations'), icon: Zap },
+      ]
+    },
+    {
+      id: 'insights',
+      label: t('sidebar.insights'),
+      groupIcon: BarChart2,
+      items: [
+        { id: 'analytics', label: t('sidebar.analytics'), icon: BarChart2, disabled: false },
+      ]
+    },
+    {
+      id: 'tools',
+      label: t('sidebar.tools'),
+      groupIcon: Sparkles,
+      items: [
+        { id: 'files', label: t('sidebar.files'), icon: FolderOpen, disabled: false }
+      ]
+    }
+  ];
 
   React.useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -239,7 +231,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
             className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'billing' ? 'border-black bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-black/5'}`}
           >
             <CreditCard size={13} strokeWidth={2} />
-            Upgrade & Planos
+            {t('sidebar.upgrade')}
           </button>
 
           {userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com' ? (
@@ -248,7 +240,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
               className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'admin' ? 'border-black bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-black/5'}`}
             >
               <ShieldAlert size={13} strokeWidth={2} />
-              Administração
+              {t('sidebar.administration')}
             </button>
           ) : null}
 
@@ -257,8 +249,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
             className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'support' ? 'border-black bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-black/5'}`}
           >
             <HelpCircle size={13} strokeWidth={2} />
-            Suporte
+            {t('sidebar.support')}
           </button>
+
+          <div className="flex items-center justify-between pt-2 border-t border-black/10">
+            <span className="text-[8px] uppercase tracking-widest text-black/30 font-medium">{t('sidebar.language')}</span>
+            <LanguageToggle />
+          </div>
         </div>
 
         {/* Account Switcher / User Profile Mini Card */}
@@ -276,7 +273,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                   className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-black/5 transition-colors border-b-2 border-black text-[11px] font-bold uppercase tracking-widest"
                 >
                   <CreditCard size={18} strokeWidth={2.5} />
-                  Upgrade & Planos
+                  {t('sidebar.upgrade')}
                 </button>
 
                 {(userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com') && (
@@ -285,7 +282,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                     className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-black/5 transition-colors border-b-2 border-black text-[11px] font-bold uppercase tracking-widest"
                   >
                     <ShieldAlert size={18} strokeWidth={2.5} />
-                    Administração
+                    {t('sidebar.administration')}
                   </button>
                 )}
 
@@ -294,15 +291,20 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                   className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-black/5 transition-colors border-b-2 border-black text-[11px] font-bold uppercase tracking-widest"
                 >
                   <HelpCircle size={18} strokeWidth={2.5} />
-                  Suporte
+                  {t('sidebar.support')}
                 </button>
+
+                <div className="flex items-center justify-between px-4 py-3 border-b-2 border-black">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-black/50">{t('sidebar.lang')}</span>
+                  <LanguageToggle />
+                </div>
 
                 <button
                   onClick={() => signOut()}
                   className="w-full flex items-center gap-3 px-4 py-4 text-red-600 hover:bg-red-50 transition-colors text-[11px] font-bold uppercase tracking-widest"
                 >
                   <LogOut size={18} strokeWidth={2.5} />
-                  Sair da Conta
+                  {t('sidebar.signOut')}
                 </button>
               </motion.div>
             )}
@@ -321,7 +323,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                 )}
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] md:text-[9px] font-bold md:font-medium uppercase tracking-tight truncate text-black leading-none mb-1 md:mb-0.5">{user?.name || 'Usuário'}</div>
+                <div className="text-[10px] md:text-[9px] font-bold md:font-medium uppercase tracking-tight truncate text-black leading-none mb-1 md:mb-0.5">{user?.name || t('sidebar.user')}</div>
                 <div className="text-[8px] md:text-[7px] font-normal uppercase tracking-tighter truncate text-black/40 leading-none">{user?.email || 'email@exemplo.com'}</div>
               </div>
             </div>

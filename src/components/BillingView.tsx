@@ -12,69 +12,72 @@ import {
 } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import confetti from 'canvas-confetti';
+import { useTranslation } from 'react-i18next';
 
 interface BillingViewProps {
     profile: UserProfile;
     onChange: (profile: UserProfile) => void;
 }
 
-const PLANS = [
-    {
-        id: 'free',
-        name: 'Gratuito',
-        price: 'R$ 0',
-        period: '',
-        description: 'TUDO O QUE VOCÊ PRECISA PARA COMEÇAR SUA PRESENÇA ONLINE.',
-        features: [
-            'LINKS ILIMITADOS',
-            'NEWSLETTER WIDGET',
-            'TEMAS BÁSICOS ANIMADOS',
-            'ANALYTICS BÁSICO (7 DIAS)',
-            'SUPORTE VIA EMAIL'
-        ],
-        buttonText: 'PLANO ATUAL',
-        highlight: false,
-    },
-    {
-        id: 'monthly',
-        name: 'Mensal',
-        price: 'R$ 29,90',
-        period: '/MÊS',
-        description: 'RECURSOS AVANÇADOS PARA PROFISSIONAIS E CRIADORES.',
-        features: [
-            'TODOS OS RECURSOS DO GRATUITO',
-            'TEMAS PRO & EXCLUSIVIDADE',
-            'DESIGN PERSONALIZADO (CORES/BLUR)',
-            'ANALYTICS COMPLETO (30 DIAS)',
-            'LOJA COM PRODUTOS ILIMITADOS',
-            'SUPORTE PRIORITÁRIO'
-        ],
-        buttonText: 'ASSINAR MENSAL',
-        highlight: true,
-    },
-    {
-        id: 'annual',
-        name: 'Anual',
-        price: 'R$ 299',
-        period: '/ANO',
-        description: 'A MELHOR ESCOLHA PARA QUEM QUER CRESCER RÁPIDO.',
-        features: [
-            '2 MESES GRÁTIS (ECONOMIA R$ 59)',
-            'TODOS OS RECURSOS DO MENSAL',
-            'ACESSO ANTECIPADO A BETA',
-            'REMOVER MARCA NODUS'
-        ],
-        buttonText: 'ASSINAR ANUAL',
-        highlight: false,
-        badge: 'MELHOR VALOR',
-    }
-];
-
 type PurchaseStatus = 'idle' | 'pending' | 'success';
 
 const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
+    const { t } = useTranslation();
     const [status, setStatus] = useState<PurchaseStatus>('idle');
     const currentPlan = profile.planType || 'free';
+
+    const PLANS = [
+        {
+            id: 'free',
+            name: t('billing.plans.free.name'),
+            price: 'R$ 0',
+            period: '',
+            description: t('billing.plans.free.description'),
+            features: [
+                t('billing.plans.free.features.0'),
+                t('billing.plans.free.features.1'),
+                t('billing.plans.free.features.2'),
+                t('billing.plans.free.features.3'),
+                t('billing.plans.free.features.4'),
+            ],
+            buttonText: t('billing.plans.free.button'),
+            highlight: false,
+        },
+        {
+            id: 'monthly',
+            name: t('billing.plans.monthly.name'),
+            price: 'R$ 29,90',
+            period: '/MÊS',
+            description: t('billing.plans.monthly.description'),
+            features: [
+                t('billing.plans.monthly.features.0'),
+                t('billing.plans.monthly.features.1'),
+                t('billing.plans.monthly.features.2'),
+                t('billing.plans.monthly.features.3'),
+                t('billing.plans.monthly.features.4'),
+                t('billing.plans.monthly.features.5'),
+            ],
+            buttonText: t('billing.plans.monthly.button'),
+            highlight: true,
+        },
+        {
+            id: 'annual',
+            name: t('billing.plans.annual.name'),
+            price: 'R$ 299',
+            period: '/ANO',
+            description: t('billing.plans.annual.description'),
+            features: [
+                t('billing.plans.annual.features.0'),
+                t('billing.plans.annual.features.1'),
+                t('billing.plans.annual.features.2'),
+                t('billing.plans.annual.features.3'),
+            ],
+            buttonText: t('billing.plans.annual.button'),
+            highlight: false,
+            badge: t('billing.plans.annual.badge'),
+        }
+    ];
+
 
     useEffect(() => {
         const handleMessage = async (event: MessageEvent) => {
@@ -162,7 +165,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
             }
         } catch (error: any) {
             console.error('Checkout error:', error);
-            alert(error.message || 'Falha ao iniciar checkout.');
+            alert(error.message || t('billing.checkoutError'));
         } finally {
             setIsCheckingOut(null);
         }
@@ -174,13 +177,13 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                 <div className="w-24 h-24 bg-[#97cd7a] text-black border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-8 rotate-3">
                     <PartyPopper size={48} strokeWidth={3} />
                 </div>
-                <h2 className="text-4xl font-black text-black uppercase tracking-tighter mb-4">Upgrade Concluído!</h2>
+                <h2 className="text-4xl font-black text-black uppercase tracking-tighter mb-4">{t('billing.upgradeComplete')}</h2>
                 <p className="text-black/60 max-w-md mx-auto mb-10 text-lg font-bold leading-tight">
-                    SUA CONTA AGORA É <span className="bg-black text-[#97cd7a] px-2 py-0.5">{profile.planType === 'monthly' ? 'PREMIUM MENSAL' : 'PREMIUM ANUAL'}</span>. APROVEITE TODOS OS RECURSOS LIBERADOS!
+                    {t('billing.accountNow')} <span className="bg-black text-[#97cd7a] px-2 py-0.5">{profile.planType === 'monthly' ? t('billing.premiumMonthly') : t('billing.premiumAnnual')}</span>. {t('billing.allFeaturesUnlocked')}
                 </p>
                 <div className="bg-black text-white px-8 py-4 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] font-black uppercase tracking-widest flex items-center gap-3">
                     <ShieldCheck size={24} strokeWidth={3} />
-                    Assinatura Ativa
+                    {t('billing.activeSubscription')}
                 </div>
             </div>
         );
@@ -192,15 +195,15 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                 <div className="relative mb-8">
                     <div className="w-20 h-20 border-4 border-black border-t-[#ffdf00] animate-spin"></div>
                 </div>
-                <h2 className="text-3xl font-black text-black uppercase tracking-tighter mb-3">Aguardando Pagamento</h2>
+                <h2 className="text-3xl font-black text-black uppercase tracking-tighter mb-3">{t('billing.awaitingPayment')}</h2>
                 <p className="text-black/60 max-w-xs mx-auto leading-tight font-bold uppercase text-sm">
-                    Estaremos processando sua transação com a Stripe. O sistema atualizará sozinho em instantes...
+                    {t('billing.processingPayment')}
                 </p>
                 <button
                     onClick={() => setStatus('idle')}
                     className="mt-10 px-6 py-2 border-2 border-black font-black text-[10px] text-black hover:bg-black hover:text-white uppercase tracking-widest transition-all"
                 >
-                    Voltar para os planos
+                    {t('billing.backToPlans')}
                 </button>
             </div>
         );
@@ -290,7 +293,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                 <div className="inline-flex items-center gap-3 px-6 py-3 bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                     <ShieldCheck size={20} className="text-[#97cd7a]" strokeWidth={3} />
                     <span className="text-[10px] text-black font-black uppercase tracking-[0.2em]">
-                        Pagamento 100% seguro via Stripe
+                        {t('billing.securePayment')}
                     </span>
                 </div>
             </div>

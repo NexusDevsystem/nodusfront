@@ -29,32 +29,46 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
         // Special Case: Banner Layout uses the avatar as a blurred adaptive background
         if (profile.headerLayout === 'banner') {
             const hasAvatar = !!profile.avatarUrl;
+            // Parse bannerBlurColor: supports "#color1" or "#color1|#color2"
+            const rawBanner = profile.bannerBlurColor || '#000000';
+            const bannerParts = rawBanner.split('|');
+            const color1 = bannerParts[0] || '#000000';
+            const color2 = bannerParts[1] || null;
+            const bgStyle = color2
+                ? { background: `linear-gradient(135deg, ${color1}, ${color2})` }
+                : { backgroundColor: color1 };
+            const fadeColor = color2 || color1;
+
             return (
                 <div
                     className="absolute inset-0 overflow-hidden"
-                    style={{ backgroundColor: profile.bannerBlurColor || '#000000' }}
+                    style={bgStyle}
                 >
+                    {/* 1. Blurred Base Image */}
                     {hasAvatar && (
-                        <img
-                            src={profile.avatarUrl}
-                            alt="Background"
-                            className="w-full h-full object-cover scale-[1.3] blur-[100px] opacity-40 transform-gpu"
-                        />
+                        <div className="absolute inset-0 transform-gpu">
+                            <img
+                                src={profile.avatarUrl}
+                                alt="Background"
+                                className="w-full h-full object-cover scale-[1.4] blur-[120px] opacity-[0.35]"
+                            />
+                        </div>
                     )}
 
-                    {/* Solid tint overlay: this makes the chosen color dominant everywhere */}
+                    {/* 2. Color Tint Layer */}
                     <div
                         className="absolute inset-0 z-10"
-                        style={{
-                            backgroundColor: profile.bannerBlurColor ? `${profile.bannerBlurColor}99` : 'rgba(0,0,0,0.6)'
-                        }}
+                        style={color2
+                            ? { background: `linear-gradient(135deg, ${color1}55, ${color2}55)` }
+                            : { backgroundColor: `${color1}55` }
+                        }
                     ></div>
 
-                    {/* Gradient to smooth bottom into 100% solid color */}
+                    {/* 3. Bottom fade */}
                     <div
                         className="absolute inset-0 z-20"
                         style={{
-                            background: `linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 40%, ${profile.bannerBlurColor || '#000000'} 95%)`
+                            background: `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, transparent 35%, ${fadeColor}cc 85%)`
                         }}
                     ></div>
                 </div>

@@ -1,10 +1,22 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { UserProfile } from '../../types';
 import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle, Loader2, Check } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
 import { compressImage } from '../../utils/imageUtils';
 import { THEMES } from '../../constants';
+import ImageCropperModal from '../tools/ImageCropperModal';
+import { blobToDataURL } from '../../utils/imageUtils';
+
+// Add this utility to imageUtils later or here if not there
+const fileToDataURL = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+    });
+};
 
 interface HeaderEditorProps {
     profile: UserProfile;
@@ -13,61 +25,83 @@ interface HeaderEditorProps {
 }
 
 const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updateProfile }) => {
-    const [localUsername, setLocalUsername] = React.useState(profile.username || '');
-    const [isChecking, setIsChecking] = React.useState(false);
-    const [usernameError, setUsernameError] = React.useState<string | null>(null);
-    const [usernameSuccess, setUsernameSuccess] = React.useState(false);
-    const [showConfirm, setShowConfirm] = React.useState(false);
+    const { t } = useTranslation();
+    const [tempUsername, setTempUsername] = useState(profile.username || '');
+    const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+    const [isUsernameAvailable, setIsUsernameAvailable] = useState(true);
 
     const avatarInputRef = useRef<HTMLInputElement>(null);
     const bannerInputRef = useRef<HTMLInputElement>(null);
     const checkTimeout = useRef<NodeJS.Timeout | null>(null);
     const usernameOriginal = profile.username || '';
 
-    const handleUsernameChange = (newUsername: string) => {
+    // Cropper State
+    const [cropper, setCropper] = useState<{
+        isOpen: boolean;
+        image: string;
+        type: 'avatar' | 'banner';
+        aspectRatio: number;
+    }>({
+        isOpen: false,
+        image: '',
+        type: 'avatar',
+        aspectRatio: 1
+    });
+
+    const [isSavingImage, setIsSavingImage] = useState(false);
+
+    useEffect(() => {
+        setTempUsername(profile.username || '');
+        setIsUsernameAvailable(true); // Reset availability when profile changes
+    }, [profile.username]);
+
+    const handleTempUsernameChange = useCallback((newUsername: string) => {
         const sanitized = newUsername.toLowerCase().replace(/[^a-z0-9._]/g, '');
-        setLocalUsername(sanitized);
-        setUsernameError(null);
-        setUsernameSuccess(false);
-        setShowConfirm(false);
+        setTempUsername(sanitized);
+        setIsUsernameAvailable(false); // Assume unavailable until checked
 
-        if (sanitized === usernameOriginal) return;
-
-        if (sanitized.length < 3) {
-            setUsernameError('Mínimo 3 caracteres');
+        if (sanitized === usernameOriginal) {
+            setIsUsernameAvailable(true); // If it's the original, it's available
+            if (checkTimeout.current) clearTimeout(checkTimeout.current);
+            setIsCheckingUsername(false);
             return;
         }
 
-        // Debounce check
+        if (sanitized.length < 3) {
+            if (checkTimeout.current) clearTimeout(checkTimeout.current);
+            setIsCheckingUsername(false);
+            return;
+        }
+
         if (checkTimeout.current) clearTimeout(checkTimeout.current);
 
-        setIsChecking(true);
+        setIsCheckingUsername(true);
         checkTimeout.current = setTimeout(async () => {
             try {
                 const { available } = await apiClient.checkUsername(sanitized);
-                if (!available) {
-                    setUsernameError('Nome de usuário indisponível');
-                } else {
-                    setUsernameSuccess(true);
-                }
+                setIsUsernameAvailable(available);
             } catch (error) {
                 console.error('Error checking username:', error);
+                setIsUsernameAvailable(false); // Assume unavailable on error
             } finally {
-                setIsChecking(false);
+                setIsCheckingUsername(false);
             }
         }, 500);
-    };
+    }, [usernameOriginal]);
 
-    const confirmUsernameChange = () => {
-        onChange({ ...profile, username: localUsername });
-        setUsernameSuccess(false);
-        setShowConfirm(false);
+    const handleConfirmUsernameChange = () => {
+        if (isUsernameAvailable && tempUsername.length >= 3 && tempUsername !== usernameOriginal) {
+            if (updateProfile) {
+                updateProfile({ username: tempUsername });
+            } else {
+                onChange({ ...profile, username: tempUsername });
+            }
+        }
     };
 
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
 
     const handleLayoutChange = (layoutId: string) => {
-        console.log(`🎯 [HeaderEditor] Layout click: ${layoutId}`);
         if (updateProfile) {
             updateProfile({ headerLayout: layoutId as any });
         } else {
@@ -77,51 +111,86 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            try {
-                const compressed = await compressImage(e.target.files[0], 500, 0.8);
-                onChange({ ...profile, avatarUrl: compressed });
-            } catch (error) {
-                console.error('Error processing image:', error);
-            }
+            const dataUrl = await fileToDataURL(e.target.files[0]);
+            setCropper({
+                isOpen: true,
+                image: dataUrl,
+                type: 'avatar',
+                aspectRatio: 1
+            });
+            // Reset input so the same file can be selected again
+            e.target.value = '';
         }
     };
 
     const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            try {
-                const compressed = await compressImage(e.target.files[0], 1200, 0.7);
-                onChange({ ...profile, customBackground: compressed });
-            } catch (error) {
-                console.error('Error processing image:', error);
-            }
+            const dataUrl = await fileToDataURL(e.target.files[0]);
+            setCropper({
+                isOpen: true,
+                image: dataUrl,
+                type: 'banner',
+                aspectRatio: 3 / 1 // Common banner ratio
+            });
+            // Reset input so the same file can be selected again
+            e.target.value = '';
+        }
+    };
+
+    const handleCropComplete = async (croppedBlob: Blob) => {
+        setIsSavingImage(true);
+        try {
+            // Convert blob to file for compressImage if needed, or just convert to dataURL
+            const reader = new FileReader();
+            reader.readAsDataURL(croppedBlob);
+            reader.onloadend = async () => {
+                const base64data = reader.result as string;
+
+                // Further compress if needed, though getCroppedImg already does some
+                const finalImage = base64data;
+
+                if (cropper.type === 'avatar') {
+                    if (updateProfile) updateProfile({ avatarUrl: finalImage });
+                    else onChange({ ...profile, avatarUrl: finalImage });
+                } else {
+                    if (updateProfile) updateProfile({ customBackground: finalImage });
+                    else onChange({ ...profile, customBackground: finalImage });
+                }
+                setCropper(prev => ({ ...prev, isOpen: false }));
+            };
+        } catch (error) {
+            console.error('Error saving cropped image:', error);
+        } finally {
+            setIsSavingImage(false);
         }
     };
 
     return (
         <div className="space-y-6 animate-fade-in pb-10">
             {/* Header Layout Section */}
-            <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                <div className="flex items-center gap-2 mb-4 text-black border-b border-black pb-2">
-                    <Layout size={16} strokeWidth={3} />
-                    <h3 className="text-xs font-medium uppercase tracking-widest text-black">Layout do Perfil</h3>
+            <div className="bg-white p-6 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex items-center gap-2 mb-6 text-black border-b-2 border-black pb-3">
+                    <Layout size={20} strokeWidth={2.5} />
+                    <h3 className="text-sm font-black uppercase tracking-[0.2em] text-black">{t('design.profileLayout')}</h3>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="flex bg-[#fcfcfc] p-1.5 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                     {[
-                        { id: 'classic', label: 'Clássico', icon: UserCircle, color: 'bg-[#85e1e1]' },
-                        { id: 'compact', label: 'Perfil', icon: User, color: 'bg-[#97cd7a]' },
-                        { id: 'banner', label: 'Banner', icon: Camera, color: 'bg-[#ffdf00]' },
-                    ].map((layout) => (
+                        { id: 'classic', label: t('design.classic'), icon: <Layout className="w-4 h-4" /> },
+                        { id: 'compact', label: t('design.profile'), icon: <User className="w-4 h-4" /> },
+                        { id: 'banner', label: t('design.banner'), icon: <ImageIcon className="w-4 h-4" /> },
+                    ].map((option) => (
                         <button
-                            key={layout.id}
-                            onClick={() => handleLayoutChange(layout.id)}
-                            className={`flex flex-col items-center justify-center gap-1.5 p-3 border-2 transition-all ${(profile.headerLayout || 'classic') === layout.id
-                                ? `border-black ${layout.color} text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[1px] -translate-y-[1px]`
-                                : 'border-slate-100 bg-white text-black/30 hover:border-black hover:text-black hover:bg-slate-50'
+                            key={option.id}
+                            onClick={() => handleLayoutChange(option.id)}
+                            className={`flex flex-col items-center justify-center gap-2 p-4 border-2 transition-all flex-1
+                                ${(profile.headerLayout || 'classic') === option.id
+                                    ? `border-black bg-white text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] -translate-x-[1px] -translate-y-[1px]`
+                                    : 'border-transparent bg-transparent text-black/20 hover:text-black hover:border-black/5'
                                 }`}
                         >
-                            <layout.icon size={20} strokeWidth={3} />
-                            <span className="text-[8px] font-medium uppercase tracking-widest">{layout.label}</span>
+                            {option.icon}
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em]">{option.label}</span>
                         </button>
                     ))}
                 </div>
@@ -131,111 +200,30 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mt-4 p-3 bg-[#f8f8f8] border border-black flex gap-3 items-start shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                        className="mt-6 p-4 bg-[#f8f8f8] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex gap-4 items-start"
                     >
-                        <div className="p-1.5 bg-white border border-black text-black shrink-0">
-                            <Info size={14} strokeWidth={3} />
+                        <div className="p-2 bg-black text-[#97cd7a] border-2 border-black shrink-0">
+                            <Info size={16} strokeWidth={3} />
                         </div>
                         <div>
-                            <h4 className="text-[9px] font-medium text-black uppercase tracking-widest mb-1 border-b border-black inline-block">Nota de Estilo</h4>
-                            <p className="text-[9px] text-black font-normal uppercase tracking-widest leading-relaxed">
-                                Nos modos <span className="font-medium bg-white px-1 border border-black">Perfil</span> e <span className="font-medium bg-white px-1 border border-black">Banner</span>, fundos e animações são pausados para focar em sua foto.
-                                <br />
-                                <span className="mt-1.5 block text-[8px] bg-black text-[#97cd7a] px-1.5 py-0.5 border border-black inline-block">Apenas fontes e botões permanecem.</span>
+                            <h4 className="text-[10px] font-black text-black uppercase tracking-widest mb-1 border-b-2 border-black inline-block">{t('design.styleNote')}</h4>
+                            <p className="text-[9px] text-black/60 font-bold uppercase tracking-widest leading-relaxed">
+                                {t('design.styleNoteDesc')}
                             </p>
+                            <div className="mt-2">
+                                <span className="text-[8px] font-black bg-black text-[#97cd7a] px-2 py-0.5 border border-black inline-block">{t('design.onlyFontsButtons')}</span>
+                            </div>
                         </div>
                     </motion.div>
                 )}
             </div>
 
-            {/* Layout Customization Section - Only for Perfil (compact) */}
-            {profile.headerLayout === 'compact' && (
-                <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-slide-up mt-4">
-                    <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
-                        <Scaling size={16} strokeWidth={3} />
-                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">Ajustes do Layout</h3>
-                    </div>
-
-                    <div className="flex flex-col">
-                        <h4 className="text-[9px] font-medium text-black uppercase tracking-[0.2em] mb-2 px-1">Cor do Fundo do Card</h4>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
-                            <div className="flex items-center gap-2 w-full sm:w-auto">
-                                <div className="relative w-10 h-10 overflow-hidden border border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white">
-                                    <input
-                                        type="color"
-                                        value={profile.customSecondaryColor || (currentTheme.id.includes('dark') || currentTheme.id.includes('black') ? '#0f172a' : '#ffffff')}
-                                        onChange={(e) => onChange({ ...profile, customSecondaryColor: e.target.value })}
-                                        className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer border-none p-0"
-                                    />
-                                </div>
-                                <input
-                                    type="text"
-                                    value={profile.customSecondaryColor || ''}
-                                    onChange={(e) => onChange({ ...profile, customSecondaryColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}` })}
-                                    placeholder="HEX"
-                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
-                                />
-                            </div>
-                            {profile.customSecondaryColor && (
-                                <button
-                                    onClick={() => onChange({ ...profile, customSecondaryColor: null })}
-                                    className="text-[9px] text-black border border-black bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none hover:bg-black hover:text-white transition-all w-full sm:w-auto"
-                                >
-                                    Limpar
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Layout Customization Section - Only for Banner Mode */}
-            {profile.headerLayout === 'banner' && (
-                <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-slide-up mt-4">
-                    <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
-                        <Scaling size={16} strokeWidth={3} />
-                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">Ajustes do Banner</h3>
-                    </div>
-
-                    <div className="flex flex-col">
-                        <h4 className="text-[9px] font-medium text-black uppercase tracking-[0.2em] mb-2 px-1">Cor do Desfoque (Fundo)</h4>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full">
-                            <div className="flex items-center gap-2 w-full sm:w-auto">
-                                <div className="relative w-10 h-10 overflow-hidden border border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white">
-                                    <input
-                                        type="color"
-                                        value={profile.bannerBlurColor || '#000000'}
-                                        onChange={(e) => onChange({ ...profile, bannerBlurColor: e.target.value })}
-                                        className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer border-none p-0"
-                                    />
-                                </div>
-                                <input
-                                    type="text"
-                                    value={profile.bannerBlurColor || ''}
-                                    onChange={(e) => onChange({ ...profile, bannerBlurColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}` })}
-                                    placeholder="#000000"
-                                    className="flex-1 h-10 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] tracking-widest"
-                                />
-                            </div>
-                            {profile.bannerBlurColor && (
-                                <button
-                                    onClick={() => onChange({ ...profile, bannerBlurColor: null })}
-                                    className="text-[9px] text-black border border-black bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none hover:bg-black hover:text-white transition-all w-full sm:w-auto"
-                                >
-                                    Limpar
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
             <div className={`grid grid-cols-1 ${['compact', 'banner'].includes(profile.headerLayout || 'classic') ? 'lg:grid-cols-2' : ''} gap-4 items-start mt-4`}>
                 {/* Profile Picture Section */}
-                <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">
+                <div className={`bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full ${['compact', 'banner'].includes(profile.headerLayout || 'classic') ? 'order-1' : ''}`}>
                     <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
                         <Camera size={16} strokeWidth={3} />
-                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">Imagem de Perfil</h3>
+                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.profileImage')}</h3>
                     </div>
 
                     <div className="flex flex-col items-center sm:flex-row gap-5">
@@ -256,22 +244,13 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                     </div>
                                 )}
                             </div>
-                            <button
-                                onClick={() => avatarInputRef.current?.click()}
-                                className="absolute -bottom-2 -right-2 p-2 bg-[#97cd7a] text-black border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all"
-                            >
-                                <Camera size={14} strokeWidth={3} />
-                            </button>
                         </div>
 
                         <div className="flex-1 w-full space-y-4">
                             <div className="flex gap-2">
-                                <button
-                                    onClick={() => avatarInputRef.current?.click()}
-                                    className="flex-1 px-4 py-2.5 border border-black bg-white text-black text-[9px] font-medium uppercase tracking-widest hover:bg-black hover:text-[#97cd7a] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
-                                >
-                                    Escolher Imagem
-                                </button>
+                                <label htmlFor="avatar-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-black text-black cursor-pointer hover:bg-black hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none">
+                                    <Upload size={14} strokeWidth={3} /> {profile.avatarUrl ? t('common.change') : t('design.chooseImage')}
+                                </label>
                                 {profile.avatarUrl && (
                                     <button
                                         onClick={() => onChange({ ...profile, avatarUrl: '' })}
@@ -284,19 +263,23 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                             {/* Size Selector */}
                             {!['compact', 'banner'].includes(profile.headerLayout || 'classic') && (
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                                    <h4 className="text-[9px] font-medium text-black uppercase tracking-[0.2em]">Tamanho</h4>
-                                    <div className="flex bg-white border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                        {['sm', 'md', 'lg'].map((size, idx) => (
+                                <div className="flex flex-col gap-3">
+                                    <h4 className="text-[9px] font-black text-black/30 uppercase tracking-[0.2em] mb-1">{t('common.size')}</h4>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {[
+                                            { id: 'sm', label: t('common.small') },
+                                            { id: 'md', label: t('common.medium') },
+                                            { id: 'lg', label: t('common.large') },
+                                        ].map((size, idx) => (
                                             <button
-                                                key={size}
-                                                onClick={() => onChange({ ...profile, avatarSize: size as any })}
-                                                className={`px-4 py-2 text-[8px] font-medium uppercase tracking-widest transition-all ${profile.avatarSize === size
+                                                key={size.id}
+                                                onClick={() => onChange({ ...profile, avatarSize: size.id as any })}
+                                                className={`px-4 py-2 text-[8px] font-medium uppercase tracking-widest transition-all ${profile.avatarSize === size.id
                                                     ? 'bg-black text-[#97cd7a]'
-                                                    : 'bg-white text-black hover:bg-slate-50'
-                                                    } ${idx !== 0 ? 'border-l border-black' : ''}`}
+                                                    : 'bg-white text-black hover:bg-slate-50 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
+                                                    }`}
                                             >
-                                                {size === 'sm' ? 'Pequeno' : size === 'md' ? 'Médio' : 'Grande'}
+                                                {size.label}
                                             </button>
                                         ))}
                                     </div>
@@ -308,10 +291,10 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                 {/* Banner Upload for Profile Layout */}
                 {profile.headerLayout === 'compact' && (
-                    <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full">
+                    <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] h-full order-2">
                         <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
                             <ImageIcon size={16} strokeWidth={3} />
-                            <h3 className="text-xs font-medium uppercase tracking-widest text-black">Banner do Perfil</h3>
+                            <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.profileBanner')}</h3>
                         </div>
 
                         <div className="flex flex-col items-center sm:flex-row gap-5">
@@ -329,22 +312,13 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                         </div>
                                     )}
                                 </div>
-                                <button
-                                    onClick={() => bannerInputRef.current?.click()}
-                                    className="absolute -bottom-2 -right-2 p-2 bg-[#97cd7a] text-black border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all"
-                                >
-                                    <Camera size={14} strokeWidth={3} />
-                                </button>
                             </div>
 
                             <div className="flex-1 w-full space-y-2">
                                 <div className="flex gap-2">
-                                    <button
-                                        onClick={() => bannerInputRef.current?.click()}
-                                        className="flex-1 px-4 py-2 border border-black bg-white text-black text-[9px] font-medium uppercase tracking-widest hover:bg-black hover:text-[#97cd7a] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
-                                    >
-                                        Escolher Banner
-                                    </button>
+                                    <label htmlFor="banner-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-black text-black cursor-pointer hover:bg-black hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none">
+                                        <Upload size={14} strokeWidth={3} /> {profile.customBackground ? t('common.change') : t('design.chooseBanner')}
+                                    </label>
                                     {profile.customBackground && (
                                         <button
                                             onClick={() => onChange({ ...profile, customBackground: null })}
@@ -359,89 +333,308 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                     </div>
                 )}
 
+                {/* Banner Color Settings — card 1 + optional gradient card 2 */}
+                {profile.headerLayout === 'banner' && (() => {
+                    const rawBanner = profile.bannerBlurColor || '#000000';
+                    const bannerParts = rawBanner.split('|');
+                    const bannerColor1 = bannerParts[0] || '#000000';
+                    const bannerColor2 = bannerParts[1] || null;
+                    const isGradient = !!bannerColor2;
+
+                    const setBannerColor = (c1: string, c2: string | null) => {
+                        const newVal = c2 ? `${c1}|${c2}` : c1;
+                        if (updateProfile) updateProfile({ bannerBlurColor: newVal });
+                        else onChange({ ...profile, bannerBlurColor: newVal });
+                    };
+
+                    return (
+                        <>
+                            {/* Card 1: Primary Color */}
+                            <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-slide-up h-full order-3">
+                                <div className="flex items-center justify-between mb-4 border-b border-black pb-2">
+                                    <div className="flex items-center gap-2 text-black">
+                                        <div className="w-4 h-4 border-2 border-black bg-black shrink-0" />
+                                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.bannerSettings')}</h3>
+                                    </div>
+                                    <button
+                                        onClick={() => isGradient
+                                            ? setBannerColor(bannerColor1, null)
+                                            : setBannerColor(bannerColor1, bannerColor2 || '#1e3a5f')
+                                        }
+                                        className="flex items-center gap-2 group"
+                                        title="Ativar degradê"
+                                    >
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-black/40 group-hover:text-black transition-colors">
+                                            {t('design.blurColorGradient')}
+                                        </span>
+                                        <div className={`relative w-10 h-5 border-2 border-black transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${isGradient ? 'bg-black' : 'bg-white'}`}>
+                                            <div className={`absolute top-[2px] w-3 h-3 border border-black transition-all ${isGradient ? 'right-[2px] bg-[#97cd7a]' : 'left-[2px] bg-black'}`} />
+                                        </div>
+                                    </button>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="relative w-12 h-12 overflow-hidden border-2 border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:scale-105 transition-transform cursor-pointer" style={{ backgroundColor: bannerColor1 }}>
+                                        <input type="color" value={bannerColor1} onChange={(e) => setBannerColor(e.target.value, bannerColor2)} className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0 opacity-0" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="block text-[8px] font-medium text-black uppercase tracking-[0.2em] mb-1.5">
+                                            {isGradient ? t('design.bannerColor1') : t('design.blurColor')}
+                                        </label>
+                                        <div className="flex gap-2">
+                                            <input type="text" value={bannerColor1} onChange={(e) => { const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`; setBannerColor(val, bannerColor2); }} placeholder="#000000" className="flex-1 h-9 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] tracking-widest" />
+                                            <button onClick={() => setBannerColor('#000000', bannerColor2)} className="px-2 h-9 flex items-center justify-center text-black bg-white border border-black hover:bg-black hover:text-red-400 transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] text-[9px] font-bold uppercase">{t('common.clear')}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Card 2: Secondary Color — in empty column when gradient ON */}
+                            {isGradient && (
+                                <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-slide-up h-full order-4">
+                                    <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
+                                        <div className="w-4 h-4 border-2 border-black bg-black shrink-0" />
+                                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.bannerColor2')}</h3>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="relative w-12 h-12 overflow-hidden border-2 border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:scale-105 transition-transform cursor-pointer" style={{ backgroundColor: bannerColor2 || '#1e3a5f' }}>
+                                            <input type="color" value={bannerColor2 || '#1e3a5f'} onChange={(e) => setBannerColor(bannerColor1, e.target.value)} className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0 opacity-0" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <label className="block text-[8px] font-medium text-black uppercase tracking-[0.2em] mb-1.5">{t('design.bannerColor2')}</label>
+                                            <input type="text" value={bannerColor2 || ''} onChange={(e) => { const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`; setBannerColor(bannerColor1, val); }} placeholder="#1e3a5f" className="w-full h-9 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] tracking-widest" />
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 w-full h-4 border border-black/20" style={{ background: `linear-gradient(135deg, ${bannerColor1}, ${bannerColor2 || '#1e3a5f'})` }} />
+                                </div>
+                            )}
+                        </>
+                    );
+                })()}
+
+                {/* Layout Customization Section - Only for Perfil (compact) */}
+                {profile.headerLayout === 'compact' && (() => {
+                    // Parse customSecondaryColor: "#c1" or "#c1|#c2"
+                    const raw = profile.customSecondaryColor || '#0f172a';
+                    const parts = raw.split('|');
+                    const color1 = parts[0] || '#0f172a';
+                    const color2 = parts[1] || null;
+                    const isGradient = !!color2;
+
+                    const setColors = (c1: string, c2: string | null) => {
+                        const newVal = c2 ? `${c1}|${c2}` : c1;
+                        if (updateProfile) updateProfile({ customSecondaryColor: newVal });
+                        else onChange({ ...profile, customSecondaryColor: newVal });
+                    };
+
+                    return (
+                        <>
+                            {/* Card 1: Primary Color (always visible) */}
+                            <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-slide-up h-full order-3">
+                                <div className="flex items-center justify-between mb-4 border-b border-black pb-2">
+                                    <div className="flex items-center gap-2 text-black">
+                                        <Scaling size={16} strokeWidth={3} />
+                                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.layoutSettings')}</h3>
+                                    </div>
+                                    {/* Gradient Toggle Switch */}
+                                    <button
+                                        onClick={() => isGradient
+                                            ? setColors(color1, null)
+                                            : setColors(color1, color2 || '#1e3a5f')
+                                        }
+                                        className="flex items-center gap-2 group"
+                                        title="Ativar degradê"
+                                    >
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-black/40 group-hover:text-black transition-colors">
+                                            {t('design.blurColorGradient')}
+                                        </span>
+                                        <div className={`relative w-10 h-5 border-2 border-black transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${isGradient ? 'bg-black' : 'bg-white'}`}>
+                                            <div className={`absolute top-[2px] w-3 h-3 border border-black transition-all ${isGradient ? 'right-[2px] bg-[#97cd7a]' : 'left-[2px] bg-black'}`} />
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className="relative w-12 h-12 overflow-hidden border-2 border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:scale-105 transition-transform cursor-pointer"
+                                        style={{ backgroundColor: color1 }}
+                                    >
+                                        <input
+                                            type="color"
+                                            value={color1}
+                                            onChange={(e) => setColors(e.target.value, color2)}
+                                            className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0 opacity-0"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="block text-[8px] font-medium text-black uppercase tracking-[0.2em] mb-1.5">
+                                            {isGradient ? t('design.bannerColor1') : t('design.cardBackgroundColor')}
+                                        </label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={color1}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
+                                                    setColors(val, color2);
+                                                }}
+                                                placeholder="#0f172a"
+                                                className="flex-1 h-9 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] tracking-widest"
+                                            />
+                                            <button
+                                                onClick={() => setColors('#0f172a', color2)}
+                                                className="px-2 h-9 flex items-center justify-center text-black bg-white border border-black hover:bg-black hover:text-red-400 transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] text-[9px] font-bold uppercase"
+                                            >
+                                                {t('common.clear')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Card 2: Secondary Color — appears in the empty column when gradient is ON */}
+                            {isGradient && (
+                                <div className="bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-slide-up h-full order-4">
+                                    <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
+                                        <div className="w-4 h-4 border-2 border-black bg-black shrink-0" />
+                                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.bannerColor2')}</h3>
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        <div
+                                            className="relative w-12 h-12 overflow-hidden border-2 border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:scale-105 transition-transform cursor-pointer"
+                                            style={{ backgroundColor: color2 || '#1e3a5f' }}
+                                        >
+                                            <input
+                                                type="color"
+                                                value={color2 || '#1e3a5f'}
+                                                onChange={(e) => setColors(color1, e.target.value)}
+                                                className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0 opacity-0"
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <label className="block text-[8px] font-medium text-black uppercase tracking-[0.2em] mb-1.5">
+                                                {t('design.bannerColor2')}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={color2 || ''}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
+                                                    setColors(color1, val);
+                                                }}
+                                                placeholder="#1e3a5f"
+                                                className="w-full h-9 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] tracking-widest"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Gradient preview stripe */}
+                                    <div
+                                        className="mt-4 w-full h-4 border border-black/20 shadow-[1px_1px_0px_0px_rgba(0,0,0,0.3)]"
+                                        style={{ background: `linear-gradient(135deg, ${color1}, ${color2 || '#1e3a5f'})` }}
+                                    />
+                                </div>
+                            )}
+                        </>
+                    );
+                })()}
+
+
+
+
                 {/* Title / Identity Section */}
-                <div className={`bg-white p-4 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${profile.headerLayout === 'compact' ? 'lg:col-span-2' : ''}`}>
-                    <div className="flex items-center gap-2 mb-4 border-b border-black pb-2 text-black">
-                        <User size={16} strokeWidth={3} />
-                        <h3 className="text-xs font-medium uppercase tracking-widest text-black">Identidade</h3>
+                <div className={`bg-white p-6 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] ${['compact', 'banner'].includes(profile.headerLayout || 'classic') ? 'lg:col-span-2 order-last' : ''}`}>
+                    <div className="flex items-center gap-2 mb-6 border-b border-black/20 pb-2 text-black relative">
+                        <UserCircle size={18} strokeWidth={2.5} />
+                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black">{t('design.identity')}</h3>
+                        <div className="absolute bottom-0 left-0 right-0 border-b border-black"></div>
                     </div>
 
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-[9px] font-medium text-black uppercase tracking-[0.2em] mb-2 px-1 flex justify-between items-center">
-                                <span>Nome de Usuário (@)</span>
-                                {profile.usernameUpdatedAt && (
-                                    <span className="text-[7px] text-black/40 normal-case font-normal">
-                                        Última alteração: {new Date(profile.usernameUpdatedAt).toLocaleDateString()}
-                                    </span>
-                                )}
+                    <div className="space-y-6">
+                        {/* Username Section */}
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black text-black uppercase tracking-[0.2em] px-1">
+                                {t('design.username')}
                             </label>
-                            <div className="relative">
-                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-black/30">@</div>
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-medium text-black/30">@</div>
                                 <input
                                     type="text"
-                                    value={localUsername}
-                                    onChange={(e) => handleUsernameChange(e.target.value)}
-                                    className={`w-full pl-7 pr-3 py-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30 ${usernameError ? 'border-red-500 ring-1 ring-red-500' : ''}`}
-                                    placeholder={usernameOriginal || 'seu_usuario'}
+                                    value={tempUsername}
+                                    onChange={(e) => handleTempUsernameChange(e.target.value)}
+                                    placeholder={t('design.usernamePlaceholder')}
+                                    className={`w-full h-12 pl-10 pr-12 border-2 border-black bg-white focus:bg-[#fcfcfc] outline-none transition-all text-sm font-medium tracking-wide text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] focus:shadow-none focus:translate-x-[1px] focus:translate-y-[1px] ${!isUsernameAvailable && tempUsername.length >= 3 ? 'border-red-400' : ''}`}
                                 />
-                                {isChecking && (
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                        <Loader2 size={14} className="animate-spin text-black/40" />
-                                    </div>
-                                )}
-                                {usernameSuccess && !isChecking && (
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
-                                        <Check size={14} strokeWidth={4} />
-                                    </div>
-                                )}
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                    {isCheckingUsername && <Loader2 size={14} className="animate-spin text-black/20" />}
+                                    {!isCheckingUsername && tempUsername !== profile.username && tempUsername.length >= 3 && (
+                                        isUsernameAvailable ? (
+                                            <Check size={16} className="text-[#97cd7a]" strokeWidth={4} />
+                                        ) : (
+                                            <AlertCircle size={16} className="text-red-400" strokeWidth={3} />
+                                        )
+                                    )}
+                                </div>
                             </div>
-                            {usernameError && (
-                                <p className="text-[8px] font-medium text-red-500 uppercase tracking-widest mt-1.5 px-1 flex items-center gap-1">
-                                    <AlertCircle size={10} /> {usernameError}
+
+                            {/* Username Specific Status/Warning */}
+                            <div className="px-1 min-h-[14px]">
+                                {tempUsername.length > 0 && tempUsername.length < 3 && (
+                                    <p className="text-[8px] font-bold text-black/30 uppercase tracking-widest">{t('design.minChars')}</p>
+                                )}
+                                {tempUsername !== profile.username && tempUsername.length >= 3 && !isCheckingUsername && (
+                                    !isUsernameAvailable ? (
+                                        <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest">{t('design.usernameUnavailable')}</p>
+                                    ) : (
+                                        <p className="text-[8px] font-black text-[#97cd7a] uppercase tracking-widest">{t('design.usernameAvailable')}</p>
+                                    )
+                                )}
+
+                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-relaxed mt-1 italic">
+                                    {t('design.usernameWarning')}
                                 </p>
-                            )}
+                            </div>
 
-                            {usernameSuccess && localUsername !== usernameOriginal && !isChecking && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 5 }}
+                            {/* Username Change Confirmation Button */}
+                            {tempUsername !== profile.username && isUsernameAvailable && !isCheckingUsername && tempUsername.length >= 3 && (
+                                <motion.button
+                                    initial={{ opacity: 0, y: -5 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="mt-3 p-3 bg-[#97cd7a]/10 border border-[#97cd7a] border-dashed"
+                                    onClick={handleConfirmUsernameChange}
+                                    className="w-full py-3 bg-[#97cd7a] border-2 border-black text-black font-black text-[10px] uppercase tracking-[0.2em] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all flex items-center justify-center gap-2 active:scale-95"
                                 >
-                                    <p className="text-[9px] font-medium text-black uppercase mb-3 flex items-center gap-2">
-                                        <Check size={12} className="text-[#3c6d25]" /> Username disponível!
-                                    </p>
-                                    <button
-                                        onClick={confirmUsernameChange}
-                                        className="w-full py-2 bg-[#97cd7a] text-black text-[9px] font-medium uppercase tracking-widest border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-                                    >
-                                        Confirmar Troca de @
-                                    </button>
-                                </motion.div>
+                                    <Check size={14} strokeWidth={4} />
+                                    {t('design.confirmUsernameChange')}
+                                </motion.button>
                             )}
-
-                            <p className="text-[7px] font-medium text-black/50 uppercase tracking-widest mt-2 px-1 border-t border-black/5 pt-2 italic">
-                                * Se você mudar seu @, só poderá mudar novamente após <span className="text-black">7 dias</span>.
-                            </p>
                         </div>
-                        <div>
-                            <label className="block text-[9px] font-medium text-black uppercase tracking-[0.2em] mb-2 px-1">Nome de Exibição</label>
+
+                        {/* Display Name */}
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black text-black uppercase tracking-[0.2em] px-1">{t('design.displayName')}</label>
                             <input
                                 type="text"
                                 value={profile.name}
-                                onChange={(e) => onChange({ ...profile, name: e.target.value })}
-                                className="w-full px-3 py-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
-                                placeholder="Seu Nome Visível"
+                                onChange={(e) => {
+                                    if (updateProfile) updateProfile({ name: e.target.value });
+                                    else onChange({ ...profile, name: e.target.value });
+                                }}
+                                placeholder={t('design.displayNamePlaceholder')}
+                                className="w-full h-12 px-4 border-2 border-black bg-white focus:bg-[#fcfcfc] outline-none transition-all text-sm font-medium tracking-wide text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] focus:shadow-none focus:translate-x-[1px] focus:translate-y-[1px]"
                             />
                         </div>
-                        <div>
-                            <label className="block text-[9px] font-medium text-black uppercase tracking-[0.2em] mb-2 px-1">Bio / Descrição</label>
+
+                        {/* Bio / Description */}
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black text-black uppercase tracking-[0.2em] px-1">{t('design.bio')}</label>
                             <textarea
                                 value={profile.bio || ''}
-                                onChange={(e) => onChange({ ...profile, bio: e.target.value })}
-                                rows={2}
-                                className="w-full px-3 py-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-normal text-black resize-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
-                                placeholder="Conte um pouco sobre você..."
+                                onChange={(e) => {
+                                    if (updateProfile) updateProfile({ bio: e.target.value });
+                                    else onChange({ ...profile, bio: e.target.value });
+                                }}
+                                placeholder={t('design.bioPlaceholder')}
+                                className="w-full h-28 p-4 border-2 border-black bg-white focus:bg-[#fcfcfc] outline-none transition-all text-sm font-medium tracking-wide text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] focus:shadow-none focus:translate-x-[1px] focus:translate-y-[1px] resize-none"
                             />
                         </div>
                     </div>
@@ -451,6 +644,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
             {/* Hidden file inputs - REQUIRED for upload to work */}
             <input
                 ref={avatarInputRef}
+                id="avatar-upload"
                 type="file"
                 accept="image/*"
                 className="hidden"
@@ -458,10 +652,20 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
             />
             <input
                 ref={bannerInputRef}
+                id="banner-upload"
                 type="file"
                 accept="image/*"
                 className="hidden"
                 onChange={handleBannerUpload}
+            />
+
+            <ImageCropperModal
+                isOpen={cropper.isOpen}
+                image={cropper.image}
+                aspectRatio={cropper.aspectRatio}
+                title={cropper.type === 'avatar' ? t('design.cropProfile') || 'Recortar Avatar' : t('design.cropBanner') || 'Recortar Banner'}
+                onClose={() => setCropper(prev => ({ ...prev, isOpen: false }))}
+                onCropComplete={handleCropComplete}
             />
         </div>
     );

@@ -1,20 +1,23 @@
 import React from 'react';
 import { motion, LayoutGroup } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface DesignSidebarProps {
     activeSection: string;
     setActiveSection: (section: string) => void;
 }
 
-const DESIGN_MENU_ITEMS = [
-    { id: 'header', label: 'Cabeçalho' },
-    { id: 'theme', label: 'Tema' },
-    { id: 'buttons', label: 'Botões' },
-    { id: 'wallpaper', label: 'Papel de Parede' },
-    { id: 'text', label: 'Texto' },
-];
-
 const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveSection }) => {
+    const { t } = useTranslation();
+
+    const DESIGN_MENU_ITEMS = [
+        { id: 'header', label: t('design.header') },
+        { id: 'theme', label: t('design.themes') },
+        { id: 'buttons', label: t('design.buttons') },
+        { id: 'wallpaper', label: t('design.wallpaper') },
+        { id: 'text', label: t('design.typography') },
+    ];
+
     return (
         <div className="w-full bg-white border-b-4 border-black sticky top-0 z-30">
             <div className="max-w-7xl mx-auto px-4 md:px-8">

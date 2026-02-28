@@ -4,7 +4,6 @@ import { THEMES, FONTS } from '../constants';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeSelector from '../components/ThemeSelector';
 import BrutalistLoader from '../components/BrutalistLoader';
-
 import LinkEditor from '../components/LinkEditor';
 import ShopEditor from '../components/ShopEditor';
 import Preview from '../components/Preview';
@@ -29,10 +28,11 @@ import { apiClient } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
 import FileManager from '../components/tools/FileManager';
 import { IntegrationsView } from '../views/IntegrationsView';
-
+import { useTranslation } from 'react-i18next';
 
 export default function EditorPage() {
     const { profile: authProfile, loading: authLoading } = useAuth();
+    const { t } = useTranslation();
 
     // Initialize state from localStorage (SNAPSHOT) to avoid placeholder flash
     // Profile state - starts null, loaded from API
@@ -414,11 +414,11 @@ export default function EditorPage() {
                 {/* Loading Overlay - Brutalist Version */}
                 {isLoading && (
                     <BrutalistLoader
-                        message={loadingProgress < 30 ? 'Autenticando...' :
-                            loadingProgress < 50 ? 'Carregando Perfil...' :
-                                loadingProgress < 70 ? 'Sincronizando Links...' :
-                                    loadingProgress < 90 ? 'Organizando Produtos...' :
-                                        'Finalizando...'}
+                        message={loadingProgress < 30 ? t('loading.authenticating') :
+                            loadingProgress < 50 ? t('loading.loadingProfile') :
+                                loadingProgress < 70 ? t('loading.syncingLinks') :
+                                    loadingProgress < 90 ? t('loading.organizingProducts') :
+                                        t('loading.finishing')}
                         progress={loadingProgress}
                     />
                 )}
@@ -427,13 +427,13 @@ export default function EditorPage() {
                     <div className="absolute top-0 left-0 w-full bg-red-50 border-b border-red-200 z-[100] px-4 py-2 flex items-center justify-between">
                         <div className="flex items-center gap-2 text-red-700 text-sm">
                             <Construction size={16} />
-                            <span className="font-medium">Erro de sincronização. As alterações não serão salvas automaticamente.</span>
+                            <span className="font-medium">{t('editor.syncError')}</span>
                         </div>
                         <button
                             onClick={() => window.location.reload()}
                             className="px-3 py-1 bg-red-600 text-white rounded-md text-xs font-normal hover:bg-red-700 transition-colors"
                         >
-                            RECARREGAR
+                            {t('editor.reload')}
                         </button>
                     </div>
                 )}
@@ -473,7 +473,7 @@ export default function EditorPage() {
                                 ) : (
                                     <>
                                         <Check size={10} className="text-[#97cd7a]" strokeWidth={4} />
-                                        <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">Salvo</span>
+                                        <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.saved')}</span>
                                     </>
                                 )}
                             </div>
@@ -548,12 +548,12 @@ export default function EditorPage() {
                                     {(isSaving || visualSavingProfile) ? (
                                         <>
                                             <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
-                                            <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">Sincronizando...</span>
+                                            <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.syncing')}</span>
                                         </>
                                     ) : (
                                         <>
                                             <div className="w-1.5 h-1.5 bg-[#97cd7a] border border-black" />
-                                            <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">Ambiente Sincronizado</span>
+                                            <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.synced')}</span>
                                         </>
                                     )}
                                 </div>
@@ -589,30 +589,30 @@ export default function EditorPage() {
                                         </div>
                                         {(!profile?.planType || profile.planType === 'free') && (
                                             <div className="px-2 py-0.5 bg-[#ffdf00] border border-black text-black text-[8px] font-medium uppercase tracking-[0.2em]">
-                                                Plano Free
+                                                {t('editor.freePlan')}
                                             </div>
                                         )}
                                     </div>
                                     <h1 className="text-3xl md:text-4xl font-medium uppercase text-black tracking-tighter leading-none mb-1">
-                                        {activeTab === 'links' && 'Meus Links'}
-                                        {activeTab === 'appearance' && 'Estilo & Design'}
-                                        {activeTab === 'shop' && 'Vitrine Digital'}
-                                        {activeTab === 'analytics' && 'Analytics'}
-                                        {activeTab === 'earn' && 'Monetização'}
-                                        {activeTab === 'files' && 'Arquivos'}
-                                        {activeTab === 'billing' && 'Faturamento'}
-                                        {activeTab === 'integrations' && 'Integrações Pro'}
+                                        {activeTab === 'links' && t('editor.tabs.links')}
+                                        {activeTab === 'appearance' && t('editor.tabs.appearance')}
+                                        {activeTab === 'shop' && t('editor.tabs.shop')}
+                                        {activeTab === 'analytics' && t('editor.tabs.analytics')}
+                                        {activeTab === 'earn' && t('editor.tabs.earn')}
+                                        {activeTab === 'files' && t('editor.tabs.files')}
+                                        {activeTab === 'billing' && t('editor.tabs.billing')}
+                                        {activeTab === 'integrations' && t('editor.tabs.integrations')}
                                         {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'earn' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'billing' && activeTab !== 'integrations' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                                     </h1>
                                     <p className="text-black/50 font-normal text-[10px] md:text-xs uppercase tracking-widest max-w-lg">
-                                        {activeTab === 'links' && 'Gerencie seus links, redes sociais e informações do perfil público.'}
-                                        {activeTab === 'appearance' && 'Personalize as cores, temas, fontes e estilo visual do seu Nodus.'}
-                                        {activeTab === 'shop' && 'Organize e gerencie seus produtos digitais e links de vendas.'}
-                                        {activeTab === 'analytics' && 'Acompanhe o desempenho do seu perfil, veja cliques e visualizações.'}
-                                        {activeTab === 'earn' && 'Configure seus métodos de recebimento para aceitar incentivos e pagamentos.'}
-                                        {activeTab === 'files' && 'Hospede arquivos e documentos para usar no seu perfil.'}
-                                        {activeTab === 'billing' && 'Gerencie sua assinatura, visualize recibos e detalhes de pagamento.'}
-                                        {activeTab === 'integrations' && 'Conecte contas oficiais para automatizar seu perfil com dados reais.'}
+                                        {activeTab === 'links' && t('editor.tabDesc.links')}
+                                        {activeTab === 'appearance' && t('editor.tabDesc.appearance')}
+                                        {activeTab === 'shop' && t('editor.tabDesc.shop')}
+                                        {activeTab === 'analytics' && t('editor.tabDesc.analytics')}
+                                        {activeTab === 'earn' && t('editor.tabDesc.earn')}
+                                        {activeTab === 'files' && t('editor.tabDesc.files')}
+                                        {activeTab === 'billing' && t('editor.tabDesc.billing')}
+                                        {activeTab === 'integrations' && t('editor.tabDesc.integrations')}
                                     </p>
                                     <div className="mt-4 w-full h-[1px] bg-black/10"></div>
                                 </div>
@@ -701,11 +701,11 @@ export default function EditorPage() {
                                         {/* Design Content Area */}
                                         <div className="flex-1 p-4 md:p-8 pb-32 md:pb-8">
                                             <h2 className="text-2xl font-normal text-slate-800 mb-6 hidden md:block">
-                                                {activeDesignSection === 'header' && 'Cabeçalho'}
-                                                {activeDesignSection === 'theme' && 'Temas'}
-                                                {activeDesignSection === 'buttons' && 'Botões'}
-                                                {activeDesignSection === 'wallpaper' && 'Papel de Parede'}
-                                                {activeDesignSection === 'text' && 'Tipografia'}
+                                                {activeDesignSection === 'header' && t('design.header')}
+                                                {activeDesignSection === 'theme' && t('design.themes')}
+                                                {activeDesignSection === 'buttons' && t('design.buttons')}
+                                                {activeDesignSection === 'wallpaper' && t('design.wallpaper')}
+                                                {activeDesignSection === 'text' && t('design.typography')}
                                             </h2>
 
                                             {activeDesignSection === 'header' && (
@@ -734,8 +734,8 @@ export default function EditorPage() {
                                 {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'integrations' && activeTab !== 'admin' && (
                                     <div className="bg-white p-12 rounded-[20px] border border-dashed border-slate-300 text-center">
                                         <div className="text-4xl mb-4 text-slate-300 flex justify-center"><Construction size={48} /></div>
-                                        <h3 className="text-lg font-medium text-slate-700">Em Desenvolvimento</h3>
-                                        <p className="text-slate-500 mt-2">Esta funcionalidade estará disponível em breve.</p>
+                                        <h3 className="text-lg font-medium text-slate-700">{t('editor.inDevelopment')}</h3>
+                                        <p className="text-slate-500 mt-2">{t('editor.inDevelopmentDesc')}</p>
                                     </div>
                                 )}
 
@@ -777,7 +777,7 @@ export default function EditorPage() {
                         </div>
 
                         <div className="hidden lg:block absolute bottom-6 px-4 py-1.5 bg-black text-[#97cd7a] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-[8px] font-medium uppercase tracking-[0.3em]">
-                            Preview ao vivo
+                            {t('editor.livePreview')}
                         </div>
                     </div>
 

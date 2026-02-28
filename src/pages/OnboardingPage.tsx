@@ -8,21 +8,17 @@ import { SiWhatsapp, SiInstagram, SiTiktok, SiYoutube, SiSpotify, SiThreads, SiF
 import ProfileRenderer from '../components/ProfileRenderer';
 import { compressImage } from '../utils/imageUtils';
 import { UserProfile, LinkItem } from '../types';
+import { useTranslation } from 'react-i18next';
+import ImageCropperModal from '../components/tools/ImageCropperModal';
 
-const SOCIAL_PLATFORMS = [
-    { id: 'instagram', icon: SiInstagram, label: 'Instagram', color: 'text-pink-600', placeholder: 'seu.perfil', baseUrl: 'https://instagram.com/', handlePrefix: '@' },
-    { id: 'whatsapp', icon: SiWhatsapp, label: 'WhatsApp', color: 'text-green-500', placeholder: '5511999999999', baseUrl: 'https://wa.me/', handlePrefix: '' },
-    { id: 'tiktok', icon: SiTiktok, label: 'TikTok', color: 'text-black', placeholder: 'seu.perfil', baseUrl: 'https://tiktok.com/@', handlePrefix: '@' },
-    { id: 'youtube', icon: SiYoutube, label: 'YouTube', color: 'text-red-500', placeholder: 'seu.canal', baseUrl: 'https://youtube.com/@', handlePrefix: '@' },
-    { id: 'website', icon: Globe, label: 'Site Pessoal', color: 'text-slate-800', placeholder: 'seusite.com', baseUrl: '', handlePrefix: '' },
-    { id: 'spotify', icon: SiSpotify, label: 'Spotify', color: 'text-green-500', placeholder: 'link da playlist/artista', baseUrl: '', handlePrefix: '' },
-    { id: 'threads', icon: SiThreads, label: 'Threads', color: 'text-black', placeholder: 'seu.perfil', baseUrl: 'https://threads.net/@', handlePrefix: '@' },
-    { id: 'facebook', icon: SiFacebook, label: 'Facebook', color: 'text-blue-600', placeholder: 'seu.perfil', baseUrl: 'https://facebook.com/', handlePrefix: '' },
-    { id: 'x', icon: SiX, label: 'X', color: 'text-black', placeholder: 'seu.perfil', baseUrl: 'https://x.com/', handlePrefix: '@' },
-    { id: 'soundcloud', icon: SiSoundcloud, label: 'SoundCloud', color: 'text-orange-500', placeholder: 'seu.perfil', baseUrl: 'https://soundcloud.com/', handlePrefix: '' },
-    { id: 'snapchat', icon: SiSnapchat, label: 'Snapchat', color: 'text-yellow-400', placeholder: 'seu.perfil', baseUrl: 'https://snapchat.com/add/', handlePrefix: '' },
-    { id: 'pinterest', icon: SiPinterest, label: 'Pinterest', color: 'text-red-600', placeholder: 'seu.perfil', baseUrl: 'https://pinterest.com/', handlePrefix: '' },
-];
+const fileToDataURL = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+    });
+};
+
 
 // Safe localStorage setter that handles quota errors
 const safeSetItem = (key: string, value: string) => {
@@ -48,6 +44,23 @@ const safeSetItem = (key: string, value: string) => {
  */
 export default function OnboardingPage() {
     const { user, setProfile } = useAuth();
+    const { t } = useTranslation();
+
+    const SOCIAL_PLATFORMS = [
+        { id: 'instagram', icon: SiInstagram, label: 'Instagram', color: 'text-pink-600', placeholder: 'seu.perfil', baseUrl: 'https://instagram.com/', handlePrefix: '@' },
+        { id: 'whatsapp', icon: SiWhatsapp, label: 'WhatsApp', color: 'text-green-500', placeholder: '5511999999999', baseUrl: 'https://wa.me/', handlePrefix: '' },
+        { id: 'tiktok', icon: SiTiktok, label: 'TikTok', color: 'text-black', placeholder: 'seu.perfil', baseUrl: 'https://tiktok.com/@', handlePrefix: '@' },
+        { id: 'youtube', icon: SiYoutube, label: 'YouTube', color: 'text-red-500', placeholder: 'seu.canal', baseUrl: 'https://youtube.com/@', handlePrefix: '@' },
+        { id: 'website', icon: Globe, label: t('onboarding.personalWebsite'), color: 'text-slate-800', placeholder: 'seusite.com', baseUrl: '', handlePrefix: '' },
+        { id: 'spotify', icon: SiSpotify, label: 'Spotify', color: 'text-green-500', placeholder: t('onboarding.spotifyPlaceholder'), baseUrl: '', handlePrefix: '' },
+        { id: 'threads', icon: SiThreads, label: 'Threads', color: 'text-black', placeholder: 'seu.perfil', baseUrl: 'https://threads.net/@', handlePrefix: '@' },
+        { id: 'facebook', icon: SiFacebook, label: 'Facebook', color: 'text-blue-600', placeholder: 'seu.perfil', baseUrl: 'https://facebook.com/', handlePrefix: '' },
+        { id: 'x', icon: SiX, label: 'X', color: 'text-black', placeholder: 'seu.perfil', baseUrl: 'https://x.com/', handlePrefix: '@' },
+        { id: 'soundcloud', icon: SiSoundcloud, label: 'SoundCloud', color: 'text-orange-500', placeholder: 'seu.perfil', baseUrl: 'https://soundcloud.com/', handlePrefix: '' },
+        { id: 'snapchat', icon: SiSnapchat, label: 'Snapchat', color: 'text-yellow-400', placeholder: 'seu.perfil', baseUrl: 'https://snapchat.com/add/', handlePrefix: '' },
+        { id: 'pinterest', icon: SiPinterest, label: 'Pinterest', color: 'text-red-600', placeholder: 'seu.perfil', baseUrl: 'https://pinterest.com/', handlePrefix: '' },
+    ];
+
     const [step, setStep] = useState(1);
     const [username, setUsername] = useState('');
     const [userCategory, setUserCategory] = useState<'creator' | 'personal' | 'business' | null>(null);
@@ -69,6 +82,15 @@ export default function OnboardingPage() {
     const [configuringSocialPlatform, setConfiguringSocialPlatform] = useState<string | null>(null);
     const [tempSocialUrl, setTempSocialUrl] = useState('');
     const [socialSearchTerm, setSocialSearchTerm] = useState('');
+
+    // Cropper State
+    const [cropper, setCropper] = useState<{
+        isOpen: boolean;
+        image: string;
+    }>({
+        isOpen: false,
+        image: ''
+    });
 
     const navigate = useNavigate();
     const avatarInputRef = React.useRef<HTMLInputElement>(null);
@@ -108,12 +130,26 @@ export default function OnboardingPage() {
 
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            try {
-                const compressed = await compressImage(e.target.files[0], 500, 0.8);
-                setAvatarUrl(compressed);
-            } catch (error) {
-                console.error('Error processing image:', error);
-            }
+            const dataUrl = await fileToDataURL(e.target.files[0]);
+            setCropper({
+                isOpen: true,
+                image: dataUrl
+            });
+            // Reset input so the same file can be selected again
+            e.target.value = '';
+        }
+    };
+
+    const handleCropComplete = async (croppedBlob: Blob) => {
+        try {
+            const reader = new FileReader();
+            reader.readAsDataURL(croppedBlob);
+            reader.onloadend = () => {
+                setAvatarUrl(reader.result as string);
+                setCropper(prev => ({ ...prev, isOpen: false }));
+            };
+        } catch (error) {
+            console.error('Error saving cropped image:', error);
         }
     };
 
@@ -158,7 +194,7 @@ export default function OnboardingPage() {
     const handleAddGeneralLink = () => {
         setQuickLinks([...quickLinks, {
             id: `temp-${Date.now()}`,
-            title: 'Novo Link',
+            title: t('onboarding.linkTitlePlaceholder'),
             url: '',
             layout: 'classic',
             type: 'link'
@@ -182,7 +218,7 @@ export default function OnboardingPage() {
                 username: username.toLowerCase(),
                 onboardingCompleted: true,
                 userCategory: userCategory,
-                referralSource: referralSource || 'Não informado',
+                referralSource: referralSource || t('common.notProvided'),
                 name: name || username,
                 bio: bio,
                 avatarUrl: avatarUrl,
@@ -190,7 +226,7 @@ export default function OnboardingPage() {
             });
 
             // 2. Process and Save links (AutoComplete Logic)
-            const validLinks = quickLinks.filter(l => l.url || l.title !== 'Novo Link'); // Allow saving if it has some content
+            const validLinks = quickLinks.filter(l => l.url || l.title !== t('onboarding.newLink')); // Allow saving if it has some content
             if (validLinks.length > 0) {
                 try {
                     const currentLinks = await apiClient.getMyLinks();
@@ -236,7 +272,7 @@ export default function OnboardingPage() {
 
         } catch (err: any) {
             console.error('Finalization error:', err);
-            setError(err.message || 'Ocorreu um erro ao finalizar seu perfil.');
+            setError(err.message || t('common.errorTryAgain'));
         } finally {
             setLoading(false);
         }
@@ -244,8 +280,8 @@ export default function OnboardingPage() {
 
     // Config do profile mockado para o Preview
     const previewProfile: UserProfile = {
-        name: name || username || 'Seu Nome',
-        bio: bio || 'Breve descrição sobre você...',
+        name: name || username || t('onboarding.yourName'),
+        bio: bio || t('onboarding.bioPlaceholder'),
         avatarUrl: avatarUrl || '',
         themeId: 'brutalist-yellow',
         fontFamily: "'Inter', sans-serif",
@@ -255,7 +291,7 @@ export default function OnboardingPage() {
     };
 
     // Quick links array mapped para LinkItem
-    const previewLinks: LinkItem[] = quickLinks.filter(l => l.url || l.title !== 'Novo Link').map((link, i) => ({
+    const previewLinks: LinkItem[] = quickLinks.filter(l => l.url || l.title !== t('onboarding.newLink')).map((link, i) => ({
         id: link.id,
         clientId: crypto.randomUUID(),
         title: link.title,
@@ -281,7 +317,7 @@ export default function OnboardingPage() {
                         <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none transition-all">
                             <ArrowLeft size={16} />
                         </div>
-                        Voltar
+                        {t('onboarding.back')}
                     </button>
                     <div className="font-black text-2xl tracking-tighter uppercase">NODUS</div>
                 </div>
@@ -290,48 +326,48 @@ export default function OnboardingPage() {
                     <div className="mb-12">
                         {step === 1 && (
                             <h1 className="text-6xl lg:text-7xl font-black uppercase leading-[0.9] mb-6">
-                                Escolha seu <br /> Link Único.
+                                {t('onboarding.step1Title')}
                             </h1>
                         )}
                         {step === 2 && (
                             <h1 className="text-5xl lg:text-6xl font-black uppercase leading-[0.9] mb-6">
-                                Como você <br /> vai usar?
+                                {t('onboarding.step2Title')}
                             </h1>
                         )}
                         {step === 3 && (
                             <h1 className="text-6xl lg:text-7xl font-black uppercase leading-[0.9] mb-6">
-                                Quase <br /> lá.
+                                {t('onboarding.step3Title')}
                             </h1>
                         )}
                         {step === 4 && (
                             <h1 className="text-5xl lg:text-6xl font-black uppercase leading-[0.9] mb-6">
-                                Detalhes <br /> Básicos.
+                                {t('onboarding.step4Title')}
                             </h1>
                         )}
                         {step === 5 && (
                             <h1 className="text-5xl lg:text-6xl font-black uppercase leading-[0.9] mb-6">
-                                Adicione <br /> Links.
+                                {t('onboarding.step5Title')}
                             </h1>
                         )}
                         {step === 6 && (
                             <h1 className="text-5xl lg:text-6xl font-black uppercase leading-[0.9] mb-6">
-                                Estilo <br /> Visual.
+                                {t('onboarding.step6Title')}
                             </h1>
                         )}
                         <p className="font-medium text-lg text-black/70 border-l-4 border-[#ffdf00] pl-4">
-                            {step === 1 && "Você poderá alterá-lo depois se precisar."}
-                            {step === 2 && "Isso nos ajuda a personalizar sua experiência."}
-                            {step === 3 && "Por onde nos conheceu?"}
-                            {step === 4 && "Adicione uma foto e uma biografia."}
-                            {step === 5 && "Onde seus seguidores te encontram?"}
-                            {step === 6 && "Escolha o layout inicial do seu perfil."}
+                            {step === 1 && t('onboarding.step1Desc')}
+                            {step === 2 && t('onboarding.step2Desc')}
+                            {step === 3 && t('onboarding.step3Desc')}
+                            {step === 4 && t('onboarding.step4Desc')}
+                            {step === 5 && t('onboarding.step5Desc')}
+                            {step === 6 && t('onboarding.step6Desc')}
                         </p>
                     </div>
 
                     {step === 1 && (
                         <form onSubmit={handleNextStep} className="space-y-8">
                             <div className="space-y-3">
-                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">Reserve seu nome de usuário</label>
+                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">{t('onboarding.reserveUsername')}</label>
                                 <div className="group relative">
                                     <input
                                         type="text"
@@ -367,12 +403,12 @@ export default function OnboardingPage() {
                                 <div className="h-6 mt-2">
                                     {available === true && (
                                         <div className="bg-[#97cd7a]/10 border-2 border-[#97cd7a] text-[#5b8c41] px-3 py-1 text-[10px] font-black uppercase tracking-tight inline-block shadow-[2px_2px_0px_0px_#97cd7a]">
-                                            Link disponível!
+                                            {t('onboarding.usernameAvailable')}
                                         </div>
                                     )}
                                     {available === false && username && !checking && (
                                         <div className="bg-red-50 border-2 border-red-500 text-red-600 px-3 py-1 text-[10px] font-black uppercase tracking-tight inline-block shadow-[2px_2px_0px_0px_#ef4444]">
-                                            Indisponível :(
+                                            {t('onboarding.usernameUnavailable')}
                                         </div>
                                     )}
                                 </div>
@@ -388,7 +424,7 @@ export default function OnboardingPage() {
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
-                                {checking ? <Loader2 className="animate-spin" size={24} /> : 'Continuar'}
+                                {checking ? <Loader2 className="animate-spin" size={24} /> : t('onboarding.continue')}
                             </button>
                         </form>
                     )}
@@ -396,9 +432,9 @@ export default function OnboardingPage() {
                     {step === 2 && (
                         <div className="space-y-4">
                             {[
-                                { id: 'creator', label: 'Criador de Conteúdo', description: 'Influenciadores, YouTubers e Criadores.' },
-                                { id: 'business', label: 'Corporativo', description: 'Para minha empresa e negócios.' },
-                                { id: 'personal', label: 'Uso Pessoal', description: 'Agrupar links e projetos pessoais.' }
+                                { id: 'creator', label: t('onboarding.creator'), description: t('onboarding.creatorDesc') },
+                                { id: 'business', label: t('onboarding.business'), description: t('onboarding.businessDesc') },
+                                { id: 'personal', label: t('onboarding.personal'), description: t('onboarding.personalDesc') }
                             ].map((cat) => (
                                 <button
                                     key={cat.id}
@@ -429,23 +465,23 @@ export default function OnboardingPage() {
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
-                                Continuar
+                                {t('onboarding.continue')}
                             </button>
-                            <button onClick={() => setStep(1)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">Voltar</button>
+                            <button onClick={() => setStep(1)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">{t('onboarding.back')}</button>
                         </div>
                     )}
 
                     {step === 3 && (
-                        <form onSubmit={handleFinalize} className="space-y-8">
+                        <div className="space-y-8">
                             <div className="space-y-3">
-                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">Sua resposta</label>
+                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">{t('onboarding.yourResponse')}</label>
                                 <input
                                     type="text"
                                     value={referralSource}
                                     onChange={(e) => setReferralSource(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && referralSource && setStep(4)}
                                     className="w-full bg-white border-2 border-black py-6 px-6 text-xl font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all duration-200"
-                                    placeholder="Ex: Instagram, Amigo, Google..."
-                                    required
+                                    placeholder={t('onboarding.referralPlaceholder')}
                                 />
                             </div>
 
@@ -460,10 +496,10 @@ export default function OnboardingPage() {
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
-                                Continuar
+                                {t('onboarding.continue')}
                             </button>
-                            <button type="button" onClick={() => setStep(2)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">Voltar</button>
-                        </form>
+                            <button type="button" onClick={() => setStep(2)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">{t('onboarding.back')}</button>
+                        </div>
                     )}
 
                     {step === 4 && (
@@ -476,7 +512,7 @@ export default function OnboardingPage() {
                                         ) : (
                                             <div className="flex flex-col items-center">
                                                 <Camera size={32} className="text-black/30 mb-2" />
-                                                <span className="text-[10px] uppercase font-black tracking-widest text-black/40">FOTO</span>
+                                                <span className="text-[10px] uppercase font-black tracking-widest text-black/40">{t('onboarding.photo')}</span>
                                             </div>
                                         )}
                                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -488,24 +524,24 @@ export default function OnboardingPage() {
                             </div>
 
                             <div className="space-y-3">
-                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">Nome de Exibição</label>
+                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">{t('onboarding.displayName')}</label>
                                 <input
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className="w-full bg-white border-2 border-black py-4 px-4 text-lg font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all duration-200"
-                                    placeholder="Como quer ser chamado?"
+                                    placeholder={t('onboarding.namePlaceholder')}
                                     required
                                 />
                             </div>
                             <div className="space-y-3">
-                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">Sua Bio (Opcional)</label>
+                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">{t('onboarding.bio')}</label>
                                 <textarea
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
                                     rows={3}
                                     className="w-full bg-white border-2 border-black py-4 px-4 text-base font-medium shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all duration-200 resize-none"
-                                    placeholder="Breve descrição sobre você..."
+                                    placeholder={t('onboarding.bioPlaceholder')}
                                 />
                             </div>
 
@@ -519,22 +555,22 @@ export default function OnboardingPage() {
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
-                                Continuar
+                                {t('onboarding.continue')}
                             </button>
-                            <button type="button" onClick={() => setStep(3)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">Voltar</button>
+                            <button type="button" onClick={() => setStep(3)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">{t('onboarding.back')}</button>
                         </div>
                     )}
 
                     {step === 5 && (
                         <div className="space-y-8">
-                            <p className="font-bold text-slate-500 text-sm">Adicione suas redes sociais e principais links. Você poderá personalizar tudo no Studio.</p>
+                            <p className="font-bold text-slate-500 text-sm">{t('onboarding.addSocialsAndLinks')}</p>
 
                             {/* Redes Sociais */}
                             <div className="bg-white border-2 border-black p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                                 <div className="flex items-center justify-between mb-4">
                                     <div>
-                                        <h3 className="font-black text-lg uppercase tracking-tight">Redes Sociais</h3>
-                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Ícones no topo</p>
+                                        <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.socialNetworks')}</h3>
+                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('onboarding.topIcons')}</p>
                                     </div>
                                     <button
                                         type="button"
@@ -565,7 +601,7 @@ export default function OnboardingPage() {
                                 ) : (
                                     <div className="py-6 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400">
                                         <Globe size={24} className="mb-2 opacity-50" />
-                                        <span className="text-xs font-bold uppercase tracking-widest">Nenhuma rede</span>
+                                        <span className="text-xs font-bold uppercase tracking-widest">{t('onboarding.noSocials')}</span>
                                     </div>
                                 )}
                             </div>
@@ -574,8 +610,8 @@ export default function OnboardingPage() {
                             <div className="bg-white border-2 border-black p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                                 <div className="flex items-center justify-between mb-4">
                                     <div>
-                                        <h3 className="font-black text-lg uppercase tracking-tight">Meus Links</h3>
-                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Botões principais</p>
+                                        <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.myLinks')}</h3>
+                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('onboarding.mainButtonsDesc')}</p>
                                     </div>
                                     <button
                                         type="button"
@@ -600,14 +636,14 @@ export default function OnboardingPage() {
                                                             value={link.title}
                                                             onChange={(e) => updateGeneralLink(link.id, 'title', e.target.value)}
                                                             className="w-full text-sm font-bold border-none p-0 focus:ring-0 placeholder:text-slate-300"
-                                                            placeholder="Título do Link"
+                                                            placeholder={t('onboarding.linkTitlePlaceholder')}
                                                         />
                                                         <input
                                                             type="text"
                                                             value={link.url}
                                                             onChange={(e) => updateGeneralLink(link.id, 'url', e.target.value)}
                                                             className="w-full text-xs font-medium text-slate-600 border-none p-0 focus:ring-0 placeholder:text-slate-300"
-                                                            placeholder="https://exemplo.com"
+                                                            placeholder="https://example.com"
                                                         />
                                                     </div>
                                                     <button
@@ -623,7 +659,7 @@ export default function OnboardingPage() {
                                     ) : (
                                         <div className="py-8 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400">
                                             <LinkIcon size={24} className="mb-2 opacity-50" />
-                                            <span className="text-xs font-bold uppercase tracking-widest">Nenhum botão configurado</span>
+                                            <span className="text-xs font-bold uppercase tracking-widest">{t('onboarding.noButtons')}</span>
                                         </div>
                                     )}
                                 </div>
@@ -633,9 +669,9 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(6)}
                                 className="w-full h-16 bg-[#ffdf00] border-2 border-black font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none mt-8"
                             >
-                                Continuar
+                                {t('onboarding.continue')}
                             </button>
-                            <button type="button" onClick={() => setStep(4)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">Voltar</button>
+                            <button type="button" onClick={() => setStep(4)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">{t('onboarding.back')}</button>
                         </div>
                     )}
 
@@ -643,9 +679,9 @@ export default function OnboardingPage() {
                         <form onSubmit={handleFinalize} className="space-y-4">
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
                                 {[
-                                    { id: 'classic', label: 'Clássico', icon: UserCircle },
-                                    { id: 'compact', label: 'Perfil', icon: User },
-                                    { id: 'banner', label: 'Banner', icon: Layout }
+                                    { id: 'classic', label: t('onboarding.classic'), icon: UserCircle },
+                                    { id: 'compact', label: t('onboarding.profile'), icon: User },
+                                    { id: 'banner', label: t('onboarding.banner'), icon: Layout }
                                 ].map((layout) => {
                                     const Icon = layout.icon;
                                     return (
@@ -677,9 +713,9 @@ export default function OnboardingPage() {
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
-                                {loading ? <Loader2 className="animate-spin" size={24} /> : 'Entrar no Studio'}
+                                {loading ? <Loader2 className="animate-spin" size={24} /> : t('onboarding.enterStudio')}
                             </button>
-                            <button type="button" onClick={() => setStep(5)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">Voltar</button>
+                            <button type="button" onClick={() => setStep(5)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">{t('onboarding.back')}</button>
                         </form>
                     )}
 
@@ -725,8 +761,8 @@ export default function OnboardingPage() {
                                     <Check className="text-black" size={16} strokeWidth={4} />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] text-black/40 font-black uppercase tracking-widest leading-none">Status</span>
-                                    <span className="font-black text-black text-xs uppercase">Perfil Ativo</span>
+                                    <span className="text-[10px] text-black/40 font-black uppercase tracking-widest leading-none">{t('onboarding.status')}</span>
+                                    <span className="font-black text-black text-xs uppercase">{t('onboarding.profileActive')}</span>
                                 </div>
                             </div>
 
@@ -739,7 +775,7 @@ export default function OnboardingPage() {
                                     <span className="text-[10px] font-black bg-[#97cd7a] text-black px-1.5 border-2 border-black">+12%</span>
                                 </div>
                                 <div className="text-2xl font-black text-black">2.840</div>
-                                <div className="text-[9px] font-black text-black/30 uppercase tracking-tighter">Cliques Totais</div>
+                                <div className="text-[9px] font-black text-black/30 uppercase tracking-tighter">{t('onboarding.totalClicks')}</div>
                             </div>
 
                             {/* 3. Theme */}
@@ -751,15 +787,15 @@ export default function OnboardingPage() {
                                     <div className="w-2 h-2 bg-white/10 border-[1px] border-white/20"></div>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[9px] text-white/40 font-black uppercase tracking-widest leading-none mb-1">Tema</span>
-                                    <span className="font-black text-white text-[10px] uppercase">Brutalismo</span>
+                                    <span className="text-[9px] text-white/40 font-black uppercase tracking-widest leading-none mb-1">{t('onboarding.theme')}</span>
+                                    <span className="font-black text-white text-[10px] uppercase">{t('onboarding.brutalism')}</span>
                                 </div>
                             </div>
 
                             {/* 4. Realtime Badge */}
                             <div className="absolute -bottom-4 right-10 bg-white border-2 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black text-[10px] font-black uppercase flex items-center gap-2 z-20">
                                 <div className="w-3 h-3 bg-red-500 border-2 border-black animate-pulse"></div>
-                                Preview ao Vivo
+                                {t('onboarding.livePreview')}
                             </div>
                         </div>
                     </>
@@ -804,7 +840,7 @@ export default function OnboardingPage() {
                                     </button>
                                 ) : <div className="w-8" />}
                                 <h3 className="font-black text-lg uppercase tracking-tight">
-                                    {configuringSocialPlatform ? `Configurar ${SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.label}` : 'Adicionar Rede Social'}
+                                    {configuringSocialPlatform ? `${t('onboarding.configure')} ${SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.label}` : t('onboarding.addSocialNetwork')}
                                 </h3>
                                 <button onClick={() => { setIsSocialModalOpen(false); setConfiguringSocialPlatform(null); }} className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-black transition-colors">
                                     <X size={24} />
@@ -821,7 +857,7 @@ export default function OnboardingPage() {
                                                 type="text"
                                                 value={socialSearchTerm}
                                                 onChange={(e) => setSocialSearchTerm(e.target.value)}
-                                                placeholder="Buscar plataforma..."
+                                                placeholder={t('onboarding.searchPlatformPlaceholder')}
                                                 className="w-full bg-white border-2 border-black py-3 pl-12 pr-4 text-sm font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none transition-all placeholder:font-normal"
                                             />
                                         </div>
@@ -879,7 +915,7 @@ export default function OnboardingPage() {
                                         })}
                                         {SOCIAL_PLATFORMS.filter(p => p.label.toLowerCase().includes(socialSearchTerm.toLowerCase())).length === 0 && (
                                             <div className="py-10 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">
-                                                Nenhuma plataforma encontrada
+                                                {t('onboarding.noPlatformFound')}
                                             </div>
                                         )}
                                     </div>
@@ -891,7 +927,7 @@ export default function OnboardingPage() {
                                     </div>
 
                                     <div className="w-full space-y-3 mb-10">
-                                        <label className="text-xs font-black uppercase tracking-widest text-black">Insira seu usuário / handle</label>
+                                        <label className="text-xs font-black uppercase tracking-widest text-black">{t('onboarding.enterHandle')}</label>
                                         <div className="flex items-stretch border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus-within:translate-x-[2px] focus-within:translate-y-[2px] focus-within:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
                                             {SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.baseUrl && (
                                                 <div className="px-4 border-r-2 border-black py-4 bg-slate-50 text-sm font-bold text-slate-500 whitespace-nowrap flex items-center">
@@ -918,7 +954,7 @@ export default function OnboardingPage() {
                                             ${tempSocialUrl ? 'bg-[#97cd7a] text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px]' : 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 shadow-none'}
                                         `}
                                     >
-                                        <Check size={24} strokeWidth={3} /> Salvar Link
+                                        <Check size={24} strokeWidth={3} /> {t('onboarding.saveLink')}
                                     </button>
                                 </div>
                             )}
@@ -926,6 +962,14 @@ export default function OnboardingPage() {
                     </div>
                 )}
             </AnimatePresence>
+            <ImageCropperModal
+                isOpen={cropper.isOpen}
+                image={cropper.image}
+                aspectRatio={1}
+                title={t('design.cropProfile') || 'Recortar Avatar'}
+                onClose={() => setCropper(prev => ({ ...prev, isOpen: false }))}
+                onCropComplete={handleCropComplete}
+            />
         </div>
     );
 }

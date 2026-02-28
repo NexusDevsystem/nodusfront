@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { apiClient } from '../services/apiClient';
@@ -31,7 +32,8 @@ import {
     Zap,
     ExternalLink,
     Loader2,
-    Check
+    Check,
+    AlertCircle
 } from 'lucide-react';
 import { SiSpotify, SiTiktok } from 'react-icons/si';
 import { SOCIAL_NETWORKS } from '../constants';
@@ -44,6 +46,7 @@ interface SocialLinksEditorProps {
 }
 
 export default function SocialLinksEditor({ links, onChange, profile: propProfile, setProfile: propSetProfile }: SocialLinksEditorProps) {
+    const { t } = useTranslation();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -56,9 +59,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
     const [isConnectingInstagram, setIsConnectingInstagram] = useState(false);
     const [isConnectingTikTok, setIsConnectingTikTok] = useState(false);
     const [isConnectingTwitch, setIsConnectingTwitch] = useState(false);
+    const [isConnectingYoutube, setIsConnectingYoutube] = useState(false);
     const [connectionError, setConnectionError] = useState<string | null>(null);
     const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
-    const isAuthorized = profile?.username === 'nodus' || profile?.username === 'nexus';
+    const isAuthorized = profile?.username === 'nodus' || profile?.username === 'nexus' || profile?.username === 'jaoom' || authProfile?.email === 'jaoomarcos75@gmail.com';
 
     useEffect(() => {
         setMounted(true);
@@ -79,6 +83,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
     const twitchIntegration = profile?.integrations?.find((i: any) => i.provider === 'twitch');
     const isTwitchConnected = !!twitchIntegration;
+
+    const youtubeIntegration = profile?.integrations?.find((i: any) => i.provider === 'youtube');
+    const isYoutubeConnected = !!youtubeIntegration;
 
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => {
@@ -156,19 +163,19 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
             <div className="p-4 md:p-5">
                 <div className="flex items-center justify-between gap-4 mb-4">
                     <div>
-                        <h3 className="text-xs md:text-sm font-medium text-black uppercase tracking-widest leading-none">Redes Sociais</h3>
-                        <p className="text-[9px] md:text-[10px] text-black font-normal uppercase tracking-wider mt-1 opacity-60 leading-none">Ícones rápidos exibidos no topo do seu perfil</p>
+                        <h3 className="text-xs md:text-sm font-medium text-black uppercase tracking-widest leading-none">{t('social.title')}</h3>
+                        <p className="text-[9px] md:text-[10px] text-black font-normal uppercase tracking-wider mt-1 opacity-60 leading-none">{t('social.subtitle')}</p>
                     </div>
                     <button
                         onClick={handleOpenModal}
                         className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center text-black bg-white border-2 border-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none shrink-0"
-                        title="Gerenciar Redes Sociais"
+                        title={t('social.manage')}
                     >
                         <Plus size={16} className="md:w-5 md:h-5" strokeWidth={3} />
                     </button>
                 </div>
 
-                {(socialLinks.length > 0 || isInstagramConnected || isTwitchConnected) && (
+                {(socialLinks.length > 0 || isInstagramConnected || isTwitchConnected || isYoutubeConnected) && (
                     <div className="flex flex-wrap gap-4 md:gap-5 py-1">
                         {/* Auto-render Instagram if connected but not explicitly added as link */}
                         {isInstagramConnected && !socialLinks.some(l => l.platform === 'instagram') && (
@@ -189,6 +196,17 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                             >
                                 <Twitch size={22} className="md:w-6 md:h-6" />
                                 <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#6441a5] rounded-full border border-white" />
+                            </button>
+                        )}
+
+                        {/* Auto-render YouTube if connected */}
+                        {isYoutubeConnected && !socialLinks.some(l => l.platform === 'youtube') && (
+                            <button
+                                onClick={() => toggleSocialLink('youtube')}
+                                className="text-black transition-all hover:scale-110 active:scale-90 p-0.5 relative"
+                            >
+                                <Youtube size={22} className="md:w-6 md:h-6" />
+                                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ff0000] rounded-full border border-white" />
                             </button>
                         )}
 
@@ -259,8 +277,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
                                     <h3 className={`absolute left-1/2 -translate-x-1/2 font-medium uppercase tracking-widest text-black truncate max-w-[200px] ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
                                         {configuringPlatform
-                                            ? (links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform)))) ? `Editar ${activeConfigPlatform?.name}` : `Adicionar ${activeConfigPlatform?.name}`)
-                                            : 'Ícones Sociais'}
+                                            ? (links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform))))
+                                                ? t('social.editPlatform', { platform: activeConfigPlatform?.name })
+                                                : t('social.addPlatform', { platform: activeConfigPlatform?.name }))
+                                            : t('social.modalTitle')}
                                     </h3>
 
                                     {!isMobile && (
@@ -283,7 +303,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                     type="text"
                                                     value={searchTerm}
                                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                                    placeholder="BUSCAR..."
+                                                    placeholder={t('common.searchPlaceholder')}
                                                     className="w-full bg-white border border-black py-2 pl-9 pr-4 text-[10px] font-medium uppercase tracking-widest text-black outline-none focus:bg-[#ffdf00] placeholder:text-black/30 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                                                 />
                                             </div>
@@ -330,8 +350,8 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
                                                             {isConnected && (
                                                                 <div className="absolute top-1 left-1 px-1 py-0.5 bg-black text-[#97cd7a] text-[6px] font-medium uppercase tracking-widest border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center gap-0.5">
-                                                                    <div className="w-1 h-1 bg-[#97cd7a] rounded-full animate-pulse"></div>
-                                                                    SYNC
+                                                                    <div className="w-1.5 h-1.5 bg-[#97cd7a] rounded-full animate-pulse"></div>
+                                                                    {t('integrations.sync')}
                                                                 </div>
                                                             )}
 
@@ -343,7 +363,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                         onChange(links.filter(l => !(l.layout === 'social' && (l.platform === platform.id || (platform.id !== 'site' && platform.id !== 'custom' && l.url.includes(platform.id))))));
                                                                     }}
                                                                     className="absolute top-1.5 right-1.5 p-1 text-black border-2 border-transparent hover:border-black hover:bg-red-500 hover:text-white transition-colors"
-                                                                    title="Remover"
+                                                                    title={t('common.delete')}
                                                                 >
                                                                     <Trash2 size={14} strokeWidth={3} />
                                                                 </button>
@@ -354,7 +374,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                             </div>
                                             {filteredPlatforms.length === 0 && (
                                                 <div className="py-10 text-center text-slate-400 font-medium">
-                                                    Nenhum ícone encontrado
+                                                    {t('social.noIcons')}
                                                 </div>
                                             )}
                                         </div>
@@ -362,20 +382,104 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                 ) : (
                                     <div className="flex flex-col flex-1 px-8 pb-10">
                                         <div className="mt-4 space-y-6">
-                                            {!((configuringPlatform === 'instagram' && isInstagramConnected) || (configuringPlatform === 'twitch' && isTwitchConnected)) && (
-                                                <div className="space-y-2">
-                                                    <input
-                                                        autoFocus
-                                                        type="text"
-                                                        value={tempUrl}
-                                                        onChange={(e) => setTempUrl(e.target.value)}
-                                                        placeholder={`INSERIR ${activeConfigPlatform?.id === 'email' || activeConfigPlatform?.id === 'spotify' ? 'LINK' : 'USUÁRIO'}...`}
-                                                        onKeyDown={(e) => e.key === 'Enter' && confirmPlatform()}
-                                                        className="w-full bg-white border border-black px-4 py-3 text-black text-[10px] font-medium uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/30 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-colors"
-                                                    />
-                                                    <p className="text-[8px] font-normal text-black uppercase tracking-widest px-1 opacity-50 italic">
-                                                        EX: @{activeConfigPlatform?.placeholder || 'USUARIO'}
-                                                    </p>
+                                            {!(
+                                                (configuringPlatform === 'instagram' && isInstagramConnected) ||
+                                                (configuringPlatform === 'twitch' && isTwitchConnected) ||
+                                                (configuringPlatform === 'youtube' && isYoutubeConnected)
+                                            ) && (
+                                                    <div className="space-y-2">
+                                                        <input
+                                                            autoFocus
+                                                            type="text"
+                                                            value={tempUrl}
+                                                            onChange={(e) => setTempUrl(e.target.value)}
+                                                            placeholder={activeConfigPlatform?.id === 'email' || activeConfigPlatform?.id === 'spotify'
+                                                                ? t('social.linkInputPlaceholder')
+                                                                : t('social.userInputPlaceholder')}
+                                                            onKeyDown={(e) => e.key === 'Enter' && confirmPlatform()}
+                                                            className="w-full bg-white border border-black px-4 py-3 text-black text-[10px] font-medium uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/30 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-colors"
+                                                        />
+                                                        <p className="text-[8px] font-normal text-black uppercase tracking-widest px-1 opacity-50 italic">
+                                                            {t('social.userHint', { username: activeConfigPlatform?.placeholder || 'USUARIO' })}
+                                                        </p>
+                                                    </div>
+                                                )}
+
+                                            {/* YouTube Rich Profile Card */}
+                                            {configuringPlatform === 'youtube' && isYoutubeConnected && (
+                                                <div className="bg-white p-6 border-2 border-black flex flex-col items-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                                    <div className="relative mb-4">
+                                                        <div className="w-20 h-20 overflow-hidden border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] bg-white">
+                                                            <img
+                                                                src={youtubeIntegration.profile_data?.avatar_url || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'}
+                                                                alt={youtubeIntegration.profile_data?.title}
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    (e.target as HTMLImageElement).src = 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png';
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className="absolute -bottom-1 -right-1 bg-[#ff0000] p-1.5 border-2 border-black text-white">
+                                                            <Youtube size={12} strokeWidth={4} />
+                                                        </div>
+                                                    </div>
+
+                                                    <h4 className="text-xl font-medium text-black uppercase tracking-tighter">
+                                                        {youtubeIntegration.profile_data?.title}
+                                                    </h4>
+                                                    <div className="flex flex-col items-center gap-1.5 mt-2">
+                                                        <span className="text-[10px] font-medium text-black/50 uppercase tracking-widest flex items-center justify-center gap-1 bg-black/5 px-2 py-0.5">
+                                                            <Youtube size={10} className="text-[#ff0000]" />
+                                                            {t('social.youtubeChannel')}
+                                                        </span>
+                                                        <span className="text-[12px] font-medium text-[#ff0000] uppercase tracking-widest">
+                                                            {youtubeIntegration.profile_data?.subscriber_count?.toLocaleString() || 0} {t('integrations.subscribers')}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="mt-6 p-4 bg-yellow-50 border-2 border-black/10 flex items-start gap-3 w-full animate-in fade-in slide-in-from-top-1">
+                                                        <AlertCircle size={16} className="text-yellow-600 shrink-0 mt-0.5" strokeWidth={3} />
+                                                        <p className="text-[10px] font-normal text-yellow-800 uppercase tracking-widest leading-relaxed text-left">
+                                                            {t('social.youtubeBetaNotice')}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="w-full h-0.5 bg-black/10 my-6" />
+
+                                                    <button
+                                                        onClick={() => setShowDisconnectConfirm(!showDisconnectConfirm)}
+                                                        disabled={isConnectingYoutube}
+                                                        className={`w-full py-4 px-6 border-2 border-black transition-all font-medium text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${showDisconnectConfirm
+                                                            ? 'bg-black text-white'
+                                                            : 'bg-white text-red-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] hover:bg-[#fff0f0]'
+                                                            }`}
+                                                    >
+                                                        {isConnectingYoutube ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} strokeWidth={3} />}
+                                                        {showDisconnectConfirm ? t('common.cancel') : t('social.disconnectYoutube')}
+                                                    </button>
+
+                                                    {showDisconnectConfirm && (
+                                                        <div className="mt-4 w-full">
+                                                            <button
+                                                                onClick={async () => {
+                                                                    try {
+                                                                        setIsConnectingYoutube(true);
+                                                                        await apiClient.disconnectIntegration('youtube');
+                                                                        const updatedIntegrations = profile.integrations?.filter((i: any) => i.provider !== 'youtube') || [];
+                                                                        setProfile({ ...profile, integrations: updatedIntegrations });
+                                                                        setShowDisconnectConfirm(false);
+                                                                    } catch (err: any) {
+                                                                        setConnectionError(err.message);
+                                                                    } finally {
+                                                                        setIsConnectingYoutube(false);
+                                                                    }
+                                                                }}
+                                                                className="w-full py-3 bg-red-600 text-white font-medium text-[10px] uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                                                            >
+                                                                {t('social.confirmDisconnect')}
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
 
@@ -404,10 +508,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                     <div className="flex flex-col items-center gap-1.5 mt-2">
                                                         <span className="text-[10px] font-medium text-black/50 uppercase tracking-widest flex items-center justify-center gap-1 bg-black/5 px-2 py-0.5">
                                                             <Instagram size={10} className="text-black" />
-                                                            Instagram Business
+                                                            {t('social.instagramBusiness')}
                                                         </span>
                                                         <span className="text-[12px] font-medium text-[#32a800] uppercase tracking-widest">
-                                                            {instagramIntegration.profile_data?.follower_count?.toLocaleString()} seguidores
+                                                            {instagramIntegration.profile_data?.follower_count?.toLocaleString()} {t('integrations.followers')}
                                                         </span>
                                                     </div>
 
@@ -427,7 +531,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             ) : (
                                                                 <Trash2 size={14} strokeWidth={3} />
                                                             )}
-                                                            {showDisconnectConfirm ? 'CANCELAR' : 'DESCONECTAR CONTA'}
+                                                            {showDisconnectConfirm ? t('common.cancel') : t('social.disconnectAccount')}
                                                         </button>
 
                                                         <AnimatePresence>
@@ -441,10 +545,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                     <div className="p-4 space-y-4">
                                                                         <div className="text-left">
                                                                             <p className="text-[10px] font-medium text-red-900 uppercase tracking-widest leading-tight">
-                                                                                CONFIRMAR DESCONEXÃO?
+                                                                                {t('social.confirmDisconnectTitle')}
                                                                             </p>
                                                                             <p className="text-[9px] font-normal text-red-600 mt-2 uppercase tracking-tighter leading-relaxed">
-                                                                                ISSO REMOVERÁ O CARD DO SEU PERFIL E O ACESSO AOS POSTS DO INSTAGRAM.
+                                                                                {t('social.confirmDisconnectDesc')}
                                                                             </p>
                                                                         </div>
 
@@ -464,14 +568,14 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                                     setIsConnectingInstagram(false);
                                                                                 } catch (err: any) {
                                                                                     console.error('Failed to disconnect Instagram:', err);
-                                                                                    setConnectionError(err.message || 'Erro ao desconectar Instagram');
+                                                                                    setConnectionError(err.message || t('social.errorDisconnectInstagram'));
                                                                                     setIsConnectingInstagram(false);
                                                                                 }
                                                                             }}
                                                                             disabled={isConnectingInstagram}
                                                                             className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-medium text-[10px] uppercase tracking-widest rounded-lg shadow-sm shadow-red-200 transition-colors disabled:opacity-50"
                                                                         >
-                                                                            {isConnectingInstagram ? 'Desconectando...' : 'Sim, Desconectar agora'}
+                                                                            {isConnectingInstagram ? t('social.disconnecting') : t('social.confirmDisconnectButton')}
                                                                         </button>
                                                                     </div>
                                                                 </motion.div>
@@ -496,7 +600,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             />
                                                             {twitchIntegration.profile_data?.is_live && (
                                                                 <div className="absolute top-0 right-0 bg-red-600 text-white text-[8px] font-bold px-1 py-0.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                                                                    LIVE
+                                                                    {t('social.live')}
                                                                 </div>
                                                             )}
                                                         </div>
@@ -511,10 +615,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                     <div className="flex flex-col items-center gap-1.5 mt-2">
                                                         <span className="text-[10px] font-medium text-black/50 uppercase tracking-widest flex items-center justify-center gap-1 bg-black/5 px-2 py-0.5">
                                                             <Twitch size={10} className="text-[#6441a5]" />
-                                                            Twitch Channel
+                                                            {t('social.twitchChannel')}
                                                         </span>
                                                         <span className="text-[12px] font-medium text-[#6441a5] uppercase tracking-widest">
-                                                            {twitchIntegration.profile_data?.follower_count?.toLocaleString() || 0} seguidores
+                                                            {twitchIntegration.profile_data?.follower_count?.toLocaleString() || 0} {t('integrations.followers')}
                                                         </span>
                                                     </div>
 
@@ -529,7 +633,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             }`}
                                                     >
                                                         {isConnectingTwitch ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} strokeWidth={3} />}
-                                                        {showDisconnectConfirm ? 'CANCELAR' : 'DESCONECTAR TWITCH'}
+                                                        {showDisconnectConfirm ? t('common.cancel') : t('social.disconnectTwitch')}
                                                     </button>
 
                                                     {showDisconnectConfirm && (
@@ -550,9 +654,53 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 }}
                                                                 className="w-full py-3 bg-red-600 text-white font-medium text-[10px] uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                                                             >
-                                                                CONFIRMAR DESCONEXÃO
+                                                                {t('social.confirmDisconnect')}
                                                             </button>
                                                         </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* YouTube Connect Button */}
+                                            {configuringPlatform === 'youtube' && !isYoutubeConnected && isAuthorized && (
+                                                <div className="space-y-3">
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                setConnectionError(null);
+                                                                setIsConnectingYoutube(true);
+                                                                const userId = profile?.id || '';
+                                                                if (!userId) throw new Error(t('common.userNotIdentified'));
+                                                                const { url } = await apiClient.getYoutubeAuthUrl(userId, window.location.origin);
+                                                                window.location.href = url;
+                                                            } catch (err: any) {
+                                                                setConnectionError(err.message || t('social.errorStartConnection'));
+                                                                setIsConnectingYoutube(false);
+                                                            }
+                                                        }}
+                                                        disabled={isConnectingYoutube}
+                                                        className={`w-full bg-white hover:bg-[#ffdf00] border-2 border-black transition-all py-4 px-6 flex items-center justify-between group/yt shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none ${isConnectingYoutube ? 'opacity-70 cursor-wait' : ''}`}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            {isConnectingYoutube ? (
+                                                                <Loader2 size={18} className="animate-spin text-black" />
+                                                            ) : (
+                                                                <Youtube size={18} className="text-[#ff0000]" />
+                                                            )}
+                                                            <div className="text-left leading-none space-y-1">
+                                                                <span className="block text-xs font-medium uppercase tracking-widest text-black">
+                                                                    {isConnectingYoutube ? t('common.starting') : t('social.connectYoutube')}
+                                                                </span>
+                                                                <span className="block text-[9px] font-normal uppercase tracking-wider text-black/70">{t('social.connectYoutubeDesc')}</span>
+                                                                <span className="block text-[8px] font-normal text-yellow-600 uppercase tracking-widest mt-1 animate-pulse">
+                                                                    {t('social.youtubeBetaNotice')}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <ChevronRight size={16} strokeWidth={3} className="text-black group-hover/yt:translate-x-0.5 transition-transform" />
+                                                    </button>
+                                                    {connectionError && (
+                                                        <p className="text-[10px] text-red-500 font-medium px-1 italic">{connectionError}</p>
                                                     )}
                                                 </div>
                                             )}
@@ -566,11 +714,11 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 setConnectionError(null);
                                                                 setIsConnectingInstagram(true);
                                                                 const userId = profile?.id || '';
-                                                                if (!userId) throw new Error('Usuário não identificado.');
+                                                                if (!userId) throw new Error(t('common.userNotIdentified'));
                                                                 const { url } = await apiClient.getInstagramAuthUrl(userId, window.location.origin);
                                                                 window.location.href = url;
                                                             } catch (err: any) {
-                                                                setConnectionError(err.message || 'Erro ao iniciar conexão');
+                                                                setConnectionError(err.message || t('social.errorStartConnection'));
                                                                 setIsConnectingInstagram(false);
                                                             }
                                                         }}
@@ -585,9 +733,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             )}
                                                             <div className="text-left leading-none space-y-1">
                                                                 <span className="block text-xs font-medium uppercase tracking-widest text-black">
-                                                                    {isConnectingInstagram ? 'INICIANDO...' : 'CONECTAR CONTA PROFISSIONAL'}
+                                                                    {isConnectingInstagram ? t('common.starting') : t('social.connectInstagram')}
                                                                 </span>
-                                                                <span className="block text-[9px] font-normal uppercase tracking-wider text-black/70">Seguidores e posts em tempo real</span>
+                                                                <span className="block text-[9px] font-normal uppercase tracking-wider text-black/70">{t('social.connectInstagramDesc')}</span>
                                                             </div>
                                                         </div>
                                                         <ChevronRight size={16} strokeWidth={3} className="text-black group-hover/ig:translate-x-0.5 transition-transform" />
@@ -605,11 +753,11 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             setConnectionError(null);
                                                             setIsConnectingTikTok(true);
                                                             const userId = profile?.id || '';
-                                                            if (!userId) throw new Error('Usuário não identificado.');
+                                                            if (!userId) throw new Error(t('common.userNotIdentified'));
                                                             const { url } = await apiClient.getTikTokAuthUrl(userId, window.location.origin);
                                                             window.location.href = url;
                                                         } catch (err: any) {
-                                                            setConnectionError(err.message || 'Erro ao iniciar conexão');
+                                                            setConnectionError(err.message || t('social.errorStartConnection'));
                                                             setIsConnectingTikTok(false);
                                                         }
                                                     }}
@@ -624,9 +772,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                         )}
                                                         <div className="text-left leading-none space-y-1">
                                                             <span className="block text-xs font-medium uppercase tracking-widest text-black">
-                                                                {isConnectingTikTok ? 'INICIANDO...' : 'CONECTAR TIKTOK'}
+                                                                {isConnectingTikTok ? t('common.starting') : t('social.connectTiktok')}
                                                             </span>
-                                                            <span className="block text-[9px] font-normal uppercase tracking-wider text-black/70">Sincronizar seguidores e verificação</span>
+                                                            <span className="block text-[9px] font-normal uppercase tracking-wider text-black/70">{t('social.connectTiktokDesc')}</span>
                                                         </div>
                                                     </div>
                                                     <ChevronRight size={16} strokeWidth={3} className="text-black group-hover/tt:translate-x-0.5 transition-transform" />
@@ -642,11 +790,11 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 setConnectionError(null);
                                                                 setIsConnectingTwitch(true);
                                                                 const userId = profile?.id || '';
-                                                                if (!userId) throw new Error('Usuário não identificado.');
+                                                                if (!userId) throw new Error(t('common.userNotIdentified'));
                                                                 const { url } = await apiClient.getTwitchAuthUrl(userId, window.location.origin);
                                                                 window.location.href = url;
                                                             } catch (err: any) {
-                                                                setConnectionError(err.message || 'Erro ao iniciar conexão');
+                                                                setConnectionError(err.message || t('social.errorStartConnection'));
                                                                 setIsConnectingTwitch(false);
                                                             }
                                                         }}
@@ -661,9 +809,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             )}
                                                             <div className="text-left leading-none space-y-1">
                                                                 <span className="block text-xs font-medium uppercase tracking-widest text-black">
-                                                                    {isConnectingTwitch ? 'INICIANDO...' : 'CONECTAR TWITCH'}
+                                                                    {isConnectingTwitch ? t('common.starting') : t('social.connectTwitch')}
                                                                 </span>
-                                                                <span className="block text-[9px] font-normal uppercase tracking-wider text-black/70">Seguidores e status online</span>
+                                                                <span className="block text-[9px] font-normal uppercase tracking-wider text-black/70">{t('social.connectTwitchDesc')}</span>
                                                             </div>
                                                         </div>
                                                         <ChevronRight size={16} strokeWidth={3} className="text-black group-hover/tw:translate-x-0.5 transition-transform" />
@@ -674,8 +822,8 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                 </div>
                                             )}
 
-                                            {/* Action Button - Hidden for Instagram/Twitch if connected */}
-                                            {!((configuringPlatform === 'instagram' && isInstagramConnected) || (configuringPlatform === 'twitch' && isTwitchConnected)) && (
+                                            {/* Action Button - Hidden for IG/Twitch/YT if connected */}
+                                            {!((configuringPlatform === 'instagram' && isInstagramConnected) || (configuringPlatform === 'twitch' && isTwitchConnected) || (configuringPlatform === 'youtube' && isYoutubeConnected)) && (
                                                 <button
                                                     onClick={confirmPlatform}
                                                     disabled={!tempUrl}
@@ -687,7 +835,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                         }
                                                     `}
                                                 >
-                                                    {links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform)))) ? 'Salvar' : 'Adicionar'}
+                                                    {links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform)))) ? t('common.save') : t('common.add')}
                                                 </button>
                                             )}
                                         </div>

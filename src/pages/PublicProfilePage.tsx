@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import { UserProfile, LinkItem, Product } from '../types';
@@ -12,6 +13,7 @@ import QRCodeModal from '../components/QRCodeModal';
 import BackgroundLayer from '../components/BackgroundLayer';
 
 export default function PublicProfilePage() {
+    const { t } = useTranslation();
     const { username } = useParams<{ username: string }>();
 
     const [loading, setLoading] = useState(true);
@@ -63,7 +65,7 @@ export default function PublicProfilePage() {
                 metaDescription.setAttribute('name', 'description');
                 document.head.appendChild(metaDescription);
             }
-            metaDescription.setAttribute('content', profile.seoDescription || `Confira os links de ${profile.name} no Nodus.`);
+            metaDescription.setAttribute('content', profile.seoDescription || t('profile.checkOutLinks', { name: profile.name }));
         }
     }, [profile]);
 
@@ -78,8 +80,8 @@ export default function PublicProfilePage() {
     if (!profile) {
         return (
             <div className="w-full h-screen flex items-center justify-center bg-white flex-col gap-4">
-                <h1 className="text-2xl font-bold text-slate-800">Perfil não encontrado</h1>
-                <p className="text-slate-500">O usuário @{username} não foi encontrado.</p>
+                <h1 className="text-2xl font-bold text-slate-800">{t('profile.notFound')}</h1>
+                <p className="text-slate-500">{t('profile.notFoundDesc', { username })}</p>
             </div>
         );
     }
@@ -139,7 +141,7 @@ export default function PublicProfilePage() {
                         fgColor={"#000000"}
                         level={"H"}
                         imageSettings={{
-                            src: "/faviconnodus.png",
+                            src: "/favicon.png",
                             x: undefined,
                             y: undefined,
                             height: 24,

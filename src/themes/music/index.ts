@@ -3,7 +3,7 @@ import { Theme } from '../../types';
 export const musicThemes: Theme[] = [
     {
         id: 'music-sinfonia-mecanica',
-        name: 'Sinfonia Mecânica',
+        name: 'Mechanical Symphony',
         backgroundClass: 'bg-[#1a0f0a]',
         buttonClass: 'bg-[#b87333] text-white hover:bg-[#d4945d] transition-all w-full rounded-none py-4 px-6 flex items-center justify-between font-serif font-black uppercase tracking-tighter',
         buttonHex: '#b87333',
@@ -17,7 +17,7 @@ export const musicThemes: Theme[] = [
     },
     {
         id: 'music-fita-analogica',
-        name: 'Fita Analógica',
+        name: 'Analogue Tape',
         backgroundClass: 'bg-[#121212]',
         buttonClass: 'bg-[#262626] text-white border-2 border-white/20 hover:bg-black hover:border-white transition-all w-full rounded-lg py-4 px-6 flex items-center justify-between font-mono font-bold uppercase tracking-widest italic',
         buttonHex: '#ffffff',
@@ -31,7 +31,7 @@ export const musicThemes: Theme[] = [
     },
     {
         id: 'music-sopro-de-ouro',
-        name: 'Sopro de Ouro',
+        name: 'Golden Breath',
         backgroundClass: 'bg-black',
         buttonClass: 'bg-transparent text-[#ffd700] border-2 border-[#ffd700] hover:bg-[#ffd700] hover:text-black transition-all w-full rounded-none py-4 px-10 flex items-center justify-between font-serif uppercase tracking-[0.5em] font-light',
         buttonHex: '#ffd700',
@@ -45,7 +45,7 @@ export const musicThemes: Theme[] = [
     },
     {
         id: 'music-batida-botanica',
-        name: 'Batida Botânica',
+        name: 'Botanical Beat',
         backgroundClass: 'bg-[#061c10]',
         buttonClass: 'bg-[#10b981] text-[#061c10] hover:scale-105 transition-transform w-full rounded-3xl py-4 px-6 flex items-center justify-between font-sans font-black uppercase tracking-tight',
         buttonHex: '#10b981',
@@ -59,7 +59,7 @@ export const musicThemes: Theme[] = [
     },
     {
         id: 'music-grave-urbano',
-        name: 'Grave Urbano',
+        name: 'Urban Bass',
         backgroundClass: 'bg-[#1c1917]',
         buttonClass: 'bg-[#f97316] text-black hover:bg-orange-600 transition-colors w-full rounded-none py-5 px-6 flex items-center justify-between font-black uppercase italic tracking-tighter',
         buttonHex: '#f97316',
@@ -73,7 +73,7 @@ export const musicThemes: Theme[] = [
     },
     {
         id: 'music-hino-de-vitral',
-        name: 'Hino de Vitral',
+        name: 'Stained Glass Hymn',
         backgroundClass: 'bg-[#0f172a]',
         buttonClass: 'bg-white/10 backdrop-blur-xl text-white border border-white/30 hover:bg-white/20 transition-all w-full rounded-2xl py-4 px-6 flex items-center justify-between font-serif tracking-widest uppercase',
         buttonHex: '#ffffff',
@@ -87,7 +87,7 @@ export const musicThemes: Theme[] = [
     },
     {
         id: 'music-jardim-zen-sonoro',
-        name: 'Jardim Zen Sonoro',
+        name: 'Sonic Zen Garden',
         backgroundClass: 'bg-[#e7e5e4]',
         buttonClass: 'bg-[#44403c] text-[#e7e5e4] hover:opacity-90 transition-opacity w-full rounded-full py-4 px-10 flex items-center justify-between font-sans lowercase tracking-tighter',
         buttonHex: '#44403c',
@@ -101,7 +101,7 @@ export const musicThemes: Theme[] = [
     },
     {
         id: 'music-harpa-cosmica',
-        name: 'Harpa Cósmica',
+        name: 'Cosmic Harp',
         backgroundClass: 'bg-[#020617]',
         buttonClass: 'bg-transparent text-cyan-400 border border-cyan-400/50 hover:bg-cyan-400/10 hover:border-cyan-400 transition-all w-full rounded-full py-4 px-6 flex items-center justify-between font-light tracking-[0.6em] uppercase text-[10px]',
         buttonHex: '#22d3ee',
@@ -115,7 +115,7 @@ export const musicThemes: Theme[] = [
     },
     {
         id: 'music-horizonte-neon',
-        name: 'Horizonte Neon',
+        name: 'Neon Horizon',
         backgroundClass: 'bg-black',
         buttonClass: 'bg-transparent text-[#f472b6] border-2 border-[#f472b6] hover:bg-[#f472b6] hover:text-black transition-all w-full rounded-none py-4 px-6 flex items-center justify-between font-mono font-black italic uppercase tracking-[0.2em]',
         buttonHex: '#f472b6',
@@ -129,7 +129,7 @@ export const musicThemes: Theme[] = [
     },
     {
         id: 'music-orquestra-origami',
-        name: 'Orquestra de Origami',
+        name: 'Origami Orchestra',
         backgroundClass: 'bg-[#f5f5f4]',
         buttonClass: 'bg-[#44403c] text-white hover:bg-black transition-all w-full rounded-none py-5 px-6 flex items-center justify-between font-serif font-bold uppercase tracking-widest relative overflow-hidden before:absolute before:inset-0 before:border before:scale-95 before:border-white/20',
         buttonHex: '#44403c',

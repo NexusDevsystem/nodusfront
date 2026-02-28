@@ -364,6 +364,10 @@ class ApiClient {
         return this.request(`/api/integrations/twitch/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);
     }
 
+    async getYoutubeAuthUrl(userId: string, origin?: string): Promise<{ url: string }> {
+        return this.request(`/api/integrations/youtube/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);
+    }
+
     async handleTikTokCallback(code: string, userId: string): Promise<any> {
         return this.request('/api/integrations/tiktok/callback', {
             method: 'POST',

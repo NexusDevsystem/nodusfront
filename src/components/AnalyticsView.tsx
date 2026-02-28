@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Activity,
     MousePointer,
@@ -33,6 +34,7 @@ interface AnalyticsViewProps {
 }
 
 export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
+    const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
@@ -85,7 +87,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                 setError(null);
             } catch (error: any) {
                 console.error('Failed to load analytics data:', error);
-                setError(error.message || 'Erro ao carregar dados');
+                setError(error.message || t('common.error'));
             } finally {
                 setIsLoading(false);
             }
@@ -98,9 +100,9 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
         return (
             <div className="w-full h-[70vh] flex items-center justify-center p-6">
                 <BrutalistLoader
-                    message="Sincronizando Dados..."
+                    message={t('loading.syncingAnalytics')}
                     progress={75}
-                    subtext="ANALYTICS ENGINE LOAD"
+                    subtext={t('admin.systemStats')}
                 />
             </div>
         );
@@ -112,13 +114,13 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                 <div className="w-16 h-16 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-6">
                     <Activity size={24} strokeWidth={3} className="text-black" />
                 </div>
-                <h3 className="text-sm font-black text-black uppercase tracking-widest">Erro de Conexão</h3>
+                <h3 className="text-sm font-black text-black uppercase tracking-widest">{t('common.error')}</h3>
                 <p className="text-[10px] text-black/50 font-bold uppercase tracking-widest mt-2 mb-8">{error}</p>
                 <button
                     onClick={() => window.location.reload()}
                     className="w-full py-3 bg-black text-[#97cd7a] border-2 border-black text-[10px] font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
                 >
-                    Tentar Novamente
+                    {t('common.reload')}
                 </button>
             </div>
         );
@@ -147,10 +149,10 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
             return {
                 ...stat,
                 metadata: linkMatch
-                    ? { title: linkMatch.title, url: linkMatch.url, type: 'Link' }
+                    ? { title: linkMatch.title, url: linkMatch.url, type: t('links.linkLabel') }
                     : productMatch
-                        ? { title: productMatch.name, url: productMatch.url, type: 'Produto' }
-                        : { title: 'Item Removido', url: '#', type: 'Desconhecido' }
+                        ? { title: productMatch.name, url: productMatch.url, type: t('links.productLabel') }
+                        : { title: t('links.untitled'), url: '#', type: t('common.unknown') }
             };
         });
 
@@ -158,12 +160,12 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
 
     const getRangeLabel = () => {
         switch (dateRange) {
-            case '7d': return 'Últimos 7 dias';
-            case '14d': return 'Últimos 14 dias';
-            case '30d': return 'Últimos 30 dias';
-            case '1y': return 'Último ano';
-            case 'all': return 'Todo o período';
-            default: return 'Últimos 14 dias';
+            case '7d': return t('analytics.sevenDays');
+            case '14d': return `14 ${t('analytics.days')}`;
+            case '30d': return t('analytics.thirtyDays');
+            case '1y': return t('analytics.oneYear');
+            case 'all': return t('analytics.allTime');
+            default: return `14 ${t('analytics.days')}`;
         }
     }
 
@@ -176,7 +178,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
         : null;
 
     const bestDayDate = bestDayObj && bestDayObj.views > 0
-        ? new Date(bestDayObj.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+        ? new Date(bestDayObj.date).toLocaleDateString(t('common.locale', { defaultValue: 'pt-BR' }), { day: '2-digit', month: 'short' })
         : '--';
 
     const activeLinksCount = summary.topLinks.length;
@@ -188,7 +190,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 border-b border-black pb-4">
                     <div className="flex items-center gap-2 text-black">
                         <BarChart3 size={16} strokeWidth={3} />
-                        <h3 className="text-xs font-black uppercase tracking-widest">Analytics</h3>
+                        <h3 className="text-xs font-black uppercase tracking-widest">{t('sidebar.analytics')}</h3>
                     </div>
 
                     {/* Date Range Selector */}
@@ -214,7 +216,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                                         {range === '14d' && '14D'}
                                         {range === '30d' && '30D'}
                                         {range === '1y' && '1A'}
-                                        {range === 'all' && 'TUDO'}
+                                        {range === 'all' && t('analytics.all').toUpperCase()}
                                         {isLocked && <Lock size={8} strokeWidth={3} className="text-[#97cd7a]" />}
                                     </div>
                                 </button>
@@ -224,7 +226,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                 </div>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <p className="text-[10px] text-black font-bold uppercase tracking-widest opacity-60">
-                        MONITORAMENTO DE DESEMPENHO E ENGAJAMENTO EM TEMPO REAL.
+                        {t('analytics.tagline')}
                     </p>
                     <div className="px-3 py-1.5 bg-black text-[#97cd7a] border border-black text-[9px] font-black uppercase tracking-widest shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
                         {getRangeLabel()}
@@ -235,33 +237,33 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
             {/* KPI Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <KpiCard
-                    label="Visualizações"
+                    label={t('analytics.totalViews')}
                     value={summary.totalViews}
                     icon={Activity}
                 />
                 <KpiCard
-                    label="Cliques Únicos"
+                    label={t('links.clicksLabel')}
                     value={summary.totalClicks}
                     icon={MousePointer2}
                     isActive
                 />
                 <KpiCard
-                    label="Taxa de Cliques"
+                    label={t('analytics.ctrLabel')}
                     value={summary.ctr.toFixed(1) + '%'}
                     icon={TrendingUp}
                 />
                 <KpiCard
-                    label="Média Diária"
+                    label={t('analytics.dailyAverage')}
                     value={averageViews}
                     icon={BarChart3}
                 />
                 <KpiCard
-                    label="Melhor Dia"
+                    label={t('analytics.bestDay')}
                     value={bestDayDate}
                     icon={Calendar}
                 />
                 <KpiCard
-                    label="Links Ativos"
+                    label={t('analytics.activeLinks')}
                     value={activeLinksCount}
                     icon={Zap}
                 />
@@ -272,17 +274,17 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                 <div className="flex items-center justify-between mb-8 border-b border-black/5 pb-4">
                     <div className="flex items-center gap-2 text-black">
                         <Activity size={16} strokeWidth={3} />
-                        <h3 className="text-xs font-black uppercase tracking-widest">Tendência</h3>
+                        <h3 className="text-xs font-black uppercase tracking-widest">{t('analytics.trend')}</h3>
                     </div>
 
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 border border-black bg-[#97cd7a]"></div>
-                            <span className="text-[9px] font-black text-black uppercase tracking-widest">Views</span>
+                            <span className="text-[9px] font-black text-black uppercase tracking-widest">{t('analytics.views')}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 border border-black bg-black"></div>
-                            <span className="text-[9px] font-black text-black uppercase tracking-widest">Cliques</span>
+                            <span className="text-[9px] font-black text-black uppercase tracking-widest">{t('analytics.clicks')}</span>
                         </div>
                     </div>
                 </div>
@@ -299,17 +301,17 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                                         {/* Tooltip */}
                                         <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white border-2 border-black p-2.5 z-20 pointer-events-none whitespace-nowrap shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-1.5">
                                             <p className="text-[10px] text-black font-black uppercase tracking-widest leading-none border-b-2 border-black pb-2 text-center">
-                                                {new Date(d.date).toLocaleDateString('pt-BR')}
+                                                {new Date(d.date).toLocaleDateString(t('common.locale', { defaultValue: 'pt-BR' }))}
                                             </p>
                                             <div className="flex items-center justify-between gap-4 mt-1">
                                                 <span className="text-[9px] text-black font-black uppercase tracking-widest flex items-center gap-1">
-                                                    <span className="w-2 h-2 bg-[#97cd7a] border border-black inline-block"></span> VIEWS
+                                                    <span className="w-2 h-2 bg-[#97cd7a] border border-black inline-block"></span> {t('analytics.views')}
                                                 </span>
                                                 <span className="text-[10px] font-black">{d.views}</span>
                                             </div>
                                             <div className="flex items-center justify-between gap-4">
                                                 <span className="text-[9px] text-black font-black uppercase tracking-widest flex items-center gap-1">
-                                                    <span className="w-2 h-2 bg-black border border-black inline-block"></span> CLIQUES
+                                                    <span className="w-2 h-2 bg-black border border-black inline-block"></span> {t('analytics.clicks').toUpperCase()}
                                                 </span>
                                                 <span className="text-[10px] font-black">{d.clicks}</span>
                                             </div>
@@ -335,7 +337,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                         </div>
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-[10px] font-black text-black opacity-20 uppercase tracking-widest">
-                            Sem dados para o período selecionado
+                            {t('analytics.noDataFound')}
                         </div>
                     )}
 
@@ -343,10 +345,10 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                         {/* Intelligent date labelling based on range */}
                         {(() => {
                             const data = summary.dailyData;
-                            if (data.length <= 7) return data.map((d, i) => <span key={i}>{new Date(d.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>);
-                            if (data.length <= 14) return data.filter((_, i) => i % 2 === 0).map((d, i) => <span key={i}>{new Date(d.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>);
-                            if (data.length <= 30) return data.filter((_, i) => i % 5 === 0).map((d, i) => <span key={i}>{new Date(d.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>);
-                            return data.filter((_, i) => i % 30 === 0).map((d, i) => <span key={i}>{new Date(d.date).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })}</span>);
+                            if (data.length <= 7) return data.map((d, i) => <span key={i}>{new Date(d.date).toLocaleDateString(t('common.locale', { defaultValue: 'pt-BR' }), { day: '2-digit', month: 'short' })}</span>);
+                            if (data.length <= 14) return data.filter((_, i) => i % 2 === 0).map((d, i) => <span key={i}>{new Date(d.date).toLocaleDateString(t('common.locale', { defaultValue: 'pt-BR' }), { day: '2-digit', month: 'short' })}</span>);
+                            if (data.length <= 30) return data.filter((_, i) => i % 5 === 0).map((d, i) => <span key={i}>{new Date(d.date).toLocaleDateString(t('common.locale', { defaultValue: 'pt-BR' }), { day: '2-digit', month: 'short' })}</span>);
+                            return data.filter((_, i) => i % 30 === 0).map((d, i) => <span key={i}>{new Date(d.date).toLocaleDateString(t('common.locale', { defaultValue: 'pt-BR' }), { month: 'short', year: '2-digit' })}</span>);
                         })()}
                     </div>
                 </div>
@@ -359,14 +361,14 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                     <div className="flex items-center justify-between mb-8 border-b border-black/5 pb-4">
                         <div className="flex items-center gap-2 text-black">
                             <Filter size={16} strokeWidth={3} />
-                            <h3 className="text-xs font-black uppercase tracking-widest">Funil de Retenção</h3>
+                            <h3 className="text-xs font-black uppercase tracking-widest">{t('analytics.retentionFunnel')}</h3>
                         </div>
                     </div>
 
                     <div className="flex-1 flex flex-col justify-center gap-4">
                         <div className="w-full relative group">
                             <div className="w-full bg-[#97cd7a] border-2 border-black h-12 flex items-center justify-between px-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-transform group-hover:-translate-y-1">
-                                <span className="text-[10px] font-black text-black uppercase tracking-widest">1. Visualizações totais</span>
+                                <span className="text-[10px] font-black text-black uppercase tracking-widest">1. {t('analytics.totalViews')}</span>
                                 <span className="text-sm font-black text-black">{summary.totalViews}</span>
                             </div>
                         </div>
@@ -380,7 +382,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                                 className="bg-black border-2 border-black h-12 flex items-center justify-between px-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-transform group-hover:-translate-y-1"
                                 style={{ width: summary.totalViews > 0 ? `${Math.max((summary.totalClicks / summary.totalViews) * 100, 30)}%` : '100%' }}
                             >
-                                <span className="text-[10px] font-black text-white uppercase tracking-widest truncate mr-2">2. Cliques</span>
+                                <span className="text-[10px] font-black text-white uppercase tracking-widest truncate mr-2">2. {t('analytics.clicks')}</span>
                                 <span className="text-sm font-black text-[#97cd7a]">{summary.totalClicks}</span>
                             </div>
                         </div>
@@ -391,7 +393,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
 
                         <div className="w-full flex justify-center mt-2">
                             <div className="border-2 border-black bg-white px-6 py-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-center cursor-default hover:bg-black hover:text-[#97cd7a] transition-colors group">
-                                <p className="text-[8px] font-black uppercase tracking-widest opacity-50 group-hover:opacity-100 group-hover:text-white mb-1">Taxa de Conversão</p>
+                                <p className="text-[8px] font-black uppercase tracking-widest opacity-50 group-hover:opacity-100 group-hover:text-white mb-1">{t('analytics.conversionRate')}</p>
                                 <p className="text-2xl font-black">{summary.ctr.toFixed(1)}%</p>
                             </div>
                         </div>
@@ -403,14 +405,14 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                     <div className="flex items-center justify-between mb-8 border-b border-black/5 pb-4">
                         <div className="flex items-center gap-2 text-black">
                             <PieChart size={16} strokeWidth={3} />
-                            <h3 className="text-xs font-black uppercase tracking-widest">Composição de Cliques</h3>
+                            <h3 className="text-xs font-black uppercase tracking-widest">{t('analytics.clickComposition')}</h3>
                         </div>
                     </div>
 
                     <div className="flex-1 flex flex-col justify-center">
                         {summary.totalClicks === 0 ? (
                             <div className="text-center py-8 text-[10px] font-black text-black opacity-20 uppercase tracking-widest border-2 border-dashed border-black">
-                                Sem interações nesse período
+                                {t('analytics.noDataFound')}
                             </div>
                         ) : (
                             <div className="space-y-6">
@@ -472,7 +474,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                                                 <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest opacity-60 pt-2 border-t border-black/10">
                                                     <div className="flex items-center gap-2 truncate">
                                                         <div className="w-3 h-3 border border-black bg-white pattern-diagonal-lines pattern-black pattern-bg-white pattern-size-2 pattern-opacity-20 shrink-0"></div>
-                                                        <span className="truncate">Outros links</span>
+                                                        <span className="truncate">{t('analytics.otherLinks')}</span>
                                                     </div>
                                                     <span className="ml-4 tabular-nums">{percent}%</span>
                                                 </div>
@@ -491,13 +493,13 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
             <div className="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <div className="flex items-center gap-2 mb-6 border-b border-black pb-4">
                     <Zap size={16} strokeWidth={3} className="text-black" />
-                    <h3 className="text-xs font-black uppercase tracking-widest">Ranking de Cliques</h3>
+                    <h3 className="text-xs font-black uppercase tracking-widest">{t('analytics.clickRanking')}</h3>
                 </div>
 
                 <div className="space-y-2.5">
                     {enrichedTopLinks.length === 0 ? (
                         <div className="py-10 text-center border-2 border-dashed border-black">
-                            <p className="text-[10px] text-black/30 font-black uppercase tracking-widest">Aguardando engajamento...</p>
+                            <p className="text-[10px] text-black/30 font-black uppercase tracking-widest">{t('analytics.awaitingEngagement')}</p>
                         </div>
                     ) : (
                         enrichedTopLinks.map((link, i) => (
@@ -515,13 +517,13 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                                             </span>
                                         </div>
                                         <p className="text-[8px] text-black font-bold truncate opacity-40 uppercase tracking-widest mt-0.5">
-                                            {link.metadata.url && link.metadata.url !== '#' ? new URL(link.metadata.url).hostname : 'DIRECT ACCESS'}
+                                            {link.metadata.url && link.metadata.url !== '#' ? new URL(link.metadata.url).hostname : t('common.unknown').toUpperCase()}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="text-right pl-4">
                                     <span className="block text-lg font-black text-black tracking-widest leading-none">{link.clicks}</span>
-                                    <span className="text-[8px] font-black text-black opacity-30 uppercase tracking-widest">Cliques</span>
+                                    <span className="text-[8px] font-black text-black opacity-30 uppercase tracking-widest">{t('analytics.clicks')}</span>
                                 </div>
                             </div>
                         ))

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DollarSign, Wallet, CreditCard, AlertCircle, Zap, Layout, Plus, Trash2, X, Check, GripVertical, ChevronDown, Trash } from 'lucide-react';
 import { UserProfile, PaymentMethod } from '../types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -22,6 +23,7 @@ interface MonetizationViewProps {
 }
 
 export default function MonetizationView({ profile, onChange }: MonetizationViewProps) {
+    const { t } = useTranslation();
     const [expandedId, setExpandedId] = useState<string | null>(null);
 
     // Legacy Migration logic
@@ -85,7 +87,7 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
             <div className="bg-[#ffdf00] border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                 <div className="flex items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-3xl font-[900] text-black uppercase tracking-tighter leading-none mb-2">Métodos de Recebimento</h2>
+                        <h2 className="text-3xl font-[900] text-black uppercase tracking-tighter leading-none mb-2">{t('monetization.title')}</h2>
                         <div className="h-1.5 w-12 bg-black"></div>
                     </div>
                     <button
@@ -97,7 +99,7 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                     </button>
                 </div>
                 <p className="mt-6 text-[10px] font-black text-black/60 uppercase tracking-widest leading-tight max-w-xl">
-                    ADICIONE E GERENCIE SUAS CHAVES PIX OU LINKS DO PAYPAL PARA RECEBER DIRETAMENTE.
+                    {t('monetization.subtitle').toUpperCase()}
                 </p>
             </div>
 
@@ -133,16 +135,16 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                                     >
                                         <div className="flex flex-wrap items-center gap-2 mb-1">
                                             <h3 className="text-sm font-[900] text-black uppercase tracking-widest truncate">
-                                                {method.label || (method.type === 'pix' ? 'Chave Pix' : 'PayPal')}
+                                                {method.label || (method.type === 'pix' ? t('monetization.pixKey') : 'PayPal')}
                                             </h3>
                                             {!method.isActive && (
                                                 <span className="bg-red-500 text-white text-[8px] font-black px-2 py-0.5 border border-black uppercase tracking-widest">
-                                                    Inativo
+                                                    {t('common.inactive')}
                                                 </span>
                                             )}
                                         </div>
                                         <div className="text-[10px] font-bold text-black/40 uppercase tracking-widest truncate">
-                                            {method.key || 'CONFIGURAÇÃO PENDENTE...'}
+                                            {method.key || t('monetization.pendingConfig')}
                                         </div>
                                     </div>
 
@@ -179,7 +181,7 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                     {/* Selection */}
                                                     <div className="space-y-4">
-                                                        <label className="text-[10px] font-[900] text-black uppercase tracking-widest block">Tipo de Recebimento</label>
+                                                        <label className="text-[10px] font-[900] text-black uppercase tracking-widest block">{t('monetization.methodType')}</label>
                                                         <div className="grid grid-cols-2 gap-4">
                                                             <button
                                                                 onClick={() => handleUpdateMethod(method.id, { type: 'pix' })}
@@ -201,24 +203,24 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                                                     {/* Details */}
                                                     <div className="space-y-6">
                                                         <div>
-                                                            <label className="text-[10px] font-[900] text-black uppercase tracking-widest block mb-2">Nome Personalizado</label>
+                                                            <label className="text-[10px] font-[900] text-black uppercase tracking-widest block mb-2">{t('monetization.customName')}</label>
                                                             <input
                                                                 type="text"
                                                                 value={method.label}
                                                                 onChange={(e) => handleUpdateMethod(method.id, { label: e.target.value })}
-                                                                placeholder="EX: PIX PRINCIPAL"
+                                                                placeholder={t('monetization.customNamePlaceholder')}
                                                                 className="w-full bg-white border-2 border-black p-3 text-xs font-bold uppercase tracking-widest outline-none focus:bg-[#ffdf00] shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] transition-all"
                                                             />
                                                         </div>
                                                         <div>
                                                             <label className="text-[10px] font-[900] text-black uppercase tracking-widest block mb-2">
-                                                                {method.type === 'pix' ? 'Chave do Pix' : 'E-mail ou Link'}
+                                                                {method.type === 'pix' ? t('monetization.pixKey') : t('monetization.paypalEmail')}
                                                             </label>
                                                             <input
                                                                 type="text"
                                                                 value={method.key}
                                                                 onChange={(e) => handleUpdateMethod(method.id, { key: e.target.value })}
-                                                                placeholder={method.type === 'pix' ? 'CPF, EMAIL OU CELULAR' : 'SEU-EMAIL@EXEMPLO.COM'}
+                                                                placeholder={method.type === 'pix' ? t('monetization.pixKeyPlaceholder') : t('monetization.paypalPlaceholder')}
                                                                 className="w-full bg-white border-2 border-black p-3 text-xs font-bold uppercase tracking-widest outline-none focus:bg-[#ffdf00] shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] transition-all"
                                                             />
                                                         </div>
@@ -228,14 +230,14 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                                                 <div className="flex items-center justify-between pt-8 border-t-2 border-black/10">
                                                     <div className="text-[10px] font-bold text-black/30 uppercase tracking-widest italic flex items-center gap-2">
                                                         <AlertCircle size={14} />
-                                                        Certifique-se de que os dados estão corretos
+                                                        {t('monetization.verifyDetails')}
                                                     </div>
                                                     <button
                                                         onClick={() => handleRemoveMethod(method.id)}
                                                         className="px-6 py-3 bg-red-500 text-white border-2 border-black text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center gap-2"
                                                     >
                                                         <Trash2 size={14} strokeWidth={3} />
-                                                        Remover Método
+                                                        {t('monetization.removeMethod')}
                                                     </button>
                                                 </div>
                                             </div>
@@ -250,13 +252,13 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                 {(!profile.paymentMethods || profile.paymentMethods.length === 0) && (
                     <div className="p-12 border-4 border-dashed border-black/20 flex flex-col items-center justify-center text-center">
                         <Wallet size={48} className="text-black/10 mb-4" />
-                        <h3 className="text-sm font-black text-black/40 uppercase tracking-widest">Nenhum método configurado</h3>
-                        <p className="text-[10px] font-bold text-black/30 uppercase tracking-widest mt-2">Adicione um Pix ou PayPal para começar a receber.</p>
+                        <h3 className="text-sm font-black text-black/40 uppercase tracking-widest">{t('monetization.noMethodConfigured')}</h3>
+                        <p className="text-[10px] font-bold text-black/30 uppercase tracking-widest mt-2">{t('monetization.noMethodConfiguredDesc')}</p>
                         <button
                             onClick={handleAddMethod}
                             className="mt-6 px-8 py-4 bg-black text-[#ffdf00] border-2 border-black text-xs font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                         >
-                            Configurar Agora
+                            {t('monetization.setupNow')}
                         </button>
                     </div>
                 )}

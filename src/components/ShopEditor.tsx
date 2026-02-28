@@ -2,7 +2,17 @@ import React, { useState } from 'react';
 import { Product } from '../types';
 import { Plus, Trash2, GripVertical, Image as ImageIcon, ExternalLink, DollarSign, Tag, Upload, X, Pencil, FolderPlus, Folder, ChevronDown, ChevronRight, Edit2, ShoppingBag, PlusCircle, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { compressImage } from '../utils/imageUtils';
+import { useTranslation } from 'react-i18next';
+import { compressImage, blobToDataURL } from '../utils/imageUtils';
+import ImageCropperModal from './tools/ImageCropperModal';
+
+const fileToDataURL = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+    });
+};
 
 interface ShopEditorProps {
     products: Product[];
@@ -13,6 +23,7 @@ interface ShopEditorProps {
 }
 
 export default function ShopEditor({ products, onChange, pendingCollection, onPendingCollectionConsumed, userProfile }: ShopEditorProps) {
+    const { t } = useTranslation();
     const [isAddingCollection, setIsAddingCollection] = useState(false);
     const [newCollectionName, setNewCollectionName] = useState('');
     const [expandedCollections, setExpandedCollections] = useState<string[]>([]);
@@ -25,6 +36,17 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
     // Deletion states
     const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
     const [deletingCollection, setDeletingCollection] = useState<string | null>(null);
+
+    // Cropper State
+    const [cropper, setCropper] = useState<{
+        isOpen: boolean;
+        image: string;
+        targetProductId?: string;
+        isNewProduct?: boolean;
+    }>({
+        isOpen: false,
+        image: ''
+    });
 
     // Auto-open form for pending collection if provided
     React.useEffect(() => {
@@ -128,12 +150,14 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                     accept="image/*"
                     onChange={async (e) => {
                         if (e.target.files?.[0]) {
-                            try {
-                                const base64 = await compressImage(e.target.files[0], 400, 0.8);
-                                updateProduct(product.id, 'image', base64);
-                            } catch (err) {
-                                console.error('Error uploading image:', err);
-                            }
+                            const dataUrl = await fileToDataURL(e.target.files[0]);
+                            setCropper({
+                                isOpen: true,
+                                image: dataUrl,
+                                targetProductId: product.id,
+                                isNewProduct: false
+                            });
+                            e.target.value = '';
                         }
                     }}
                 />
@@ -141,17 +165,17 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
 
             <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                    <label className="text-[8px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">Nome</label>
+                    <label className="text-[8px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.nameLabel')}</label>
                     <input
                         type="text"
                         value={product.name}
                         onChange={(e) => updateProduct(product.id, 'name', e.target.value)}
                         className="w-full bg-white border border-black py-1 px-2.5 text-[11px] font-medium uppercase tracking-widest text-black focus:bg-[#f1f1f1] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                        placeholder="Nome do produto"
+                        placeholder={t('shop.productNamePlaceholder')}
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[8px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">Link</label>
+                    <label className="text-[8px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.linkLabel')}</label>
                     <div className="flex items-center bg-white border border-black px-2.5 focus-within:bg-[#f1f1f1] transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                         <ExternalLink size={10} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
@@ -164,7 +188,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                     </div>
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">Preço</label>
+                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.priceLabel')}</label>
                     <div className="flex items-center bg-white border-2 border-black px-3 focus-within:bg-[#f1f1f1] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                         <DollarSign size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
@@ -172,12 +196,12 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                             value={product.price || ''}
                             onChange={(e) => updateProduct(product.id, 'price', e.target.value)}
                             className="w-full bg-transparent py-2 text-xs font-normal uppercase tracking-widest text-black outline-none placeholder:text-black/30 placeholder:uppercase"
-                            placeholder="Ex: R$ 99,90"
+                            placeholder={t('shop.pricePlaceholder')}
                         />
                     </div>
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">Cupom</label>
+                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.couponLabel')}</label>
                     <div className="flex items-center bg-white border-2 border-black px-3 focus-within:bg-[#f1f1f1] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                         <Tag size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
@@ -185,7 +209,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                             value={product.discountCode || ''}
                             onChange={(e) => updateProduct(product.id, 'discountCode', e.target.value)}
                             className="w-full bg-transparent py-2 text-xs font-normal uppercase tracking-widest text-black outline-none placeholder:text-black/30 placeholder:uppercase"
-                            placeholder="Ex: SAVE10"
+                            placeholder={t('shop.couponPlaceholder')}
                         />
                     </div>
                 </div>
@@ -194,7 +218,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
             <button
                 onClick={() => setDeletingProductId(product.id)}
                 className="p-2 bg-white text-black border border-black hover:text-white hover:bg-red-500 hover:translate-x-[0.5px] hover:translate-y-[0.5px] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ml-2"
-                title="Excluir"
+                title={t('common.delete')}
             >
                 <Trash2 size={16} strokeWidth={3} />
             </button>
@@ -211,20 +235,20 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                         <div className="p-4 flex items-center justify-between gap-4">
                             <div className="flex items-center gap-2 text-black">
                                 <AlertCircle size={20} strokeWidth={3} />
-                                <span className="text-[10px] font-medium uppercase tracking-[0.2em]">Excluir produto?</span>
+                                <span className="text-[10px] font-medium uppercase tracking-[0.2em]">{t('shop.deleteProduct')}</span>
                             </div>
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setDeletingProductId(null)}
                                     className="px-4 py-2 bg-white border-2 border-black text-[9px] font-medium uppercase tracking-widest text-black hover:bg-black hover:text-white transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                 >
-                                    Cancelar
+                                    {t('common.cancel')}
                                 </button>
                                 <button
                                     onClick={() => handleDeleteProduct(product.id)}
                                     className="px-4 py-2 bg-red-400 border-2 border-black text-black text-[9px] font-medium uppercase tracking-widest hover:bg-red-500 transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                 >
-                                    Confirmar
+                                    {t('common.confirm')}
                                 </button>
                             </div>
                         </div>
@@ -238,45 +262,45 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
         <div className="bg-[#f8f8f8] p-6 border-2 border-black border-dashed mt-4 animate-fade-in space-y-6 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
             <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-black border-b border-black/10 pb-3">
                 <Plus size={18} strokeWidth={3} />
-                <span>Adicionar Novo Produto</span>
+                <span>{t('shop.addProduct')}</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">Nome do Produto</label>
+                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.productName')}</label>
                     <input
                         type="text"
-                        placeholder="Ex: Camiseta Nodus Edition"
+                        placeholder={t('shop.productNamePlaceholder')}
                         className="w-full px-4 py-3 bg-white border-2 border-black text-xs font-medium uppercase tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30 placeholder:font-normal"
                         value={newProduct.name || ''}
                         onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
                     />
                 </div>
                 <div className="space-y-2">
-                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">URL de Destino</label>
+                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.destinationUrl')}</label>
                     <input
                         type="url"
-                        placeholder="https://minhaloja.com/produto"
+                        placeholder={t('shop.destinationUrlPlaceholder')}
                         className="w-full px-4 py-3 bg-white border-2 border-black text-xs font-normal tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30 placeholder:uppercase"
                         value={newProduct.url || ''}
                         onChange={e => setNewProduct({ ...newProduct, url: e.target.value })}
                     />
                 </div>
                 <div className="space-y-2">
-                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">Preço (Opcional)</label>
+                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.priceOptional')}</label>
                     <input
                         type="text"
-                        placeholder="R$ 0,00"
+                        placeholder={t('shop.pricePlaceholder')}
                         className="w-full px-4 py-3 bg-white border-2 border-black text-xs font-normal tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
                         value={newProduct.price || ''}
                         onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
                     />
                 </div>
                 <div className="space-y-2">
-                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">Cupom (Opcional)</label>
+                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.couponOptional')}</label>
                     <input
                         type="text"
-                        placeholder="Ex: NODUS10"
+                        placeholder={t('shop.couponPlaceholder')}
                         className="w-full px-4 py-3 bg-white border-2 border-black text-xs font-normal uppercase tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
                         value={newProduct.discountCode || ''}
                         onChange={e => setNewProduct({ ...newProduct, discountCode: e.target.value })}
@@ -297,16 +321,21 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                         accept="image/*"
                         onChange={async (e) => {
                             if (e.target.files?.[0]) {
-                                const base64 = await compressImage(e.target.files[0], 400, 0.8);
-                                setNewProduct({ ...newProduct, image: base64 });
+                                const dataUrl = await fileToDataURL(e.target.files[0]);
+                                setCropper({
+                                    isOpen: true,
+                                    image: dataUrl,
+                                    isNewProduct: true
+                                });
+                                e.target.value = '';
                             }
                         }}
                     />
                 </div>
                 <div className="flex-1 space-y-2 py-2">
-                    <p className="text-sm font-medium text-black uppercase tracking-widest">Miniatura do Produto</p>
+                    <p className="text-sm font-medium text-black uppercase tracking-widest">{t('shop.productThumbnail')}</p>
                     <p className="text-xs font-normal text-black/60 leading-relaxed uppercase tracking-widest max-w-sm">
-                        Recomendamos imagem quadrada (1:1). Clique no quadro para enviar.
+                        {t('shop.thumbnailDesc')}
                     </p>
                 </div>
             </div>
@@ -323,7 +352,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                     disabled={!newProduct.name || !newProduct.url}
                     className="px-6 py-2.5 bg-[#97cd7a] border-2 border-black text-black text-[9px] font-medium uppercase tracking-widest hover:bg-black hover:text-[#97cd7a] disabled:opacity-50 disabled:grayscale transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                 >
-                    Salvar Produto
+                    {t('shop.saveProduct')}
                 </button>
             </div>
         </div>
@@ -335,21 +364,20 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                 <div className="flex items-center justify-between gap-4 mb-4 border-b border-black pb-2.5">
                     <div className="flex items-center gap-2.5">
                         <ShoppingBag size={18} strokeWidth={3} className="text-black" />
-                        <h2 className="text-base font-medium uppercase tracking-widest text-black">Configurar Vitrine</h2>
+                        <h2 className="text-base font-medium uppercase tracking-widest text-black">{t('shop.title')}</h2>
                     </div>
                     <button
                         onClick={() => setIsAddingCollection(true)}
                         className="flex items-center gap-2 px-4 py-2 bg-black text-[#97cd7a] hover:bg-black hover:text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none text-[9px] font-medium uppercase tracking-widest transition-all"
-                        title="Nova Coleção"
+                        title={t('shop.newCategory')}
                     >
                         <FolderPlus size={18} strokeWidth={3} />
-                        <span className="hidden sm:inline">NOVA CATEGORIA</span>
+                        <span className="hidden sm:inline">{t('shop.newCategory')}</span>
                     </button>
                 </div>
 
                 <p className="text-[10px] md:text-xs text-black/60 font-normal bg-[#f1f1f1] p-4 border-l-4 border-[#97cd7a] leading-relaxed mb-6 uppercase tracking-[0.1em]">
-                    Mantenha sua vitrine organizada agrupando produtos por categorias.
-                    Produtos sem categoria serão listados automaticamente em uma seção geral.
+                    {t('shop.tagline')}
                 </p>
 
                 {isAddingCollection && (
@@ -360,7 +388,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                                 <input
                                     autoFocus
                                     type="text"
-                                    placeholder="Ex: Lançamentos 2024"
+                                    placeholder={t('shop.categoryPlaceholder')}
                                     className="flex-1 min-w-0 bg-white border-2 border-black px-4 py-2 text-sm font-normal text-black outline-none placeholder:text-black/30 transition-all focus:border-black focus:ring-0"
                                     value={newCollectionName}
                                     onChange={e => setNewCollectionName(e.target.value)}
@@ -372,7 +400,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                                     onClick={handleAddCollection}
                                     className="flex-1 sm:flex-none whitespace-nowrap bg-black text-[#97cd7a] px-6 py-2 border-2 border-black hover:text-white font-medium text-[10px] transition-all uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                                 >
-                                    CRIAR
+                                    {t('shop.create')}
                                 </button>
                                 <button
                                     onClick={() => setIsAddingCollection(false)}
@@ -389,7 +417,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
             <div className="space-y-6">
                 <div className="flex items-center gap-2 px-1">
                     <Folder size={20} strokeWidth={3} className="text-black" />
-                    <span className="text-xs font-medium uppercase tracking-[0.2em] text-black">Suas Categorias</span>
+                    <span className="text-xs font-medium uppercase tracking-[0.2em] text-black">{t('shop.yourCategories')}</span>
                 </div>
 
                 {addingToCollection && !collections.includes(addingToCollection) && (
@@ -399,7 +427,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                                 <Folder size={18} />
                             </div>
                             <h3 className="font-normal text-slate-800 text-sm uppercase tracking-wide">
-                                {addingToCollection} <span className="text-[10px] text-[#32a800] ml-2">(NOVA)</span>
+                                {addingToCollection} <span className="text-[10px] text-[#32a800] ml-2">({t('shop.new')})</span>
                             </h3>
                         </div>
                         {renderAddForm(addingToCollection)}
@@ -423,7 +451,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                                     </div>
                                     <div className="flex flex-col">
                                         <h3 className="font-medium text-black text-sm uppercase tracking-tight">{collectionName}</h3>
-                                        <span className="text-[9px] font-normal text-black/60 uppercase tracking-widest">{colProducts.length} itens cadastrados</span>
+                                        <span className="text-[9px] font-normal text-black/60 uppercase tracking-widest">{colProducts.length} {t('shop.itemsRegistered')}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
@@ -438,7 +466,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                                         }}
                                         className="flex items-center gap-1.5 px-3 py-2 bg-white text-black border-2 border-black hover:bg-[#ffdf00] text-[10px] font-medium uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                     >
-                                        <PlusCircle size={14} strokeWidth={3} /> PRODUTO
+                                        <PlusCircle size={14} strokeWidth={3} /> {t('shop.addItem')}
                                     </button>
                                     <button
                                         onClick={() => setDeletingCollection(collectionName)}
@@ -460,22 +488,22 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2 text-black">
                                                     <Trash2 size={16} strokeWidth={3} />
-                                                    <span className="text-xs font-medium uppercase tracking-widest">Excluir Categoria?</span>
+                                                    <span className="text-xs font-medium uppercase tracking-widest">{t('shop.deleteCategory')}</span>
                                                 </div>
-                                                <span className="text-[10px] text-black/70 font-normal uppercase tracking-widest mt-1">Todos os produtos desta categoria serão removidos.</span>
+                                                <span className="text-[10px] text-black/70 font-normal uppercase tracking-widest mt-1">{t('shop.deleteCategoryWarning')}</span>
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <button
                                                     onClick={() => setDeletingCollection(null)}
                                                     className="px-4 py-2 bg-white border-2 border-black text-[9px] font-medium uppercase tracking-widest text-black hover:bg-black hover:text-white transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                                 >
-                                                    Cancelar
+                                                    {t('common.cancel')}
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteCollection(collectionName)}
                                                     className="px-4 py-2 bg-red-400 border-2 border-black text-black text-[9px] font-medium uppercase tracking-widest hover:bg-red-500 transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
                                                 >
-                                                    Confirmar
+                                                    {t('common.confirm')}
                                                 </button>
                                             </div>
                                         </div>
@@ -493,7 +521,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
 
                                     {!addingToCollection && colProducts.length === 0 && (
                                         <div className="text-center py-8 bg-slate-50/50 rounded-lg border border-dashed border-slate-200">
-                                            <p className="text-xs text-slate-400 font-medium italic">Nenhum produto cadastrado nesta categoria.</p>
+                                            <p className="text-xs text-slate-400 font-medium italic">{t('shop.noProductsInCategory')}</p>
                                         </div>
                                     )}
                                 </div>
@@ -511,8 +539,8 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                             <div className="flex items-center gap-4">
                                 <ChevronDown size={24} strokeWidth={3} className="text-black" />
                                 <div className="flex flex-col">
-                                    <h3 className="font-medium text-black text-sm uppercase tracking-widest">Produtos sem Categoria</h3>
-                                    <span className="text-[10px] font-normal text-black/70 uppercase tracking-widest">{uncategorizedProducts.length} itens</span>
+                                    <h3 className="font-medium text-black text-sm uppercase tracking-widest">{t('shop.uncategorized')}</h3>
+                                    <span className="text-[10px] font-normal text-black/70 uppercase tracking-widest">{uncategorizedProducts.length} {t('shop.items')}</span>
                                 </div>
                             </div>
                         </div>
@@ -532,13 +560,30 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                         <div className="w-16 h-16 bg-[#ffdf00] text-black border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-full flex items-center justify-center mx-auto mb-6">
                             <ShoppingBag size={28} strokeWidth={3} />
                         </div>
-                        <h3 className="text-black font-medium text-xl uppercase tracking-wider mb-2">Sua vitrine está vazia</h3>
+                        <h3 className="text-black font-medium text-xl uppercase tracking-wider mb-2">{t('shop.emptyShopTitle')}</h3>
                         <p className="text-black/60 text-sm font-normal max-w-xs mx-auto leading-relaxed">
-                            Crie sua primeira categoria no botão acima para começar a expor seus produtos no seu perfil Nodus.
+                            {t('shop.emptyShopDesc')}
                         </p>
                     </div>
                 )}
             </div>
+
+            <ImageCropperModal
+                isOpen={cropper.isOpen}
+                image={cropper.image}
+                aspectRatio={1}
+                title={t('shop.cropImage') || 'Recortar Imagem do Produto'}
+                onClose={() => setCropper(prev => ({ ...prev, isOpen: false }))}
+                onCropComplete={async (blob) => {
+                    const dataUrl = await blobToDataURL(blob);
+                    if (cropper.isNewProduct) {
+                        setNewProduct({ ...newProduct, image: dataUrl });
+                    } else if (cropper.targetProductId) {
+                        updateProduct(cropper.targetProductId, 'image', dataUrl);
+                    }
+                    setCropper(prev => ({ ...prev, isOpen: false }));
+                }}
+            />
         </div>
     );
 }
