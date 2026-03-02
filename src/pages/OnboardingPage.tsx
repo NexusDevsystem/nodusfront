@@ -307,7 +307,7 @@ export default function OnboardingPage() {
 
 
             {/* Left Side: Form */}
-            <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-12 relative border-b-2 lg:border-b-0 lg:border-r-2 border-black z-10">
+            <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-12 relative border-b-2 lg:border-b-0 lg:border-r-2 border-black z-10 flex-1">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-16">
                     <button
@@ -472,17 +472,34 @@ export default function OnboardingPage() {
                     )}
 
                     {step === 3 && (
-                        <div className="space-y-8">
-                            <div className="space-y-3">
-                                <label className="text-xs font-bold text-black uppercase tracking-widest pl-1">{t('onboarding.yourResponse')}</label>
-                                <input
-                                    type="text"
-                                    value={referralSource}
-                                    onChange={(e) => setReferralSource(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && referralSource && setStep(4)}
-                                    className="w-full bg-white border-2 border-black py-6 px-6 text-xl font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all duration-200"
-                                    placeholder={t('onboarding.referralPlaceholder')}
-                                />
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 gap-4">
+                                {[
+                                    { id: 'instagram', label: 'Instagram' },
+                                    { id: 'tiktok', label: 'TikTok' },
+                                    { id: 'youtube', label: 'YouTube' },
+                                    { id: 'friend', label: t('onboarding.referralFriend', 'Amigo / Indicação') },
+                                    { id: 'google', label: 'Google / Busca' },
+                                    { id: 'other', label: t('onboarding.referralOther', 'Outro') }
+                                ].map((opt) => (
+                                    <button
+                                        key={opt.id}
+                                        onClick={() => setReferralSource(opt.label)}
+                                        className={`
+                                            w-full p-6 border-2 text-left transition-all duration-200 relative group
+                                            ${referralSource === opt.label
+                                                ? 'border-black bg-[#97cd7a] translate-x-[2px] translate-y-[2px] shadow-none'
+                                                : 'border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}
+                                        `}
+                                    >
+                                        <span className="font-black uppercase text-lg text-black">{opt.label}</span>
+                                        {referralSource === opt.label && (
+                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 bg-white border-2 border-black flex items-center justify-center">
+                                                <Check className="text-black" size={18} strokeWidth={4} />
+                                            </div>
+                                        )}
+                                    </button>
+                                ))}
                             </div>
 
                             <button
@@ -490,7 +507,7 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(4)}
                                 disabled={!referralSource}
                                 className={`
-                                    w-full h-20 border-2 border-black font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300
+                                    w-full h-20 border-2 border-black font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6
                                     ${referralSource
                                         ? 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}

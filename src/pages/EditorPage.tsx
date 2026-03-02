@@ -467,10 +467,15 @@ export default function EditorPage() {
 
     // Handle interactive tour actions
     const handleTourStepChange = (index: number) => {
-        setTourStepIndex(index);
         const currentStep = tourSteps[index];
         if (currentStep?.action) {
             currentStep.action();
+            // Demora para deixar o modal carregar e animar
+            setTimeout(() => {
+                setTourStepIndex(index);
+            }, 400);
+        } else {
+            setTourStepIndex(index);
         }
     };
 
@@ -527,7 +532,7 @@ export default function EditorPage() {
                 content: t('tour.addSocials', 'Meus Links: Comece aqui! Adicione suas redes sociais para que seu público te encontre em qualquer lugar.'),
                 disableBeacon: true,
                 spotlightClicks: true,
-                placement: isMobile ? 'bottom' : 'right',
+                placement: isMobile ? 'auto' : 'right',
                 action: () => {
                     setActiveTab('links');
                     closeAllModals();
@@ -536,10 +541,14 @@ export default function EditorPage() {
             {
                 target: '.tour-social-modal',
                 content: t('tour.socialModal', 'Aqui você pode escolher quais redes quer exibir e configurar o link de cada uma.'),
-                placement: isMobile ? 'center' : 'right',
+                placement: isMobile ? 'top' : 'right',
                 disableScrolling: true,
                 action: () => {
                     window.dispatchEvent(new CustomEvent('tour-open-social-modal'));
+                    // Force Joyride to recalculate spotlight size/position after motion.div animation
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 800);
                 }
             },
             {
@@ -547,7 +556,7 @@ export default function EditorPage() {
                 content: t('tour.addLink', 'Agora, vamos adicionar seus canais principais. Clique aqui para inserir links de sites, vídeos ou qualquer URL.'),
                 disableBeacon: true,
                 spotlightClicks: true,
-                placement: isMobile ? 'bottom' : 'left',
+                placement: isMobile ? 'auto' : 'right',
                 action: () => {
                     setActiveTab('links');
                     closeAllModals();
@@ -556,10 +565,14 @@ export default function EditorPage() {
             {
                 target: '.tour-add-element-modal',
                 content: t('tour.addLinkModal', 'Nesta tela você escolhe o tipo de elemento: um link direto, uma coleção organizada ou até um produto da sua loja!'),
-                placement: isMobile ? 'center' : 'top',
+                placement: isMobile ? 'top' : 'right',
                 disableScrolling: true,
                 action: () => {
                     window.dispatchEvent(new CustomEvent('tour-open-add-link-modal'));
+                    // Force Joyride to recalculate spotlight size/position after motion.div animation
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 300);
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 500);
                 }
             },
             {
@@ -567,7 +580,7 @@ export default function EditorPage() {
                 content: t('tour.designTab', 'Agora vamos deixar seu Nodus com a sua cara! Vamos para a aba Design.'),
                 disableBeacon: true,
                 spotlightClicks: true,
-                placement: isMobile ? 'bottom' : 'right',
+                placement: isMobile ? 'auto' : 'right',
                 action: () => {
                     setActiveTab('appearance');
                     closeAllModals();
@@ -577,7 +590,7 @@ export default function EditorPage() {
             {
                 target: '[data-tour="design-header"]',
                 content: t('tour.designHeader', 'No Cabeçalho, você personaliza sua foto, nome e biografia para criar uma primeira impressão marcante.'),
-                placement: isMobile ? 'bottom' : 'right',
+                placement: isMobile ? 'auto' : 'right',
                 action: () => {
                     setActiveTab('appearance');
                     closeAllModals();
@@ -587,7 +600,7 @@ export default function EditorPage() {
             {
                 target: '[data-tour="design-theme"]',
                 content: t('tour.designTheme', 'Escolha Temas prontos que combinam cores e estilos instantaneamente.'),
-                placement: isMobile ? 'top' : 'right',
+                placement: isMobile ? 'auto' : 'right',
                 action: () => {
                     if (isMobile) setIsMobileMenuOpen(false);
                 }
@@ -595,24 +608,24 @@ export default function EditorPage() {
             {
                 target: '[data-tour="design-buttons"]',
                 content: t('tour.designButtons', 'Personalize o estilo dos seus botões: cores, formatos e sombras brutais!'),
-                placement: isMobile ? 'bottom' : 'right',
+                placement: isMobile ? 'auto' : 'right',
             },
             {
                 target: '[data-tour="design-wallpaper"]',
                 content: t('tour.designWallpaper', 'Mude o fundo com cores sólidas, gradientes ou imagens premium.'),
-                placement: isMobile ? 'top' : 'right',
+                placement: isMobile ? 'auto' : 'right',
             },
             {
                 target: '[data-tour="design-text"]',
                 content: t('tour.designText', 'A Tipografia certa faz toda a diferença. Escolha entre fontes modernas e elegantes.'),
-                placement: isMobile ? 'bottom' : 'right',
+                placement: isMobile ? 'auto' : 'right',
             },
             {
                 target: '[data-tour="shop"]',
                 content: t('tour.shopTab', 'Próxima parada: Loja! Transforme seus cliques em vendas.'),
                 disableBeacon: true,
                 spotlightClicks: true,
-                placement: isMobile ? 'bottom' : 'right',
+                placement: isMobile ? 'auto' : 'right',
                 action: () => {
                     setActiveTab('shop');
                     closeAllModals();
@@ -622,7 +635,7 @@ export default function EditorPage() {
             {
                 target: '[data-tour="shop-new-category"]',
                 content: t('tour.shopNewCategory', 'Crie coleções para organizar seus produtos. Clique aqui para começar sua primeira vitrine!'),
-                placement: isMobile ? 'bottom' : 'right',
+                placement: isMobile ? 'auto' : 'right',
                 action: () => {
                     setActiveTab('shop');
                     closeAllModals();
@@ -634,7 +647,7 @@ export default function EditorPage() {
                 content: t('tour.earnTab', 'Em Monetização, você configura recebimentos via PIX ou PayPal para aceitar apoios e vendas.'),
                 disableBeacon: true,
                 spotlightClicks: true,
-                placement: isMobile ? 'bottom' : 'right',
+                placement: isMobile ? 'auto' : 'right',
                 action: () => {
                     setActiveTab('earn');
                     closeAllModals();
@@ -646,7 +659,7 @@ export default function EditorPage() {
                 content: t('tour.integrationsTab', 'Conecte ferramentas externas como WhatsApp, Instagram Feed e muito mais em Integrações.'),
                 disableBeacon: true,
                 spotlightClicks: true,
-                placement: isMobile ? 'bottom' : 'right',
+                placement: isMobile ? 'auto' : 'right',
                 action: () => {
                     setActiveTab('integrations');
                     closeAllModals();
@@ -658,7 +671,7 @@ export default function EditorPage() {
                 content: t('tour.analyticsTab', 'Acompanhe seu crescimento! Veja quantos cliques e visualizações seu perfil está recebendo.'),
                 disableBeacon: true,
                 spotlightClicks: true,
-                placement: isMobile ? 'bottom' : 'right',
+                placement: isMobile ? 'auto' : 'right',
                 action: () => {
                     setActiveTab('analytics');
                     closeAllModals();
@@ -670,7 +683,7 @@ export default function EditorPage() {
                 content: t('tour.filesTab', 'Gerencie seus arquivos e mídias de forma centralizada aqui.'),
                 disableBeacon: true,
                 spotlightClicks: true,
-                placement: isMobile ? 'bottom' : 'right',
+                placement: isMobile ? 'auto' : 'right',
                 action: () => {
                     setActiveTab('files');
                     closeAllModals();

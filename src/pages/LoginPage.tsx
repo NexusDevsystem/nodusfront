@@ -86,7 +86,7 @@ export default function LoginPage() {
         <div className="min-h-screen w-full flex flex-col md:flex-row font-sans bg-white selection:bg-black selection:text-[#97cd7a]">
 
             {/* Left Side: Login Form */}
-            <div className="w-full md:w-1/2 flex flex-col p-8 md:p-12 relative border-b-2 md:border-b-0 md:border-r-2 border-black">
+            <div className="w-full md:w-1/2 flex flex-col p-8 md:p-12 relative border-b-2 md:border-b-0 md:border-r-2 border-black flex-1">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-10">
                     <button
@@ -254,10 +254,6 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                <div className="mt-auto pt-8 flex justify-between items-end border-t-2 border-black/10">
-                    <div className="text-xs font-bold text-black/30 uppercase">{t('common.version')} 2.0.0</div>
-                    <div className="text-xs font-bold text-black/30 uppercase">{t('login.secureAuth')}</div>
-                </div>
             </div>
 
             {/* Right Side: Visual */}

@@ -206,16 +206,16 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                         ${item.disabled ? 'opacity-30 cursor-not-allowed' : ''}
                       `}
                       >
-                        <div className="flex items-center gap-4 md:gap-3">
-                          <div className={`transition-transform ${isActive ? 'text-black' : 'text-black/40 group-hover:text-black'}`}>
+                        <div className="flex items-center gap-4 md:gap-3 min-w-0">
+                          <div className={`shrink-0 transition-transform ${isActive ? 'text-black' : 'text-black/40 group-hover:text-black'} flex items-center justify-center`}>
                             <ItemIcon size={isMobile ? 18 : 14} strokeWidth={isMobile ? 2.5 : 2} />
                           </div>
-                          <span className={`text-[11px] md:text-[9.5px] font-bold md:font-medium uppercase tracking-widest ${isActive ? 'text-black' : ''}`}>{item.label}</span>
+                          <span className={`text-[11px] md:text-[9.5px] font-bold md:font-medium uppercase tracking-widest truncate whitespace-nowrap leading-none ${isActive ? 'text-black' : ''}`}>{item.label}</span>
                         </div>
 
                         {isLocked ? (
-                          <div className="flex items-center gap-1.5 min-w-fit">
-                            <span className="text-[8px] md:text-[7px] bg-black text-[#97cd7a] px-2 md:px-1.5 py-1 md:py-0.5 font-bold md:font-medium uppercase tracking-widest">VIP</span>
+                          <div className="flex items-center justify-center h-full">
+                            <span className="text-[8px] md:text-[7px] bg-black text-[#97cd7a] px-2 md:px-1.5 py-1 md:py-0.5 font-bold md:font-medium uppercase tracking-widest leading-none flex items-center justify-center">VIP</span>
                           </div>
                         ) : isActive && (
                           <div className="w-2 h-2 md:w-1.5 md:h-1.5 bg-black rounded-full" />
