@@ -61,6 +61,7 @@ export interface UserProfile {
   isVerified?: boolean;
   enableBlur?: boolean;
   fontSize?: number | null;
+  bioFontSize?: number | null;
   fontWeight?: string | null;
   fontItalic?: boolean;
   customSecondaryColor?: string | null;
@@ -72,6 +73,7 @@ export interface UserProfile {
   usernameUpdatedAt?: string | null;
   bannerBlurColor?: string | null;
   cardBackgroundColor?: string | null;
+  tutorialStatus?: 'yes' | 'no' | 'skip' | null;
 }
 
 export interface Theme {
@@ -120,7 +122,7 @@ export interface AnalyticsEvent {
 
 export interface SocialIntegration {
   user_id: string;
-  provider: 'tiktok' | 'youtube' | 'instagram';
+  provider: 'tiktok' | 'youtube' | 'instagram' | 'twitch' | 'kick';
   access_token: string;
   refresh_token?: string;
   expires_at?: string;

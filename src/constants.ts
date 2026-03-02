@@ -6,8 +6,12 @@ import {
 import {
   SiInstagram, SiFacebook, SiX, SiTiktok, SiThreads, SiLinkedin, SiWhatsapp, SiTelegram,
   SiYoutube, SiTwitch, SiVimeo, SiSpotify, SiSoundcloud, SiApplemusic, SiGithub,
-  SiBehance, SiDribbble, SiPinterest, SiDiscord, SiSteam, SiShopee, SiAmazon
+  SiBehance, SiDribbble, SiPinterest, SiDiscord, SiSteam, SiShopee, SiAmazon,
+  SiKick
 } from 'react-icons/si';
+import { KickIcon } from './components/icons/KickIcon';
+
+export { KickIcon };
 
 export const FONTS: FontOption[] = [
   { name: 'Modern Sans', family: "'Inter', sans-serif", type: 'sans' },
@@ -149,6 +153,7 @@ export const SOCIAL_NETWORKS = [
   // Video / Streaming
   { id: 'youtube', name: 'YouTube', icon: SiYoutube, baseUrl: 'https://youtube.com/@', placeholder: '@channel' },
   { id: 'twitch', name: 'Twitch', icon: SiTwitch, baseUrl: 'https://twitch.tv/', placeholder: 'username' },
+  { id: 'kick', name: 'Kick', icon: KickIcon, baseUrl: 'https://kick.com/', placeholder: 'username' },
   { id: 'vimeo', name: 'Vimeo', icon: SiVimeo, baseUrl: 'https://vimeo.com/', placeholder: 'username' },
 
   // Music / Audio

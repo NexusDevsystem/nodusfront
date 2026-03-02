@@ -8,7 +8,7 @@ import LinkEditor from '../components/LinkEditor';
 import ShopEditor from '../components/ShopEditor';
 import Preview from '../components/Preview';
 import Sidebar from '../components/Sidebar';
-import { Plus, Trash2, GripVertical, Image as ImageIcon, Layout, Palette, Type, MousePointer2, Smartphone, Monitor, Share, Eye, ExternalLink, Globe, ChevronRight, Menu, X, Check, Save, Loader2, PlusCircle, Search, List, MessageCircle, HelpCircle, Construction, Mail, ChevronsRight } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Image as ImageIcon, Layout, Palette, Type, MousePointer2, Smartphone, Monitor, Share, Eye, X, Check, Save, Loader2, PlusCircle, Search, List, MessageCircle, HelpCircle, Construction, Mail, ChevronsRight, Zap, ExternalLink, Menu, Globe, ChevronRight, AlertTriangle } from 'lucide-react';
 import SocialLinksEditor from '../components/SocialLinksEditor';
 import AnalyticsView from '../components/AnalyticsView';
 import MonetizationView from '../components/MonetizationView';
@@ -23,12 +23,16 @@ import HeaderEditor from '../components/design/HeaderEditor';
 import TypographyEditor from '../components/design/TypographyEditor';
 import WallpaperEditor from '../components/design/WallpaperEditor';
 import ButtonsEditor from '../components/design/ButtonsEditor';
+import TourGuide from '../components/TourGuide';
+import WelcomeTourModal from '../components/WelcomeTourModal';
 import { compressImage } from '../utils/imageUtils';
 import { apiClient } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
 import FileManager from '../components/tools/FileManager';
 import { IntegrationsView } from '../views/IntegrationsView';
 import { useTranslation } from 'react-i18next';
+import { hasProFeatures } from '../utils/planUtils';
+import { AlertCircle } from 'lucide-react';
 
 export default function EditorPage() {
     const { profile: authProfile, loading: authLoading } = useAuth();
@@ -41,7 +45,9 @@ export default function EditorPage() {
         bio: '',
         avatarUrl: '',
         themeId: 'animated-nodus-official',
-        fontFamily: "'Inter', sans-serif"
+        fontFamily: "'Inter', sans-serif",
+        onboardingCompleted: true, // Default to true so it doesn't pop up before data loads
+        tutorialStatus: 'yes'     // Default to yes so it doesn't pop up before data loads
     });
 
     const [links, setLinks] = useState<LinkItem[]>([]);
@@ -146,6 +152,9 @@ export default function EditorPage() {
     const [isSavingProfile, setIsSavingProfile] = React.useState(false);
     const [isSavingLinks, setIsSavingLinks] = React.useState(false);
     const [isSavingProducts, setIsSavingProducts] = React.useState(false);
+    const [isPreviewMode, setIsPreviewMode] = React.useState(false);
+    const [isDiscardModalOpen, setIsDiscardModalOpen] = React.useState(false);
+    const [pendingTab, setPendingTab] = React.useState<string | null>(null);
 
     // Keep saving states active for at least 500ms for visual feedback
     const [visualSavingProfile, setVisualSavingProfile] = React.useState(false);
@@ -175,8 +184,20 @@ export default function EditorPage() {
         }
 
         const currentProfileString = JSON.stringify(profile);
-        if (currentProfileString === lastSavedProfile.current) return;
+        if (currentProfileString === lastSavedProfile.current) {
+            setIsPreviewMode(false);
+            return;
+        }
 
+        // --- PRO PREVIEW CHECK ---
+        const isFree = !profile.planType || profile.planType === 'free';
+        if (isFree && hasProFeatures(profile)) {
+            console.log('✨ [EditorPage] PRO feature detected in FREE account. Entering Preview Mode (Auto-save suppressed).');
+            setIsPreviewMode(true);
+            return;
+        }
+
+        setIsPreviewMode(false);
         console.log('🔄 [EditorPage] Profile change detected, scheduling auto-save...');
 
         const saveProfile = async () => {
@@ -380,20 +401,303 @@ export default function EditorPage() {
     }, []);
 
     // 'links' or 'appearance' are the main functional tabs
-    const [activeTab, setActiveTab] = useState<string>(() => {
+    const [activeTab, setActiveTabState] = useState<string>(() => {
         return localStorage.getItem('nodus_editor_active_tab') || 'links';
     });
+
+    const handleTabChange = (newTab: string) => {
+        if (isPreviewMode && activeTab === 'appearance' && newTab !== 'appearance') {
+            setPendingTab(newTab);
+            setIsDiscardModalOpen(true);
+            return;
+        }
+        setActiveTabState(newTab);
+    };
+
+    // Keep the name setActiveTab for props compatibility
+    const setActiveTab = handleTabChange;
 
     // Persist activeTab to localStorage
     React.useEffect(() => {
         localStorage.setItem('nodus_editor_active_tab', activeTab);
     }, [activeTab]);
 
+    const handleDiscardChanges = () => {
+        if (lastSavedProfile.current) {
+            const lastGood = JSON.parse(lastSavedProfile.current);
+            setProfile(lastGood);
+            setIsPreviewMode(false);
+            if (pendingTab) {
+                setActiveTabState(pendingTab);
+                setPendingTab(null);
+            }
+        }
+        setIsDiscardModalOpen(false);
+    };
+
+    const handleUpgradeToSave = () => {
+        setIsDiscardModalOpen(false);
+        setIsBillingModalOpen(true);
+    };
+
     // Mobile drawer state
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showMobilePreview, setShowMobilePreview] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
+
+    // Tour/Tutorial State
+    const [tourRun, setTourRun] = useState(false);
+    const [tourSteps, setTourSteps] = useState<any[]>([]);
+
+    const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+    const [tourStepIndex, setTourStepIndex] = useState(0);
+
+    // Initial check for tour
+    React.useEffect(() => {
+        // Show if tutorial_status is 'no' and data is loaded
+        if (!isLoading && profile.id && profile.tutorialStatus === 'no') {
+            const sessionKey = `nodus_welcomed_${profile.id}`;
+            if (!sessionStorage.getItem(sessionKey)) {
+                setShowWelcomeModal(true);
+                sessionStorage.setItem(sessionKey, 'true');
+            }
+        }
+    }, [isLoading, profile.id, profile.tutorialStatus]);
+
+    // Handle interactive tour actions
+    const handleTourStepChange = (index: number) => {
+        setTourStepIndex(index);
+        const currentStep = tourSteps[index];
+        if (currentStep?.action) {
+            currentStep.action();
+        }
+    };
+
+    React.useEffect(() => {
+        const handleInteraction = (e: MouseEvent) => {
+            if (!tourRun) return;
+
+            const target = e.target as HTMLElement;
+            const tourElement = target.closest('[data-tour]');
+            if (!tourElement) return;
+
+            const tourId = tourElement.getAttribute('data-tour');
+            const currentStep = tourSteps[tourStepIndex];
+
+            // If the clicked element matches the current step's target, advance the tour
+            if (currentStep && currentStep.target === `[data-tour="${tourId}"]`) {
+                // Delay slightly to allow the app state to update (e.g. modal opening)
+                setTimeout(() => {
+                    handleTourStepChange(tourStepIndex + 1);
+                }, 100);
+            }
+        };
+
+        window.addEventListener('click', handleInteraction);
+        return () => window.removeEventListener('click', handleInteraction);
+    }, [tourRun, tourStepIndex, tourSteps]);
+
+    const startTour = () => {
+        setShowWelcomeModal(false);
+        setActiveTab('links');
+        setTourStepIndex(0);
+
+        // Helper to find and close modals globally if needed
+        const closeAllModals = () => {
+            // We'll trigger custom events that components listen to
+            window.dispatchEvent(new CustomEvent('tour-close-all-modals'));
+        };
+
+        const isMobile = window.innerWidth < 768;
+
+        setTourSteps([
+            {
+                target: 'body',
+                placement: 'center',
+                content: t('tour.welcome', 'Bem-vindo ao Nodus! Vamos fazer um tour pelos bastidores e te mostrar como tudo funciona.'),
+                disableBeacon: true,
+                action: () => {
+                    setActiveTab('links');
+                    closeAllModals();
+                }
+            },
+            {
+                target: '[data-tour="add-socials"]',
+                content: t('tour.addSocials', 'Meus Links: Comece aqui! Adicione suas redes sociais para que seu público te encontre em qualquer lugar.'),
+                disableBeacon: true,
+                spotlightClicks: true,
+                placement: isMobile ? 'bottom' : 'right',
+                action: () => {
+                    setActiveTab('links');
+                    closeAllModals();
+                }
+            },
+            {
+                target: '.tour-social-modal',
+                content: t('tour.socialModal', 'Aqui você pode escolher quais redes quer exibir e configurar o link de cada uma.'),
+                placement: isMobile ? 'center' : 'right',
+                disableScrolling: true,
+                action: () => {
+                    window.dispatchEvent(new CustomEvent('tour-open-social-modal'));
+                }
+            },
+            {
+                target: '[data-tour="add-link"]',
+                content: t('tour.addLink', 'Agora, vamos adicionar seus canais principais. Clique aqui para inserir links de sites, vídeos ou qualquer URL.'),
+                disableBeacon: true,
+                spotlightClicks: true,
+                placement: isMobile ? 'bottom' : 'left',
+                action: () => {
+                    setActiveTab('links');
+                    closeAllModals();
+                }
+            },
+            {
+                target: '.tour-add-element-modal',
+                content: t('tour.addLinkModal', 'Nesta tela você escolhe o tipo de elemento: um link direto, uma coleção organizada ou até um produto da sua loja!'),
+                placement: isMobile ? 'center' : 'top',
+                disableScrolling: true,
+                action: () => {
+                    window.dispatchEvent(new CustomEvent('tour-open-add-link-modal'));
+                }
+            },
+            {
+                target: '[data-tour="appearance"]',
+                content: t('tour.designTab', 'Agora vamos deixar seu Nodus com a sua cara! Vamos para a aba Design.'),
+                disableBeacon: true,
+                spotlightClicks: true,
+                placement: isMobile ? 'bottom' : 'right',
+                action: () => {
+                    setActiveTab('appearance');
+                    closeAllModals();
+                    if (isMobile) setIsMobileMenuOpen(true);
+                }
+            },
+            {
+                target: '[data-tour="design-header"]',
+                content: t('tour.designHeader', 'No Cabeçalho, você personaliza sua foto, nome e biografia para criar uma primeira impressão marcante.'),
+                placement: isMobile ? 'bottom' : 'right',
+                action: () => {
+                    setActiveTab('appearance');
+                    closeAllModals();
+                    if (isMobile) setIsMobileMenuOpen(false);
+                }
+            },
+            {
+                target: '[data-tour="design-theme"]',
+                content: t('tour.designTheme', 'Escolha Temas prontos que combinam cores e estilos instantaneamente.'),
+                placement: isMobile ? 'top' : 'right',
+                action: () => {
+                    if (isMobile) setIsMobileMenuOpen(false);
+                }
+            },
+            {
+                target: '[data-tour="design-buttons"]',
+                content: t('tour.designButtons', 'Personalize o estilo dos seus botões: cores, formatos e sombras brutais!'),
+                placement: isMobile ? 'bottom' : 'right',
+            },
+            {
+                target: '[data-tour="design-wallpaper"]',
+                content: t('tour.designWallpaper', 'Mude o fundo com cores sólidas, gradientes ou imagens premium.'),
+                placement: isMobile ? 'top' : 'right',
+            },
+            {
+                target: '[data-tour="design-text"]',
+                content: t('tour.designText', 'A Tipografia certa faz toda a diferença. Escolha entre fontes modernas e elegantes.'),
+                placement: isMobile ? 'bottom' : 'right',
+            },
+            {
+                target: '[data-tour="shop"]',
+                content: t('tour.shopTab', 'Próxima parada: Loja! Transforme seus cliques em vendas.'),
+                disableBeacon: true,
+                spotlightClicks: true,
+                placement: isMobile ? 'bottom' : 'right',
+                action: () => {
+                    setActiveTab('shop');
+                    closeAllModals();
+                    if (isMobile) setIsMobileMenuOpen(true);
+                }
+            },
+            {
+                target: '[data-tour="shop-new-category"]',
+                content: t('tour.shopNewCategory', 'Crie coleções para organizar seus produtos. Clique aqui para começar sua primeira vitrine!'),
+                placement: isMobile ? 'bottom' : 'right',
+                action: () => {
+                    setActiveTab('shop');
+                    closeAllModals();
+                    if (isMobile) setIsMobileMenuOpen(false);
+                }
+            },
+            {
+                target: '[data-tour="earn"]',
+                content: t('tour.earnTab', 'Em Monetização, você configura recebimentos via PIX ou PayPal para aceitar apoios e vendas.'),
+                disableBeacon: true,
+                spotlightClicks: true,
+                placement: isMobile ? 'bottom' : 'right',
+                action: () => {
+                    setActiveTab('earn');
+                    closeAllModals();
+                    if (isMobile) setIsMobileMenuOpen(true);
+                }
+            },
+            {
+                target: '[data-tour="integrations"]',
+                content: t('tour.integrationsTab', 'Conecte ferramentas externas como WhatsApp, Instagram Feed e muito mais em Integrações.'),
+                disableBeacon: true,
+                spotlightClicks: true,
+                placement: isMobile ? 'bottom' : 'right',
+                action: () => {
+                    setActiveTab('integrations');
+                    closeAllModals();
+                    if (isMobile) setIsMobileMenuOpen(true);
+                }
+            },
+            {
+                target: '[data-tour="analytics"]',
+                content: t('tour.analyticsTab', 'Acompanhe seu crescimento! Veja quantos cliques e visualizações seu perfil está recebendo.'),
+                disableBeacon: true,
+                spotlightClicks: true,
+                placement: isMobile ? 'bottom' : 'right',
+                action: () => {
+                    setActiveTab('analytics');
+                    closeAllModals();
+                    if (isMobile) setIsMobileMenuOpen(true);
+                }
+            },
+            {
+                target: '[data-tour="files"]',
+                content: t('tour.filesTab', 'Gerencie seus arquivos e mídias de forma centralizada aqui.'),
+                disableBeacon: true,
+                spotlightClicks: true,
+                placement: isMobile ? 'bottom' : 'right',
+                action: () => {
+                    setActiveTab('files');
+                    closeAllModals();
+                    if (isMobile) setIsMobileMenuOpen(true);
+                }
+            },
+            {
+                target: 'body',
+                placement: 'center',
+                content: t('tour.finish', 'Pronto! Agora você conhece o básico. Explore cada detalhe e crie algo incrível!'),
+                action: () => {
+                    setActiveTab('links');
+                    closeAllModals();
+                }
+            }
+        ]);
+        setTourRun(true);
+    };
+
+    const skipTour = () => {
+        setShowWelcomeModal(false);
+        // Persist to backend
+        updateProfile({ tutorialStatus: 'skip' });
+        apiClient.updateProfile({ tutorialStatus: 'skip' }).catch(err => console.error('Failed to update tutorial status:', err));
+    };
+
+
 
     // Design Sidebar State
     const [activeDesignSection, setActiveDesignSection] = useState('header');
@@ -405,6 +709,27 @@ export default function EditorPage() {
 
     return (
         <div className="h-screen w-full bg-white font-sans text-black selection:bg-black selection:text-[#ffdf00] flex flex-col overflow-hidden">
+            {/* Tour Guide Wrapper */}
+            <TourGuide
+                run={tourRun}
+                steps={tourSteps}
+                stepIndex={tourStepIndex}
+                onStepChange={handleTourStepChange}
+                onFinish={() => {
+                    setTourRun(false);
+                    // Persist to backend
+                    updateProfile({ tutorialStatus: 'yes' });
+                    apiClient.updateProfile({ tutorialStatus: 'yes' }).catch(err => console.error('Failed to update tutorial status:', err));
+                }}
+            />
+
+            <WelcomeTourModal
+                isOpen={showWelcomeModal}
+                onAccept={startTour}
+                onDecline={skipTour}
+            />
+
+            {/* Quests Checklist moved to Sidebar component */}
             {/* Top Banner for Free Users */}
             {(!profile.planType || profile.planType === 'free') && (
                 <UpgradeBanner onUpgradeClick={() => setIsBillingModalOpen(true)} />
@@ -455,7 +780,7 @@ export default function EditorPage() {
                 <main className="flex-1 flex flex-col md:flex-row min-w-0 h-full relative transition-all duration-300">
 
                     {/* Mobile Header */}
-                    <div className={`md:hidden bg-white border-b-2 border-black px-4 py-4 flex items-center justify-between shrink-0 z-[45] shadow-sm`}>
+                    <div className={`md:hidden bg-white border-b-2 border-black px-4 py-4 flex items-center justify-between shrink-0 z-[60] shadow-sm relative`}>
                         <div className="flex items-center gap-3">
                             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                                 <Menu size={24} className="text-black" />
@@ -480,6 +805,7 @@ export default function EditorPage() {
 
                             {/* Share Button - Brutalist */}
                             <button
+                                data-tour="share"
                                 onClick={() => setIsShareModalOpen(true)}
                                 className="w-9 h-9 flex items-center justify-center bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all text-black"
                             >
@@ -499,7 +825,7 @@ export default function EditorPage() {
                     {/* Mobile Sidebar (Drawer) */}
                     <AnimatePresence>
                         {isMobileMenuOpen && (
-                            <div className="fixed inset-0 z-50 md:hidden flex">
+                            <div className="fixed inset-0 z-[100] md:hidden flex">
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
@@ -514,7 +840,13 @@ export default function EditorPage() {
                                     transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                                     className="relative w-72 h-full bg-white border-r-4 border-black flex flex-col overflow-hidden"
                                 >
-                                    <Sidebar activeTab={activeTab} setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }} userProfile={profile} onUpgradeClick={() => { setIsBillingModalOpen(true); setIsMobileMenuOpen(false); }} className="flex-1 overflow-y-auto" />
+                                    <Sidebar
+                                        activeTab={activeTab}
+                                        setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }}
+                                        userProfile={profile}
+                                        onUpgradeClick={() => { setIsBillingModalOpen(true); setIsMobileMenuOpen(false); }}
+                                        className="flex-1 overflow-y-auto"
+                                    />
                                 </motion.div>
                             </div>
                         )}
@@ -544,22 +876,26 @@ export default function EditorPage() {
                                 <h1 className="text-base font-medium uppercase tracking-widest text-black">Editor</h1>
                             </div>
                             <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 transition-all">
-                                    {(isSaving || visualSavingProfile) ? (
-                                        <>
-                                            <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
-                                            <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.syncing')}</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className="w-1.5 h-1.5 bg-[#97cd7a] border border-black" />
-                                            <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.synced')}</span>
-                                        </>
-                                    )}
-                                </div>
+                                {isPreviewMode ? (
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#ffdf00] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 animate-pulse">
+                                        <Zap size={10} className="text-black fill-black" strokeWidth={3} />
+                                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Modo Preview</span>
+                                    </div>
+                                ) : (isSaving || visualSavingProfile) ? (
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 transition-all">
+                                        <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
+                                        <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.syncing')}</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 transition-all">
+                                        <div className="w-1.5 h-1.5 bg-[#97cd7a] border border-black" />
+                                        <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.synced')}</span>
+                                    </div>
+                                )}
 
                                 <div className="flex items-center gap-2">
                                     <button
+                                        data-tour="share"
                                         onClick={() => setIsShareModalOpen(true)}
                                         className="w-9 h-9 flex items-center justify-center bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all text-black"
                                         title="Compartilhar"
@@ -677,7 +1013,7 @@ export default function EditorPage() {
                                 )}
 
                                 {activeTab === 'integrations' && (
-                                    <IntegrationsView profile={profile} onChange={setProfile} />
+                                    <IntegrationsView profile={profile} onChange={setProfile} links={links} onLinksChange={setLinks} />
                                 )}
 
                                 {activeTab === 'admin' && (profile.username === 'nodus' || authProfile?.email === 'jaoomarcos75@gmail.com') && (
@@ -689,9 +1025,9 @@ export default function EditorPage() {
 
 
                                 {activeTab === 'appearance' && (
-                                    <div className="flex flex-col -mt-4 md:-mt-6 -mx-6 lg:-mx-12 bg-slate-50 relative min-h-[calc(100vh-140px)]">
+                                    <div className="flex flex-col md:-mt-6 -mx-6 lg:-mx-12 bg-slate-50 relative min-h-[calc(100vh-140px)]">
                                         {/* Design Sidebar */}
-                                        <div className="shrink-0 z-10 sticky top-0 bg-slate-50">
+                                        <div className="shrink-0 z-[50] sticky top-0 bg-white shadow-sm md:shadow-none">
                                             <DesignSidebar
                                                 activeSection={activeDesignSection}
                                                 setActiveSection={setActiveDesignSection}
@@ -753,18 +1089,13 @@ export default function EditorPage() {
             ${activeTab !== 'admin' ? 'lg:flex' : 'hidden'} flex-col items-center justify-center 
             lg:border-l-4 lg:border-black lg:bg-white 
             w-full lg:w-[350px] xl:w-[450px] shrink-0
-            ${!showMobilePreview ? 'hidden' : 'flex-1 z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0 bg-white md:bg-transparent'}
+            ${!showMobilePreview ? 'hidden' : 'flex-1 h-full flex flex-col z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0 bg-white md:bg-transparent'}
         `}>
 
-                        <div className="relative w-full h-full lg:flex items-center justify-center overflow-y-auto bg-white lg:bg-slate-50">
-                            {/* Dots Pattern - Only on Desktop */}
-                            <div className="hidden lg:block absolute inset-0 opacity-20 pointer-events-none"
-                                style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '24px 24px' }}>
-                            </div>
-
+                        <div className="relative w-full h-full lg:flex items-center justify-center overflow-y-auto bg-white lg:bg-[#f8f9fa]">
                             {/* Scale container to fit phone nicely on different laptop screens - Only on Desktop */}
                             <div className={`
-                               w-full min-h-full transform transition-transform duration-300 origin-center flex items-center justify-center relative z-10
+                               w-full min-h-full lg:py-12 transform transition-transform duration-300 origin-center flex items-center justify-center relative z-10
             `}>
                                 <Preview
                                     profile={profile}
@@ -776,9 +1107,7 @@ export default function EditorPage() {
                             </div>
                         </div>
 
-                        <div className="hidden lg:block absolute bottom-6 px-4 py-1.5 bg-black text-[#97cd7a] border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-[8px] font-medium uppercase tracking-[0.3em]">
-                            {t('editor.livePreview')}
-                        </div>
+
                     </div>
 
                 </main >
@@ -799,6 +1128,63 @@ export default function EditorPage() {
                         onClose={() => setIsBillingModalOpen(false)}
                     />
                 )}
+
+                {/* PRO Changes Detection Modal */}
+                <AnimatePresence>
+                    {isDiscardModalOpen && (
+                        <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 pointer-events-none">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 bg-black/80 backdrop-blur-md pointer-events-auto"
+                                onClick={() => setIsDiscardModalOpen(false)}
+                            />
+                            <motion.div
+                                initial={{ y: '100%', opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={{ y: '100%', opacity: 0 }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                                className="relative w-full md:max-w-md bg-white border-t-4 border-x-4 md:border-b-4 border-black p-8 shadow-none md:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] rounded-t-[32px] md:rounded-[32px] pointer-events-auto"
+                            >
+                                <div className="flex flex-col items-center text-center">
+                                    <div className="w-20 h-20 bg-[#ffdf00] border-4 border-black flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                        <AlertTriangle size={40} className="text-black fill-black" />
+                                    </div>
+                                    <h2 className="text-2xl font-black uppercase tracking-tighter text-black mb-4">
+                                        Detectamos Recursos PRO!
+                                    </h2>
+                                    <p className="text-sm font-bold text-black/60 uppercase tracking-widest leading-relaxed mb-8">
+                                        Você está usando temas ou estilos premium. Para manter estas alterações no seu perfil público, você precisa migrar para o plano PRO.
+                                    </p>
+
+                                    <div className="grid grid-cols-1 w-full gap-4">
+                                        <button
+                                            onClick={handleUpgradeToSave}
+                                            className="w-full py-4 bg-[#97cd7a] border-4 border-black text-black font-black text-xs uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 active:scale-95"
+                                        >
+                                            <Check size={20} strokeWidth={4} />
+                                            Fazer Upgrade e Salvar
+                                        </button>
+                                        <button
+                                            onClick={handleDiscardChanges}
+                                            className="w-full py-4 bg-white border-4 border-black text-black font-black text-xs uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 active:scale-95"
+                                        >
+                                            <X size={20} strokeWidth={4} />
+                                            Descartar e Continuar
+                                        </button>
+                                    </div>
+                                    <button
+                                        onClick={() => setIsDiscardModalOpen(false)}
+                                        className="mt-6 text-[10px] font-black uppercase tracking-widest text-black/30 hover:text-black transition-colors"
+                                    >
+                                        Voltar e Continuar Editando
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
 
             </div>
         </div>

@@ -578,15 +578,15 @@ export default function AdminView() {
                                                                 type="text"
                                                                 value={deleteInput}
                                                                 onChange={(e) => setDeleteInput(e.target.value)}
-                                                                placeholder={t('admin.deleteRecord').toLowerCase()}
+                                                                placeholder="deletar"
                                                                 className="w-full bg-white/10 border border-white/30 p-2 text-[10px] font-black text-white placeholder:text-white/20 focus:outline-none focus:border-white transition-colors"
                                                                 onClick={(e) => e.stopPropagation()}
                                                             />
                                                         </div>
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); handleDeleteUser(); }}
-                                                            disabled={isUpdating || deleteInput !== t('admin.deleteRecord').toLowerCase()}
-                                                            className={`w-full py-2 text-[9px] font-black uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] active:shadow-none ${deleteInput === t('admin.deleteRecord').toLowerCase()
+                                                            disabled={isUpdating || deleteInput.trim().toLowerCase() !== 'deletar'}
+                                                            className={`w-full py-2 text-[9px] font-black uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] active:shadow-none ${deleteInput.trim().toLowerCase() === 'deletar'
                                                                 ? 'bg-white text-red-600 opacity-100'
                                                                 : 'bg-white/20 text-white/40 cursor-not-allowed border-white/20 shadow-none'
                                                                 }`}

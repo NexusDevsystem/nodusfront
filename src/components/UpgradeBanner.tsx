@@ -7,7 +7,7 @@ interface UpgradeBannerProps {
 
 const UpgradeBanner: React.FC<UpgradeBannerProps> = ({ onUpgradeClick }) => {
     return (
-        <div className="w-full bg-[#0D0E12] h-10 px-4 flex items-center justify-center relative z-50 animate-fade-in shrink-0 overflow-hidden">
+        <div className="w-full bg-[#0D0E12] h-10 px-4 flex items-center justify-center relative z-30 animate-fade-in shrink-0 overflow-hidden">
             <div className="flex items-center gap-3 sm:gap-6 max-w-7xl w-full justify-between sm:justify-center relative z-10">
                 {/* Left Icon (Minimalist) */}
                 <div className="hidden sm:flex text-brand-400 opacity-80">

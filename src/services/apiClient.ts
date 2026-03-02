@@ -368,6 +368,17 @@ class ApiClient {
         return this.request(`/api/integrations/youtube/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);
     }
 
+    async getKickAuthUrl(userId: string, origin?: string): Promise<{ url: string }> {
+        return this.request(`/api/integrations/kick/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);
+    }
+
+    async connectKickAccount(username: string): Promise<any> {
+        return this.request('/api/integrations/kick/connect', {
+            method: 'POST',
+            body: JSON.stringify({ username })
+        });
+    }
+
     async handleTikTokCallback(code: string, userId: string): Promise<any> {
         return this.request('/api/integrations/tiktok/callback', {
             method: 'POST',

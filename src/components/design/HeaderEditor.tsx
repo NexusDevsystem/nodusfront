@@ -8,6 +8,7 @@ import { compressImage } from '../../utils/imageUtils';
 import { THEMES } from '../../constants';
 import ImageCropperModal from '../tools/ImageCropperModal';
 import { blobToDataURL } from '../../utils/imageUtils';
+import Tooltip from '../Tooltip';
 
 // Add this utility to imageUtils later or here if not there
 const fileToDataURL = (file: File): Promise<string> => {
@@ -252,12 +253,14 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                     <Upload size={14} strokeWidth={3} /> {profile.avatarUrl ? t('common.change') : t('design.chooseImage')}
                                 </label>
                                 {profile.avatarUrl && (
-                                    <button
-                                        onClick={() => onChange({ ...profile, avatarUrl: '' })}
-                                        className="px-3 py-2.5 bg-white border border-black text-black hover:text-white hover:bg-red-400 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
-                                    >
-                                        <Trash2 size={16} strokeWidth={3} />
-                                    </button>
+                                    <Tooltip text={t('common.delete')} position="top">
+                                        <button
+                                            onClick={() => onChange({ ...profile, avatarUrl: '' })}
+                                            className="px-3 py-2.5 bg-white border border-black text-black hover:text-white hover:bg-red-400 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
+                                        >
+                                            <Trash2 size={16} strokeWidth={3} />
+                                        </button>
+                                    </Tooltip>
                                 )}
                             </div>
 
@@ -320,12 +323,14 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                         <Upload size={14} strokeWidth={3} /> {profile.customBackground ? t('common.change') : t('design.chooseBanner')}
                                     </label>
                                     {profile.customBackground && (
-                                        <button
-                                            onClick={() => onChange({ ...profile, customBackground: null })}
-                                            className="px-3 py-2 bg-white border border-black text-black hover:text-white hover:bg-red-400 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
-                                        >
-                                            <Trash2 size={16} strokeWidth={3} />
-                                        </button>
+                                        <Tooltip text={t('common.delete')} position="top">
+                                            <button
+                                                onClick={() => onChange({ ...profile, customBackground: null })}
+                                                className="px-3 py-2 bg-white border border-black text-black hover:text-white hover:bg-red-400 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
+                                            >
+                                                <Trash2 size={16} strokeWidth={3} />
+                                            </button>
+                                        </Tooltip>
                                     )}
                                 </div>
                             </div>
@@ -356,21 +361,22 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                         <div className="w-4 h-4 border-2 border-black bg-black shrink-0" />
                                         <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.bannerSettings')}</h3>
                                     </div>
-                                    <button
-                                        onClick={() => isGradient
-                                            ? setBannerColor(bannerColor1, null)
-                                            : setBannerColor(bannerColor1, bannerColor2 || '#1e3a5f')
-                                        }
-                                        className="flex items-center gap-2 group"
-                                        title="Ativar degradê"
-                                    >
-                                        <span className="text-[8px] font-black uppercase tracking-widest text-black/40 group-hover:text-black transition-colors">
-                                            {t('design.blurColorGradient')}
-                                        </span>
-                                        <div className={`relative w-10 h-5 border-2 border-black transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${isGradient ? 'bg-black' : 'bg-white'}`}>
-                                            <div className={`absolute top-[2px] w-3 h-3 border border-black transition-all ${isGradient ? 'right-[2px] bg-[#97cd7a]' : 'left-[2px] bg-black'}`} />
-                                        </div>
-                                    </button>
+                                    <Tooltip text={isGradient ? t('design.disableGradient', 'Desativar degradê') : t('design.enableGradient', 'Ativar degradê')} position="top">
+                                        <button
+                                            onClick={() => isGradient
+                                                ? setBannerColor(bannerColor1, null)
+                                                : setBannerColor(bannerColor1, bannerColor2 || '#1e3a5f')
+                                            }
+                                            className="flex items-center gap-2 group"
+                                        >
+                                            <span className="text-[8px] font-black uppercase tracking-widest text-black/40 group-hover:text-black transition-colors">
+                                                {t('design.blurColorGradient')}
+                                            </span>
+                                            <div className={`relative w-10 h-5 border-2 border-black transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${isGradient ? 'bg-black' : 'bg-white'}`}>
+                                                <div className={`absolute top-[2px] w-3 h-3 border border-black transition-all ${isGradient ? 'right-[2px] bg-[#97cd7a]' : 'left-[2px] bg-black'}`} />
+                                            </div>
+                                        </button>
+                                    </Tooltip>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <div className="relative w-12 h-12 overflow-hidden border-2 border-black shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:scale-105 transition-transform cursor-pointer" style={{ backgroundColor: bannerColor1 }}>
@@ -436,21 +442,22 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                         <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.layoutSettings')}</h3>
                                     </div>
                                     {/* Gradient Toggle Switch */}
-                                    <button
-                                        onClick={() => isGradient
-                                            ? setColors(color1, null)
-                                            : setColors(color1, color2 || '#1e3a5f')
-                                        }
-                                        className="flex items-center gap-2 group"
-                                        title="Ativar degradê"
-                                    >
-                                        <span className="text-[8px] font-black uppercase tracking-widest text-black/40 group-hover:text-black transition-colors">
-                                            {t('design.blurColorGradient')}
-                                        </span>
-                                        <div className={`relative w-10 h-5 border-2 border-black transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${isGradient ? 'bg-black' : 'bg-white'}`}>
-                                            <div className={`absolute top-[2px] w-3 h-3 border border-black transition-all ${isGradient ? 'right-[2px] bg-[#97cd7a]' : 'left-[2px] bg-black'}`} />
-                                        </div>
-                                    </button>
+                                    <Tooltip text={isGradient ? t('design.disableGradient', 'Desativar degradê') : t('design.enableGradient', 'Ativar degradê')} position="top">
+                                        <button
+                                            onClick={() => isGradient
+                                                ? setColors(color1, null)
+                                                : setColors(color1, color2 || '#1e3a5f')
+                                            }
+                                            className="flex items-center gap-2 group"
+                                        >
+                                            <span className="text-[8px] font-black uppercase tracking-widest text-black/40 group-hover:text-black transition-colors">
+                                                {t('design.blurColorGradient')}
+                                            </span>
+                                            <div className={`relative w-10 h-5 border-2 border-black transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${isGradient ? 'bg-black' : 'bg-white'}`}>
+                                                <div className={`absolute top-[2px] w-3 h-3 border border-black transition-all ${isGradient ? 'right-[2px] bg-[#97cd7a]' : 'left-[2px] bg-black'}`} />
+                                            </div>
+                                        </button>
+                                    </Tooltip>
                                 </div>
 
                                 <div className="flex items-center gap-3">

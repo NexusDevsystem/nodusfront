@@ -4,6 +4,7 @@ import { UserProfile } from '../../types';
 import { FONTS } from '../../constants';
 import { Type, Zap, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Tooltip from '../Tooltip';
 
 interface TypographyEditorProps {
     profile: UserProfile;
@@ -24,30 +25,60 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                     </div>
 
                     <div className="space-y-6">
-                        {/* Font Size */}
-                        <div className="space-y-2.5">
-                            <div className="flex items-center justify-between px-1">
-                                <span className="text-[10px] font-medium text-black uppercase tracking-widest">{t('design.fontSize')}</span>
-                                <span className="text-[10px] font-medium text-black bg-[#97cd7a] px-2 py-1 border border-black uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
-                                    {profile.fontSize || 16}PX
-                                </span>
+                        {/* Font Sizes - Title & Subtitle */}
+                        <div className="space-y-4">
+                            {/* Main Title / Links Size */}
+                            <div className="space-y-2.5">
+                                <div className="flex items-center justify-between px-1">
+                                    <span className="text-[10px] font-medium text-black uppercase tracking-widest">{t('design.titleFontSize', 'Tamanho do Título')}</span>
+                                    <span className="text-[10px] font-medium text-black bg-[#97cd7a] px-2 py-1 border border-black uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                        {profile.fontSize || 16}PX
+                                    </span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="12"
+                                    max="32"
+                                    step="1"
+                                    value={profile.fontSize || 16}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        if (updateProfile) updateProfile({ fontSize: val });
+                                        else onChange({ ...profile, fontSize: val });
+                                    }}
+                                    className="w-full h-1.5 bg-white border border-black appearance-none cursor-pointer accent-black"
+                                />
+                                <div className="flex justify-between text-[8px] font-medium text-black/50 uppercase tracking-widest px-1">
+                                    <span>12PX</span>
+                                    <span>32PX</span>
+                                </div>
                             </div>
-                            <input
-                                type="range"
-                                min="12"
-                                max="32"
-                                step="1"
-                                value={profile.fontSize || 16}
-                                onChange={(e) => {
-                                    const val = parseInt(e.target.value);
-                                    if (updateProfile) updateProfile({ fontSize: val });
-                                    else onChange({ ...profile, fontSize: val });
-                                }}
-                                className="w-full h-1.5 bg-white border border-black appearance-none cursor-pointer accent-black"
-                            />
-                            <div className="flex justify-between text-[8px] font-medium text-black/50 uppercase tracking-widest px-1">
-                                <span>12PX</span>
-                                <span>32PX</span>
+
+                            {/* Subtitle / Bio Size */}
+                            <div className="space-y-2.5">
+                                <div className="flex items-center justify-between px-1">
+                                    <span className="text-[10px] font-medium text-black uppercase tracking-widest">{t('design.subtitleFontSize', 'Tamanho do Subtítulo')}</span>
+                                    <span className="text-[10px] font-medium text-black bg-[#97cd7a] px-2 py-1 border border-black uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+                                        {profile.bioFontSize || 16}PX
+                                    </span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="12"
+                                    max="32"
+                                    step="1"
+                                    value={profile.bioFontSize || 16}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        if (updateProfile) updateProfile({ bioFontSize: val });
+                                        else onChange({ ...profile, bioFontSize: val });
+                                    }}
+                                    className="w-full h-1.5 bg-white border border-black appearance-none cursor-pointer accent-black"
+                                />
+                                <div className="flex justify-between text-[8px] font-medium text-black/50 uppercase tracking-widest px-1">
+                                    <span>12PX</span>
+                                    <span>32PX</span>
+                                </div>
                             </div>
                         </div>
 
@@ -82,25 +113,27 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                             {/* Font Style (Italic) */}
                             <div className="space-y-2">
                                 <span className="text-[9px] font-medium text-black uppercase tracking-widest block px-1">{t('design.style')}</span>
-                                <button
-                                    onClick={() => {
-                                        const val = !profile.fontItalic;
-                                        if (updateProfile) updateProfile({ fontItalic: val });
-                                        else onChange({ ...profile, fontItalic: val });
-                                    }}
-                                    className={`flex items-center justify-between px-3 py-2 border border-black transition-all w-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${profile.fontItalic
-                                        ? 'bg-black text-[#97cd7a]'
-                                        : 'bg-white text-black hover:bg-slate-50'
-                                        }`}
-                                >
-                                    <span className="text-[9px] font-medium uppercase tracking-widest">{t('design.italicText')}</span>
-                                    <div className={`w-8 h-4 border border-black transition-colors relative ${profile.fontItalic ? 'bg-[#97cd7a]' : 'bg-white'}`}>
-                                        <motion.div
-                                            animate={{ x: profile.fontItalic ? 16 : 0 }}
-                                            className="absolute top-0 bottom-0 left-0 w-3.5 h-full bg-black border-r border-black"
-                                        />
-                                    </div>
-                                </button>
+                                <Tooltip text={profile.fontItalic ? t('design.disableItalic', 'Desativar Itálico') : t('design.enableItalic', 'Ativar Itálico')} position="top" className="w-full">
+                                    <button
+                                        onClick={() => {
+                                            const val = !profile.fontItalic;
+                                            if (updateProfile) updateProfile({ fontItalic: val });
+                                            else onChange({ ...profile, fontItalic: val });
+                                        }}
+                                        className={`flex items-center justify-between px-3 py-2 border border-black transition-all w-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${profile.fontItalic
+                                            ? 'bg-black text-[#97cd7a]'
+                                            : 'bg-white text-black hover:bg-slate-50'
+                                            }`}
+                                    >
+                                        <span className="text-[9px] font-medium uppercase tracking-widest">{t('design.italicText')}</span>
+                                        <div className={`w-8 h-4 border border-black transition-colors relative ${profile.fontItalic ? 'bg-[#97cd7a]' : 'bg-white'}`}>
+                                            <motion.div
+                                                animate={{ x: profile.fontItalic ? 16 : 0 }}
+                                                className="absolute top-0 bottom-0 left-0 w-3.5 h-full bg-black border-r border-black"
+                                            />
+                                        </div>
+                                    </button>
+                                </Tooltip>
                             </div>
                         </div>
                     </div>
@@ -218,23 +251,19 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {FONTS.map((font) => {
                         const isSelected = profile.fontFamily === font.family;
-                        const isLocked = font.isPro && (!profile.planType || profile.planType === 'free');
+                        const isProForFree = font.isPro && (!profile.planType || profile.planType === 'free');
 
                         return (
                             <button
                                 key={font.name}
                                 onClick={() => {
-                                    if (isLocked) {
-                                        (window as any).dispatchEvent(new CustomEvent('open-billing-modal'));
-                                        return;
-                                    }
                                     if (updateProfile) updateProfile({ fontFamily: font.family });
                                     else onChange({ ...profile, fontFamily: font.family });
                                 }}
                                 className={`flex items-center justify-between p-2.5 border-2 transition-all text-left relative group ${isSelected
                                     ? 'border-black bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
                                     : 'border-black bg-white hover:bg-black hover:text-[#97cd7a] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none'
-                                    } ${isLocked ? 'opacity-60 grayscale' : ''}`}
+                                    }`}
                             >
                                 <div className="flex items-center gap-3 min-w-0 flex-1">
                                     <div
@@ -259,7 +288,14 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                                 {font.name}
                                             </span>
                                             {font.isPro && (
-                                                <Zap size={10} className="text-[#ffdf00] fill-[#ffdf00] shrink-0" />
+                                                <div className="flex items-center gap-1">
+                                                    {isProForFree && isSelected && (
+                                                        <span className="text-[6px] font-black bg-black text-[#ffdf00] px-1 py-0.5 border border-black uppercase tracking-widest animate-pulse">
+                                                            Preview
+                                                        </span>
+                                                    )}
+                                                    <Zap size={10} className="text-[#ffdf00] fill-[#ffdf00] shrink-0" />
+                                                </div>
                                             )}
                                         </div>
                                         <span className={`text-[8px] font-normal uppercase tracking-widest block transition-colors ${isSelected ? 'text-black/50' : 'text-black/40 group-hover:text-white/60'}`}>{font.type}</span>

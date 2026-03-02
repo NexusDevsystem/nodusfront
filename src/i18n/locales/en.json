@@ -7,6 +7,9 @@
         "delete": "Delete",
         "back": "Back",
         "close": "Close",
+        "next": "Next",
+        "skip": "Skip",
+        "finish": "Finish",
         "edit": "Edit",
         "add": "Add",
         "loading": "Loading...",
@@ -416,7 +419,8 @@
         "emptyList": "Your link list is empty",
         "addFirstLink": "Add your first link to get started",
         "myLinksRoot": "My Links (Root)",
-        "yourCollections": "Your Collections"
+        "yourCollections": "Your Collections",
+        "clicksLabel": "Clicks"
     },
     "landing": {
         "headline": "The link in bio your followers deserve.",

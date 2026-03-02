@@ -14,6 +14,7 @@ import {
     Lock
 } from 'lucide-react';
 import { SiTiktok, SiSpotify } from 'react-icons/si';
+import { KickIcon } from '../constants';
 import { apiClient } from '../services/apiClient';
 import { UserProfile } from '../types';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +22,8 @@ import { useTranslation } from 'react-i18next';
 interface IntegrationsViewProps {
     profile: UserProfile;
     onChange: (profile: UserProfile) => void;
+    links?: any[];
+    onLinksChange?: (links: any[]) => void;
 }
 
 interface IntegrationCardProps {
@@ -61,109 +64,114 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
     return (
         <div className={`relative border-2 border-black bg-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden ${!isAvailable ? 'opacity-60 grayscale' : ''}`}>
             {!isAvailable && (
-                <div className="absolute top-2 right-2 z-20">
-                    <div className="bg-black text-[#ffdf00] text-[8px] font-medium uppercase tracking-[0.2em] px-2 py-0.5 border border-black flex items-center gap-1">
+                <div className="absolute top-0 right-0 z-20">
+                    <div className="bg-black text-[#ffdf00] text-[8px] font-medium uppercase tracking-[0.2em] px-2 py-0.5 border-b-2 border-l-2 border-black flex items-center gap-1">
                         <Lock size={8} /> {finalStatusLabel}
                     </div>
                 </div>
             )}
 
-            <div className="p-5 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                        <div className={`p-2 border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`} style={{ color: isAvailable ? color : "#ccc" }}>
-                            <Icon size={24} />
-                        </div>
-                        <div>
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-black">{name}</h3>
-                            <p className="text-[10px] text-black/50 uppercase tracking-wider font-medium line-clamp-1">{description}</p>
-                        </div>
+            <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className={`p-2 border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0`} style={{ color: isAvailable ? color : "#ccc" }}>
+                        <Icon size={24} />
                     </div>
-                    {isAvailable && isConnected && (
-                        <div className="bg-[#97cd7a] p-1 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] text-black">
-                            <Check size={12} strokeWidth={4} />
+                    <div className="min-w-0 pr-4">
+                        <div className="flex items-center gap-2 mb-0.5">
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-black">{name}</h3>
+                            {isAvailable && isConnected && (
+                                <div className="bg-[#97cd7a] p-0.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] text-black rounded-full">
+                                    <Check size={10} strokeWidth={4} />
+                                </div>
+                            )}
                         </div>
-                    )}
+                        <p className="text-[10px] text-black/50 uppercase tracking-wider font-medium line-clamp-1">{description}</p>
+                    </div>
                 </div>
 
-                {notice && (
-                    <div className="mb-4 p-2.5 bg-yellow-50 border-2 border-black/10 flex items-start gap-2 animate-in fade-in slide-in-from-top-1">
-                        <AlertCircle size={12} className="text-yellow-600 shrink-0 mt-0.5" strokeWidth={3} />
-                        <p className="text-[8px] font-normal text-yellow-800 uppercase tracking-widest leading-relaxed">
-                            {notice}
-                        </p>
-                    </div>
-                )}
-
-                {isConnected && profileData && (
-                    <div className="flex items-center gap-2 mb-4 p-2 bg-slate-50 border border-black/10">
-                        <div className="w-8 h-8 rounded-full border border-black overflow-hidden bg-white shrink-0">
-                            <img
-                                src={profileData.avatar_url || profileData.picture}
-                                alt=""
-                                className="w-full h-full object-cover"
-                            />
-                        </div>
-                        <div className="min-w-0">
-                            <p className="text-[10px] font-bold uppercase tracking-tight truncate text-black leading-none">@{profileData.username || profileData.display_name}</p>
-                            <p className="text-[8px] uppercase tracking-widest text-[#97cd7a] font-bold bg-black px-1 mt-0.5 w-fit">{t('common.connected')}</p>
-                        </div>
-                    </div>
-                )}
-
-                <div className="mt-auto pt-4 flex flex-col gap-2">
-                    {isAvailable ? (
-                        isConnected ? (
-                            <div className="flex flex-col gap-2">
-                                <button
-                                    onClick={() => setShowConfirm(!showConfirm)}
-                                    className="w-full py-2 bg-white hover:bg-red-50 text-red-600 border-2 border-black text-[9px] font-bold uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
-                                >
-                                    {showConfirm ? t('common.cancelCaps') : t('common.disconnect')}
-                                </button>
-
-                                <AnimatePresence>
-                                    {showConfirm && (
-                                        <motion.button
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: 'auto', opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            onClick={onDisconnect}
-                                            disabled={isLoading}
-                                            className="w-full py-2 bg-red-600 text-white border-2 border-black text-[9px] font-bold uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-red-700 disabled:opacity-50"
-                                        >
-                                            {isLoading ? <Loader2 size={12} className="animate-spin mx-auto" strokeWidth={3} /> : t('common.confirmDisconnect')}
-                                        </motion.button>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        ) : (
-                            <button
-                                onClick={onConnect}
-                                disabled={isLoading}
-                                className="w-full py-3 bg-[#97cd7a] hover:bg-[#86b96b] text-black border-2 border-black text-[10px] font-bold uppercase tracking-[0.15em] transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center justify-center gap-2"
-                            >
-                                {isLoading ? <Loader2 size={14} className="animate-spin" strokeWidth={3} /> : (
-                                    <>
-                                        {t('common.connectNow')} <ChevronRight size={14} strokeWidth={3} />
-                                    </>
-                                )}
-                            </button>
-                        )
-                    ) : (
-                        <div className="flex items-center justify-center py-3 px-4 bg-slate-100 border border-slate-200 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                            {t('common.blocked')}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:shrink-0 w-full sm:w-auto mt-2 sm:mt-0 flex-1 justify-end">
+                    {notice && (
+                        <div className="p-2 bg-yellow-50 border-2 border-black flex items-start sm:items-center gap-2 w-full sm:max-w-[320px] shrink-0 mr-auto">
+                            <AlertCircle size={14} className="text-yellow-600 shrink-0" strokeWidth={3} />
+                            <p className="text-[8px] font-bold text-yellow-800 uppercase tracking-widest leading-normal">
+                                {notice}
+                            </p>
                         </div>
                     )}
+                    <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+                        {isConnected && profileData && (
+                            <div className="flex items-center gap-2 p-1.5 pr-3 bg-slate-50 border border-black/10 shrink-0">
+                                <div className="w-8 h-8 rounded-full border border-black overflow-hidden bg-white shrink-0">
+                                    <img
+                                        src={profileData.avatar_url || profileData.picture}
+                                        alt=""
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                    />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-[10px] font-bold uppercase tracking-tight truncate text-black leading-none">@{profileData.username || profileData.display_name}</p>
+                                    <p className="text-[8px] uppercase tracking-widest text-[#97cd7a] font-bold bg-black px-1 mt-0.5 w-fit leading-none py-0.5">{t('common.connected')}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex flex-col gap-2 shrink-0 w-[140px]">
+                            {isAvailable ? (
+                                isConnected ? (
+                                    <div className="flex flex-col gap-1 w-full">
+                                        <button
+                                            onClick={() => setShowConfirm(!showConfirm)}
+                                            className="w-full py-2 bg-white hover:bg-red-50 text-red-600 border-2 border-black text-[9px] font-bold uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                                        >
+                                            {showConfirm ? t('common.cancelCaps') : t('common.disconnect')}
+                                        </button>
+
+                                        <AnimatePresence>
+                                            {showConfirm && (
+                                                <motion.button
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    onClick={onDisconnect}
+                                                    disabled={isLoading}
+                                                    className="w-full py-2 bg-red-600 text-white border-2 border-black text-[9px] font-bold uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-red-700 disabled:opacity-50"
+                                                >
+                                                    {isLoading ? <Loader2 size={12} className="animate-spin mx-auto" strokeWidth={3} /> : t('common.confirmDisconnect')}
+                                                </motion.button>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={onConnect}
+                                        disabled={isLoading}
+                                        className="w-full py-2.5 bg-[#97cd7a] hover:bg-[#86b96b] text-black border-2 border-black text-[10px] font-bold uppercase tracking-[0.15em] transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center justify-center gap-2"
+                                    >
+                                        {isLoading ? <Loader2 size={14} className="animate-spin" strokeWidth={3} /> : (
+                                            <>
+                                                {t('common.connectNow')} <ChevronRight size={14} strokeWidth={3} />
+                                            </>
+                                        )}
+                                    </button>
+                                )
+                            ) : (
+                                <div className="flex items-center justify-center py-2 px-4 bg-slate-100 border border-slate-200 text-slate-400 text-[10px] font-bold uppercase tracking-widest w-full">
+                                    {t('common.blocked')}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
-export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onChange }) => {
+export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onChange, links, onLinksChange }) => {
     const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [kickUsername, setKickUsername] = useState('');
     const { t } = useTranslation();
 
     const integrations = profile.integrations || [];
@@ -187,6 +195,21 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
                 urlResponse = await apiClient.getTwitchAuthUrl(userId, window.location.origin);
             } else if (provider === 'youtube') {
                 urlResponse = await apiClient.getYoutubeAuthUrl(userId, window.location.origin);
+            } else if (provider === 'kick') {
+                // If username is provided, use manual connection
+                if (kickUsername) {
+                    const response = await apiClient.connectKickAccount(kickUsername);
+                    const updatedProfile = {
+                        ...profile,
+                        integrations: [...(profile.integrations || []), response.data]
+                    };
+                    onChange(updatedProfile);
+                    setKickUsername('');
+                    setLoadingProvider(null);
+                    return;
+                }
+                // Otherwise, initiate OAuth
+                urlResponse = await apiClient.getKickAuthUrl(userId, window.location.origin);
             } else {
                 throw new Error(t('integrations.providerNotSupported'));
             }
@@ -209,6 +232,12 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
                 integrations: profile.integrations?.filter(i => i.provider !== provider)
             };
             onChange(updatedProfile);
+
+            if (links && onLinksChange) {
+                const updatedLinks = links.filter(l => !(l.platform === provider && (l.type === 'social' || l.layout === 'social')));
+                onLinksChange(updatedLinks);
+            }
+
             setLoadingProvider(null);
         } catch (err: any) {
             setError(`${t('integrations.errorDisconnecting')} ${provider}: ${err.message}`);
@@ -234,93 +263,39 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                    <IntegrationCard
-                        id="instagram"
-                        name="Instagram"
-                        icon={Instagram}
-                        description={t('integrations.instagramDesc')}
-                        isConnected={!!getIntegrationData('instagram')}
-                        isAvailable={isAuthorized}
-                        onConnect={() => handleConnect('instagram')}
-                        onDisconnect={() => handleDisconnect('instagram')}
-                        isLoading={loadingProvider === 'instagram'}
-                        profileData={getIntegrationData('instagram')?.profile_data}
-                        color="#E4405F"
-                        statusLabel={t('common.inTests')}
-                    />
-
-                    <IntegrationCard
-                        id="twitch"
-                        name="Twitch"
-                        icon={Twitch}
-                        description={t('integrations.twitchDesc')}
-                        isConnected={!!getIntegrationData('twitch')}
-                        isAvailable={true}
-                        onConnect={() => handleConnect('twitch')}
-                        onDisconnect={() => handleDisconnect('twitch')}
-                        isLoading={loadingProvider === 'twitch'}
-                        profileData={getIntegrationData('twitch')?.profile_data}
-                        color="#9146FF"
-                    />
-
-                    <IntegrationCard
-                        id="tiktok"
-                        name="TikTok"
-                        icon={SiTiktok}
-                        description={t('integrations.tiktokDesc')}
-                        isConnected={!!getIntegrationData('tiktok')}
-                        isAvailable={isAuthorized}
-                        onConnect={() => handleConnect('tiktok')}
-                        onDisconnect={() => handleDisconnect('tiktok')}
-                        isLoading={loadingProvider === 'tiktok'}
-                        profileData={getIntegrationData('tiktok')?.profile_data}
-                        color="#000000"
-                        statusLabel={t('common.inTests')}
-                    />
-
-                    <IntegrationCard
-                        id="youtube"
-                        name="YouTube"
-                        icon={Youtube}
-                        description={t('integrations.youtubeDesc')}
-                        isConnected={!!getIntegrationData('youtube')}
-                        isAvailable={true}
-                        onConnect={() => handleConnect('youtube')}
-                        onDisconnect={() => handleDisconnect('youtube')}
-                        isLoading={loadingProvider === 'youtube'}
-                        profileData={getIntegrationData('youtube')?.profile_data}
-                        color="#FF0000"
-                        notice={t('social.youtubeBetaNotice')}
-                    />
-
-                    <IntegrationCard
-                        id="spotify"
-                        name="Spotify"
-                        icon={SiSpotify}
-                        description={t('integrations.spotifyDesc')}
-                        isConnected={false}
-                        isAvailable={false}
-                        onConnect={() => { }}
-                        onDisconnect={() => { }}
-                        isLoading={false}
-                        color="#1DB954"
-                        statusLabel={t('common.comingSoon')}
-                    />
-
-                    <IntegrationCard
-                        id="twitter"
-                        name="X / Twitter"
-                        icon={Twitter}
-                        description={t('integrations.twitterDesc')}
-                        isConnected={false}
-                        isAvailable={false}
-                        onConnect={() => { }}
-                        onDisconnect={() => { }}
-                        isLoading={false}
-                        color="#000000"
-                        statusLabel={t('common.comingSoon')}
-                    />
+                <div className="flex flex-col gap-4">
+                    {[
+                        { id: 'instagram', name: 'Instagram', icon: Instagram, description: t('integrations.instagramDesc'), isAvailable: isAuthorized, color: '#E4405F', statusLabel: t('common.inTests') },
+                        { id: 'twitch', name: 'Twitch', icon: Twitch, description: t('integrations.twitchDesc'), isAvailable: true, color: '#9146FF' },
+                        { id: 'kick', name: 'Kick', icon: KickIcon, description: t('integrations.kickDesc'), isAvailable: true, color: '#53FC18' },
+                        { id: 'tiktok', name: 'TikTok', icon: SiTiktok, description: t('integrations.tiktokDesc'), isAvailable: isAuthorized, color: '#000000', statusLabel: t('common.inTests') },
+                        { id: 'youtube', name: 'YouTube', icon: Youtube, description: t('integrations.youtubeDesc'), isAvailable: true, color: '#FF0000', notice: t('social.youtubeBetaNotice') },
+                        { id: 'spotify', name: 'Spotify', icon: SiSpotify, description: t('integrations.spotifyDesc'), isAvailable: false, color: '#1DB954', statusLabel: t('common.comingSoon') },
+                        { id: 'twitter', name: 'X / Twitter', icon: Twitter, description: t('integrations.twitterDesc'), isAvailable: false, color: '#000000', statusLabel: t('common.comingSoon') }
+                    ].sort((a, b) => {
+                        const aConnected = !!getIntegrationData(a.id);
+                        const bConnected = !!getIntegrationData(b.id);
+                        if (aConnected && !bConnected) return -1;
+                        if (!aConnected && bConnected) return 1;
+                        return 0;
+                    }).map(config => (
+                        <IntegrationCard
+                            key={config.id}
+                            id={config.id}
+                            name={config.name}
+                            icon={config.icon}
+                            description={config.description}
+                            isConnected={!!getIntegrationData(config.id)}
+                            isAvailable={config.isAvailable}
+                            onConnect={config.isAvailable ? () => handleConnect(config.id) : () => { }}
+                            onDisconnect={config.isAvailable ? () => handleDisconnect(config.id) : () => { }}
+                            isLoading={loadingProvider === config.id}
+                            profileData={getIntegrationData(config.id)?.profile_data}
+                            color={config.color}
+                            statusLabel={config.statusLabel}
+                            notice={config.notice}
+                        />
+                    ))}
                 </div>
             </div>
 

@@ -40,10 +40,13 @@ import {
   Mail,
   Type,
   Hash,
-  Send as SendIcon
+  Send as SendIcon,
+  Columns2,
+  Music
 } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import AddLinkModal from './AddLinkModal';
+import Tooltip from './Tooltip';
 import { SOCIAL_NETWORKS } from '../constants';
 
 const DeezerIcon = ({ size }: { size: number }) => (
@@ -173,12 +176,34 @@ function SortableLinkItem({
           const metadata = await fetchMusicMetadata(url);
           if (metadata) {
             console.log('🎵 Metadata fetched via useEffect:', metadata);
-            updateLinkFields(link.id, {
+
+            const updates: Partial<LinkItem> = {
               title: metadata.title,
               subtitle: metadata.platform === 'youtube' ? metadata.followers : (metadata.followers || metadata.artist),
               image: metadata.thumbnailUrl,
               embedType: type
-            });
+            };
+
+            // If it's an album/playlist with tracks, upgrade to collection
+            if ((metadata.type === 'album' || metadata.type === 'playlist') && metadata.tracks && metadata.tracks.length > 0) {
+              updates.type = 'collection';
+              updates.layout = 'grid';
+              updates.children = metadata.tracks.map((track: any) => ({
+                id: crypto.randomUUID(),
+                clientId: crypto.randomUUID(),
+                title: track.title,
+                subtitle: track.artist,
+                image: track.image || metadata.thumbnailUrl,
+                url: track.url,
+                embedType: metadata.platform as any,
+                layout: 'classic',
+                isActive: true,
+                clicks: 0
+              }));
+              updates.url = url; // Keep original album/playlist URL
+            }
+
+            updateLinkFields(link.id, updates);
           }
         } catch (error) {
           console.error('Error fetching metadata:', error);
@@ -231,9 +256,62 @@ function SortableLinkItem({
                 <div className="text-black p-0.5 transition-colors shrink-0">
                   {isCollectionExpanded ? <ChevronDown size={level > 0 ? 14 : 18} strokeWidth={3} /> : <ChevronRight size={level > 0 ? 14 : 18} strokeWidth={3} />}
                 </div>
+
+                {/* Image Thumbnail for Collections */}
+                <div className="shrink-0">
+                  <div className="relative">
+                    <input
+                      type="file"
+                      id={`file-${link.id}`}
+                      className="hidden"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          try {
+                            const compressed = await compressImage(e.target.files[0], 400, 0.8);
+                            updateLink(link.id, 'image', compressed);
+                          } catch (error) {
+                            console.error('Error processing image:', error);
+                          }
+                        }
+                      }}
+                    />
+                    {link.image ? (
+                      <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}>
+                        <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); document.getElementById(`file-${link.id}`)?.click(); }}
+                        className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black hover:bg-black hover:text-white transition-all`}
+                      >
+                        {(() => {
+                          const network = SOCIAL_NETWORKS.find(n => n.id === link.platform) ||
+                            SOCIAL_NETWORKS.find(n => link.url?.toLowerCase().includes(n.id)) ||
+                            SOCIAL_NETWORKS.find(n => link.title?.toLowerCase().includes(n.id));
+                          const Icon = network?.icon;
+                          return Icon ? <Icon size={level > 0 ? 14 : 18} /> : <Folder size={level > 0 ? 14 : 16} strokeWidth={3} />;
+                        })()}
+                      </button>
+                    )}
+                  </div>
+                </div>
                 <div className="flex-1 min-w-0">
-                  <div className="w-full font-medium text-black uppercase tracking-widest p-0 text-xs md:text-sm truncate mb-0.5">
-                    {link.title || t('links.collectionUnnamed')}
+                  <div className="flex items-center gap-2 mb-0.5 overflow-hidden">
+                    <div className="font-medium text-black uppercase tracking-widest p-0 text-xs md:text-sm truncate leading-tight">
+                      {link.title || t('links.collectionUnnamed')}
+                    </div>
+                    {/* Tags */}
+                    {(link.embedType === 'spotify' || link.platform === 'spotify' || link.url?.toLowerCase().includes('spotify.com')) && (
+                      <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                        SPOTIFY
+                      </span>
+                    )}
+                    {(link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
+                      <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                        KICK
+                      </span>
+                    )}
                   </div>
                   <div className="text-[9px] md:text-[10px] text-black/70 font-normal uppercase tracking-[0.2em] truncate leading-none">
                     {link.children?.length || 0} {(link.children?.length === 1) ? t('links.itemConfigured') : t('links.itemsConfigured')}
@@ -292,74 +370,174 @@ function SortableLinkItem({
                 >
                   <div className="overflow-hidden bg-slate-50/50">
                     <div className="p-2 md:p-3 md:pl-5 border-t border-black space-y-3 md:space-y-4">
-                      {/* Name Input */}
-                      <div className="space-y-1 pb-6 border-b border-black">
-                        <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.collectionName')}</label>
-                        <input
-                          type="text"
-                          value={link.title}
-                          onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                          className="w-full font-medium text-sm text-black bg-white border border-black px-3 py-2.5 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                          placeholder={t('links.collectionNamePlaceholder')}
-                        />
+                      {/* Collection Thumbnail Edit */}
+                      <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 mb-6 pb-6 border-b border-black md:px-0">
+                        <div className="relative shrink-0">
+                          {link.image ? (
+                            <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border border-black bg-white relative group/img shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                              <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
+                              <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <button
+                                  onClick={() => document.getElementById(`file-${link.id}`)?.click()}
+                                  className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all"
+                                >
+                                  <Pencil size={14} strokeWidth={3} />
+                                </button>
+                                <button
+                                  onClick={() => updateLink(link.id, 'image', null)}
+                                  className="p-1.5 bg-white text-red-600 hover:bg-red-600 hover:text-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all"
+                                >
+                                  <Trash2 size={14} strokeWidth={3} />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => document.getElementById(`file-${link.id}`)?.click()}
+                              className="w-14 h-14 md:w-16 md:h-16 bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center text-black hover:bg-[#ffdf00] transition-all group"
+                            >
+                              {(() => {
+                                const network = SOCIAL_NETWORKS.find(n => n.id === link.platform) ||
+                                  SOCIAL_NETWORKS.find(n => link.url?.toLowerCase().includes(n.id)) ||
+                                  SOCIAL_NETWORKS.find(n => link.title?.toLowerCase().includes(n.id));
+                                const Icon = network?.icon;
+                                return Icon ? <Icon size={24} className="group-hover:scale-110 transition-transform" /> : <ImageIcon size={20} strokeWidth={3} />;
+                              })()}
+                              <span className="text-[7px] font-black uppercase mt-1 tracking-tighter">{t('common.add')}</span>
+                            </button>
+                          )}
+                          <input
+                            type="file"
+                            id={`file-${link.id}`}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                try {
+                                  const compressed = await compressImage(e.target.files[0], 400, 0.8);
+                                  updateLink(link.id, 'image', compressed);
+                                } catch (error) {
+                                  console.error('Error processing image:', error);
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+
+                        <div className="flex-1 w-full space-y-6">
+                          {/* Name Input */}
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 px-1">
+                              <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em]">{t('links.collectionName')}</label>
+                              {(link.embedType === 'spotify' || link.platform === 'spotify' || link.url?.includes('spotify.com')) && (
+                                <div className="flex items-center gap-1.5 ml-auto">
+                                  <SiSpotify className="text-[#1DB954]" size={14} />
+                                  <span className="px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                                    SPOTIFY
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <input
+                              type="text"
+                              value={link.title}
+                              onChange={(e) => updateLink(link.id, 'title', e.target.value)}
+                              className="w-full font-medium text-sm text-black bg-white border border-black px-3 py-2.5 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                              placeholder={t('links.collectionNamePlaceholder')}
+                            />
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Collection Layout Picker */}
-                      {link.platform === 'instagram' || link.title === 'Posts do Instagram' ? (
-                        <div className="space-y-3 pb-6 border-b border-black">
-                          <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.instagramLayout')}</label>
-                          <div className="flex flex-col gap-2.5">
-                            {[
-                              { id: 'card', label: t('links.instagramLayoutFeed'), desc: t('links.instagramLayoutFeedDesc'), icon: <LayoutGrid size={24} strokeWidth={3} /> },
-                              { id: 'classic', label: t('links.instagramLayoutProfile'), desc: t('links.instagramLayoutProfileDesc'), icon: <User size={24} strokeWidth={3} /> }
-                            ].map((opt) => (
-                              <button
-                                key={opt.id}
-                                onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                className={`flex-1 p-3 border-[1.5px] text-left flex items-center sm:items-start gap-3.5 transition-all ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id
-                                  ? 'bg-[#97cd7a] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
-                                  : 'bg-white border-black hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none hover:bg-[#ffdf00] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
-                                  }`}
-                              >
-                                <div className={`shrink-0 flex items-center justify-center p-2 border border-black ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
-                                  <opt.icon.type {...opt.icon.props} size={18} strokeWidth={3} />
-                                </div>
-                                <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                  <div className={`text-xs md:text-sm font-medium uppercase tracking-widest truncate ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id ? 'text-black' : 'text-black'}`}>{opt.label}</div>
-                                  <div className="text-[10px] text-black/70 font-normal uppercase tracking-wider leading-tight line-clamp-1">{opt.desc}</div>
-                                </div>
-                              </button>
-                            ))}
+                      {/* Collection Layout Picker - Hide for Music (Spotify/Deezer) which uses drawer */}
+                      {!(link.url?.includes('spotify.com') || link.url?.includes('deezer.com') || link.embedType === 'spotify' || link.embedType === 'deezer') && (
+                        link.platform === 'instagram' || link.title === 'Posts do Instagram' ? (
+                          <div className="space-y-3 pb-6 border-b border-black">
+                            <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.instagramLayout')}</label>
+                            <div className="flex flex-col gap-2.5">
+                              {[
+                                { id: 'card', label: t('links.instagramLayoutFeed'), desc: t('links.instagramLayoutFeedDesc'), icon: <LayoutGrid size={24} strokeWidth={3} /> },
+                                { id: 'classic', label: t('links.instagramLayoutProfile'), desc: t('links.instagramLayoutProfileDesc'), icon: <User size={24} strokeWidth={3} /> }
+                              ].map((opt) => (
+                                <button
+                                  key={opt.id}
+                                  onClick={() => updateLink(link.id, 'layout', opt.id)}
+                                  className={`flex-1 p-3 border-[1.5px] text-left flex items-center sm:items-start gap-3.5 transition-all ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id
+                                    ? 'bg-[#97cd7a] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                                    : 'bg-white border-black hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none hover:bg-[#ffdf00] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
+                                    }`}
+                                >
+                                  <div className={`shrink-0 flex items-center justify-center p-2 border border-black ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
+                                    <opt.icon.type {...opt.icon.props} size={18} strokeWidth={3} />
+                                  </div>
+                                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                    <div className={`text-xs md:text-sm font-medium uppercase tracking-widest truncate ${((link.layout || 'card') === 'classic' ? 'classic' : 'card') === opt.id ? 'text-black' : 'text-black'}`}>{opt.label}</div>
+                                    <div className="text-[10px] text-black/70 font-normal uppercase tracking-wider leading-tight line-clamp-1">{opt.desc}</div>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-3 pb-6 border-b border-black">
-                          <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.groupLayout')}</label>
-                          <div className="flex flex-col gap-2.5">
-                            {[
-                              { id: 'stacked', label: t('links.layoutStacked'), desc: t('links.layoutStackedDesc'), icon: <LayoutGrid size={24} strokeWidth={3} /> },
-                              { id: 'carousel', label: t('links.layoutCarousel'), desc: t('links.layoutCarouselDesc'), icon: <Sparkles size={24} strokeWidth={3} /> }
-                            ].map((opt) => (
-                              <button
-                                key={opt.id}
-                                onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                className={`flex-1 p-3 border-[1.5px] text-left flex items-center sm:items-start gap-3.5 transition-all ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id
-                                  ? 'bg-[#97cd7a] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
-                                  : 'bg-white border-black hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:bg-[#f1f1f1] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
-                                  }`}
-                              >
-                                <div className={`shrink-0 flex items-center justify-center p-2 border border-black ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
-                                  <opt.icon.type {...opt.icon.props} size={18} strokeWidth={3} />
-                                </div>
-                                <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                  <div className={`text-xs md:text-sm font-medium uppercase tracking-widest truncate text-black`}>{opt.label}</div>
-                                  <div className="text-[10px] text-black/70 font-normal uppercase tracking-wider leading-tight line-clamp-1">{opt.desc}</div>
-                                </div>
-                              </button>
-                            ))}
+                        ) : (
+                          <div className="space-y-3 pb-6 border-b border-black">
+                            <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.groupLayout')}</label>
+                            <div className="flex flex-col gap-2.5">
+                              {[
+                                { id: 'stacked', label: t('links.layoutStacked'), desc: t('links.layoutStackedDesc'), icon: <LayoutGrid size={24} strokeWidth={3} /> },
+                                { id: 'carousel', label: t('links.layoutCarousel'), desc: t('links.layoutCarouselDesc'), icon: <Sparkles size={24} strokeWidth={3} /> }
+                              ].map((opt) => (
+                                <button
+                                  key={opt.id}
+                                  onClick={() => updateLink(link.id, 'layout', opt.id)}
+                                  className={`flex-1 p-3 border-[1.5px] text-left flex items-center sm:items-start gap-3.5 transition-all ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id
+                                    ? 'bg-[#97cd7a] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                                    : 'bg-white border-black hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:bg-[#f1f1f1] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
+                                    }`}
+                                >
+                                  <div className={`shrink-0 flex items-center justify-center p-2 border border-black ${((link.layout || 'stacked') === 'carousel' ? 'carousel' : 'stacked') === opt.id ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
+                                    <opt.icon.type {...opt.icon.props} size={18} strokeWidth={3} />
+                                  </div>
+                                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                    <div className={`text-xs md:text-sm font-medium uppercase tracking-widest truncate text-black`}>{opt.label}</div>
+                                    <div className="text-[10px] text-black/70 font-normal uppercase tracking-wider leading-tight line-clamp-1">{opt.desc}</div>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        )
                       )}
+
+                      {/* Collection Footer Actions */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 mt-6 border-t border-black border-dashed gap-4">
+                        <div className="flex items-center gap-2 text-black font-black uppercase tracking-widest text-[10px] sm:shrink-0">
+                          <BarChart2 size={14} strokeWidth={3} className="text-black" />
+                          <span className="text-black leading-none">{link.clicks || 0} {t('analytics.totalClicks').toUpperCase()}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                          <button
+                            onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))}
+                            className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-white border border-black text-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                          >
+                            {t('links.moveTo')}
+                          </button>
+
+                          <button
+                            onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)}
+                            className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-black text-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'bg-white border-black text-black hover:bg-black hover:text-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none'}`}
+                          >
+                            {link.isArchived ? t('links.restore') : t('links.archive')}
+                          </button>
+
+                          <button
+                            onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
+                            className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-black text-white' : 'bg-white border-black text-black hover:bg-red-500 hover:text-white'}`}
+                          >
+                            {t('common.delete')}
+                          </button>
+                        </div>
+                      </div>
 
                       <div className="md:px-0 pt-6">
                         <LinkEditor
@@ -476,9 +654,19 @@ function SortableLinkItem({
                           TWITCH
                         </span>
                       )}
+                      {(link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com') || link.title?.toLowerCase().includes('kick')) && (
+                        <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                          KICK
+                        </span>
+                      )}
                       {(link.platform === 'instagram' || link.url?.includes('instagram.com')) && (
                         <span className="shrink-0 px-1.5 py-0.5 bg-[#E1306C] text-[8px] font-medium text-white border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                           INSTAGRAM
+                        </span>
+                      )}
+                      {(link.embedType === 'spotify' || link.platform === 'spotify' || link.url?.includes('spotify.com')) && (
+                        <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                          SPOTIFY
                         </span>
                       )}
                     </div>
@@ -494,9 +682,9 @@ function SortableLinkItem({
                     <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
                       {t('links.headerLabel')}
                     </span>
-                  ) : link.layout === 'social' ? (
+                  ) : (link.layout === 'social' || (link.platform && !['custom', 'site', 'telefone', 'email'].includes(link.platform))) ? (
                     <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
-                      {t('links.topLabel')}
+                      Mesclado
                     </span>
                   ) : (
                     <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
@@ -556,35 +744,39 @@ function SortableLinkItem({
                     {/* Main Edit Form */}
                     <div className={`flex flex-col md:flex-row items-center md:items-start ${level > 0 ? 'gap-3 mb-4' : 'gap-4 md:gap-6 mb-6'}`}>
                       {/* Expanded Image (Larger with controls) */}
-                      <div className="relative shrink-0">
-                        {link.image ? (
-                          <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border border-black bg-white relative group/img shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                            <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      {!(link.platform === 'twitch' || link.url?.toLowerCase().includes('twitch.tv') ||
+                        link.platform === 'youtube' || link.url?.toLowerCase().includes('youtube.com') || link.url?.toLowerCase().includes('youtu.be') ||
+                        link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
+                          <div className="relative shrink-0">
+                            {link.image ? (
+                              <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border border-black bg-white relative group/img shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                                <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                  <button
+                                    onClick={() => document.getElementById(`file-${link.id}`)?.click()}
+                                    className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"
+                                  >
+                                    <Pencil size={14} strokeWidth={3} />
+                                  </button>
+                                  <button
+                                    onClick={() => updateLink(link.id, 'image', undefined)}
+                                    className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"
+                                  >
+                                    <Trash2 size={14} strokeWidth={3} />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
                               <button
                                 onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                                className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"
+                                className="w-14 h-14 md:w-16 md:h-16 bg-white border border-dashed border-black flex flex-col items-center justify-center text-black hover:bg-black hover:text-[#ffdf00] transition-all group/btn shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
                               >
-                                <Pencil size={14} strokeWidth={3} />
+                                <ImageIcon size={18} className="mb-0.5" strokeWidth={3} />
+                                <span className="text-[8px] font-medium uppercase tracking-widest">{t('links.imageLabel')}</span>
                               </button>
-                              <button
-                                onClick={() => updateLink(link.id, 'image', undefined)}
-                                className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"
-                              >
-                                <Trash2 size={14} strokeWidth={3} />
-                              </button>
-                            </div>
+                            )}
                           </div>
-                        ) : (
-                          <button
-                            onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                            className="w-14 h-14 md:w-16 md:h-16 bg-white border border-dashed border-black flex flex-col items-center justify-center text-black hover:bg-black hover:text-[#ffdf00] transition-all group/btn shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
-                          >
-                            <ImageIcon size={18} className="mb-0.5" strokeWidth={3} />
-                            <span className="text-[8px] font-medium uppercase tracking-widest">{t('links.imageLabel')}</span>
-                          </button>
                         )}
-                      </div>
 
                       {/* Inputs */}
                       <div className="flex-1 min-w-0 space-y-4">
@@ -674,7 +866,10 @@ function SortableLinkItem({
 
                                 let detectedType: 'none' | 'youtube' | 'spotify' | 'deezer' | 'tiktok' = 'none';
 
-                                if (isSpotify) detectedType = 'spotify';
+                                if (isSpotify) {
+                                  updates.platform = 'spotify';
+                                  detectedType = 'spotify';
+                                }
                                 else if (isDeezer) detectedType = 'deezer';
                                 else if (isYoutube) {
                                   // Only set as youtube embed if it has a valid video ID
@@ -719,15 +914,21 @@ function SortableLinkItem({
                                       console.log('🎵 Metadata found:', metadata);
 
                                       // Check if it's an album with tracks
-                                      if (metadata.type === 'album' && metadata.tracks && metadata.tracks.length > 0) {
+                                      if ((metadata.type === 'album' || metadata.type === 'playlist') && metadata.tracks && metadata.tracks.length > 0) {
+                                        const safeUuid = () => {
+                                          try { return crypto.randomUUID(); }
+                                          catch (e) { return Date.now().toString() + Math.random().toString(36).substring(2); }
+                                        };
+
                                         const newChildren = metadata.tracks.map((track: any) => ({
-                                          id: self.crypto.randomUUID(),
+                                          id: safeUuid(),
+                                          clientId: safeUuid(),
                                           title: track.title,
                                           subtitle: track.artist,
-                                          image: track.image, // Add image
+                                          image: track.image || metadata.thumbnailUrl,
                                           url: track.url,
-                                          embedType: 'spotify' as const,
-                                          layout: 'classic' as const, // Keeping conformant to LinkItem type, but parent is grid
+                                          embedType: metadata.platform as any,
+                                          layout: 'classic' as const,
                                           isActive: true,
                                           clicks: 0
                                         }));
@@ -737,9 +938,9 @@ function SortableLinkItem({
                                           subtitle: metadata.followers || metadata.artist,
                                           image: metadata.thumbnailUrl,
                                           type: 'collection' as const,
-                                          layout: 'grid' as const, // Provide grid layout for collection
+                                          layout: 'grid' as const,
                                           children: newChildren,
-                                          url: ''
+                                          url: newUrl
                                         });
                                       } else {
                                         // Normal single track update
@@ -781,39 +982,43 @@ function SortableLinkItem({
 
                     <div className="space-y-4 md:space-y-6 mb-6 md:mb-8 pt-4 md:pt-6 border-t border-black border-dashed">
                       {/* Layout Picker */}
-                      <div className="space-y-2">
-                        <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.layoutLabel')}</label>
-                        <div className="flex flex-col gap-1.5">
-                          {[
-                            { id: 'classic', label: t('links.layoutClassic'), desc: t('links.layoutClassicDesc'), icon: <LayoutGrid size={24} strokeWidth={3} /> },
-                            { id: 'card', label: t('links.layoutCard'), desc: t('links.layoutCardDesc'), icon: <LayoutTemplate size={24} strokeWidth={3} /> },
-                            { id: 'social', label: t('links.layoutSocial'), desc: t('links.layoutSocialDesc'), icon: <Share2 size={24} strokeWidth={3} /> }
-                          ].map((opt) => (
-                            <button
-                              key={opt.id}
-                              onClick={() => updateLink(link.id, 'layout', opt.id)}
-                              className={`p-2 border text-left flex items-start gap-2.5 transition-all ${link.layout === opt.id
-                                ? 'bg-[#97cd7a] border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
-                                : 'bg-white border-black hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:bg-[#f1f1f1] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
-                                }`}
-                            >
-                              <div className={`flex items-center justify-center p-1 border border-black ${link.layout === opt.id ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
-                                {opt.icon.type === LayoutGrid || opt.icon.type === LayoutTemplate || opt.icon.type === Share2 ? React.cloneElement(opt.icon, { size: 16 }) : opt.icon}
-                              </div>
-                              <div className="flex-1 mt-0">
-                                <div className={`text-[11px] font-medium uppercase tracking-widest leading-none mb-1 ${link.layout === opt.id ? 'text-black' : 'text-black'}`}>{opt.label}</div>
-                                <p className="text-[10px] text-black/40 font-normal uppercase tracking-widest">{t('links.collectionUnnamed')}</p>
-                                <div className="text-[9px] text-black/70 font-normal uppercase tracking-wider leading-none">{opt.desc}</div>
-                              </div>
-                              {link.layout === opt.id && (
-                                <div className="w-3.5 h-3.5 bg-black border border-black mt-0.5 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
-                                  <Check size={10} strokeWidth={4} className="text-[#97cd7a]" />
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                      {!(link.platform === 'twitch' || link.url?.toLowerCase().includes('twitch.tv') ||
+                        link.platform === 'youtube' || link.url?.toLowerCase().includes('youtube.com') || link.url?.toLowerCase().includes('youtu.be') ||
+                        link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
+                          <div className="space-y-2">
+                            <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.layoutLabel')}</label>
+                            <div className="flex flex-col gap-1.5">
+                              {[
+                                { id: 'classic', label: t('links.layoutClassic'), desc: t('links.layoutClassicDesc'), icon: <LayoutGrid size={24} strokeWidth={3} /> },
+                                { id: 'card', label: t('links.layoutCard'), desc: t('links.layoutCardDesc'), icon: <LayoutTemplate size={24} strokeWidth={3} /> },
+                                { id: 'social', label: t('links.layoutSocial'), desc: t('links.layoutSocialDesc'), icon: <Share2 size={24} strokeWidth={3} /> },
+                                { id: 'carousel', label: t('links.layoutCarousel'), desc: t('links.layoutCarouselDesc'), icon: <Columns2 size={24} strokeWidth={3} /> }
+                              ].map((opt) => (
+                                <button
+                                  key={opt.id}
+                                  onClick={() => updateLink(link.id, 'layout', opt.id)}
+                                  className={`p-2 border text-left flex items-start gap-2.5 transition-all ${link.layout === opt.id
+                                    ? 'bg-[#97cd7a] border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
+                                    : 'bg-white border-black hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:bg-[#f1f1f1] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'
+                                    }`}
+                                >
+                                  <div className={`flex items-center justify-center p-1 border border-black ${link.layout === opt.id ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
+                                    {opt.icon.type === LayoutGrid || opt.icon.type === LayoutTemplate || opt.icon.type === Share2 || opt.icon.type === Columns2 ? React.cloneElement(opt.icon, { size: 16 }) : opt.icon}
+                                  </div>
+                                  <div className="flex-1 mt-0">
+                                    <div className={`text-[11px] font-medium uppercase tracking-widest leading-none mb-1 ${link.layout === opt.id ? 'text-black' : 'text-black'}`}>{opt.label}</div>
+                                    <div className="text-[9px] text-black/70 font-normal uppercase tracking-wider leading-none">{opt.desc}</div>
+                                  </div>
+                                  {link.layout === opt.id && (
+                                    <div className="w-3.5 h-3.5 bg-black border border-black mt-0.5 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
+                                      <Check size={10} strokeWidth={4} className="text-[#97cd7a]" />
+                                    </div>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
                       {/* Scheduling Section (PRO) */}
                       <div className="space-y-3">
@@ -1085,6 +1290,13 @@ function LinkEditor({
           for (const item of list) {
             if (item.id === targetId && item.type === 'collection') {
               if (!item.children) item.children = [];
+
+              // If we are moving a collection into another collection, 
+              // the moved collection assimilates the title of the target collection.
+              if (movedLink!.type === 'collection') {
+                movedLink!.title = item.title;
+              }
+
               item.children.unshift(movedLink!);
               return true;
             }
@@ -1114,6 +1326,40 @@ function LinkEditor({
     };
   }, [level, onChange, setExpandedCollections]);
 
+  React.useEffect(() => {
+    if (level !== 0) return;
+
+    // Collect all valid (visible) IDs across all levels
+    const validIds = new Set<string>();
+    const traverse = (items: LinkItem[]) => {
+      items.forEach(item => {
+        if (!item.isArchived) {
+          validIds.add(item.id);
+          if (item.children) traverse(item.children);
+        }
+      });
+    };
+    traverse(links);
+
+    const cleanup = (expanded: Record<string, boolean>) => {
+      let changed = false;
+      const next = { ...expanded };
+      Object.keys(next).forEach(id => {
+        if (next[id] && !validIds.has(id)) {
+          delete next[id];
+          changed = true;
+        }
+      });
+      return changed ? next : null;
+    };
+
+    const nextLinks = cleanup(expandedLinks);
+    if (nextLinks) setExpandedLinks(nextLinks);
+
+    const nextColls = cleanup(expandedCollections);
+    if (nextColls) setExpandedCollections(nextColls);
+  }, [links, level, expandedLinks, expandedCollections, setExpandedLinks, setExpandedCollections]);
+
   const isLimitReached = (profile.planType === 'free' || !profile.planType) && links.length >= 5;
 
   const activeLinks = useMemo(() => {
@@ -1126,13 +1372,17 @@ function LinkEditor({
     if (isRoot) {
       const integrations = profile.integrations || [];
       const order = ['instagram', 'youtube', 'twitch'];
+      const hasLinkDeepEditor = (list: LinkItem[], provider: string): boolean => {
+        return list.some(l => {
+          if (l.url?.toLowerCase().includes(provider) || l.title?.toLowerCase().includes(provider) || l.platform === provider) return true;
+          if (l.children && l.children.length > 0) return hasLinkDeepEditor(l.children, provider);
+          return false;
+        });
+      };
+
       const providersToInject = order.filter(p =>
         integrations.some(i => i.provider === p) &&
-        !result.some(l =>
-          (l.url && l.url.toLowerCase().includes(p)) ||
-          (l.title && l.title.toLowerCase().includes(p)) ||
-          l.platform === p
-        )
+        !hasLinkDeepEditor(links, p)
       );
 
       [...providersToInject].reverse().forEach(provider => {
@@ -1166,6 +1416,12 @@ function LinkEditor({
   const archivedLinks = links.filter(l => l.isArchived);
 
   const isAnyExpanded = Object.values(expandedLinks).some(Boolean) || Object.values(expandedCollections).some(Boolean);
+
+  React.useEffect(() => {
+    const handleTourOpenModal = () => setIsAddModalOpen(true);
+    window.addEventListener('tour-open-add-link-modal', handleTourOpenModal);
+    return () => window.removeEventListener('tour-open-add-link-modal', handleTourOpenModal);
+  }, []);
 
   const toggleCollection = (id: string) => {
     const isCurrentlyExpanded = !!expandedCollections[id];
@@ -1255,12 +1511,39 @@ function LinkEditor({
         try {
           const metadata = await fetchMusicMetadata(url);
           if (metadata) {
-            updateLinkFields(newLinkId, {
-              title: metadata.title,
-              subtitle: metadata.platform === 'youtube' ? metadata.followers : (metadata.followers || metadata.artist),
-              image: metadata.thumbnailUrl,
-              embedType: metadata.platform as any
-            });
+            // Check if it's an album/playlist with tracks
+            if ((metadata.type === 'album' || metadata.type === 'playlist') && metadata.tracks && metadata.tracks.length > 0) {
+              const newChildren = metadata.tracks.map((track: any) => ({
+                id: crypto.randomUUID(),
+                clientId: crypto.randomUUID(),
+                title: track.title,
+                subtitle: track.artist,
+                image: track.image,
+                url: track.url,
+                embedType: 'spotify' as const,
+                layout: 'classic' as const,
+                isActive: true,
+                clicks: 0
+              }));
+
+              updateLinkFields(newLinkId, {
+                title: metadata.title,
+                subtitle: metadata.followers || metadata.artist,
+                image: metadata.thumbnailUrl,
+                type: 'collection',
+                layout: 'grid',
+                children: newChildren,
+                embedType: metadata.platform as any,
+                url: url // Keep the original album URL!
+              });
+            } else {
+              updateLinkFields(newLinkId, {
+                title: metadata.title,
+                subtitle: metadata.platform === 'youtube' ? metadata.followers : (metadata.followers || metadata.artist),
+                image: metadata.thumbnailUrl,
+                embedType: metadata.platform as any
+              });
+            }
           }
         } catch (error) {
           console.error('Error fetching metadata in addLink:', error);
@@ -1291,12 +1574,38 @@ function LinkEditor({
       if (isMusic) {
         fetchMusicMetadata(url).then(metadata => {
           if (metadata) {
-            // Need to update the child inside the collection
-            // Since onChange hasn't finished or we just pushed it, 
-            // the most reliable way is to update via the parent state after a small delay 
-            // or just let the SortableLinkItem useEffect handle it when child mounts.
-            // Actually, SortableLinkItem will mount when this finishes, so the useEffect there 
-            // should catch it if the URL is set.
+            // Check if it's an album/playlist with tracks
+            if ((metadata.type === 'album' || metadata.type === 'playlist') && metadata.tracks && metadata.tracks.length > 0) {
+              const newChildrenForCollection = metadata.tracks.map((track: any) => ({
+                id: crypto.randomUUID(),
+                clientId: crypto.randomUUID(),
+                title: track.title,
+                subtitle: track.artist,
+                image: track.image,
+                url: track.url,
+                embedType: 'spotify' as const,
+                layout: 'classic' as const,
+                isActive: true,
+                clicks: 0
+              }));
+
+              updateLinkFields(newCollectionId, {
+                title: metadata.title,
+                subtitle: metadata.followers || metadata.artist,
+                image: metadata.thumbnailUrl,
+                children: newChildrenForCollection,
+                embedType: metadata.platform as any,
+                layout: 'grid'
+              });
+            } else {
+              // Just update the first child
+              updateLinkFields(childId, {
+                title: metadata.title,
+                subtitle: metadata.platform === 'youtube' ? metadata.followers : (metadata.followers || metadata.artist),
+                image: metadata.thumbnailUrl,
+                embedType: metadata.platform as any
+              });
+            }
           }
         });
       }
@@ -1450,30 +1759,33 @@ function LinkEditor({
                 </div>
 
                 <div className="flex items-center gap-2 md:gap-2.5">
-                  <button
-                    onClick={() => setShowArchive(true)}
-                    className="w-10 h-10 flex items-center justify-center border border-black bg-white hover:bg-[#ffdf00] shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
-                    title={t('links.viewArchive')}
-                  >
-                    <Archive size={18} className="text-black" />
-                    {archivedLinks.length > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center border border-black bg-[#97cd7a] text-[8px] font-black uppercase text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                        {archivedLinks.length}
-                      </span>
-                    )}
-                  </button>
+                  <Tooltip text={t('links.viewArchive')} position="top">
+                    <button
+                      onClick={() => setShowArchive(true)}
+                      className="w-10 h-10 flex items-center justify-center border border-black bg-white hover:bg-[#ffdf00] shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
+                    >
+                      <Archive size={18} className="text-black" />
+                      {archivedLinks.length > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center border border-black bg-[#97cd7a] text-[8px] font-black uppercase text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                          {archivedLinks.length}
+                        </span>
+                      )}
+                    </button>
+                  </Tooltip>
 
-                  <button
-                    onClick={() => setIsAddModalOpen(true)}
-                    disabled={isLimitReached}
-                    className={`w-10 h-10 flex items-center justify-center border transition-all hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none ${isLimitReached
-                      ? 'border-black bg-slate-200 text-black/30 cursor-not-allowed shadow-none'
-                      : 'border-black bg-[#97cd7a] text-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] hover:bg-[#86b567]'
-                      }`}
-                    title={t('links.addLink')}
-                  >
-                    <Plus size={18} className="text-black" strokeWidth={3} />
-                  </button>
+                  <Tooltip text={t('links.addLink')} position="top">
+                    <button
+                      data-tour="add-link"
+                      onClick={() => setIsAddModalOpen(true)}
+                      disabled={isLimitReached}
+                      className={`w-10 h-10 flex items-center justify-center border transition-all hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none ${isLimitReached
+                        ? 'border-black bg-slate-200 text-black/30 cursor-not-allowed shadow-none'
+                        : 'border-black bg-[#97cd7a] text-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] hover:bg-[#86b567]'
+                        }`}
+                    >
+                      <Plus size={18} className="text-black" strokeWidth={3} />
+                    </button>
+                  </Tooltip>
                 </div>
               </div>
 

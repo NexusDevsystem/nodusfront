@@ -33,10 +33,12 @@ import {
     ExternalLink,
     Loader2,
     Check,
-    AlertCircle
+    AlertCircle,
+    Globe
 } from 'lucide-react';
 import { SiSpotify, SiTiktok } from 'react-icons/si';
-import { SOCIAL_NETWORKS } from '../constants';
+import { SOCIAL_NETWORKS, KickIcon } from '../constants';
+import Tooltip from './Tooltip';
 
 interface SocialLinksEditorProps {
     links: LinkItem[];
@@ -60,6 +62,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
     const [isConnectingTikTok, setIsConnectingTikTok] = useState(false);
     const [isConnectingTwitch, setIsConnectingTwitch] = useState(false);
     const [isConnectingYoutube, setIsConnectingYoutube] = useState(false);
+    const [isConnectingKick, setIsConnectingKick] = useState(false);
     const [connectionError, setConnectionError] = useState<string | null>(null);
     const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
     const isAuthorized = profile?.username === 'nodus' || profile?.username === 'nexus' || profile?.username === 'jaoom' || authProfile?.email === 'jaoomarcos75@gmail.com';
@@ -74,7 +77,26 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+
+        // Tour integration: Close modal when requested by the tour
+        const handleTourClose = () => {
+            setIsModalOpen(false);
+            setConfiguringPlatform(null);
+        };
+
+        // Tour integration: Open modal when requested by the tour
+        const handleTourOpen = () => {
+            setIsModalOpen(true);
+        };
+
+        window.addEventListener('tour-close-all-modals', handleTourClose);
+        window.addEventListener('tour-open-social-modal', handleTourOpen);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('tour-close-all-modals', handleTourClose);
+            window.removeEventListener('tour-open-social-modal', handleTourOpen);
+        };
     }, []);
 
     const socialLinks = links.filter(link => link.layout === 'social' && link.type !== 'collection');
@@ -86,6 +108,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
     const youtubeIntegration = profile?.integrations?.find((i: any) => i.provider === 'youtube');
     const isYoutubeConnected = !!youtubeIntegration;
+
+    const kickIntegration = profile?.integrations?.find((i: any) => i.provider === 'kick');
+    const isKickConnected = !!kickIntegration;
 
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => {
@@ -166,16 +191,18 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                         <h3 className="text-xs md:text-sm font-medium text-black uppercase tracking-widest leading-none">{t('social.title')}</h3>
                         <p className="text-[9px] md:text-[10px] text-black font-normal uppercase tracking-wider mt-1 opacity-60 leading-none">{t('social.subtitle')}</p>
                     </div>
-                    <button
-                        onClick={handleOpenModal}
-                        className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center text-black bg-white border-2 border-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none shrink-0"
-                        title={t('social.manage')}
-                    >
-                        <Plus size={16} className="md:w-5 md:h-5" strokeWidth={3} />
-                    </button>
+                    <Tooltip text={t('social.manage')} position="top">
+                        <button
+                            data-tour="add-socials"
+                            onClick={handleOpenModal}
+                            className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center text-black bg-white border-2 border-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none shrink-0"
+                        >
+                            <Plus size={16} className="md:w-5 md:h-5" strokeWidth={3} />
+                        </button>
+                    </Tooltip>
                 </div>
 
-                {(socialLinks.length > 0 || isInstagramConnected || isTwitchConnected || isYoutubeConnected) && (
+                {(socialLinks.length > 0 || isInstagramConnected || isTwitchConnected || isYoutubeConnected || isKickConnected) && (
                     <div className="flex flex-wrap gap-4 md:gap-5 py-1">
                         {/* Auto-render Instagram if connected but not explicitly added as link */}
                         {isInstagramConnected && !socialLinks.some(l => l.platform === 'instagram') && (
@@ -210,6 +237,17 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                             </button>
                         )}
 
+                        {/* Auto-render Kick if connected */}
+                        {isKickConnected && !socialLinks.some(l => l.platform === 'kick') && (
+                            <button
+                                onClick={() => toggleSocialLink('kick')}
+                                className="text-black transition-all hover:scale-110 active:scale-90 p-0.5 relative"
+                            >
+                                <KickIcon size={22} className="md:w-6 md:h-6" />
+                                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#53FC18] rounded-full border border-white" />
+                            </button>
+                        )}
+
                         {socialLinks.map(link => {
                             const network = SOCIAL_NETWORKS.find(n => n.id === link.platform) ||
                                 SOCIAL_NETWORKS.find(n => n.id !== 'custom' && link.url.toLowerCase().includes(n.id)) ||
@@ -217,13 +255,25 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                 SOCIAL_NETWORKS[0];
                             const Icon = network.icon;
 
+                            let dotColor = null;
+                            if (network.id === 'instagram' && isInstagramConnected) dotColor = '#32a800';
+                            if (network.id === 'twitch' && isTwitchConnected) dotColor = '#6441a5';
+                            if (network.id === 'youtube' && isYoutubeConnected) dotColor = '#ff0000';
+                            if (network.id === 'kick' && isKickConnected) dotColor = '#53FC18';
+
                             return (
                                 <button
                                     key={link.id}
                                     onClick={() => toggleSocialLink(link.platform!)}
-                                    className="text-black transition-all hover:scale-110 active:scale-90 p-0.5"
+                                    className="text-black transition-all hover:scale-110 active:scale-90 p-0.5 relative"
                                 >
                                     <Icon size={22} className="md:w-6 md:h-6" />
+                                    {dotColor && (
+                                        <div
+                                            className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border border-white"
+                                            style={{ backgroundColor: dotColor }}
+                                        />
+                                    )}
                                 </button>
                             );
                         })}
@@ -256,18 +306,18 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                     }
                                 }}
                                 className={`
-                                    relative bg-white flex flex-col overflow-hidden border-t-4 border-l-4 border-r-4 md:border-b-4 border-black
-                                    ${isMobile ? 'w-full h-[65vh] shadow-none' : 'w-full max-w-sm max-h-[70vh] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'}
+                                    relative bg-white flex flex-col overflow-hidden border-4 border-black tour-social-modal
+                                    ${isMobile ? 'w-full h-[75vh] md:h-[65vh] rounded-none shadow-none translate-y-1' : 'w-full max-w-sm max-h-[70vh] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'}
                                 `}
                             >
-                                {/* Drag Handle for Mobile */}
+                                {/* Drag Handle for Mobile - Brutalist */}
                                 {isMobile && (
-                                    <div className="flex justify-center p-2 pt-3 shrink-0">
-                                        <div className="w-8 h-1 bg-black" />
+                                    <div className="flex justify-center p-4 pt-5 shrink-0 cursor-grab active:cursor-grabbing">
+                                        <div className="w-12 h-1.5 bg-black" />
                                     </div>
                                 )}
 
-                                <div className="p-4 flex items-center justify-between shrink-0 relative border-b-2 border-dashed border-black">
+                                <div className="p-4 flex items-center justify-between shrink-0 relative border-b-2 border-black">
                                     <button
                                         onClick={() => configuringPlatform ? setConfiguringPlatform(null) : handleCloseModal()}
                                         className="p-1.5 text-black border-2 border-transparent hover:border-black hover:bg-[#ffdf00] transition-colors"
@@ -385,7 +435,8 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                             {!(
                                                 (configuringPlatform === 'instagram' && isInstagramConnected) ||
                                                 (configuringPlatform === 'twitch' && isTwitchConnected) ||
-                                                (configuringPlatform === 'youtube' && isYoutubeConnected)
+                                                (configuringPlatform === 'youtube' && isYoutubeConnected) ||
+                                                (configuringPlatform === 'kick' && isKickConnected)
                                             ) && (
                                                     <div className="space-y-2">
                                                         <input
@@ -467,6 +518,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                         await apiClient.disconnectIntegration('youtube');
                                                                         const updatedIntegrations = profile.integrations?.filter((i: any) => i.provider !== 'youtube') || [];
                                                                         setProfile({ ...profile, integrations: updatedIntegrations });
+                                                                        onChange(links.filter(l => !(l.platform === 'youtube' && (l.type === 'social' || l.layout === 'social'))));
                                                                         setShowDisconnectConfirm(false);
                                                                     } catch (err: any) {
                                                                         setConnectionError(err.message);
@@ -563,6 +615,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                                         const updatedIntegrations = profile.integrations?.filter((i: any) => i.provider !== 'instagram') || [];
                                                                                         setProfile({ ...profile, integrations: updatedIntegrations });
                                                                                     }
+                                                                                    onChange(links.filter(l => !(l.platform === 'instagram' && (l.type === 'social' || l.layout === 'social'))));
 
                                                                                     setShowDisconnectConfirm(false);
                                                                                     setIsConnectingInstagram(false);
@@ -582,6 +635,102 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             )}
                                                         </AnimatePresence>
                                                     </div>
+                                                </div>
+                                            )}
+
+                                            {/* Kick Rich Profile Card */}
+                                            {configuringPlatform === 'kick' && isKickConnected && kickIntegration && (
+                                                <div className="bg-white p-6 border-2 border-black flex flex-col items-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                                    <div className="relative mb-4">
+                                                        <div className="w-20 h-20 overflow-hidden border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] bg-white">
+                                                            <img
+                                                                src={kickIntegration.profile_data?.avatar_url}
+                                                                alt={kickIntegration.profile_data?.username}
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    (e.target as HTMLImageElement).src = 'https://avatar.kick.com/default';
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className="absolute -bottom-1 -right-1 bg-[#53FC18] p-1.5 border-2 border-black text-black">
+                                                            <KickIcon size={12} strokeWidth={4} />
+                                                        </div>
+                                                    </div>
+
+                                                    <h4 className="text-xl font-medium text-black uppercase tracking-tighter">
+                                                        {kickIntegration.profile_data?.display_name || kickIntegration.profile_data?.username}
+                                                    </h4>
+                                                    <p className="text-[10px] text-black/40 font-medium uppercase tracking-[0.2em] mt-1 mb-4">
+                                                        {t('integrations.kickProfile')}
+                                                    </p>
+
+                                                    <div className="w-full h-0.5 bg-black/10 my-4" />
+
+                                                    <button
+                                                        onClick={() => setShowDisconnectConfirm(!showDisconnectConfirm)}
+                                                        disabled={isConnectingKick}
+                                                        className={`w-full py-4 px-6 border-2 border-black transition-all font-medium text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${showDisconnectConfirm
+                                                            ? 'bg-black text-white'
+                                                            : 'bg-white text-red-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] hover:bg-[#fff0f0]'
+                                                            }`}
+                                                    >
+                                                        {isConnectingKick ? (
+                                                            <Loader2 size={14} className="animate-spin" />
+                                                        ) : (
+                                                            <Trash2 size={14} strokeWidth={3} />
+                                                        )}
+                                                        {showDisconnectConfirm ? t('common.cancel') : t('social.disconnectKick')}
+                                                    </button>
+
+                                                    <AnimatePresence>
+                                                        {showDisconnectConfirm && (
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0 }}
+                                                                animate={{ height: 'auto', opacity: 1 }}
+                                                                exit={{ height: 0, opacity: 0 }}
+                                                                className="overflow-hidden bg-[#fff0f0] border-2 border-black w-full"
+                                                            >
+                                                                <div className="p-4 space-y-4 text-left">
+                                                                    <div className="text-left">
+                                                                        <p className="text-[10px] font-medium text-red-900 uppercase tracking-widest leading-tight">
+                                                                            {t('social.confirmDisconnectTitle')}
+                                                                        </p>
+                                                                        <p className="text-[9px] font-normal text-red-600 mt-2 uppercase tracking-tighter leading-relaxed">
+                                                                            {t('social.confirmDisconnectDesc')}
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <button
+                                                                        onClick={async () => {
+                                                                            try {
+                                                                                setConnectionError(null);
+                                                                                setIsConnectingKick(true);
+                                                                                await apiClient.disconnectIntegration('kick');
+
+                                                                                if (profile) {
+                                                                                    const updatedIntegrations = profile.integrations?.filter((i: any) => i.provider !== 'kick') || [];
+                                                                                    setProfile({ ...profile, integrations: updatedIntegrations });
+                                                                                }
+                                                                                onChange(links.filter(l => !(l.platform === 'kick' && (l.type === 'social' || l.layout === 'social'))));
+
+                                                                                setShowDisconnectConfirm(false);
+                                                                                setIsConnectingKick(false);
+                                                                                handleCloseModal();
+                                                                            } catch (err: any) {
+                                                                                console.error('Failed to disconnect Kick:', err);
+                                                                                setConnectionError(err.message);
+                                                                                setIsConnectingKick(false);
+                                                                            }
+                                                                        }}
+                                                                        disabled={isConnectingKick}
+                                                                        className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-medium text-[10px] uppercase tracking-widest border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-colors"
+                                                                    >
+                                                                        {isConnectingKick ? t('social.disconnecting') : t('social.confirmDisconnectButton')}
+                                                                    </button>
+                                                                </div>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
                                                 </div>
                                             )}
 
@@ -645,6 +794,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                         await apiClient.disconnectIntegration('twitch');
                                                                         const updatedIntegrations = profile.integrations?.filter((i: any) => i.provider !== 'twitch') || [];
                                                                         setProfile({ ...profile, integrations: updatedIntegrations });
+                                                                        onChange(links.filter(l => !(l.platform === 'twitch' && (l.type === 'social' || l.layout === 'social'))));
                                                                         setShowDisconnectConfirm(false);
                                                                     } catch (err: any) {
                                                                         setConnectionError(err.message);
@@ -822,22 +972,63 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                 </div>
                                             )}
 
-                                            {/* Action Button - Hidden for IG/Twitch/YT if connected */}
-                                            {!((configuringPlatform === 'instagram' && isInstagramConnected) || (configuringPlatform === 'twitch' && isTwitchConnected) || (configuringPlatform === 'youtube' && isYoutubeConnected)) && (
-                                                <button
-                                                    onClick={confirmPlatform}
-                                                    disabled={!tempUrl}
-                                                    className={`
+                                            {/* Kick Connect View */}
+                                            {configuringPlatform === 'kick' && !isKickConnected && (
+                                                <div className="space-y-4">
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                setConnectionError(null);
+                                                                setIsConnectingKick(true);
+                                                                const userId = profile?.id || '';
+                                                                if (!userId) throw new Error(t('common.userNotIdentified'));
+                                                                const { url } = await apiClient.getKickAuthUrl(userId, window.location.origin);
+                                                                window.location.href = url;
+                                                            } catch (err: any) {
+                                                                setConnectionError(err.message || t('social.errorStartConnection'));
+                                                                setIsConnectingKick(false);
+                                                            }
+                                                        }}
+                                                        disabled={isConnectingKick}
+                                                        className={`w-full bg-[#53FC18] border-2 border-black transition-all py-4 px-6 flex items-center justify-between group/kick shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none ${isConnectingKick ? 'opacity-70 cursor-wait' : ''}`}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            {isConnectingKick ? (
+                                                                <Loader2 size={18} className="animate-spin text-black" />
+                                                            ) : (
+                                                                <KickIcon size={18} className="text-black" />
+                                                            )}
+                                                            <div className="text-left leading-none space-y-1">
+                                                                <span className="block text-xs font-bold uppercase tracking-widest text-black">
+                                                                    {isConnectingKick ? t('common.starting') : t('social.connectKick')}
+                                                                </span>
+                                                                <span className="block text-[9px] font-medium uppercase tracking-wider text-black/70">{t('social.connectKickDesc')}</span>
+                                                            </div>
+                                                        </div>
+                                                        <ChevronRight size={16} strokeWidth={3} className="text-black group-hover/kick:translate-x-0.5 transition-transform" />
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                            {/* Action Button - Hidden for IG/Twitch/YT/Kick if connected */}
+                                            {!((configuringPlatform === 'instagram' && isInstagramConnected) ||
+                                                (configuringPlatform === 'twitch' && isTwitchConnected) ||
+                                                (configuringPlatform === 'youtube' && isYoutubeConnected) ||
+                                                (configuringPlatform === 'kick' && isKickConnected)) && (
+                                                    <button
+                                                        onClick={confirmPlatform}
+                                                        disabled={!tempUrl}
+                                                        className={`
                                                         w-full mt-2 py-3 font-medium text-[10px] uppercase tracking-widest transition-all border border-black
                                                         ${tempUrl
-                                                            ? 'bg-[#97cd7a] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
-                                                            : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
-                                                        }
+                                                                ? 'bg-[#97cd7a] text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                                                                : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                                                            }
                                                     `}
-                                                >
-                                                    {links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform)))) ? t('common.save') : t('common.add')}
-                                                </button>
-                                            )}
+                                                    >
+                                                        {links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform)))) ? t('common.save') : t('common.add')}
+                                                    </button>
+                                                )}
                                         </div>
                                     </div>
                                 )}

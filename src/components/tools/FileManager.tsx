@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, File as FileIcon, Trash2, Copy, Check, X, Loader2, Image as ImageIcon, FileText, Download, ExternalLink } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
 import { useAuth } from '../../contexts/AuthContext';
+import Tooltip from '../Tooltip';
 import { UserProfile } from '../../types';
 
 interface FileItem {
@@ -256,50 +257,55 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                                 <div className="flex items-center gap-1.5 shrink-0">
                                                     {deletingFilename === file.filename ? (
                                                         <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-right-2 duration-300">
-                                                            <button
-                                                                onClick={() => handleDelete(file.filename, true)}
-                                                                className="w-8 h-8 flex items-center justify-center bg-red-600 text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                                                                title={t('files.confirmDelete')}
-                                                            >
-                                                                <Check size={14} strokeWidth={4} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setDeletingFilename(null)}
-                                                                className="w-8 h-8 flex items-center justify-center bg-white text-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                                                                title={t('files.cancel')}
-                                                            >
-                                                                <X size={14} strokeWidth={4} />
-                                                            </button>
+                                                            <Tooltip text={t('files.confirmDelete')} position="top">
+                                                                <button
+                                                                    onClick={() => handleDelete(file.filename, true)}
+                                                                    className="w-8 h-8 flex items-center justify-center bg-red-600 text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                                                                >
+                                                                    <Check size={14} strokeWidth={4} />
+                                                                </button>
+                                                            </Tooltip>
+                                                            <Tooltip text={t('files.cancel')} position="top">
+                                                                <button
+                                                                    onClick={() => setDeletingFilename(null)}
+                                                                    className="w-8 h-8 flex items-center justify-center bg-white text-black border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                                                                >
+                                                                    <X size={14} strokeWidth={4} />
+                                                                </button>
+                                                            </Tooltip>
                                                         </div>
                                                     ) : (
                                                         <>
-                                                            <button
-                                                                onClick={() => copyLink(file.url, file.filename)}
-                                                                title={t('files.copyLink')}
-                                                                className={`w-8 h-8 flex items-center justify-center border-2 border-black transition-all ${copiedId === file.filename
-                                                                    ? 'bg-[#97cd7a] shadow-none translate-x-[1px] translate-y-[1px]'
-                                                                    : 'bg-white hover:bg-black hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]'
-                                                                    }`}
-                                                            >
-                                                                {copiedId === file.filename ? <Check size={14} strokeWidth={3} /> : <Copy size={14} strokeWidth={3} />}
-                                                            </button>
+                                                            <Tooltip text={t('files.copyLink')} position="top">
+                                                                <button
+                                                                    onClick={() => copyLink(file.url, file.filename)}
+                                                                    className={`w-8 h-8 flex items-center justify-center border-2 border-black transition-all ${copiedId === file.filename
+                                                                        ? 'bg-[#97cd7a] shadow-none translate-x-[1px] translate-y-[1px]'
+                                                                        : 'bg-white hover:bg-black hover:text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]'
+                                                                        }`}
+                                                                >
+                                                                    {copiedId === file.filename ? <Check size={14} strokeWidth={3} /> : <Copy size={14} strokeWidth={3} />}
+                                                                </button>
+                                                            </Tooltip>
 
-                                                            <a
-                                                                href={file.url}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                                                                title={t('files.view')}
-                                                            >
-                                                                <ExternalLink size={14} strokeWidth={3} />
-                                                            </a>
-                                                            <button
-                                                                onClick={() => handleDelete(file.filename)}
-                                                                className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-red-400 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                                                                title={t('files.delete')}
-                                                            >
-                                                                <Trash2 size={14} strokeWidth={3} />
-                                                            </button>
+                                                            <Tooltip text={t('files.view')} position="top">
+                                                                <a
+                                                                    href={file.url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                                                                >
+                                                                    <ExternalLink size={14} strokeWidth={3} />
+                                                                </a>
+                                                            </Tooltip>
+                                                            <Tooltip text={t('files.delete')} position="top">
+                                                                <button
+                                                                    onClick={() => handleDelete(file.filename)}
+                                                                    className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-red-400 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                                                                >
+                                                                    <Trash2 size={14} strokeWidth={3} />
+                                                                </button>
+                                                            </Tooltip>
                                                         </>
                                                     )}
                                                 </div>
@@ -313,23 +319,25 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                         {/* Footer Info */}
                         <div className="p-3 bg-black text-white flex justify-between items-center px-4">
                             <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-60">{t('files.storageTitle')}</span>
-                            <div className="flex gap-1" title={(!userProfile?.planType || userProfile.planType === 'free') ? t('files.freeLimit') : t('files.premiumStorage')}>
-                                {[1, 2, 3, 4, 5, 6, 7, 8].map(i => {
-                                    const isFree = !userProfile?.planType || userProfile.planType === 'free';
-                                    const limit = isFree ? 2 : 8;
-                                    const isFilled = i <= files.length;
-                                    const isAvailable = i <= limit;
+                            <Tooltip text={(!userProfile?.planType || userProfile.planType === 'free') ? t('files.freeLimit') : t('files.premiumStorage')} position="top">
+                                <div className="flex gap-1">
+                                    {[1, 2, 3, 4, 5, 6, 7, 8].map(i => {
+                                        const isFree = !userProfile?.planType || userProfile.planType === 'free';
+                                        const limit = isFree ? 2 : 8;
+                                        const isFilled = i <= files.length;
+                                        const isAvailable = i <= limit;
 
-                                    if (!isAvailable && isFree) return null;
+                                        if (!isAvailable && isFree) return null;
 
-                                    return (
-                                        <div
-                                            key={i}
-                                            className={`w-1.5 h-3 border border-white/20 ${isFilled ? 'bg-[#97cd7a]' : 'bg-white/10'}`}
-                                        />
-                                    );
-                                })}
-                            </div>
+                                        return (
+                                            <div
+                                                key={i}
+                                                className={`w-1.5 h-3 border border-white/20 ${isFilled ? 'bg-[#97cd7a]' : 'bg-white/10'}`}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            </Tooltip>
                         </div>
                     </div>
                 </div>

@@ -18,27 +18,31 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
     const handleThemeSelect = (themeId: string) => {
         // Find the selected theme
         const theme = THEMES.find(t => t.id === themeId);
+        const isClassic = (profile.headerLayout || 'classic') === 'classic';
 
-        // Reset ALL custom overrides when selecting a preset theme
-        // This ensures the theme "soul" is preserved and pure
-        onChange({
+        // Base update with theme ID and fonts
+        const updates: Partial<UserProfile> = {
             ...profile,
             themeId,
-            // Reset background
-            customBackground: null,
-            customSolidColor: null,
-            customSecondaryColor: null,
-            // Reset text & button colors
-            customTextColor: null,
-            customButtonColor: null,
-            customButtonTextColor: null,
-            // Reset fonts & button styling
             fontFamily: theme?.fontFamily || "'Inter', sans-serif",
             buttonRoundness: null, // Force NULL to clear DB value
             fontWeight: null,
             fontItalic: false,
             fontSize: null
-        });
+        };
+
+        // ONLY reset background/layout overrides if we are in CLASSIC mode.
+        // In Banner/Profile modes, these edits are "unlimited" and fixed.
+        if (isClassic) {
+            updates.customBackground = null;
+            updates.customSolidColor = null;
+            updates.customSecondaryColor = null;
+            updates.customTextColor = null;
+            updates.customButtonColor = null;
+            updates.customButtonTextColor = null;
+        }
+
+        onChange(updates as UserProfile);
     };
 
 
@@ -57,13 +61,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="flex flex-col gap-2 group cursor-pointer relative"
-                onClick={() => {
-                    if (isLocked) {
-                        (window as any).dispatchEvent(new CustomEvent('open-billing-modal'));
-                        return;
-                    }
-                    handleThemeSelect(theme.id);
-                }}
+                onClick={() => handleThemeSelect(theme.id)}
             >
                 {/* Card Container */}
                 <div className={`relative aspect-[3/4] w-full border-2 transition-all duration-300 ${isActive ? 'border-black bg-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-black/10 hover:border-black/30'}`}>
@@ -86,14 +84,17 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                     {isActive && (
                         <div className="absolute top-2 right-2 w-5 h-5 bg-[#97cd7a] text-black border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] z-10"><Check size={12} strokeWidth={4} /></div>
                     )}
-                    {/* Pro Badge */}
+                    {/* Pro Badge & Preview Badge */}
                     {theme.isPro && (
-                        <div className={`absolute top-2 left-2 px-1.5 py-0.5 border border-black text-[8px] font-black uppercase tracking-wider z-10 ${isLocked ? 'bg-black text-white' : 'bg-black/10 text-black/50'}`}>Pro</div>
-                    )}
-                    {/* Lock Overlay */}
-                    {isLocked && (
-                        <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-20">
-                            <div className="bg-white p-2 rounded-full shadow-lg"><Zap size={16} className="text-slate-400 fill-slate-400" /></div>
+                        <div className="absolute top-2 left-2 flex items-center gap-1 z-10">
+                            {isLocked && isSelected && (
+                                <span className="text-[7px] font-black bg-[#ffdf00] text-black px-1.5 py-0.5 border border-black uppercase tracking-widest animate-pulse">
+                                    Preview
+                                </span>
+                            )}
+                            <div className="px-1.5 py-0.5 border border-black text-[8px] font-black uppercase tracking-wider bg-black text-white">
+                                Pro
+                            </div>
                         </div>
                     )}
                 </div>

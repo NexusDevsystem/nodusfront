@@ -1,5 +1,7 @@
 import { UserProfile } from '../../types';
 import { useTranslation } from 'react-i18next';
+import { Zap } from 'lucide-react';
+import Tooltip from '../Tooltip';
 
 interface ButtonsEditorProps {
     profile: UserProfile;
@@ -72,35 +74,33 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                                 />
                             </div>
                             {profile.customButtonColor && (
-                                <button
-                                    onClick={() => updateProfile({ customButtonColor: null })}
-                                    className="text-[10px] text-black border border-black bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none hover:bg-black hover:text-[#97cd7a] transition-all w-full sm:w-auto"
-                                >
-                                    {t('common.reset')}
-                                </button>
+                                <Tooltip text={t('common.reset')} position="top">
+                                    <button
+                                        onClick={() => updateProfile({ customButtonColor: null })}
+                                        className="text-[10px] text-black border border-black bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none hover:bg-black hover:text-[#97cd7a] transition-all w-full sm:w-auto"
+                                    >
+                                        {t('common.reset')}
+                                    </button>
+                                </Tooltip>
                             )}
                         </div>
                     </div>
                 ) : (
                     <div className="bg-[#f8f8f8] border border-black p-5 flex flex-col items-center text-center gap-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                        <div className="w-10 h-10 bg-white border border-black text-black flex items-center justify-center shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 9V11M12 15H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0378 2.66667 10.268 4L3.33978 16C2.56998 17.3333 3.53223 19 5.07183 19Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
+                        <div className="w-10 h-10 bg-white border border-black text-[#97cd7a] flex items-center justify-center shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                            <Zap size={20} className="fill-[#97cd7a]" />
                         </div>
                         <div className="space-y-1">
-                            <p className="text-xs font-medium uppercase tracking-widest text-black/80">{t('design.lockedColors')}</p>
+                            <p className="text-xs font-black uppercase tracking-widest text-black">{t('design.customColorsPreview', 'Prévia de Cores Customizadas')}</p>
                             <p className="text-[9px] font-normal uppercase tracking-[0.2em] text-black/50 leading-relaxed max-w-xs mx-auto">
-                                {t('design.lockedColorsDesc').split('CUSTOM')[0]}
-                                <span className="text-black font-medium bg-white px-1 border border-black">CUSTOM</span>
-                                {t('design.lockedColorsDesc').split('CUSTOM')[1]}
+                                {t('design.customColorsPreviewDesc', 'Como integrante do plano FREE, você pode testar cores customizadas agora, mas precisará do nível PRO para salvar estas alterações permanentemente.')}
                             </p>
                         </div>
                         <button
                             onClick={() => updateProfile({ themeId: 'custom' })}
-                            className="mt-1 text-[9px] font-medium bg-black border border-black text-[#97cd7a] px-5 py-2.5 uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all hover:bg-black hover:text-white"
+                            className="mt-1 text-[9px] font-black bg-[#97cd7a] border-2 border-black text-black px-6 py-3 uppercase tracking-widest shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all active:scale-95"
                         >
-                            {t('design.enableCustomTheme')}
+                            {t('design.enablePreview', 'Ativar Prévia')}
                         </button>
                     </div>
                 )}

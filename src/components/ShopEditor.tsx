@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { compressImage, blobToDataURL } from '../utils/imageUtils';
 import ImageCropperModal from './tools/ImageCropperModal';
+import Tooltip from './Tooltip';
 
 const fileToDataURL = (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -215,13 +216,14 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                 </div>
             </div>
 
-            <button
-                onClick={() => setDeletingProductId(product.id)}
-                className="p-2 bg-white text-black border border-black hover:text-white hover:bg-red-500 hover:translate-x-[0.5px] hover:translate-y-[0.5px] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ml-2"
-                title={t('common.delete')}
-            >
-                <Trash2 size={16} strokeWidth={3} />
-            </button>
+            <Tooltip text={t('common.delete')} position="top">
+                <button
+                    onClick={() => setDeletingProductId(product.id)}
+                    className="p-2 bg-white text-black border border-black hover:text-white hover:bg-red-500 hover:translate-x-[0.5px] hover:translate-y-[0.5px] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ml-2"
+                >
+                    <Trash2 size={16} strokeWidth={3} />
+                </button>
+            </Tooltip>
 
             {/* Product Deletion Confirm Panel */}
             <AnimatePresence>
@@ -366,14 +368,16 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                         <ShoppingBag size={18} strokeWidth={3} className="text-black" />
                         <h2 className="text-base font-medium uppercase tracking-widest text-black">{t('shop.title')}</h2>
                     </div>
-                    <button
-                        onClick={() => setIsAddingCollection(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-black text-[#97cd7a] hover:bg-black hover:text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none text-[9px] font-medium uppercase tracking-widest transition-all"
-                        title={t('shop.newCategory')}
-                    >
-                        <FolderPlus size={18} strokeWidth={3} />
-                        <span className="hidden sm:inline">{t('shop.newCategory')}</span>
-                    </button>
+                    <Tooltip text={t('shop.newCategory')} position="bottom">
+                        <button
+                            data-tour="shop-new-category"
+                            onClick={() => setIsAddingCollection(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-black text-[#97cd7a] hover:bg-black hover:text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none text-[9px] font-medium uppercase tracking-widest transition-all"
+                        >
+                            <FolderPlus size={18} strokeWidth={3} />
+                            <span className="hidden sm:inline">{t('shop.newCategory')}</span>
+                        </button>
+                    </Tooltip>
                 </div>
 
                 <p className="text-[10px] md:text-xs text-black/60 font-normal bg-[#f1f1f1] p-4 border-l-4 border-[#97cd7a] leading-relaxed mb-6 uppercase tracking-[0.1em]">

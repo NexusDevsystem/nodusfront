@@ -99,7 +99,32 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+
+        // Tour integration: Close modal when requested by the tour
+        const handleTourClose = () => {
+            onClose();
+            setShowCollectionStep(false);
+            setShowShopCollectionStep(false);
+            setShowIncentiveStep(false);
+        };
+
+        // Tour integration: Open modal
+        const handleTourOpen = () => {
+            // Trigger the parent's logic to open it (usually via isOpen prop, 
+            // but here we might need to simulate the click or use a custom hook)
+            // Since this component is managed by parent isOpen, we use the event to tell 
+            // the parent to open us, but the state is already in parent.
+            // Wait, EditorPage has the state. Let's see if we can trigger it there.
+        };
+
+        window.addEventListener('tour-close-all-modals', handleTourClose);
+        window.addEventListener('tour-open-add-link-modal', handleTourOpen);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('tour-close-all-modals', handleTourClose);
+            window.removeEventListener('tour-open-add-link-modal', handleTourOpen);
+        };
     }, []);
 
     // Auto-detect link type
@@ -269,12 +294,13 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             {/* Mobile Grid - Brutalist style */}
                             <div className="grid grid-cols-3 gap-4">
                                 {[
-                                    { id: 'link', icon: <LinkIcon size={24} strokeWidth={3} />, label: t('links.linkLabel'), color: 'text-black', action: () => { onAddLink(); onClose(); } },
-                                    { id: 'collection', icon: <Layout size={24} strokeWidth={3} />, label: t('links.collectionLabel'), color: 'text-black', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
-                                    { id: 'product', icon: <ShoppingBag size={24} strokeWidth={3} />, label: t('links.productLabel'), color: 'text-black', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
+                                    { id: 'link', icon: <LinkIcon size={24} strokeWidth={2} />, label: t('links.linkLabel'), color: 'text-black', action: () => { onAddLink(); onClose(); } },
+                                    { id: 'collection', icon: <Layout size={24} strokeWidth={2} />, label: t('links.collectionLabel'), color: 'text-black', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
+                                    { id: 'product', icon: <ShoppingBag size={24} strokeWidth={2} />, label: t('links.productLabel'), color: 'text-black', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
                                 ].map((item) => (
                                     <button
                                         key={item.id}
+                                        data-tour={`add-link-type-${item.id}`}
                                         onClick={item.action}
                                         className="flex flex-col items-center gap-3 active:translate-x-[1px] active:translate-y-[1px]"
                                     >
@@ -323,12 +349,13 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         {/* Desktop Grid - Premium Brutalist */}
                         <div className="grid grid-cols-3 gap-4">
                             {[
-                                { id: 'link', icon: <LinkIcon size={32} strokeWidth={3} />, label: t('links.externalLink'), desc: t('links.insertAnyUrl'), color: 'text-black', hoverBg: 'hover:bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
-                                { id: 'collection', icon: <Layout size={32} strokeWidth={3} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
-                                { id: 'product', icon: <ShoppingBag size={32} strokeWidth={3} />, label: t('links.newProduct'), desc: t('links.productDescShort'), color: 'text-black', hoverBg: 'hover:bg-cyan-400', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
+                                { id: 'link', icon: <LinkIcon size={32} strokeWidth={1.5} />, label: t('links.externalLink'), desc: t('links.insertAnyUrl'), color: 'text-black', hoverBg: 'hover:bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
+                                { id: 'collection', icon: <Layout size={32} strokeWidth={1.5} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
+                                { id: 'product', icon: <ShoppingBag size={32} strokeWidth={1.5} />, label: t('links.newProduct'), desc: t('links.productDescShort'), color: 'text-black', hoverBg: 'hover:bg-cyan-400', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
                             ].map((item) => (
                                 <button
                                     key={item.id}
+                                    data-tour={`add-link-type-${item.id}`}
                                     onClick={item.action}
                                     className={`flex flex-col items-center text-center p-6 bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${item.hoverBg} transition-all group`}
                                 >
@@ -443,9 +470,9 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             <p className="text-[10px] font-normal text-black/70 mt-2 uppercase tracking-widest">{t('links.monetizeProfileDesc')}</p>
                         </div>
                         {[
-                            { id: 'product', icon: <ShoppingBag size={18} strokeWidth={3} />, title: t('links.productStore'), desc: t('links.physicalOrDigital'), action: () => setShowShopCollectionStep(true) },
-                            { id: 'incentive', icon: <DollarSign size={18} strokeWidth={3} />, title: t('links.incentives'), desc: t('links.receiveSupportDirectly'), action: () => setShowIncentiveStep(true) },
-                            { id: 'affiliate', icon: <Store size={18} strokeWidth={3} />, title: t('links.affiliateLink'), desc: t('links.affiliateDesc'), action: () => { } },
+                            { id: 'product', icon: <ShoppingBag size={18} strokeWidth={2} />, title: t('links.productStore'), desc: t('links.physicalOrDigital'), action: () => setShowShopCollectionStep(true) },
+                            { id: 'incentive', icon: <DollarSign size={18} strokeWidth={2} />, title: t('links.incentives'), desc: t('links.receiveSupportDirectly'), action: () => setShowIncentiveStep(true) },
+                            { id: 'affiliate', icon: <Store size={18} strokeWidth={2} />, title: t('links.affiliateLink'), desc: t('links.affiliateDesc'), action: () => { } },
                         ].map((item, idx) => (
                             <button
                                 key={idx}
@@ -473,7 +500,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             <p className="text-[10px] font-normal text-black/70 mt-2 uppercase tracking-widest">{t('links.mediaIntegrationsDesc')}</p>
                         </div>
                         {[
-                            { id: 'youtube', icon: <Youtube size={18} strokeWidth={3} />, title: 'YouTube', desc: t('links.videosOrShorts'), color: 'text-red-500' },
+                            { id: 'youtube', icon: <Youtube size={18} strokeWidth={2} />, title: 'YouTube', desc: t('links.videosOrShorts'), color: 'text-red-500' },
                             { id: 'spotify', icon: <SiSpotify size={18} />, title: 'Spotify', desc: t('links.musicOrPlaylists'), color: 'text-emerald-500' },
                             { id: 'tiktok', icon: <SiTiktok size={18} />, title: 'TikTok', desc: t('links.viralVideos'), color: 'text-black' },
                             { id: 'twitch', icon: <TwitchIcon size={18} />, title: 'Twitch', desc: t('links.yourLiveStream'), color: 'text-purple-500' },
@@ -551,7 +578,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     }
                 }}
                 className={`
-                    relative bg-white flex flex-col border-2 border-black overflow-hidden
+                    relative bg-white flex flex-col border-2 border-black overflow-hidden tour-add-element-modal
                     ${isMobile ? 'w-full h-[65dvh] h-[65svh] h-[65vh] rounded-none border-b-0 shadow-none touch-none' : 'w-[820px] h-[580px] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]'}
                 `}
             >
@@ -566,7 +593,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             onClick={onClose}
                             className="p-1.5 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-transparent hover:border-black transition-all active:translate-x-[1px] active:translate-y-[1px]"
                         >
-                            <X size={24} strokeWidth={4} />
+                            <X size={24} strokeWidth={1.5} />
                         </button>
                     </div>
                 )}
@@ -621,19 +648,20 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 <span className="text-[9px] font-normal uppercase tracking-[0.3em] text-black/40">{t('links.linkInputLabel')}</span>
                             </div>
                             <form onSubmit={handleUrlSubmit} className="relative group">
-                                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none z-10">
-                                    <Zap size={18} strokeWidth={4} className="text-black" />
+                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none z-10 transition-transform group-focus-within:scale-110">
+                                    <LinkIcon size={18} strokeWidth={1.5} className="text-black/30 group-focus-within:text-black transition-colors" />
                                 </div>
                                 <input
+                                    data-tour="add-link-input"
                                     type="text"
                                     placeholder={isMobile ? t('links.pasteUrlPlaceholder') : t('links.pasteUrlHint')}
                                     value={url}
                                     onChange={(e) => setUrl(e.target.value)}
                                     className={`
                                         w-full bg-white border-2 border-black rounded-none py-4 pr-24 text-xs font-medium text-black
-                                        focus:outline-none focus:ring-0 focus:shadow-[6px_6px_0px_0px_rgba(151,205,122,1)] transition-all
-                                        placeholder:text-black/10 uppercase tracking-[0.1em]
-                                        ${isMobile ? 'pl-14 pr-10' : 'pl-12'}
+                                        focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all
+                                        placeholder:text-black/20 placeholder:font-normal uppercase tracking-[0.1em]
+                                        ${isMobile ? 'pl-11 pr-10' : 'pl-11'}
                                     `}
                                 />
                                 {!isMobile && (

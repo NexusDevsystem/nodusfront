@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { UserProfile } from '../../types';
 import { ImageIcon, Trash2, Upload, Video, Zap } from 'lucide-react';
 import { compressImage } from '../../utils/imageUtils';
+import Tooltip from '../Tooltip';
 
 interface WallpaperEditorProps {
     profile: UserProfile;
@@ -44,15 +45,17 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                                 <>
                                     <img src={profile.customBackground} alt="Custom Background" className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
-                                        <button
-                                            onClick={() => {
-                                                if (updateProfile) updateProfile({ themeId: 'custom', customBackground: null });
-                                                else onChange({ ...profile, themeId: 'custom', customBackground: null });
-                                            }}
-                                            className="p-2 bg-white border border-black text-black hover:bg-red-400 hover:text-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
-                                        >
-                                            <Trash2 size={16} strokeWidth={3} />
-                                        </button>
+                                        <Tooltip text={t('common.delete')} position="bottom">
+                                            <button
+                                                onClick={() => {
+                                                    if (updateProfile) updateProfile({ themeId: 'custom', customBackground: null });
+                                                    else onChange({ ...profile, themeId: 'custom', customBackground: null });
+                                                }}
+                                                className="p-2 bg-white border border-black text-black hover:bg-red-400 hover:text-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
+                                            >
+                                                <Trash2 size={16} strokeWidth={3} />
+                                            </button>
+                                        </Tooltip>
                                     </div>
                                 </>
                             ) : (
@@ -118,15 +121,17 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                                         className="w-full h-8 px-3 border border-black bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] tracking-widest placeholder:text-black/20"
                                     />
                                     {profile.customSolidColor && (
-                                        <button
-                                            onClick={() => {
-                                                if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: null });
-                                                else onChange({ ...profile, themeId: 'custom', customSolidColor: null });
-                                            }}
-                                            className="px-2 h-8 flex items-center justify-center text-black bg-white border border-black hover:bg-black hover:text-red-400 transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                                        >
-                                            <Trash2 size={14} strokeWidth={3} />
-                                        </button>
+                                        <Tooltip text={t('common.delete')} position="top">
+                                            <button
+                                                onClick={() => {
+                                                    if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: null });
+                                                    else onChange({ ...profile, themeId: 'custom', customSolidColor: null });
+                                                }}
+                                                className="px-2 h-8 flex items-center justify-center text-black bg-white border border-black hover:bg-black hover:text-red-400 transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                                            >
+                                                <Trash2 size={14} strokeWidth={3} />
+                                            </button>
+                                        </Tooltip>
                                     )}
                                 </div>
                             </div>

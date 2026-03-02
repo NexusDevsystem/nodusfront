@@ -26,11 +26,38 @@ interface BackgroundLayerProps {
 
 const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme, className = "", isStatic = false }) => {
     const renderBackground = () => {
-        // Special Case: Banner Layout uses the avatar as a blurred adaptive background
-        if (profile.headerLayout === 'banner') {
+        // Special Case: Banner & Compact Layouts
+        // Rules: 
+        // 1. Manually set background (customSolidColor/Background) takes Priority if themeId is 'custom' or layout is special
+        // 2. Adaptive Blurred Background is the default fallback for these modes
+        // 3. Theme Visualizers are NEVER used here.
+        if (profile.headerLayout === 'banner' || profile.headerLayout === 'compact') {
+            // Priority 1: User-set Manual Background (Wallpaper)
+            if (profile.customSolidColor) {
+                return (
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            background: profile.customSecondaryColor
+                                ? `linear-gradient(135deg, ${profile.customSolidColor}, ${profile.customSecondaryColor})`
+                                : profile.customSolidColor
+                        }}
+                    />
+                );
+            }
+            if (profile.customBackground && profile.headerLayout === 'banner') {
+                return (
+                    <div className="absolute inset-0">
+                        <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/20"></div>
+                    </div>
+                );
+            }
+
+            // Priority 2: Adaptive Blurred Background
             const hasAvatar = !!profile.avatarUrl;
             // Parse bannerBlurColor: supports "#color1" or "#color1|#color2"
-            const rawBanner = profile.bannerBlurColor || '#000000';
+            const rawBanner = profile.bannerBlurColor || (profile.headerLayout === 'banner' ? '#000000' : '#ffffff');
             const bannerParts = rawBanner.split('|');
             const color1 = bannerParts[0] || '#000000';
             const color2 = bannerParts[1] || null;
@@ -44,6 +71,7 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
                     className="absolute inset-0 overflow-hidden"
                     style={bgStyle}
                 >
+                    <div className="noise-overlay" />
                     {/* 1. Blurred Base Image */}
                     {hasAvatar && (
                         <div className="absolute inset-0 transform-gpu">

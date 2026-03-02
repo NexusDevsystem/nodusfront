@@ -31,6 +31,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import LanguageToggle from './LanguageToggle';
+import Tooltip from './Tooltip';
 
 interface SidebarProps {
   activeTab: string;
@@ -135,93 +136,99 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
 
           {/* Close button for mobile */}
           {onClose && (
-            <button
-              onClick={onClose}
-              className="md:hidden p-2 text-black hover:bg-black/5 transition-colors"
-            >
-              <X size={24} strokeWidth={2.5} />
-            </button>
+            <Tooltip text={t('common.close')} position="bottom">
+              <button
+                onClick={onClose}
+                className="md:hidden p-2 text-black hover:bg-black/5 transition-colors"
+              >
+                <X size={24} strokeWidth={2.5} />
+              </button>
+            </Tooltip>
           )}
         </div>
       </div>
 
-      <motion.div
-        className="flex-1 overflow-y-auto scrollbar-hide p-5 md:p-4 pt-8 md:pt-6 space-y-8 md:space-y-6 relative z-10"
-        initial="hidden"
-        animate="show"
-        variants={{
-          show: {
-            transition: {
-              staggerChildren: 0.1
+      <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col relative z-10 w-full h-full">
+
+        <motion.div
+          className="p-5 md:p-4 space-y-8 md:space-y-6 flex-1 w-full"
+          initial="hidden"
+          animate="show"
+          variants={{
+            show: {
+              transition: {
+                staggerChildren: 0.1
+              }
             }
-          }
-        }}
-      >
-        {MENU_GROUPS.map((group) => {
-          const GroupIcon = group.groupIcon;
+          }}
+        >
+          {MENU_GROUPS.map((group) => {
+            const GroupIcon = group.groupIcon;
 
-          return (
-            <motion.div
-              key={group.id}
-              className="space-y-4 md:space-y-3"
-              variants={{
-                hidden: { opacity: 0, x: -10 },
-                show: { opacity: 1, x: 0 }
-              }}
-            >
-              <div className="flex items-center gap-2 px-1 mb-1 opacity-40">
-                <GroupIcon size={isMobile ? 12 : 11} strokeWidth={2} />
-                <span className="text-[9px] md:text-[8px] font-bold md:font-medium uppercase tracking-[0.25em] text-black">{group.label}</span>
-              </div>
+            return (
+              <motion.div
+                key={group.id}
+                className="space-y-4 md:space-y-3"
+                variants={{
+                  hidden: { opacity: 0, x: -10 },
+                  show: { opacity: 1, x: 0 }
+                }}
+              >
+                <div className="flex items-center gap-2 px-1 mb-1 opacity-40">
+                  <GroupIcon size={isMobile ? 12 : 11} strokeWidth={2} />
+                  <span className="text-[9px] md:text-[8px] font-bold md:font-medium uppercase tracking-[0.25em] text-black">{group.label}</span>
+                </div>
 
-              {/* Group Items */}
-              <div className="space-y-2 md:space-y-1">
-                {group.items.map((item) => {
-                  const isLocked = (item.id === 'earn' || item.id === 'audience') && (!userProfile.planType || userProfile.planType === 'free');
-                  const ItemIcon = item.icon;
-                  const isActive = activeTab === item.id;
+                {/* Group Items */}
+                <div className="space-y-2 md:space-y-1">
+                  {group.items.map((item) => {
+                    const isLocked = (item.id === 'earn' || item.id === 'audience') && (!userProfile.planType || userProfile.planType === 'free');
+                    const ItemIcon = item.icon;
+                    const isActive = activeTab === item.id;
 
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        if (isLocked) {
-                          onUpgradeClick?.();
-                        } else if (!item.disabled) {
-                          setActiveTab(item.id);
-                        }
-                      }}
-                      disabled={item.disabled}
-                      className={`
+                    return (
+                      <button
+                        key={item.id}
+                        data-tour={item.id}
+                        onClick={() => {
+                          if (isLocked) {
+                            onUpgradeClick?.();
+                          } else if (!item.disabled) {
+                            setActiveTab(item.id);
+                          }
+                        }}
+                        disabled={item.disabled}
+                        className={`
                         w-full flex items-center justify-between px-4 md:px-3 py-3.5 md:py-2.5 transition-all border-2 group relative
                         ${isActive
-                          ? 'bg-[#97cd7a] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] md:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[0.5px] -translate-y-[0.5px] text-black'
-                          : 'bg-transparent border-transparent text-black/60 hover:text-black hover:bg-black/5'}
+                            ? 'bg-[#97cd7a] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] md:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[0.5px] -translate-y-[0.5px] text-black'
+                            : 'bg-transparent border-transparent text-black/60 hover:text-black hover:bg-black/5'}
                         ${item.disabled ? 'opacity-30 cursor-not-allowed' : ''}
                       `}
-                    >
-                      <div className="flex items-center gap-4 md:gap-3">
-                        <div className={`transition-transform ${isActive ? 'text-black' : 'text-black/40 group-hover:text-black'}`}>
-                          <ItemIcon size={isMobile ? 18 : 14} strokeWidth={isMobile ? 2.5 : 2} />
+                      >
+                        <div className="flex items-center gap-4 md:gap-3">
+                          <div className={`transition-transform ${isActive ? 'text-black' : 'text-black/40 group-hover:text-black'}`}>
+                            <ItemIcon size={isMobile ? 18 : 14} strokeWidth={isMobile ? 2.5 : 2} />
+                          </div>
+                          <span className={`text-[11px] md:text-[9.5px] font-bold md:font-medium uppercase tracking-widest ${isActive ? 'text-black' : ''}`}>{item.label}</span>
                         </div>
-                        <span className={`text-[11px] md:text-[9.5px] font-bold md:font-medium uppercase tracking-widest ${isActive ? 'text-black' : ''}`}>{item.label}</span>
-                      </div>
 
-                      {isLocked ? (
-                        <div className="flex items-center gap-1.5 min-w-fit">
-                          <span className="text-[8px] md:text-[7px] bg-black text-[#97cd7a] px-2 md:px-1.5 py-1 md:py-0.5 font-bold md:font-medium uppercase tracking-widest">VIP</span>
-                        </div>
-                      ) : isActive && (
-                        <div className="w-2 h-2 md:w-1.5 md:h-1.5 bg-black rounded-full" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          );
-        })}
-      </motion.div>
+                        {isLocked ? (
+                          <div className="flex items-center gap-1.5 min-w-fit">
+                            <span className="text-[8px] md:text-[7px] bg-black text-[#97cd7a] px-2 md:px-1.5 py-1 md:py-0.5 font-bold md:font-medium uppercase tracking-widest">VIP</span>
+                          </div>
+                        ) : isActive && (
+                          <div className="w-2 h-2 md:w-1.5 md:h-1.5 bg-black rounded-full" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </div>
 
       {/* Footer Area */}
       <div className="p-5 md:p-4 border-t-2 border-black bg-white relative z-10 space-y-4 md:space-y-0">
@@ -336,12 +343,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                 <ChevronDown size={20} strokeWidth={3} />
               </motion.div>
             ) : (
-              <button
-                onClick={(e) => { e.stopPropagation(); signOut(); }}
-                className="p-2 md:p-1 text-black/30 hover:text-red-500 transition-colors shrink-0"
-              >
-                <LogOut size={isMobile ? 16 : 13} strokeWidth={isMobile ? 2.5 : 2} />
-              </button>
+              <Tooltip text={t('sidebar.signOut')} position="top">
+                <button
+                  onClick={(e) => { e.stopPropagation(); signOut(); }}
+                  className="p-2 md:p-1 text-black/30 hover:text-red-500 transition-colors shrink-0"
+                >
+                  <LogOut size={isMobile ? 16 : 13} strokeWidth={isMobile ? 2.5 : 2} />
+                </button>
+              </Tooltip>
             )}
           </div>
         </div>

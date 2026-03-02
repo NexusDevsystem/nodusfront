@@ -7,6 +7,9 @@
         "delete": "Excluir",
         "back": "Voltar",
         "close": "Fechar",
+        "next": "Próximo",
+        "skip": "Pular",
+        "finish": "Concluir",
         "edit": "Editar",
         "add": "Adicionar",
         "loading": "Carregando...",
@@ -416,7 +419,8 @@
         "emptyList": "Sua lista de links está vazia",
         "addFirstLink": "Adicione seu primeiro link para começar",
         "myLinksRoot": "Meus Links (Raiz)",
-        "yourCollections": "Suas Coleções"
+        "yourCollections": "Suas Coleções",
+        "clicksLabel": "Cliques"
     },
     "landing": {
         "headline": "O link na bio que seus seguidores merecem.",
@@ -439,6 +443,7 @@
         "tiktok": "TikTok",
         "subscribers": "inscritos",
         "followers": "seguidores",
+        "kickProfile": "Perfil da Kick",
         "sync": "SYNC",
         "viewDescription": "Conecte suas contas para automatizar seu perfil, sincronizar seguidores e posts em tempo real.",
         "userIdNotFound": "ID do usuário não encontrado. Tente recarregar a página.",
@@ -450,6 +455,7 @@
         "tiktokDesc": "Sincronize perfil e verificação.",
         "youtubeDesc": "Inscritos e posts da comunidade.",
         "spotifyDesc": "Sincronize o que está ouvindo.",
+        "kickDesc": "Apareça ao vivo no seu perfil.",
         "twitterDesc": "Sincronize seus tweets (em breve)."
     },
     "social": {
@@ -482,6 +488,9 @@
         "connectTiktokDesc": "Sincronizar seguidores e verificação",
         "connectTwitch": "CONECTAR TWITCH",
         "connectTwitchDesc": "Seguidores e status online",
+        "connectKick": "CONECTAR KICK",
+        "connectKickDesc": "Status ao vivo e chat",
+        "disconnectKick": "DESCONECTAR KICK",
         "errorDisconnectInstagram": "Erro ao desconectar Instagram",
         "errorStartConnection": "Erro ao iniciar conexão",
         "live": "AO VIVO",
@@ -815,5 +824,11 @@
         "priceLabel": "Preço",
         "couponLabel": "Cupom",
         "cropImage": "Recortar Imagem do Produto"
+    },
+    "quests": {
+        "title": "Checklist de Inicialização",
+        "finishSetup": "Terminar configuração",
+        "of": "de",
+        "complete": "concluídas"
     }
 }

@@ -18,6 +18,7 @@ import {
     ChevronRight,
     Play,
     Plus,
+    ChevronUp,
     Music,
     Pause,
     SkipBack,
@@ -36,6 +37,7 @@ import { apiClient } from '../services/apiClient';
 import { SiSpotify } from 'react-icons/si';
 import { InstagramCard } from './InstagramCard';
 import { TwitchCard } from './TwitchCard';
+import { KickCard } from './KickCard';
 import { YouTubeCard } from './YouTubeCard';
 // @ts-ignore
 import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
@@ -69,6 +71,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const [activeCollection, setActiveCollection] = useState<string | null>(() => {
         return localStorage.getItem('nodus_profile_active_collection');
     });
+
+    const [openPlaylist, setOpenPlaylist] = useState<LinkItem | null>(null);
 
     // Persist activeTab to localStorage
     React.useEffect(() => {
@@ -136,11 +140,19 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         const integrations = profile.integrations || [];
         const result = [...manualSocial];
 
+        const hasLinkDeep = (list: LinkItem[], provider: string): boolean => {
+            return list.some(l => {
+                const urlMatch = l.url?.toLowerCase().includes(provider);
+                const titleMatch = l.title?.toLowerCase().includes(provider);
+                const platformMatch = l.platform === provider;
+                if (urlMatch || titleMatch || platformMatch) return true;
+                if (l.children && l.children.length > 0) return hasLinkDeep(l.children, provider);
+                return false;
+            });
+        };
+
         integrations.forEach(integration => {
-            const isDuplicate = result.some(l =>
-                l.url.toLowerCase().includes(integration.provider) ||
-                l.title?.toLowerCase().includes(integration.provider)
-            );
+            const isDuplicate = hasLinkDeep(activeLinks, integration.provider);
 
             if (!isDuplicate) {
                 const network = SOCIAL_NETWORKS.find(sn => sn.id === integration.provider);
@@ -168,20 +180,28 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         return result;
     }, [activeLinks, profile.integrations]);
 
-    // Button links - remain unchanged (only exclude items explicitly set to social layout)
+    // Button links - no longer filtering out 'social' layout to support dual-state
     const buttonLinks = React.useMemo(() => {
-        const manual = activeLinks.filter(l => (l.layout !== 'social' || l.type === 'collection'));
+        const manual = activeLinks;
         const integrations = profile.integrations || [];
         const result = [...manual];
 
-        const order = ['instagram', 'youtube', 'twitch'];
+        const order = ['instagram', 'youtube', 'twitch', 'kick'];
+
+        const hasLinkDeep = (list: LinkItem[], provider: string): boolean => {
+            return list.some(l => {
+                const urlMatch = l.url?.toLowerCase().includes(provider);
+                const titleMatch = l.title?.toLowerCase().includes(provider);
+                const platformMatch = l.platform === provider;
+                if (urlMatch || titleMatch || platformMatch) return true;
+                if (l.children && l.children.length > 0) return hasLinkDeep(l.children, provider);
+                return false;
+            });
+        };
+
         const providersToInject = order.filter(p =>
             integrations.some(i => i.provider === p) &&
-            !result.some(l =>
-                l.url.toLowerCase().includes(p) ||
-                (l.title && l.title.toLowerCase().includes(p)) ||
-                l.platform === p
-            )
+            !hasLinkDeep(activeLinks, p)
         );
 
         [...providersToInject].reverse().forEach(provider => {
@@ -192,11 +212,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 if (provider === 'instagram') url = `https://instagram.com/${username}`;
                 else if (provider === 'youtube') url = `https://youtube.com/@${username}`;
                 else if (provider === 'twitch') url = `https://twitch.tv/${username}`;
+                else if (provider === 'kick') url = `https://kick.com/${username}`;
 
                 if (url) {
                     result.unshift({
                         id: `btn-integration-${provider}`,
-                        title: provider === 'instagram' ? 'Instagram' : (provider === 'youtube' ? 'Canal do YouTube' : 'Twitch Live'),
+                        title: provider === 'instagram' ? 'Instagram' : (provider === 'youtube' ? 'Canal do YouTube' : (provider === 'twitch' ? 'Twitch Live' : 'Kick Live')),
                         url: url,
                         isActive: true,
                         layout: 'classic',
@@ -215,8 +236,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     };
 
     const isDarkTheme =
-        profile.headerLayout === 'banner'
-            ? (profile.bannerBlurColor ? getLuminance(profile.bannerBlurColor) < 0.5 : true)
+        profile.headerLayout === 'banner' || profile.headerLayout === 'compact'
+            ? (profile.bannerBlurColor ? getLuminance(profile.bannerBlurColor.split('|')[0]) < 0.5 : (profile.headerLayout === 'banner'))
             : (profile.themeId === 'custom' && profile.customSolidColor)
                 ? getLuminance(profile.customSolidColor) < 0.5
                 : currentTheme.id.includes('dark') ||
@@ -244,6 +265,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const instagramUsername = instagramIntegration?.profile_data?.username;
     const instagramAvatar = instagramIntegration?.profile_data?.avatar_url;
     const instagramMedia = (instagramIntegration?.profile_data as any)?.media || [];
+
+    const kickIntegration = profile.integrations?.find(i => i.provider === 'kick');
+    const kickFollowers = kickIntegration?.profile_data?.follower_count;
+    const kickUsername = kickIntegration?.profile_data?.username;
+    const kickDisplayName = (kickIntegration?.profile_data as any)?.display_name || kickUsername;
+    const kickAvatar = kickIntegration?.profile_data?.avatar_url;
+    const kickIsLive = (kickIntegration?.profile_data as any)?.is_live;
 
     const twitchIntegration = profile.integrations?.find(i => i.provider === 'twitch');
     const twitchFollowers = twitchIntegration?.profile_data?.follower_count;
@@ -309,90 +337,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         </svg>
     );
 
-    const MusicRichCard: React.FC<{ link: LinkItem, handleLinkClick: (id: string) => void }> = ({ link, handleLinkClick }) => {
-        const musicTitle = link.title || 'Música';
-        const musicArtist = link.subtitle || 'Artista';
-        const isDeezer = link.embedType === 'deezer' || link.url.includes('deezer');
-        const platformColor = isDeezer ? '#a238ff' : '#a49a2a'; // Deezer purple vs Spotify yellowish-olive
-
-
-        return (
-            <div className={`${roundedClass || 'rounded-2xl'} relative overflow-hidden group min-h-[80px] w-full isolate transform transition-all duration-300 hover:scale-[1.01]`}>
-                {/* 1. Blurred Background Image Layer */}
-                <div className="absolute inset-0 z-0">
-                    <img
-                        src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
-                        alt=""
-                        className="w-full h-full object-cover blur-xl scale-150 opacity-60"
-                    />
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-                    {/* Gradient Overlay for text readability */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
-                </div>
-
-                {/* 2. Content Container */}
-                <div className="relative z-10 flex items-center p-3 h-full gap-3.5">
-                    {/* Album Art with shadow & border */}
-                    <div className={`relative w-[52px] h-[52px] ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-md'} overflow-hidden shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-500`}>
-                        <img
-                            src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
-                            alt={musicTitle}
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
-
-                    {/* Text Info */}
-                    <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
-                        <h3 className="text-white text-[14px] font-medium truncate leading-tight tracking-tight shadow-black drop-shadow-sm" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                            {musicTitle}
-                        </h3>
-                        <p className="text-white/80 text-[11px] truncate leading-tight font-medium" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                            {musicArtist}
-                        </p>
-
-                        {/* Audio Wave / "Preview" Indicator & Platform Icon */}
-                        <div className="flex items-center justify-between mt-1">
-                            <div className="flex items-center gap-1.5">
-                                <div className="flex items-end gap-0.5 h-2">
-                                    <span className="w-0.5 h-full bg-green-400 animate-[music-bar_0.8s_ease-in-out_infinite]" />
-                                    <span className="w-0.5 h-1/2 bg-green-400 animate-[music-bar_1.1s_ease-in-out_infinite]" />
-                                    <span className="w-0.5 h-3/4 bg-green-400 animate-[music-bar_1.3s_ease-in-out_infinite]" />
-                                </div>
-                                <span className="text-[9px] uppercase tracking-wider text-green-400 font-normal opacity-90">Preview</span>
-                            </div>
-                            <div className="opacity-80">
-                                {isDeezer ? <DeezerIcon size={12} color="white" /> : <SiSpotify size={12} color="#1DB954" />}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Play Button - Large & Clear */}
-                    <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleLinkClick(link.id);
-                        }}
-                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-black shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 group-hover:bg-green-500 group-hover:text-white"
-                    >
-                        <Play size={18} fill="currentColor" className="ml-1" />
-                    </a>
-                </div>
-
-                {/* Subtle border overlay */}
-                <div className="absolute inset-0 border border-white/10 pointer-events-none rounded-[inherit]" />
-
-                <style>{`
-                    @keyframes music-bar {
-                        0%, 100% { height: 25%; opacity: 0.5; }
-                        50% { height: 100%; opacity: 1; }
-                    }
-                `}</style>
-            </div>
-        );
-    };
 
     // Unified Styling Logic: Preserving Theme "Soul" while allowing Edits
     const isCustomTheme = currentTheme.id === 'custom';
@@ -444,7 +388,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
     // 2.5 Font Logic - Always prioritize profile settings if available
     const effectiveFontFamily = profile.fontFamily || currentTheme.fontFamily || "'Inter', sans-serif";
-    const containerStyle = { fontFamily: effectiveFontFamily };
+    const effectiveTextColor = (profile.customTextColor || currentTheme.textHex || (isDarkTheme ? '#ffffff' : '#0f172a'));
+    const containerStyle = {
+        fontFamily: effectiveFontFamily,
+        color: effectiveTextColor
+    };
 
     // Helper to get contrast color (Black or White) based on a hex color
     const getContrastColor = (hex: string) => {
@@ -459,9 +407,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     };
 
     // Parse customSecondaryColor: supports "#color1" or "#color1|#color2" (gradient)
-    const rawSecondary = isProfileMode ? (profile.customSecondaryColor || null) : null;
+    // FIX: Always use profile.customSecondaryColor if in Profile Mode (Compact).
+    // The default is now STABLE (white for light, slate-900 for dark) based ONLY on profile/layout settings.
+    const rawSecondary = isProfileMode ? (profile.customSecondaryColor || (profile.bannerBlurColor && getLuminance(profile.bannerBlurColor.split('|')[0]) < 0.5 ? '#0f172a' : '#ffffff')) : null;
     const secParts = rawSecondary ? rawSecondary.split('|') : [];
-    const secColor1 = secParts[0] || (isDarkTheme ? '#0f172a' : '#ffffff');
+    const secColor1 = secParts[0];
     const secColor2 = secParts[1] || null;
 
     const headerContentBg = isProfileMode
@@ -506,20 +456,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         // 0. Priority: User custom button text color
         if (profile.customButtonTextColor) return profile.customButtonTextColor;
 
-        // 2. If currently in a DARK card/theme context and button is NOT light, use white
+        // 1. If currently in a DARK card/theme context and button is NOT light, use white
         if (!isButtonLight && (isDarkTheme)) return '#ffffff';
 
-        // 3. If the button specifically is light, we MUST use dark text for visibility
+        // 2. If the button specifically is light, we MUST use dark text for visibility
         if (isButtonLight) return '#0f172a'; // slate-900 equivalent
 
-        // 4. Fallback to white if background is dark/glass
+        // 3. Fallback to white if background is dark/glass
         if (profile.customBackground || isDarkTheme) return '#ffffff';
 
-        // 5. Default to undefined to let Tailwind/Inheritance handle it
+        // 4. Default to undefined to let Tailwind/Inheritance handle it
         return undefined;
     };
-
-    const effectiveTextColor = (profile.customTextColor || currentTheme.textHex || (isDarkTheme ? '#ffffff' : '#0f172a'));
 
     const mainTextColorStyle = effectiveTextColor ? { color: effectiveTextColor } : {};
 
@@ -529,10 +477,223 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
     const textClass = currentTheme.textClass;
 
+    const MusicRichCard: React.FC<{ link: LinkItem, handleLinkClick: (id: string) => void }> = ({ link, handleLinkClick }) => {
+        const musicTitle = link.title || 'Música';
+        const musicArtist = link.subtitle || 'Artista';
+        const isDeezer = link.embedType === 'deezer' || link.url.includes('deezer');
+        const contrastColor = getSmartTextColor();
+        const hasTracks = link.children && link.children.length > 0;
+
+        return (
+            <div
+                className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${baseCardClass} h-[80px] p-0 items-center justify-between mb-1`}
+                style={mainButtonStyle}
+            >
+                <div className="flex h-full items-center px-4 gap-3.5 flex-1 min-w-0">
+                    {/* Album Art */}
+                    <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-lg'} overflow-hidden shadow-sm shrink-0 group-hover:scale-105 transition-transform duration-500`}>
+                        <img
+                            src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
+                            alt={musicTitle}
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+
+                    {/* Info Column */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-center h-full text-left" style={{ fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                        {/* Header Label */}
+                        <div className="flex items-center gap-1.5 mb-1 opacity-50">
+                            {isDeezer ? <DeezerIcon size={10} color={getSmartTextColor()} /> : <SiSpotify size={10} color="#1DB954" />}
+                            <span className="text-[7px] uppercase tracking-[0.25em] leading-none font-bold" style={{ color: contrastColor }}>
+                                {isDeezer ? 'Deezer' : 'Spotify'} {hasTracks ? 'Álbum' : ''}
+                            </span>
+                        </div>
+
+                        {/* Song Title (Large & Uppercase like Twitch) */}
+                        <h4 className="text-[14px] font-bold truncate tracking-tight uppercase leading-none mb-1.5" style={{ color: contrastColor }}>
+                            {musicTitle}
+                        </h4>
+
+                        {/* Artist Info Row (Structured like Followers) */}
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 opacity-80">
+                                <Music size={10} style={{ color: contrastColor }} className="opacity-50" />
+                                <span className="text-[10px] font-bold uppercase leading-none" style={{ color: contrastColor }}>
+                                    {musicArtist}
+                                </span>
+                                {(hasTracks || !isDeezer) && (
+                                    <div className="flex items-end gap-0.5 h-2 ml-1 opacity-40">
+                                        <span className="w-0.5 h-full bg-current animate-[music-bar_0.8s_ease-in-out_infinite]" style={{ color: contrastColor }} />
+                                        <span className="w-0.5 h-1/2 bg-current animate-[music-bar_1.1s_ease-in-out_infinite]" style={{ color: contrastColor }} />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Action Area */}
+                <div className="shrink-0 h-full flex items-center pr-4">
+                    <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black/10 transition-colors">
+                        {hasTracks ? (
+                            <ChevronUp size={16} style={{ color: contrastColor }} className="opacity-60 group-hover:opacity-100 transition-opacity" />
+                        ) : (
+                            <Play size={14} fill={contrastColor} style={{ color: contrastColor }} className="ml-0.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                        )}
+                    </div>
+                </div>
+
+                {/* Overlay link */}
+                <a
+                    href={hasTracks ? "#" : link.url}
+                    target={hasTracks ? "_self" : "_blank"}
+                    rel="noreferrer"
+                    className="absolute inset-0 z-30 cursor-pointer"
+                    onClick={(e) => {
+                        if (hasTracks) {
+                            e.preventDefault();
+                            setOpenPlaylist(link);
+                        } else {
+                            handleLinkClick(link.id);
+                        }
+                    }}
+                />
+
+                <style>{`
+                    @keyframes music-bar {
+                        0%, 100% { height: 25%; opacity: 0.5; }
+                        50% { height: 100%; opacity: 1; }
+                    }
+                `}</style>
+            </div>
+        );
+    };
+
+    const MusicPlaylistDrawer = () => {
+        const isDeezer = openPlaylist?.embedType === 'deezer' || openPlaylist?.url.includes('deezer');
+        const isDark = isDarkTheme;
+
+        return (
+            <AnimatePresence>
+                {openPlaylist && (
+                    <div className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-none">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setOpenPlaylist(null)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto"
+                        />
+                        <motion.div
+                            drag="y"
+                            dragConstraints={{ top: 0, bottom: 0 }}
+                            dragElastic={0.4}
+                            onDragEnd={(_, info) => {
+                                if (info.offset.y > 100 || info.velocity.y > 500) {
+                                    setOpenPlaylist(null);
+                                }
+                            }}
+                            initial={{ y: '100%' }}
+                            animate={{ y: 0 }}
+                            exit={{ y: '100%' }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            className="relative w-full max-w-lg bg-white rounded-t-[32px] overflow-hidden pointer-events-auto flex flex-col shadow-2xl"
+                            style={{
+                                backgroundColor: isDark ? '#121212' : '#FFFFFF',
+                                color: isDark ? '#FFFFFF' : '#000000',
+                                borderTop: isDark ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                                height: 'auto',
+                                maxHeight: '85%'
+                            }}
+                        >
+                            {/* Drawer Handle */}
+                            <div className="w-full flex justify-center pt-3 pb-1">
+                                <div className={`w-12 h-1.5 rounded-full ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
+                            </div>
+
+                            {/* Header Section */}
+                            <div className={`px-6 pt-4 pb-6 flex items-center gap-5 border-b ${isDark ? 'border-white/5' : 'border-black/5'}`}>
+                                <div className="relative group/cover shrink-0">
+                                    <img
+                                        src={openPlaylist?.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
+                                        className="w-20 h-20 rounded-xl object-cover shadow-lg group-hover:scale-105 transition-transform duration-500"
+                                        alt=""
+                                    />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-1.5 mb-1 opacity-50">
+                                        {isDeezer ? <DeezerIcon size={12} color={isDark ? '#FFFFFF' : '#000000'} /> : <SiSpotify size={12} color="#1DB954" />}
+                                        <span className="text-[8px] uppercase tracking-[0.3em] font-black">
+                                            {isDeezer ? 'Deezer' : 'Spotify'} {openPlaylist?.url.includes('album') ? 'Álbum' : 'Playlist'}
+                                        </span>
+                                    </div>
+                                    <h3 className="text-xl font-black truncate leading-none uppercase tracking-tight mb-1">
+                                        {openPlaylist?.title}
+                                    </h3>
+                                    <p className="text-sm opacity-60 font-medium truncate italic">
+                                        {openPlaylist?.subtitle || 'Várias faixas'}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setOpenPlaylist(null)}
+                                    className={`p-2 rounded-full transform active:scale-95 transition-all ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
+                                >
+                                    <ChevronDown size={24} />
+                                </button>
+                            </div>
+
+                            {/* Tracks List */}
+                            <div className="overflow-y-auto flex-1 px-4 py-4 space-y-1 overscroll-contain scrollbar-hide">
+                                {openPlaylist.children?.map((track, idx) => (
+                                    <motion.a
+                                        key={track.id}
+                                        href={track.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        onClick={() => handleLinkClick(track.id)}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: idx * 0.03 }}
+                                        className={`flex items-center gap-4 p-3.5 rounded-2xl group transition-all relative overflow-hidden ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
+                                    >
+                                        <div className="absolute inset-0 bg-current opacity-0 group-hover:opacity-[0.02] transition-opacity" />
+
+                                        <div className="flex items-baseline gap-4 flex-1 min-w-0">
+                                            <span className="text-[10px] font-mono opacity-20 w-4 shrink-0 font-black">
+                                                {(idx + 1).toString().padStart(2, '0')}
+                                            </span>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className={`text-sm font-bold truncate tracking-tight uppercase ${isDark ? 'text-white/90' : 'text-black/90'}`}>
+                                                    {track.title}
+                                                </h4>
+                                                {track.subtitle && (
+                                                    <p className="text-[10px] opacity-40 font-bold tracking-wider truncate uppercase mt-0.5">
+                                                        {track.subtitle}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isDark ? 'bg-white/5 group-hover:bg-[#1DB954]/20' : 'bg-black/5 group-hover:bg-[#1DB954]/20'}`}>
+                                            <Play size={12} fill={isDarkTheme ? "#FFFFFF" : "#000000"} className={`transition-all ${isDarkTheme ? 'text-white' : 'text-black'} opacity-40 group-hover:opacity-100 group-hover:scale-110 ml-0.5`} />
+                                        </div>
+                                    </motion.a>
+                                ))}
+                            </div>
+
+                            {/* Bottom Pad for Home Indicator */}
+                            <div className="h-4 w-full" />
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        );
+    };
+
 
     return (
         <div
-            className={`relative w-full ${isPreview ? 'min-h-full' : 'min-h-[100dvh]'} flex flex-col isolate`}
+            className={`relative w-full ${isPreview ? 'h-full flex-1' : 'min-h-[100dvh]'} flex flex-col isolate`}
             style={{ fontFamily: profile.fontFamily }}
         >
             <style>{`
@@ -564,6 +725,15 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     50% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1.02); }
                     75% { border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%; }
                 }
+                .noise-overlay {
+                    position: absolute;
+                    inset: 0;
+                    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+                    opacity: 0.4;
+                    mix-blend-mode: overlay;
+                    pointer-events: none;
+                    z-index: 1;
+                }
             `}</style>
             {/* Background Layer - Hidden in Perfil Mode */}
             {profile.headerLayout !== 'compact' && (
@@ -591,7 +761,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
             {/* Content Container */}
             <div
-                className={`w-full ${isPreview ? 'h-full overflow-y-auto scrollbar-hide' : 'flex-1'} flex flex-col relative z-20 ${currentTheme.id === 'glass' ? 'text-white' : currentTheme.textClass}`}
+                className={`w-full ${isPreview ? 'flex-1 min-h-0 overflow-y-auto scrollbar-hide' : 'flex-1'} flex flex-col relative z-20 ${currentTheme.id === 'glass' ? 'text-white' : currentTheme.textClass}`}
                 style={{
                     ...containerStyle,
                     fontSize: `${(profile.fontSize || undefined) || 16}px`,
@@ -628,7 +798,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 const c2 = parts[1];
                                 return (
                                     <div
-                                        className="absolute inset-0 z-[5]"
+                                        className="absolute inset-0 z-[5] overflow-hidden"
                                         style={{
                                             background: c2
                                                 ? `linear-gradient(135deg, ${c1}, ${c2})`
@@ -636,7 +806,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             opacity: 0.45,
                                             mixBlendMode: 'multiply',
                                         }}
-                                    />
+                                    >
+                                        <div className="noise-overlay" />
+                                    </div>
                                 );
                             })()}
 
@@ -665,7 +837,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                             {/* 2. Bio Text (Moved up and Bold) */}
                             {profile.bio && (
-                                <p className="text-white font-normal text-[1.1rem] max-w-[340px] leading-relaxed drop-shadow-lg mb-3">
+                                <p
+                                    className="text-white font-normal text-[1.1rem] max-w-[340px] leading-relaxed drop-shadow-lg mb-3"
+                                    style={{ fontSize: profile.bioFontSize ? `${profile.bioFontSize}px` : undefined }}
+                                >
                                     {profile.bio}
                                 </p>
                             )}
@@ -756,9 +931,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             </div>
                             {/* Full-length Intelligent Backdrop for Social Layout */}
                             <div
-                                className={`absolute top-[140px] -left-6 w-[calc(100%+3rem)] bottom-0 rounded-t-[32px] z-0 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]`}
+                                className={`absolute top-[130px] -left-6 w-[calc(100%+3rem)] bottom-0 rounded-t-[48px] z-0 shadow-[0_-15px_40px_rgba(0,0,0,0.1)] overflow-hidden`}
                                 style={{ background: headerContentBg }}
-                            />
+                            >
+                                <div className="noise-overlay" />
+                            </div>
                         </>
                     )}
 
@@ -820,7 +997,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                 {profile.bio && (
                                     <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line text-center ${profile.headerLayout === 'compact' ? '' : 'max-w-[300px]'}`}
-                                        style={{ ...collectionTextColorStyle, fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                        style={{
+                                            ...collectionTextColorStyle,
+                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                            fontSize: profile.bioFontSize ? `${profile.bioFontSize}px` : undefined
+                                        }}
                                     >
                                         {profile.bio}
                                     </p>
@@ -903,297 +1084,295 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
                     {/* Main Dynamic Content Area */}
-                    <AnimatePresence mode="popLayout" initial={false}>
-                        {/* SHOP VIEW (Collections or Grid) */}
-                        {products.length > 0 && activeTab === 'shop' && (
-                            <motion.div
-                                key="shop-tab"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0 }}
-                                className="w-full space-y-4"
-                            >
+                    <div className="flex-1 flex flex-col w-full relative">
+                        <AnimatePresence mode="popLayout" initial={false}>
+                            {/* SHOP VIEW (Collections or Grid) */}
+                            {products.length > 0 && activeTab === 'shop' && (
+                                <motion.div
+                                    key="shop-tab"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0 }}
+                                    className="w-full space-y-4 flex-1"
+                                >
 
-                                {/* Collection List View */}
-                                {!activeCollection ? (
-                                    <div className="space-y-4">
-                                        <div
-                                            className={`flex items-center gap-2.5 mb-2 text-xs font-normal uppercase tracking-widest opacity-60 px-1`}
-                                            style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                        >
-                                            <ShoppingBag size={14} className="stroke-[2.5]" />
-                                            <span>Categorias</span>
-                                        </div>
-
-                                        {Object.entries(collections).map(([name, items]) => (
-                                            <button
-                                                key={name}
-                                                onClick={() => handleCollectionClick(name)}
-                                                className={`w-full group relative transition-all duration-300 ${cleanClass(baseCardClass, ['bg', 'text']).replace('overflow-hidden', '')}`}
-                                                style={{
-                                                    ...mainButtonStyle,
-                                                    backgroundColor: buttonHex,
-                                                    color: getSmartTextColor()
-                                                }}
+                                    {/* Collection List View */}
+                                    {!activeCollection ? (
+                                        <div className="space-y-4">
+                                            <div
+                                                className={`flex items-center gap-2.5 mb-2 text-xs font-normal uppercase tracking-widest opacity-60 px-1`}
+                                                style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                             >
-                                                <div className={`flex flex-col w-full h-full overflow-hidden ${roundedClass}`}>
-                                                    {/* Preview Images Collage - Refined */}
-                                                    <div className="flex h-48 w-full gap-1 p-1 bg-black/5">
-                                                        {items.length === 1 ? (
-                                                            <div className="flex-1 h-full relative overflow-hidden rounded-xl">
-                                                                <img src={items[0].image} alt={items[0].name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" />
-                                                                <div className="absolute inset-0 bg-black/5" />
-                                                            </div>
-                                                        ) : (
-                                                            <>
-                                                                {items.slice(0, 3).map((item, i) => (
-                                                                    <div key={item.id} className={`flex-1 h-full relative overflow-hidden ${i === 0 ? 'rounded-l-xl' : i === items.slice(0, 3).length - 1 ? 'rounded-r-xl' : ''}`}>
-                                                                        <img src={item.image} alt={item.name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" />
-                                                                        <div className="absolute inset-0 bg-black/5" />
-                                                                    </div>
-                                                                ))}
-                                                                {/* Placeholder if less than 3 items */}
-                                                                {items.length < 3 && Array.from({ length: 3 - items.length }).map((_, i) => (
-                                                                    <div key={`empty-${i}`} className="flex-1 h-full bg-slate-100/50 flex items-center justify-center text-slate-300">
-                                                                        <ShoppingBag size={24} strokeWidth={1.5} />
-                                                                    </div>
-                                                                ))}
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                    <div className="p-4 flex items-center justify-between bg-black/5">
-                                                        <div className="text-left">
-                                                            <h3 className="text-sm font-normal" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
-                                                            <p className="text-[10px] font-normal uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                {items.length} {items.length === 1 ? 'Produto' : 'Produtos'}
-                                                            </p>
-                                                        </div>
-                                                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center transition-colors">
-                                                            <ChevronRight size={16} />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </button>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    /* Filtered Product Grid - Refined Storefront */
-                                    <div className="relative">
-                                        <div className="flex items-center justify-between mb-8 px-1">
-                                            <div className="flex flex-col">
+                                                <ShoppingBag size={14} className="stroke-[2.5]" />
+                                                <span>Categorias</span>
+                                            </div>
+
+                                            {Object.entries(collections).map(([name, items]) => (
                                                 <button
-                                                    onClick={() => setActiveCollection(null)}
-                                                    className={`flex items-center gap-1.5 text-[10px] font-normal uppercase tracking-widest opacity-50 hover:opacity-100 transition-all mb-1.5`}
-                                                    style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                    key={name}
+                                                    onClick={() => handleCollectionClick(name)}
+                                                    className={`w-full group relative transition-all duration-300 ${cleanClass(baseCardClass, ['bg', 'text']).replace('overflow-hidden', '')}`}
+                                                    style={{
+                                                        ...mainButtonStyle,
+                                                        backgroundColor: buttonHex,
+                                                        color: getSmartTextColor()
+                                                    }}
                                                 >
-                                                    <ChevronLeft size={12} strokeWidth={3} />
-                                                    <span>Voltar</span>
-                                                </button>
-                                                <h2 className={`text-xl font-medium tracking-tight`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                    {activeCollection}
-                                                </h2>
-                                            </div>
-                                            <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
-                                                <ShoppingBag size={20} className="opacity-40" />
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4 pb-12">
-                                            {activeCollection && collections[activeCollection]?.map(product => {
-                                                const productContent = (
-                                                    <div className="flex flex-col w-full h-full relative">
-                                                        <div className={`relative w-full aspect-[4/5] transform transition-transform group-hover:scale-[1.02] duration-300`}>
-                                                            <div className={`absolute inset-0 overflow-hidden ${roundedClass} border-none shadow-none`} style={{ backgroundColor: buttonHex, ...mainButtonStyle }}>
-                                                                <img src={product.image} alt={product.name} className="w-full h-full block object-cover" />
-                                                                <div className="absolute inset-0 bg-black/5" />
-
-                                                                {/* Badge container with high z-index and clip safety */}
-                                                                <div className="absolute top-2 left-2 z-10">
-                                                                    {product.discountCode && (
-                                                                        <div className="bg-slate-950/90 text-white text-[9px] font-medium uppercase tracking-tighter px-2 py-1 rounded-lg">
-                                                                            -{product.discountCode}
+                                                    <div className={`flex flex-col w-full h-full overflow-hidden ${roundedClass}`}>
+                                                        {/* Preview Images Collage - Refined */}
+                                                        <div className="flex h-48 w-full gap-1 p-1 bg-black/5">
+                                                            {items.length === 1 ? (
+                                                                <div className="flex-1 h-full relative overflow-hidden rounded-xl">
+                                                                    <img src={items[0].image} alt={items[0].name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" />
+                                                                    <div className="absolute inset-0 bg-black/5" />
+                                                                </div>
+                                                            ) : (
+                                                                <>
+                                                                    {items.slice(0, 3).map((item, i) => (
+                                                                        <div key={item.id} className={`flex-1 h-full relative overflow-hidden ${i === 0 ? 'rounded-l-xl' : i === items.slice(0, 3).length - 1 ? 'rounded-r-xl' : ''}`}>
+                                                                            <img src={item.image} alt={item.name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" />
+                                                                            <div className="absolute inset-0 bg-black/5" />
                                                                         </div>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Hover Action Overlay - Also needs to be clipped by the same shape */}
-                                                            <div className={`absolute inset-0 ${roundedClass} bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none`}>
-                                                                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-950 shadow-xl scale-90 group-hover:scale-100 transition-transform">
-                                                                    <Plus size={20} />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Product Info */}
-                                                        <div className="flex flex-col gap-0.5 mt-2 px-1 text-left">
-                                                            <span className={`text-[13px] font-normal truncate`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                {product.name}
-                                                            </span>
-                                                            {product.price && (
-                                                                <span className={`text-[11px] font-medium opacity-70 mt-2`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                    {product.price}
-                                                                </span>
+                                                                    ))}
+                                                                    {/* Placeholder if less than 3 items */}
+                                                                    {items.length < 3 && Array.from({ length: 3 - items.length }).map((_, i) => (
+                                                                        <div key={`empty-${i}`} className="flex-1 h-full bg-slate-100/50 flex items-center justify-center text-slate-300">
+                                                                            <ShoppingBag size={24} strokeWidth={1.5} />
+                                                                        </div>
+                                                                    ))}
+                                                                </>
                                                             )}
                                                         </div>
+                                                        <div className="p-4 flex items-center justify-between bg-black/5">
+                                                            <div className="text-left">
+                                                                <h3 className="text-sm font-normal" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
+                                                                <p className="text-[10px] font-normal uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                    {items.length} {items.length === 1 ? 'Produto' : 'Produtos'}
+                                                                </p>
+                                                            </div>
+                                                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center transition-colors">
+                                                                <ChevronRight size={16} />
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                );
-
-                                                return (
-                                                    <a
-                                                        key={product.id}
-                                                        href={product.url}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        onClick={() => handleLinkClick(product.id)}
-                                                        className={`flex flex-col group relative transition-all duration-300`}
-                                                    >
-                                                        {productContent}
-                                                    </a>
-                                                );
-                                            })}
+                                                </button>
+                                            ))}
                                         </div>
-                                    </div>
-                                )}
-                            </motion.div>
-                        )}
-
-                        {/* Button Links List - Show if activeTab matches OR no products */}
-                        {(products.length === 0 || activeTab === 'links') && (
-                            <motion.div
-                                key="links-tab"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0 }}
-                                className="flex flex-col gap-1.5 w-full relative"
-                            >
-                                {(() => {
-                                    const renderedItems: React.ReactNode[] = [];
-
-                                    // We no longer inject here at the top.
-                                    // It will be rendered at its position in the loop below.
-
-                                    const themeButtonHex = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#0f172a');
-                                    const cardAccentColor = themeButtonHex;
-                                    const cardTextColor = (isDarkTheme || currentTheme.id === 'glass' ? '#ffffff' : '#0f172a');
-
-                                    let currentIconGroup: LinkItem[] = [];
-                                    let currentCardGroup: LinkItem[] = [];
-
-                                    const flushIcons = () => {
-                                        if (currentIconGroup.length > 0) {
-                                            const group = [...currentIconGroup];
-                                            renderedItems.push(
-                                                <div key={`social-row-${group[0].id}`} className="flex items-center justify-center gap-2 w-full mb-3 flex-wrap relative">
-                                                    {group.map(iconLink => {
-                                                        const network = SOCIAL_NETWORKS.find(n => iconLink.title.toLowerCase().includes(n.id)) ||
-                                                            SOCIAL_NETWORKS.find(n => iconLink.url.toLowerCase().includes(n.id)) ||
-                                                            SOCIAL_NETWORKS[0];
-
-                                                        const Icon = network.icon || Globe;
-
-                                                        return (
-                                                            <motion.a
-                                                                key={iconLink.id}
-                                                                initial={{ scale: 0.8, opacity: 0 }}
-                                                                animate={{ scale: 1, opacity: 1 }}
-                                                                transition={{ duration: 0 }}
-                                                                href={iconLink.url}
-                                                                onClick={() => handleLinkClick(iconLink.id)}
-                                                                // AQUI: Aplicamos buttonClass (limpa) para que o ícone social tenha o mesmo "feel" do botão (hover, shadow)
-                                                                // Removemos classes de layout/padding do botão para que não quebre o ícone
-                                                                className={`relative group flex items-center justify-center w-12 h-12 transition-all duration-300 ${buttonClass.replace(/\b(block|w-full|min-h-\[.*?\]|px-\d+(\.\d+)?|py-\d+(\.\d+)?|justify-between|text-center)\b/g, '').trim()}`}
-                                                                style={{ ...mainButtonStyle, borderRadius: borderRadiusValue }} // Força o estilo do botão (cor e redondura)
-                                                            >
-                                                                <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${currentTheme.id.includes('dark') ? 'bg-white' : 'bg-black'}`}></div>
-
-                                                                <div className="relative z-10 p-1">
-                                                                    {iconLink.image ? (
-                                                                        <img src={iconLink.image} alt="" className="w-8 h-8 rounded-lg object-cover" />
-                                                                    ) : (
-                                                                        <Icon size={28} />
-                                                                    )}
-                                                                </div>
-                                                            </motion.a>
-                                                        );
-                                                    })}
+                                    ) : (
+                                        /* Filtered Product Grid - Refined Storefront */
+                                        <div className="relative">
+                                            <div className="flex items-center justify-between mb-8 px-1">
+                                                <div className="flex flex-col">
+                                                    <button
+                                                        onClick={() => setActiveCollection(null)}
+                                                        className={`flex items-center gap-1.5 text-[10px] font-normal uppercase tracking-widest opacity-50 hover:opacity-100 transition-all mb-1.5`}
+                                                        style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                    >
+                                                        <ChevronLeft size={12} strokeWidth={3} />
+                                                        <span>Voltar</span>
+                                                    </button>
+                                                    <h2 className={`text-xl font-medium tracking-tight`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                        {activeCollection}
+                                                    </h2>
                                                 </div>
-                                            );
-                                            currentIconGroup = [];
-                                        }
-                                    };
+                                                <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
+                                                    <ShoppingBag size={20} className="opacity-40" />
+                                                </div>
+                                            </div>
 
-                                    const flushCards = () => {
-                                        if (currentCardGroup.length > 0) {
-                                            const group = [...currentCardGroup];
-                                            renderedItems.push(
-                                                <div key={`card-grid-${group[0].id}`} className="flex flex-col gap-4 mb-8">
-                                                    {group.map((cardLink) => {
-                                                        const cardBg = cardAccentColor;
-                                                        const cardContent = (
-                                                            <div className="relative z-10 flex flex-col h-full w-full">
-                                                                <div
-                                                                    className="relative overflow-hidden h-44 md:h-52"
-                                                                    style={{ backgroundColor: cardBg + '1A' }}
-                                                                >
-                                                                    {cardLink.image ? (
-                                                                        <img src={cardLink.image} alt="" className="w-full h-full object-cover transition-transform duration-700" />
-                                                                    ) : (
-                                                                        <div className="w-full h-full flex items-center justify-center opacity-10">
-                                                                            <Globe size={40} />
-                                                                        </div>
-                                                                    )}
+                                            <div className="grid grid-cols-2 gap-4 pb-12">
+                                                {activeCollection && collections[activeCollection]?.map(product => {
+                                                    const productContent = (
+                                                        <div className="flex flex-col w-full h-full relative">
+                                                            <div className={`relative w-full aspect-[4/5] transform transition-transform group-hover:scale-[1.02] duration-300`}>
+                                                                <div className={`absolute inset-0 overflow-hidden ${roundedClass} border-none shadow-none`} style={{ backgroundColor: buttonHex, ...mainButtonStyle }}>
+                                                                    <img src={product.image} alt={product.name} className="w-full h-full block object-cover" />
+                                                                    <div className="absolute inset-0 bg-black/5" />
+
+                                                                    {/* Badge container with high z-index and clip safety */}
+                                                                    <div className="absolute top-2 left-2 z-10">
+                                                                        {product.discountCode && (
+                                                                            <div className="bg-slate-950/90 text-white text-[9px] font-medium uppercase tracking-tighter px-2 py-1 rounded-lg">
+                                                                                -{product.discountCode}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
-                                                                <div className={`p-3.5 flex flex-col justify-center items-center text-center h-16 relative`}>
-                                                                    {/* Platform Icon Footer for Music in standard Cards */}
-                                                                    {isMusicLink(cardLink) && (
-                                                                        <div className="absolute top-1.5 right-1.5 opacity-60">
-                                                                            {cardLink.url.includes('deezer') ? (
-                                                                                <DeezerIcon size={10} color={getSmartTextColor()} />
-                                                                            ) : (
-                                                                                <SiSpotify size={10} color={isButtonLight ? "#1a2c14" : "#1DB954"} />
-                                                                            )}
-                                                                        </div>
-                                                                    )}
-                                                                    <span className="text-[0.95em] leading-tight truncate px-1" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.title}</span>
-                                                                    {cardLink.subtitle && <span className="text-[0.75em] leading-tight truncate px-1 opacity-60 mt-1.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.subtitle}</span>}
+
+                                                                {/* Hover Action Overlay - Also needs to be clipped by the same shape */}
+                                                                <div className={`absolute inset-0 ${roundedClass} bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none`}>
+                                                                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-950 shadow-xl scale-90 group-hover:scale-100 transition-transform">
+                                                                        <Plus size={20} />
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        );
 
-                                                        return (
-                                                            <motion.a
-                                                                key={cardLink.id}
-                                                                initial={{ scale: 0.95, opacity: 0 }}
-                                                                whileInView={{ scale: 1, opacity: 1 }}
-                                                                viewport={{ once: true }}
-                                                                href={cardLink.url}
-                                                                target="_blank"
-                                                                rel="noreferrer"
-                                                                onClick={() => handleLinkClick(cardLink.id)}
-                                                                className={`group relative overflow-hidden transition-all duration-300 w-full ${baseCardClass}`}
-                                                                style={{ ...mainButtonStyle, backgroundColor: buttonHex }}
-                                                            >
-                                                                {cardContent}
-                                                            </motion.a>
-                                                        );
-                                                    })}
-                                                </div>
-                                            );
-                                            currentCardGroup = [];
-                                        }
-                                    };
+                                                            {/* Product Info */}
+                                                            <div className="flex flex-col gap-0.5 mt-2 px-1 text-left">
+                                                                <span className={`text-[13px] font-normal truncate`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                    {product.name}
+                                                                </span>
+                                                                {product.price && (
+                                                                    <span className={`text-[11px] font-medium opacity-70 mt-2`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                        {product.price}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
 
-                                    buttonLinks.forEach(link => {
-                                        if (link.type === 'collection' && (link.platform === 'instagram' || link.title === 'Posts do Instagram')) {
-                                            // 1. Instagram Collection special rendering (Priority)
-                                            flushIcons();
-                                            flushCards();
+                                                    return (
+                                                        <a
+                                                            key={product.id}
+                                                            href={product.url}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            onClick={() => handleLinkClick(product.id)}
+                                                            className={`flex flex-col group relative transition-all duration-300`}
+                                                        >
+                                                            {productContent}
+                                                        </a>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            )}
 
-                                            if (instagramIntegration) {
-                                                // Map children links to the format expected by InstagramCard
+                            {/* Button Links List - Show if activeTab matches OR no products */}
+                            {(products.length === 0 || activeTab === 'links') && (
+                                <motion.div
+                                    key="links-tab"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0 }}
+                                    className="flex flex-col gap-1.5 w-full relative flex-1"
+                                >
+                                    {(() => {
+                                        const renderedItems: React.ReactNode[] = [];
+
+                                        // We no longer inject here at the top.
+                                        // It will be rendered at its position in the loop below.
+
+                                        const themeButtonHex = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#0f172a');
+                                        const cardAccentColor = themeButtonHex;
+                                        const cardTextColor = (isDarkTheme || currentTheme.id === 'glass' ? '#ffffff' : '#0f172a');
+
+                                        let currentIconGroup: LinkItem[] = [];
+                                        let currentCardGroup: LinkItem[] = [];
+
+                                        const flushIcons = () => {
+                                            if (currentIconGroup.length > 0) {
+                                                const group = [...currentIconGroup];
+                                                renderedItems.push(
+                                                    <div key={`social-row-${group[0].id}`} className="flex items-center justify-center gap-2 w-full mb-3 flex-wrap relative">
+                                                        {group.map(iconLink => {
+                                                            const network = SOCIAL_NETWORKS.find(n => iconLink.title.toLowerCase().includes(n.id)) ||
+                                                                SOCIAL_NETWORKS.find(n => iconLink.url.toLowerCase().includes(n.id)) ||
+                                                                SOCIAL_NETWORKS[0];
+
+                                                            const Icon = network.icon || Globe;
+
+                                                            return (
+                                                                <motion.a
+                                                                    key={iconLink.id}
+                                                                    initial={{ scale: 0.8, opacity: 0 }}
+                                                                    animate={{ scale: 1, opacity: 1 }}
+                                                                    transition={{ duration: 0 }}
+                                                                    href={iconLink.url}
+                                                                    onClick={() => handleLinkClick(iconLink.id)}
+                                                                    // AQUI: Aplicamos buttonClass (limpa) para que o ícone social tenha o mesmo "feel" do botão (hover, shadow)
+                                                                    // Removemos classes de layout/padding do botão para que não quebre o ícone
+                                                                    className={`relative group flex items-center justify-center w-12 h-12 transition-all duration-300 ${buttonClass.replace(/\b(block|w-full|min-h-\[.*?\]|px-\d+(\.\d+)?|py-\d+(\.\d+)?|justify-between|text-center)\b/g, '').trim()}`}
+                                                                    style={{ ...mainButtonStyle, borderRadius: borderRadiusValue }} // Força o estilo do botão (cor e redondura)
+                                                                >
+                                                                    <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${currentTheme.id.includes('dark') ? 'bg-white' : 'bg-black'}`}></div>
+
+                                                                    <div className="relative z-10 p-1">
+                                                                        {iconLink.image ? (
+                                                                            <img src={iconLink.image} alt="" className="w-8 h-8 rounded-lg object-cover" />
+                                                                        ) : (
+                                                                            <Icon size={28} />
+                                                                        )}
+                                                                    </div>
+                                                                </motion.a>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                );
+                                                currentIconGroup = [];
+                                            }
+                                        };
+
+                                        const flushCards = () => {
+                                            if (currentCardGroup.length > 0) {
+                                                const group = [...currentCardGroup];
+                                                renderedItems.push(
+                                                    <div key={`card-grid-${group[0].id}`} className="flex flex-col gap-4 mb-8">
+                                                        {group.map((cardLink) => {
+                                                            const cardBg = cardAccentColor;
+                                                            const cardContent = (
+                                                                <div className="relative z-10 flex flex-col h-full w-full">
+                                                                    <div
+                                                                        className="relative overflow-hidden h-44 md:h-52"
+                                                                        style={{ backgroundColor: cardBg + '1A' }}
+                                                                    >
+                                                                        {cardLink.image ? (
+                                                                            <img src={cardLink.image} alt="" className="w-full h-full object-cover transition-transform duration-700" />
+                                                                        ) : (
+                                                                            <div className="w-full h-full flex items-center justify-center opacity-10">
+                                                                                <Globe size={40} />
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className={`p-3.5 flex flex-col justify-center items-center text-center h-16 relative`}>
+                                                                        {/* Platform Icon Footer for Music in standard Cards */}
+                                                                        {isMusicLink(cardLink) && (
+                                                                            <div className="absolute top-1.5 right-1.5 opacity-60">
+                                                                                {cardLink.url.includes('deezer') ? (
+                                                                                    <DeezerIcon size={10} color={getSmartTextColor()} />
+                                                                                ) : (
+                                                                                    <SiSpotify size={10} color={isButtonLight ? "#1a2c14" : "#1DB954"} />
+                                                                                )}
+                                                                            </div>
+                                                                        )}
+                                                                        <span className="text-[0.95em] leading-tight truncate px-1" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.title}</span>
+                                                                        {cardLink.subtitle && <span className="text-[0.75em] leading-tight truncate px-1 opacity-60 mt-1.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{cardLink.subtitle}</span>}
+                                                                    </div>
+                                                                </div>
+                                                            );
+
+                                                            return (
+                                                                <motion.a
+                                                                    key={cardLink.id}
+                                                                    initial={{ scale: 0.95, opacity: 0 }}
+                                                                    whileInView={{ scale: 1, opacity: 1 }}
+                                                                    viewport={{ once: true }}
+                                                                    href={cardLink.url}
+                                                                    target="_blank"
+                                                                    rel="noreferrer"
+                                                                    onClick={() => handleLinkClick(cardLink.id)}
+                                                                    className={`group relative overflow-hidden transition-all duration-300 w-full ${baseCardClass}`}
+                                                                    style={{ ...mainButtonStyle, backgroundColor: buttonHex }}
+                                                                >
+                                                                    {cardContent}
+                                                                </motion.a>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                );
+                                                currentCardGroup = [];
+                                            }
+                                        };
+
+                                        buttonLinks.forEach(link => {
+                                            // 1. Specialized Integrated Components (Instagram, YouTube, Twitch)
+                                            if (instagramIntegration && link.type === 'collection' && (link.platform === 'instagram' || link.title === 'Posts do Instagram')) {
+                                                flushIcons();
+                                                flushCards();
                                                 const collectionMedia = (link.children || []).map(c => ({
                                                     id: c.id,
                                                     media_url: c.image,
@@ -1202,280 +1381,115 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     caption: c.title,
                                                     media_type: c.videoUrl ? 'VIDEO' : 'IMAGE'
                                                 }));
-
                                                 renderedItems.push(
-                                                    <motion.div
-                                                        key={`instagram-card-${link.id}`}
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        whileInView={{ opacity: 1, y: 0 }}
-                                                        viewport={{ once: true }}
-                                                        className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
-                                                    >
-                                                        <div
-                                                            className={`text-center mb-2 opacity-90 text-sm font-normal uppercase tracking-widest`}
-                                                            style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                        >
-                                                            {link.title}
-                                                        </div>
-                                                        <InstagramCard
-                                                            username={instagramUsername || 'instagram_user'}
-                                                            followers={instagramFollowers || 0}
-                                                            avatarUrl={instagramAvatar || ''}
-                                                            media={collectionMedia.length > 0 ? collectionMedia : instagramMedia}
-                                                            themeButtonClass={baseCardClass}
-                                                            themeButtonStyle={mainButtonStyle}
-                                                            themeTextHex={getSmartTextColor()}
-                                                            buttonRoundness={roundedClass || undefined}
-                                                            isDark={isDarkTheme}
-                                                            variant={link.layout === 'classic' ? 'profile' : 'feed'}
-                                                            fontFamily={profile.fontFamily}
-                                                            fontWeight={profile.fontWeight || undefined}
-                                                            fontItalic={profile.fontItalic}
-                                                        />
+                                                    <motion.div key={`instagram-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                        {link.title && <div className="text-center mb-2 font-normal opacity-90 text-sm uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>}
+                                                        <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={collectionMedia.length > 0 ? collectionMedia : instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={link.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                     </motion.div>
                                                 );
-                                            }
-                                        } else if (link.platform === 'instagram' || (link.url.includes('instagram.com') && link.type !== 'collection')) {
-                                            // 1.5 Instagram Profile specialized card (for non-collections)
-                                            flushIcons();
-                                            flushCards();
-
-                                            if (instagramIntegration) {
+                                            } else if (instagramIntegration && (link.platform === 'instagram' || (link.url.includes('instagram.com') && link.type !== 'collection'))) {
+                                                flushIcons();
+                                                flushCards();
                                                 renderedItems.push(
-                                                    <motion.div
-                                                        key={`instagram-profile-card-${link.id}`}
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        whileInView={{ opacity: 1, y: 0 }}
-                                                        viewport={{ once: true }}
-                                                        className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
-                                                    >
-                                                        <InstagramCard
-                                                            username={instagramUsername || 'instagram_user'}
-                                                            followers={instagramFollowers || 0}
-                                                            avatarUrl={instagramAvatar || ''}
-                                                            media={instagramMedia}
-                                                            themeButtonClass={baseCardClass}
-                                                            themeButtonStyle={mainButtonStyle}
-                                                            themeTextHex={getSmartTextColor()}
-                                                            buttonRoundness={roundedClass || undefined}
-                                                            isDark={isDarkTheme}
-                                                            variant={link.layout === 'classic' ? 'profile' : 'feed'}
-                                                            fontFamily={profile.fontFamily}
-                                                            fontWeight={profile.fontWeight || undefined}
-                                                            fontItalic={profile.fontItalic}
-                                                        />
+                                                    <motion.div key={`instagram-profile-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                        <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={link.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                     </motion.div>
                                                 );
-                                            }
-                                        } else if (link.platform === 'youtube' || (link.url.includes('youtube.com') && !link.url.includes('watch?v=') && !link.url.includes('/shorts/'))) {
-                                            // 2.5 YouTube specialized card
-                                            flushIcons();
-                                            flushCards();
-
-                                            if (youtubeIntegration) {
+                                            } else if (youtubeIntegration && (link.platform === 'youtube' || (link.url.includes('youtube.com') && !link.url.includes('watch?v=') && !link.url.includes('/shorts/')))) {
+                                                flushIcons();
+                                                flushCards();
                                                 renderedItems.push(
-                                                    <motion.div
-                                                        key={`youtube-card-${link.id}`}
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        whileInView={{ opacity: 1, y: 0 }}
-                                                        viewport={{ once: true }}
-                                                        className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
-                                                    >
-                                                        <YouTubeCard
-                                                            username={youtubeUsername || link.url}
-                                                            title={youtubeTitle || link.title}
-                                                            subscribers={youtubeSubscribers || 0}
-                                                            avatarUrl={youtubeAvatar || ''}
-                                                            themeButtonClass={baseCardClass}
-                                                            themeButtonStyle={mainButtonStyle}
-                                                            themeTextHex={getSmartTextColor()}
-                                                            buttonRoundness={roundedClass || undefined}
-                                                            isDark={isDarkTheme}
-                                                            fontFamily={profile.fontFamily}
-                                                            fontWeight={profile.fontWeight || undefined}
-                                                            fontItalic={profile.fontItalic}
-                                                        />
+                                                    <motion.div key={`youtube-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                        <YouTubeCard username={youtubeUsername || link.url} title={youtubeTitle || link.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                     </motion.div>
                                                 );
-                                            }
-                                        } else if (link.platform === 'twitch' || link.title.toLowerCase().includes('twitch')) {
-                                            // 2. Twitch specialized card
-                                            flushIcons();
-                                            flushCards();
-
-                                            if (twitchIntegration) {
+                                            } else if (twitchIntegration && (link.platform === 'twitch' || link.title.toLowerCase().includes('twitch'))) {
+                                                flushIcons();
+                                                flushCards();
                                                 renderedItems.push(
-                                                    <motion.div
-                                                        key={`twitch-card-${link.id}`}
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        whileInView={{ opacity: 1, y: 0 }}
-                                                        viewport={{ once: true }}
-                                                        className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
-                                                    >
-                                                        <TwitchCard
-                                                            username={twitchUsername || 'twitch_user'}
-                                                            displayName={twitchDisplayName || 'Twitch User'}
-                                                            followers={twitchFollowers || 0}
-                                                            avatarUrl={twitchAvatar || ''}
-                                                            isLive={twitchIsLive}
-                                                            streamTitle={twitchStreamTitle}
-                                                            themeButtonClass={baseCardClass}
-                                                            themeButtonStyle={mainButtonStyle}
-                                                            themeTextHex={getSmartTextColor()}
-                                                            buttonRoundness={roundedClass || undefined}
-                                                            isDark={isDarkTheme}
-                                                            fontFamily={profile.fontFamily}
-                                                            fontWeight={profile.fontWeight || undefined}
-                                                            fontItalic={profile.fontItalic}
-                                                        />
+                                                    <motion.div key={`twitch-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                        <TwitchCard username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                     </motion.div>
                                                 );
-                                            }
-                                        } else if (link.type === 'header') {
-                                            flushIcons();
-                                            flushCards();
-
-                                            renderedItems.push(
-                                                <motion.div
-                                                    key={`header-${link.id}`}
-                                                    initial={{ opacity: 0, scale: 0.98 }}
-                                                    whileInView={{ opacity: 1, scale: 1 }}
-                                                    viewport={{ once: true }}
-                                                    className={`w-full text-center py-2 mb-1 mt-1 opacity-80`}
-                                                    style={{
-                                                        ...mainTextColorStyle,
-                                                        fontWeight: 'bold',
-                                                        fontSize: '1.1em',
-                                                        letterSpacing: '0.05em',
-                                                        textTransform: 'uppercase'
-                                                    }}
-                                                >
-                                                    {link.title}
-                                                </motion.div>
-                                            );
-                                        } else if (link.layout === 'icon') {
-                                            flushCards();
-                                            currentIconGroup.push(link);
-                                        } else if (link.layout === 'card') {
-                                            flushIcons();
-                                            currentCardGroup.push(link);
-                                        } else {
-                                            flushIcons();
-                                            flushCards();
-
-                                            const activeChildren = link.children?.filter(c => c.isActive) || [];
-
-                                            if (activeChildren.length > 0) {
-                                                const collectionLayout = (link.layout === 'carousel') ? 'carousel' : (link.layout === 'grid' ? 'grid' : 'stacked');
-
-                                                if (collectionLayout === 'carousel') {
+                                            } else if (kickIntegration && (link.platform === 'kick' || link.title.toLowerCase().includes('kick'))) {
+                                                flushIcons();
+                                                flushCards();
+                                                renderedItems.push(
+                                                    <motion.div key={`kick-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                        <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                    </motion.div>
+                                                );
+                                            } else if (link.type === 'header') {
+                                                flushIcons();
+                                                flushCards();
+                                                renderedItems.push(<motion.div key={`header-${link.id}`} transition={{ duration: 0 }} className="w-full text-center py-2 mb-1 mt-1 opacity-80" style={{ ...mainTextColorStyle, fontWeight: 'bold', fontSize: '1.1em', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{link.title}</motion.div>);
+                                            } else if (link.layout === 'icon') {
+                                                flushCards();
+                                                currentIconGroup.push(link);
+                                            } else if (link.layout === 'card') {
+                                                flushIcons();
+                                                currentCardGroup.push(link);
+                                            } else if ((link.layout === 'carousel' || link.type === 'collection') && !isMusicLink(link)) {
+                                                flushIcons();
+                                                flushCards();
+                                                const activeChildren = link.children?.filter(c => c.isActive) || [];
+                                                const isMusic = isMusicLink(link);
+                                                const collectionLayout = link.layout;
+                                                if (collectionLayout === 'carousel' && (activeChildren.length > 0 || isMusic)) {
                                                     const scrollContainerId = `scroll-${link.id}`;
-                                                    const scroll = (direction: 'left' | 'right') => {
-                                                        const container = document.getElementById(scrollContainerId);
-                                                        if (container) {
-                                                            const scrollAmount = 250;
-                                                            container.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
-                                                        }
-                                                    };
-
+                                                    const scrollLeft = () => { const el = document.getElementById(scrollContainerId); if (el) el.scrollBy({ left: -250, behavior: 'smooth' }); };
+                                                    const scrollRight = () => { const el = document.getElementById(scrollContainerId); if (el) el.scrollBy({ left: 250, behavior: 'smooth' }); };
                                                     renderedItems.push(
                                                         <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 group/carousel ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
-                                                            <div
-                                                                className={`text-center mb-2 font-normal opacity-90 text-sm uppercase tracking-widest`}
-                                                                style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                            >
-                                                                {link.title}
-                                                            </div>
+                                                            {link.title && <div className="text-center mb-2 font-normal opacity-90 text-sm uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>}
                                                             <div className="relative w-full">
-                                                                <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
+                                                                <button onClick={scrollLeft} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
                                                                 <div id={scrollContainerId} className="flex overflow-x-auto gap-2 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
-                                                                    {activeChildren.map(child => {
-                                                                        const childContent = (
+                                                                    {(activeChildren.length > 0 ? activeChildren : [link]).map(child => (
+                                                                        <motion.a key={child.id} transition={{ duration: 0 }} href={child.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(child.id)} className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass}`} style={mainButtonStyle}>
                                                                             <div className="relative z-10 flex flex-col h-full w-full">
                                                                                 <div className="relative overflow-hidden h-36 w-full bg-white">
-                                                                                    {child.image ? (
-                                                                                        <img src={child.image} alt="" className="w-full h-full block object-contain" />
-                                                                                    ) : (
-                                                                                        <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400">
-                                                                                            <ShoppingBag size={20} />
-                                                                                        </div>
-                                                                                    )}
+                                                                                    {child.image ? <img src={child.image} alt="" className="w-full h-full block object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
                                                                                 </div>
-                                                                                <div className={`p-2 flex flex-col justify-center items-center text-center h-12 relative`}>
-                                                                                    {/* Platform Icon Footer for Music in Carousel */}
-                                                                                    {isMusicLink(child) && (
-                                                                                        <div className="absolute top-1 right-1.5 opacity-60">
-                                                                                            {child.url.includes('deezer') ? (
-                                                                                                <DeezerIcon size={10} color={getSmartTextColor()} />
-                                                                                            ) : (
-                                                                                                <SiSpotify size={10} color={isButtonLight ? "#1a2c14" : "#1DB954"} />
-                                                                                            )}
-                                                                                        </div>
-                                                                                    )}
+                                                                                <div className="p-2 flex flex-col justify-center items-center text-center h-12 relative">
                                                                                     <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
-                                                                                    {child.subtitle && <span className="text-[0.62em] leading-tight truncate opacity-60 w-full mt-1.5" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
                                                                                 </div>
                                                                             </div>
-                                                                        );
-
-                                                                        return (
-                                                                            <motion.a
-                                                                                key={child.id}
-                                                                                transition={{ duration: 0 }}
-                                                                                href={child.url}
-                                                                                target="_blank"
-                                                                                rel="noreferrer"
-                                                                                onClick={() => handleLinkClick(child.id)}
-                                                                                className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass}`}
-                                                                                style={mainButtonStyle}
-                                                                            >
-                                                                                {childContent}
-                                                                            </motion.a>
-                                                                        );
-                                                                    })}
+                                                                        </motion.a>
+                                                                    ))}
                                                                 </div>
-                                                                <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronRight size={20} /></button>
+                                                                <button onClick={scrollRight} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronRight size={20} /></button>
                                                             </div >
                                                         </motion.div >
                                                     );
                                                 } else {
                                                     renderedItems.push(
                                                         <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
-                                                            <div
-                                                                className={`text-center mb-2 opacity-90 text-sm font-normal uppercase tracking-widest`}
-                                                                style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                            >
-                                                                {link.title}
-                                                            </div>
+                                                            {link.title && <div className="text-center mb-2 opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>}
                                                             <div className={collectionLayout === 'grid' ? "grid grid-cols-2 gap-2 relative" : "flex flex-col gap-2 relative"}>
-                                                                {activeChildren.map(child => {
-                                                                    if (isMusicLink(child)) return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={child} handleLinkClick={handleLinkClick} /></motion.div>;
-                                                                    if (child.embedType === 'youtube') return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} /></motion.div>;
-                                                                    if (child.embedType === 'tiktok') return <motion.div key={child.id} transition={{ duration: 0 }} className="w-full"><TikTokEmbed url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>;
+                                                                {(activeChildren.length > 0 ? activeChildren : [link]).map(child => {
+                                                                    if (isMusicLink(child)) return <MusicRichCard key={child.id} link={child} handleLinkClick={handleLinkClick} />;
+                                                                    if (child.embedType === 'youtube') return <YouTubeEmbed key={child.id} url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} />;
+                                                                    if (child.embedType === 'tiktok') return <TikTokEmbed key={child.id} url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} />;
 
-                                                                    const childNetwork = SOCIAL_NETWORKS.find(n => child.title.toLowerCase().includes(n.id)) ||
-                                                                        SOCIAL_NETWORKS.find(n => child.url.toLowerCase().includes(n.id));
-                                                                    const ChildSocialIcon = childNetwork?.icon;
-
+                                                                    if (child.platform === 'instagram' || (child.url.includes('instagram.com') && child.type !== 'collection')) {
+                                                                        if (instagramIntegration) return <InstagramCard key={child.id} username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={child.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />;
+                                                                    }
+                                                                    if (child.platform === 'youtube' || (child.url.includes('youtube.com') && !child.url.includes('watch?v=') && !child.url.includes('/shorts/'))) {
+                                                                        if (youtubeIntegration) return <YouTubeCard key={child.id} username={youtubeUsername || child.url} title={youtubeTitle || child.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />;
+                                                                    }
+                                                                    if (child.platform === 'twitch' || child.title.toLowerCase().includes('twitch')) {
+                                                                        if (twitchIntegration) return <TwitchCard key={child.id} username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />;
+                                                                    }
+                                                                    if (child.platform === 'kick' || child.title.toLowerCase().includes('kick')) {
+                                                                        if (kickIntegration) return <KickCard key={child.id} username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />;
+                                                                    }
+                                                                    const network = SOCIAL_NETWORKS.find(n => child.title.toLowerCase().includes(n.id)) || SOCIAL_NETWORKS.find(n => child.url.toLowerCase().includes(n.id));
+                                                                    const Icon = network?.icon;
                                                                     return (
-                                                                        <motion.a
-                                                                            key={child.id}
-                                                                            transition={{ duration: 0 }}
-                                                                            href={child.url}
-                                                                            target="_blank"
-                                                                            rel="noreferrer"
-                                                                            onClick={() => handleLinkClick(child.id)}
-                                                                            className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
-                                                                            style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                                        >
+                                                                        <motion.a key={child.id} transition={{ duration: 0 }} href={child.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(child.id)} className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`} style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                                             <div className="relative z-10 w-full flex items-center justify-center min-h-[48px]">
-                                                                                {child.image ? (
-                                                                                    <img src={child.image} alt="" className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg block object-cover border-2 border-white/20" />
-                                                                                ) : ChildSocialIcon ? (
-                                                                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center opacity-80">
-                                                                                        <ChildSocialIcon size={24} />
-                                                                                    </div>
-                                                                                ) : null}
+                                                                                {child.image ? <img src={child.image} alt="" className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg block object-cover border-2 border-white/20" /> : Icon ? <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center opacity-80"><Icon size={24} /></div> : null}
                                                                                 <div className="px-12 flex flex-col justify-center text-center w-full">
                                                                                     <span className={`text-[0.9em] leading-tight ${child.subtitle ? 'line-clamp-1 truncate' : 'break-words'}`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
                                                                                     {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
@@ -1489,75 +1503,23 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     );
                                                 }
                                             } else if (isMusicLink(link)) {
-                                                renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full"><MusicRichCard link={link} handleLinkClick={handleLinkClick} /></motion.div>);
+                                                renderedItems.push(<MusicRichCard key={link.id} link={link} handleLinkClick={handleLinkClick} />);
                                             } else if (link.embedType === 'youtube') {
-                                                renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full"><YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} /></motion.div>);
+                                                renderedItems.push(<YouTubeEmbed key={link.id} url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} />);
                                             } else if (link.embedType === 'tiktok') {
-                                                renderedItems.push(<motion.div key={link.id} transition={{ duration: 0 }} className="w-full"><TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} /></motion.div>);
-                                            } else if (link.platform === 'instagram' || (link.url.includes('instagram.com') && link.type !== 'collection')) {
-                                                // 1.5 Instagram Profile specialized card (for non-collections)
-                                                flushIcons();
-                                                flushCards();
-
-                                                if (instagramIntegration) {
-                                                    renderedItems.push(
-                                                        <motion.div
-                                                            key={`instagram-profile-card-${link.id}`}
-                                                            initial={{ opacity: 0, y: 10 }}
-                                                            whileInView={{ opacity: 1, y: 0 }}
-                                                            viewport={{ once: true }}
-                                                            className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}
-                                                        >
-                                                            <InstagramCard
-                                                                username={instagramUsername || 'instagram_user'}
-                                                                followers={instagramFollowers || 0}
-                                                                avatarUrl={instagramAvatar || ''}
-                                                                media={[]}
-                                                                themeButtonClass={baseCardClass}
-                                                                themeButtonStyle={mainButtonStyle}
-                                                                themeTextHex={getSmartTextColor()}
-                                                                buttonRoundness={roundedClass || undefined}
-                                                                isDark={isDarkTheme}
-                                                                variant="profile"
-                                                                fontFamily={profile.fontFamily}
-                                                                fontWeight={profile.fontWeight || undefined}
-                                                                fontItalic={profile.fontItalic}
-                                                            />
-                                                        </motion.div>
-                                                    );
-                                                }
+                                                renderedItems.push(<TikTokEmbed key={link.id} url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} />);
                                             } else {
-                                                // Find matching social network
-                                                const network = SOCIAL_NETWORKS.find(n => link.title.toLowerCase().includes(n.id)) ||
-                                                    SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id));
-                                                const SocialIcon = network?.icon;
-
+                                                const network = SOCIAL_NETWORKS.find(n => link.title.toLowerCase().includes(n.id)) || SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id));
+                                                const Icon = network?.icon;
                                                 renderedItems.push(
-                                                    <motion.a
-                                                        key={link.id}
-                                                        transition={{ duration: 0 }}
-                                                        href={link.url}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        onClick={() => handleLinkClick(link.id)}
-                                                        className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`}
-                                                        style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                    >
+                                                    <motion.a key={link.id} transition={{ duration: 0 }} href={link.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(link.id)} className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`} style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                         <div className="relative z-10 w-full flex items-center justify-center min-h-[40px]">
-                                                            {link.image ? (
-                                                                <img src={link.image} alt="" className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg block object-cover border-2 border-white/20" />
-                                                            ) : SocialIcon ? (
-                                                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center opacity-80">
-                                                                    <SocialIcon size={24} />
-                                                                </div>
-                                                            ) : null}
+                                                            {link.image ? <img src={link.image} alt="" className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg block object-cover border-2 border-white/20" /> : Icon ? <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center opacity-80"><Icon size={24} /></div> : null}
                                                             <div className="px-12 flex flex-col justify-center text-center w-full">
-                                                                <span className={`text-[0.9em] leading-tight ${link.subtitle ? 'line-clamp-1 truncate' : 'line-clamp-2 break-words'}`} style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
+                                                                <span className={`text-[0.9em] leading-tight ${link.subtitle ? 'line-clamp-1 truncate' : 'line-clamp-2 break-words'}`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
                                                                 {link.subtitle && (
-                                                                    <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                        {(link.url.includes('youtube.com') || link.url.includes('youtu.be')) &&
-                                                                            !link.url.includes('watch?v=') && !link.url.includes('/shorts/') && !link.url.includes('/live/') &&
-                                                                            <Youtube size={12} className="shrink-0" />}
+                                                                    <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                        {(link.url.includes('youtube.com') || link.url.includes('youtu.be')) && !link.url.includes('watch?v=') && !link.url.includes('/shorts/') && !link.url.includes('/live/') && <Youtube size={12} className="shrink-0" />}
                                                                         {link.url.includes('tiktok.com') && <Music size={12} fill="currentColor" className="shrink-0" />}
                                                                         {link.subtitle}
                                                                     </span>
@@ -1567,61 +1529,61 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     </motion.a>
                                                 );
                                             }
-                                        }
-                                    });
+                                        });
 
-                                    flushIcons();
-                                    flushCards();
-                                    return renderedItems;
-                                })()}
-
+                                        flushIcons();
+                                        flushCards();
+                                        return renderedItems;
+                                    })()}
 
 
-                                {/* Payment Methods (Monetization) - Always Last */}
-                                {profile.paymentMethods && profile.paymentMethods.length > 0 && (
-                                    <div className="flex flex-col gap-3 w-full mb-2">
-                                        {profile.paymentMethods.filter(pm => pm.isActive !== false).map(method => (
-                                            <motion.button
-                                                key={method.id}
-                                                whileHover={{ scale: 1.02 }}
-                                                whileTap={{ scale: 0.98 }}
-                                                onClick={() => {
-                                                    if (method.type === 'paypal') {
-                                                        window.open(method.key.startsWith('http') ? method.key : `https://${method.key}`, '_blank');
-                                                    } else {
-                                                        navigator.clipboard.writeText(method.key);
-                                                        alert('Chave Pix copiada!');
-                                                    }
-                                                }}
-                                                className={`relative w-full overflow-hidden transition-all duration-300 group ${buttonClass} min-h-[56px] flex items-center justify-center`}
-                                                style={{
-                                                    ...mainButtonStyle,
-                                                    backgroundColor: buttonHex,
-                                                    color: getSmartTextColor(),
-                                                    borderRadius: borderRadiusValue
-                                                }}
-                                            >
-                                                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                                <div className="relative z-10 flex items-center justify-center gap-3">
-                                                    {method.type === 'pix' ? <Zap size={20} fill="currentColor" /> : <CreditCard size={20} />}
-                                                    <span className="font-medium text-sm">
-                                                        {method.label || (method.type === 'pix' ? 'Fazer um Pix' : 'Pagar com PayPal')}
-                                                    </span>
-                                                </div>
-                                            </motion.button>
-                                        ))}
-                                    </div>
-                                )}
+                                    {/* Payment Methods (Monetization) - Always Last */}
+                                    {profile.paymentMethods && profile.paymentMethods.length > 0 && (
+                                        <div className="flex flex-col gap-3 w-full mb-2">
+                                            {profile.paymentMethods.filter(pm => pm.isActive !== false).map(method => (
+                                                <motion.button
+                                                    key={method.id}
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    onClick={() => {
+                                                        if (method.type === 'paypal') {
+                                                            window.open(method.key.startsWith('http') ? method.key : `https://${method.key}`, '_blank');
+                                                        } else {
+                                                            navigator.clipboard.writeText(method.key);
+                                                            alert('Chave Pix copiada!');
+                                                        }
+                                                    }}
+                                                    className={`relative w-full overflow-hidden transition-all duration-300 group ${buttonClass} min-h-[56px] flex items-center justify-center`}
+                                                    style={{
+                                                        ...mainButtonStyle,
+                                                        backgroundColor: buttonHex,
+                                                        color: getSmartTextColor(),
+                                                        borderRadius: borderRadiusValue
+                                                    }}
+                                                >
+                                                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                {activeLinks.length === 0 && (
-                                    <div className="flex flex-col items-center justify-center py-10 opacity-50 space-y-2">
-                                        <span className="text-sm">Nenhum link ativo</span>
-                                    </div>
-                                )}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                                                    <div className="relative z-10 flex items-center justify-center gap-3">
+                                                        {method.type === 'pix' ? <Zap size={20} fill="currentColor" /> : <CreditCard size={20} />}
+                                                        <span className="font-medium text-sm">
+                                                            {method.label || (method.type === 'pix' ? 'Fazer um Pix' : 'Pagar com PayPal')}
+                                                        </span>
+                                                    </div>
+                                                </motion.button>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {activeLinks.length === 0 && (
+                                        <div className="flex flex-col items-center justify-center py-10 opacity-50 space-y-2 flex-1">
+                                            <span className="text-sm">Nenhum link ativo</span>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                     {/* Theme-Integrated Support Button & Newsletter */}
                     <div className="mt-4 flex flex-col gap-4">
                         {profile.supportKey && (
@@ -1696,6 +1658,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             </div>
             {/* Foreground Layer (For themes like Sakura) */}
             {currentTheme.id === 'kawaii-sakura' && profile.headerLayout !== 'banner' && <KawaiiSakuraForeground />}
+            <MusicPlaylistDrawer />
         </div>
     );
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserProfile, LinkItem, Product } from '../types';
-import { ExternalLink, Globe } from 'lucide-react';
+import { ExternalLink, Globe, Signal, Wifi, Battery } from 'lucide-react';
 import ProfileRenderer from './ProfileRenderer';
 
 interface PreviewProps {
@@ -13,7 +13,7 @@ interface PreviewProps {
 
 const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShare, forcedTab }) => {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full lg:overflow-hidden select-none lg:px-4">
+    <div className="flex flex-col items-center lg:justify-center w-full h-full lg:overflow-visible select-none lg:px-4">
       {/* Public URL Preview Bar - Hidden on mobile for immersive feel */}
       <div className="hidden lg:flex mb-6 items-center gap-2 px-3 py-2 bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black text-[9px] font-black uppercase tracking-widest">
         <Globe size={12} strokeWidth={3} className="text-black/40" />
@@ -25,38 +25,47 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShar
         >
           <ExternalLink size={12} strokeWidth={3} />
         </button>
-      </div>
+      </div>      {/* Frame Container - Full screen on mobile, S24 Ultra mockup on desktop */}
+      <div className={`relative origin-center flex items-center justify-center w-full h-full lg:w-[350px] lg:h-[740px] lg:scale-[0.83] xl:scale-100`}>
+        {/* Phone Body */}
+        <div className="relative w-full h-full lg:bg-black lg:border-[8px] lg:border-[#1a1a1a] lg:rounded-[24px] lg:shadow-[20px_20px_40px_-10px_rgba(0,0,0,0.4)] flex flex-col lg:ring-1 lg:ring-[#2a2a2a] transform z-10">
 
-      {/* Frame Container - Full screen on mobile, centered frame on desktop */}
-      <div className={`relative origin-center flex items-center justify-center w-full h-full lg:w-[340px] lg:h-[700px] lg:scale-[0.85] xl:scale-100`}>
-        <div className="relative w-full h-full lg:border-gray-900 lg:bg-gray-900 lg:border-[12px] lg:rounded-[3rem] lg:shadow-2xl flex flex-col overflow-hidden lg:ring-1 lg:ring-white/20">
+          {/* Screen Content Wrapper */}
+          <div className="relative w-full h-full lg:rounded-[16px] overflow-hidden bg-white flex flex-col transform">
 
-          {/* Dynamic Island - Only on Desktop Frame */}
-          <div className="hidden lg:flex absolute top-2 left-1/2 -translate-x-1/2 w-[90px] h-[24px] bg-black rounded-full z-40 items-center justify-center pointer-events-none">
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-900/30 ml-8"></div>
+            {/* Android Status Bar (Overlay) */}
+            <div className="hidden lg:flex w-full absolute top-0 z-[100] h-8 px-4 justify-between items-center text-white pointer-events-none mix-blend-difference">
+              <span className="text-[10px] font-medium tracking-wide">9:41</span>
+              <div className="flex items-center gap-1.5 opacity-90">
+                <Signal size={12} strokeWidth={2.5} />
+                <Wifi size={12} strokeWidth={2.5} />
+                <Battery size={13} strokeWidth={2.5} />
+              </div>
+            </div>
+
+            {/* Punch Hole Camera */}
+            <div className="hidden lg:flex absolute top-[10px] left-1/2 -translate-x-1/2 w-[14px] h-[14px] bg-black rounded-full z-[100] items-center justify-center pointer-events-none ring-1 ring-black/10 shadow-[inset_0_-1px_2px_rgba(255,255,255,0.15)]">
+              <div className="w-[5px] h-[5px] rounded-full bg-[#111133] shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]"></div>
+            </div>
+
+            {/* Screen Content */}
+            <ProfileRenderer
+              key={profile.id || 'preview'}
+              profile={profile}
+              links={links}
+              products={products}
+              isPreview={true}
+              onShare={onShare}
+              forcedTab={forcedTab}
+            />
           </div>
 
-          {/* Physical Buttons - Only on Desktop Frame */}
-          <div className="hidden lg:block absolute top-24 -right-[15px] h-16 w-[3px] bg-gray-800 rounded-r-md"></div>
-          <div className="hidden lg:block absolute top-24 -left-[15px] h-8 w-[3px] bg-gray-800 rounded-l-md"></div>
-          <div className="hidden lg:block absolute top-36 -left-[15px] h-16 w-[3px] bg-gray-800 rounded-l-md"></div>
-
-          {/* Screen Content */}
-          <ProfileRenderer
-            key={profile.id || 'preview'}
-            profile={profile}
-            links={links}
-            products={products}
-            isPreview={true}
-            onShare={onShare}
-            forcedTab={forcedTab}
-          />
-
         </div>
-      </div>
 
-      {/* Reflection Effect - Only on Desktop Frame */}
-      <div className="hidden lg:block absolute top-[108px] right-[calc(50%-150px)] w-[100px] h-[300px] bg-gradient-to-b from-white/5 to-transparent skew-x-12 pointer-events-none rounded-[2rem]"></div>
+        {/* Physical Buttons - S24 Ultra (Right side) */}
+        <div className="hidden lg:block absolute top-[130px] lg:-right-[3px] h-12 w-[3px] bg-[#1a1a1a] rounded-r-md z-0 shadow-[-1px_0_1px_rgba(255,255,255,0.1)]"></div>
+        <div className="hidden lg:block absolute top-[200px] lg:-right-[3px] h-20 w-[3px] bg-[#1a1a1a] rounded-r-md z-0 shadow-[-1px_0_1px_rgba(255,255,255,0.1)]"></div>
+      </div>
     </div >
   );
 };
