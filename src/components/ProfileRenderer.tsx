@@ -42,6 +42,8 @@ import { YouTubeCard } from './YouTubeCard';
 // @ts-ignore
 import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
 import BrutalistVisualizer from './themes/BrutalistVisualizer';
+import { AgendaCard } from './AgendaCard';
+import { MapBlock } from './MapBlock';
 
 
 interface ProfileRendererProps {
@@ -56,7 +58,29 @@ interface ProfileRendererProps {
 
 const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], isPreview = false, isStatic = false, onShare, forcedTab }) => {
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
-    const activeLinks = links.filter(l => l.isActive && !l.isArchived);
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    // Update current time every 10 seconds to refresh scheduled items visibility
+    React.useEffect(() => {
+        if (isPreview) return; // No need to tick in preview
+        const timer = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 10000);
+        return () => clearInterval(timer);
+    }, [isPreview]);
+
+    const isScheduled = (link: LinkItem) => {
+        if (isPreview) return true; // Show all in preview/admin
+        const now = currentTime;
+        const start = link.scheduleStart ? new Date(link.scheduleStart) : null;
+        const end = link.scheduleEnd ? new Date(link.scheduleEnd) : null;
+
+        if (start && now < start) return false;
+        if (end && now > end) return false;
+        return true;
+    };
+
+    const activeLinks = links.filter(l => l.isActive && !l.isArchived && isScheduled(l));
     const [activeTab, setActiveTab] = useState<'links' | 'shop'>(() => {
         return (localStorage.getItem('nodus_profile_active_tab') as 'links' | 'shop') || 'links';
     });
@@ -532,15 +556,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     </div>
                 </div>
 
-                {/* Action Area */}
                 <div className="shrink-0 h-full flex items-center pr-4">
-                    <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black/10 transition-colors">
-                        {hasTracks ? (
-                            <ChevronUp size={16} style={{ color: contrastColor }} className="opacity-60 group-hover:opacity-100 transition-opacity" />
-                        ) : (
-                            <Play size={14} fill={contrastColor} style={{ color: contrastColor }} className="ml-0.5 opacity-40 group-hover:opacity-100 transition-opacity" />
-                        )}
-                    </div>
+                    {hasTracks ? (
+                        <ChevronUp size={20} style={{ color: contrastColor }} className="opacity-60 group-hover:opacity-100 transition-opacity" />
+                    ) : (
+                        <Play size={18} fill={contrastColor} style={{ color: contrastColor }} className="ml-0.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                    )}
                 </div>
 
                 {/* Overlay link */}
@@ -674,8 +695,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             </div>
                                         </div>
 
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isDark ? 'bg-white/5 group-hover:bg-[#1DB954]/20' : 'bg-black/5 group-hover:bg-[#1DB954]/20'}`}>
-                                            <Play size={12} fill={isDarkTheme ? "#FFFFFF" : "#000000"} className={`transition-all ${isDarkTheme ? 'text-white' : 'text-black'} opacity-40 group-hover:opacity-100 group-hover:scale-110 ml-0.5`} />
+                                        <div className="w-8 h-8 flex items-center justify-center transition-all">
+                                            <Play size={16} fill={isDarkTheme ? "#FFFFFF" : "#000000"} className={`transition-all ${isDarkTheme ? 'text-white' : 'text-black'} opacity-40 group-hover:opacity-100 group-hover:scale-110 ml-0.5`} />
                                         </div>
                                     </motion.a>
                                 ))}
@@ -1419,10 +1440,33 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                     </motion.div>
                                                 );
+                                            } else if (link.type === 'agenda') {
+                                                flushIcons();
+                                                flushCards();
+                                                renderedItems.push(
+                                                    <motion.div key={`agenda-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                        {link.title && <div className="text-center mb-2 font-normal opacity-90 text-sm uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>}
+                                                        <AgendaCard
+                                                            events={link.events || []}
+                                                            themeButtonClass={baseCardClass}
+                                                            themeButtonStyle={mainButtonStyle}
+                                                            themeTextHex={getSmartTextColor()}
+                                                            isDark={isDarkTheme}
+                                                            fontFamily={profile.fontFamily}
+                                                            fontWeight={profile.fontWeight || undefined}
+                                                            fontItalic={profile.fontItalic}
+                                                        />
+                                                    </motion.div>
+                                                );
                                             } else if (link.type === 'header') {
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(<motion.div key={`header-${link.id}`} transition={{ duration: 0 }} className="w-full text-center py-2 mb-1 mt-1 opacity-80" style={{ ...mainTextColorStyle, fontWeight: 'bold', fontSize: '1.1em', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{link.title}</motion.div>);
+                                            } else if (link.type === 'map' || link.title?.toLowerCase() === 'localização') {
+                                                flushIcons();
+                                                flushCards();
+                                                // MapBlock for specific Map items
+                                                renderedItems.push(<MapBlock key={link.id} link={link} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} />);
                                             } else if (link.layout === 'icon') {
                                                 flushCards();
                                                 currentIconGroup.push(link);
@@ -1484,16 +1528,50 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     if (child.platform === 'kick' || child.title.toLowerCase().includes('kick')) {
                                                                         if (kickIntegration) return <KickCard key={child.id} username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />;
                                                                     }
+                                                                    if (child.type === 'map' || child.title?.toLowerCase() === 'localização') {
+                                                                        return <MapBlock key={child.id} link={child} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} />;
+                                                                    }
                                                                     const network = SOCIAL_NETWORKS.find(n => child.title.toLowerCase().includes(n.id)) || SOCIAL_NETWORKS.find(n => child.url.toLowerCase().includes(n.id));
                                                                     const Icon = network?.icon;
                                                                     return (
-                                                                        <motion.a key={child.id} transition={{ duration: 0 }} href={child.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(child.id)} className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`} style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                            <div className="relative z-10 w-full flex items-center justify-center min-h-[48px]">
-                                                                                {child.image ? <img src={child.image} alt="" className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg block object-cover border-2 border-white/20" /> : Icon ? <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center opacity-80"><Icon size={24} /></div> : null}
-                                                                                <div className="px-12 flex flex-col justify-center text-center w-full">
-                                                                                    <span className={`text-[0.9em] leading-tight ${child.subtitle ? 'line-clamp-1 truncate' : 'break-words'}`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
-                                                                                    {child.subtitle && <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.subtitle}</span>}
-                                                                                </div>
+                                                                        <motion.a
+                                                                            key={child.id}
+                                                                            transition={{ duration: 0.2 }}
+                                                                            whileHover={{ scale: 1.005 }}
+                                                                            href={child.url}
+                                                                            target="_blank"
+                                                                            rel="noreferrer"
+                                                                            onClick={() => handleLinkClick(child.id)}
+                                                                            className={`block w-full min-h-[66px] transform group relative py-2.5 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
+                                                                            style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                        >
+                                                                            <div className="relative shrink-0 z-10">
+                                                                                {child.image ? (
+                                                                                    <div className="w-9 h-9 rounded-lg overflow-hidden border border-black/5 group-hover:scale-105 transition-transform">
+                                                                                        <img src={child.image} alt="" className="w-full h-full object-cover" />
+                                                                                    </div>
+                                                                                ) : Icon ? (
+                                                                                    <div className="w-9 h-9 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform">
+                                                                                        <Icon size={20} />
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <div className="w-9" />
+                                                                                )}
+                                                                            </div>
+
+                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                <span className={`text-[14px] font-bold leading-tight uppercase tracking-tight ${child.subtitle ? 'line-clamp-1 truncate' : 'break-words'}`} style={{ color: getSmartTextColor() }}>
+                                                                                    {child.title}
+                                                                                </span>
+                                                                                {child.subtitle && (
+                                                                                    <span className="text-[10px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor() }}>
+                                                                                        {child.subtitle}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+
+                                                                            <div className="w-9 shrink-0 flex items-center justify-center z-10 relative opacity-20 group-hover:opacity-100 transition-opacity">
+                                                                                <ChevronRight size={16} style={{ color: getSmartTextColor() }} strokeWidth={3} />
                                                                             </div>
                                                                         </motion.a>
                                                                     );
@@ -1509,23 +1587,58 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             } else if (link.embedType === 'tiktok') {
                                                 renderedItems.push(<TikTokEmbed key={link.id} url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} />);
                                             } else {
+                                                flushIcons();
+                                                flushCards();
                                                 const network = SOCIAL_NETWORKS.find(n => link.title.toLowerCase().includes(n.id)) || SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id));
                                                 const Icon = network?.icon;
                                                 renderedItems.push(
-                                                    <motion.a key={link.id} transition={{ duration: 0 }} href={link.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(link.id)} className={`block w-full min-h-[64px] text-center text-base transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`} style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                        <div className="relative z-10 w-full flex items-center justify-center min-h-[40px]">
-                                                            {link.image ? <img src={link.image} alt="" className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg block object-cover border-2 border-white/20" /> : Icon ? <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center opacity-80"><Icon size={24} /></div> : null}
-                                                            <div className="px-12 flex flex-col justify-center text-center w-full">
-                                                                <span className={`text-[0.9em] leading-tight ${link.subtitle ? 'line-clamp-1 truncate' : 'line-clamp-2 break-words'}`} style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</span>
-                                                                {link.subtitle && (
-                                                                    <span className="text-[0.75em] opacity-80 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                        {(link.url.includes('youtube.com') || link.url.includes('youtu.be')) && !link.url.includes('watch?v=') && !link.url.includes('/shorts/') && !link.url.includes('/live/') && <Youtube size={12} className="shrink-0" />}
-                                                                        {link.url.includes('tiktok.com') && <Music size={12} fill="currentColor" className="shrink-0" />}
-                                                                        {link.subtitle}
-                                                                    </span>
-                                                                )}
-                                                            </div>
+                                                    <motion.a
+                                                        key={link.id}
+                                                        transition={{ duration: 0.2 }}
+                                                        whileHover={{ scale: 1.005 }}
+                                                        href={link.url}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        onClick={() => handleLinkClick(link.id)}
+                                                        className={`block w-full min-h-[66px] transform group relative py-3 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`}
+                                                        style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                    >
+                                                        {/* Icon/Image Container */}
+                                                        <div className="relative shrink-0 z-10">
+                                                            {link.image ? (
+                                                                <div className="w-10 h-10 rounded-lg overflow-hidden border border-black/5 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                                                                    <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                                                </div>
+                                                            ) : Icon ? (
+                                                                <div className="w-10 h-10 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform duration-300">
+                                                                    <Icon size={22} />
+                                                                </div>
+                                                            ) : (
+                                                                <div className="w-10" /> // Spacer to keep title centered if no icon
+                                                            )}
                                                         </div>
+
+                                                        {/* Text Content */}
+                                                        <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                            <span className={`text-[15px] font-bold leading-tight uppercase tracking-tight ${link.subtitle ? 'line-clamp-1 truncate' : 'line-clamp-2 break-words'}`} style={{ color: getSmartTextColor() }}>
+                                                                {link.title}
+                                                            </span>
+                                                            {link.subtitle && (
+                                                                <span className="text-[11px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor() }}>
+                                                                    {(link.url.includes('youtube.com') || link.url.includes('youtu.be')) && !link.url.includes('watch?v=') && !link.url.includes('/shorts/') && !link.url.includes('/live/') && <Youtube size={10} className="shrink-0" />}
+                                                                    {link.url.includes('tiktok.com') && <Music size={10} fill="currentColor" className="shrink-0" />}
+                                                                    {link.subtitle}
+                                                                </span>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Action Indicator (Right Side) */}
+                                                        <div className="w-10 shrink-0 flex items-center justify-center z-10 relative opacity-20 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
+                                                            <ChevronRight size={18} style={{ color: getSmartTextColor() }} strokeWidth={3} />
+                                                        </div>
+
+                                                        {/* Subtle shine effect on hover */}
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
                                                     </motion.a>
                                                 );
                                             }

@@ -428,6 +428,14 @@ class ApiClient {
             method: 'DELETE'
         });
     }
+
+    // Events (Agenda)
+    async bulkUpsertEvents(collectionId: string, events: any[]): Promise<any[]> {
+        return this.request('/api/events/bulk-upsert', {
+            method: 'POST',
+            body: JSON.stringify({ collectionId, events })
+        });
+    }
 }
 
 

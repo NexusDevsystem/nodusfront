@@ -93,9 +93,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
 
                 {/* Action Area */}
                 <div className="shrink-0 h-full flex items-center pr-4 sm:pr-5">
-                    <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black/10 transition-colors">
-                        <ExternalLink size={14} style={{ color: themeTextHex }} className="opacity-40 group-hover:opacity-100 transition-opacity" />
-                    </div>
+                    <ExternalLink size={16} style={{ color: themeTextHex }} className="opacity-40 group-hover:opacity-100 transition-opacity" />
                 </div>
 
                 {/* Overlay link */}

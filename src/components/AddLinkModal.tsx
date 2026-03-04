@@ -6,7 +6,7 @@ import {
     MessageSquare, Instagram, Youtube, MessageCircle,
     ChevronRight, Plus, DollarSign, Store, Share2,
     Smartphone, Mail, Type, Hash, Send as SendIcon, Zap, CreditCard,
-    Tag, Grid
+    Tag, Grid, Calendar
 } from 'lucide-react';
 import { SiSpotify, SiTiktok, SiPaypal, SiWhatsapp } from 'react-icons/si';
 import { SOCIAL_NETWORKS } from '../constants';
@@ -20,7 +20,10 @@ interface AddLinkModalProps {
     onAddIncentive: (type: 'pix' | 'paypal', key: string) => void;
     onAddSocial: (platform: string) => void;
     onAddHeader: () => void;
+    onAddAgenda: () => void;
+    onAddMap: () => void;
 }
+
 
 
 
@@ -57,7 +60,9 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     onAddProduct,
     onAddIncentive,
     onAddSocial,
-    onAddHeader
+    onAddHeader,
+    onAddAgenda,
+    onAddMap
 }) => {
     const { t } = useTranslation();
     const [url, setUrl] = useState('');
@@ -297,6 +302,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                     { id: 'link', icon: <LinkIcon size={24} strokeWidth={2} />, label: t('links.linkLabel'), color: 'text-black', action: () => { onAddLink(); onClose(); } },
                                     { id: 'collection', icon: <Layout size={24} strokeWidth={2} />, label: t('links.collectionLabel'), color: 'text-black', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
                                     { id: 'product', icon: <ShoppingBag size={24} strokeWidth={2} />, label: t('links.productLabel'), color: 'text-black', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
+                                    { id: 'agenda', icon: <Calendar size={24} strokeWidth={2} />, label: t('agenda.title') || 'Agenda', color: 'text-black', action: () => { onAddAgenda(); onClose(); } },
+                                    { id: 'map', icon: <Store size={24} strokeWidth={2} />, label: 'Mapa', color: 'text-black', action: () => { onAddMap(); onClose(); } },
                                 ].map((item) => (
                                     <button
                                         key={item.id}
@@ -352,6 +359,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 { id: 'link', icon: <LinkIcon size={32} strokeWidth={1.5} />, label: t('links.externalLink'), desc: t('links.insertAnyUrl'), color: 'text-black', hoverBg: 'hover:bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
                                 { id: 'collection', icon: <Layout size={32} strokeWidth={1.5} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
                                 { id: 'product', icon: <ShoppingBag size={32} strokeWidth={1.5} />, label: t('links.newProduct'), desc: t('links.productDescShort'), color: 'text-black', hoverBg: 'hover:bg-cyan-400', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
+                                { id: 'agenda', icon: <Calendar size={32} strokeWidth={1.5} />, label: t('agenda.title') || 'Agenda', desc: t('agenda.descShort') || 'Liste seus eventos e shows', color: 'text-black', hoverBg: 'hover:bg-[#ffdf00]', action: () => { onAddAgenda(); onClose(); } },
+                                { id: 'map', icon: <Store size={32} strokeWidth={1.5} />, label: 'Endereço', desc: 'Destaque a localização do seu negócio', color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { onAddMap(); onClose(); } },
                             ].map((item) => (
                                 <button
                                     key={item.id}

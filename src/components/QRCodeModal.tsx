@@ -27,11 +27,17 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
         }
     };
 
-    const handleCopyLink = () => {
-        const shortUrl = url.replace(/^https?:\/\/(www\.)?/, '');
-        navigator.clipboard.writeText(shortUrl);
+    const shortUrl = url.replace(/^https?:\/\/(www\.)?/, '');
+    const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleCopyLink = () => {
+        copyToClipboard(shortUrl);
     };
 
     return (
@@ -52,7 +58,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
 
                     <div className="bg-white p-6 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mb-8" ref={canvasRef}>
                         <QRCodeCanvas
-                            value={url.startsWith('http') ? url : `https://${url}`}
+                            value={fullUrl}
                             size={200}
                             bgColor={"#ffffff"}
                             fgColor={"#000000"}
@@ -68,17 +74,35 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                         />
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 w-full">
-                        <button
-                            onClick={handleCopyLink}
-                            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-black font-black uppercase tracking-widest text-[10px] transition-all ${copied ? 'bg-[#97cd7a]' : 'bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]'}`}
-                        >
-                            {copied ? <Check size={16} strokeWidth={3} /> : <Copy size={16} strokeWidth={3} />}
-                            {copied ? t('common.copied') : t('profile.copyLink')}
-                        </button>
+                    {/* Link Visualization */}
+                    <div className="w-full space-y-4 mb-8">
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-black/40 px-1">Link Encurtado</label>
+                            <div
+                                onClick={() => copyToClipboard(shortUrl)}
+                                className="flex items-center justify-between gap-3 bg-white border-2 border-black p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all cursor-pointer group"
+                            >
+                                <span className="text-xs font-bold truncate text-black">{shortUrl}</span>
+                                <Copy size={14} strokeWidth={3} className="text-black/20 group-hover:text-black transition-colors" />
+                            </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-black/40 px-1">Link Completo</label>
+                            <div
+                                onClick={() => copyToClipboard(fullUrl)}
+                                className="flex items-center justify-between gap-3 bg-white border-2 border-black p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all cursor-pointer group"
+                            >
+                                <span className="text-[10px] font-bold truncate text-black/60 group-hover:text-black transition-colors">{fullUrl}</span>
+                                <Copy size={14} strokeWidth={3} className="text-black/20 group-hover:text-black transition-colors" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="w-full">
                         <button
                             onClick={handleDownload}
-                            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-black text-white border-2 border-black font-black uppercase tracking-widest text-[10px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-black text-white border-2 border-black font-black uppercase tracking-widest text-[10px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
                         >
                             <Download size={16} strokeWidth={3} /> {t('profile.saveQR')}
                         </button>

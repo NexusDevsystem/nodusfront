@@ -820,5 +820,31 @@
         "priceLabel": "Price",
         "couponLabel": "Coupon",
         "cropImage": "Crop Product Image"
+    },
+    "quests": {
+        "title": "Onboarding Checklist",
+        "finishSetup": "Finish setup",
+        "of": "of",
+        "complete": "completed"
+    },
+    "agenda": {
+        "title": "Event Schedule",
+        "descShort": "List your events and upcoming shows",
+        "addEvent": "Add Event",
+        "newEvent": "New Event",
+        "noEvents": "No events added yet.",
+        "saveEvent": "Save Event",
+        "titleLabel": "Event Title",
+        "titlePlaceholder": "Ex: Concert in London",
+        "urlLabel": "Tickets/More Info Link",
+        "dateLabel": "Date",
+        "timeLabel": "Time (Optional)",
+        "locationLabel": "Location",
+        "locationPlaceholder": "Ex: Wembley Stadium, London",
+        "statusLabel": "Button Status",
+        "statusTickets": "Tickets",
+        "statusSoldOut": "Sold Out",
+        "statusFree": "Free",
+        "statusBuy": "Buy"
     }
 }

@@ -1,3 +1,20 @@
+export interface EventItem {
+  id?: string;
+  clientId?: string;
+  userId: string;
+  collectionId: string;
+  title: string;
+  date: string;
+  time?: string;
+  location: string;
+  url: string;
+  status: 'Tickets' | 'Sold Out' | 'Free' | string;
+  position: number;
+  description?: string;
+  scheduleStart?: string | null;
+  scheduleEnd?: string | null;
+}
+
 export interface LinkItem {
   id: string;
   clientId?: string;
@@ -6,8 +23,9 @@ export interface LinkItem {
   icon?: string;
   isActive: boolean;
   layout: 'classic' | 'social' | 'card' | 'icon' | 'grid' | 'carousel' | 'stacked';
-  type?: 'link' | 'collection' | 'social' | 'header';
+  type?: 'link' | 'collection' | 'social' | 'header' | 'agenda' | 'map';
   children?: LinkItem[];
+  events?: EventItem[];
   subtitle?: string;
   image?: string;
   highlight?: 'none' | 'pulse' | 'bounce' | 'shake' | 'glow' | 'wobble';

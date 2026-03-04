@@ -42,10 +42,15 @@ import {
   Hash,
   Send as SendIcon,
   Columns2,
-  Music
+  Music,
+  MapPin,
+  ChevronUp,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import AddLinkModal from './AddLinkModal';
+import AgendaEditor from './AgendaEditor';
+import MapEditor from './MapEditor';
 import Tooltip from './Tooltip';
 import { SOCIAL_NETWORKS } from '../constants';
 
@@ -601,24 +606,49 @@ function SortableLinkItem({
                         }
                       }}
                     />
-                    {link.image ? (
-                      <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}>
-                        <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
-                      </div>
-                    ) : (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); document.getElementById(`file-${link.id}`)?.click(); }}
-                        className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black hover:bg-black hover:text-white transition-all`}
-                      >
-                        {(() => {
-                          const network = SOCIAL_NETWORKS.find(n => n.id === link.platform) ||
-                            SOCIAL_NETWORKS.find(n => link.url?.toLowerCase().includes(n.id)) ||
-                            SOCIAL_NETWORKS.find(n => link.title?.toLowerCase().includes(n.id));
-                          const Icon = network?.icon;
-                          return Icon ? <Icon size={level > 0 ? 14 : 18} /> : <ImageIcon size={level > 0 ? 14 : 16} strokeWidth={3} />;
-                        })()}
-                      </button>
-                    )}
+                    {(() => {
+                      const isMapLink = link.type === 'map' || link.title?.toLowerCase() === 'localização';
+                      const isAgendaLink = link.type === 'agenda';
+
+                      if (isMapLink) {
+                        return (
+                          <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black`}>
+                            <MapPin size={level > 0 ? 14 : 18} strokeWidth={3} />
+                          </div>
+                        );
+                      }
+
+                      if (isAgendaLink) {
+                        return (
+                          <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black`}>
+                            <CalendarIcon size={level > 0 ? 14 : 18} strokeWidth={3} />
+                          </div>
+                        );
+                      }
+
+                      if (link.image) {
+                        return (
+                          <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}>
+                            <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); document.getElementById(`file-${link.id}`)?.click(); }}
+                          className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black hover:bg-black hover:text-white transition-all`}
+                        >
+                          {(() => {
+                            const network = SOCIAL_NETWORKS.find(n => n.id === link.platform) ||
+                              SOCIAL_NETWORKS.find(n => link.url?.toLowerCase().includes(n.id)) ||
+                              SOCIAL_NETWORKS.find(n => link.title?.toLowerCase().includes(n.id));
+                            const Icon = network?.icon;
+                            return Icon ? <Icon size={level > 0 ? 14 : 18} /> : <ImageIcon size={level > 0 ? 14 : 16} strokeWidth={3} />;
+                          })()}
+                        </button>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -682,6 +712,14 @@ function SortableLinkItem({
                     <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
                       {t('links.headerLabel')}
                     </span>
+                  ) : (link.type === 'map' || link.title?.toLowerCase() === 'localização') ? (
+                    <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#ffdf00] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
+                      MAPA
+                    </span>
+                  ) : link.type === 'agenda' ? (
+                    <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
+                      AGENDA
+                    </span>
                   ) : (link.layout === 'social' || (link.platform && !['custom', 'site', 'telefone', 'email'].includes(link.platform))) ? (
                     <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
                       Mesclado
@@ -741,259 +779,127 @@ function SortableLinkItem({
                   className="overflow-hidden bg-[#f8f8f8] border-t border-black border-dashed"
                 >
                   <div className={`${level > 0 ? 'p-3' : 'px-4 md:px-6 pb-6 pt-5'}`}>
-                    {/* Main Edit Form */}
-                    <div className={`flex flex-col md:flex-row items-center md:items-start ${level > 0 ? 'gap-3 mb-4' : 'gap-4 md:gap-6 mb-6'}`}>
-                      {/* Expanded Image (Larger with controls) */}
-                      {!(link.platform === 'twitch' || link.url?.toLowerCase().includes('twitch.tv') ||
-                        link.platform === 'youtube' || link.url?.toLowerCase().includes('youtube.com') || link.url?.toLowerCase().includes('youtu.be') ||
-                        link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
-                          <div className="relative shrink-0">
-                            {link.image ? (
-                              <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border border-black bg-white relative group/img shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                                <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                  <button
-                                    onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                                    className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"
-                                  >
-                                    <Pencil size={14} strokeWidth={3} />
-                                  </button>
-                                  <button
-                                    onClick={() => updateLink(link.id, 'image', undefined)}
-                                    className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"
-                                  >
-                                    <Trash2 size={14} strokeWidth={3} />
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => document.getElementById(`file-${link.id}`)?.click()}
-                                className="w-14 h-14 md:w-16 md:h-16 bg-white border border-dashed border-black flex flex-col items-center justify-center text-black hover:bg-black hover:text-[#ffdf00] transition-all group/btn shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
-                              >
-                                <ImageIcon size={18} className="mb-0.5" strokeWidth={3} />
-                                <span className="text-[8px] font-medium uppercase tracking-widest">{t('links.imageLabel')}</span>
-                              </button>
-                            )}
-                          </div>
-                        )}
-
-                      {/* Inputs */}
-                      <div className="flex-1 min-w-0 space-y-4">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.titleLabel')}</label>
-                          <input
-                            type="text"
-                            value={link.title}
-                            onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                            className="w-full font-medium text-base text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                            placeholder={link.type === 'header' ? t('links.sectionPlaceholder') : t('links.titlePlaceholder')}
-                          />
-                        </div>
-
-                        {link.type !== 'header' && (
+                    {link.type === 'agenda' ? (
+                      <div className="mb-6">
+                        <div className="space-y-4 mb-6">
                           <div className="space-y-1">
-                            <div className="flex items-center justify-between px-1">
-                              <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em]">URL / Link</label>
-                              {(link.url.includes('youtube.com') || link.url.includes('tiktok.com') || link.url.includes('youtu.be')) && (
+                            <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.titleLabel')}</label>
+                            <input
+                              type="text"
+                              value={link.title}
+                              onChange={(e) => updateLink(link.id, 'title', e.target.value)}
+                              className="w-full font-medium text-base text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                              placeholder={t('agenda.titlePlaceholder') || 'Título da Agenda'}
+                            />
+                          </div>
+                        </div>
+                        <AgendaEditor
+                          link={link}
+                          onEventsChange={(events) => updateLink(link.id, 'events', events)}
+                        />
+                      </div>
+                    ) : link.type === 'map' ? (
+                      <div className="mb-6">
+                        <MapEditor
+                          link={link}
+                          updateLink={updateLink}
+                        />
+                      </div>
+                    ) : (
+                      <div className={`flex flex-col md:flex-row items-center md:items-start ${level > 0 ? 'gap-3 mb-4' : 'gap-4 md:gap-6 mb-6'}`}>
+                        {!(link.platform === 'twitch' || link.url?.toLowerCase().includes('twitch.tv') ||
+                          link.platform === 'youtube' || link.url?.toLowerCase().includes('youtube.com') || link.url?.toLowerCase().includes('youtu.be') ||
+                          link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
+                            <div className="relative shrink-0">
+                              {link.image ? (
+                                <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border border-black bg-white relative group/img shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                                  <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
+                                  <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                    <button
+                                      onClick={() => document.getElementById(`file-${link.id}`)?.click()}
+                                      className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"
+                                    >
+                                      <Pencil size={14} strokeWidth={3} />
+                                    </button>
+                                    <button
+                                      onClick={() => updateLink(link.id, 'image', undefined)}
+                                      className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"
+                                    >
+                                      <Trash2 size={14} strokeWidth={3} />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
                                 <button
-                                  type="button"
-                                  onClick={async () => {
-                                    setIsRefreshingMeta(true);
-                                    try {
-                                      // Use correct service based on link type
-                                      if (isYoutubeChannelUrl(link.url)) {
-                                        const info = await fetchYoutubeChannelInfo(link.url);
-                                        if (info) {
-                                          updateLinkFields(link.id, {
-                                            title: info.name,
-                                            subtitle: info.subscribers,
-                                            image: info.avatarUrl
-                                          });
-                                        }
-                                      } else {
-                                        const meta = await fetchMusicMetadata(link.url);
-                                        if (meta) {
-                                          updateLinkFields(link.id, {
-                                            title: meta.title,
-                                            subtitle: meta.artist,
-                                            image: meta.thumbnailUrl
-                                          });
-                                        }
-                                      }
-                                    } catch (e) { console.error(e); }
-                                    finally { setIsRefreshingMeta(false); }
-                                  }}
-                                  className="text-[8px] font-medium text-black bg-[#97cd7a] border border-black px-1.5 py-0.5 uppercase tracking-widest flex items-center gap-1 hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50"
-                                  disabled={isRefreshingMeta}
+                                  onClick={() => document.getElementById(`file-${link.id}`)?.click()}
+                                  className="w-14 h-14 md:w-16 md:h-16 bg-white border border-dashed border-black flex flex-col items-center justify-center text-black hover:bg-black hover:text-[#ffdf00] transition-all group/btn shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none"
                                 >
-                                  {isRefreshingMeta ? '...' : `↻ ${t('common.reload')}`}
+                                  <ImageIcon size={18} className="mb-0.5" strokeWidth={3} />
+                                  <span className="text-[8px] font-medium uppercase tracking-widest">{t('links.imageLabel')}</span>
                                 </button>
                               )}
                             </div>
+                          )}
+
+                        <div className="flex-1 min-w-0 space-y-4">
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.titleLabel')}</label>
                             <input
                               type="text"
-                              value={link.url}
-                              onChange={(e) => {
-                                const newUrl = e.target.value;
-                                const updates: Partial<LinkItem> = { url: newUrl };
-
-                                // WhatsApp phone number auto-detection
-                                // If it looks like a phone number (8-15 digits, no dots/slashes, no letters)
-                                const cleanPhone = newUrl.replace(/\D/g, '');
-                                const hasNoLetters = !/[a-zA-Z]/.test(newUrl);
-                                if (cleanPhone.length >= 8 && cleanPhone.length <= 15 && hasNoLetters && !newUrl.includes('.') && !newUrl.includes('/') && !newUrl.includes('@')) {
-                                  updates.url = `https://wa.me/${cleanPhone}`;
-                                  // Optional: also set title if not set
-                                  if (!link.title || link.title === t('links.newLink') || link.title === t('links.untitled')) {
-                                    updates.title = 'WhatsApp';
-                                  }
-                                }
-
-                                // Auto detection logic
-                                const isSpotify = newUrl.includes('open.spotify.com/') && (newUrl.includes('/track/') || newUrl.includes('/album/') || newUrl.includes('/playlist/'));
-                                const isDeezer = newUrl.includes('deezer.com/') || newUrl.includes('deezer.page.link/');
-                                const isYoutube = newUrl.includes('youtube.com/') || newUrl.includes('youtu.be/');
-                                const isTiktok = newUrl.includes('tiktok.com');
-                                const isLivepix = newUrl.includes('livepix.gg/') || newUrl.includes('livepix.');
-
-                                if (isLivepix) {
-                                  updates.platform = 'livepix';
-                                  if (!link.title || link.title === t('links.newLink') || link.title === t('links.untitled')) {
-                                    updates.title = t('links.livepixSupport');
-                                  }
-                                }
-
-                                let detectedType: 'none' | 'youtube' | 'spotify' | 'deezer' | 'tiktok' = 'none';
-
-                                if (isSpotify) {
-                                  updates.platform = 'spotify';
-                                  detectedType = 'spotify';
-                                }
-                                else if (isDeezer) detectedType = 'deezer';
-                                else if (isYoutube) {
-                                  // Only set as youtube embed if it has a valid video ID
-                                  const videoId = newUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
-                                  if (videoId) {
-                                    detectedType = 'youtube';
-                                  }
-                                }
-                                else if (isTiktok) {
-                                  // For TikTok, we default to 'none' until the backend confirms it's a video
-                                  detectedType = 'none';
-
-                                  // We trigger a background metadata fetch to check if it's a video
-                                  const checkTikTok = async () => {
-                                    const metadata = await fetchMusicMetadata(newUrl);
-                                    if (metadata && metadata.type === 'video') {
-                                      const updateFields: Partial<LinkItem> = {
-                                        embedType: 'tiktok',
-                                        title: metadata.title || link.title
-                                      };
-                                      // Update to resolved URL for better compatibility with embed player
-                                      if (metadata.resolvedUrl) {
-                                        updateFields.url = metadata.resolvedUrl;
-                                      }
-                                      // Store direct video URL
-                                      if (metadata.videoUrl) {
-                                        updateFields.videoUrl = metadata.videoUrl;
-                                      }
-                                      updateLinkFields(link.id, updateFields);
-                                    }
-                                  };
-                                  setTimeout(checkTikTok, 500);
-                                }
-
-                                // Update embedType based on detection
-                                updates.embedType = detectedType;
-
-                                if (isSpotify || isDeezer || isYoutube) {
-                                  // Call fetch intentionally without awaiting to not block UI
-                                  fetchMusicMetadata(newUrl).then(metadata => {
-                                    if (metadata) {
-                                      console.log('🎵 Metadata found:', metadata);
-
-                                      // Check if it's an album with tracks
-                                      if ((metadata.type === 'album' || metadata.type === 'playlist') && metadata.tracks && metadata.tracks.length > 0) {
-                                        const safeUuid = () => {
-                                          try { return crypto.randomUUID(); }
-                                          catch (e) { return Date.now().toString() + Math.random().toString(36).substring(2); }
-                                        };
-
-                                        const newChildren = metadata.tracks.map((track: any) => ({
-                                          id: safeUuid(),
-                                          clientId: safeUuid(),
-                                          title: track.title,
-                                          subtitle: track.artist,
-                                          image: track.image || metadata.thumbnailUrl,
-                                          url: track.url,
-                                          embedType: metadata.platform as any,
-                                          layout: 'classic' as const,
-                                          isActive: true,
-                                          clicks: 0
-                                        }));
-
-                                        updateLinkFields(link.id, {
-                                          title: metadata.title,
-                                          subtitle: metadata.followers || metadata.artist,
-                                          image: metadata.thumbnailUrl,
-                                          type: 'collection' as const,
-                                          layout: 'grid' as const,
-                                          children: newChildren,
-                                          url: newUrl
-                                        });
-                                      } else {
-                                        // Normal single track update
-                                        updateLinkFields(link.id, {
-                                          title: metadata.title,
-                                          subtitle: metadata.platform === 'youtube' ? metadata.followers : (metadata.followers || metadata.artist),
-                                          image: metadata.thumbnailUrl,
-                                          embedType: detectedType,
-                                          url: newUrl
-                                        });
-                                      }
-                                    }
-                                  }).catch(err => {
-                                    console.error("Error fetching music metadata:", err);
-                                  });
-                                }
-
-                                // Apply immediate updates (URL + Type)
-                                updateLinkFields(link.id, updates);
-                              }}
-                              className="w-full text-xs font-medium uppercase tracking-widest text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                              placeholder="https://exemplo.com"
+                              value={link.title}
+                              onChange={(e) => updateLink(link.id, 'title', e.target.value)}
+                              className="w-full font-medium text-base text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                              placeholder={link.type === 'header' ? t('links.sectionPlaceholder') : t('links.titlePlaceholder')}
                             />
                           </div>
-                        )}
 
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.subtitleLabel')}</label>
-                          <input
-                            type="text"
-                            value={link.subtitle || ''}
-                            onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)}
-                            className="w-full text-xs font-normal uppercase tracking-wider text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                            placeholder={t('links.subtitlePlaceholder')}
-                          />
+                          {link.type !== 'header' && (
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between px-1">
+                                <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em]">URL / Link</label>
+                              </div>
+                              <input
+                                type="text"
+                                value={link.url}
+                                onChange={(e) => updateLink(link.id, 'url', e.target.value)}
+                                className="w-full text-xs font-medium uppercase tracking-widest text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                                placeholder="https://exemplo.com"
+                              />
+                            </div>
+                          )}
+
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.subtitleLabel')}</label>
+                            <input
+                              type="text"
+                              value={link.subtitle || ''}
+                              onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)}
+                              className="w-full text-xs font-normal uppercase tracking-wider text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                              placeholder={t('links.subtitlePlaceholder')}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
                     <div className="space-y-4 md:space-y-6 mb-6 md:mb-8 pt-4 md:pt-6 border-t border-black border-dashed">
                       {/* Layout Picker */}
                       {!(link.platform === 'twitch' || link.url?.toLowerCase().includes('twitch.tv') ||
                         link.platform === 'youtube' || link.url?.toLowerCase().includes('youtube.com') || link.url?.toLowerCase().includes('youtu.be') ||
-                        link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
+                        link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com') ||
+                        link.type === 'agenda') && (
                           <div className="space-y-2">
                             <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.layoutLabel')}</label>
                             <div className="flex flex-col gap-1.5">
-                              {[
+                              {(link.type === 'map' ? [
+                                { id: 'classic', label: t('links.layoutClassic'), desc: t('links.layoutClassicDesc'), icon: <LayoutGrid size={24} strokeWidth={3} /> },
+                                { id: 'card', label: t('links.layoutCard'), desc: t('links.layoutCardDesc'), icon: <LayoutTemplate size={24} strokeWidth={3} /> }
+                              ] : [
                                 { id: 'classic', label: t('links.layoutClassic'), desc: t('links.layoutClassicDesc'), icon: <LayoutGrid size={24} strokeWidth={3} /> },
                                 { id: 'card', label: t('links.layoutCard'), desc: t('links.layoutCardDesc'), icon: <LayoutTemplate size={24} strokeWidth={3} /> },
                                 { id: 'social', label: t('links.layoutSocial'), desc: t('links.layoutSocialDesc'), icon: <Share2 size={24} strokeWidth={3} /> },
                                 { id: 'carousel', label: t('links.layoutCarousel'), desc: t('links.layoutCarouselDesc'), icon: <Columns2 size={24} strokeWidth={3} /> }
-                              ].map((opt) => (
+                              ]).map((opt) => (
                                 <button
                                   key={opt.id}
                                   onClick={() => updateLink(link.id, 'layout', opt.id)}
@@ -1003,10 +909,10 @@ function SortableLinkItem({
                                     }`}
                                 >
                                   <div className={`flex items-center justify-center p-1 border border-black ${link.layout === opt.id ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
-                                    {opt.icon.type === LayoutGrid || opt.icon.type === LayoutTemplate || opt.icon.type === Share2 || opt.icon.type === Columns2 ? React.cloneElement(opt.icon, { size: 16 }) : opt.icon}
+                                    {React.cloneElement(opt.icon as React.ReactElement<any>, { size: 16 })}
                                   </div>
                                   <div className="flex-1 mt-0">
-                                    <div className={`text-[11px] font-medium uppercase tracking-widest leading-none mb-1 ${link.layout === opt.id ? 'text-black' : 'text-black'}`}>{opt.label}</div>
+                                    <div className="text-[11px] font-medium uppercase tracking-widest leading-none mb-1 text-black">{opt.label}</div>
                                     <div className="text-[9px] text-black/70 font-normal uppercase tracking-wider leading-none">{opt.desc}</div>
                                   </div>
                                   {link.layout === opt.id && (
@@ -1021,150 +927,147 @@ function SortableLinkItem({
                         )}
 
                       {/* Scheduling Section (PRO) */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.schedule')} (PRO)</label>
-                          {(!profile.planType || profile.planType === 'free') && (
-                            <span className="px-2 py-0.5 bg-black text-[#97cd7a] border-2 border-black text-[9px] font-medium uppercase tracking-tight shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">{t('links.locked')}</span>
-                          )}
-                        </div>
-
-                        <div className={`p-2 border mt-1 ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-black opacity-60 pointer-events-none grayscale' : 'bg-white border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]'}`}>
-                          <div className="grid grid-cols-1 gap-2.5">
-                            {/* Start Date */}
-                            <div className="space-y-1.5">
-                              <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-black">
-                                <div className={`w-2.5 h-2.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-[#97cd7a]' : 'bg-white'}`}></div>
-                                {t('links.scheduleStart')}
-                              </div>
-                              <input
-                                type="datetime-local"
-                                value={link.scheduleStart ? new Date(link.scheduleStart).toISOString().slice(0, 16) : ''}
-                                onChange={(e) => {
-                                  const date = e.target.value ? new Date(e.target.value).toISOString() : null;
-                                  updateLink(link.id, 'scheduleStart', date);
-                                }}
-                                disabled={!profile.planType || profile.planType === 'free'}
-                                className="w-full text-[10px] font-black uppercase tracking-widest text-black bg-white border border-black px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                              />
-                            </div>
-
-                            {/* End Date */}
-                            <div className="space-y-1.5">
-                              <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-black">
-                                <div className={`w-2.5 h-2.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-white'}`}></div>
-                                {t('links.scheduleEnd')}
-                              </div>
-                              <input
-                                type="datetime-local"
-                                value={link.scheduleEnd ? new Date(link.scheduleEnd).toISOString().slice(0, 16) : ''}
-                                onChange={(e) => {
-                                  const date = e.target.value ? new Date(e.target.value).toISOString() : null;
-                                  updateLink(link.id, 'scheduleEnd', date);
-                                }}
-                                disabled={!profile.planType || profile.planType === 'free'}
-                                className="w-full text-[10px] font-black uppercase tracking-widest text-black bg-white border border-black px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                              />
-                            </div>
-
-                            {/* Status Message */}
-                            {(link.scheduleStart || link.scheduleEnd) && (
-                              <div className="pt-2 border-t border-slate-100">
-                                {link.scheduleStart && new Date(link.scheduleStart) > new Date() ? (
-                                  <div className="text-[10px] font-semibold text-blue-600 flex items-center gap-1.5">
-                                    <Sparkles size={12} /> {t('links.scheduledFor', { date: new Date(link.scheduleStart).toLocaleDateString() })}
-                                  </div>
-                                ) : link.scheduleEnd && new Date(link.scheduleEnd) < new Date() ? (
-                                  <div className="text-[10px] font-semibold text-red-500 flex items-center gap-1.5">
-                                    <Archive size={12} /> {t('links.expiredAndHidden')}
-                                  </div>
-                                ) : (
-                                  <div className="text-[10px] font-bold text-emerald-600 flex items-center gap-1.5">
-                                    <Zap size={12} fill="currentColor" /> {t('links.currentlyVisible')}
-                                  </div>
-                                )}
-                              </div>
+                      {link.type !== 'agenda' && (
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.schedule')} (PRO)</label>
+                            {(!profile.planType || profile.planType === 'free') && (
+                              <span className="px-2 py-0.5 bg-black text-[#97cd7a] border-2 border-black text-[9px] font-medium uppercase tracking-tight shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">{t('links.locked')}</span>
                             )}
                           </div>
-                        </div>
+                          <div className={`p-2 border mt-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-black opacity-60 pointer-events-none grayscale' : 'bg-white border-black'}`}>
+                            <div className="grid grid-cols-1 gap-2.5">
+                              {/* Start Date */}
+                              <div className="space-y-1.5">
+                                <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-black">
+                                  <div className={`w-2.5 h-2.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-[#97cd7a]' : 'bg-white'}`}></div>
+                                  {t('links.scheduleStart')}
+                                </div>
+                                <input
+                                  type="datetime-local"
+                                  value={link.scheduleStart ? new Date(link.scheduleStart).toISOString().slice(0, 16) : ''}
+                                  onChange={(e) => {
+                                    const date = e.target.value ? new Date(e.target.value).toISOString() : null;
+                                    updateLink(link.id, 'scheduleStart', date);
+                                  }}
+                                  disabled={!profile.planType || profile.planType === 'free'}
+                                  className="w-full text-[10px] font-black uppercase tracking-widest text-black bg-white border border-black px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                                />
+                              </div>
 
-                        {/* Instagram Account Switcher */}
-                        {profile.integrations?.find(i => i.provider === 'instagram')?.profile_data?.available_accounts?.length > 1 && (
-                          <div className="space-y-3 pb-6 border-b border-slate-100">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">{t('links.switchInstagram')}</label>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                              {profile.integrations?.find((i: any) => i.provider === 'instagram')?.profile_data?.available_accounts?.map((acc: any) => {
-                                const isActive = acc.channel_id === profile.integrations?.find(i => i.provider === 'instagram')?.profile_data?.channel_id;
-                                return (
-                                  <button
-                                    key={acc.channel_id}
-                                    onClick={async () => {
-                                      if (isActive) return;
-                                      try {
-                                        await apiClient.switchInstagramAccount(acc.channel_id);
-                                        // Force full page reload or update parent to see changes
-                                        window.location.reload();
-                                      } catch (err) {
-                                        console.error('Error switching account:', err);
-                                        alert(t('common.errorTryAgain'));
-                                      }
-                                    }}
-                                    className={`flex items-center gap-3 p-2 rounded-xl border transition-all ${isActive
-                                      ? 'bg-purple-500/5 border-purple-200 ring-1 ring-purple-500/10'
-                                      : 'bg-white border-slate-100 hover:border-slate-200'
-                                      }`}
-                                  >
-                                    <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-100">
-                                      <img src={acc.avatar_url} alt={acc.username} className="w-full h-full object-cover" />
+                              {/* End Date */}
+                              <div className="space-y-1.5">
+                                <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-black">
+                                  <div className={`w-2.5 h-2.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-white'}`}></div>
+                                  {t('links.scheduleEnd')}
+                                </div>
+                                <input
+                                  type="datetime-local"
+                                  value={link.scheduleEnd ? new Date(link.scheduleEnd).toISOString().slice(0, 16) : ''}
+                                  onChange={(e) => {
+                                    const date = e.target.value ? new Date(e.target.value).toISOString() : null;
+                                    updateLink(link.id, 'scheduleEnd', date);
+                                  }}
+                                  disabled={!profile.planType || profile.planType === 'free'}
+                                  className="w-full text-[10px] font-black uppercase tracking-widest text-black bg-white border border-black px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                                />
+                              </div>
+
+                              {/* Status Message */}
+                              {(link.scheduleStart || link.scheduleEnd) && (
+                                <div className="pt-2 border-t border-slate-100">
+                                  {link.scheduleStart && new Date(link.scheduleStart) > new Date() ? (
+                                    <div className="text-[10px] font-semibold text-blue-600 flex items-center gap-1.5">
+                                      <Sparkles size={12} /> {t('links.scheduledFor', { date: new Date(link.scheduleStart).toLocaleDateString() })}
                                     </div>
-                                    <div className="flex-1 min-w-0 text-left">
-                                      <div className={`text-xs font-bold truncate ${isActive ? 'text-purple-600' : 'text-slate-700'}`}>@{acc.username}</div>
-                                      <div className="text-[9px] text-slate-400">{acc.follower_count} {t('links.followers')}</div>
+                                  ) : link.scheduleEnd && new Date(link.scheduleEnd) < new Date() ? (
+                                    <div className="text-[10px] font-semibold text-red-500 flex items-center gap-1.5">
+                                      <Archive size={12} /> {t('links.expiredAndHidden')}
                                     </div>
-                                    {isActive && (
-                                      <div className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center text-white shrink-0">
-                                        <Check size={12} strokeWidth={3} />
-                                      </div>
-                                    )}
-                                  </button>
-                                );
-                              })}
+                                  ) : (
+                                    <div className="text-[10px] font-bold text-emerald-600 flex items-center gap-1.5">
+                                      <Zap size={12} fill="currentColor" /> {t('links.currentlyVisible')}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
+
+                      {/* Instagram Account Switcher */}
+                      {profile.integrations?.find(i => i.provider === 'instagram')?.profile_data?.available_accounts?.length > 1 && (
+                        <div className="space-y-3 pb-6 border-b border-black border-dashed">
+                          <label className="text-[10px] font-bold text-black uppercase tracking-widest px-1">{t('links.switchInstagram')}</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {profile.integrations?.find((i: any) => i.provider === 'instagram')?.profile_data?.available_accounts?.map((acc: any) => {
+                              const isActive = acc.channel_id === profile.integrations?.find(i => i.provider === 'instagram')?.profile_data?.channel_id;
+                              return (
+                                <button
+                                  key={acc.channel_id}
+                                  onClick={async () => {
+                                    if (isActive) return;
+                                    try {
+                                      await apiClient.switchInstagramAccount(acc.channel_id);
+                                      window.location.reload();
+                                    } catch (err) {
+                                      console.error('Error switching account:', err);
+                                      alert(t('common.errorTryAgain'));
+                                    }
+                                  }}
+                                  className={`flex items-center gap-3 p-2 border transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${isActive
+                                    ? 'bg-[#ffdf00] border-black'
+                                    : 'bg-white border-black hover:bg-slate-50'
+                                    }`}
+                                >
+                                  <div className="w-8 h-8 overflow-hidden shrink-0 border border-black">
+                                    <img src={acc.avatar_url} alt={acc.username} className="w-full h-full object-cover" />
+                                  </div>
+                                  <div className="flex-1 min-w-0 text-left">
+                                    <div className={`text-xs font-bold truncate text-black uppercase tracking-widest leading-none`}>@{acc.username}</div>
+                                    <div className="text-[9px] text-black/60 uppercase tracking-widest mt-0.5">{t('links.followers', { count: acc.follower_count })}</div>
+                                  </div>
+                                  {isActive && (
+                                    <div className="w-5 h-5 bg-black flex items-center justify-center text-[#ffdf00] shrink-0 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                                      <Check size={12} strokeWidth={4} />
+                                    </div>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Footer Actions */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 mt-4 border-t border-black border-dashed gap-4">
                       <div className="flex items-center gap-2 text-black font-black uppercase tracking-widest text-[10px] sm:shrink-0">
                         <BarChart2 size={14} strokeWidth={3} className="text-black" />
                         <span className="text-black leading-none">{link.clicks || 0} {t('analytics.totalClicks').toUpperCase()}</span>
                       </div>
-
                       <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
                         <button
                           onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))}
-                          className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-white border border-black text-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                          className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-white border border-black text-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                         >
                           {t('links.moveTo')}
                         </button>
-
                         <button
                           onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)}
-                          className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-black text-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'bg-white border-black text-black hover:bg-black hover:text-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none'}`}
+                          className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-black text-[#ffdf00]' : 'bg-white border-black text-black hover:bg-black hover:text-[#ffdf00]'}`}
                         >
                           {link.isArchived ? t('links.restore') : t('links.archive')}
                         </button>
-
                         <button
                           onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
-                          className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-black text-white' : 'bg-white border-black text-black hover:bg-red-500 hover:text-white'}`}
+                          className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${showDeleteConfirm ? 'bg-red-500 border-black text-white' : 'bg-white border-black text-black hover:bg-red-500 hover:text-white'}`}
                         >
                           {t('common.delete')}
                         </button>
                       </div>
                     </div>
+
                     <AnimatePresence>
                       {showDeleteConfirm && (
                         <motion.div
@@ -1176,23 +1079,21 @@ function SortableLinkItem({
                           <div className="flex items-center justify-between gap-4">
                             <span className="text-[10px] font-black uppercase tracking-widest text-red-600">{t('links.confirmDelete')}?</span>
                             <div className="flex gap-2">
-                              <button onClick={() => removeLink(link.id)} className="px-4 py-2 bg-red-600 text-white border-2 border-black text-[10px] font-black uppercase tracking-widest shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">{t('common.yes')}, {t('common.delete')}</button>
-                              <button onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 bg-white text-black border-2 border-black text-[10px] font-black uppercase tracking-widest shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">{t('common.cancel')}</button>
+                              <button onClick={() => removeLink(link.id)} className="px-3 py-1.5 bg-red-600 text-white border border-black text-[9px] font-medium uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">{t('common.confirm')}</button>
+                              <button onClick={() => setShowDeleteConfirm(false)} className="px-3 py-1.5 bg-white text-black border border-black text-[9px] font-medium uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">{t('common.cancel')}</button>
                             </div>
                           </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
-
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
-        )
-        }
-      </div >
-    </Reorder.Item >
+        )}
+      </div>
+    </Reorder.Item>
   );
 }
 
@@ -1477,6 +1378,8 @@ function LinkEditor({
     }
   };
 
+
+
   const addLink = async (url?: string) => {
     const newLinkId = Date.now().toString();
     const newLink: LinkItem = {
@@ -1708,6 +1611,60 @@ function LinkEditor({
     // @ts-ignore
     onChange(prev => [newHeader, ...prev]);
   };
+  const addAgenda = () => {
+    const newAgendaId = Date.now().toString();
+    const newAgenda: LinkItem = {
+      id: newAgendaId,
+      clientId: crypto.randomUUID(),
+      title: t('agenda.title') || 'Agenda',
+      url: '',
+      isActive: true,
+      clicks: 0,
+      layout: 'classic',
+      type: 'agenda',
+      events: []
+    };
+    setExpandedLinks(prev => {
+      const next = { ...prev };
+      activeLinks.forEach(l => { if (l.type !== 'collection') next[l.id] = false; });
+      next[newAgenda.id] = true;
+      return next;
+    });
+    setExpandedCollections(prev => {
+      const next = { ...prev };
+      activeLinks.forEach(l => { if (l.type === 'collection') next[l.id] = false; });
+      return next;
+    });
+    // @ts-ignore
+    onChange(prev => [newAgenda, ...prev]);
+  };
+
+  const addMap = () => {
+    const newMapId = Date.now().toString();
+    const newMap: LinkItem = {
+      id: newMapId,
+      clientId: crypto.randomUUID(),
+      title: 'Localização',
+      url: '',
+      isActive: true,
+      clicks: 0,
+      layout: 'classic',
+      type: 'map'
+    };
+    setExpandedLinks(prev => {
+      const next = { ...prev };
+      activeLinks.forEach(l => { if (l.type !== 'collection') next[l.id] = false; });
+      next[newMap.id] = true;
+      return next;
+    });
+    setExpandedCollections(prev => {
+      const next = { ...prev };
+      activeLinks.forEach(l => { if (l.type === 'collection') next[l.id] = false; });
+      return next;
+    });
+    // @ts-ignore
+    onChange(prev => [newMap, ...prev]);
+  };
 
   const updateLink = (id: string, field: keyof LinkItem, value: any) => {
     // @ts-ignore
@@ -1880,7 +1837,7 @@ function LinkEditor({
                 className={`
                   relative bg-white border-black flex flex-col shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden
                   ${isMobile ? 'w-full max-h-[92vh] border-t-4 p-8 pb-12' : 'w-full max-w-xl max-h-[85vh] border-[1.5px] p-6 md:p-10'}
-                `}
+        `}
               >
                 {isMobile && (
                   <div className="w-12 h-1.5 bg-black mx-auto mb-6 shrink-0" />
@@ -1978,6 +1935,8 @@ function LinkEditor({
               onAddIncentive={onAddIncentive || (() => { })}
               onAddSocial={addSocialLink}
               onAddHeader={addHeader}
+              onAddAgenda={addAgenda}
+              onAddMap={addMap}
             />
           )}
 
@@ -2006,7 +1965,7 @@ function LinkEditor({
                 className={`
                   relative bg-white border-4 border-black flex flex-col shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden touch-none
                   ${isMobile ? 'w-full p-8 pb-12' : 'w-full max-w-sm p-6'}
-                `}
+        `}
               >
                 {isMobile && (
                   <div className="w-12 h-1.5 bg-black mx-auto mb-6 shrink-0" />
