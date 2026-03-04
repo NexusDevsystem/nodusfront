@@ -94,8 +94,8 @@ export default function PublicProfilePage() {
 
             {/* Dynamic Full Page Background Layer */}
             <div className="fixed inset-0 z-0 overflow-hidden scale-110">
-                {/* Blurred Background Content */}
-                <div className="absolute inset-0 filter blur-[80px]">
+                {/* Background Content (Blur removed for mobile performance, handled inside BackgroundLayer with lower radius if needed) */}
+                <div className="absolute inset-0">
                     <BackgroundLayer profile={profile} currentTheme={currentTheme} />
                 </div>
 

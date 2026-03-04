@@ -43,7 +43,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                         <div className="relative group overflow-hidden border border-black w-full h-24 bg-[#f8f8f8] shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                             {profile.customBackground ? (
                                 <>
-                                    <img src={profile.customBackground} alt="Custom Background" className="w-full h-full object-cover" />
+                                    <img src={profile.customBackground} alt="Custom Background" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
                                         <Tooltip text={t('common.delete')} position="bottom">
                                             <button

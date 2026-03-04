@@ -48,7 +48,7 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
             if (profile.customBackground && profile.headerLayout === 'banner') {
                 return (
                     <div className="absolute inset-0">
-                        <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" />
+                        <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                         <div className="absolute inset-0 bg-black/20"></div>
                     </div>
                 );
@@ -84,7 +84,7 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
                                 aria-hidden="true"
                                 loading="eager"
                                 decoding="async"
-                                className="w-full h-full object-cover scale-[1.4] blur-[60px] opacity-[0.35]"
+                                className="w-full h-full object-cover scale-[1.4] opacity-[0.10]"
                             />
                         </div>
                     )}
@@ -135,7 +135,7 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
         if (profile.themeId === 'custom' && profile.customBackground) {
             return (
                 <div className="absolute inset-0">
-                    <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" />
+                    <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     <div className="absolute inset-0 bg-black/20"></div>
                 </div>
             );

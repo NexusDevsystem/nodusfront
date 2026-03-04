@@ -461,8 +461,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                 <div className="bg-white p-6 border-2 border-black flex flex-col items-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in fade-in slide-in-from-bottom-2 duration-500">
                                                     <div className="relative mb-4">
                                                         <div className="w-20 h-20 overflow-hidden border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] bg-white">
-                                                            <img
-                                                                src={youtubeIntegration.profile_data?.avatar_url || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'}
+                                                            <img src={youtubeIntegration.profile_data?.avatar_url || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'}
                                                                 alt={youtubeIntegration.profile_data?.title}
                                                                 className="w-full h-full object-cover"
                                                                 onError={(e) => {
@@ -540,8 +539,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                 <div className="bg-white p-6 border-2 border-black flex flex-col items-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in fade-in slide-in-from-bottom-2 duration-500">
                                                     <div className="relative mb-4">
                                                         <div className="w-20 h-20 overflow-hidden border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] bg-white">
-                                                            <img
-                                                                src={instagramIntegration.profile_data?.avatar_url || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'}
+                                                            <img src={instagramIntegration.profile_data?.avatar_url || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'}
                                                                 alt={instagramIntegration.profile_data?.username}
                                                                 className="w-full h-full object-cover"
                                                                 onError={(e) => {
@@ -643,8 +641,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                 <div className="bg-white p-6 border-2 border-black flex flex-col items-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in fade-in slide-in-from-bottom-2 duration-500">
                                                     <div className="relative mb-4">
                                                         <div className="w-20 h-20 overflow-hidden border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] bg-white">
-                                                            <img
-                                                                src={kickIntegration.profile_data?.avatar_url}
+                                                            <img src={kickIntegration.profile_data?.avatar_url}
                                                                 alt={kickIntegration.profile_data?.username}
                                                                 className="w-full h-full object-cover"
                                                                 onError={(e) => {
@@ -739,8 +736,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                 <div className="bg-white p-6 border-2 border-black flex flex-col items-center text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in fade-in slide-in-from-bottom-2 duration-500">
                                                     <div className="relative mb-4">
                                                         <div className="w-20 h-20 overflow-hidden border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] bg-white">
-                                                            <img
-                                                                src={twitchIntegration.profile_data?.avatar_url}
+                                                            <img src={twitchIntegration.profile_data?.avatar_url}
                                                                 alt={twitchIntegration.profile_data?.username}
                                                                 className="w-full h-full object-cover"
                                                                 onError={(e) => {

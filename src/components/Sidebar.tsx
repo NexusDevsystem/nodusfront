@@ -117,8 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-12 h-12 md:w-10 md:h-10 border-2 border-black overflow-hidden shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] md:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 bg-white">
-              <img
-                src={userProfile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`}
+              <img src={userProfile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`}
                 alt="Public"
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -324,7 +323,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
             <div className="flex items-center gap-3 md:gap-2.5 min-w-0">
               <div className="w-10 h-10 md:w-8 md:h-8 border-2 md:border border-black overflow-hidden bg-slate-50 shrink-0">
                 {user?.picture ? (
-                  <img src={user.picture} alt="" className="w-full h-full object-cover" />
+                  <img src={user.picture} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-black text-white"><User size={isMobile ? 16 : 14} /></div>
                 )}

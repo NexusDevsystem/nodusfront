@@ -75,7 +75,7 @@ export default function ShowcaseCards() {
 
                                     {/* Avatar */}
                                     <div className={`w-24 h-24 rounded-full ${theme.avatarBorder} border-4 mb-4 flex items-center justify-center overflow-hidden bg-white/10 backdrop-blur-md shadow-lg`}>
-                                        <img src="/icons/logo.png" alt="Nodus" className="w-12 h-12 object-contain opacity-90 invert brightness-[10]" />
+                                        <img src="/icons/logo.png" alt="Nodus" className="w-12 h-12 object-contain opacity-90 invert brightness-[10]" loading="lazy" decoding="async" />
                                     </div>
 
                                     {/* Name & Bio */}

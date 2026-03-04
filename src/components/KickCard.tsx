@@ -50,8 +50,7 @@ export const KickCard: React.FC<KickCardProps> = ({
                     <div className="w-12 h-12 rounded-full p-[2px] transition-transform duration-500 group-hover:scale-105 bg-[#53FC18]">
                         <div className="w-full h-full rounded-full overflow-hidden border-2 border-white bg-white">
                             {!imgError && avatarUrl ? (
-                                <img
-                                    src={avatarUrl}
+                                <img src={avatarUrl}
                                     alt={displayName}
                                     className="w-full h-full object-cover"
                                     onError={() => setImgError(true)}

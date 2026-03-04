@@ -231,8 +231,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                         <div className="relative shrink-0">
                             <div className="w-20 h-20 border border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                                 {profile.avatarUrl ? (
-                                    <img
-                                        src={profile.avatarUrl}
+                                    <img src={profile.avatarUrl}
                                         alt="Avatar"
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
@@ -304,11 +303,9 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                             <div className="relative shrink-0">
                                 <div className="w-36 h-16 border border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                                     {profile.customBackground ? (
-                                        <img
-                                            src={profile.customBackground}
+                                        <img src={profile.customBackground}
                                             alt="Banner"
-                                            className="w-full h-full object-cover"
-                                        />
+                                            className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-black">
                                             <ImageIcon size={20} strokeWidth={3} />

@@ -500,7 +500,7 @@ function LinkEditor({
         <AnimatePresence>
           {showArchive && (
             <div className={`fixed inset-0 z-[9999] flex ${isMobile ? 'items-end' : 'items-center justify-center p-4 md:p-8'}`}>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowArchive(false)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowArchive(false)} className="absolute inset-0 bg-slate-900/80 md:bg-slate-900/40 md:backdrop-blur-sm" />
               <motion.div
                 initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ y: 0, opacity: 1, scale: 1 }}
@@ -538,7 +538,7 @@ function LinkEditor({
                       <motion.div key={link.id} layout className="flex items-center justify-between p-3 bg-white border border-black transition-all hover:bg-[#ffdf00] group/item shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-3">
                         <div className="flex items-center gap-5 min-w-0">
                           <div className="w-14 h-14 bg-white border-2 border-black flex items-center justify-center shrink-0 overflow-hidden shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                            {link.image ? <img src={link.image} alt="" className="w-full h-full object-cover grayscale group-hover/item:grayscale-0 transition-all" /> : <Ban size={24} strokeWidth={3} className="text-black" />}
+                            {link.image ? <img src={link.image} alt="" className="w-full h-full object-cover grayscale group-hover/item:grayscale-0 transition-all" loading="lazy" decoding="async" /> : <Ban size={24} strokeWidth={3} className="text-black" />}
                           </div>
                           <div className="min-w-0">
                             <h4 className="text-sm font-black uppercase tracking-widest text-black truncate mb-0.5">{link.title || t('links.untitled')}</h4>
@@ -585,7 +585,7 @@ function LinkEditor({
 
           {level === 0 && moveModalLinkId && (
             <div className={`fixed inset-0 z-[9999] flex ${isMobile ? 'items-end' : 'items-center justify-center p-4 md:p-8'}`}>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMoveModalLinkId(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMoveModalLinkId(null)} className="absolute inset-0 bg-slate-900/80 md:bg-slate-900/60 md:backdrop-blur-sm" />
               <motion.div
                 initial={isMobile ? { y: '100%', opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}

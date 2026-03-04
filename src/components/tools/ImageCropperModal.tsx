@@ -58,7 +58,7 @@ const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/90 md:bg-black/80 md:backdrop-blur-md">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}

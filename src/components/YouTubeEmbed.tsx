@@ -37,8 +37,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, title, className = '' 
             onClick={() => setIsPlaying(true)}
         >
             {/* Thumbnail */}
-            <img
-                src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+            <img src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
                 onError={(e) => {
                     // Fallback if maxres doesn't exist
                     (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;

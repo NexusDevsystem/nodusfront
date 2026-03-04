@@ -40,14 +40,12 @@ const MusicRichCard: React.FC<MusicRichCardProps> = ({
             <div className="flex h-full items-center px-4 gap-3.5 flex-1 min-w-0">
                 {/* Album Art */}
                 <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-lg'} overflow-hidden shadow-sm shrink-0 group-hover:scale-105 transition-transform duration-500`}>
-                    <img
-                        src={link.image || (isDeezer
+                    <img src={link.image || (isDeezer
                             ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg'
                             : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b'
                         )}
                         alt={musicTitle}
-                        className="w-full h-full object-cover"
-                    />
+                        className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </div>
 
                 {/* Info Column */}
@@ -179,14 +177,12 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                         {/* Header Section */}
                         <div className={`px-6 pt-4 pb-6 flex items-center gap-5 border-b ${isDarkTheme ? 'border-white/5' : 'border-black/5'}`}>
                             <div className="relative group/cover shrink-0">
-                                <img
-                                    src={openPlaylist?.image || (isDeezer
+                                <img src={openPlaylist?.image || (isDeezer
                                         ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg'
                                         : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b'
                                     )}
                                     className="w-20 h-20 rounded-xl object-cover shadow-lg group-hover:scale-105 transition-transform duration-500"
-                                    alt=""
-                                />
+                                    alt="" loading="lazy" decoding="async" />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5 mb-1 opacity-50">

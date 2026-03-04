@@ -525,7 +525,7 @@ export default function OnboardingPage() {
                                 <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
                                     <div className="w-32 h-32 rounded-full border-4 border-black overflow-hidden bg-slate-100 flex flex-col items-center justify-center relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1">
                                         {avatarUrl ? (
-                                            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                         ) : (
                                             <div className="flex flex-col items-center">
                                                 <Camera size={32} className="text-black/30 mb-2" />
@@ -841,7 +841,7 @@ export default function OnboardingPage() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                            className="absolute inset-0 bg-black/60 md:bg-black/40 md:backdrop-blur-sm"
                             onClick={() => { setIsSocialModalOpen(false); setConfiguringSocialPlatform(null); }}
                         />
                         <motion.div

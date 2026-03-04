@@ -140,7 +140,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
 
             <div className="relative group/edit shrink-0">
                 <div className="w-10 h-10 border border-black bg-white overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </div>
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/edit:opacity-100 transition-opacity">
                     <Upload size={20} className="text-white" strokeWidth={3} />
@@ -313,7 +313,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
             <div className="flex items-start gap-4 p-4 bg-white border-4 border-black border-dashed">
                 <div className="relative w-24 h-24 border-2 border-black bg-white flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:bg-[#ffdf00] transition group shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
                     {newProduct.image ? (
-                        <img src={newProduct.image} className="w-full h-full object-cover" />
+                        <img src={newProduct.image} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     ) : (
                         <ImageIcon size={32} strokeWidth={3} className="text-black group-hover:text-black transition" />
                     )}

@@ -280,6 +280,7 @@ function SortableLinkItem({
             onDragEnd={() => { }}
             className={`relative border-2 border-black ${isExpanded ? 'bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]' : 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'} select-none`}
             whileDrag={{ scale: 1, boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)', zIndex: 50 }}
+            style={{ willChange: 'transform' }}
         >
             <div className={`transition-all duration-300 ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${isExpanded ? 'bg-[#ffdf00]' : 'bg-white'}`}>
                 {isCollection ? (
@@ -306,7 +307,7 @@ function SortableLinkItem({
                                         <FileInput />
                                         {link.image ? (
                                             <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}>
-                                                <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
+                                                <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                             </div>
                                         ) : (
                                             <button
@@ -370,7 +371,7 @@ function SortableLinkItem({
                                                 <div className="relative shrink-0">
                                                     {link.image ? (
                                                         <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border border-black bg-white relative group/img shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                                                            <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
+                                                            <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                                             <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                                                 <button onClick={() => document.getElementById(`file-${link.id}`)?.click()} className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all"><Pencil size={14} strokeWidth={3} /></button>
                                                                 <button onClick={() => updateLink(link.id, 'image', null)} className="p-1.5 bg-white text-red-600 hover:bg-red-600 hover:text-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all"><Trash2 size={14} strokeWidth={3} /></button>
@@ -470,7 +471,7 @@ function SortableLinkItem({
                                         ) : link.type === 'agenda' ? (
                                             <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black`}><CalendarIcon size={iconSize} strokeWidth={3} /></div>
                                         ) : link.image ? (
-                                            <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}><img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" /></div>
+                                            <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}><img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" loading="lazy" decoding="async" /></div>
                                         ) : (
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); document.getElementById(`file-${link.id}`)?.click(); }}
@@ -536,7 +537,7 @@ function SortableLinkItem({
                                                     <div className="relative shrink-0">
                                                         {link.image ? (
                                                             <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border border-black bg-white relative group/img shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                                                                <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" />
+                                                                <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                                                 <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                                                     <button onClick={() => document.getElementById(`file-${link.id}`)?.click()} className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"><Pencil size={14} strokeWidth={3} /></button>
                                                                     <button onClick={() => updateLink(link.id, 'image', undefined)} className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"><Trash2 size={14} strokeWidth={3} /></button>

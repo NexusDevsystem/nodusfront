@@ -139,7 +139,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                         >
                             <div className={`relative aspect-[4/5] w-full border-2 transition-all flex flex-col items-center justify-center ${profile.themeId === 'custom' ? 'border-black bg-[#97cd7a] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-black/10 group-hover:border-black/30 bg-white'}`} style={{ backgroundColor: profile.customSolidColor || (profile.themeId === 'custom' ? undefined : '#f8f8f8') }}>
                                 {profile.customBackground ? (
-                                    <img src={profile.customBackground} alt="Preview" className="w-full h-full object-cover" />
+                                    <img src={profile.customBackground} alt="Preview" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                 ) : (
                                     <Paintbrush className={profile.customSolidColor ? 'mix-blend-difference' : 'text-black/20 group-hover:text-black/40'} size={20} strokeWidth={3} style={{ color: profile.customSolidColor ? '#fff' : undefined }} />
                                 )}

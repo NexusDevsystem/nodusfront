@@ -192,7 +192,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
 
             {/* Receipt Modal */}
             {selectedInvoice && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-[2px] animate-fade-in">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/90 md:bg-black/80 md:backdrop-blur-[2px] animate-fade-in">
                     <div className="bg-white w-full max-w-lg border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden relative animate-scale-in">
                         {/* Close Button */}
                         <button

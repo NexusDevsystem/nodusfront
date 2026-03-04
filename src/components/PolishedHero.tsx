@@ -47,11 +47,9 @@ export default function PolishedHero() {
 
                             {/* Screen Content */}
                             <div className="w-full h-full bg-white relative overflow-hidden flex items-center justify-center rounded-[3rem]">
-                                <img
-                                    src="/landingpage/iPhone-13-PRO-www.noduscc.com.br.png"
+                                <img src="/landingpage/iPhone-13-PRO-www.noduscc.com.br.png"
                                     alt="Nodus Mobile Preview"
-                                    className="w-full h-full object-cover transform scale-105"
-                                />
+                                    className="w-full h-full object-cover transform scale-105" loading="lazy" decoding="async" />
                             </div>
                         </div>
                     </div>

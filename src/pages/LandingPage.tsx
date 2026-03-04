@@ -62,14 +62,12 @@ export default function LandingPage() {
         <div className="min-h-screen w-full bg-white font-sans text-black selection:bg-black selection:text-[#ffdf00]">
 
             {/* Nav V2 - Clean & Sticky */}
-            <nav className="sticky top-0 w-full z-[100] border-b-2 border-black bg-white/90 backdrop-blur-md">
+            <nav className="sticky top-0 w-full z-[100] border-b-2 border-black bg-white md:bg-white/90 md:backdrop-blur-md">
                 <div className="flex items-center justify-between h-20 px-6 max-w-[1600px] mx-auto">
                     <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
-                        <img
-                            src="/icons/logo.png"
+                        <img src="/icons/logo.png"
                             alt="NODUS"
-                            className="h-16 w-auto object-contain transition-transform group-hover:scale-105"
-                        />
+                            className="h-16 w-auto object-contain transition-transform group-hover:scale-105" loading="lazy" decoding="async" />
                     </div>
 
                     <div className="hidden md:flex items-center gap-8 font-bold text-sm uppercase tracking-wide">

@@ -52,11 +52,9 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                     <div className="relative shrink-0 flex items-center justify-center">
                         <div className="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] transition-transform duration-500 group-hover:scale-105">
                             <div className="w-full h-full rounded-full overflow-hidden border-2 border-white bg-white">
-                                <img
-                                    src={avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'}
+                                <img src={avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nodus'}
                                     alt={username}
-                                    className="w-full h-full object-cover"
-                                />
+                                    className="w-full h-full object-cover" loading="lazy" decoding="async" />
                             </div>
                         </div>
                     </div>
@@ -113,7 +111,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
             <div className="bg-white/5 aspect-[16/10] overflow-hidden">
                 {displayMedia.length === 1 && (
                     <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item">
-                        <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-105" alt="" />
+                        <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-105" alt="" loading="lazy" decoding="async" />
                     </a>
                 )}
 
@@ -121,7 +119,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                     <div className="grid grid-cols-2 h-full gap-[2px]">
                         {displayMedia.map(item => (
                             <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item overflow-hidden">
-                                <img src={item.thumbnail_url || item.media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" />
+                                <img src={item.thumbnail_url || item.media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" loading="lazy" decoding="async" />
                             </a>
                         ))}
                     </div>
@@ -130,12 +128,12 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                 {displayMedia.length === 3 && (
                     <div className="grid grid-cols-3 h-full gap-[2px]">
                         <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer" className="col-span-2 h-full block group/item overflow-hidden">
-                            <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" />
+                            <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" loading="lazy" decoding="async" />
                         </a>
                         <div className="grid grid-rows-2 gap-[2px]">
                             {displayMedia.slice(1, 3).map(item => (
                                 <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item overflow-hidden">
-                                    <img src={item.thumbnail_url || item.media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" />
+                                    <img src={item.thumbnail_url || item.media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" loading="lazy" decoding="async" />
                                 </a>
                             ))}
                         </div>
@@ -146,7 +144,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                     <div className="grid grid-cols-2 grid-rows-2 h-full gap-[2px]">
                         {displayMedia.map(item => (
                             <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item overflow-hidden">
-                                <img src={item.thumbnail_url || item.media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" />
+                                <img src={item.thumbnail_url || item.media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" loading="lazy" decoding="async" />
                             </a>
                         ))}
                     </div>
@@ -158,7 +156,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                             className="row-span-2 relative overflow-hidden group/item">
                             <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url}
                                 alt=""
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" />
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" loading="lazy" decoding="async" />
                             {displayMedia[0].media_type === 'VIDEO' && (
                                 <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
                                     <Play size={10} fill="white" className="text-white" />
@@ -170,7 +168,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                                 className="relative overflow-hidden group/item">
                                 <img src={item.thumbnail_url || item.media_url}
                                     alt=""
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" />
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" loading="lazy" decoding="async" />
                                 {item.media_type === 'VIDEO' && (
                                     <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
                                         <Play size={8} fill="white" className="text-white" />
@@ -187,7 +185,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                             className="col-span-2 row-span-2 relative overflow-hidden group/item">
                             <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url}
                                 alt=""
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-105" />
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-105" loading="lazy" decoding="async" />
                             {displayMedia[0].media_type === 'VIDEO' && (
                                 <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
                                     <Play size={10} fill="white" className="text-white" />
@@ -200,7 +198,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                                     className="relative overflow-hidden group/item">
                                     <img src={item.thumbnail_url || item.media_url}
                                         alt=""
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" />
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" loading="lazy" decoding="async" />
                                     {item.media_type === 'VIDEO' && (
                                         <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
                                             <Play size={8} fill="white" className="text-white" />
@@ -215,7 +213,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                                     className="relative overflow-hidden group/item">
                                     <img src={item.thumbnail_url || item.media_url}
                                         alt=""
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" />
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" loading="lazy" decoding="async" />
                                     {item.media_type === 'VIDEO' && (
                                         <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
                                             <Play size={8} fill="white" className="text-white" />

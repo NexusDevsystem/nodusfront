@@ -843,7 +843,7 @@ export default function EditorPage() {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                                    className="absolute inset-0 bg-black/80 md:bg-black/60 md:backdrop-blur-sm"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 />
                                 <motion.div
@@ -1150,7 +1150,7 @@ export default function EditorPage() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="absolute inset-0 bg-black/80 backdrop-blur-md pointer-events-auto"
+                                className="absolute inset-0 bg-black/90 md:bg-black/80 md:backdrop-blur-md pointer-events-auto"
                                 onClick={() => setIsDiscardModalOpen(false)}
                             />
                             <motion.div

@@ -570,7 +570,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
-                className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"
+                className="absolute inset-0 bg-slate-900/60 md:bg-slate-900/40 md:backdrop-blur-[2px]"
             />
 
             <motion.div

@@ -52,11 +52,9 @@ export const TwitchCard: React.FC<TwitchCardProps> = ({
                 <div className="relative shrink-0 flex items-center justify-center">
                     <div className={`w-12 h-12 rounded-full p-[2px] transition-transform duration-500 group-hover:scale-105 ${isLive ? 'bg-red-500 animate-pulse' : 'bg-[#6441a5]'}`}>
                         <div className="w-full h-full rounded-full overflow-hidden border-2 border-white bg-white">
-                            <img
-                                src={avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Twitch'}
+                            <img src={avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Twitch'}
                                 alt={displayName}
-                                className="w-full h-full object-cover"
-                            />
+                                className="w-full h-full object-cover" loading="lazy" decoding="async" />
                         </div>
                     </div>
                     {isLive && (

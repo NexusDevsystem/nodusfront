@@ -241,7 +241,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                                 {/* File Icon / Preview Container */}
                                                 <div className="w-9 h-9 sm:w-10 sm:h-10 border-2 border-black bg-white flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:bg-[#97cd7a] transition-colors overflow-hidden">
                                                     {file.filename.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                                                        <img src={file.url} alt="" className="w-full h-full object-cover" />
+                                                        <img src={file.url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                                     ) : getFileIcon(file.filename)}
                                                 </div>
 

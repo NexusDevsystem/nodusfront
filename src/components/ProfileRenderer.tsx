@@ -560,11 +560,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 <div className="flex h-full items-center px-4 gap-3.5 flex-1 min-w-0">
                     {/* Album Art */}
                     <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-lg'} overflow-hidden shadow-sm shrink-0 group-hover:scale-105 transition-transform duration-500`}>
-                        <img
-                            src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
+                        <img src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
                             alt={musicTitle}
-                            className="w-full h-full object-cover"
-                        />
+                            className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     </div>
 
                     {/* Info Column */}
@@ -647,7 +645,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setOpenPlaylist(null)}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto"
+                            className="absolute inset-0 bg-black/80 md:bg-black/60 md:backdrop-blur-sm pointer-events-auto"
                         />
                         <motion.div
                             drag="y"
@@ -668,7 +666,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 color: isDark ? '#FFFFFF' : '#000000',
                                 borderTop: isDark ? '1px solid rgba(255,255,255,0.05)' : 'none',
                                 height: 'auto',
-                                maxHeight: '85%'
+                                maxHeight: '85%',
+                                willChange: 'transform'
                             }}
                         >
                             {/* Drawer Handle */}
@@ -679,11 +678,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             {/* Header Section */}
                             <div className={`px-6 pt-4 pb-6 flex items-center gap-5 border-b ${isDark ? 'border-white/5' : 'border-black/5'}`}>
                                 <div className="relative group/cover shrink-0">
-                                    <img
-                                        src={openPlaylist?.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
+                                    <img src={openPlaylist?.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
                                         className="w-20 h-20 rounded-xl object-cover shadow-lg group-hover:scale-105 transition-transform duration-500"
-                                        alt=""
-                                    />
+                                        alt="" loading="lazy" decoding="async" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-1.5 mb-1 opacity-50">
@@ -774,13 +771,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             {/* GLOBAL BLUR FADE OVERLAY — Performance: reduced blur radius + contain to isolate repaint */}
             {(profile.enableBlur && profile.headerLayout !== 'banner' && profile.headerLayout !== 'compact') && (
                 <div
-                    className="absolute inset-0 z-10 pointer-events-none"
+                    className="absolute inset-0 z-10 pointer-events-none md:backdrop-blur-[20px] bg-gradient-to-b from-transparent via-black/10 to-black/90 md:bg-none"
                     style={{
                         maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
                         WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
-                        backdropFilter: 'blur(20px)',
-                        WebkitBackdropFilter: 'blur(20px)',
-                        willChange: 'auto',
                         contain: 'layout style'
                     }}
                 />
@@ -812,11 +806,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             }}
                         >
                             {/* The Large Image */}
-                            <img
-                                src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`}
+                            <img src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`}
                                 alt={profile.name}
-                                className="w-full h-full object-cover"
-                            />
+                                className="w-full h-full object-cover" loading="lazy" decoding="async" />
 
                             {/* Color tint overlay — tints the photo with the chosen banner color(s) */}
                             {profile.bannerBlurColor && (() => {
@@ -857,7 +849,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             >
                                 {profile.name}
                                 {profile.isVerified && (
-                                    <img src={verifiedBadge} alt="Verified" className="w-[0.85em] h-[0.85em] shrink-0" />
+                                    <img src={verifiedBadge} alt="Verified" className="w-[0.85em] h-[0.85em] shrink-0" loading="lazy" decoding="async" />
                                 )}
                             </h3>
 
@@ -950,11 +942,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {profile.headerLayout === 'compact' && (
                         <>
                             <div className="absolute top-0 -left-6 w-[calc(100%+3rem)] h-[180px] z-0 overflow-hidden">
-                                <img
-                                    src={profile.customBackground || profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`}
+                                <img src={profile.customBackground || profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`}
                                     alt=""
-                                    className="w-full h-full object-cover"
-                                />
+                                    className="w-full h-full object-cover" loading="eager" decoding="async" />
                             </div>
                             {/* Full-length Intelligent Backdrop for Social Layout */}
                             <div
@@ -1002,7 +992,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         <img
                                             src={profile.logoUrl}
                                             alt={profile.name}
-                                            loading="lazy"
+                                            loading="eager"
                                             decoding="async"
                                             className="mb-2 object-contain h-12"
                                         />
@@ -1157,14 +1147,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         <div className="flex h-48 w-full gap-1 p-1 bg-black/5">
                                                             {items.length === 1 ? (
                                                                 <div className="flex-1 h-full relative overflow-hidden rounded-xl">
-                                                                    <img src={items[0].image} alt={items[0].name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" />
+                                                                    <img src={items[0].image} alt={items[0].name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" loading="lazy" decoding="async" />
                                                                     <div className="absolute inset-0 bg-black/5" />
                                                                 </div>
                                                             ) : (
                                                                 <>
                                                                     {items.slice(0, 3).map((item, i) => (
                                                                         <div key={item.id} className={`flex-1 h-full relative overflow-hidden ${i === 0 ? 'rounded-l-xl' : i === items.slice(0, 3).length - 1 ? 'rounded-r-xl' : ''}`}>
-                                                                            <img src={item.image} alt={item.name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" />
+                                                                            <img src={item.image} alt={item.name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" loading="lazy" decoding="async" />
                                                                             <div className="absolute inset-0 bg-black/5" />
                                                                         </div>
                                                                     ))}
@@ -1220,7 +1210,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         <div className="flex flex-col w-full h-full relative">
                                                             <div className={`relative w-full aspect-[4/5] transform transition-transform group-hover:scale-[1.02] duration-300`}>
                                                                 <div className={`absolute inset-0 overflow-hidden ${roundedClass} border-none shadow-none`} style={{ backgroundColor: buttonHex, ...mainButtonStyle }}>
-                                                                    <img src={product.image} alt={product.name} className="w-full h-full block object-cover" />
+                                                                    <img src={product.image} alt={product.name} className="w-full h-full block object-cover" loading="lazy" decoding="async" />
                                                                     <div className="absolute inset-0 bg-black/5" />
 
                                                                     {/* Badge container with high z-index and clip safety */}
@@ -1326,7 +1316,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                                     <div className="relative z-10 p-1">
                                                                         {iconLink.image ? (
-                                                                            <img src={iconLink.image} alt="" className="w-8 h-8 rounded-lg object-cover" />
+                                                                            <img src={iconLink.image} alt="" className="w-8 h-8 rounded-lg object-cover" loading="lazy" decoding="async" />
                                                                         ) : (
                                                                             <Icon size={28} />
                                                                         )}
@@ -1354,7 +1344,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         style={{ backgroundColor: cardBg + '1A' }}
                                                                     >
                                                                         {cardLink.image ? (
-                                                                            <img src={cardLink.image} alt="" className="w-full h-full object-cover transition-transform duration-700" />
+                                                                            <img src={cardLink.image} alt="" className="w-full h-full object-cover transition-transform duration-700" loading="lazy" decoding="async" />
                                                                         ) : (
                                                                             <div className="w-full h-full flex items-center justify-center opacity-10">
                                                                                 <Globe size={40} />
@@ -1505,7 +1495,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         <motion.a key={child.id} transition={{ duration: 0 }} href={child.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(child.id)} className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass}`} style={mainButtonStyle}>
                                                                             <div className="relative z-10 flex flex-col h-full w-full">
                                                                                 <div className="relative overflow-hidden h-36 w-full bg-white">
-                                                                                    {child.image ? <img src={child.image} alt="" className="w-full h-full block object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
+                                                                                    {child.image ? <img src={child.image} alt="" className="w-full h-full block object-cover" loading="lazy" decoding="async" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
                                                                                 </div>
                                                                                 <div className="p-2 flex flex-col justify-center items-center text-center h-12 relative">
                                                                                     <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
@@ -1560,7 +1550,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             <div className="relative shrink-0 z-10">
                                                                                 {child.image ? (
                                                                                     <div className="w-9 h-9 rounded-lg overflow-hidden border border-black/5 group-hover:scale-105 transition-transform">
-                                                                                        <img src={child.image} alt="" className="w-full h-full object-cover" />
+                                                                                        <img src={child.image} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                                                                     </div>
                                                                                 ) : Icon ? (
                                                                                     <div className="w-9 h-9 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform">
@@ -1619,7 +1609,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         <div className="relative shrink-0 z-10">
                                                             {link.image ? (
                                                                 <div className="w-10 h-10 rounded-lg overflow-hidden border border-black/5 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                                                                    <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                                                    <img src={link.image} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                                                 </div>
                                                             ) : Icon ? (
                                                                 <div className="w-10 h-10 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform duration-300">
@@ -1727,9 +1717,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             >
                                 <div className="relative z-10 w-full flex items-center justify-between">
                                     {profile.supportType === 'pix' ? (
-                                        <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" />
+                                        <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" loading="lazy" decoding="async" />
                                     ) : (
-                                        <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" />
+                                        <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" loading="lazy" decoding="async" />
                                     )}
                                     <span className="truncate flex-1 px-3" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Apoiar</span>
                                     <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={20} /></span>

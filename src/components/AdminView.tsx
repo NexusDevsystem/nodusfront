@@ -270,7 +270,7 @@ export default function AdminView() {
                                         <div>
                                             <div className="flex items-center gap-1.5">
                                                 <h3 className="text-xs font-black uppercase tracking-tight">{u.name || u.username}</h3>
-                                                {u.is_verified && <img src="/icons/icons8-verificado-48.png" className="w-4 h-4 ml-0.5 object-contain" alt="Verified" />}
+                                                {u.is_verified && <img src="/icons/icons8-verificado-48.png" className="w-4 h-4 ml-0.5 object-contain" alt="Verified" loading="lazy" decoding="async" />}
                                             </div>
                                             <p className="text-[10px] font-bold text-black/40 uppercase">@{u.username} • {u.email}</p>
                                         </div>
@@ -409,7 +409,7 @@ export default function AdminView() {
                                         <div className="space-y-1 mb-8">
                                             <h2 className="text-lg font-black uppercase tracking-tighter leading-tight flex items-center justify-center gap-1">
                                                 {selectedUser.name || selectedUser.username}
-                                                {selectedUser.is_verified && <img src="/icons/icons8-verificado-48.png" className="w-5 h-5 ml-1 object-contain" alt="Verified" />}
+                                                {selectedUser.is_verified && <img src="/icons/icons8-verificado-48.png" className="w-5 h-5 ml-1 object-contain" alt="Verified" loading="lazy" decoding="async" />}
                                             </h2>
                                             <p className="text-[10px] font-bold text-black/40 uppercase tracking-widest">@{selectedUser.username}</p>
                                         </div>
@@ -534,7 +534,7 @@ export default function AdminView() {
                                                     {isUpdating ? (
                                                         <RefreshCw className="animate-spin" size={16} />
                                                     ) : (
-                                                        <img src="/icons/icons8-verificado-48.png" className="w-8 h-8 object-contain" alt="Verified Icon" />
+                                                        <img src="/icons/icons8-verificado-48.png" className="w-8 h-8 object-contain" alt="Verified Icon" loading="lazy" decoding="async" />
                                                     )}
                                                     <span>{selectedUser.is_verified ? t('admin.revokeBadge') : t('admin.grantBadge')}</span>
                                                 </button>

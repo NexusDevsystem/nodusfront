@@ -102,8 +102,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                         {isConnected && profileData && (
                             <div className="flex items-center gap-2 p-1.5 pr-3 bg-slate-50 border border-black/10 shrink-0">
                                 <div className="w-8 h-8 rounded-full border border-black overflow-hidden bg-white shrink-0">
-                                    <img
-                                        src={profileData.avatar_url || profileData.picture}
+                                    <img src={profileData.avatar_url || profileData.picture}
                                         alt=""
                                         className="w-full h-full object-cover"
                                         onError={(e) => { e.currentTarget.style.display = 'none'; }}

@@ -41,7 +41,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 md:bg-black/60 md:backdrop-blur-sm animate-fade-in p-4">
             <div className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-6 sm:p-8 w-full max-w-[400px] relative animate-in zoom-in-95 duration-200">
                 <button
                     onClick={onClose}
