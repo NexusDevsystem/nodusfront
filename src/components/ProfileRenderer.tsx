@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { UserProfile, LinkItem, Product } from '../types';
 import { THEMES, SOCIAL_NETWORKS } from '../constants';
 import {
@@ -59,6 +59,50 @@ interface ProfileRendererProps {
 const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], isPreview = false, isStatic = false, onShare, forcedTab }) => {
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
     const [currentTime, setCurrentTime] = useState(new Date());
+
+    // CSS keyframes memoized — inserted ONCE, never recreated on re-render
+    const profileGlobalStyles = React.useMemo(() => (
+        <style>{`
+            @keyframes wobble {
+                0%, 100% { transform: translateX(0%); }
+                15% { transform: translateX(-5%) rotate(-5deg); }
+                30% { transform: translateX(4%) rotate(3deg); }
+                45% { transform: translateX(-3%) rotate(-3deg); }
+                60% { transform: translateX(2%) rotate(2deg); }
+                75% { transform: translateX(-1%) rotate(-1deg); }
+            }
+            .animate-wobble { animation: wobble 1s infinite; }
+            .animate-shake { animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both infinite; transform: translate3d(0, 0, 0); }
+            @keyframes shake {
+                10%, 90% { transform: translate3d(-1px, 0, 0); }
+                20%, 80% { transform: translate3d(2px, 0, 0); }
+                30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+                40%, 60% { transform: translate3d(4px, 0, 0); }
+            }
+            .animate-glow { animation: glow-pulse 2s infinite; }
+            @keyframes glow-pulse {
+                0% { box-shadow: 0 0 5px rgba(255,255,255,0.2); }
+                50% { box-shadow: 0 0 20px rgba(255,255,255,0.6); }
+                100% { box-shadow: 0 0 5px rgba(255,255,255,0.2); }
+            }
+            @keyframes wobble-shape {
+                0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+                25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+                50% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1.02); }
+                75% { border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%; }
+            }
+            .noise-overlay {
+                position: absolute;
+                inset: 0;
+                background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+                opacity: 0.4;
+                mix-blend-mode: overlay;
+                pointer-events: none;
+                z-index: 1;
+            }
+        `}</style>
+    ), []); // Empty deps — these never change
+
 
     // Update current time every 10 seconds to refresh scheduled items visibility
     React.useEffect(() => {
@@ -717,45 +761,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             className={`relative w-full ${isPreview ? 'h-full flex-1' : 'min-h-[100dvh]'} flex flex-col isolate`}
             style={{ fontFamily: profile.fontFamily }}
         >
-            <style>{`
-                @keyframes wobble {
-                    0%, 100% { transform: translateX(0%); }
-                    15% { transform: translateX(-5%) rotate(-5deg); }
-                    30% { transform: translateX(4%) rotate(3deg); }
-                    45% { transform: translateX(-3%) rotate(-3deg); }
-                    60% { transform: translateX(2%) rotate(2deg); }
-                    75% { transform: translateX(-1%) rotate(-1deg); }
-                }
-                .animate-wobble { animation: wobble 1s infinite; }
-                .animate-shake { animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both infinite; transform: translate3d(0, 0, 0); }
-                @keyframes shake {
-                    10%, 90% { transform: translate3d(-1px, 0, 0); }
-                    20%, 80% { transform: translate3d(2px, 0, 0); }
-                    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-                    40%, 60% { transform: translate3d(4px, 0, 0); }
-                }
-                .animate-glow { animation: glow-pulse 2s infinite; }
-                @keyframes glow-pulse {
-                    0% { box-shadow: 0 0 5px rgba(255,255,255,0.2); }
-                    50% { box-shadow: 0 0 20px rgba(255,255,255,0.6); }
-                    100% { box-shadow: 0 0 5px rgba(255,255,255,0.2); }
-                }
-                @keyframes wobble-shape {
-                    0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-                    25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-                    50% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1.02); }
-                    75% { border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%; }
-                }
-                .noise-overlay {
-                    position: absolute;
-                    inset: 0;
-                    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-                    opacity: 0.4;
-                    mix-blend-mode: overlay;
-                    pointer-events: none;
-                    z-index: 1;
-                }
-            `}</style>
+            {/* Performance: CSS global inserted ONCE via a memoized tag — avoids re-creating style rules on every render */}
+            {profileGlobalStyles}
             {/* Background Layer - Hidden in Perfil Mode */}
             {profile.headerLayout !== 'compact' && (
                 <BackgroundLayer profile={profile} currentTheme={currentTheme} isStatic={isStatic} />
@@ -764,20 +771,19 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 <BrutalistVisualizer profile={profile} currentTheme={currentTheme} />
             )}
 
-            {/* GLOBAL BLUR FADE OVERLAY - Only for other layouts */}
+            {/* GLOBAL BLUR FADE OVERLAY — Performance: reduced blur radius + contain to isolate repaint */}
             {(profile.enableBlur && profile.headerLayout !== 'banner' && profile.headerLayout !== 'compact') && (
-                <>
-                    <div
-                        className="absolute inset-0 z-10 pointer-events-none"
-                        style={{
-                            backgroundColor: 'transparent',
-                            maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
-                            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
-                            backdropFilter: 'blur(80px)',
-                            WebkitBackdropFilter: 'blur(80px)'
-                        }}
-                    />
-                </>
+                <div
+                    className="absolute inset-0 z-10 pointer-events-none"
+                    style={{
+                        maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
+                        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
+                        backdropFilter: 'blur(20px)',
+                        WebkitBackdropFilter: 'blur(20px)',
+                        willChange: 'auto',
+                        contain: 'layout style'
+                    }}
+                />
             )}
 
             {/* Content Container */}
@@ -880,7 +886,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 href={link.url}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="text-white hover:scale-110 active:scale-95 transition-all drop-shadow-2xl"
+                                                className="text-white hover:opacity-75 active:opacity-50 transition-opacity drop-shadow-2xl"
                                             >
                                                 <Icon size={24} />
                                             </a>
@@ -979,6 +985,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             src={profile.avatarUrl}
                                             alt={profile.name}
                                             className="w-full h-full object-cover rounded-full"
+                                            loading="eager"
+                                            decoding="async"
                                             onError={(e) => {
                                                 e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
                                             }}
@@ -994,6 +1002,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         <img
                                             src={profile.logoUrl}
                                             alt={profile.name}
+                                            loading="lazy"
+                                            decoding="async"
                                             className="mb-2 object-contain h-12"
                                         />
                                     ) : (
@@ -1006,6 +1016,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 <img
                                                     src={verifiedBadge}
                                                     alt="Verificado"
+                                                    loading="lazy"
+                                                    decoding="async"
                                                     className="w-[0.85em] h-[0.85em] object-contain shrink-0"
                                                     title="Conta Verificada"
                                                 />
@@ -1744,7 +1756,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         <img
                                             src="/icons/logo.png"
                                             alt="Nodus"
-                                            className="w-[80px] h-auto object-contain transition-all duration-300 group-hover:scale-105 opacity-100 -mt-6"
+                                            loading="lazy"
+                                            decoding="async"
+                                            className="w-[80px] h-auto object-contain transition-opacity duration-300 group-hover:opacity-60 opacity-100 -mt-6"
                                             style={{
                                                 filter: isDarkTheme ? 'invert(1) brightness(10)' : 'brightness(1)'
                                             }}

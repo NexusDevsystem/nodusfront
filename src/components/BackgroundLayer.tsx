@@ -72,13 +72,19 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
                     style={bgStyle}
                 >
                     <div className="noise-overlay" />
-                    {/* 1. Blurred Base Image */}
+                    {/* 1. Blurred Base Image — GPU-isolated layer */}
                     {hasAvatar && (
-                        <div className="absolute inset-0 transform-gpu">
+                        <div
+                            className="absolute inset-0"
+                            style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'strict' }}
+                        >
                             <img
                                 src={profile.avatarUrl}
-                                alt="Background"
-                                className="w-full h-full object-cover scale-[1.4] blur-[120px] opacity-[0.35]"
+                                alt=""
+                                aria-hidden="true"
+                                loading="eager"
+                                decoding="async"
+                                className="w-full h-full object-cover scale-[1.4] blur-[60px] opacity-[0.35]"
                             />
                         </div>
                     )}
