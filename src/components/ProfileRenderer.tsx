@@ -942,9 +942,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {profile.headerLayout === 'compact' && (
                         <>
                             <div className="absolute top-0 -left-6 w-[calc(100%+3rem)] h-[180px] z-0 overflow-hidden">
-                                <img src={profile.customBackground || profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`}
-                                    alt=""
-                                    className="w-full h-full object-cover" loading="eager" decoding="async" />
+                                {profile.customBackground ? (
+                                    <img src={profile.customBackground}
+                                        alt=""
+                                        className="w-full h-full object-cover" loading="eager" decoding="async" />
+                                ) : (
+                                    <div className="w-full h-full bg-slate-900/10" />
+                                )}
                             </div>
                             {/* Full-length Intelligent Backdrop for Social Layout */}
                             <div

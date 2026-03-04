@@ -45,14 +45,6 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
                     />
                 );
             }
-            if (profile.customBackground && profile.headerLayout === 'banner') {
-                return (
-                    <div className="absolute inset-0">
-                        <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                        <div className="absolute inset-0 bg-black/20"></div>
-                    </div>
-                );
-            }
 
             // Priority 2: Adaptive Blurred Background
             const hasAvatar = !!profile.avatarUrl;
@@ -72,22 +64,6 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
                     style={bgStyle}
                 >
                     <div className="noise-overlay" />
-                    {/* 1. Blurred Base Image — GPU-isolated layer */}
-                    {hasAvatar && (
-                        <div
-                            className="absolute inset-0"
-                            style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'strict' }}
-                        >
-                            <img
-                                src={profile.avatarUrl}
-                                alt=""
-                                aria-hidden="true"
-                                loading="eager"
-                                decoding="async"
-                                className="w-full h-full object-cover scale-[1.4] opacity-[0.10]"
-                            />
-                        </div>
-                    )}
 
                     {/* 2. Color Tint Layer */}
                     <div
