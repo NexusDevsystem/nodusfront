@@ -952,7 +952,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             </div>
                             {/* Full-length Intelligent Backdrop for Social Layout */}
                             <div
-                                className={`absolute top-[130px] -left-6 w-[calc(100%+3rem)] bottom-0 rounded-t-[48px] z-0 shadow-[0_-15px_40px_rgba(0,0,0,0.1)] overflow-hidden`}
+                                className={`absolute top-[165px] -left-6 w-[calc(100%+3rem)] bottom-0 rounded-t-[48px] z-0 shadow-[0_-15px_40px_rgba(0,0,0,0.1)] overflow-hidden`}
                                 style={{ background: headerContentBg }}
                             >
                                 <div className="noise-overlay" />
@@ -963,7 +963,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {/* Profile Section - Shared for other layouts */}
                     {profile.headerLayout !== 'banner' && (
                         <motion.div
-                            className={`w-full mb-1 flex flex-col items-center text-center relative z-10 ${profile.headerLayout === 'compact' ? 'mt-[140px] pt-0 pb-1 px-4' : ''}`}
+                            className={`w-full mb-1 flex flex-col items-center text-center relative z-10 ${profile.headerLayout === 'compact' ? 'mt-[175px] pt-0 pb-1 px-4' : ''}`}
                         >
                             {/* Avatar */}
                             {profile.avatarUrl && (
@@ -1348,7 +1348,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         style={{ backgroundColor: cardBg + '1A' }}
                                                                     >
                                                                         {cardLink.image ? (
-                                                                            <img src={cardLink.image} alt="" className="w-full h-full object-cover transition-transform duration-700" loading="lazy" decoding="async" />
+                                                                            <img src={cardLink.image} alt="" className="w-full h-full object-contain transition-transform duration-700" loading="lazy" decoding="async" />
                                                                         ) : (
                                                                             <div className="w-full h-full flex items-center justify-center opacity-10">
                                                                                 <Globe size={40} />
@@ -1479,12 +1479,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             } else if (link.layout === 'card') {
                                                 flushIcons();
                                                 currentCardGroup.push(link);
-                                            } else if ((link.layout === 'carousel' || link.type === 'collection') && !isMusicLink(link)) {
+                                            } else if ((link.layout === 'carousel' || link.layout === 'list' || link.layout === 'stacked' || link.type === 'collection') && !isMusicLink(link)) {
                                                 flushIcons();
                                                 flushCards();
-                                                const activeChildren = link.children?.filter(c => c.isActive) || [];
+                                                const activeChildren = link.children?.filter(c => c.isActive && isScheduled(c)) || [];
                                                 const isMusic = isMusicLink(link);
-                                                const collectionLayout = link.layout;
+                                                const collectionLayout = link.layout || 'list';
                                                 if (collectionLayout === 'carousel' && (activeChildren.length > 0 || isMusic)) {
                                                     const scrollContainerId = `scroll-${link.id}`;
                                                     const scrollLeft = () => { const el = document.getElementById(scrollContainerId); if (el) el.scrollBy({ left: -250, behavior: 'smooth' }); };
@@ -1499,7 +1499,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         <motion.a key={child.id} transition={{ duration: 0 }} href={child.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(child.id)} className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass}`} style={mainButtonStyle}>
                                                                             <div className="relative z-10 flex flex-col h-full w-full">
                                                                                 <div className="relative overflow-hidden h-36 w-full bg-white">
-                                                                                    {child.image ? <img src={child.image} alt="" className="w-full h-full block object-cover" loading="lazy" decoding="async" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
+                                                                                    {child.image ? <img src={child.image} alt="" className="w-full h-full block object-contain" loading="lazy" decoding="async" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
                                                                                 </div>
                                                                                 <div className="p-2 flex flex-col justify-center items-center text-center h-12 relative">
                                                                                     <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
@@ -1516,72 +1516,104 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     renderedItems.push(
                                                         <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
                                                             {link.title && <div className="text-center mb-2 opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>}
-                                                            <div className={collectionLayout === 'grid' ? "grid grid-cols-2 gap-2 relative" : "flex flex-col gap-2 relative"}>
-                                                                {(activeChildren.length > 0 ? activeChildren : [link]).map(child => {
-                                                                    if (isMusicLink(child)) return <MusicRichCard key={child.id} link={child} handleLinkClick={handleLinkClick} />;
-                                                                    if (child.embedType === 'youtube') return <YouTubeEmbed key={child.id} url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} />;
-                                                                    if (child.embedType === 'tiktok') return <TikTokEmbed key={child.id} url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} />;
+                                                            <div className="flex flex-col gap-2 relative">
+                                                                {(() => {
+                                                                    const nestedItems: React.ReactNode[] = [];
 
-                                                                    if (child.platform === 'instagram' || (child.url.includes('instagram.com') && child.type !== 'collection')) {
-                                                                        if (instagramIntegration) return <InstagramCard key={child.id} username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={child.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />;
-                                                                    }
-                                                                    if (child.platform === 'youtube' || (child.url.includes('youtube.com') && !child.url.includes('watch?v=') && !child.url.includes('/shorts/'))) {
-                                                                        if (youtubeIntegration) return <YouTubeCard key={child.id} username={youtubeUsername || child.url} title={youtubeTitle || child.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />;
-                                                                    }
-                                                                    if (child.platform === 'twitch' || child.title.toLowerCase().includes('twitch')) {
-                                                                        if (twitchIntegration) return <TwitchCard key={child.id} username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />;
-                                                                    }
-                                                                    if (child.platform === 'kick' || child.title.toLowerCase().includes('kick')) {
-                                                                        if (kickIntegration) return <KickCard key={child.id} username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />;
-                                                                    }
-                                                                    if (child.type === 'map' || child.title?.toLowerCase() === 'localização') {
-                                                                        return <MapBlock key={child.id} link={child} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} />;
-                                                                    }
-                                                                    const network = SOCIAL_NETWORKS.find(n => child.title.toLowerCase().includes(n.id)) || SOCIAL_NETWORKS.find(n => child.url.toLowerCase().includes(n.id));
-                                                                    const Icon = network?.icon;
-                                                                    return (
-                                                                        <motion.a
-                                                                            key={child.id}
-                                                                            transition={{ duration: 0.2 }}
-                                                                            whileHover={{ scale: 1.005 }}
-                                                                            href={child.url}
-                                                                            target="_blank"
-                                                                            rel="noreferrer"
-                                                                            onClick={() => handleLinkClick(child.id)}
-                                                                            className={`block w-full min-h-[66px] transform group relative py-2.5 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
-                                                                            style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                                        >
-                                                                            <div className="relative shrink-0 z-10">
-                                                                                {child.image ? (
-                                                                                    <div className="w-9 h-9 rounded-lg overflow-hidden border border-black/5 group-hover:scale-105 transition-transform">
-                                                                                        <img src={child.image} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                                                                                    </div>
-                                                                                ) : Icon ? (
-                                                                                    <div className="w-9 h-9 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform">
-                                                                                        <Icon size={20} />
-                                                                                    </div>
-                                                                                ) : (
-                                                                                    <div className="w-9" />
-                                                                                )}
-                                                                            </div>
+                                                                    activeChildren.forEach(child => {
+                                                                        // Links inside collections lose their individual layout overrides 
+                                                                        // and follow the collection's display rules.
 
-                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
-                                                                                <span className={`text-[14px] font-bold leading-tight uppercase tracking-tight ${child.subtitle ? 'line-clamp-1 truncate' : 'break-words'}`} style={{ color: getSmartTextColor() }}>
-                                                                                    {child.title}
-                                                                                </span>
-                                                                                {child.subtitle && (
-                                                                                    <span className="text-[10px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor() }}>
-                                                                                        {child.subtitle}
-                                                                                    </span>
-                                                                                )}
-                                                                            </div>
+                                                                        // Standard items
+                                                                        if (isMusicLink(child)) {
+                                                                            nestedItems.push(<MusicRichCard key={child.id} link={child} handleLinkClick={handleLinkClick} />);
+                                                                        } else if (child.embedType === 'youtube') {
+                                                                            nestedItems.push(<YouTubeEmbed key={child.id} url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} />);
+                                                                        } else if (child.embedType === 'tiktok') {
+                                                                            nestedItems.push(<TikTokEmbed key={child.id} url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} />);
+                                                                        } else {
+                                                                            // Check Integrations for children
+                                                                            let renderedSpecial = false;
+                                                                            if (child.platform === 'instagram' || (child.url.includes('instagram.com') && child.type !== 'collection')) {
+                                                                                if (instagramIntegration) {
+                                                                                    nestedItems.push(<InstagramCard key={child.id} username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={child.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />);
+                                                                                    renderedSpecial = true;
+                                                                                }
+                                                                            }
+                                                                            if (!renderedSpecial && (child.platform === 'youtube' || (child.url.includes('youtube.com') && !child.url.includes('watch?v=') && !child.url.includes('/shorts/')))) {
+                                                                                if (youtubeIntegration) {
+                                                                                    nestedItems.push(<YouTubeCard key={child.id} username={youtubeUsername || child.url} title={youtubeTitle || child.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />);
+                                                                                    renderedSpecial = true;
+                                                                                }
+                                                                            }
+                                                                            if (!renderedSpecial && (child.platform === 'twitch' || child.title.toLowerCase().includes('twitch'))) {
+                                                                                if (twitchIntegration) {
+                                                                                    nestedItems.push(<TwitchCard key={child.id} username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />);
+                                                                                    renderedSpecial = true;
+                                                                                }
+                                                                            }
+                                                                            if (!renderedSpecial && (child.platform === 'kick' || child.title.toLowerCase().includes('kick'))) {
+                                                                                if (kickIntegration) {
+                                                                                    nestedItems.push(<KickCard key={child.id} username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />);
+                                                                                    renderedSpecial = true;
+                                                                                }
+                                                                            }
+                                                                            if (!renderedSpecial && (child.type === 'map' || child.title?.toLowerCase() === 'localização')) {
+                                                                                nestedItems.push(<MapBlock key={child.id} link={child} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} />);
+                                                                                renderedSpecial = true;
+                                                                            }
 
-                                                                            <div className="w-9 shrink-0 flex items-center justify-center z-10 relative opacity-20 group-hover:opacity-100 transition-opacity">
-                                                                                <ChevronRight size={16} style={{ color: getSmartTextColor() }} strokeWidth={3} />
-                                                                            </div>
-                                                                        </motion.a>
-                                                                    );
-                                                                })}
+                                                                            if (!renderedSpecial) {
+                                                                                const network = SOCIAL_NETWORKS.find(n => child.title.toLowerCase().includes(n.id)) || SOCIAL_NETWORKS.find(n => child.url.toLowerCase().includes(n.id));
+                                                                                const Icon = network?.icon;
+                                                                                nestedItems.push(
+                                                                                    <motion.a
+                                                                                        key={child.id}
+                                                                                        transition={{ duration: 0.2 }}
+                                                                                        whileHover={{ scale: 1.005 }}
+                                                                                        href={child.url}
+                                                                                        target="_blank"
+                                                                                        rel="noreferrer"
+                                                                                        onClick={() => handleLinkClick(child.id)}
+                                                                                        className={`block w-full min-h-[66px] transform group relative py-2.5 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
+                                                                                        style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                                    >
+                                                                                        <div className="relative shrink-0 z-10">
+                                                                                            {child.image ? (
+                                                                                                <div className="w-9 h-9 rounded-lg overflow-hidden border border-black/5 group-hover:scale-105 transition-transform">
+                                                                                                    <img src={child.image} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                                                                                                </div>
+                                                                                            ) : Icon ? (
+                                                                                                <div className="w-9 h-9 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform">
+                                                                                                    <Icon size={20} />
+                                                                                                </div>
+                                                                                            ) : (
+                                                                                                <div className="w-9" />
+                                                                                            )}
+                                                                                        </div>
+
+                                                                                        <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                            <span className={`text-[14px] font-bold leading-tight uppercase tracking-tight ${child.subtitle ? 'line-clamp-1 truncate' : 'break-words'}`} style={{ color: getSmartTextColor() }}>
+                                                                                                {child.title}
+                                                                                            </span>
+                                                                                            {child.subtitle && (
+                                                                                                <span className="text-[10px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor() }}>
+                                                                                                    {child.subtitle}
+                                                                                                </span>
+                                                                                            )}
+                                                                                        </div>
+
+                                                                                        <div className="w-9 shrink-0 flex items-center justify-center z-10 relative opacity-20 group-hover:opacity-100 transition-opacity">
+                                                                                            <ChevronRight size={16} style={{ color: getSmartTextColor() }} strokeWidth={3} />
+                                                                                        </div>
+                                                                                    </motion.a>
+                                                                                );
+                                                                            }
+                                                                        }
+                                                                    });
+
+                                                                    return nestedItems;
+                                                                })()}
                                                             </div>
                                                         </motion.div>
                                                     );

@@ -250,9 +250,9 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                 <div className="px-4 shrink-0 flex items-center justify-center">
                                     {event.status && event.status !== 'Tickets' ? (
                                         <span className="text-[10px] font-black uppercase tracking-widest opacity-60" style={{ color: themeTextHex }}>
-                                            {event.status === 'Sold Out' ? 'ESGOTADO' :
-                                                event.status === 'Free' ? 'FREE' :
-                                                    event.status === 'Buy' ? 'INFO' :
+                                            {event.status === 'Sold Out' ? t('agenda.statusSoldOut').toUpperCase() :
+                                                event.status === 'Free' ? t('agenda.statusFree').toUpperCase() :
+                                                    event.status === 'Buy' ? t('agenda.statusBuy').toUpperCase() :
                                                         event.status}
                                         </span>
                                     ) : (
@@ -312,7 +312,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
 
                                     <div className="w-full text-left pointer-events-none pr-8">
                                         <span className="block mb-2 text-[10px] font-bold text-black/40 uppercase tracking-[0.2em]">
-                                            EVENTO
+                                            {t('agenda.titleLabel').toUpperCase()}
                                         </span>
                                         <h2 className="text-[28px] font-black text-black leading-[1.1] tracking-[-0.02em]">
                                             {selectedEvent.title}
@@ -329,7 +329,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                                 <Calendar size={22} className="text-black" strokeWidth={2.5} />
                                             </div>
                                             <div className="flex-1 min-w-0 pt-0.5">
-                                                <span className="block text-[10px] font-bold text-black/40 uppercase tracking-widest mb-1">Data</span>
+                                                <span className="block text-[10px] font-bold text-black/40 uppercase tracking-widest mb-1">{t('agenda.dateLabel')}</span>
                                                 <span className="text-black font-semibold text-[16px] truncate block leading-none">{formatDate(selectedEvent.date).fullDate}</span>
                                             </div>
                                         </div>
@@ -347,7 +347,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                                 </div>
                                                 <div className="flex-1 min-w-0 pt-0.5">
                                                     <span className="flex items-center gap-1.5 text-[10px] font-bold text-black/40 uppercase tracking-widest mb-1">
-                                                        Localização <ExternalLink size={10} className="opacity-0 group-hover:opacity-100 transition-opacity translate-y-[1px]" />
+                                                        {t('agenda.locationLabel')} <ExternalLink size={10} className="opacity-0 group-hover:opacity-100 transition-opacity translate-y-[1px]" />
                                                     </span>
                                                     <span className="text-black font-semibold text-[16px] truncate block leading-none">{selectedEvent.location}</span>
                                                 </div>
@@ -361,7 +361,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                                     <Clock size={22} className="text-black" strokeWidth={2.5} />
                                                 </div>
                                                 <div className="flex-1 min-w-0 pt-0.5">
-                                                    <span className="block text-[10px] font-bold text-black/40 uppercase tracking-widest mb-1">Horário</span>
+                                                    <span className="block text-[10px] font-bold text-black/40 uppercase tracking-widest mb-1">{t('agenda.timeLabel')}</span>
                                                     <span className="text-black font-semibold text-[16px] truncate block leading-none">{selectedEvent.time}</span>
                                                 </div>
                                             </div>
@@ -371,7 +371,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                         {selectedEvent.description && (
                                             <div className="py-6">
                                                 <span className="block text-[10px] font-bold text-black/40 uppercase tracking-widest mb-3">
-                                                    Detalhes
+                                                    {t('common.details', 'DETAILS')}
                                                 </span>
                                                 <p className="text-black/70 leading-relaxed text-[15px] font-medium">
                                                     {selectedEvent.description}
@@ -390,9 +390,9 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                             rel="noreferrer"
                                             className="flex w-full h-14 items-center justify-center gap-2 bg-black text-white rounded-[16px] font-bold uppercase tracking-[0.05em] text-[15px] hover:scale-[1.02] active:scale-[0.98] transition-transform"
                                         >
-                                            {selectedEvent.status === 'Sold Out' ? 'ESGOTADO' :
-                                                selectedEvent.status === 'Free' ? 'ENTRADA GRÁTIS' :
-                                                    'OBTER INGRESSOS'}
+                                            {selectedEvent.status === 'Sold Out' ? t('agenda.statusSoldOut').toUpperCase() :
+                                                selectedEvent.status === 'Free' ? t('agenda.statusFree').toUpperCase() :
+                                                    t('agenda.statusBuy').toUpperCase()}
                                             <ExternalLink size={16} className="ml-1 opacity-70" />
                                         </a>
                                     )}

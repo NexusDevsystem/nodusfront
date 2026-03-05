@@ -171,6 +171,7 @@
         "chooseImage": "Choose Image",
         "profileBanner": "Profile Banner",
         "chooseBanner": "Choose Banner",
+        "bannerSizeRecommendation": "Recommended size: 1500x500px (3:1 Ratio)",
         "identity": "Identity",
         "username": "Username (@)",
         "lastChange": "Last change",
@@ -197,6 +198,24 @@
         "suggestions": "Suggestions",
         "clearCustomization": "Clear Customization",
         "customBackgroundWarning": "* Custom mode allows creating unique backgrounds. Enable Gradient to mix two colors or use a Solid Color for minimalism.",
+        "compatibilityDescProfile": "The Profile layout focuses on your image. Theme visual effects and animations are automatically disabled.",
+        "compatibilityDescBanner": "The Banner layout focuses on your image. Theme visual effects and animations are automatically disabled.",
+        "enableClassicToSeeTheme": "Enable Classic mode to see the full theme.",
+        "categories": {
+            "technology": "Technology & Innovation",
+            "engineering": "Engineering & Construction",
+            "medicine": "Medicine & Health",
+            "advocacy": "Advocacy & Law",
+            "business": "Business & Corporate",
+            "gradient": "Vibrant Gradients",
+            "solid": "Minimalist & Solid",
+            "music": "Music & Melody",
+            "artistic": "Art & Creativity",
+            "kawaii": "Kawaii & Cute",
+            "animated": "Nodus Exclusive",
+            "social": "Social Style",
+            "creative": "Creative & Animated"
+        },
         "format": "Format",
         "buttonRoundnessDesc": "Adjust the corner rounding of your buttons",
         "square": "SQUARE",
@@ -233,7 +252,12 @@
         "colorRemovesBackground": "Selecting a color removes any custom background image.",
         "cropProfile": "Crop Profile Image",
         "cropBanner": "Crop Banner",
-        "cropInstructions": "Drag the image to position and use the slider to adjust the zoom."
+        "cropInstructions": "Drag the image to position and use the slider to adjust the zoom.",
+        "customColorsPreview": "Custom Colors Preview",
+        "customColorsPreviewDesc": "As a FREE plan member, you can test custom colors now, but you will need the PRO tier to save these changes permanently.",
+        "enablePreview": "Enable Preview",
+        "titleFontSize": "Title Font Size",
+        "subtitleFontSize": "Subtitle Font Size"
     },
     "files": {
         "uploadTitle": "Upload",
@@ -281,7 +305,9 @@
         "emptySubtitle": "Add your first link to get started",
         "deleteConfirm": "Delete this link?",
         "title": "Title",
+        "titleLabel": "Title / Label",
         "url": "URL / Link",
+        "urlLabel": "URL / Link",
         "limitReached": "Limit Reached (5/5)",
         "limitDesc": "Go PRO for unlimited links on your profile.",
         "seePlans": "See Plans",
@@ -397,6 +423,11 @@
         "addElement": "Add Element",
         "collectionLabel": "Collection",
         "productLabel": "Product",
+        "mapLabel": "Address",
+        "mapLabelMobile": "Map",
+        "mapDesc": "Spotlight your business location",
+        "agendaTag": "SCHEDULE",
+        "mergedTag": "MERGED",
         "itemConfigured": "item configured",
         "itemsConfigured": "items configured",
         "deleteCollection": "Delete collection?",
@@ -410,6 +441,10 @@
         "groupLayout": "Group Layout",
         "layoutStacked": "Stacked List",
         "layoutStackedDesc": "Links one below the other",
+        "layoutList": "Simple List",
+        "layoutListDesc": "Items one below another",
+        "layoutGrid": "Grid Layout",
+        "layoutGridDesc": "Items organized in 2 columns",
         "layoutCarousel": "Carousel",
         "layoutCarouselDesc": "Swipe sideways to view",
         "headerItem": "New Section",
@@ -573,8 +608,15 @@
             "a6": "The verification badge is intended for public figures, brands, and relevant content creators. To request a review, contact our support via WhatsApp or Email sending links to your other social networks."
         }
     },
+    "upgradeBanner": {
+        "title": "Try Pro for free",
+        "subtitle": "— the secret of top creators and companies.",
+        "button": "Upgrade Now"
+    },
     "billing": {
         "title": "Plans & Upgrade",
+        "upgradeTitle": "Upgrade to Premium",
+        "upgradeSubtitle": "Unlock your brand's full potential.",
         "free": "Free",
         "pro": "Pro",
         "currentPlan": "Current plan",
@@ -592,6 +634,8 @@
         "plans": {
             "free": {
                 "name": "Free",
+                "price": "R$ 0",
+                "priceUSD": "$ 0",
                 "description": "EVERYTHING YOU NEED TO START YOUR ONLINE PRESENCE.",
                 "button": "CURRENT PLAN",
                 "features": {
@@ -604,6 +648,10 @@
             },
             "monthly": {
                 "name": "Monthly",
+                "price": "R$ 29.90",
+                "priceUSD": "$ 5.90",
+                "trial": "7 DAYS FREE",
+                "thenPay": "Then pay the fixed price",
                 "description": "ADVANCED FEATURES FOR PROFESSIONALS AND CREATORS.",
                 "button": "SUBSCRIBE MONTHLY",
                 "features": {
@@ -617,16 +665,48 @@
             },
             "annual": {
                 "name": "Annual",
+                "price": "R$ 299",
+                "priceUSD": "$ 59",
                 "description": "THE BEST CHOICE FOR THOSE WHO WANT TO GROW FAST.",
                 "button": "SUBSCRIBE ANNUALLY",
                 "badge": "BEST VALUE",
                 "features": {
-                    "0": "2 FREE MONTHS (SAVE R$ 59)",
+                    "0": "2 FREE MONTHS (SAVE R$ 59 / $ 10)",
                     "1": "ALL MONTHLY FEATURES",
                     "2": "EARLY ACCESS TO BETA",
                     "3": "REMOVE NODUS BRANDING"
                 }
             }
+        },
+        "billing": "Billing",
+        "manageBilling": "Manage your subscription and payment history.",
+        "currentSubscription": "Current Subscription",
+        "billingMethod": "Billing Method",
+        "manualInvoices": "Manual Invoices",
+        "creditCard": "Credit Card",
+        "internal": "Internal",
+        "manualManagement": "Subscription managed manually.",
+        "stripeSecurity": "Security guaranteed by Stripe infrastructure.",
+        "activeUntil": "Active until",
+        "receiptHistory": "Receipt History",
+        "noReceipts": "No Receipts",
+        "receiptsAppearAuto": "Your receipts will appear here automatically.",
+        "stripePortal": "Stripe Portal",
+        "syncingInvoices": "Syncing invoices...",
+        "receiptFallback": "NODUS RECEIPT",
+        "paid": "PAID",
+        "receiptModal": {
+            "title": "Receipt",
+            "issuedAt": "ISSUED AT",
+            "paymentDetails": "PAYMENT DETAILS",
+            "number": "Number",
+            "product": "Product",
+            "status": "Status",
+            "processed": "Processed",
+            "totalAmount": "Total Amount",
+            "pdf": "PDF",
+            "online": "Online",
+            "footer": "Document generated by Nodus Technologies"
         }
     },
     "onboarding": {
@@ -716,6 +796,8 @@
         "pendingConfig": "PENDING CONFIGURATION...",
         "verifyDetails": "Make sure the details are correct",
         "setupNow": "Setup Now",
+        "pixLabel": "My Primary Pix",
+        "paypalLabel": "My PayPal",
         "customNamePlaceholder": "EX: PRIMARY PIX",
         "pixKeyPlaceholder": "CPF, EMAIL OR PHONE",
         "paypalPlaceholder": "YOUR-EMAIL@EXAMPLE.COM"
@@ -846,5 +928,16 @@
         "statusSoldOut": "Sold Out",
         "statusFree": "Free",
         "statusBuy": "Buy"
+    },
+    "mapEditor": {
+        "addAddress": "Add Your Address",
+        "addressInstruction": "Paste your business address. Nodus will create a card highlighting your location and directing customers to Google Maps.",
+        "locationName": "Location Name",
+        "locationInputPlaceholder": "Ex: Main Store",
+        "fullAddress": "Full Address",
+        "addressPlaceholder": "123 Example Street, Neighborhood, City - State",
+        "instructions": "Description / Instructions (Optional)",
+        "instructionsPlaceholder": "Ex: Landmark, across the park",
+        "mapPreview": "Map Preview"
     }
 }

@@ -141,24 +141,34 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
     const handleCropComplete = async (croppedBlob: Blob) => {
         setIsSavingImage(true);
         try {
-            // Convert blob to file for compressImage if needed, or just convert to dataURL
-            const reader = new FileReader();
-            reader.readAsDataURL(croppedBlob);
-            reader.onloadend = async () => {
-                const base64data = reader.result as string;
+            // Create a File from the Blob
+            const filename = cropper.type === 'avatar' ? 'avatar.jpg' : 'banner.jpg';
+            const file = new File([croppedBlob], filename, { type: 'image/jpeg' });
 
-                // Further compress if needed, though getCroppedImg already does some
-                const finalImage = base64data;
+            // Upload to server
+            const uploadRes = await apiClient.uploadInternalAsset(file);
 
+            if (uploadRes.success && uploadRes.file?.url) {
+                const imageUrl = uploadRes.file.url;
                 if (cropper.type === 'avatar') {
-                    if (updateProfile) updateProfile({ avatarUrl: finalImage });
-                    else onChange({ ...profile, avatarUrl: finalImage });
+                    if (updateProfile) updateProfile({ avatarUrl: imageUrl });
+                    else onChange({ ...profile, avatarUrl: imageUrl });
                 } else {
-                    if (updateProfile) updateProfile({ customBackground: finalImage });
-                    else onChange({ ...profile, customBackground: finalImage });
+                    if (updateProfile) updateProfile({ customBackground: imageUrl });
+                    else onChange({ ...profile, customBackground: imageUrl });
                 }
-                setCropper(prev => ({ ...prev, isOpen: false }));
-            };
+            } else {
+                // Fallback to base64 if upload fails
+                const dataUrl = await blobToDataURL(croppedBlob);
+                if (cropper.type === 'avatar') {
+                    if (updateProfile) updateProfile({ avatarUrl: dataUrl });
+                    else onChange({ ...profile, avatarUrl: dataUrl });
+                } else {
+                    if (updateProfile) updateProfile({ customBackground: dataUrl });
+                    else onChange({ ...profile, customBackground: dataUrl });
+                }
+            }
+            setCropper(prev => ({ ...prev, isOpen: false }));
         } catch (error) {
             console.error('Error saving cropped image:', error);
         } finally {
@@ -314,7 +324,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                 </div>
                             </div>
 
-                            <div className="flex-1 w-full space-y-2">
+                            <div className="flex-1 w-full space-y-3">
                                 <div className="flex gap-2">
                                     <label htmlFor="banner-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-black text-black cursor-pointer hover:bg-black hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none">
                                         <Upload size={14} strokeWidth={3} /> {profile.customBackground ? t('common.change') : t('design.chooseBanner')}
@@ -330,6 +340,9 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                         </Tooltip>
                                     )}
                                 </div>
+                                <p className="text-[8px] font-bold text-black/40 uppercase tracking-widest leading-relaxed px-1">
+                                    {t('design.bannerSizeRecommendation')}
+                                </p>
                             </div>
                         </div>
                     </div>

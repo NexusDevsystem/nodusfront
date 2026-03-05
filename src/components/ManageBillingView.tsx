@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { UserProfile } from '../types';
 import { CreditCard, Receipt, ShieldCheck, ExternalLink, Zap, Loader2, ChevronRight, Download, Eye, X, CheckCircle2 } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
+import { useTranslation } from 'react-i18next';
 
 interface ManageBillingViewProps {
     profile: UserProfile;
@@ -19,6 +20,7 @@ interface Invoice {
 }
 
 const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
+    const { t } = useTranslation();
     const [loadingPortal, setLoadingPortal] = useState(false);
     const [loadingInvoices, setLoadingInvoices] = useState(true);
     const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -74,12 +76,12 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
     const isFree = !profile.planType || profile.planType === 'free';
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 pb-20 animate-fade-in px-4">
+        <div className="max-w-6xl mx-auto space-y-8 pb-20 animate-fade-in px-4">
             {/* Minimal Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-black pb-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-black pb-6 max-w-4xl mx-auto w-full">
                 <div>
-                    <h2 className="text-xl font-black text-black uppercase tracking-widest">Faturamento</h2>
-                    <p className="text-[10px] text-black font-black uppercase tracking-widest mt-1 opacity-60">Gerencie sua assinatura e histórico de pagamentos.</p>
+                    <h2 className="text-xl font-black text-black uppercase tracking-widest">{t('billing.billing', 'Billing')}</h2>
+                    <p className="text-[10px] text-black font-black uppercase tracking-widest mt-1 opacity-60">{t('billing.manageBilling', 'Manage your subscription and payment history.')}</p>
                 </div>
                 {!isFree && profile.stripeCustomerId && (
                     <button
@@ -88,19 +90,19 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                         className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#97cd7a] bg-black hover:bg-zinc-900 py-3 px-6 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all disabled:opacity-50"
                     >
                         {loadingPortal ? <Loader2 size={12} className="animate-spin" /> : <ExternalLink size={12} strokeWidth={3} />}
-                        Portal Stripe
+                        {t('billing.stripePortal', 'Stripe Portal')}
                     </button>
                 )}
             </div>
 
             {/* Status Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto w-full">
                 <div className="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden flex flex-col justify-between min-h-[140px]">
                     <div className="flex items-start justify-between relative z-10">
                         <div>
-                            <p className="text-[9px] font-black text-black/50 uppercase tracking-widest mb-2">Assinatura Atual</p>
+                            <p className="text-[9px] font-black text-black/50 uppercase tracking-widest mb-2">{t('billing.currentSubscription', 'Current Subscription')}</p>
                             <h3 className="text-lg font-black text-black uppercase tracking-widest leading-none">
-                                {isFree ? 'Nodus Free' : `Nodus Premium ${profile.planType === 'monthly' ? 'Mensal' : 'Anual'}`}
+                                {isFree ? 'Nodus Free' : `Nodus Premium ${profile.planType === 'monthly' ? t('billing.monthly', 'Monthly') : t('billing.yearly', 'Yearly')}`}
                             </h3>
                         </div>
                         <div className={`p-3 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${isFree ? 'bg-slate-50 text-black/20' : 'bg-[#97cd7a] text-black'}`}>
@@ -110,7 +112,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                     {!isFree && (
                         <div className="flex items-center gap-2 mt-4 text-[9px] font-black text-black uppercase tracking-widest bg-[#97cd7a] w-fit px-3 py-1.5 border border-black shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
                             <CheckCircle2 size={12} strokeWidth={3} />
-                            Ativo até {profile.subscriptionExpiryDate ? new Date(profile.subscriptionExpiryDate).toLocaleDateString('pt-BR') : '--/--/----'}
+                            {t('billing.activeUntil', 'Active until')} {profile.subscriptionExpiryDate ? new Date(profile.subscriptionExpiryDate).toLocaleDateString('pt-BR') : '--/--/----'}
                         </div>
                     )}
                 </div>
@@ -118,9 +120,9 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                 <div className="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden flex flex-col justify-between min-h-[140px]">
                     <div className="flex items-start justify-between relative z-10">
                         <div>
-                            <p className="text-[9px] font-black text-black/50 uppercase tracking-widest mb-2">Método de Cobrança</p>
+                            <p className="text-[9px] font-black text-black/50 uppercase tracking-widest mb-2">{t('billing.billingMethod', 'Billing Method')}</p>
                             <h3 className="text-lg font-black text-black uppercase tracking-widest leading-none">
-                                {isFree ? 'Faturas Manuais' : (profile.stripeCustomerId ? 'Cartão de Crédito' : 'Interno')}
+                                {isFree ? t('billing.manualInvoices', 'Manual Invoices') : (profile.stripeCustomerId ? t('billing.creditCard', 'Credit Card') : t('billing.internal', 'Internal'))}
                             </h3>
                         </div>
                         <div className="p-3 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white text-black">
@@ -129,23 +131,23 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                     </div>
                     <p className="text-[9px] text-black font-bold uppercase tracking-widest leading-tight opacity-40">
                         {profile.stripeCustomerId
-                            ? 'Segurança garantida pela infraestrutura Stripe.'
-                            : 'Assinatura gerenciada manualmente.'}
+                            ? t('billing.stripeSecurity', 'Security guaranteed by Stripe infrastructure.')
+                            : t('billing.manualManagement', 'Subscription managed manually.')}
                     </p>
                 </div>
             </div>
 
             {/* Invoices Section */}
-            <div className="space-y-4">
+            <div className="space-y-4 max-w-4xl mx-auto w-full">
                 <div className="flex items-center gap-2 border-b border-black pb-2">
                     <Receipt size={16} strokeWidth={3} className="text-black" />
-                    <h3 className="text-xs font-black text-black uppercase tracking-widest">Histórico de Recibos</h3>
+                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{t('billing.receiptHistory', 'Receipt History')}</h3>
                 </div>
 
                 {loadingInvoices ? (
                     <div className="flex flex-col items-center justify-center py-12 bg-white border-2 border-black border-dashed">
                         <Loader2 size={24} className="text-black animate-spin mb-4" />
-                        <p className="text-[10px] text-black font-black uppercase tracking-widest">Sincronizando faturas...</p>
+                        <p className="text-[10px] text-black font-black uppercase tracking-widest">{t('billing.syncingInvoices', 'Syncing invoices...')}</p>
                     </div>
                 ) : invoices.length > 0 ? (
                     <div className="grid grid-cols-1 gap-2.5">
@@ -160,7 +162,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                                         <Receipt size={16} strokeWidth={3} />
                                     </div>
                                     <div>
-                                        <h4 className="text-[11px] font-black text-black uppercase tracking-widest">{invoice.number || 'RECIBO NODUS'}</h4>
+                                        <h4 className="text-[11px] font-black text-black uppercase tracking-widest">{invoice.number || t('billing.receiptFallback', 'NODUS RECEIPT')}</h4>
                                         <p className="text-[8px] text-black/50 font-black uppercase tracking-widest mt-0.5">{formatDate(invoice.created)}</p>
                                     </div>
                                 </div>
@@ -169,7 +171,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                                         <p className="text-md font-black text-black tracking-widest">{formatCurrency(invoice.amount_paid, invoice.currency)}</p>
                                         <div className="flex items-center gap-1 sm:justify-end text-[8px] font-black uppercase tracking-widest text-[#32a800]">
                                             <CheckCircle2 size={10} strokeWidth={4} />
-                                            PAGO
+                                            {t('billing.paid', 'PAID')}
                                         </div>
                                     </div>
                                     <div className="p-1.5 border border-black bg-white group-hover:bg-black group-hover:text-[#97cd7a] transition-all">
@@ -184,8 +186,8 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                         <div className="w-12 h-12 bg-slate-50 border border-black flex items-center justify-center mx-auto mb-4 text-black/10 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                             <Receipt size={24} strokeWidth={3} />
                         </div>
-                        <h4 className="text-black font-black uppercase tracking-widest text-xs mb-1">Sem recibos</h4>
-                        <p className="text-black font-bold uppercase tracking-widest text-[8px] opacity-40 max-w-[200px] mx-auto">Seus recibos aparecerão aqui automaticamente.</p>
+                        <h4 className="text-black font-black uppercase tracking-widest text-xs mb-1">{t('billing.noReceipts', 'No receipts')}</h4>
+                        <p className="text-black font-bold uppercase tracking-widest text-[8px] opacity-40 max-w-[200px] mx-auto">{t('billing.receiptsAppearAuto', 'Your receipts will appear here automatically.')}</p>
                     </div>
                 )}
             </div>
@@ -208,38 +210,38 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                                 <div className="w-12 h-12 bg-black text-[#97cd7a] border-2 border-black flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -rotate-3">
                                     <span className="text-2xl font-black italic">N</span>
                                 </div>
-                                <h3 className="text-xl font-black text-black uppercase tracking-widest">Comprovante</h3>
-                                <p className="text-black/50 font-black text-[9px] uppercase tracking-widest mt-2">EMITIDO EM {formatDate(selectedInvoice.created)}</p>
+                                <h3 className="text-xl font-black text-black uppercase tracking-widest">{t('billing.receiptModal.title', 'Receipt')}</h3>
+                                <p className="text-black/50 font-black text-[9px] uppercase tracking-widest mt-2">{t('billing.receiptModal.issuedAt', 'ISSUED AT')} {formatDate(selectedInvoice.created)}</p>
                             </div>
 
                             {/* Divider with labels */}
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="h-0.5 flex-1 bg-black" />
-                                <span className="text-[8px] font-black text-black uppercase tracking-[0.3em] whitespace-nowrap">DETALHES DO PAGAMENTO</span>
+                                <span className="text-[8px] font-black text-black uppercase tracking-[0.3em] whitespace-nowrap">{t('billing.receiptModal.paymentDetails', 'PAYMENT DETAILS')}</span>
                                 <div className="h-0.5 flex-1 bg-black" />
                             </div>
 
                             {/* Details List */}
                             <div className="space-y-2.5 mb-10">
                                 <div className="flex justify-between items-center bg-slate-50 border border-black p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                    <span className="text-black font-black text-[8px] uppercase tracking-widest">Número</span>
+                                    <span className="text-black font-black text-[8px] uppercase tracking-widest">{t('billing.receiptModal.number', 'Number')}</span>
                                     <span className="text-black font-black text-[10px] font-mono uppercase">{selectedInvoice.number || '---'}</span>
                                 </div>
                                 <div className="flex justify-between items-center border border-black p-3">
-                                    <span className="text-black font-black text-[8px] uppercase tracking-widest">Produto</span>
+                                    <span className="text-black font-black text-[8px] uppercase tracking-widest">{t('billing.receiptModal.product', 'Product')}</span>
                                     <span className="text-black font-black text-[10px] uppercase tracking-widest">Nodus Premium</span>
                                 </div>
                                 <div className="flex justify-between items-center border border-black p-3">
-                                    <span className="text-black font-black text-[8px] uppercase tracking-widest">Status</span>
+                                    <span className="text-black font-black text-[8px] uppercase tracking-widest">{t('billing.receiptModal.status', 'Status')}</span>
                                     <div className="flex items-center gap-1 text-[#32a800] font-black text-[8px] uppercase">
                                         <ShieldCheck size={10} strokeWidth={4} />
-                                        Processado
+                                        {t('billing.receiptModal.processed', 'Processed')}
                                     </div>
                                 </div>
 
                                 <div className="mt-8 pt-8 border-t-2 border-black border-dashed flex justify-between items-end">
                                     <div>
-                                        <p className="text-[9px] font-black text-black/40 uppercase tracking-widest mb-1">Valor Total</p>
+                                        <p className="text-[9px] font-black text-black/40 uppercase tracking-widest mb-1">{t('billing.receiptModal.totalAmount', 'Total Amount')}</p>
                                         <h4 className="text-3xl font-black text-black tracking-widest">{formatCurrency(selectedInvoice.amount_paid, selectedInvoice.currency)}</h4>
                                     </div>
                                     <div className="text-right">
@@ -276,7 +278,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                         <div className="p-4 bg-black flex items-center justify-center">
                             <p className="text-[7px] text-[#97cd7a] font-black uppercase tracking-widest flex items-center gap-2">
                                 <CheckCircle2 size={10} strokeWidth={4} />
-                                Documento gerado pela Nodus Technologies
+                                {t('billing.receiptModal.footer', 'Document generated by Nodus Technologies')}
                             </p>
                         </div>
                     </div>

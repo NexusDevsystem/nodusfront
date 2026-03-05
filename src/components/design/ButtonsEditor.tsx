@@ -91,16 +91,16 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                             <Zap size={20} className="fill-[#97cd7a]" />
                         </div>
                         <div className="space-y-1">
-                            <p className="text-xs font-black uppercase tracking-widest text-black">{t('design.customColorsPreview', 'Prévia de Cores Customizadas')}</p>
+                            <p className="text-xs font-black uppercase tracking-widest text-black">{t('design.customColorsPreview', 'Custom Colors Preview')}</p>
                             <p className="text-[9px] font-normal uppercase tracking-[0.2em] text-black/50 leading-relaxed max-w-xs mx-auto">
-                                {t('design.customColorsPreviewDesc', 'Como integrante do plano FREE, você pode testar cores customizadas agora, mas precisará do nível PRO para salvar estas alterações permanentemente.')}
+                                {t('design.customColorsPreviewDesc', 'As a FREE plan member, you can test custom colors now, but you will need the PRO tier to save these changes permanently.')}
                             </p>
                         </div>
                         <button
                             onClick={() => updateProfile({ themeId: 'custom' })}
                             className="mt-1 text-[9px] font-black bg-[#97cd7a] border-2 border-black text-black px-6 py-3 uppercase tracking-widest shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all active:scale-95"
                         >
-                            {t('design.enablePreview', 'Ativar Prévia')}
+                            {t('design.enablePreview', 'Enable Preview')}
                         </button>
                     </div>
                 )}

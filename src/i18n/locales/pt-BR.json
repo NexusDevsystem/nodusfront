@@ -171,6 +171,7 @@
         "chooseImage": "Escolher Imagem",
         "profileBanner": "Banner do Perfil",
         "chooseBanner": "Escolher Banner",
+        "bannerSizeRecommendation": "Tamanho recomendado: 1500x500px (Proporção 3:1)",
         "identity": "Identidade",
         "username": "Nome de Usuário (@)",
         "lastChange": "Última alteração",
@@ -197,6 +198,24 @@
         "suggestions": "Sugestões",
         "clearCustomization": "Limpar Customização",
         "customBackgroundWarning": "* O modo customizado permite criar fundos únicos. Ative o Gradiente para misturar duas cores ou use uma Cor Sólida para minimalismo.",
+        "compatibilityDescProfile": "O layout Perfil foca na sua imagem. Efeitos visuais e animações dos temas são automaticamente desativados.",
+        "compatibilityDescBanner": "O layout Banner foca na sua imagem. Efeitos visuais e animações dos temas são automaticamente desativados.",
+        "enableClassicToSeeTheme": "Ative o modo Clássico para ver o tema completo.",
+        "categories": {
+            "technology": "Tecnologia & Inovação",
+            "engineering": "Engenharia & Construção",
+            "medicine": "Medicina & Saúde",
+            "advocacy": "Advocacy & Direito",
+            "business": "Negócios & Corporativo",
+            "gradient": "Gradientes Vibrantes",
+            "solid": "Minimalista & Sólido",
+            "music": "Música & Melodia",
+            "artistic": "Arte & Criatividade",
+            "kawaii": "Kawaii & Fofo",
+            "animated": "Exclusivo Nodus",
+            "social": "Estilo Social",
+            "creative": "Criativo & Animado"
+        },
         "format": "Formato",
         "buttonRoundnessDesc": "Ajuste o arredondamento dos cantos dos seus botões",
         "square": "QUADRADO",
@@ -233,7 +252,12 @@
         "colorRemovesBackground": "Selecionar uma cor removerá qualquer imagem de fundo personalizada.",
         "cropProfile": "Recortar Foto de Perfil",
         "cropBanner": "Recortar Banner",
-        "cropInstructions": "Arraste a imagem para posicionar e use o controle deslizante para ajustar o zoom."
+        "cropInstructions": "Arraste a imagem para posicionar e use o controle deslizante para ajustar o zoom.",
+        "customColorsPreview": "Prévia de Cores Customizadas",
+        "customColorsPreviewDesc": "Como integrante do plano FREE, você pode testar cores customizadas agora, mas precisará do nível PRO para salvar estas alterações permanentemente.",
+        "enablePreview": "Ativar Prévia",
+        "titleFontSize": "Tamanho do Título",
+        "subtitleFontSize": "Tamanho do Subtítulo"
     },
     "files": {
         "uploadTitle": "Upload",
@@ -281,7 +305,9 @@
         "emptySubtitle": "Adicione seu primeiro link para começar",
         "deleteConfirm": "Excluir este link?",
         "title": "Título",
+        "titleLabel": "Título / Rótulo",
         "url": "URL / Link",
+        "urlLabel": "URL / Link",
         "limitReached": "Limite Atingido (5/5)",
         "limitDesc": "Torne-se PRO para ter links ilimitados em seu perfil.",
         "seePlans": "Ver Planos",
@@ -397,6 +423,11 @@
         "addElement": "Adicionar Elemento",
         "collectionLabel": "Coleção",
         "productLabel": "Produto",
+        "mapLabel": "Endereço",
+        "mapLabelMobile": "Mapa",
+        "mapDesc": "Destaque a localização do seu negócio",
+        "agendaTag": "AGENDA",
+        "mergedTag": "MESCLADO",
         "itemConfigured": "item configurado",
         "itemsConfigured": "itens configurados",
         "deleteCollection": "Excluir coleção?",
@@ -410,6 +441,10 @@
         "groupLayout": "Layout do Grupo",
         "layoutStacked": "Lista Empilhada",
         "layoutStackedDesc": "Links um abaixo do outro",
+        "layoutList": "Lista Simples",
+        "layoutListDesc": "Itens um abaixo do outro",
+        "layoutGrid": "Grade de Itens",
+        "layoutGridDesc": "Itens organizados em 2 colunas",
         "layoutCarousel": "Carrossel",
         "layoutCarouselDesc": "Deslize lateral para ver",
         "headerItem": "Nova Seção",
@@ -578,8 +613,15 @@
             "a6": "O selo de verificação é destinado a figuras públicas, marcas e criadores de conteúdo relevantes. Para solicitar uma análise, entre em contato com nosso suporte via WhatsApp ou E-mail enviando links de suas outras redes sociais."
         }
     },
+    "upgradeBanner": {
+        "title": "Experimente o Pro grátis",
+        "subtitle": "— o segredo dos maiores criadores e empresas.",
+        "button": "Fazer Upgrade"
+    },
     "billing": {
         "title": "Planos & Upgrade",
+        "upgradeTitle": "Upgrade para Premium",
+        "upgradeSubtitle": "Desbloqueie todo o potencial da sua marca.",
         "free": "Grátis",
         "pro": "Pro",
         "currentPlan": "Plano atual",
@@ -597,6 +639,8 @@
         "plans": {
             "free": {
                 "name": "Gratuito",
+                "price": "R$ 0",
+                "priceUSD": "$ 0",
                 "description": "TUDO O QUE VOCÊ PRECISA PARA COMEÇAR SUA PRESENÇA ONLINE.",
                 "button": "PLANO ATUAL",
                 "features": {
@@ -609,6 +653,10 @@
             },
             "monthly": {
                 "name": "Mensal",
+                "price": "R$ 29,90",
+                "priceUSD": "$ 5.90",
+                "trial": "7 DIAS GRÁTIS",
+                "thenPay": "Depois pague o valor fixo",
                 "description": "RECURSOS AVANÇADOS PARA PROFISSIONAIS E CRIADORES.",
                 "button": "ASSINAR MENSAL",
                 "features": {
@@ -622,16 +670,48 @@
             },
             "annual": {
                 "name": "Anual",
+                "price": "R$ 299",
+                "priceUSD": "$ 59",
                 "description": "A MELHOR ESCOLHA PARA QUEM QUER CRESCER RÁPIDO.",
                 "button": "ASSINAR ANUAL",
                 "badge": "MELHOR VALOR",
                 "features": {
-                    "0": "2 MESES GRÁTIS (ECONOMIA R$ 59)",
+                    "0": "2 MESES GRÁTIS (ECONOMIA R$ 59 / $ 10)",
                     "1": "TODOS OS RECURSOS DO MENSAL",
                     "2": "ACESSO ANTECIPADO A BETA",
                     "3": "REMOVER MARCA NODUS"
                 }
             }
+        },
+        "billing": "Faturamento",
+        "manageBilling": "Gerencie sua assinatura e histórico de pagamentos.",
+        "currentSubscription": "Assinatura Atual",
+        "billingMethod": "Método de Cobrança",
+        "manualInvoices": "Faturas Manuais",
+        "creditCard": "Cartão de Crédito",
+        "internal": "Interno",
+        "manualManagement": "Assinatura gerenciada manualmente.",
+        "stripeSecurity": "Segurança garantida pela infraestrutura Stripe.",
+        "activeUntil": "Ativo até",
+        "receiptHistory": "Histórico de Recibos",
+        "noReceipts": "Sem Recibos",
+        "receiptsAppearAuto": "Seus recibos aparecerão aqui automaticamente.",
+        "stripePortal": "Portal Stripe",
+        "syncingInvoices": "Sincronizando faturas...",
+        "receiptFallback": "RECIBO NODUS",
+        "paid": "PAGO",
+        "receiptModal": {
+            "title": "Comprovante",
+            "issuedAt": "EMITIDO EM",
+            "paymentDetails": "DETALHES DO PAGAMENTO",
+            "number": "Número",
+            "product": "Produto",
+            "status": "Status",
+            "processed": "Processado",
+            "totalAmount": "Valor Total",
+            "pdf": "PDF",
+            "online": "Online",
+            "footer": "Documento gerado pela Nodus Technologies"
         }
     },
     "onboarding": {
@@ -720,6 +800,8 @@
         "pendingConfig": "CONFIGURAÇÃO PENDENTE...",
         "verifyDetails": "Certifique-se de que os dados estão corretos",
         "setupNow": "Configurar Agora",
+        "pixLabel": "Meu Pix Principal",
+        "paypalLabel": "Meu PayPal",
         "customNamePlaceholder": "EX: PIX PRINCIPAL",
         "pixKeyPlaceholder": "CPF, EMAIL OU CELULAR",
         "paypalPlaceholder": "SEU-EMAIL@EXEMPLO.COM"
@@ -850,5 +932,16 @@
         "statusSoldOut": "Esgotado",
         "statusFree": "Grátis / Free",
         "statusBuy": "Comprar"
+    },
+    "mapEditor": {
+        "addAddress": "Adicione seu Endereço",
+        "addressInstruction": "Cole o endereço do seu negócio. O Nodus criará um card destacando sua localização e direcionando os clientes para o Google Maps.",
+        "locationName": "Nome do Local",
+        "locationInputPlaceholder": "Ex: Minha Loja Matriz",
+        "fullAddress": "Endereço Completo",
+        "addressPlaceholder": "Rua Exemplo, 123, Bairro, Cidade - Estado",
+        "instructions": "Descrição / Instruções (Opcional)",
+        "instructionsPlaceholder": "Ex: Ponto de referência, em frente ao parque",
+        "mapPreview": "Preview do Mapa"
     }
 }

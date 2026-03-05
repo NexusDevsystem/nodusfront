@@ -166,6 +166,16 @@ class ApiClient {
         }
     }
 
+    async uploadInternalAsset(file: File): Promise<{ success: boolean; file?: any; message?: string }> {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        return this.request('/api/links/thumbnail', {
+            method: 'POST',
+            body: formData
+        });
+    }
+
     // Products
     async getMyProducts(): Promise<Product[]> {
         return this.request('/api/products/me');

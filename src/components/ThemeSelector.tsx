@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { UserProfile, LinkItem, Product } from '../types';
 import { THEMES } from '../constants';
 import { Zap, Check, Trash2, Paintbrush, Info } from 'lucide-react';
@@ -13,6 +14,7 @@ interface ThemeSelectorProps {
 }
 
 const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products, onChange }) => {
+    const { t } = useTranslation();
 
 
     const handleThemeSelect = (themeId: string) => {
@@ -107,19 +109,19 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
     // Group logic for 'All' view
     const renderGroupedThemes = () => {
         const groups = [
-            { title: 'Tecnologia & Inovação', category: 'technology' },
-            { title: 'Engenharia & Construção', category: 'engineering' },
-            { title: 'Medicina & Saúde', category: 'medicine' },
-            { title: 'Advocacia & Direito', category: 'advocacy' },
-            { title: 'Negócios & Corporativo', category: 'business' },
-            { title: 'Gradientes Vibrantes', category: 'gradient' },
-            { title: 'Minimalista & Sólido', category: 'solid' },
-            { title: 'Música & Melodia', category: 'music' },
-            { title: 'Arte & Criatividade', category: 'artistic' },
-            { title: 'Kawaii & Fofo', category: 'kawaii' },
-            { title: 'Exclusivo Nodus', category: 'animated' },
-            { title: 'Estilo Social', category: 'social' },
-            { title: 'Criativo & Animado', category: 'creative' }, // Fallback for others
+            { title: t('design.categories.technology'), category: 'technology' },
+            { title: t('design.categories.engineering'), category: 'engineering' },
+            { title: t('design.categories.medicine'), category: 'medicine' },
+            { title: t('design.categories.advocacy'), category: 'advocacy' },
+            { title: t('design.categories.business'), category: 'business' },
+            { title: t('design.categories.gradient'), category: 'gradient' },
+            { title: t('design.categories.solid'), category: 'solid' },
+            { title: t('design.categories.music'), category: 'music' },
+            { title: t('design.categories.artistic'), category: 'artistic' },
+            { title: t('design.categories.kawaii'), category: 'kawaii' },
+            { title: t('design.categories.animated'), category: 'animated' },
+            { title: t('design.categories.social'), category: 'social' },
+            { title: t('design.categories.creative'), category: 'creative' }, // Fallback for others
         ];
 
         return (
@@ -128,7 +130,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                 <div className="flex flex-col gap-4">
                     <h3 className="text-[10px] font-black text-black uppercase tracking-[0.2em] flex items-center gap-2">
                         <Paintbrush size={16} strokeWidth={3} />
-                        Personalizado
+                        {t('design.custom')}
                     </h3>
                     <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3">
                         <motion.div
@@ -158,7 +160,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                 <div className="flex flex-col gap-4">
                     <h3 className="text-[10px] font-black text-[#97cd7a] uppercase tracking-[0.2em] flex items-center gap-2 border-b-2 border-black/10 pb-2">
                         <Zap size={16} className="fill-[#97cd7a] stroke-[#97cd7a]" />
-                        Explorar Gratuitos
+                        {t('design.exploreFree')}
                     </h3>
                     <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3">
                         {THEMES.filter(t => !t.isPro && t.id !== 'custom').map(renderThemeCard)}
@@ -204,12 +206,12 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
             <div className="flex flex-col gap-6 mb-8">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-lg md:text-xl font-black text-black uppercase tracking-widest">Temas</h2>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 mt-1">Escolha uma identidade visual</p>
+                        <h2 className="text-lg md:text-xl font-black text-black uppercase tracking-widest">{t('design.themes')}</h2>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 mt-1">{t('design.chooseThemeDesc')}</p>
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <span className="text-[10px] text-black/40 font-black uppercase tracking-widest">Blur Fade</span>
+                        <span className="text-[10px] text-black/40 font-black uppercase tracking-widest">{t('design.blurFade')}</span>
                         <button
                             onClick={() => onChange({ ...profile, enableBlur: !profile.enableBlur })}
                             className={`relative w-10 h-5 border-2 border-black transition-colors ${profile.enableBlur ? 'bg-[#97cd7a]' : 'bg-white'}`}
@@ -239,17 +241,22 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
 
                     <div className="flex-1">
                         <h4 className="text-white font-black text-xs uppercase tracking-widest mb-1 flex items-center gap-2">
-                            Aviso de Compatibilidade
-                            <span className="px-2 py-0.5 bg-[#97cd7a] text-[8px] font-black uppercase text-black border border-black">Dica</span>
+                            {t('design.compatibilityWarning')}
+                            <span className="px-2 py-0.5 bg-[#97cd7a] text-[8px] font-black uppercase text-black border border-black">{t('common.tip')}</span>
                         </h4>
                         <p className="text-white/60 text-[10px] font-bold uppercase tracking-[0.15em] leading-relaxed max-w-[500px]">
-                            O layout <span className="text-white font-black underline decoration-[#97cd7a] underline-offset-4 capitalize">{profile.headerLayout === 'compact' ? 'Perfil' : 'Banner'}</span> foca na sua imagem. Efeitos visuais e animações dos temas são <span className="text-[#97cd7a]">automaticamente desativados</span>.
+                            {profile.headerLayout === 'compact' ? t('design.compatibilityDescProfile') : t('design.compatibilityDescBanner')}
                         </p>
                     </div>
 
                     <div className="hidden sm:block pl-4 border-l-2 border-white/10">
                         <p className="text-[10px] text-white/30 font-black uppercase tracking-widest leading-tight">
-                            Ative o modo <br /> <span className="text-white">Clássico</span> para <br /> ver o tema <br /> completo.
+                            {t('design.enableClassicToSeeTheme').split(' ').map((word, i) => (
+                                <React.Fragment key={i}>
+                                    {word === 'Classic' || word === 'Clássico' ? <span className="text-white">{word}</span> : word}
+                                    {i % 2 === 1 ? <br /> : ' '}
+                                </React.Fragment>
+                            ))}
                         </p>
                     </div>
                 </motion.div>
@@ -268,12 +275,12 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
                             <Paintbrush size={16} strokeWidth={3} className="text-black" />
-                            <h3 className="text-[10px] font-black text-black uppercase tracking-[0.2em]">Fundo Personalizado</h3>
+                            <h3 className="text-[10px] font-black text-black uppercase tracking-[0.2em]">{t('design.customBackground')}</h3>
                         </div>
 
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
-                                <span className="text-[10px] text-black/40 font-black uppercase tracking-widest">Gradiente</span>
+                                <span className="text-[10px] text-black/40 font-black uppercase tracking-widest">{t('design.gradient')}</span>
                                 <button
                                     onClick={() => {
                                         if (profile.customSecondaryColor) {
@@ -298,7 +305,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                         {/* Primary Color */}
                         <div className="space-y-4">
                             <label className="text-[10px] font-black text-black/40 uppercase tracking-[0.2em] px-1">
-                                {profile.customSecondaryColor ? 'Cor Primária' : 'Cor Sólida'}
+                                {profile.customSecondaryColor ? t('design.primaryColor') : t('design.solidColor')}
                             </label>
                             <div className="flex items-center gap-3">
                                 <div className="relative w-12 h-12 border-2 border-black shrink-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white">
@@ -330,7 +337,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                                     exit={{ opacity: 0, y: -10 }}
                                     className="space-y-4"
                                 >
-                                    <label className="text-[10px] font-black text-black/40 uppercase tracking-[0.2em] px-1">Cor Secundária</label>
+                                    <label className="text-[10px] font-black text-black/40 uppercase tracking-[0.2em] px-1">{t('design.secondaryColor')}</label>
                                     <div className="flex items-center gap-3">
                                         <div className="relative w-12 h-12 border-2 border-black shrink-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white">
                                             <input
@@ -357,7 +364,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
 
                     {/* Presets */}
                     <div className="mt-8">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1 mb-3 block">Sugestões</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1 mb-3 block">{t('design.suggestions')}</label>
                         <div className="grid grid-cols-6 gap-3">
                             {(profile.customSecondaryColor ? [
                                 ['#6366f1', '#ec4899'], // Indigo to Pink
@@ -393,12 +400,12 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                             className="flex-1 h-12 flex items-center justify-center gap-2 text-black/40 hover:text-black rounded-none border-2 border-black/10 hover:border-black transition-all active:scale-95 font-black text-[10px] uppercase tracking-widest"
                         >
                             <Trash2 size={16} strokeWidth={3} />
-                            Limpar Customização
+                            {t('design.clearCustomization')}
                         </button>
                     </div>
 
                     <p className="text-[9px] text-black/40 mt-6 font-bold uppercase tracking-[0.15em] bg-[#f8f8f8] p-4 border-2 border-black/5">
-                        * O modo customizado permite criar fundos únicos. Ative o <span className="text-black font-black underline underline-offset-2">Gradiente</span> para misturar duas cores ou use uma <span className="text-black font-black underline underline-offset-2">Cor Sólida</span> para minimalismo.
+                        {t('design.customBackgroundWarning')}
                     </p>
                 </motion.div>
             )}

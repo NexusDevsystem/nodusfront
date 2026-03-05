@@ -30,7 +30,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                             {/* Main Title / Links Size */}
                             <div className="space-y-2.5">
                                 <div className="flex items-center justify-between px-1">
-                                    <span className="text-[10px] font-medium text-black uppercase tracking-widest">{t('design.titleFontSize', 'Tamanho do Título')}</span>
+                                    <span className="text-[10px] font-medium text-black uppercase tracking-widest">{t('design.titleFontSize', 'Title Font Size')}</span>
                                     <span className="text-[10px] font-medium text-black bg-[#97cd7a] px-2 py-1 border border-black uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
                                         {profile.fontSize || 16}PX
                                     </span>
@@ -57,7 +57,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                             {/* Subtitle / Bio Size */}
                             <div className="space-y-2.5">
                                 <div className="flex items-center justify-between px-1">
-                                    <span className="text-[10px] font-medium text-black uppercase tracking-widest">{t('design.subtitleFontSize', 'Tamanho do Subtítulo')}</span>
+                                    <span className="text-[10px] font-medium text-black uppercase tracking-widest">{t('design.subtitleFontSize', 'Subtitle Font Size')}</span>
                                     <span className="text-[10px] font-medium text-black bg-[#97cd7a] px-2 py-1 border border-black uppercase shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
                                         {profile.bioFontSize || 16}PX
                                     </span>

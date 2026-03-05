@@ -15,7 +15,7 @@ import MonetizationView from '../components/MonetizationView';
 import SupportView from '../components/SupportView';
 import ManageBillingView from '../components/ManageBillingView';
 import AdminView from '../components/AdminView';
-import BillingModal from '../components/BillingModal';
+import BillingView from '../components/BillingView';
 import QRCodeModal from '../components/QRCodeModal';
 import UpgradeBanner from '../components/UpgradeBanner';
 import DesignSidebar from '../components/DesignSidebar';
@@ -394,7 +394,7 @@ export default function EditorPage() {
     };
 
     React.useEffect(() => {
-        const handleOpenBilling = () => setIsBillingModalOpen(true);
+        const handleOpenBilling = () => setIsUpgradeOpen(true);
         window.addEventListener('open-billing-modal', handleOpenBilling);
         document.title = 'Nodus | Editor';
         return () => window.removeEventListener('open-billing-modal', handleOpenBilling);
@@ -437,14 +437,14 @@ export default function EditorPage() {
 
     const handleUpgradeToSave = () => {
         setIsDiscardModalOpen(false);
-        setIsBillingModalOpen(true);
+        setIsUpgradeOpen(true);
     };
 
     // Mobile drawer state
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showMobilePreview, setShowMobilePreview] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-    const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
+    const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
 
     // Tour/Tutorial State
     const [tourRun, setTourRun] = useState(false);
@@ -745,7 +745,7 @@ export default function EditorPage() {
             {/* Quests Checklist moved to Sidebar component */}
             {/* Top Banner for Free Users */}
             {(!profile.planType || profile.planType === 'free') && (
-                <UpgradeBanner onUpgradeClick={() => setIsBillingModalOpen(true)} />
+                <UpgradeBanner onUpgradeClick={() => setIsUpgradeOpen(true)} />
             )}
 
             <div className={`flex-1 flex overflow-hidden relative bg-white`}>
@@ -782,7 +782,7 @@ export default function EditorPage() {
                         activeTab={activeTab}
                         setActiveTab={setActiveTab}
                         userProfile={profile}
-                        onUpgradeClick={() => setIsBillingModalOpen(true)}
+                        onUpgradeClick={() => setIsUpgradeOpen(true)}
                         onClose={() => setIsSidebarOpen(false)}
                         className={`hidden md:flex h-full ${(!profile.planType || profile.planType === 'free') ? 'rounded-tl-[24px] md:rounded-tl-[32px]' : ''
                             }`}
@@ -857,7 +857,7 @@ export default function EditorPage() {
                                         activeTab={activeTab}
                                         setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }}
                                         userProfile={profile}
-                                        onUpgradeClick={() => { setIsBillingModalOpen(true); setIsMobileMenuOpen(false); }}
+                                        onUpgradeClick={() => { setIsUpgradeOpen(true); setIsMobileMenuOpen(false); }}
                                         className="flex-1 overflow-y-auto"
                                     />
                                 </motion.div>
@@ -1133,14 +1133,44 @@ export default function EditorPage() {
                     />
                 )}
 
-                {/* Billing Modal */}
-                {isBillingModalOpen && (
-                    <BillingModal
-                        profile={profile}
-                        onChange={setProfile}
-                        onClose={() => setIsBillingModalOpen(false)}
-                    />
-                )}
+                {/* Full-Screen Upgrade View */}
+                <AnimatePresence>
+                    {isUpgradeOpen && (
+                        <motion.div
+                            key="upgrade-screen"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            transition={{ duration: 0.2 }}
+                            className="fixed inset-0 z-[300] bg-[#fafafa] overflow-y-auto"
+                        >
+                            {/* Header */}
+                            <div className="flex items-center justify-between px-6 md:px-10 py-4 border-b-4 border-black bg-white sticky top-0 z-10">
+                                <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <div className="px-2 py-0.5 bg-black text-[#ffdf00] text-[9px] font-black uppercase tracking-[0.2em]">Nodus Pro</div>
+                                    </div>
+                                    <h2 className="text-2xl md:text-3xl font-black text-black uppercase tracking-tighter leading-none">
+                                        {t('billing.upgradeTitle')}
+                                    </h2>
+                                    <p className="text-black/40 font-black text-[10px] uppercase tracking-[0.3em] mt-1">
+                                        {t('billing.upgradeSubtitle')}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setIsUpgradeOpen(false)}
+                                    className="p-2.5 text-black hover:bg-black hover:text-[#ffdf00] border-4 border-black bg-white transition-all active:translate-x-[2px] active:translate-y-[2px] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none shrink-0"
+                                >
+                                    <X size={20} strokeWidth={4} />
+                                </button>
+                            </div>
+                            {/* Content */}
+                            <div className="max-w-7xl mx-auto px-4 md:px-8 pb-24 pt-8">
+                                <BillingView profile={profile} onChange={updateProfile} />
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* PRO Changes Detection Modal */}
                 <AnimatePresence>

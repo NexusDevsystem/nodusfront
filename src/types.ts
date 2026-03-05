@@ -22,7 +22,7 @@ export interface LinkItem {
   url: string;
   icon?: string;
   isActive: boolean;
-  layout: 'classic' | 'social' | 'card' | 'icon' | 'grid' | 'carousel' | 'stacked';
+  layout: 'classic' | 'social' | 'card' | 'icon' | 'carousel' | 'stacked' | 'list';
   type?: 'link' | 'collection' | 'social' | 'header' | 'agenda' | 'map';
   children?: LinkItem[];
   events?: EventItem[];

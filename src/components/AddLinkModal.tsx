@@ -15,7 +15,7 @@ interface AddLinkModalProps {
     isOpen: boolean;
     onClose: () => void;
     onAddLink: (url?: string) => void;
-    onAddCollection: (name: string, url?: string) => void;
+    onAddCollection: (name: string, url?: string, layout?: 'list' | 'carousel') => void;
     onAddProduct: (collectionName: string) => void;
     onAddIncentive: (type: 'pix' | 'paypal', key: string) => void;
     onAddSocial: (platform: string) => void;
@@ -81,6 +81,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     const [shopCollectionName, setShopCollectionName] = useState('');
     const [showCollectionStep, setShowCollectionStep] = useState(false);
     const [collectionName, setCollectionName] = useState('');
+    const [collectionLayout, setCollectionLayout] = useState<'list' | 'carousel'>('list');
     const [showIncentiveStep, setShowIncentiveStep] = useState(false);
     const [incentiveType, setIncentiveType] = useState<'pix' | 'paypal'>('pix');
     const [incentiveKey, setIncentiveKey] = useState('');
@@ -216,17 +217,59 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 onChange={(e) => setCollectionName(e.target.value)}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && collectionName.trim()) {
-                                        onAddCollection(collectionName, url);
+                                        onAddCollection(collectionName, url, collectionLayout);
                                         onClose();
                                     }
                                 }}
                             />
                         </div>
 
+                        <div className="space-y-4">
+                            <label className="text-xs font-medium uppercase tracking-widest text-black px-1">{t('links.layoutLabel')}</label>
+                            <div className="grid grid-cols-2 gap-4 md:max-w-[340px]">
+                                {[
+                                    {
+                                        id: 'list',
+                                        label: t('links.layoutList') || 'Lista',
+                                        icon: (
+                                            <svg viewBox="0 0 100 80" className="w-10 h-auto">
+                                                <rect x="10" y="10" width="80" height="24" fill="white" stroke="black" strokeWidth="6" />
+                                                <rect x="23" y="20" width="30" height="4" fill="black" />
+                                                <rect x="10" y="44" width="80" height="24" fill="white" stroke="black" strokeWidth="6" />
+                                                <rect x="23" y="54" width="30" height="4" fill="black" />
+                                            </svg>
+                                        )
+                                    },
+                                    {
+                                        id: 'carousel',
+                                        label: t('links.layoutCarousel') || 'Carrossel',
+                                        icon: (
+                                            <svg viewBox="0 0 100 80" className="w-10 h-auto overflow-visible">
+                                                <rect x="0" y="10" width="40" height="60" fill="white" stroke="black" strokeWidth="6" />
+                                                <rect x="50" y="10" width="40" height="60" fill="white" stroke="black" strokeWidth="6" opacity="0.6" />
+                                                <rect x="100" y="10" width="40" height="60" fill="white" stroke="black" strokeWidth="6" opacity="0.3" />
+                                            </svg>
+                                        )
+                                    },
+                                ].map((opt) => (
+                                    <button
+                                        key={opt.id}
+                                        onClick={() => setCollectionLayout(opt.id as any)}
+                                        className={`flex flex-col items-center gap-3 p-3 md:p-4 border-2 transition-all ${collectionLayout === opt.id ? 'border-black bg-[#ffdf00] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -translate-x-1 -translate-y-1' : 'border-black/5 bg-slate-50 hover:border-black'}`}
+                                    >
+                                        <div className="flex items-center justify-center p-1">
+                                            {opt.icon}
+                                        </div>
+                                        <span className="text-[9px] font-black uppercase tracking-widest">{opt.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         <button
                             disabled={!collectionName.trim()}
                             onClick={() => {
-                                onAddCollection(collectionName, url);
+                                onAddCollection(collectionName, url, collectionLayout);
                                 onClose();
                             }}
                             className="w-full py-3 bg-[#97cd7a] text-black border-[1.5px] border-black rounded-none text-xs font-medium uppercase tracking-widest hover:bg-[#ffdf00] disabled:opacity-50 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none flex items-center justify-center gap-2"
@@ -303,7 +346,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                     { id: 'collection', icon: <Layout size={24} strokeWidth={2} />, label: t('links.collectionLabel'), color: 'text-black', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
                                     { id: 'product', icon: <ShoppingBag size={24} strokeWidth={2} />, label: t('links.productLabel'), color: 'text-black', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
                                     { id: 'agenda', icon: <Calendar size={24} strokeWidth={2} />, label: t('agenda.title') || 'Agenda', color: 'text-black', action: () => { onAddAgenda(); onClose(); } },
-                                    { id: 'map', icon: <Store size={24} strokeWidth={2} />, label: 'Mapa', color: 'text-black', action: () => { onAddMap(); onClose(); } },
+                                    { id: 'map', icon: <Store size={24} strokeWidth={2} />, label: t('links.mapLabelMobile') || 'Mapa', color: 'text-black', action: () => { onAddMap(); onClose(); } },
                                 ].map((item) => (
                                     <button
                                         key={item.id}
@@ -360,7 +403,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 { id: 'collection', icon: <Layout size={32} strokeWidth={1.5} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
                                 { id: 'product', icon: <ShoppingBag size={32} strokeWidth={1.5} />, label: t('links.newProduct'), desc: t('links.productDescShort'), color: 'text-black', hoverBg: 'hover:bg-cyan-400', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
                                 { id: 'agenda', icon: <Calendar size={32} strokeWidth={1.5} />, label: t('agenda.title') || 'Agenda', desc: t('agenda.descShort') || 'Liste seus eventos e shows', color: 'text-black', hoverBg: 'hover:bg-[#ffdf00]', action: () => { onAddAgenda(); onClose(); } },
-                                { id: 'map', icon: <Store size={32} strokeWidth={1.5} />, label: 'Endereço', desc: 'Destaque a localização do seu negócio', color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { onAddMap(); onClose(); } },
+                                { id: 'map', icon: <Store size={32} strokeWidth={1.5} />, label: t('links.mapLabel') || 'Endereço', desc: t('links.mapDesc') || 'Destaque a localização do seu negócio', color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { onAddMap(); onClose(); } },
                             ].map((item) => (
                                 <button
                                     key={item.id}

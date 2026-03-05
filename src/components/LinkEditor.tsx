@@ -25,7 +25,7 @@ interface LinkEditorProps {
   setExpandedCollections?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   setActiveTab?: (tab: string) => void;
   onAddProduct?: (collectionName: string) => void;
-  onAddCollection?: (name: string, url?: string) => void;
+  onAddCollection?: (name: string, url?: string, layout?: 'list' | 'grid' | 'carousel') => void;
   onAddIncentive?: (type: 'pix' | 'paypal', key: string) => void;
 }
 
@@ -291,10 +291,10 @@ function LinkEditor({
               const newChildren = (metadata.tracks ?? []).map((track: any) => ({
                 id: crypto.randomUUID(), clientId: crypto.randomUUID(),
                 title: track.title, subtitle: track.artist, image: track.image,
-                url: track.url, embedType: 'spotify' as const, layout: 'classic' as const,
+                url: track.url, embedType: metadata.platform as any, layout: 'classic' as const,
                 isActive: true, clicks: 0
               }));
-              updateLinkFields(newLinkId, { title: metadata.title, subtitle: metadata.followers || metadata.artist, image: metadata.thumbnailUrl, type: 'collection', layout: 'grid', children: newChildren, embedType: metadata.platform as any, url });
+              updateLinkFields(newLinkId, { title: metadata.title, subtitle: metadata.followers || metadata.artist, type: 'collection', layout: 'list', children: newChildren, embedType: metadata.platform as any, url });
             } else {
               updateLinkFields(newLinkId, { title: metadata.title, subtitle: metadata.platform === 'youtube' ? metadata.followers : (metadata.followers || metadata.artist), image: metadata.thumbnailUrl, embedType: metadata.platform as any });
             }
@@ -306,7 +306,7 @@ function LinkEditor({
     }
   };
 
-  const addCollection = (name?: string, url?: string) => {
+  const addCollection = (name: string, url?: string, layout?: 'list' | 'carousel') => {
     const newCollectionId = Date.now().toString();
     const children: LinkItem[] = [];
 
@@ -321,10 +321,10 @@ function LinkEditor({
               const newChildrenForCollection = (metadata.tracks ?? []).map((track: any) => ({
                 id: crypto.randomUUID(), clientId: crypto.randomUUID(),
                 title: track.title, subtitle: track.artist, image: track.image,
-                url: track.url, embedType: 'spotify' as const, layout: 'classic' as const,
+                url: track.url, embedType: metadata.platform as any, layout: 'classic' as const,
                 isActive: true, clicks: 0
               }));
-              updateLinkFields(newCollectionId, { title: metadata.title, subtitle: metadata.followers || metadata.artist, image: metadata.thumbnailUrl, children: newChildrenForCollection, embedType: metadata.platform as any, layout: 'grid' });
+              updateLinkFields(newCollectionId, { title: metadata.title, subtitle: metadata.followers || metadata.artist, children: newChildrenForCollection, embedType: metadata.platform as any, layout: 'list' });
             } else {
               updateLinkFields(childId, { title: metadata.title, subtitle: metadata.platform === 'youtube' ? metadata.followers : (metadata.followers || metadata.artist), image: metadata.thumbnailUrl, embedType: metadata.platform as any });
             }
@@ -333,7 +333,7 @@ function LinkEditor({
       }
     }
 
-    const newCollection: LinkItem = { id: newCollectionId, clientId: crypto.randomUUID(), title: name || t('links.newCollection'), url: '', isActive: true, clicks: 0, layout: 'stacked', type: 'collection', children };
+    const newCollection: LinkItem = { id: newCollectionId, clientId: crypto.randomUUID(), title: name || t('links.newCollection'), url: '', isActive: true, clicks: 0, layout: layout || 'list', type: 'collection', children };
     setExpandedCollections(prev => { const next = { ...prev }; activeLinks.forEach(l => { if (l.type === 'collection') next[l.id] = false; }); next[newCollectionId] = true; return next; });
     setExpandedLinks(prev => { const next = { ...prev }; activeLinks.forEach(l => { if (l.type !== 'collection') next[l.id] = false; }); return next; });
     onChange(prev => [newCollection, ...(prev as LinkItem[])]);
@@ -367,7 +367,7 @@ function LinkEditor({
   };
 
   const addMap = () => {
-    const newMap: LinkItem = { id: Date.now().toString(), clientId: crypto.randomUUID(), title: 'Localização', url: '', isActive: true, clicks: 0, layout: 'classic', type: 'map' };
+    const newMap: LinkItem = { id: Date.now().toString(), clientId: crypto.randomUUID(), title: t('links.mapLabel') || 'Endereço', url: '', isActive: true, clicks: 0, layout: 'classic', type: 'map' };
     setExpandedLinks(prev => { const next = { ...prev }; activeLinks.forEach(l => { if (l.type !== 'collection') next[l.id] = false; }); next[newMap.id] = true; return next; });
     setExpandedCollections(prev => { const next = { ...prev }; activeLinks.forEach(l => { if (l.type === 'collection') next[l.id] = false; }); return next; });
     onChange(prev => [newMap, ...(prev as LinkItem[])]);

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Zap, Sparkles } from 'lucide-react';
 
 interface UpgradeBannerProps {
@@ -6,6 +7,7 @@ interface UpgradeBannerProps {
 }
 
 const UpgradeBanner: React.FC<UpgradeBannerProps> = ({ onUpgradeClick }) => {
+    const { t } = useTranslation();
     return (
         <div className="w-full bg-[#0D0E12] h-10 px-4 flex items-center justify-center relative z-30 animate-fade-in shrink-0 overflow-hidden">
             <div className="flex items-center gap-3 sm:gap-6 max-w-7xl w-full justify-between sm:justify-center relative z-10">
@@ -16,8 +18,8 @@ const UpgradeBanner: React.FC<UpgradeBannerProps> = ({ onUpgradeClick }) => {
 
                 {/* Centered Text */}
                 <p className="text-[11px] sm:text-xs font-medium text-slate-300 tracking-tight text-center flex-1 sm:flex-none">
-                    <span className="text-white mr-1 opacity-90">Experimente o Pro grátis</span>
-                    <span className="opacity-40 font-normal">— o segredo dos maiores criadores e empresas.</span>
+                    <span className="text-white mr-1 opacity-90">{t('upgradeBanner.title')}</span>
+                    <span className="opacity-40 font-normal">{t('upgradeBanner.subtitle')}</span>
                 </p>
 
                 {/* Upgrade Button (Minimalist) */}
@@ -26,7 +28,7 @@ const UpgradeBanner: React.FC<UpgradeBannerProps> = ({ onUpgradeClick }) => {
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-brand-400 hover:text-brand-300 hover:bg-white/5 transition-all text-[11px] font-bold group"
                 >
                     <Zap size={13} fill="currentColor" className="group-hover:scale-110 transition-transform" />
-                    Fazer Upgrade
+                    {t('upgradeBanner.button')}
                 </button>
             </div>
         </div>

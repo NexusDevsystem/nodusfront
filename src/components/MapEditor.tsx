@@ -17,29 +17,29 @@ export default function MapEditor({ link, updateLink }: MapEditorProps) {
                 <Info size={18} strokeWidth={2.5} className="text-black shrink-0 mt-0.5" />
                 <div>
                     <h4 className="font-bold text-[11px] text-black uppercase tracking-widest leading-none mb-1">
-                        Adicione seu Endereço
+                        {t('mapEditor.addAddress', 'Add Your Address')}
                     </h4>
                     <p className="text-[10px] font-normal text-black/70 uppercase tracking-widest leading-tight">
-                        Cole o endereço do seu negócio. O Nodus criará um card destacando sua localização e direcionando os clientes para o Google Maps.
+                        {t('mapEditor.addressInstruction', 'Paste your business address. Nodus will create a card highlighting your location and directing customers to Google Maps.')}
                     </p>
                 </div>
             </div>
 
             <div className="space-y-4">
                 <div className="space-y-1">
-                    <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">Nome do Local</label>
+                    <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('mapEditor.locationName', 'Location Name')}</label>
                     <input
                         type="text"
                         value={link.title}
                         onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                        className="w-full font-medium text-sm text-black bg-white border border-black px-3 py-2.5 outline-none focus:bg-[#ffdf00] transition-colors shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
-                        placeholder="Ex: Minha Loja Matriz"
+                        className="w-full font-medium text-sm text-black bg-white border border-black px-3 py-2.5 outline-none focus:bg-white transition-colors shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
+                        placeholder={t('mapEditor.locationInputPlaceholder', 'Ex: Main Store')}
                     />
                 </div>
 
                 <div className="space-y-1">
-                    <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">Endereço Completo</label>
-                    <div className="flex items-start bg-white border border-black focus-within:bg-[#ffdf00] transition-colors shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                    <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('mapEditor.fullAddress', 'Full Address')}</label>
+                    <div className="flex items-start bg-white border border-black focus-within:bg-white transition-colors shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
                         <div className="p-3 shrink-0">
                             <MapPin size={16} strokeWidth={2.5} className="text-black" />
                         </div>
@@ -48,26 +48,26 @@ export default function MapEditor({ link, updateLink }: MapEditorProps) {
                             value={link.url}
                             onChange={(e) => updateLink(link.id, 'url', e.target.value)}
                             className="w-full bg-transparent py-3 pr-3 text-xs font-medium text-black outline-none placeholder:text-black/30 resize-none"
-                            placeholder="Rua Exemplo, 123, Bairro, Cidade - Estado"
+                            placeholder={t('mapEditor.addressPlaceholder', '123 Example Street, Neighborhood, City - State')}
                         />
                     </div>
                 </div>
 
                 <div className="space-y-1">
-                    <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">Descrição / Instruções (Opcional)</label>
+                    <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('mapEditor.instructions', 'Description / Instructions (Optional)')}</label>
                     <input
                         type="text"
                         value={link.subtitle || ''}
                         onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)}
-                        className="w-full font-normal text-xs text-black bg-white border border-black px-3 py-2.5 outline-none focus:bg-[#ffdf00] transition-colors shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
-                        placeholder="Ex: Ponto de referência, em frente ao parque"
+                        className="w-full font-normal text-xs text-black bg-white border border-black px-3 py-2.5 outline-none focus:bg-white transition-colors shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/30"
+                        placeholder={t('mapEditor.instructionsPlaceholder', 'Ex: Landmark, across the park')}
                     />
                 </div>
 
                 {/* Map Preview */}
                 {link.url && (
                     <div className="mt-4 space-y-2">
-                        <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">Preview do Mapa</label>
+                        <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('mapEditor.mapPreview', 'Map Preview')}</label>
                         <div className="w-full aspect-video border-2 border-black bg-slate-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
                             <iframe
                                 width="100%"

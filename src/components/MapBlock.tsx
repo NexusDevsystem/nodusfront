@@ -2,6 +2,7 @@ import React from 'react';
 import { LinkItem } from '../types';
 import { MapPin, Navigation } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface MapBlockProps {
     link: LinkItem;
@@ -54,6 +55,7 @@ export const MapBlock: React.FC<MapBlockProps> = ({
     themeButtonStyle = {},
     themeTextHex = '#000000'
 }) => {
+    const { t } = useTranslation();
     if (!link.url && !link.title) return null;
 
     // Encode only the address for Google Maps Search URL to ensure accurate results
@@ -110,7 +112,7 @@ export const MapBlock: React.FC<MapBlockProps> = ({
                             className="text-[8px] font-bold uppercase tracking-[0.15em] opacity-40 mb-0.5 leading-none"
                             style={{ color: themeTextHex }}
                         >
-                            Localização
+                            {t('links.mapLabelMobile')}
                         </span>
                         {link.title && (
                             <ScrollingTitle title={link.title} isCard={isCard} color={themeTextHex} />
