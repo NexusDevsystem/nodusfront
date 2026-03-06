@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
+import { motion } from 'framer-motion';
 import BillingView from './BillingView';
 import { UserProfile } from '../types';
 
@@ -18,11 +19,14 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
                 {/* Brutalist Header */}
                 <div className="flex items-center justify-between p-8 md:p-12 border-b-4 border-black shrink-0 relative overflow-hidden bg-white">
                     {/* Decorative Background Element */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#ffdf00] -mr-16 -mt-16 rotate-45 border-4 border-black opacity-20 hidden md:block"></div>
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-[#97cd7a] -mr-16 -mt-16 rotate-45 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)] hidden md:block">
+                    </div>
 
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="px-3 py-1 bg-black text-[#ffdf00] text-[10px] font-black uppercase tracking-[0.3em]">Nodus Pro</div>
+                            <div className="px-4 py-1.5 bg-black text-white border-2 border-black text-[10px] font-black uppercase tracking-[0.3em] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                <span>Nodus Pro</span>
+                            </div>
                             <div className="h-1 flex-1 bg-black/5 min-w-[40px]"></div>
                         </div>
                         <h2 className="text-4xl md:text-6xl font-black text-black uppercase tracking-tighter leading-none mb-4">

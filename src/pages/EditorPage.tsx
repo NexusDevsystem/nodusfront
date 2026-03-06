@@ -890,8 +890,8 @@ export default function EditorPage() {
                             </div>
                             <div className="flex items-center gap-4">
                                 {isPreviewMode ? (
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#ffdf00] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 animate-pulse">
-                                        <Zap size={10} className="text-black fill-black" strokeWidth={3} />
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0">
+                                        <Eye size={10} className="text-black" strokeWidth={3} />
                                         <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Modo Preview</span>
                                     </div>
                                 ) : (isSaving || visualSavingProfile) ? (

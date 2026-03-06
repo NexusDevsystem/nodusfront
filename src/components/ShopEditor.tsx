@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { compressImage, blobToDataURL } from '../utils/imageUtils';
 import ImageCropperModal from './tools/ImageCropperModal';
+import { apiClient } from '../services/apiClient';
 import Tooltip from './Tooltip';
 
 const fileToDataURL = (file: File): Promise<string> => {
@@ -579,11 +580,25 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                 title={t('shop.cropImage') || 'Recortar Imagem do Produto'}
                 onClose={() => setCropper(prev => ({ ...prev, isOpen: false }))}
                 onCropComplete={async (blob) => {
-                    const dataUrl = await blobToDataURL(blob);
-                    if (cropper.isNewProduct) {
-                        setNewProduct({ ...newProduct, image: dataUrl });
-                    } else if (cropper.targetProductId) {
-                        updateProduct(cropper.targetProductId, 'image', dataUrl);
+                    try {
+                        const file = new File([blob], 'product.jpg', { type: 'image/jpeg' });
+                        const uploadRes = await apiClient.uploadInternalAsset(file);
+
+                        let imageUrl = '';
+                        if (uploadRes.success && uploadRes.file?.url) {
+                            imageUrl = uploadRes.file.url;
+                        } else {
+                            // Fallback to Base64 if upload fails, though less desirable
+                            imageUrl = await blobToDataURL(blob);
+                        }
+
+                        if (cropper.isNewProduct) {
+                            setNewProduct({ ...newProduct, image: imageUrl });
+                        } else if (cropper.targetProductId) {
+                            updateProduct(cropper.targetProductId, 'image', imageUrl);
+                        }
+                    } catch (error) {
+                        console.error('Error uploading product image:', error);
                     }
                     setCropper(prev => ({ ...prev, isOpen: false }));
                 }}

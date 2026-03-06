@@ -6,7 +6,7 @@ import {
     MessageSquare, Instagram, Youtube, MessageCircle,
     ChevronRight, Plus, DollarSign, Store, Share2,
     Smartphone, Mail, Type, Hash, Send as SendIcon, Zap, CreditCard,
-    Tag, Grid, Calendar
+    Tag, Grid, Calendar, BarChart3, Lock
 } from 'lucide-react';
 import { SiSpotify, SiTiktok, SiPaypal, SiWhatsapp } from 'react-icons/si';
 import { SOCIAL_NETWORKS } from '../constants';
@@ -22,6 +22,8 @@ interface AddLinkModalProps {
     onAddHeader: () => void;
     onAddAgenda: () => void;
     onAddMap: () => void;
+    onAddMediaKit: () => void;
+    planType?: 'free' | 'monthly' | 'annual';
 }
 
 
@@ -62,8 +64,11 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     onAddSocial,
     onAddHeader,
     onAddAgenda,
-    onAddMap
+    onAddMap,
+    onAddMediaKit,
+    planType = 'free'
 }) => {
+    const isPro = planType === 'monthly' || planType === 'annual';
     const { t } = useTranslation();
     const [url, setUrl] = useState('');
 
@@ -347,6 +352,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                     { id: 'product', icon: <ShoppingBag size={24} strokeWidth={2} />, label: t('links.productLabel'), color: 'text-black', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
                                     { id: 'agenda', icon: <Calendar size={24} strokeWidth={2} />, label: t('agenda.title') || 'Agenda', color: 'text-black', action: () => { onAddAgenda(); onClose(); } },
                                     { id: 'map', icon: <Store size={24} strokeWidth={2} />, label: t('links.mapLabelMobile') || 'Mapa', color: 'text-black', action: () => { onAddMap(); onClose(); } },
+                                    { id: 'mediakit', icon: <BarChart3 size={24} strokeWidth={2} />, label: t('mediakit.title') || 'Mídia Kit', color: 'text-black', action: () => { onAddMediaKit(); onClose(); } },
                                 ].map((item) => (
                                     <button
                                         key={item.id}
@@ -354,8 +360,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                         onClick={item.action}
                                         className="flex flex-col items-center gap-3 active:translate-x-[1px] active:translate-y-[1px]"
                                     >
-                                        <div className={`w-full aspect-square flex items-center justify-center bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:shadow-none`}>
-                                            <div className={item.color}>
+                                        <div className={`w-full aspect-square flex flex-col items-center justify-center border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:shadow-none bg-white`}>
+                                            <div className={`${item.color}`}>
                                                 {item.icon}
                                             </div>
                                         </div>
@@ -404,12 +410,13 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 { id: 'product', icon: <ShoppingBag size={32} strokeWidth={1.5} />, label: t('links.newProduct'), desc: t('links.productDescShort'), color: 'text-black', hoverBg: 'hover:bg-cyan-400', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
                                 { id: 'agenda', icon: <Calendar size={32} strokeWidth={1.5} />, label: t('agenda.title') || 'Agenda', desc: t('agenda.descShort') || 'Liste seus eventos e shows', color: 'text-black', hoverBg: 'hover:bg-[#ffdf00]', action: () => { onAddAgenda(); onClose(); } },
                                 { id: 'map', icon: <Store size={32} strokeWidth={1.5} />, label: t('links.mapLabel') || 'Endereço', desc: t('links.mapDesc') || 'Destaque a localização do seu negócio', color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { onAddMap(); onClose(); } },
+                                { id: 'mediakit', icon: isPro ? <BarChart3 size={32} strokeWidth={1.5} /> : <Lock size={32} strokeWidth={1.5} className="text-black/30" />, label: t('mediakit.title') || 'Mídia Kit (PRO)', desc: t('mediakit.descShort') || 'Mostre seus números p/ marcas', color: isPro ? 'text-black' : 'text-black/40', hoverBg: isPro ? 'hover:bg-[#97cd7a]' : 'hover:bg-slate-100', action: isPro ? () => { onAddMediaKit(); onClose(); } : () => { /* Bloqueado */ } },
                             ].map((item) => (
                                 <button
                                     key={item.id}
                                     data-tour={`add-link-type-${item.id}`}
                                     onClick={item.action}
-                                    className={`flex flex-col items-center text-center p-6 bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${item.hoverBg} transition-all group`}
+                                    className={`relative flex flex-col items-center text-center p-6 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${item.hoverBg} transition-all group overflow-hidden bg-white`}
                                 >
                                     <div className={`mb-4 ${item.color} group-hover:scale-110 transition-transform duration-300`}>
                                         {item.icon}

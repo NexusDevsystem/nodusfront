@@ -25,7 +25,8 @@ import {
   FolderOpen,
   ChevronsLeft,
   ShieldAlert,
-  X
+  X,
+  Share2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -77,9 +78,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
     {
       id: 'connections',
       label: t('sidebar.connections'),
-      groupIcon: Zap,
+      groupIcon: Share2,
       items: [
-        { id: 'integrations', label: t('sidebar.integrations'), icon: Zap },
+        { id: 'integrations', label: t('sidebar.integrations'), icon: Share2 },
       ]
     },
     {
@@ -214,7 +215,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
 
                         {isLocked ? (
                           <div className="flex items-center justify-center h-full">
-                            <span className="text-[8px] md:text-[7px] bg-black text-[#97cd7a] px-2 md:px-1.5 py-1 md:py-0.5 font-bold md:font-medium uppercase tracking-widest leading-none flex items-center justify-center">VIP</span>
+                            <span className="text-[8px] md:text-[7px] bg-black text-white px-2 md:px-1.5 py-1 md:py-0.5 font-bold border border-black uppercase tracking-widest leading-none flex items-center justify-center">
+                              VIP
+                            </span>
                           </div>
                         ) : isActive && (
                           <div className="w-2 h-2 md:w-1.5 md:h-1.5 bg-black rounded-full" />
@@ -234,9 +237,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
         <div className="hidden md:flex flex-col gap-1 mb-4">
           <button
             onClick={() => setActiveTab('billing')}
-            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'billing' ? 'border-black bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-black/5'}`}
+            className={`flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all py-2.5 px-3 border-2 group shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] ${activeTab === 'billing' ? 'border-black bg-[#97cd7a]' : 'border-black bg-white text-black hover:bg-[#ffdf00]'}`}
           >
-            <CreditCard size={13} strokeWidth={2} />
+            <CreditCard size={13} strokeWidth={3} />
             {t('sidebar.upgrade')}
           </button>
 
@@ -276,10 +279,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
               >
                 <button
                   onClick={() => { setActiveTab('billing'); setIsAccountMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-black/5 transition-colors border-b-2 border-black text-[11px] font-bold uppercase tracking-widest"
+                  className="w-full flex items-center gap-3 px-4 py-5 bg-[#ffdf00] text-black hover:bg-[#97cd7a] transition-colors border-b-2 border-black text-[11px] font-black uppercase tracking-widest"
                 >
-                  <CreditCard size={18} strokeWidth={2.5} />
-                  {t('sidebar.upgrade')}
+                  <CreditCard size={18} strokeWidth={3} />
+                  <span>{t('sidebar.upgrade')}</span>
                 </button>
 
                 {(userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com') && (

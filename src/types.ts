@@ -23,7 +23,7 @@ export interface LinkItem {
   icon?: string;
   isActive: boolean;
   layout: 'classic' | 'social' | 'card' | 'icon' | 'carousel' | 'stacked' | 'list';
-  type?: 'link' | 'collection' | 'social' | 'header' | 'agenda' | 'map';
+  type?: 'link' | 'collection' | 'social' | 'header' | 'agenda' | 'map' | 'mediakit';
   children?: LinkItem[];
   events?: EventItem[];
   subtitle?: string;
@@ -36,6 +36,9 @@ export interface LinkItem {
   platform?: string;
   scheduleStart?: string | null;
   scheduleEnd?: string | null;
+  isPasswordProtected?: boolean;
+  linkPassword?: string; // only in memory during editing, never persisted as plaintext
+  currency?: 'BRL' | 'USD' | string;
 }
 
 export interface PaymentMethod {

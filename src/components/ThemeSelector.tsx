@@ -94,7 +94,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, links, products,
                                     Preview
                                 </span>
                             )}
-                            <div className="px-1.5 py-0.5 border border-black text-[8px] font-black uppercase tracking-wider bg-black text-white">
+                            <div className="absolute top-1 right-1 px-1.5 py-0.5 bg-black text-white text-[7px] font-bold border border-black uppercase tracking-tighter shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] z-20">
                                 Pro
                             </div>
                         </div>

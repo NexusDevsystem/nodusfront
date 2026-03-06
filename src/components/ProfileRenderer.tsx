@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserProfile, LinkItem, Product } from '../types';
 import { THEMES, SOCIAL_NETWORKS } from '../constants';
@@ -26,7 +27,9 @@ import {
     Music2,
     Zap,
     CreditCard,
-    Youtube
+    Youtube,
+    Presentation,
+    BarChart3
 } from 'lucide-react';
 import YouTubeEmbed from './YouTubeEmbed';
 import TikTokEmbed from './TikTokEmbed';
@@ -44,6 +47,8 @@ import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
 import BrutalistVisualizer from './themes/BrutalistVisualizer';
 import { AgendaCard } from './AgendaCard';
 import { MapBlock } from './MapBlock';
+import PasswordLinkModal from './PasswordLinkModal';
+import MediaKitModal from './MediaKitModal';
 
 
 interface ProfileRendererProps {
@@ -57,7 +62,10 @@ interface ProfileRendererProps {
 }
 
 const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], isPreview = false, isStatic = false, onShare, forcedTab }) => {
+    const { t } = useTranslation();
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
+    const [lockedLink, setLockedLink] = React.useState<LinkItem | null>(null);
+    const [openMediaKit, setOpenMediaKit] = React.useState<LinkItem | null>(null);
     const [currentTime, setCurrentTime] = useState(new Date());
 
     // CSS keyframes memoized — inserted ONCE, never recreated on re-render
@@ -374,6 +382,28 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             console.error('❌ [ProfileRenderer] Failed to track click:', e);
         }
     };
+
+    // 🔐 Intercept clicks on password-protected links
+    const handlePasswordProtectedLink = (link: LinkItem, e: React.MouseEvent) => {
+        if (link.isPasswordProtected) {
+            e.preventDefault();
+            setLockedLink(link);
+            return true;
+        }
+        return false;
+    };
+
+    // 📈 Intercept clicks on mediakit links
+    const handleMediaKitLink = (link: LinkItem, e: React.MouseEvent) => {
+        if (link.type === 'mediakit') {
+            e.preventDefault();
+            setOpenMediaKit(link);
+            return true;
+        }
+        return false;
+    };
+
+    const apiBaseUrl = (import.meta as any).env?.VITE_API_URL || '';
 
     // Utility to detect Music links (Spotify/Deezer)
     const isMusicLink = (link: LinkItem) => {
@@ -1320,7 +1350,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                                     <div className="relative z-10 p-1">
                                                                         {iconLink.image ? (
-                                                                            <img src={iconLink.image} alt="" className="w-8 h-8 rounded-lg object-cover" loading="lazy" decoding="async" />
+                                                                            <img
+                                                                                src={iconLink.image}
+                                                                                alt=""
+                                                                                className="w-8 h-8 rounded-lg object-cover"
+                                                                                loading="lazy"
+                                                                                decoding="async"
+                                                                                onError={(e) => {
+                                                                                    e.currentTarget.onerror = null;
+                                                                                    e.currentTarget.style.display = 'none';
+                                                                                    e.currentTarget.className = "w-8 h-8 rounded-lg object-contain p-1.5 opacity-30 bg-white/10";
+                                                                                }}
+                                                                            />
                                                                         ) : (
                                                                             <Icon size={28} />
                                                                         )}
@@ -1348,7 +1389,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         style={{ backgroundColor: cardBg + '1A' }}
                                                                     >
                                                                         {cardLink.image ? (
-                                                                            <img src={cardLink.image} alt="" className="w-full h-full object-contain transition-transform duration-700" loading="lazy" decoding="async" />
+                                                                            <img
+                                                                                src={cardLink.image}
+                                                                                alt=""
+                                                                                className="w-full h-full object-contain transition-transform duration-700"
+                                                                                loading="lazy"
+                                                                                decoding="async"
+                                                                                onError={(e) => {
+                                                                                    e.currentTarget.onerror = null;
+                                                                                    e.currentTarget.style.display = 'none';
+                                                                                    e.currentTarget.className = "w-full h-full object-contain p-10 opacity-10 transition-transform duration-700";
+                                                                                }}
+                                                                            />
                                                                         ) : (
                                                                             <div className="w-full h-full flex items-center justify-center opacity-10">
                                                                                 <Globe size={40} />
@@ -1499,7 +1551,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         <motion.a key={child.id} transition={{ duration: 0 }} href={child.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(child.id)} className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass}`} style={mainButtonStyle}>
                                                                             <div className="relative z-10 flex flex-col h-full w-full">
                                                                                 <div className="relative overflow-hidden h-36 w-full bg-white">
-                                                                                    {child.image ? <img src={child.image} alt="" className="w-full h-full block object-contain" loading="lazy" decoding="async" /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
+                                                                                    {child.image ? <img
+                                                                                        src={child.image}
+                                                                                        alt=""
+                                                                                        className="w-full h-full block object-contain"
+                                                                                        loading="lazy"
+                                                                                        decoding="async"
+                                                                                        onError={(e) => {
+                                                                                            e.currentTarget.onerror = null;
+                                                                                            e.currentTarget.style.display = 'none';
+                                                                                            e.currentTarget.className = "w-full h-full block object-contain p-8 opacity-20";
+                                                                                        }}
+                                                                                    /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
                                                                                 </div>
                                                                                 <div className="p-2 flex flex-col justify-center items-center text-center h-12 relative">
                                                                                     <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
@@ -1581,7 +1644,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         <div className="relative shrink-0 z-10">
                                                                                             {child.image ? (
                                                                                                 <div className="w-9 h-9 rounded-lg overflow-hidden border border-black/5 group-hover:scale-105 transition-transform">
-                                                                                                    <img src={child.image} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                                                                                                    <img
+                                                                                                        src={child.image}
+                                                                                                        alt=""
+                                                                                                        className="w-full h-full object-cover"
+                                                                                                        loading="lazy"
+                                                                                                        decoding="async"
+                                                                                                        onError={(e) => {
+                                                                                                            e.currentTarget.onerror = null;
+                                                                                                            e.currentTarget.style.display = 'none';
+                                                                                                            e.currentTarget.className = "w-full h-full object-contain p-1.5 opacity-30 bg-white/10";
+                                                                                                        }}
+                                                                                                    />
                                                                                                 </div>
                                                                                             ) : Icon ? (
                                                                                                 <div className="w-9 h-9 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform">
@@ -1624,6 +1698,67 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 renderedItems.push(<YouTubeEmbed key={link.id} url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} />);
                                             } else if (link.embedType === 'tiktok') {
                                                 renderedItems.push(<TikTokEmbed key={link.id} url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} />);
+                                            } else if (link.type === 'mediakit') {
+                                                flushIcons();
+                                                flushCards();
+                                                renderedItems.push(
+                                                    <motion.div
+                                                        key={`mediakit-${link.id}`}
+                                                        transition={{ duration: 0.2 }}
+                                                        whileHover={{ scale: 1.02 }}
+                                                        className="w-full mb-3"
+                                                    >
+                                                        <button
+                                                            onClick={(e) => {
+                                                                handleLinkClick(link.id);
+                                                                handleMediaKitLink(link, e);
+                                                            }}
+                                                            className={`w-full transform group relative flex items-center p-0 ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden cursor-pointer`}
+                                                            style={{
+                                                                ...mainButtonStyle,
+                                                                borderRadius: borderRadiusValue,
+                                                                fontFamily: profile.fontFamily,
+                                                                fontWeight: (profile.fontWeight || undefined),
+                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                                                            }}
+                                                        >
+                                                            <div className="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shrink-0 border-r bg-black/[0.03]" style={{ borderColor: `${getSmartTextColor()}0A` }}>
+                                                                <BarChart3 size={22} className="group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} style={{ color: getSmartTextColor() }} />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0 flex flex-col items-start justify-center px-6 py-2 text-left">
+                                                                <span
+                                                                    className="uppercase tracking-[0.1em] truncate w-full flex items-center gap-2"
+                                                                    style={{
+                                                                        color: getSmartTextColor(),
+                                                                        fontSize: `${profile.fontSize || 15}px`,
+                                                                        fontWeight: profile.fontWeight || '700',
+                                                                        fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                        lineHeight: '1.2'
+                                                                    }}
+                                                                >
+                                                                    {link.title || t('mediakit.title')}
+                                                                </span>
+                                                                {link.subtitle && (
+                                                                    <span
+                                                                        className="opacity-50 uppercase tracking-[0.05em] truncate w-full mt-0.5"
+                                                                        style={{
+                                                                            color: getSmartTextColor(),
+                                                                            fontSize: `${Math.max((profile.fontSize || 15) - 4, 10)}px`,
+                                                                            fontWeight: profile.fontWeight || '400',
+                                                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                            lineHeight: '1.2'
+                                                                        }}
+                                                                    >
+                                                                        {link.subtitle}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="w-12 h-full flex items-center justify-center border-l shrink-0" style={{ borderColor: `${getSmartTextColor()}0A` }}>
+                                                                <ChevronRight size={16} className="opacity-30 group-hover:opacity-100 transition-opacity translate-x-1 group-hover:translate-x-0 transition-transform" strokeWidth={1.5} style={{ color: getSmartTextColor() }} />
+                                                            </div>
+                                                        </button>
+                                                    </motion.div>
+                                                );
                                             } else {
                                                 flushIcons();
                                                 flushCards();
@@ -1634,18 +1769,32 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         key={link.id}
                                                         transition={{ duration: 0.2 }}
                                                         whileHover={{ scale: 1.005 }}
-                                                        href={link.url}
-                                                        target="_blank"
+                                                        href={link.isPasswordProtected ? undefined : link.url}
+                                                        target={link.isPasswordProtected ? undefined : "_blank"}
                                                         rel="noreferrer"
-                                                        onClick={() => handleLinkClick(link.id)}
-                                                        className={`block w-full min-h-[66px] transform group relative py-3 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden`}
+                                                        onClick={(e) => {
+                                                            if (handlePasswordProtectedLink(link, e)) return;
+                                                            handleLinkClick(link.id);
+                                                        }}
+                                                        className={`block w-full min-h-[66px] transform group relative py-3 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden cursor-pointer`}
                                                         style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                                                     >
                                                         {/* Icon/Image Container */}
                                                         <div className="relative shrink-0 z-10">
                                                             {link.image ? (
                                                                 <div className="w-10 h-10 rounded-lg overflow-hidden border border-black/5 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                                                                    <img src={link.image} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                                                                    <img
+                                                                        src={link.image}
+                                                                        alt=""
+                                                                        className="w-full h-full object-cover"
+                                                                        loading="lazy"
+                                                                        decoding="async"
+                                                                        onError={(e) => {
+                                                                            e.currentTarget.onerror = null;
+                                                                            e.currentTarget.style.display = 'none';
+                                                                            e.currentTarget.className = "w-full h-full object-contain p-2 opacity-30 bg-white/10";
+                                                                        }}
+                                                                    />
                                                                 </div>
                                                             ) : Icon ? (
                                                                 <div className="w-10 h-10 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform duration-300">
@@ -1670,14 +1819,22 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             )}
                                                         </div>
 
-                                                        {/* Action Indicator (Right Side) */}
-                                                        <div className="w-10 shrink-0 flex items-center justify-center z-10 relative opacity-20 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
-                                                            <ChevronRight size={18} style={{ color: getSmartTextColor() }} strokeWidth={3} />
+                                                        {/* Action Indicator (Right Side) — 🔐 lock if password protected */}
+                                                        <div className="w-10 shrink-0 flex items-center justify-center z-10 relative opacity-40 group-hover:opacity-100 transition-all">
+                                                            {link.isPasswordProtected ? (
+                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={getSmartTextColor()} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                                                </svg>
+                                                            ) : (
+                                                                <ChevronRight size={18} style={{ color: getSmartTextColor() }} strokeWidth={3} />
+                                                            )}
                                                         </div>
 
                                                         {/* Subtle shine effect on hover */}
                                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
                                                     </motion.a>
+
                                                 );
                                             }
                                         });
@@ -1812,6 +1969,25 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             {/* Foreground Layer (For themes like Sakura) */}
             {currentTheme.id === 'kawaii-sakura' && profile.headerLayout !== 'banner' && <KawaiiSakuraForeground />}
             <MusicPlaylistDrawer />
+
+            {/* 🔐 Password Link Modal */}
+            {lockedLink && (
+                <PasswordLinkModal
+                    linkId={lockedLink.id}
+                    linkTitle={lockedLink.title}
+                    onClose={() => setLockedLink(null)}
+                    apiBaseUrl={apiBaseUrl}
+                />
+            )}
+
+            <MediaKitModal
+                isOpen={!!openMediaKit}
+                onClose={() => setOpenMediaKit(null)}
+                profile={profile}
+                links={links}
+                mediaKitLink={openMediaKit}
+                isPreview={isPreview}
+            />
         </div>
     );
 };

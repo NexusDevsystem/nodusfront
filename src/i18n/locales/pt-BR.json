@@ -943,5 +943,42 @@
         "instructions": "Descrição / Instruções (Opcional)",
         "instructionsPlaceholder": "Ex: Ponto de referência, em frente ao parque",
         "mapPreview": "Preview do Mapa"
+    },
+    "passwordLink": {
+        "toggle": "Proteger com Senha",
+        "label": "Senha de acesso",
+        "placeholder": "Digite a senha de acesso...",
+        "modalTitle": "Conteúdo Exclusivo",
+        "modalSubtitle": "Este link está protegido. Digite a senha para acessar.",
+        "unlock": "Desbloquear",
+        "wrongPassword": "Senha incorreta. Tente novamente.",
+        "proOnly": "Disponível no plano PRO",
+        "enabled": "Ativado",
+        "disabled": "Desativado"
+    },
+    "mediakit": {
+        "about": "Sobre Mim",
+        "audience": "Minha Audiência",
+        "totalFollowers": "Total de Seguidores",
+        "followers": "Seguidores",
+        "noAudience": "Audiência não vinculada",
+        "topContents": "Conteúdos em Alta",
+        "noLinks": "Ainda não há dados suficientes",
+        "contactMe": "Entrar em Contato",
+        "title": "Mídia Kit (PRO)",
+        "descShort": "Mostre seus números p/ marcas",
+        "titlePlaceholder": "Título da Chamada",
+        "contactUrlLabel": "URL de Contato (Ex: WhatsApp, Email)",
+        "contactPlaceholder": "https://wa.me/5511999999999",
+        "subtitlePlaceholder": "Chamada para ação extra",
+        "locked": "Mídia Kit disponível apenas no plano PRO",
+        "myPackages": "Pacotes e Valores",
+        "myPackagesDesc": "Mostre seus serviços para as marcas",
+        "noPackages": "Nenhum pacote configurado",
+        "price": "Valor base:",
+        "packageTitlePlaceholder": "Nome do pacote. Ex: Combo Instagram",
+        "packageSubtitlePlaceholder": "O que inclui? Ex: 1 Reel + 3 Stories integrados",
+        "packagePricePlaceholder": "R$ 0,00",
+        "addPackage": "Adicionar Pacote"
     }
 }

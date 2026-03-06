@@ -176,6 +176,13 @@ class ApiClient {
         });
     }
 
+    async proxyUploadAsset(url: string): Promise<{ success: boolean; file?: any; message?: string }> {
+        return this.request('/api/links/proxy-thumbnail', {
+            method: 'POST',
+            body: JSON.stringify({ url })
+        });
+    }
+
     // Products
     async getMyProducts(): Promise<Product[]> {
         return this.request('/api/products/me');

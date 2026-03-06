@@ -939,5 +939,42 @@
         "instructions": "Description / Instructions (Optional)",
         "instructionsPlaceholder": "Ex: Landmark, across the park",
         "mapPreview": "Map Preview"
+    },
+    "passwordLink": {
+        "toggle": "Password Protect",
+        "label": "Access Password",
+        "placeholder": "Enter password...",
+        "modalTitle": "Exclusive Content",
+        "modalSubtitle": "This link is protected. Enter the password to access it.",
+        "unlock": "Unlock",
+        "wrongPassword": "Incorrect password. Please try again.",
+        "proOnly": "Available on PRO plan",
+        "enabled": "Enabled",
+        "disabled": "Disabled"
+    },
+    "mediakit": {
+        "about": "About Me",
+        "audience": "My Audience",
+        "totalFollowers": "Total Followers",
+        "followers": "Followers",
+        "noAudience": "Audience not linked",
+        "topContents": "Top Trending Content",
+        "noLinks": "Not enough data yet",
+        "contactMe": "Contact Me",
+        "title": "Media Kit (PRO)",
+        "descShort": "Show your stats to brands",
+        "titlePlaceholder": "Call to Action Title",
+        "contactUrlLabel": "Contact URL (Ex: WhatsApp, Email)",
+        "contactPlaceholder": "https://wa.me/yournumber",
+        "subtitlePlaceholder": "Extra call to action",
+        "locked": "Media Kit available only on PRO plan",
+        "myPackages": "Packages & Rates",
+        "myPackagesDesc": "Showcase your services to brands",
+        "noPackages": "No packages configured",
+        "price": "Starting at:",
+        "packageTitlePlaceholder": "Package name. Ex: Instagram Combo",
+        "packageSubtitlePlaceholder": "What's included? Ex: 1 Reel + 3 Stories",
+        "packagePricePlaceholder": "$ 0.00",
+        "addPackage": "Add Package"
     }
 }

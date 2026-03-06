@@ -373,6 +373,13 @@ function LinkEditor({
     onChange(prev => [newMap, ...(prev as LinkItem[])]);
   };
 
+  const addMediaKit = () => {
+    const newMediaKit: LinkItem = { id: Date.now().toString(), clientId: crypto.randomUUID(), title: t('mediakit.title') || 'Mídia Kit', url: '', isActive: true, clicks: 0, layout: 'classic', type: 'mediakit' };
+    setExpandedLinks(prev => { const next = { ...prev }; activeLinks.forEach(l => { if (l.type !== 'collection') next[l.id] = false; }); next[newMediaKit.id] = true; return next; });
+    setExpandedCollections(prev => { const next = { ...prev }; activeLinks.forEach(l => { if (l.type === 'collection') next[l.id] = false; }); return next; });
+    onChange(prev => [newMediaKit, ...(prev as LinkItem[])]);
+  };
+
   const updateLink = (id: string, field: keyof LinkItem, value: any) => {
     onChange((prev: LinkItem[]) => prev.map(link => {
       if (link.id !== id) return link;
@@ -580,6 +587,8 @@ function LinkEditor({
               onAddHeader={addHeader}
               onAddAgenda={addAgenda}
               onAddMap={addMap}
+              onAddMediaKit={addMediaKit}
+              planType={profile.planType}
             />
           )}
 

@@ -17,7 +17,7 @@ import {
     ChevronDown, Folder, Sparkles, CreditCard, Youtube, Ban, X, User,
     ExternalLink, Share2, Check, DollarSign, Store, Smartphone, Mail, Type,
     Hash, Send as SendIcon, Columns2, Music, MapPin, ChevronUp,
-    Calendar as CalendarIcon, Loader2
+    Calendar as CalendarIcon, Loader2, BarChart3, Lock
 } from 'lucide-react';
 
 // Lazy-imported to break circular dep (LinkEditor uses SortableLinkItem uses LinkEditor)
@@ -148,7 +148,20 @@ function SortableLinkItem({
                             updates.title = info.name;
                         }
                         if (!fresh.subtitle) updates.subtitle = info.subscribers;
-                        if (!fresh.image && info.avatarUrl) updates.image = info.avatarUrl;
+
+                        // Internalize image to prevent expiration
+                        if (!fresh.image && info.avatarUrl) {
+                            try {
+                                const proxyRes = await apiClient.proxyUploadAsset(info.avatarUrl);
+                                if (proxyRes.success && proxyRes.file?.url) {
+                                    updates.image = proxyRes.file.url;
+                                } else {
+                                    updates.image = info.avatarUrl;
+                                }
+                            } catch (e) {
+                                updates.image = info.avatarUrl;
+                            }
+                        }
 
                         if (Object.keys(updates).length > 0) {
                             updateLinkFields(link.id, updates);
@@ -184,7 +197,15 @@ function SortableLinkItem({
                                 updates.embedType = 'none';
                             }
                             // NEVER overwrite existing image
-                            if (metadata.thumbnailUrl && !fresh.image) updates.image = metadata.thumbnailUrl;
+                            if (metadata.thumbnailUrl && !fresh.image) {
+                                try {
+                                    const proxyRes = await apiClient.proxyUploadAsset(metadata.thumbnailUrl);
+                                    if (proxyRes.success && proxyRes.file?.url) updates.image = proxyRes.file.url;
+                                    else updates.image = metadata.thumbnailUrl;
+                                } catch (e) {
+                                    updates.image = metadata.thumbnailUrl;
+                                }
+                            }
 
                             if (Object.keys(updates).length > 0) {
                                 updateLinkFields(link.id, updates);
@@ -213,7 +234,15 @@ function SortableLinkItem({
                         }
 
                         // NEVER overwrite an existing image — always check the LATEST state via ref
-                        if (!fresh.image && metadata.thumbnailUrl) updates.image = metadata.thumbnailUrl;
+                        if (!fresh.image && metadata.thumbnailUrl) {
+                            try {
+                                const proxyRes = await apiClient.proxyUploadAsset(metadata.thumbnailUrl);
+                                if (proxyRes.success && proxyRes.file?.url) updates.image = proxyRes.file.url;
+                                else updates.image = metadata.thumbnailUrl;
+                            } catch (e) {
+                                updates.image = metadata.thumbnailUrl;
+                            }
+                        }
 
                         if ((metadata.type === 'album' || metadata.type === 'playlist') && metadata.tracks && metadata.tracks.length > 0) {
                             updates.type = 'collection';
@@ -262,6 +291,9 @@ function SortableLinkItem({
         if (link.type === 'agenda') {
             return <CalendarIcon size={iconSize} strokeWidth={3} />;
         }
+        if (link.type === 'mediakit') {
+            return <BarChart3 size={iconSize} strokeWidth={3} />;
+        }
         const network = SOCIAL_NETWORKS.find(n => n.id === link.platform) ||
             SOCIAL_NETWORKS.find(n => link.url?.toLowerCase().includes(n.id)) ||
             SOCIAL_NETWORKS.find(n => link.title?.toLowerCase().includes(n.id));
@@ -309,6 +341,11 @@ function SortableLinkItem({
         if (link.type === 'header') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">{t('links.headerLabel')}</span>;
         if (link.type === 'map' || link.title?.toLowerCase() === 'localização') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#ffdf00] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">{t('links.mapLabelMobile').toUpperCase()}</span>;
         if (link.type === 'agenda') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">{t('links.agendaTag').toUpperCase()}</span>;
+        if (link.type === 'mediakit') return (
+            <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
+                {t('mediakit.title')?.toUpperCase() || 'MÍDIA KIT'}
+            </span>
+        );
         if (link.layout === 'social' || (link.platform && !['custom', 'site', 'telefone', 'email'].includes(link.platform))) return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">{t('links.mergedTag').toUpperCase()}</span>;
         return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">{t('links.linkLabel').toUpperCase()}</span>;
     };
@@ -363,13 +400,13 @@ function SortableLinkItem({
                 whileDrag={{ scale: 1, boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)', zIndex: 50 }}
                 style={{ willChange: 'transform' }}
             >
-                <div className={`transition-all duration-300 ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${(isExpanded || isCollectionExpanded) ? 'bg-[#fff9c4]' : 'bg-white'}`}>
+                <div className={`transition-all duration-300 ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${(isExpanded || isCollectionExpanded) ? 'bg-[#fefcbf]' : 'bg-white'}`}>
                     {isCollection ? (
                         /* COLLECTION ITEM */
                         <div className="overflow-hidden">
                             <div className={`flex border-b border-black items-stretch ${itemSize}`}>
                                 <div
-                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black ${isCollectionExpanded ? 'bg-[#fff9c4]' : 'hover:bg-black hover:text-white'} touch-none border-r border-black transition-colors`}
+                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black ${isCollectionExpanded ? 'bg-[#fefcbf]' : 'hover:bg-black hover:text-white'} touch-none border-r border-black transition-colors`}
                                     onPointerDown={(e) => dragControls.start(e)}
                                 >
                                     <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="9" cy="5" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="19" r="1" /></svg>
@@ -387,7 +424,16 @@ function SortableLinkItem({
                                         <div className="relative">
                                             {link.image ? (
                                                 <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}>
-                                                    <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                                                    <img
+                                                        src={link.image}
+                                                        alt="Thumbnail"
+                                                        className="w-full h-full object-cover"
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                        onError={(e) => {
+                                                            e.currentTarget.style.display = 'none';
+                                                        }}
+                                                    />
                                                 </div>
                                             ) : (
                                                 <button
@@ -563,7 +609,7 @@ function SortableLinkItem({
                         <div className="flex flex-col">
                             <div className={`flex border-b border-black items-stretch ${itemSize} ${isExpanded ? 'bg-transparent' : 'bg-white'}`}>
                                 <div
-                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black ${isExpanded ? 'bg-[#fff9c4]' : 'hover:bg-black hover:text-white'} border-r border-black touch-none transition-colors`}
+                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black ${isExpanded ? 'bg-[#fefcbf]' : 'hover:bg-black hover:text-white'} border-r border-black touch-none transition-colors`}
                                     onPointerDown={(e) => dragControls.start(e)}
                                 >
                                     <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="9" cy="5" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="19" r="1" /></svg>
@@ -585,8 +631,18 @@ function SortableLinkItem({
                                                 <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black`}><MapPin size={iconSize} strokeWidth={3} /></div>
                                             ) : link.type === 'agenda' ? (
                                                 <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black`}><CalendarIcon size={iconSize} strokeWidth={3} /></div>
+                                            ) : link.type === 'mediakit' ? (
+                                                <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-[#97cd7a] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black`}><BarChart3 size={iconSize} strokeWidth={3} /></div>
                                             ) : link.image ? (
-                                                <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}><img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" loading="lazy" decoding="async" /></div>
+                                                <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}>
+                                                    <img
+                                                        src={link.image}
+                                                        alt="Thumbnail"
+                                                        className="w-full h-full object-cover"
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                    />
+                                                </div>
                                             ) : (
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
@@ -599,7 +655,7 @@ function SortableLinkItem({
                                     <div className="flex-1 min-w-0 group/title">
                                         <div className="flex items-center gap-2 mb-0.5">
                                             <div className="font-medium uppercase tracking-widest text-black truncate text-[11px] md:text-xs flex items-center gap-1.5">
-                                                {link.title || (link.type === 'header' ? t('links.headerItem') : t('links.untitled'))}
+                                                {link.title || (link.type === 'header' ? t('links.headerItem') : link.type === 'mediakit' ? t('mediakit.title') : t('links.untitled'))}
                                                 {renderLinkTags()}
                                             </div>
                                         </div>
@@ -631,7 +687,7 @@ function SortableLinkItem({
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
                                         transition={{ duration: 0.2 }}
-                                        className="overflow-hidden bg-[#fff9c4] border-t border-black border-dashed"
+                                        className="overflow-hidden bg-[#fefcbf] border-t border-black border-dashed"
                                     >
                                         <div className={`${level > 0 ? 'p-3' : 'px-4 md:px-6 pb-6 pt-5'}`}>
                                             {link.type === 'agenda' ? (
@@ -652,11 +708,17 @@ function SortableLinkItem({
                                                         </div>
                                                     ) : (
                                                         <div className="flex-[1.5] flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 w-full">
-                                                            {link.type !== 'collection' && (
+                                                            {link.type !== 'collection' && link.type !== 'mediakit' && (
                                                                 <div className="relative shrink-0">
                                                                     {link.image ? (
                                                                         <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border border-black bg-white relative group/img shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
-                                                                            <img src={link.image} alt="Thumbnail" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                                                                            <img
+                                                                                src={link.image}
+                                                                                alt="Thumbnail"
+                                                                                className="w-full h-full object-cover"
+                                                                                loading="lazy"
+                                                                                decoding="async"
+                                                                            />
                                                                             <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                                                                 <button onClick={() => fileInputRef.current?.click()} className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors">
                                                                                     {isUploadingImage ? <Loader2 size={14} className="animate-spin" /> : <Pencil size={14} strokeWidth={3} />}
@@ -680,23 +742,23 @@ function SortableLinkItem({
                                                             <div className="flex-1 min-w-0 space-y-4">
                                                                 <div className="space-y-1">
                                                                     <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.titleLabel')}</label>
-                                                                    <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" placeholder={link.type === 'header' ? t('links.sectionPlaceholder') : t('links.titlePlaceholder')} />
+                                                                    <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" placeholder={link.type === 'header' ? t('links.sectionPlaceholder') : link.type === 'mediakit' ? t('mediakit.titlePlaceholder') || 'Título da Chamada' : t('links.titlePlaceholder')} />
                                                                 </div>
                                                                 {link.type !== 'header' && (
                                                                     <div className="space-y-1">
-                                                                        <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.urlLabel')}</label>
-                                                                        <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className="w-full text-xs font-medium uppercase tracking-widest text-black bg-white border border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" placeholder="https://exemplo.com" />
+                                                                        <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{link.type === 'mediakit' ? t('mediakit.contactUrlLabel') || 'URL de Contato (Ex: WhatsApp, Email)' : t('links.urlLabel')}</label>
+                                                                        <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className="w-full text-xs font-medium uppercase tracking-widest text-black bg-white border border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" placeholder={link.type === 'mediakit' ? t('mediakit.contactPlaceholder') || "https://wa.me/5511999999999" : "https://exemplo.com"} />
                                                                     </div>
                                                                 )}
                                                                 <div className="space-y-1">
                                                                     <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.subtitleLabel')}</label>
-                                                                    <input type="text" value={link.subtitle || ''} onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)} className="w-full text-xs font-normal uppercase tracking-wider text-black bg-white border border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" placeholder={t('links.subtitlePlaceholder')} />
+                                                                    <input type="text" value={link.subtitle || ''} onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)} className="w-full text-xs font-normal uppercase tracking-wider text-black bg-white border border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" placeholder={link.type === 'mediakit' ? t('mediakit.subtitlePlaceholder') || 'Chamada para ação extra' : t('links.subtitlePlaceholder')} />
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     )}
 
-                                                    {level === 0 && (
+                                                    {level === 0 && link.type !== 'mediakit' && (
                                                         <div className="flex-1 space-y-2">
                                                             <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.layoutLabel')}</label>
                                                             <div className="grid grid-cols-2 gap-3 max-w-[340px]">
@@ -766,17 +828,105 @@ function SortableLinkItem({
                                                             </div>
                                                         </div>
                                                     )}
+                                                    {level === 0 && link.type === 'mediakit' && (
+                                                        <div className="flex-1 space-y-4 pt-4 mt-2 border-t border-black border-dashed">
+                                                            {!(profile.planType === 'monthly' || profile.planType === 'annual') ? (
+                                                                <div className="bg-slate-50 border-2 border-black p-8 text-center space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                                                    <div className="w-16 h-16 bg-white border-2 border-black flex items-center justify-center mx-auto shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                                                        <Lock size={32} className="text-black" strokeWidth={3} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <h3 className="text-[11px] font-black uppercase tracking-widest text-black mb-2">{t('mediakit.locked')}</h3>
+                                                                        <p className="text-[9px] text-black/50 font-bold uppercase tracking-widest">{t('links.limitReachedDesc')}</p>
+                                                                    </div>
+                                                                    <button
+                                                                        onClick={(e) => { e.stopPropagation(); /* logic to open billing */ }}
+                                                                        className="mt-2 text-[10px] font-black uppercase tracking-widest bg-white border-2 border-black px-4 py-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#ffdf00] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                                                                    >
+                                                                        {t('links.seePlans')}
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <>
+                                                                    <div className="flex items-center justify-between px-1">
+                                                                        <div className="flex items-end gap-3">
+                                                                            <div>
+                                                                                <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] flex items-center gap-1.5"><DollarSign size={14} strokeWidth={3} /> {t('mediakit.myPackages')}</label>
+                                                                                <p className="text-[8px] font-medium text-black/50 uppercase tracking-widest mt-0.5">{t('mediakit.myPackagesDesc')}</p>
+                                                                            </div>
+                                                                            <div className="flex bg-black/[0.05] rounded-sm p-0.5 mb-0.5 border border-black/5">
+                                                                                <button
+                                                                                    onClick={() => updateLink(link.id, 'currency', 'BRL')}
+                                                                                    className={`px-1.5 py-0.5 text-[8px] font-black rounded-sm transition-all ${(!link.currency || link.currency === 'BRL') ? 'bg-white text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]' : 'text-black/30 hover:text-black'}`}
+                                                                                >BRL</button>
+                                                                                <button
+                                                                                    onClick={() => updateLink(link.id, 'currency', 'USD')}
+                                                                                    className={`px-1.5 py-0.5 text-[8px] font-black rounded-sm transition-all ${link.currency === 'USD' ? 'bg-white text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]' : 'text-black/30 hover:text-black'}`}
+                                                                                >USD</button>
+                                                                            </div>
+                                                                        </div>
+                                                                        <button onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            const defaultPrice = link.currency === 'USD' ? '$ 0.00' : 'R$ 0,00';
+                                                                            const newPackage = { id: crypto.randomUUID(), clientId: crypto.randomUUID(), title: 'Publi Completa', subtitle: 'Ex: 1 Reel + 2 Stories', url: defaultPrice, isActive: true, layout: 'list' as const, type: 'link' as const };
+                                                                            updateLink(link.id, 'children', [...(link.children || []), newPackage]);
+                                                                        }} className="px-2 py-1.5 text-[9px] bg-white border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black hover:bg-[#97cd7a] uppercase font-black tracking-widest active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all">+ {t('mediakit.addPackage') || t('common.add')}</button>
+                                                                    </div>
+                                                                    <div className="space-y-3">
+                                                                        {(link.children || []).map((pkg, i) => (
+                                                                            <div key={pkg.id} className="flex gap-3 p-3 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] items-center group/pkg">
+                                                                                <div className="flex-1 space-y-2">
+                                                                                    <input type="text" value={pkg.title} onChange={(e) => {
+                                                                                        const newChildren = [...(link.children || [])];
+                                                                                        newChildren[i].title = e.target.value;
+                                                                                        updateLink(link.id, 'children', newChildren);
+                                                                                    }} className="w-full text-[11px] font-black uppercase tracking-widest text-black border-b border-dashed border-black/20 pb-1 focus:border-black outline-none bg-transparent" placeholder={t('mediakit.packageTitlePlaceholder')} />
+                                                                                    <input type="text" value={pkg.subtitle || ''} onChange={(e) => {
+                                                                                        const newChildren = [...(link.children || [])];
+                                                                                        newChildren[i].subtitle = e.target.value;
+                                                                                        updateLink(link.id, 'children', newChildren);
+                                                                                    }} className="w-full text-[9px] font-medium uppercase tracking-[0.1em] text-black/60 border-b border-dashed border-black/20 pb-1 focus:border-black outline-none bg-transparent" placeholder={t('mediakit.packageSubtitlePlaceholder')} />
+                                                                                </div>
+                                                                                <div className="w-[120px] shrink-0 flex flex-col items-end gap-1 px-1">
+                                                                                    <input type="text" value={pkg.url} onChange={(e) => {
+                                                                                        const newChildren = [...(link.children || [])];
+                                                                                        newChildren[i].url = e.target.value;
+                                                                                        updateLink(link.id, 'children', newChildren);
+                                                                                    }} className="w-full text-base font-black text-right border-b-2 border-black focus:border-black px-1 py-1 outline-none bg-transparent" placeholder={link.currency === 'USD' ? '$ 0.00' : 'R$ 0,00'} />
+                                                                                    <button onClick={() => {
+                                                                                        const newChildren = [...(link.children || [])];
+                                                                                        newChildren.splice(i, 1);
+                                                                                        updateLink(link.id, 'children', newChildren);
+                                                                                    }} className="text-black/20 hover:text-red-500 transition-colors p-1"><Trash2 size={12} /></button>
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                        {(link.children?.length === 0 || !link.children) && (
+                                                                            <div className="text-[9px] text-center p-6 border-2 border-dashed border-black/10 bg-black/5 text-black/40 uppercase tracking-[0.2em] font-black">{t('mediakit.noPackages')}</div>
+                                                                        )}
+                                                                    </div>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
 
                                             {/* Scheduling & Footer Actions */}
                                             <div className="space-y-4 md:space-y-6 mb-6 md:mb-8 pt-6 border-t border-black border-dashed">
-                                                {link.type !== 'agenda' && (
+                                                {link.type !== 'agenda' && link.type !== 'mediakit' && (
                                                     <div className="space-y-3">
                                                         <div className="flex items-center justify-between">
-                                                            <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.schedule')} (PRO)</label>
+                                                            <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('links.schedule')} (PRO)</label>
                                                             {(!profile.planType || profile.planType === 'free') && (
-                                                                <span className="px-2 py-0.5 bg-black text-[#97cd7a] border-2 border-black text-[9px] font-medium uppercase tracking-tight shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">{t('links.locked')}</span>
+                                                                <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-black text-[9px] font-black uppercase tracking-tight shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+                                                                    <motion.div
+                                                                        animate={{ x: ['-200%', '200%'] }}
+                                                                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                                                                        className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 z-0"
+                                                                    />
+                                                                    <span className="relative z-10">{t('links.locked')}</span>
+                                                                </span>
                                                             )}
                                                         </div>
                                                         <div className={`p-2 border mt-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-black opacity-60 pointer-events-none grayscale' : 'bg-white border-black'}`}>
@@ -796,6 +946,49 @@ function SortableLinkItem({
                                                                     <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-black uppercase tracking-widest text-black bg-white border border-black px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" />
                                                                 </div>
                                                             </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* 🔐 Password Protection (PRO) */}
+                                                {link.type !== 'agenda' && link.type !== 'header' && link.type !== 'mediakit' && (
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center justify-between">
+                                                            <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('passwordLink.toggle') || 'Proteger com Senha'} (PRO)</label>
+                                                            {(!profile.planType || profile.planType === 'free') && (
+                                                                <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-black text-[9px] font-black uppercase tracking-tight shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+                                                                    <motion.div
+                                                                        animate={{ x: ['-200%', '200%'] }}
+                                                                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                                                                        className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 z-0"
+                                                                    />
+                                                                    <span className="relative z-10">{t('links.locked')}</span>
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className={`p-2 border mt-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-black opacity-60 pointer-events-none grayscale' : 'bg-white border-black'}`}>
+                                                            <div className="flex items-center gap-3 mb-2">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => updateLink(link.id, 'isPasswordProtected', !link.isPasswordProtected)}
+                                                                    className={`relative w-8 h-4 border-2 border-black transition-colors shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${link.isPasswordProtected ? 'bg-black' : 'bg-white'}`}
+                                                                >
+                                                                    <div className={`absolute top-0 w-3 h-3 transition-all ${link.isPasswordProtected ? 'left-3.5 bg-[#97cd7a]' : 'left-0 bg-black/30'}`} />
+                                                                </button>
+                                                                <span className="text-[9px] font-bold uppercase tracking-widest text-black/70">
+                                                                    {link.isPasswordProtected ? (t('passwordLink.enabled') || 'Ativado') : (t('passwordLink.disabled') || 'Desativado')}
+                                                                </span>
+                                                            </div>
+                                                            {link.isPasswordProtected && (
+                                                                <input
+                                                                    type="password"
+                                                                    value={(link as any).linkPassword || ''}
+                                                                    onChange={e => updateLink(link.id, 'linkPassword' as any, e.target.value)}
+                                                                    placeholder={t('passwordLink.placeholder') || 'Digite a senha de acesso...'}
+                                                                    className="w-full text-[10px] font-medium uppercase tracking-widest text-black bg-white border border-black px-2 py-1.5 focus:bg-[#fffde7] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                                                                    autoComplete="new-password"
+                                                                />
+                                                            )}
                                                         </div>
                                                     </div>
                                                 )}
