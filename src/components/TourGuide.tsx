@@ -39,7 +39,7 @@ export default function TourGuide({ run, steps, onFinish, onStepChange, stepInde
                     animate={{ y: 0 }}
                     exit={{ y: "100%" }}
                     transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                    className="fixed bottom-0 left-0 w-full bg-white border-t-4 border-black p-6 pb-12 z-[1000002] rounded-none shadow-[0px_-10px_0px_0px_rgba(0,0,0,1)] flex flex-col font-sans"
+                    className="fixed bottom-0 left-0 w-full bg-white border-t-4 border-[#1a1a1a] p-6 pb-12 z-[1000002] rounded-none shadow-[0px_-10px_0px_0px_rgba(26,26,26,1)] flex flex-col font-sans"
                     style={{
                         position: 'fixed',
                         bottom: 0,
@@ -54,7 +54,7 @@ export default function TourGuide({ run, steps, onFinish, onStepChange, stepInde
                 >
                     <div className="mb-6">
                         <div className="flex items-center gap-2 mb-3">
-                            <span className="bg-black text-[#97cd7a] text-[9px] font-black px-2 py-1 uppercase tracking-widest border-l-4 border-[#97cd7a]">
+                            <span className="bg-[#1a1a1a] text-[#97cd7a] text-[9px] font-black px-2 py-1 uppercase tracking-widest border-l-4 border-[#97cd7a]">
                                 PASSO {index + 1}
                             </span>
                         </div>
@@ -76,7 +76,7 @@ export default function TourGuide({ run, steps, onFinish, onStepChange, stepInde
                                     {t('common.back', 'Voltar')}
                                 </button>
                             )}
-                            <button {...primaryProps} className="bg-black text-[#97cd7a] border-2 border-black px-6 py-4 font-black text-[11px] uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(151,205,122,0.3)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
+                            <button {...primaryProps} className="bg-[#1a1a1a] text-[#97cd7a] border-2 border-[#1a1a1a] px-6 py-4 font-black text-[11px] uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(151,205,122,0.3)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
                                 {isLastStep ? t('common.finish', 'Concluir') : t('common.next', 'Próximo')}
                             </button>
                         </div>

@@ -139,21 +139,21 @@ const TechnologyVisualizer: React.FC<TechnologyVisualizerProps> = ({ variant }) 
             <div className="absolute inset-0 bg-[#f0f0f0] overflow-hidden" style={{ contain: 'strict' }}>
                 <StyleTag />
                 {/* Raw Grid */}
-                <div className="absolute inset-0 border-l border-r border-black/10 w-full max-w-4xl mx-auto pointer-events-none" />
+                <div className="absolute inset-0 border-l border-r border-[#1a1a1a]/10 w-full max-w-4xl mx-auto pointer-events-none" />
                 <div className="absolute inset-0 pointer-events-none"
-                    style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px)', backgroundSize: '100% 40px', opacity: 0.1 }}
+                    style={{ backgroundImage: 'linear-gradient(#1a1a1a 1px, transparent 1px)', backgroundSize: '100% 40px', opacity: 0.1 }}
                 />
 
                 {/* Floating Geometric Primitives */}
                 <div
-                    className="absolute top-20 -left-10 w-40 h-40 border-4 border-black bg-transparent"
+                    className="absolute top-20 -left-10 w-40 h-40 border-4 border-[#1a1a1a] bg-transparent"
                     style={{
                         animation: 'rotate90 20s linear infinite',
                         willChange: 'transform'
                     }}
                 />
                 <div
-                    className="absolute bottom-40 -right-10 w-32 h-32 bg-black"
+                    className="absolute bottom-40 -right-10 w-32 h-32 bg-[#1a1a1a]"
                     style={{
                         animation: 'floatY 5s ease-in-out infinite',
                         willChange: 'transform'

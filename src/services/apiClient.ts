@@ -369,6 +369,10 @@ class ApiClient {
         });
     }
 
+    async getStripeConfig(): Promise<{ publishableKey: string; env: string }> {
+        return this.request('/api/billing/config');
+    }
+
     async getTikTokAuthUrl(userId: string, origin?: string): Promise<{ url: string }> {
         return this.request(`/api/integrations/tiktok/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);
     }

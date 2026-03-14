@@ -15,7 +15,7 @@ export const artisticThemes: Theme[] = [
         avatarBorder: 'rounded-full border-2 border-dashed border-[#2c2c2c] p-1.5',
         fontFamily: "'Patrick Hand', cursive", // or similar handwriting font
         category: 'creative',
-        isPro: true
+        isPro: false
     },
     // 2. Line Art Minimalist ✒️
     {
@@ -23,14 +23,14 @@ export const artisticThemes: Theme[] = [
         name: 'Line Art',
         backgroundClass: 'bg-[#ffffff]',
         // Button: Very thin elegant borders, almost invisible feel
-        buttonClass: 'bg-white text-black border border-black hover:bg-black hover:text-white transition-all duration-500 w-full rounded-full py-4 px-8 flex items-center justify-between font-light tracking-[0.2em] relative overflow-hidden',
-        buttonHex: '#000000',
-        textHex: '#000000',
+        buttonClass: 'bg-white text-black border border-[#1a1a1a] hover:bg-black hover:text-white transition-all duration-500 w-full rounded-full py-4 px-8 flex items-center justify-between font-light tracking-[0.2em] relative overflow-hidden',
+        buttonHex: '#1a1a1a',
+        textHex: '#1a1a1a',
         textClass: 'text-black font-sans font-light tracking-[0.2em] uppercase',
-        avatarBorder: 'rounded-full border-[1px] border-black p-2',
+        avatarBorder: 'rounded-full border-[1px] border-[#1a1a1a] p-2',
         fontFamily: "'Montserrat', sans-serif",
         category: 'creative',
-        isPro: false
+        isPro: true
     },
     // 3. Pop Art 💥
     {
@@ -38,11 +38,11 @@ export const artisticThemes: Theme[] = [
         name: 'Pop Art',
         backgroundClass: 'bg-[#FFF200]', // Bright Yellow
         // Button: Bold comic style
-        buttonClass: 'bg-[#00AEEF] text-white border-4 border-black hover:-translate-y-1 hover:shadow-[8px_8px_0px_#000000] active:translate-y-0 active:shadow-none transition-all duration-200 w-full rounded-none py-4 px-6 flex items-center justify-between font-black uppercase shadow-[6px_6px_0px_#000000]',
+        buttonClass: 'bg-[#00AEEF] text-white border-4 border-[#1a1a1a] hover:-translate-y-1 hover:shadow-[8px_8px_0px_#1a1a1a] active:translate-y-0 active:shadow-none transition-all duration-200 w-full rounded-none py-4 px-6 flex items-center justify-between font-black uppercase shadow-[6px_6px_0px_#1a1a1a]',
         buttonHex: '#00AEEF',
-        textHex: '#000000',
+        textHex: '#1a1a1a',
         textClass: 'text-black font-sans font-black uppercase tracking-tight italic',
-        avatarBorder: 'rounded-full border-4 border-black bg-[#EC008C] p-1',
+        avatarBorder: 'rounded-full border-4 border-[#1a1a1a] bg-[#EC008C] p-1',
         fontFamily: "'Bangers', system-ui",
         category: 'creative',
         isPro: true
@@ -60,7 +60,7 @@ export const artisticThemes: Theme[] = [
         avatarBorder: 'rounded-full border-4 border-white/50 backdrop-blur-md shadow-lg',
         fontFamily: "'Outfit', sans-serif",
         category: 'creative',
-        isPro: false
+        isPro: true
     },
     // 5. Geometric Bauhaus 🟥
     {

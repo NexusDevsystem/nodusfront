@@ -15,7 +15,7 @@ export default function BrutalistLoader({
 }: BrutalistLoaderProps) {
     return (
         <div className="fixed inset-0 bg-[#f0f0f0] z-[9999] flex items-center justify-center p-6">
-            <div className="bg-white border-4 border-black p-10 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] w-full max-w-sm relative overflow-hidden">
+            <div className="bg-white border-2 border-[#1a1a1a] p-10 shadow-[4px_4px_0px_0px_#1a1a1a] w-full max-w-sm relative overflow-hidden">
                 {/* Decorative Corner */}
                 <div className="absolute top-0 right-0 w-12 h-12 bg-black flex items-center justify-center rotate-45 translate-x-6 -translate-y-6">
                     <Plus size={16} className="text-white -rotate-45" />
@@ -41,12 +41,12 @@ export default function BrutalistLoader({
                     </div>
 
                     {/* Brutalist Progress Bar Container */}
-                    <div className="w-full h-8 border-4 border-black bg-white relative overflow-hidden shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="w-full h-8 border-2 border-[#1a1a1a] bg-white relative overflow-hidden shadow-[3px_3px_0px_0px_#1a1a1a]">
                         {/* Progress Fill */}
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
-                            className="h-full bg-[#97cd7a] border-r-4 border-black"
+                            className="h-full bg-[#97cd7a] border-r-2 border-[#1a1a1a]"
                         />
 
                         {/* Texture Overlay */}
@@ -56,15 +56,15 @@ export default function BrutalistLoader({
                     </div>
 
                     {/* Decorative Footer Text */}
-                    <p className="mt-8 text-[8px] font-medium text-black/30 uppercase tracking-[0.4em] text-center w-full border-t border-black/10 pt-4">
+                    <p className="mt-8 text-[8px] font-medium text-black/30 uppercase tracking-[0.4em] text-center w-full border-t border-[#1a1a1a]/10 pt-4">
                         {subtext}
                     </p>
                 </div>
             </div>
 
             {/* Background Floating Elements */}
-            <div className="absolute top-10 left-10 w-24 h-24 border-2 border-black/5 rounded-full animate-ping opacity-20"></div>
-            <div className="absolute bottom-20 right-20 w-32 h-32 border-4 border-black/5 rotate-12 opacity-10"></div>
+            <div className="absolute top-10 left-10 w-24 h-24 border-2 border-[#1a1a1a]/5 rounded-full animate-ping opacity-20"></div>
+            <div className="absolute bottom-20 right-20 w-32 h-32 border-4 border-[#1a1a1a]/5 rotate-12 opacity-10"></div>
         </div>
     );
 }

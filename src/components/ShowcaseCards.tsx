@@ -19,12 +19,12 @@ export default function ShowcaseCards() {
     }, [displayThemes.length]);
 
     return (
-        <div className="relative w-[320px] h-[640px] bg-black rounded-[3rem] border-[12px] border-black shadow-[20px_20px_0px_0px_rgba(0,0,0,0.2)] overflow-hidden ring-1 ring-white/20 transform transition-transform duration-500 hover:scale-[1.02]">
+        <div className="relative w-[320px] h-[640px] bg-[#1a1a1a] rounded-[3rem] border-[12px] border-[#1a1a1a] shadow-[20px_20px_0px_0px_#1a1a1a] overflow-hidden transform transition-transform duration-500 hover:scale-[1.02]">
             {/* Notch */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-black rounded-b-2xl z-50"></div>
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-[#1a1a1a] rounded-b-2xl z-50"></div>
 
             {/* Screen Area */}
-            <div className="relative w-full h-full bg-black overflow-hidden rounded-[2.5rem]">
+            <div className="relative w-full h-full bg-[#1a1a1a] overflow-hidden rounded-[2.5rem]">
                 <AnimatePresence mode='popLayout'>
                     {displayThemes.map((theme, i) => {
                         if (!theme) return null;

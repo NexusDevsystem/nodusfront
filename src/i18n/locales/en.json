@@ -299,6 +299,16 @@
         "saveAndContinue": "Save and Continue",
         "pixPlaceholder": "ex: your@email.com",
         "paypalPlaceholder": "ex: paypal.me/username",
+        "animations": "Animations",
+        "animPulse": "Pulse",
+        "animBounce": "Bounce",
+        "animShake": "Shake",
+        "animGlow": "Glow",
+        "animWobble": "Wobble",
+        "animTada": "Tada!",
+        "animJello": "Jello",
+        "animRubber": "Rubber Band",
+        "animNone": "None",
         "archive": "Archive",
         "backToLinks": "Back to My Links",
         "emptyTitle": "Your link list is empty",
@@ -658,9 +668,10 @@
                     "0": "ALL FREE FEATURES",
                     "1": "PRO THEMES & EXCLUSIVITY",
                     "2": "CUSTOM DESIGN (COLORS/BLUR)",
-                    "3": "FULL ANALYTICS (30 DAYS)",
+                    "3": "UNLIMITED PRO ANALYTICS",
                     "4": "STORE WITH UNLIMITED PRODUCTS",
-                    "5": "PRIORITY SUPPORT"
+                    "5": "REMOVE NODUS BRANDING",
+                    "6": "PRIORITY SUPPORT"
                 }
             },
             "annual": {
@@ -670,6 +681,7 @@
                 "description": "THE BEST CHOICE FOR THOSE WHO WANT TO GROW FAST.",
                 "button": "SUBSCRIBE ANNUALLY",
                 "badge": "BEST VALUE",
+                "savings": "SAVE 2 MONTHS",
                 "features": {
                     "0": "2 FREE MONTHS (SAVE R$ 59 / $ 10)",
                     "1": "ALL MONTHLY FEATURES",

@@ -28,7 +28,7 @@ export interface LinkItem {
   events?: EventItem[];
   subtitle?: string;
   image?: string;
-  highlight?: 'none' | 'pulse' | 'bounce' | 'shake' | 'glow' | 'wobble';
+  highlight?: 'none' | 'pulse' | 'bounce' | 'shake' | 'glow' | 'wobble' | 'tada' | 'jello' | 'rubberBand';
   embedType?: 'none' | 'youtube' | 'spotify' | 'twitch' | 'deezer' | 'tiktok';
   videoUrl?: string; // For native video players
   clicks?: number;
@@ -95,6 +95,7 @@ export interface UserProfile {
   bannerBlurColor?: string | null;
   cardBackgroundColor?: string | null;
   tutorialStatus?: 'yes' | 'no' | 'skip' | null;
+  hideBranding?: boolean;
 }
 
 export interface Theme {

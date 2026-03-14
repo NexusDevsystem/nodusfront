@@ -45,6 +45,6 @@ export const socialThemes: Theme[] = [
         avatarBorder: 'rounded-full border-[2px] border-[#FF0000] p-[2px]',
         fontFamily: "'Roboto Condensed', sans-serif",
         category: 'creative',
-        isPro: true
+        isPro: false
     }
 ];

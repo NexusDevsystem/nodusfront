@@ -82,12 +82,12 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200, mass: 0.8 }}
-                        className={`bg-white flex flex-col pointer-events-auto shadow-[0_-20px_60px_rgba(0,0,0,0.15)] w-full max-w-lg h-auto max-h-[85%] rounded-t-[32px] relative overflow-hidden`}
+                        className={`bg-white flex flex-col pointer-events-auto border-t-2 border-x-2 border-[#1a1a1a] shadow-[0_-8px_0_0_#1a1a1a] w-full max-w-lg h-auto max-h-[85%] rounded-t-[2.5rem] relative overflow-hidden`}
                         style={{ willChange: 'transform' }}
                     >
                         <div className="flex-none bg-white">
                             {/* Header (Título e Perfil) */}
-                            <div className="p-5 pt-8 border-b border-black/5 relative">
+                            <div className="p-5 pt-8 border-b border-[#1a1a1a]/5 relative">
                                 <button
                                     onClick={onClose}
                                     className="absolute right-5 top-8 p-1 text-slate-400 hover:text-slate-900 transition-colors z-10"
@@ -96,7 +96,7 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
                                 </button>
 
                                 <div className="flex items-center gap-4 pt-1">
-                                    <div className="w-20 h-20 bg-white shadow-md rounded-2xl shrink-0 overflow-hidden border border-black/5">
+                                    <div className="w-20 h-20 bg-white shadow-[4px_4px_0px_0px_#1a1a1a] rounded-2xl shrink-0 overflow-hidden border-2 border-[#1a1a1a]">
                                         {profile.avatarUrl ? (
                                             <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
                                         ) : (
@@ -260,12 +260,12 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
                         </div>
 
                         {/* Rodapé Fixo com Botão de Contato */}
-                        <div className="flex-none p-5 border-t border-black/5 bg-white shrink-0">
+                        <div className="flex-none p-5 border-t border-[#1a1a1a]/5 bg-white shrink-0">
                             <a
                                 href={mediaKitLink?.url || `mailto:${profile.email || ''}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-full flex items-center justify-center gap-2 py-4 bg-[#609942] text-white rounded-2xl font-bold text-sm hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                className="w-full flex items-center justify-center gap-2 py-4 bg-[#609942] text-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] rounded-2xl font-bold text-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
                             >
                                 <Mail size={18} />
                                 {mediaKitLink?.subtitle || t('mediakit.contactMe') || 'Entrar em Contato'}

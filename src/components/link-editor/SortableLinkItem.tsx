@@ -17,7 +17,9 @@ import {
     ChevronDown, Folder, Sparkles, CreditCard, Youtube, Ban, X, User,
     ExternalLink, Share2, Check, DollarSign, Store, Smartphone, Mail, Type,
     Hash, Send as SendIcon, Columns2, Music, MapPin, ChevronUp,
-    Calendar as CalendarIcon, Loader2, BarChart3, Lock
+    Calendar as CalendarIcon, Loader2, BarChart3, Lock,
+    Activity, Sun, Waves, PartyPopper, Box as Package,
+    Heart, RotateCw, Disc, RefreshCw
 } from 'lucide-react';
 
 // Lazy-imported to break circular dep (LinkEditor uses SortableLinkItem uses LinkEditor)
@@ -277,7 +279,7 @@ function SortableLinkItem({
     }, [link.url, link.id, link.title, t]);
 
     const isCollection = link.type === 'collection';
-    const itemSize = level > 0 ? 'min-h-[44px]' : 'min-h-[50px]';
+    const itemSize = level > 0 ? 'min-h-[64px]' : 'min-h-[82px]';
     const iconSize = level > 0 ? 14 : 18;
     const dragHandleSize = level > 0 ? 'w-8' : 'w-10';
 
@@ -304,50 +306,50 @@ function SortableLinkItem({
     const renderLinkTags = () => (
         <>
             {link.scheduleStart && new Date(link.scheduleStart) > new Date() && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-[#97cd7a] text-[8px] font-medium text-black border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#97cd7a] text-[8px] font-medium text-black border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[2px_2px_0px_0px_#1a1a1a]">
                     {t('links.scheduled').toUpperCase()}
                 </span>
             )}
             {link.scheduleEnd && new Date(link.scheduleEnd) < new Date() && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-red-400 text-[8px] font-medium text-black border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                <span className="shrink-0 px-1.5 py-0.5 bg-red-400 text-[8px] font-medium text-black border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[3px_3px_0px_0px_#1a1a1a]">
                     {t('links.expired').toUpperCase()}
                 </span>
             )}
             {(link.embedType === 'youtube' || link.platform === 'youtube' || link.url?.includes('youtube.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">YOUTUBE</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">YOUTUBE</span>
             )}
             {(link.embedType === 'tiktok' || link.platform === 'tiktok' || link.url?.includes('tiktok.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">TIKTOK</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">TIKTOK</span>
             )}
             {(link.platform === 'twitch' || link.url?.includes('twitch.tv')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-[#6441a5] text-[8px] font-medium text-white border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">TWITCH</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#6441a5] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">TWITCH</span>
             )}
             {(link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">KICK</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">KICK</span>
             )}
             {(link.platform === 'instagram' || link.url?.includes('instagram.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-[#E1306C] text-[8px] font-medium text-white border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">INSTAGRAM</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#E1306C] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">INSTAGRAM</span>
             )}
             {(link.embedType === 'spotify' || link.platform === 'spotify' || link.url?.includes('spotify.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">SPOTIFY</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">SPOTIFY</span>
             )}
             {(link.embedType === 'deezer' || link.platform === 'deezer' || link.url?.includes('deezer.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">DEEZER</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">DEEZER</span>
             )}
         </>
     );
 
     const renderTypeLabel = () => {
-        if (link.type === 'header') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">{t('links.headerLabel')}</span>;
-        if (link.type === 'map' || link.title?.toLowerCase() === 'localização') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#ffdf00] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">{t('links.mapLabelMobile').toUpperCase()}</span>;
-        if (link.type === 'agenda') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">{t('links.agendaTag').toUpperCase()}</span>;
+        if (link.type === 'header') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a] leading-none italic">{t('links.headerLabel')}</span>;
+        if (link.type === 'map' || link.title?.toLowerCase() === 'localização') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#ffdf00] text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] leading-none italic">{t('links.mapLabelMobile').toUpperCase()}</span>;
+        if (link.type === 'agenda') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] leading-none italic">{t('links.agendaTag').toUpperCase()}</span>;
         if (link.type === 'mediakit') return (
-            <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
+            <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] leading-none italic">
                 {t('mediakit.title')?.toUpperCase() || 'MÍDIA KIT'}
             </span>
         );
-        if (link.layout === 'social' || (link.platform && !['custom', 'site', 'telefone', 'email'].includes(link.platform))) return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">{t('links.mergedTag').toUpperCase()}</span>;
-        return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">{t('links.linkLabel').toUpperCase()}</span>;
+        if (link.layout === 'social' || (link.platform && !['custom', 'site', 'telefone', 'email'].includes(link.platform))) return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] leading-none italic">{t('links.mergedTag').toUpperCase()}</span>;
+        return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] leading-none italic">{t('links.linkLabel').toUpperCase()}</span>;
     };
 
     const DeleteConfirm = ({ message }: { message: string }) => (
@@ -357,13 +359,13 @@ function SortableLinkItem({
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden bg-red-50 border-t border-black border-dashed"
+                    className="overflow-hidden bg-red-50 border-t border-[#1a1a1a] border-dashed"
                 >
                     <div className="p-3 flex items-center justify-between gap-3 px-4">
                         <span className="text-[10px] font-medium uppercase tracking-widest text-red-600">{message}</span>
                         <div className="flex gap-2">
-                            <button onClick={() => removeLink(link.id)} className="px-3 py-1.5 bg-red-600 text-white border border-black text-[9px] font-medium uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] shadow-none">{t('common.confirm')}</button>
-                            <button onClick={() => setShowDeleteConfirm(false)} className="px-3 py-1.5 bg-white text-black border border-black text-[9px] font-medium uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] shadow-none">{t('common.cancel')}</button>
+                            <button onClick={() => removeLink(link.id)} className="px-3 py-1.5 bg-red-600 text-white border border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] shadow-none">{t('common.confirm')}</button>
+                            <button onClick={() => setShowDeleteConfirm(false)} className="px-3 py-1.5 bg-white text-black border border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] shadow-none">{t('common.cancel')}</button>
                         </div>
                     </div>
                 </motion.div>
@@ -374,7 +376,7 @@ function SortableLinkItem({
     const ToggleSwitch = () => (
         <label className="relative inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
             <input type="checkbox" checked={link.isActive} onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)} className="sr-only peer" />
-            <div className={`w-8 h-4 border border-black bg-white peer-focus:outline-none peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-black after:h-3 after:w-3 after:border after:border-black after:transition-all peer-checked:bg-[#97cd7a]`}></div>
+            <div className="w-12 h-6 border-2 border-[#1a1a1a] bg-white rounded-full transition-all duration-300 peer-checked:bg-[#97cd7a] shadow-[3px_3px_0px_0px_#1a1a1a] peer-active:shadow-none peer-active:translate-x-[0.5px] peer-active:translate-y-[0.5px] after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-2 after:border-[#1a1a1a] after:w-4 after:h-4 after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
         </label>
     );
 
@@ -396,86 +398,84 @@ function SortableLinkItem({
                 layout
                 onDrag={() => { }}
                 onDragEnd={() => { }}
-                className={`relative border-2 border-black ${isExpanded ? 'bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]' : 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'} select-none`}
-                whileDrag={{ scale: 1, boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)', zIndex: 50 }}
+                className={`relative border-2 border-[#1a1a1a] rounded-xl ${isExpanded ? 'bg-white shadow-[4px_4px_0px_0px_#1a1a1a]' : 'bg-white shadow-[4px_4px_0px_0px_#1a1a1a]'} select-none`}
+                whileDrag={{ scale: 1.01, boxShadow: '10px 10px 0px 0px rgba(26,26,26,1)', zIndex: 50, borderRadius: '12px' }}
                 style={{ willChange: 'transform' }}
             >
-                <div className={`transition-all duration-300 ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${(isExpanded || isCollectionExpanded) ? 'bg-[#fefcbf]' : 'bg-white'}`}>
+                <div className={`transition-all duration-300 rounded-[10px] overflow-hidden ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${(isExpanded || isCollectionExpanded) ? 'bg-[#fefcbf]' : 'bg-white'}`}>
                     {isCollection ? (
                         /* COLLECTION ITEM */
                         <div className="overflow-hidden">
-                            <div className={`flex border-b border-black items-stretch ${itemSize}`}>
+                            <div className={`flex border-b border-[#1a1a1a] items-stretch ${itemSize}`}>
                                 <div
-                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black ${isCollectionExpanded ? 'bg-[#fefcbf]' : 'hover:bg-black hover:text-white'} touch-none border-r border-black transition-colors`}
+                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black ${isCollectionExpanded ? 'bg-[#fefcbf]' : 'hover:bg-black hover:text-white'} touch-none border-r-2 border-[#1a1a1a] transition-colors rounded-l-xl`}
                                     onPointerDown={(e) => dragControls.start(e)}
                                 >
-                                    <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="9" cy="5" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="19" r="1" /></svg>
+                                    <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="5" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="19" r="1" /></svg>
                                 </div>
-
                                 <div
                                     onClick={() => toggleCollection(link.id)}
-                                    className={`flex-1 ${level > 0 ? 'py-1.5 md:py-2' : 'py-2 md:py-2.5'} pr-3 md:pr-4 flex items-center gap-2 md:gap-3 overflow-hidden ${isCollectionExpanded ? 'bg-transparent' : 'bg-white hover:bg-slate-50'} transition-colors duration-200 cursor-pointer`}
+                                    className={`flex-1 ${level > 0 ? 'py-2.5 md:py-3.5' : 'py-3.5 md:py-5'} pr-4 md:pr-6 flex items-center gap-3 md:gap-5 overflow-hidden ${isCollectionExpanded ? 'bg-transparent' : 'bg-white hover:bg-slate-50'} transition-colors duration-200 cursor-pointer`}
                                 >
                                     <div className="text-black p-0.5 transition-colors shrink-0">
-                                        {isCollectionExpanded ? <ChevronDown size={iconSize} strokeWidth={3} /> : <ChevronRight size={iconSize} strokeWidth={3} />}
+                                        {isCollectionExpanded ? <ChevronDown size={iconSize} strokeWidth={2.5} /> : <ChevronRight size={iconSize} strokeWidth={2.5} />}
                                     </div>
 
-                                    <div className="shrink-0">
-                                        <div className="relative">
-                                            {link.image ? (
-                                                <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}>
-                                                    <img
-                                                        src={link.image}
-                                                        alt="Thumbnail"
-                                                        className="w-full h-full object-cover"
-                                                        loading="lazy"
-                                                        decoding="async"
-                                                        onError={(e) => {
-                                                            e.currentTarget.style.display = 'none';
-                                                        }}
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                                                    className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black hover:bg-black hover:text-white transition-all`}
-                                                >
-                                                    {getThumbnailIcon()}
-                                                </button>
-                                            )}
+                                    {!isMobile && (
+                                        <div className="shrink-0">
+                                            <div className="relative">
+                                                {link.image ? (
+                                                    <div className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} border-2 border-[#1a1a1a] overflow-hidden shadow-[3px_3px_0px_0px_#1a1a1a] rounded-lg`}>
+                                                        <img
+                                                            src={link.image}
+                                                            alt="Thumbnail"
+                                                            className="w-full h-full object-cover"
+                                                            loading="lazy"
+                                                            decoding="async"
+                                                            onError={(e) => {
+                                                                e.currentTarget.style.display = 'none';
+                                                            }}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                                                        className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} bg-white border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] flex items-center justify-center text-black hover:bg-black hover:text-white transition-all rounded-lg`}
+                                                    >
+                                                        {getThumbnailIcon()}
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
 
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-0.5 overflow-hidden">
-                                            <div className="font-medium text-black uppercase tracking-widest p-0 text-xs md:text-sm truncate leading-tight">
+                                        <div className="flex items-center gap-2 mb-1 overflow-hidden">
+                                            <div className="font-bold text-black uppercase tracking-[0.1em] p-0 text-sm md:text-base truncate leading-tight">
                                                 {link.title || t('links.collectionUnnamed')}
                                             </div>
                                             {(link.embedType === 'spotify' || link.platform === 'spotify' || link.url?.toLowerCase().includes('spotify.com')) && (
-                                                <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">SPOTIFY</span>
+                                                <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[3px_3px_0px_0px_#1a1a1a]">SPOTIFY</span>
                                             )}
                                             {(link.embedType === 'deezer' || link.platform === 'deezer' || link.url?.toLowerCase().includes('deezer.com')) && (
-                                                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">DEEZER</span>
+                                                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[3px_3px_0px_0px_#1a1a1a]">DEEZER</span>
                                             )}
                                             {(link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
-                                                <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border border-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">KICK</span>
+                                                <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[3px_3px_0px_0px_#1a1a1a]">KICK</span>
                                             )}
                                         </div>
-                                        <div className="text-[9px] md:text-[10px] text-black/70 font-normal uppercase tracking-[0.2em] truncate leading-none">
+                                        <div className="text-[10px] md:text-[11px] text-black/70 font-semibold uppercase tracking-[0.15em] truncate leading-tight">
                                             {link.children?.length || 0} {(link.children?.length === 1) ? t('links.itemConfigured') : t('links.itemsConfigured')}
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-1.5 md:gap-4 shrink-0">
-                                        <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#ffdf00] text-[9px] md:text-[10px] font-medium text-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] leading-none">
-                                            {t('links.collectionLabel')}
-                                        </span>
                                         <ToggleSwitch />
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(!showDeleteConfirm); }}
-                                            className={`p-1.5 md:p-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ${showDeleteConfirm ? 'bg-red-500 text-white' : 'bg-white text-black hover:bg-red-400'}`}
+                                            className={`p-1.5 transition-all ${showDeleteConfirm ? 'text-red-500' : 'text-black/30 hover:text-red-500'}`}
                                         >
-                                            <Trash2 size={isMobile ? 14 : 18} strokeWidth={3} />
+                                            <Trash2 size={isMobile ? 18 : 20} strokeWidth={2.5} />
                                         </button>
                                     </div>
                                 </div>
@@ -491,7 +491,7 @@ function SortableLinkItem({
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
                                         transition={{ duration: 0.2 }}
-                                        className="overflow-hidden bg-[#fff9c4] border-t border-black"
+                                        className="overflow-hidden bg-[#fff9c4] border-t border-[#1a1a1a]"
                                     >
                                         <div className="p-2 md:p-3 md:pl-5 space-y-3 md:space-y-4">
                                             {/* Collection Basic Info & Layout */}
@@ -502,13 +502,13 @@ function SortableLinkItem({
                                                         {(link.embedType === 'spotify' || link.platform === 'spotify' || link.url?.includes('spotify.com')) && (
                                                             <div className="flex items-center gap-1.5 ml-auto">
                                                                 <SiSpotify className="text-[#1DB954]" size={14} />
-                                                                <span className="px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">SPOTIFY</span>
+                                                                <span className="px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">SPOTIFY</span>
                                                             </div>
                                                         )}
                                                         {(link.embedType === 'deezer' || link.platform === 'deezer' || link.url?.includes('deezer.com')) && (
                                                             <div className="flex items-center gap-1.5 ml-auto">
                                                                 <DeezerIcon size={14} />
-                                                                <span className="px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border border-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">DEEZER</span>
+                                                                <span className="px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">DEEZER</span>
                                                             </div>
                                                         )}
                                                     </div>
@@ -516,7 +516,7 @@ function SortableLinkItem({
                                                         type="text"
                                                         value={link.title}
                                                         onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                                                        className="w-full font-medium text-sm text-black bg-white border border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                                                        className="w-full font-medium text-sm text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[4px_4px_0px_0px_#1a1a1a]"
                                                         placeholder={t('links.collectionNamePlaceholder')}
                                                     />
                                                 </div>
@@ -534,35 +534,35 @@ function SortableLinkItem({
                                                                 <button
                                                                     key={opt.id}
                                                                     onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                    className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black transition-all ${isActive ? 'bg-[#ffdf00] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -translate-x-1 -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-x-0.5 hover:-translate-y-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}`}
+                                                                    className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-xl transition-all ${isActive ? 'bg-[#ffdf00] shadow-[3px_3px_0px_0px_#1a1a1a] -translate-x-1 -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-x-0.5 hover:-translate-y-0.5 shadow-[2px_2px_0px_0px_#1a1a1a]'}`}
                                                                 >
                                                                     {isActive && (
-                                                                        <div className="absolute top-1 right-1 w-4 h-4 bg-black flex items-center justify-center border-2 border-black z-10 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)]">
-                                                                            <Check size={10} strokeWidth={4} className="text-[#ffdf00]" />
+                                                                        <div className="absolute top-1 right-1 w-4 h-4 bg-black flex items-center justify-center border border-[#1a1a1a] rounded-md z-10 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)]">
+                                                                            <Check size={10} strokeWidth={2.5} className="text-[#ffdf00]" />
                                                                         </div>
                                                                     )}
 
                                                                     <div className="flex-1 flex items-center justify-center w-full mb-1 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
                                                                         {opt.id === 'list' && (
-                                                                            <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(0,0,0,0.15)]">
-                                                                                <rect x="10" y="10" width="80" height="24" fill="white" stroke="black" strokeWidth="6" />
-                                                                                <rect x="20" y="20" width="30" height="4" fill="black" />
-                                                                                <rect x="10" y="46" width="80" height="24" fill="white" stroke="black" strokeWidth="6" />
-                                                                                <rect x="20" y="56" width="45" height="4" fill="black" />
+                                                                            <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
+                                                                                <rect x="10" y="10" width="80" height="24" fill="white" stroke="black" strokeWidth="6" rx="4" />
+                                                                                <rect x="20" y="20" width="30" height="4" fill="black" rx="1" />
+                                                                                <rect x="10" y="46" width="80" height="24" fill="white" stroke="black" strokeWidth="6" rx="4" />
+                                                                                <rect x="20" y="56" width="45" height="4" fill="black" rx="1" />
                                                                             </svg>
                                                                         )}
                                                                         {opt.id === 'carousel' && (
-                                                                            <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(0,0,0,0.15)]">
-                                                                                <rect x="12" y="15" width="46" height="50" fill="white" stroke="black" strokeWidth="6" strokeLinejoin="round" />
-                                                                                <rect x="12" y="15" width="46" height="30" fill="black" stroke="black" strokeWidth="6" strokeLinejoin="round" />
-                                                                                <rect x="22" y="53" width="26" height="4" fill="black" />
-                                                                                <rect x="68" y="15" width="46" height="50" fill="white" stroke="black" strokeWidth="6" strokeLinejoin="round" />
-                                                                                <rect x="68" y="15" width="46" height="30" fill="black" opacity="0.3" stroke="black" strokeWidth="6" strokeLinejoin="round" />
+                                                                            <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
+                                                                                <rect x="12" y="15" width="46" height="50" fill="white" stroke="black" strokeWidth="6" strokeLinejoin="round" rx="4" />
+                                                                                <rect x="12" y="15" width="46" height="30" fill="black" stroke="black" strokeWidth="6" strokeLinejoin="round" rx="4" />
+                                                                                <rect x="22" y="53" width="26" height="4" fill="black" rx="1" />
+                                                                                <rect x="68" y="15" width="46" height="50" fill="white" stroke="black" strokeWidth="6" strokeLinejoin="round" rx="4" />
+                                                                                <rect x="68" y="15" width="46" height="30" fill="black" opacity="0.3" stroke="black" strokeWidth="6" strokeLinejoin="round" rx="4" />
                                                                             </svg>
                                                                         )}
                                                                     </div>
 
-                                                                    <span className="text-[9px] font-black uppercase tracking-tight text-black text-center leading-none mt-auto">
+                                                                    <span className="text-[9px] font-bold uppercase tracking-tight text-black text-center leading-none mt-auto">
                                                                         {opt.label}
                                                                     </span>
                                                                 </button>
@@ -573,15 +573,15 @@ function SortableLinkItem({
                                             </div>
 
                                             {/* Collection Footer Actions */}
-                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 mt-6 border-t border-black border-dashed gap-4">
-                                                <div className="flex items-center gap-2 text-black font-black uppercase tracking-widest text-[10px] sm:shrink-0">
-                                                    <BarChart2 size={14} strokeWidth={3} />
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 mt-6 border-t border-[#1a1a1a] border-dashed gap-4">
+                                                <div className="flex items-center gap-2 text-black font-bold uppercase tracking-widest text-[10px] sm:shrink-0">
+                                                    <BarChart2 size={14} strokeWidth={2} />
                                                     <span>{link.clicks || 0} {t('analytics.totalClicks').toUpperCase()}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                                                    <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-white border border-black text-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none">{t('links.moveTo')}</button>
-                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-black text-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'bg-white border-black text-black hover:bg-black hover:text-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none'}`}>{link.isArchived ? t('links.restore') : t('links.archive')}</button>
-                                                    <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-black text-white' : 'bg-white border-black text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
+                                                    <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] text-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_#1a1a1a] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none">{t('links.moveTo')}</button>
+                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-[#1a1a1a] text-[#ffdf00] shadow-[2px_2px_0px_0px_#1a1a1a]' : 'bg-white border-[#1a1a1a] text-black hover:bg-black hover:text-[#ffdf00] shadow-[2px_2px_0px_0px_#1a1a1a] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none'}`}>{link.isArchived ? t('links.restore') : t('links.archive')}</button>
+                                                    <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_#1a1a1a] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-[#1a1a1a] text-white' : 'bg-white border border-[#1a1a1a] text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
                                                 </div>
                                             </div>
 
@@ -607,71 +607,54 @@ function SortableLinkItem({
                     ) : (
                         /* STANDARD LINK ITEM */
                         <div className="flex flex-col">
-                            <div className={`flex border-b border-black items-stretch ${itemSize} ${isExpanded ? 'bg-transparent' : 'bg-white'}`}>
+                            <div className={`flex items-stretch ${isExpanded ? 'bg-transparent' : 'bg-white'}`}>
+                                {/* Drag Handle - Full Height */}
                                 <div
-                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black ${isExpanded ? 'bg-[#fefcbf]' : 'hover:bg-black hover:text-white'} border-r border-black touch-none transition-colors`}
+                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black border-r-2 border-[#1a1a1a] touch-none transition-colors hover:bg-black hover:text-[#ffdf00]`}
                                     onPointerDown={(e) => dragControls.start(e)}
                                 >
-                                    <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="9" cy="5" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="19" r="1" /></svg>
+                                    <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="5" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="19" r="1" /></svg>
                                 </div>
 
-                                <div
-                                    onClick={() => toggleLink(link.id)}
-                                    className={`flex-1 ${level > 0 ? 'py-1.5 md:py-2' : 'py-2 md:py-2.5'} pr-3 md:pr-4 flex items-center gap-2 md:gap-3 overflow-hidden ${isExpanded ? 'bg-transparent' : 'bg-white hover:bg-slate-50'} transition-colors duration-200 cursor-pointer`}
-                                >
-                                    <div className="text-black p-0.5 transition-colors shrink-0">
-                                        {isExpanded ? <ChevronDown size={iconSize} strokeWidth={3} /> : <ChevronRight size={iconSize} strokeWidth={3} />}
-                                    </div>
-
-                                    <div className="shrink-0">
-                                        <div className="relative">
-                                            {link.type === 'collection' ? (
-                                                <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black`}>{getThumbnailIcon()}</div>
-                                            ) : link.type === 'map' || link.title?.toLowerCase() === 'localização' ? (
-                                                <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black`}><MapPin size={iconSize} strokeWidth={3} /></div>
-                                            ) : link.type === 'agenda' ? (
-                                                <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black`}><CalendarIcon size={iconSize} strokeWidth={3} /></div>
-                                            ) : link.type === 'mediakit' ? (
-                                                <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-[#97cd7a] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black`}><BarChart3 size={iconSize} strokeWidth={3} /></div>
-                                            ) : link.image ? (
-                                                <div className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} border border-black overflow-hidden shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]`}>
-                                                    <img
-                                                        src={link.image}
-                                                        alt="Thumbnail"
-                                                        className="w-full h-full object-cover"
-                                                        loading="lazy"
-                                                        decoding="async"
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                                                    className={`${level > 0 ? 'w-8 h-8' : 'w-9 h-9'} bg-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center text-black hover:bg-black hover:text-[#ffdf00] transition-all`}
-                                                >{getThumbnailIcon()}</button>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex-1 min-w-0 group/title">
-                                        <div className="flex items-center gap-2 mb-0.5">
-                                            <div className="font-medium uppercase tracking-widest text-black truncate text-[11px] md:text-xs flex items-center gap-1.5">
-                                                {link.title || (link.type === 'header' ? t('links.headerItem') : link.type === 'mediakit' ? t('mediakit.title') : t('links.untitled'))}
-                                                {renderLinkTags()}
+                                <div className="flex-1 flex flex-col min-w-0">
+                                    {/* Top Row: Title & Toggle */}
+                                    <div
+                                        onClick={() => toggleLink(link.id)}
+                                        className="flex items-start justify-between p-4 pb-2 md:p-6 md:pb-3 cursor-pointer group"
+                                    >
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1.5">
+                                                <h3 className="font-bold text-sm md:text-base text-black uppercase tracking-tight truncate flex items-center gap-2">
+                                                    {link.title || (link.type === 'header' ? t('links.headerItem') : t('links.untitled'))}
+                                                    <Pencil size={12} className="opacity-0 group-hover:opacity-30 transition-opacity" />
+                                                </h3>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-[10px] md:text-[11px] text-black/50 font-medium uppercase tracking-wider truncate max-w-[80%]">
+                                                    {link.type === 'header' ? t('links.separatorText') : (link.url || t('links.yourNetworks'))}
+                                                </p>
+                                                {link.url && <Pencil size={10} className="opacity-0 group-hover:opacity-30 transition-opacity" />}
                                             </div>
                                         </div>
-                                        <div className="text-[9px] md:text-[10px] text-black/60 font-normal uppercase tracking-[0.1em] truncate leading-none">
-                                            {link.type === 'header' ? t('links.separatorText') : (link.url || t('links.yourNetworks'))}
+
+                                        <div className="flex items-center gap-4 shrink-0 pl-4">
+                                            <ToggleSwitch />
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-1.5 md:gap-4 shrink-0">
-                                        {renderTypeLabel()}
-                                        <ToggleSwitch />
+                                    <div className="flex items-center justify-between px-4 pb-4 md:px-6 md:pb-5">
+                                        <div className="flex items-center gap-4 md:gap-7 text-black/30">
+                                            <div className="flex items-center gap-2 text-[10px] md:text-[11px] font-medium uppercase tracking-widest text-black/40">
+                                                <BarChart2 size={iconSize - 4} strokeWidth={2} />
+                                                <span>{link.clicks || 0} CLICKS</span>
+                                            </div>
+                                        </div>
+
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(!showDeleteConfirm); }}
-                                            className={`p-1.5 md:p-2 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all ${showDeleteConfirm ? 'bg-red-500 text-white' : 'bg-white text-black hover:bg-red-400'}`}
+                                            className={`p-1.5 transition-colors ${showDeleteConfirm ? 'text-red-500' : 'text-black/20 hover:text-red-500'}`}
                                         >
-                                            <Trash2 size={isMobile ? 14 : 18} strokeWidth={3} />
+                                            <Trash2 size={isMobile ? 18 : 20} strokeWidth={2.5} />
                                         </button>
                                     </div>
                                 </div>
@@ -687,7 +670,7 @@ function SortableLinkItem({
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
                                         transition={{ duration: 0.2 }}
-                                        className="overflow-hidden bg-[#fefcbf] border-t border-black border-dashed"
+                                        className="overflow-hidden bg-[#fefcbf] border-t border-[#1a1a1a] border-dashed"
                                     >
                                         <div className={`${level > 0 ? 'p-3' : 'px-4 md:px-6 pb-6 pt-5'}`}>
                                             {link.type === 'agenda' ? (
@@ -695,7 +678,7 @@ function SortableLinkItem({
                                                     <div className="space-y-4 mb-6">
                                                         <div className="space-y-1">
                                                             <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.titleLabel')}</label>
-                                                            <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" placeholder={t('agenda.titlePlaceholder') || 'Título da Agenda'} />
+                                                            <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border-2 border-[#1a1a1a] px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[2px_2px_0px_0px_#1a1a1a]" placeholder={t('agenda.titlePlaceholder') || 'Título da Agenda'} />
                                                         </div>
                                                     </div>
                                                     <AgendaEditor link={link} onEventsChange={(events) => updateLink(link.id, 'events', events)} />
@@ -711,7 +694,7 @@ function SortableLinkItem({
                                                             {link.type !== 'collection' && link.type !== 'mediakit' && (
                                                                 <div className="relative shrink-0">
                                                                     {link.image ? (
-                                                                        <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border border-black bg-white relative group/img shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                                                                        <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border-2 border-[#1a1a1a] bg-white relative group/img shadow-[2px_2px_0px_0px_#1a1a1a]">
                                                                             <img
                                                                                 src={link.image}
                                                                                 alt="Thumbnail"
@@ -720,19 +703,19 @@ function SortableLinkItem({
                                                                                 decoding="async"
                                                                             />
                                                                             <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                                                <button onClick={() => fileInputRef.current?.click()} className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors">
-                                                                                    {isUploadingImage ? <Loader2 size={14} className="animate-spin" /> : <Pencil size={14} strokeWidth={3} />}
+                                                                                <button onClick={() => fileInputRef.current?.click()} className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] transition-colors">
+                                                                                    {isUploadingImage ? <Loader2 size={14} className="animate-spin" /> : <Pencil size={14} strokeWidth={2} />}
                                                                                 </button>
-                                                                                <button onClick={() => updateLink(link.id, 'image', undefined)} className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-colors"><Trash2 size={14} strokeWidth={3} /></button>
+                                                                                <button onClick={() => updateLink(link.id, 'image', undefined)} className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] transition-colors"><Trash2 size={14} strokeWidth={2} /></button>
                                                                             </div>
                                                                         </div>
                                                                     ) : (
                                                                         <button
                                                                             onClick={() => fileInputRef.current?.click()}
                                                                             disabled={isUploadingImage}
-                                                                            className="w-14 h-14 md:w-16 md:h-16 bg-white border border-dashed border-black flex flex-col items-center justify-center text-black hover:bg-black hover:text-[#ffdf00] transition-all group/btn shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50"
+                                                                            className="w-14 h-14 md:w-16 md:h-16 bg-white border-2 border-dashed border-[#1a1a1a] flex flex-col items-center justify-center text-black hover:bg-black hover:text-[#ffdf00] transition-all group/btn shadow-[4px_4px_0px_0px_#1a1a1a] disabled:opacity-50"
                                                                         >
-                                                                            {isUploadingImage ? <Loader2 size={18} className="animate-spin mb-0.5" /> : <ImageIcon size={18} className="mb-0.5" strokeWidth={3} />}
+                                                                            {isUploadingImage ? <Loader2 size={18} className="animate-spin mb-0.5" /> : <ImageIcon size={18} className="mb-0.5" strokeWidth={2} />}
                                                                             <span className="text-[8px] font-medium uppercase tracking-widest">{isUploadingImage ? '...' : t('links.imageLabel')}</span>
                                                                         </button>
                                                                     )}
@@ -742,17 +725,17 @@ function SortableLinkItem({
                                                             <div className="flex-1 min-w-0 space-y-4">
                                                                 <div className="space-y-1">
                                                                     <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.titleLabel')}</label>
-                                                                    <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" placeholder={link.type === 'header' ? t('links.sectionPlaceholder') : link.type === 'mediakit' ? t('mediakit.titlePlaceholder') || 'Título da Chamada' : t('links.titlePlaceholder')} />
+                                                                    <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[4px_4px_0px_0px_#1a1a1a]" placeholder={link.type === 'header' ? t('links.sectionPlaceholder') : link.type === 'mediakit' ? t('mediakit.titlePlaceholder') || 'Título da Chamada' : t('links.titlePlaceholder')} />
                                                                 </div>
                                                                 {link.type !== 'header' && (
                                                                     <div className="space-y-1">
                                                                         <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{link.type === 'mediakit' ? t('mediakit.contactUrlLabel') || 'URL de Contato (Ex: WhatsApp, Email)' : t('links.urlLabel')}</label>
-                                                                        <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className="w-full text-xs font-medium uppercase tracking-widest text-black bg-white border border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" placeholder={link.type === 'mediakit' ? t('mediakit.contactPlaceholder') || "https://wa.me/5511999999999" : "https://exemplo.com"} />
+                                                                        <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className="w-full text-xs font-medium uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[4px_4px_0px_0px_#1a1a1a]" placeholder={link.type === 'mediakit' ? t('mediakit.contactPlaceholder') || "https://wa.me/5511999999999" : "https://exemplo.com"} />
                                                                     </div>
                                                                 )}
                                                                 <div className="space-y-1">
                                                                     <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.subtitleLabel')}</label>
-                                                                    <input type="text" value={link.subtitle || ''} onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)} className="w-full text-xs font-normal uppercase tracking-wider text-black bg-white border border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" placeholder={link.type === 'mediakit' ? t('mediakit.subtitlePlaceholder') || 'Chamada para ação extra' : t('links.subtitlePlaceholder')} />
+                                                                    <input type="text" value={link.subtitle || ''} onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)} className="w-full text-xs font-normal uppercase tracking-wider text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[4px_4px_0px_0px_#1a1a1a]" placeholder={link.type === 'mediakit' ? t('mediakit.subtitlePlaceholder') || 'Chamada para ação extra' : t('links.subtitlePlaceholder')} />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -774,33 +757,33 @@ function SortableLinkItem({
                                                                         <button
                                                                             key={opt.id}
                                                                             onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                            className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black transition-all ${isActive ? 'bg-[#97cd7a] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -translate-x-1 -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-x-0.5 hover:-translate-y-0.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}`}
+                                                                            className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-xl transition-all ${isActive ? 'bg-[#97cd7a] shadow-[6px_6px_0px_0px_#1a1a1a] -translate-x-1 -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-x-0.5 hover:-translate-y-0.5 shadow-[4px_4px_0px_0px_#1a1a1a]'}`}
                                                                         >
                                                                             {isActive && (
-                                                                                <div className="absolute top-1 right-1 w-4 h-4 bg-black flex items-center justify-center border-2 border-black z-10 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)]">
-                                                                                    <Check size={10} strokeWidth={4} className="text-[#97cd7a]" />
+                                                                                <div className="absolute top-1 right-1 w-4 h-4 bg-black flex items-center justify-center border border-[#1a1a1a] z-10 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)]">
+                                                                                    <Check size={10} strokeWidth={2} className="text-[#97cd7a]" />
                                                                                 </div>
                                                                             )}
 
                                                                             <div className="flex-1 flex items-center justify-center w-full mb-1 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
                                                                                 {opt.id === 'classic' && (
-                                                                                    <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(0,0,0,0.15)]">
-                                                                                        <rect x="5" y="25" width="90" height="30" fill="white" stroke="black" strokeWidth="6" />
-                                                                                        <rect x="15" y="32" width="16" height="16" fill="black" />
-                                                                                        <rect x="40" y="35" width="45" height="4" fill="black" />
-                                                                                        <rect x="40" y="44" width="25" height="4" fill="black" opacity="0.3" />
+                                                                                    <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
+                                                                                        <rect x="5" y="25" width="90" height="30" fill="white" stroke="black" strokeWidth="6" rx="4" />
+                                                                                        <rect x="15" y="32" width="16" height="16" fill="black" rx="2" />
+                                                                                        <rect x="40" y="35" width="45" height="4" fill="black" rx="1" />
+                                                                                        <rect x="40" y="44" width="25" height="4" fill="black" opacity="0.3" rx="1" />
                                                                                     </svg>
                                                                                 )}
                                                                                 {opt.id === 'card' && (
-                                                                                    <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(0,0,0,0.15)]">
-                                                                                        <rect x="30" y="5" width="40" height="70" fill="white" stroke="black" strokeWidth="6" />
-                                                                                        <rect x="30" y="5" width="40" height="35" fill="black" stroke="black" strokeWidth="6" />
-                                                                                        <rect x="38" y="52" width="24" height="4" fill="black" />
-                                                                                        <rect x="38" y="62" width="12" height="4" fill="black" opacity="0.3" />
+                                                                                    <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
+                                                                                        <rect x="30" y="5" width="40" height="70" fill="white" stroke="black" strokeWidth="6" rx="4" />
+                                                                                        <rect x="30" y="5" width="40" height="35" fill="black" stroke="black" strokeWidth="6" rx="4" />
+                                                                                        <rect x="38" y="52" width="24" height="4" fill="black" rx="1" />
+                                                                                        <rect x="38" y="62" width="12" height="4" fill="black" opacity="0.3" rx="1" />
                                                                                     </svg>
                                                                                 )}
                                                                                 {opt.id === 'social' && (
-                                                                                    <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(0,0,0,0.15)]">
+                                                                                    <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
                                                                                         <rect x="30" y="10" width="40" height="4" fill="black" opacity="0.1" rx="1" />
                                                                                         <rect x="20" y="18" width="60" height="3" fill="black" opacity="0.1" rx="1" />
                                                                                         <rect x="40" y="30" width="20" height="20" fill="white" stroke="black" strokeWidth="5" rx="4" />
@@ -809,17 +792,17 @@ function SortableLinkItem({
                                                                                     </svg>
                                                                                 )}
                                                                                 {opt.id === 'carousel' && (
-                                                                                    <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(0,0,0,0.15)]">
-                                                                                        <rect x="12" y="15" width="46" height="50" fill="white" stroke="black" strokeWidth="6" strokeLinejoin="round" />
-                                                                                        <rect x="12" y="15" width="46" height="30" fill="black" stroke="black" strokeWidth="6" strokeLinejoin="round" />
-                                                                                        <rect x="22" y="53" width="26" height="4" fill="black" />
-                                                                                        <rect x="68" y="15" width="46" height="50" fill="white" stroke="black" strokeWidth="6" strokeLinejoin="round" />
-                                                                                        <rect x="68" y="15" width="46" height="30" fill="black" opacity="0.3" stroke="black" strokeWidth="6" strokeLinejoin="round" />
+                                                                                    <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
+                                                                                        <rect x="12" y="15" width="46" height="50" fill="white" stroke="black" strokeWidth="6" strokeLinejoin="round" rx="4" />
+                                                                                        <rect x="12" y="15" width="46" height="30" fill="black" stroke="black" strokeWidth="6" strokeLinejoin="round" rx="4" />
+                                                                                        <rect x="22" y="53" width="26" height="4" fill="black" rx="1" />
+                                                                                        <rect x="68" y="15" width="46" height="50" fill="white" stroke="black" strokeWidth="6" strokeLinejoin="round" rx="4" />
+                                                                                        <rect x="68" y="15" width="46" height="30" fill="black" opacity="0.3" stroke="black" strokeWidth="6" strokeLinejoin="round" rx="4" />
                                                                                     </svg>
                                                                                 )}
                                                                             </div>
 
-                                                                            <span className="text-[9px] font-black uppercase tracking-tight text-black text-center leading-none mt-auto">
+                                                                            <span className="text-[9px] font-bold uppercase tracking-tight text-black text-center leading-none mt-auto">
                                                                                 {opt.label}
                                                                             </span>
                                                                         </button>
@@ -829,19 +812,19 @@ function SortableLinkItem({
                                                         </div>
                                                     )}
                                                     {level === 0 && link.type === 'mediakit' && (
-                                                        <div className="flex-1 space-y-4 pt-4 mt-2 border-t border-black border-dashed">
+                                                        <div className="flex-1 space-y-4 pt-4 mt-2 border-t border-[#1a1a1a] border-dashed">
                                                             {!(profile.planType === 'monthly' || profile.planType === 'annual') ? (
-                                                                <div className="bg-slate-50 border-2 border-black p-8 text-center space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                                                                    <div className="w-16 h-16 bg-white border-2 border-black flex items-center justify-center mx-auto shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                                                        <Lock size={32} className="text-black" strokeWidth={3} />
+                                                                <div className="bg-slate-50 border-2 border-[#1a1a1a] p-8 text-center space-y-4 shadow-[3px_3px_0px_0px_#1a1a1a]">
+                                                                    <div className="w-16 h-16 bg-white border-2 border-[#1a1a1a] flex items-center justify-center mx-auto shadow-[2px_2px_0px_0px_#1a1a1a]">
+                                                                        <Lock size={32} className="text-black" strokeWidth={2} />
                                                                     </div>
                                                                     <div>
-                                                                        <h3 className="text-[11px] font-black uppercase tracking-widest text-black mb-2">{t('mediakit.locked')}</h3>
-                                                                        <p className="text-[9px] text-black/50 font-bold uppercase tracking-widest">{t('links.limitReachedDesc')}</p>
+                                                                        <h3 className="text-[11px] font-bold uppercase tracking-widest text-black mb-2">{t('mediakit.locked')}</h3>
+                                                                        <p className="text-[9px] text-black/50 font-semibold uppercase tracking-widest">{t('links.limitReachedDesc')}</p>
                                                                     </div>
                                                                     <button
                                                                         onClick={(e) => { e.stopPropagation(); /* logic to open billing */ }}
-                                                                        className="mt-2 text-[10px] font-black uppercase tracking-widest bg-white border-2 border-black px-4 py-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#ffdf00] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                                                                        className="mt-2 text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] px-4 py-2 shadow-[2px_2px_0px_0px_#1a1a1a] hover:bg-[#ffdf00] transition-all active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none"
                                                                     >
                                                                         {t('links.seePlans')}
                                                                     </button>
@@ -851,17 +834,17 @@ function SortableLinkItem({
                                                                     <div className="flex items-center justify-between px-1">
                                                                         <div className="flex items-end gap-3">
                                                                             <div>
-                                                                                <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] flex items-center gap-1.5"><DollarSign size={14} strokeWidth={3} /> {t('mediakit.myPackages')}</label>
+                                                                                <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] flex items-center gap-1.5"><DollarSign size={14} strokeWidth={2} /> {t('mediakit.myPackages')}</label>
                                                                                 <p className="text-[8px] font-medium text-black/50 uppercase tracking-widest mt-0.5">{t('mediakit.myPackagesDesc')}</p>
                                                                             </div>
-                                                                            <div className="flex bg-black/[0.05] rounded-sm p-0.5 mb-0.5 border border-black/5">
+                                                                            <div className="flex bg-black/[0.05] rounded-sm p-0.5 mb-0.5 border border-[#1a1a1a]/5">
                                                                                 <button
                                                                                     onClick={() => updateLink(link.id, 'currency', 'BRL')}
-                                                                                    className={`px-1.5 py-0.5 text-[8px] font-black rounded-sm transition-all ${(!link.currency || link.currency === 'BRL') ? 'bg-white text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]' : 'text-black/30 hover:text-black'}`}
+                                                                                    className={`px-1.5 py-0.5 text-[8px] font-bold rounded-sm transition-all ${(!link.currency || link.currency === 'BRL') ? 'bg-white text-black shadow-[5px_5px_0px_0px_rgba(26,26,26,1)]' : 'text-black/30 hover:text-black'}`}
                                                                                 >BRL</button>
                                                                                 <button
                                                                                     onClick={() => updateLink(link.id, 'currency', 'USD')}
-                                                                                    className={`px-1.5 py-0.5 text-[8px] font-black rounded-sm transition-all ${link.currency === 'USD' ? 'bg-white text-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]' : 'text-black/30 hover:text-black'}`}
+                                                                                    className={`px-1.5 py-0.5 text-[8px] font-bold rounded-sm transition-all ${link.currency === 'USD' ? 'bg-white text-black shadow-[5px_5px_0px_0px_rgba(26,26,26,1)]' : 'text-black/30 hover:text-black'}`}
                                                                                 >USD</button>
                                                                             </div>
                                                                         </div>
@@ -870,29 +853,29 @@ function SortableLinkItem({
                                                                             const defaultPrice = link.currency === 'USD' ? '$ 0.00' : 'R$ 0,00';
                                                                             const newPackage = { id: crypto.randomUUID(), clientId: crypto.randomUUID(), title: 'Publi Completa', subtitle: 'Ex: 1 Reel + 2 Stories', url: defaultPrice, isActive: true, layout: 'list' as const, type: 'link' as const };
                                                                             updateLink(link.id, 'children', [...(link.children || []), newPackage]);
-                                                                        }} className="px-2 py-1.5 text-[9px] bg-white border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black hover:bg-[#97cd7a] uppercase font-black tracking-widest active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all">+ {t('mediakit.addPackage') || t('common.add')}</button>
+                                                                        }} className="px-2 py-1.5 text-[9px] bg-white border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] text-black hover:bg-[#97cd7a] uppercase font-bold tracking-widest active:translate-x-[1px] active:translate-y-[1px] active:shadow-none">+ {t('mediakit.addPackage') || t('common.add')}</button>
                                                                     </div>
                                                                     <div className="space-y-3">
                                                                         {(link.children || []).map((pkg, i) => (
-                                                                            <div key={pkg.id} className="flex gap-3 p-3 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] items-center group/pkg">
+                                                                            <div key={pkg.id} className="flex gap-3 p-3 bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] items-center group/pkg">
                                                                                 <div className="flex-1 space-y-2">
                                                                                     <input type="text" value={pkg.title} onChange={(e) => {
                                                                                         const newChildren = [...(link.children || [])];
                                                                                         newChildren[i].title = e.target.value;
                                                                                         updateLink(link.id, 'children', newChildren);
-                                                                                    }} className="w-full text-[11px] font-black uppercase tracking-widest text-black border-b border-dashed border-black/20 pb-1 focus:border-black outline-none bg-transparent" placeholder={t('mediakit.packageTitlePlaceholder')} />
+                                                                                    }} className="w-full text-[11px] font-bold uppercase tracking-widest text-black border-b border-dashed border-[#1a1a1a]/20 pb-1 focus:border-[#1a1a1a] outline-none bg-transparent" placeholder={t('mediakit.packageTitlePlaceholder')} />
                                                                                     <input type="text" value={pkg.subtitle || ''} onChange={(e) => {
                                                                                         const newChildren = [...(link.children || [])];
                                                                                         newChildren[i].subtitle = e.target.value;
                                                                                         updateLink(link.id, 'children', newChildren);
-                                                                                    }} className="w-full text-[9px] font-medium uppercase tracking-[0.1em] text-black/60 border-b border-dashed border-black/20 pb-1 focus:border-black outline-none bg-transparent" placeholder={t('mediakit.packageSubtitlePlaceholder')} />
+                                                                                    }} className="w-full text-[9px] font-medium uppercase tracking-[0.1em] text-black/60 border-b border-dashed border-[#1a1a1a]/20 pb-1 focus:border-[#1a1a1a] outline-none bg-transparent" placeholder={t('mediakit.packageSubtitlePlaceholder')} />
                                                                                 </div>
                                                                                 <div className="w-[120px] shrink-0 flex flex-col items-end gap-1 px-1">
                                                                                     <input type="text" value={pkg.url} onChange={(e) => {
                                                                                         const newChildren = [...(link.children || [])];
                                                                                         newChildren[i].url = e.target.value;
                                                                                         updateLink(link.id, 'children', newChildren);
-                                                                                    }} className="w-full text-base font-black text-right border-b-2 border-black focus:border-black px-1 py-1 outline-none bg-transparent" placeholder={link.currency === 'USD' ? '$ 0.00' : 'R$ 0,00'} />
+                                                                                    }} className="w-full text-base font-bold text-right border-b-2 border-[#1a1a1a] focus:border-[#1a1a1a] px-1 py-1 outline-none bg-transparent" placeholder={link.currency === 'USD' ? '$ 0.00' : 'R$ 0,00'} />
                                                                                     <button onClick={() => {
                                                                                         const newChildren = [...(link.children || [])];
                                                                                         newChildren.splice(i, 1);
@@ -902,7 +885,7 @@ function SortableLinkItem({
                                                                             </div>
                                                                         ))}
                                                                         {(link.children?.length === 0 || !link.children) && (
-                                                                            <div className="text-[9px] text-center p-6 border-2 border-dashed border-black/10 bg-black/5 text-black/40 uppercase tracking-[0.2em] font-black">{t('mediakit.noPackages')}</div>
+                                                                            <div className="text-[9px] text-center p-6 border-2 border-dashed border-[#1a1a1a]/10 bg-black/5 text-black/40 uppercase tracking-[0.2em] font-bold">{t('mediakit.noPackages')}</div>
                                                                         )}
                                                                     </div>
                                                                 </>
@@ -912,97 +895,156 @@ function SortableLinkItem({
                                                 </div>
                                             )}
 
-                                            {/* Scheduling & Footer Actions */}
-                                            <div className="space-y-4 md:space-y-6 mb-6 md:mb-8 pt-6 border-t border-black border-dashed">
-                                                {link.type !== 'agenda' && link.type !== 'mediakit' && (
-                                                    <div className="space-y-3">
-                                                        <div className="flex items-center justify-between">
-                                                            <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('links.schedule')} (PRO)</label>
-                                                            {(!profile.planType || profile.planType === 'free') && (
-                                                                <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-black text-[9px] font-black uppercase tracking-tight shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
-                                                                    <motion.div
-                                                                        animate={{ x: ['-200%', '200%'] }}
-                                                                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                                                                        className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 z-0"
-                                                                    />
-                                                                    <span className="relative z-10">{t('links.locked')}</span>
-                                                                </span>
-                                                            )}
+                                            {/* 🛠️ Organized Settings Grid (Animations & PRO Features) */}
+                                            {link.type !== 'header' && (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-10 pt-8 mt-8 border-t border-[#1a1a1a] border-dashed items-start">
+
+                                                    {/* 🎬 Section 1: Animations */}
+                                                    <div className="space-y-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="p-1 px-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_#1a1a1a] rounded-lg">
+                                                                <Zap size={10} strokeWidth={3} className="text-black" />
+                                                            </div>
+                                                            <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em]">{t('links.animations')}</label>
                                                         </div>
-                                                        <div className={`p-2 border mt-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-black opacity-60 pointer-events-none grayscale' : 'bg-white border-black'}`}>
-                                                            <div className="grid grid-cols-1 gap-2.5">
-                                                                <div className="space-y-1.5">
-                                                                    <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-black">
-                                                                        <div className={`w-2.5 h-2.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-[#97cd7a]' : 'bg-white'}`}></div>
-                                                                        {t('links.scheduleStart')}
+
+                                                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
+                                                            {[
+                                                                { id: 'none', label: t('links.animNone'), icon: Ban },
+                                                                { id: 'pulse', label: t('links.animPulse'), icon: Activity },
+                                                                { id: 'bounce', label: t('links.animBounce'), icon: Zap },
+                                                                { id: 'shake', label: t('links.animShake'), icon: Smartphone },
+                                                                { id: 'glow', label: t('links.animGlow'), icon: Sun },
+                                                                { id: 'wobble', label: t('links.animWobble'), icon: Waves },
+                                                                { id: 'tada', label: t('links.animTada'), icon: Sparkles },
+                                                                { id: 'jello', label: t('links.animJello'), icon: Package },
+                                                                { id: 'rubberBand', label: t('links.animRubber'), icon: PartyPopper },
+                                                                { id: 'heartbeat', label: t('links.animHeartbeat'), icon: Heart },
+                                                                { id: 'flash', label: t('links.animFlash'), icon: Zap },
+                                                                { id: 'swing', label: t('links.animSwing'), icon: RotateCw },
+                                                                { id: 'pulsar', label: t('links.animPulsar'), icon: Disc },
+                                                                { id: 'flip', label: t('links.animFlip'), icon: RefreshCw }
+                                                            ].map((anim) => {
+                                                                const AnimIcon = anim.icon;
+                                                                const isSelected = (link.highlight || 'none') === anim.id;
+
+                                                                return (
+                                                                    <button
+                                                                        key={anim.id}
+                                                                        onClick={() => updateLink(link.id, 'highlight', anim.id as any)}
+                                                                        className={`flex flex-col items-center justify-center gap-2 px-2 py-3 rounded-2xl border-2 transition-all duration-200 group relative
+                                                                            ${isSelected
+                                                                                ? 'bg-[#ffdf00] border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] translate-x-[-1px] translate-y-[-1px]'
+                                                                                : 'bg-white border-[#1a1a1a]/10 hover:border-[#1a1a1a] hover:shadow-[3px_3px_0px_0px_#1a1a1a] text-black/40 hover:text-black hover:translate-x-[-1px] hover:translate-y-[-1px]'}`}
+                                                                    >
+                                                                        <AnimIcon size={14} strokeWidth={isSelected ? 3 : 2} className={isSelected ? 'text-black' : 'text-black/30 group-hover:text-black'} />
+                                                                        <span className={`text-[8px] font-bold uppercase tracking-wider ${isSelected ? 'text-black' : 'text-black/40 group-hover:text-black'}`}>
+                                                                            {anim.label}
+                                                                        </span>
+
+                                                                        {isSelected && (
+                                                                            <motion.div
+                                                                                layoutId={`active-link-anim-${link.id}`}
+                                                                                className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-black border border-white rounded-full z-10"
+                                                                            />
+                                                                        )}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* 📅 Section 2: Scheduling (PRO) */}
+                                                    {link.type !== 'agenda' && link.type !== 'mediakit' && (
+                                                        <div className="space-y-4">
+                                                            <div className="flex items-center justify-between">
+                                                                <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('links.schedule')} (PRO)</label>
+                                                                {(!profile.planType || profile.planType === 'free') && (
+                                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[2px_2px_0px_0px_#1a1a1a] relative overflow-hidden rounded-lg">
+                                                                        <motion.div
+                                                                            animate={{ x: ['-200%', '200%'] }}
+                                                                            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                                                                            className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 z-0"
+                                                                        />
+                                                                        <span className="relative z-10">{t('links.locked')}</span>
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className={`p-4 border-2 shadow-[4px_4px_0px_0px_#1a1a1a] rounded-3xl ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
+                                                                <div className="grid grid-cols-1 gap-4">
+                                                                    <div className="space-y-1.5">
+                                                                        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-black">
+                                                                            <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[1.5px_1.5px_0px_0px_#1a1a1a] rounded-sm ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-[#97cd7a]' : 'bg-white'}`}></div>
+                                                                            {t('links.scheduleStart')}
+                                                                        </div>
+                                                                        <input type="datetime-local" value={link.scheduleStart ? new Date(new Date(link.scheduleStart).getTime() - new Date(link.scheduleStart).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleStart', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[2px_2px_0px_0px_#1a1a1a] rounded-xl" />
                                                                     </div>
-                                                                    <input type="datetime-local" value={link.scheduleStart ? new Date(new Date(link.scheduleStart).getTime() - new Date(link.scheduleStart).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleStart', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-black uppercase tracking-widest text-black bg-white border border-black px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" />
-                                                                </div>
-                                                                <div className="space-y-1.5">
-                                                                    <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-black">
-                                                                        <div className={`w-2.5 h-2.5 border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-white'}`}></div>
-                                                                        {t('links.scheduleEnd')}
+                                                                    <div className="space-y-1.5">
+                                                                        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-black">
+                                                                            <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[1.5px_1.5px_0px_0px_#1a1a1a] rounded-sm ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-white'}`}></div>
+                                                                            {t('links.scheduleEnd')}
+                                                                        </div>
+                                                                        <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px) font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[2px_2px_0px_0px_#1a1a1a] rounded-xl" />
                                                                     </div>
-                                                                    <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-black uppercase tracking-widest text-black bg-white border border-black px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" />
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                )}
+                                                    )}
 
-                                                {/* 🔐 Password Protection (PRO) */}
-                                                {link.type !== 'agenda' && link.type !== 'header' && link.type !== 'mediakit' && (
-                                                    <div className="space-y-3">
-                                                        <div className="flex items-center justify-between">
-                                                            <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('passwordLink.toggle') || 'Proteger com Senha'} (PRO)</label>
-                                                            {(!profile.planType || profile.planType === 'free') && (
-                                                                <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-black text-[9px] font-black uppercase tracking-tight shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
-                                                                    <motion.div
-                                                                        animate={{ x: ['-200%', '200%'] }}
-                                                                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                                                                        className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 z-0"
-                                                                    />
-                                                                    <span className="relative z-10">{t('links.locked')}</span>
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <div className={`p-2 border mt-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-black opacity-60 pointer-events-none grayscale' : 'bg-white border-black'}`}>
-                                                            <div className="flex items-center gap-3 mb-2">
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => updateLink(link.id, 'isPasswordProtected', !link.isPasswordProtected)}
-                                                                    className={`relative w-8 h-4 border-2 border-black transition-colors shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${link.isPasswordProtected ? 'bg-black' : 'bg-white'}`}
-                                                                >
-                                                                    <div className={`absolute top-0 w-3 h-3 transition-all ${link.isPasswordProtected ? 'left-3.5 bg-[#97cd7a]' : 'left-0 bg-black/30'}`} />
-                                                                </button>
-                                                                <span className="text-[9px] font-bold uppercase tracking-widest text-black/70">
-                                                                    {link.isPasswordProtected ? (t('passwordLink.enabled') || 'Ativado') : (t('passwordLink.disabled') || 'Desativado')}
-                                                                </span>
+                                                    {/* 🔐 Section 3: Password Protection (PRO) */}
+                                                    {link.type !== 'agenda' && link.type !== 'mediakit' && (
+                                                        <div className="space-y-4">
+                                                            <div className="flex items-center justify-between">
+                                                                <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('passwordLink.toggle') || 'Proteger com Senha'} (PRO)</label>
+                                                                {(!profile.planType || profile.planType === 'free') && (
+                                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[2px_2px_0px_0px_#1a1a1a] relative overflow-hidden rounded-lg">
+                                                                        <motion.div
+                                                                            animate={{ x: ['-200%', '200%'] }}
+                                                                            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                                                                            className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 z-0"
+                                                                        />
+                                                                        <span className="relative z-10">{t('links.locked')}</span>
+                                                                    </span>
+                                                                )}
                                                             </div>
-                                                            {link.isPasswordProtected && (
-                                                                <input
-                                                                    type="password"
-                                                                    value={(link as any).linkPassword || ''}
-                                                                    onChange={e => updateLink(link.id, 'linkPassword' as any, e.target.value)}
-                                                                    placeholder={t('passwordLink.placeholder') || 'Digite a senha de acesso...'}
-                                                                    className="w-full text-[10px] font-medium uppercase tracking-widest text-black bg-white border border-black px-2 py-1.5 focus:bg-[#fffde7] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                                                                    autoComplete="new-password"
-                                                                />
-                                                            )}
+                                                            <div className={`p-4 border-2 shadow-[4px_4px_0px_0px_#1a1a1a] rounded-3xl ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
+                                                                <div className="flex items-center gap-3 mb-4">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => updateLink(link.id, 'isPasswordProtected', !link.isPasswordProtected)}
+                                                                        className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-colors shadow-[1.5px_1.5px_0px_0px_#1a1a1a] rounded-full ${link.isPasswordProtected ? 'bg-black' : 'bg-white'}`}
+                                                                    >
+                                                                        <div className={`absolute top-[1.5px] w-3 h-3 transition-all rounded-full ${link.isPasswordProtected ? 'left-[22px] bg-[#97cd7a]' : 'left-[2px] bg-black/30'}`} />
+                                                                    </button>
+                                                                    <span className="text-[9px] font-bold uppercase tracking-widest text-black/70">
+                                                                        {link.isPasswordProtected ? (t('passwordLink.enabled') || 'Ativado') : (t('passwordLink.disabled') || 'Desativado')}
+                                                                    </span>
+                                                                </div>
+                                                                {link.isPasswordProtected && (
+                                                                    <input
+                                                                        type="password"
+                                                                        value={(link as any).linkPassword || ''}
+                                                                        onChange={e => updateLink(link.id, 'linkPassword' as any, e.target.value)}
+                                                                        placeholder={t('passwordLink.placeholder') || 'Digite a senha...'}
+                                                                        className="w-full text-[10px] font-medium uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[2px_2px_0px_0px_#1a1a1a] rounded-xl"
+                                                                        autoComplete="new-password"
+                                                                    />
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                )}
-                                            </div>
+                                                    )}
+                                                </div>
+                                            )}
 
-                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 mt-4 border-t border-black border-dashed gap-4">
-                                                <div className="flex items-center gap-2 text-black font-black uppercase tracking-widest text-[10px] sm:shrink-0">
-                                                    <BarChart2 size={14} strokeWidth={3} />
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 mt-4 border-t border-[#1a1a1a] border-dashed gap-4">
+                                                <div className="flex items-center gap-2 text-black font-bold uppercase tracking-widest text-[10px] sm:shrink-0">
+                                                    <BarChart2 size={14} strokeWidth={2} />
                                                     <span>{link.clicks || 0} {t('analytics.totalClicks').toUpperCase()}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                                                    <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-white border border-black text-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">{t('links.moveTo')}</button>
-                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-black text-[#ffdf00]' : 'bg-white border-black text-black hover:bg-black hover:text-[#ffdf00]'}`}>{link.isArchived ? t('links.restore') : t('links.archive')}</button>
-                                                    <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${showDeleteConfirm ? 'bg-red-500 border-black text-white' : 'bg-white border-black text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
+                                                    <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] text-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_#1a1a1a] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none">{t('links.moveTo')}</button>
+                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-[#1a1a1a] text-[#ffdf00] shadow-[2px_2px_0px_0px_#1a1a1a]' : 'bg-white border-[#1a1a1a] text-black hover:bg-black hover:text-[#ffdf00] shadow-[2px_2px_0px_0px_#1a1a1a] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none'}`}>{link.isArchived ? t('links.restore') : t('links.archive')}</button>
+                                                    <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_#1a1a1a] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-[#1a1a1a] text-white' : 'bg-white border border-[#1a1a1a] text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -1012,7 +1054,7 @@ function SortableLinkItem({
                         </div>
                     )}
                 </div>
-            </Reorder.Item >
+            </Reorder.Item>
         </>
     );
 }

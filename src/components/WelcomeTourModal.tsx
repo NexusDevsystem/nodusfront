@@ -20,7 +20,7 @@ const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ isOpen, onAccept, o
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-black/80 md:bg-black/60 md:backdrop-blur-sm pointer-events-auto"
+                        className="absolute inset-0 bg-[#1a1a1a]/80 md:bg-[#1a1a1a]/60 md:backdrop-blur-sm pointer-events-auto"
                         onClick={onDecline}
                     />
                     <motion.div
@@ -28,14 +28,14 @@ const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ isOpen, onAccept, o
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: "100%" }}
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="relative bg-white border-2 border-black p-8 md:p-8 rounded-none shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] w-full md:max-w-sm flex flex-col items-center text-center font-sans overflow-hidden pointer-events-auto"
+                        className="relative bg-white border-2 border-[#1a1a1a] p-8 md:p-8 rounded-none shadow-[4px_4px_0px_0px_#1a1a1a] w-full md:max-w-sm flex flex-col items-center text-center font-sans overflow-hidden pointer-events-auto"
                     >
                         {/* Decorative Background Elements */}
                         <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#ffdf00] rounded-none mix-blend-multiply opacity-20 pointer-events-none blur-2xl"></div>
                         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-[#97cd7a] rounded-none mix-blend-multiply opacity-20 pointer-events-none blur-2xl"></div>
 
                         {/* Top Icon */}
-                        <div className="w-16 h-16 bg-[#ffdf00] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-6 relative z-10">
+                        <div className="w-16 h-16 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] flex items-center justify-center mb-6 relative z-10">
                             <Sparkles size={28} className="text-black" strokeWidth={2.5} />
                         </div>
 
@@ -51,14 +51,14 @@ const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ isOpen, onAccept, o
                         <div className="w-full flex w-full flex-col gap-3 relative z-10">
                             <button
                                 onClick={onAccept}
-                                className="w-full bg-[#97cd7a] text-black border-2 border-black py-3.5 rounded-none text-[14px] font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-[4px] active:translate-y-[4px] active:shadow-none flex items-center justify-center gap-2"
+                                className="w-full bg-[#97cd7a] text-black border-2 border-[#1a1a1a] py-3.5 rounded-none text-[14px] font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] transition-all active:translate-x-[4px] active:translate-y-[4px] active:shadow-none flex items-center justify-center gap-2"
                             >
                                 <Map size={18} strokeWidth={2.5} />
                                 Iniciar Tour Guiado
                             </button>
                             <button
                                 onClick={onDecline}
-                                className="w-full bg-white text-black/50 border-2 border-black py-3.5 rounded-none text-[12px] font-bold uppercase tracking-widest hover:bg-black/5 hover:text-black transition-all active:scale-95 flex items-center justify-center gap-2"
+                                className="w-full bg-white text-black/50 border-2 border-[#1a1a1a] py-3.5 rounded-none text-[12px] font-bold uppercase tracking-widest hover:bg-[#1a1a1a]/5 hover:text-black transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
                                 <X size={16} strokeWidth={2.5} />
                                 Pular por enquanto

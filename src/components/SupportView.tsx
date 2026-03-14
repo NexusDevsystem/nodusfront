@@ -67,7 +67,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
     return (
         <div className="max-w-5xl mx-auto pb-20 px-6 animate-fade-in">
             {/* Header - Brutalist */}
-            <div className="border-b-2 border-black pb-6 mb-8 pt-8">
+            <div className="border-b-2 border-[#1a1a1a] pb-6 mb-8 pt-8">
                 <h1 className="text-xl font-black text-black uppercase tracking-widest">{t('support.title')}</h1>
                 <p className="text-[10px] text-black font-black uppercase tracking-widest mt-1 opacity-60">{t('support.subtitle')}</p>
             </div>
@@ -84,7 +84,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                             placeholder={t('support.searchPlaceholder')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-9 pr-4 py-3 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-[10px] font-black uppercase tracking-widest focus:outline-none focus:translate-x-[1px] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/20"
+                            className="w-full pl-9 pr-4 py-3 bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] text-[10px] font-black uppercase tracking-widest focus:outline-none focus:translate-x-[1px] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/20"
                         />
                     </div>
 
@@ -94,7 +94,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                         <div className="flex flex-col gap-2">
                             <button
                                 onClick={() => setActiveCategory(null)}
-                                className={`w-full text-left px-4 py-2.5 border-2 border-black text-[10px] font-black uppercase tracking-widest transition-all ${!activeCategory ? 'bg-black text-[#97cd7a] shadow-none translate-x-[1px] translate-y-[1px]' : 'bg-white text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#97cd7a]'}`}
+                                className={`w-full text-left px-4 py-2.5 border-2 border-[#1a1a1a] text-[10px] font-black uppercase tracking-widest transition-all ${!activeCategory ? 'bg-[#1a1a1a] text-[#97cd7a] shadow-none translate-x-[1px] translate-y-[1px]' : 'bg-white text-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:bg-[#97cd7a]'}`}
                             >
                                 {t('support.all')}
                             </button>
@@ -102,7 +102,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                                 <button
                                     key={cat.id}
                                     onClick={() => setActiveCategory(cat.id)}
-                                    className={`w-full text-left px-4 py-2.5 border-2 border-black text-[10px] font-black uppercase tracking-widest transition-all ${activeCategory === cat.id ? 'bg-black text-[#97cd7a] shadow-none translate-x-[1px] translate-y-[1px]' : 'bg-white text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-[#97cd7a]'}`}
+                                    className={`w-full text-left px-4 py-2.5 border-2 border-[#1a1a1a] text-[10px] font-black uppercase tracking-widest transition-all ${activeCategory === cat.id ? 'bg-[#1a1a1a] text-[#97cd7a] shadow-none translate-x-[1px] translate-y-[1px]' : 'bg-white text-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:bg-[#97cd7a]'}`}
                                 >
                                     {cat.label}
                                 </button>
@@ -111,10 +111,10 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                     </div>
 
                     {/* Contact Links - Brutalist */}
-                    <div className="pt-6 border-t border-black border-dashed">
+                    <div className="pt-6 border-t border-[#1a1a1a] border-dashed">
                         <h3 className="text-[10px] font-black text-black uppercase tracking-widest mb-4 px-1">{t('support.directContact')}</h3>
                         <div className="space-y-3">
-                            <div className="p-3 bg-white border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="p-3 bg-white border border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]">
                                 <p className="text-[8px] font-black text-black/40 uppercase tracking-widest mb-1">E-mail</p>
                                 <a href="mailto:nexusdevsystem@gmail.com" className="text-[9px] font-black text-black hover:text-[#32a800] uppercase tracking-widest flex items-center gap-1 group truncate">
                                     nexusdevsystem@gmail.com
@@ -123,7 +123,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                             </div>
 
                             <div
-                                className={`p-3 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all ${!userProfile?.planType || userProfile.planType === 'free' ? 'bg-slate-50 opacity-100 cursor-pointer group' : 'bg-white'}`}
+                                className={`p-3 border border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] transition-all ${!userProfile?.planType || userProfile.planType === 'free' ? 'bg-slate-50 opacity-100 cursor-pointer group' : 'bg-white'}`}
                                 onClick={() => {
                                     if (!userProfile?.planType || userProfile.planType === 'free') {
                                         window.dispatchEvent(new CustomEvent('open-billing-modal'));
@@ -133,7 +133,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                                 <div className="flex justify-between items-start mb-1">
                                     <p className="text-[8px] font-black text-black/40 uppercase tracking-widest">WhatsApp</p>
                                     {(!userProfile?.planType || userProfile.planType === 'free') && (
-                                        <div className="flex items-center gap-1 bg-black px-1.5 py-0.5 -mt-1 -mr-1">
+                                        <div className="flex items-center gap-1 bg-[#1a1a1a] px-1.5 py-0.5 -mt-1 -mr-1">
                                             <Lock size={8} className="text-[#97cd7a]" strokeWidth={3} />
                                             <span className="text-[7px] font-black text-[#97cd7a] uppercase tracking-tighter">PREMIUM</span>
                                         </div>
@@ -165,7 +165,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                                 </p>
                             </div>
 
-                            <div className="bg-white p-6 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="bg-white p-6 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]">
                                 {isSubmitted ? (
                                     <div className="text-center py-8">
                                         <div className="text-black font-black uppercase tracking-widest mb-2">{t('support.feedbackSent')}</div>
@@ -185,7 +185,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                                                 value={feedbackText}
                                                 onChange={(e) => setFeedbackText(e.target.value)}
                                                 rows={6}
-                                                className="w-full px-4 py-4 bg-white border border-black text-[11px] font-bold uppercase tracking-widest focus:outline-none focus:bg-slate-50 transition-colors resize-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-black/10"
+                                                className="w-full px-4 py-4 bg-white border border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest focus:outline-none focus:bg-slate-50 transition-colors resize-none shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] placeholder:text-black/10"
                                                 placeholder={t('support.messagePlaceholder')}
                                                 required
                                             />
@@ -193,7 +193,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                                         <div className="flex justify-end">
                                             <button
                                                 type="submit"
-                                                className="px-8 py-3 bg-black text-[#97cd7a] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[10px] font-black uppercase tracking-widest hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                                                className="px-8 py-3 bg-[#1a1a1a] text-[#97cd7a] border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] text-[10px] font-black uppercase tracking-widest hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
                                             >
                                                 {t('support.sendFeedbackButton')}
                                             </button>
@@ -212,10 +212,10 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                                 </h2>
                             </div>
 
-                            <div className="border-t-2 border-black">
+                            <div className="border-t-2 border-[#1a1a1a]">
                                 {filteredFaqs.length > 0 ? (
                                     filteredFaqs.map(faq => (
-                                        <div key={faq.id} className="border-b border-black">
+                                        <div key={faq.id} className="border-b border-[#1a1a1a]">
                                             <button
                                                 onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
                                                 className="w-full flex items-start justify-between py-5 text-left group hover:bg-[#97cd7a]/10 transition-colors px-2"
@@ -223,7 +223,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                                                 <span className={`text-[11px] font-black uppercase tracking-widest pr-8 ${expandedFaq === faq.id ? 'text-black' : 'text-black opacity-70 group-hover:opacity-100'}`}>
                                                     {faq.question}
                                                 </span>
-                                                <div className={`shrink-0 border border-black p-0.5 transition-all ${expandedFaq === faq.id ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
+                                                <div className={`shrink-0 border border-[#1a1a1a] p-0.5 transition-all ${expandedFaq === faq.id ? 'bg-[#1a1a1a] text-[#97cd7a]' : 'bg-white text-black'}`}>
                                                     <ChevronDown
                                                         size={14}
                                                         strokeWidth={4}

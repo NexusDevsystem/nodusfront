@@ -2,7 +2,6 @@ import React from 'react';
 import { UserProfile, Theme } from '../types';
 
 // Theme Background Imports
-import { Background as NodusOfficialBackground } from '../themes/nodus-official';
 import { Background as KawaiiSakuraBackground } from '../themes/kawaii-sakura';
 import ModernVisualizer from '../themes/modern/ModernVisualizer';
 import AdvocacyVisualizer from '../themes/advocacy/AdvocacyVisualizer';
@@ -118,8 +117,6 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
         }
 
         switch (currentTheme.id) {
-            case 'animated-nodus-official':
-                return <NodusOfficialBackground />;
             case 'kawaii-sakura':
                 return <KawaiiSakuraBackground />;
 

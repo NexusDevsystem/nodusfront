@@ -40,7 +40,7 @@ export const YouTubeCard: React.FC<YouTubeCardProps> = ({
     };
 
     return (
-        <div className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${themeButtonClass} h-[80px] p-0 items-center justify-between`}
+        <div className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${themeButtonClass} h-[72px] p-0 items-center justify-between`}
             style={themeButtonStyle}>
 
             <div className="flex h-full items-center px-4 sm:px-5 gap-3.5 flex-1 min-w-0">

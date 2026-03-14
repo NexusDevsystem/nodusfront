@@ -13,7 +13,7 @@ export const kawaiiThemes: Theme[] = [
         avatarBorder: 'border-white border-4 shadow-lg ring-4 ring-[#B5FFFC]/50',
         fontFamily: "'Quicksand', sans-serif",
         category: 'kawaii',
-        isPro: false
+        isPro: true
     },
     {
         id: 'kawaii-minty-fresh',
@@ -26,7 +26,7 @@ export const kawaiiThemes: Theme[] = [
         avatarBorder: 'border-[#A7F3D0] border-4 border-dashed shadow-none',
         fontFamily: "'Varela Round', sans-serif",
         category: 'kawaii',
-        isPro: false
+        isPro: true
     },
     {
         id: 'kawaii-honey-bee',
@@ -39,7 +39,7 @@ export const kawaiiThemes: Theme[] = [
         avatarBorder: 'border-[#FDD835] border-4 shadow-xl',
         fontFamily: "'Fredoka', sans-serif", // Rounded & Bouncy
         category: 'kawaii',
-        isPro: false
+        isPro: true
     },
     {
         id: 'kawaii-lavender-soft',
@@ -52,7 +52,7 @@ export const kawaiiThemes: Theme[] = [
         avatarBorder: 'border-[#E1BEE7] border-4 shadow-[0_0_20px_rgba(168,85,247,0.4)]',
         fontFamily: "'Comfortaa', sans-serif",
         category: 'kawaii',
-        isPro: false
+        isPro: true
     },
     {
         id: 'kawaii-peach-milk',
@@ -65,6 +65,6 @@ export const kawaiiThemes: Theme[] = [
         avatarBorder: 'border-[#FFCCBC] border-4 shadow-[4px_4px_0px_0px_rgba(191,54,12,0.2)]',
         fontFamily: "'Sniglet', 'Fredoka', sans-serif",
         category: 'kawaii',
-        isPro: false
+        isPro: true
     }
 ];

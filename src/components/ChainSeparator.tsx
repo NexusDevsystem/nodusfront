@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function ChainSeparator() {
     return (
-        <div className="w-full h-24 bg-[#97cd7a] border-y-2 border-black overflow-hidden relative flex items-center">
+        <div className="w-full h-24 bg-[#97cd7a] border-y-2 border-[#1a1a1a] overflow-hidden relative flex items-center">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-20 pointer-events-none"
                 style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '16px 16px' }}>
@@ -13,7 +13,7 @@ export default function ChainSeparator() {
                 {/* We repeat the pattern block to ensure seamless looping */}
                 {[...Array(20)].map((_, i) => (
                     <div key={i} className="flex shrink-0">
-                        <svg width="120" height="60" viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
+                        <svg width="120" height="60" viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[4px_4px_0px_rgba(26,26,26,0.2)]">
                             {/* Link Body (Black Border) */}
                             <path
                                 d="M15 30C15 18.9543 23.9543 10 35 10H85C96.0457 10 105 18.9543 105 30C105 41.0457 96.0457 50 85 50H35C23.9543 50 15 41.0457 15 30Z"

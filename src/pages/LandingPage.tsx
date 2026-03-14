@@ -62,7 +62,7 @@ export default function LandingPage() {
         <div className="min-h-screen w-full bg-white font-sans text-black selection:bg-black selection:text-[#ffdf00]">
 
             {/* Nav V2 - Clean & Sticky */}
-            <nav className="sticky top-0 w-full z-[100] border-b-2 border-black bg-white md:bg-white/90 md:backdrop-blur-md">
+            <nav className="sticky top-0 w-full z-[100] border-b-2 border-[#1a1a1a] bg-white md:bg-white/90 md:backdrop-blur-md">
                 <div className="flex items-center justify-between h-20 px-6 max-w-[1600px] mx-auto">
                     <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
                         <img src="/icons/logo.png"
@@ -82,7 +82,7 @@ export default function LandingPage() {
 
                         <button
                             onClick={() => navigate('/onboarding')}
-                            className="bg-[#97cd7a] text-white font-bold text-sm px-6 py-3 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all uppercase"
+                            className="bg-[#97cd7a] text-white font-bold text-sm px-6 py-3 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] transition-all uppercase"
                         >
                             Começar
                         </button>
@@ -103,7 +103,7 @@ export default function LandingPage() {
 
 
             {/* Showcase Section - Pop Color Block */}
-            <section id="showcase" className="border-y-2 border-black bg-[#ffdf00] py-24 overflow-hidden relative">
+            <section id="showcase" className="border-y-2 border-[#1a1a1a] bg-[#ffdf00] py-24 overflow-hidden relative">
                 <div className="absolute top-0 left-0 w-full h-full opacity-10"
                     style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '30px 30px' }}>
                 </div>
@@ -117,10 +117,10 @@ export default function LandingPage() {
                             Faça <br />
                             Bonito.
                         </h2>
-                        <p className="text-xl font-bold max-w-md border-l-4 border-black pl-6 mb-8">
+                        <p className="text-xl font-bold max-w-md border-l-4 border-[#1a1a1a] pl-6 mb-8">
                             Não é só sobre links. É sobre expressar quem você é com as melhores ferramentas de design da web.
                         </p>
-                        <button className="text-xl font-black uppercase flex items-center gap-3 border-b-4 border-black pb-1 hover:text-white transition-colors">
+                        <button className="text-xl font-black uppercase flex items-center gap-3 border-b-4 border-[#1a1a1a] pb-1 hover:text-white transition-colors">
                             Ver Exemplos <ArrowRight size={24} strokeWidth={3} />
                         </button>
                     </div>
@@ -132,7 +132,7 @@ export default function LandingPage() {
             </section>
 
             {/* FAQ V2 - Clean Accordion */}
-            <section className="bg-white py-24 px-6 border-b-2 border-black">
+            <section className="bg-white py-24 px-6 border-b-2 border-[#1a1a1a]">
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-16">
                         <h2 className="text-4xl md:text-6xl font-black uppercase mb-4">Dúvidas?</h2>
@@ -141,12 +141,12 @@ export default function LandingPage() {
 
                     <div className="space-y-4">
                         {faqs.map((item, i) => (
-                            <div key={i} className="group border-2 border-black bg-white hover:shadow-[8px_8px_0px_0px_#000] transition-all cursor-pointer rounded-lg" onClick={() => setOpenIndex(openIndex === i.toString() ? null : i.toString())}>
+                            <div key={i} className="group border-2 border-[#1a1a1a] bg-white hover:shadow-[8px_8px_0px_0px_#000] transition-all cursor-pointer rounded-lg" onClick={() => setOpenIndex(openIndex === i.toString() ? null : i.toString())}>
                                 <div className="p-6 flex justify-between items-center">
                                     <h3 className="text-xl font-bold uppercase">{item.q}</h3>
-                                    <ChevronDown className={`transition-transform duration-300 border-2 border-black rounded-full p-1 bg-[#ffdf00] ${openIndex === i.toString() ? 'rotate-180' : ''}`} size={32} />
+                                    <ChevronDown className={`transition-transform duration-300 border-2 border-[#1a1a1a] rounded-full p-1 bg-[#ffdf00] ${openIndex === i.toString() ? 'rotate-180' : ''}`} size={32} />
                                 </div>
-                                <div className={`overflow-hidden transition-all duration-300 ${openIndex === i.toString() ? 'max-h-96 border-t-2 border-black bg-[#f9f9f9]' : 'max-h-0'}`}>
+                                <div className={`overflow-hidden transition-all duration-300 ${openIndex === i.toString() ? 'max-h-96 border-t-2 border-[#1a1a1a] bg-[#f9f9f9]' : 'max-h-0'}`}>
                                     <p className="p-6 font-medium text-lg leading-relaxed text-black/80">{item.a}</p>
                                 </div>
                             </div>
@@ -156,7 +156,7 @@ export default function LandingPage() {
             </section>
 
             {/* Final CTA Strip - Brutalist */}
-            <div className="bg-[#97cd7a] border-y-2 border-black py-32 text-center px-6 relative overflow-hidden">
+            <div className="bg-[#97cd7a] border-y-2 border-[#1a1a1a] py-32 text-center px-6 relative overflow-hidden">
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-10 pointer-events-none"
                     style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '24px 24px' }}>
@@ -171,14 +171,14 @@ export default function LandingPage() {
                         Comece <span className="text-white text-stroke-black">Agora.</span>
                     </h2>
 
-                    <p className="text-xl md:text-2xl font-bold mb-12 max-w-2xl mx-auto leading-tight border-l-4 border-black pl-6 text-left md:text-center md:border-l-0 md:pl-0">
+                    <p className="text-xl md:text-2xl font-bold mb-12 max-w-2xl mx-auto leading-tight border-l-4 border-[#1a1a1a] pl-6 text-left md:text-center md:border-l-0 md:pl-0">
                         Junte-se a milhares de criadores e centralize sua presença digital em minutos.
                     </p>
 
                     <div className="flex flex-col md:flex-row items-center justify-center gap-6">
                         <button
                             onClick={() => navigate('/onboarding')}
-                            className="w-full md:w-auto bg-black text-white text-xl font-black px-12 py-6 rounded-2xl hover:-translate-y-2 hover:shadow-[8px_8px_0px_0px_#ffffff] transition-all uppercase border-2 border-black"
+                            className="w-full md:w-auto bg-black text-white text-xl font-black px-12 py-6 rounded-2xl hover:-translate-y-2 hover:shadow-[8px_8px_0px_0px_#ffffff] transition-all uppercase border-2 border-[#1a1a1a]"
                         >
                             Criar meu Nodus
                         </button>

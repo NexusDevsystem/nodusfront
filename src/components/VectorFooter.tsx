@@ -23,13 +23,13 @@ export default function VectorFooter() {
                 <div className="grid grid-cols-1 lg:grid-cols-2">
 
                     {/* Brand Section - Left */}
-                    <div className="p-12 md:p-24 border-b-2 lg:border-b-0 lg:border-r-2 border-black flex flex-col justify-between min-h-[400px]">
+                    <div className="p-12 md:p-24 border-b-2 lg:border-b-0 lg:border-r-2 border-[#1a1a1a] flex flex-col justify-between min-h-[400px]">
                         <div>
                             <div className="flex items-center gap-3 mb-8">
                                 <img src="/icons/logo.png" alt="NODUS" className="h-8 w-auto object-contain" loading="lazy" decoding="async" />
                                 <span className="text-3xl font-black tracking-tighter uppercase">Nodus.my</span>
                             </div>
-                            <p className="text-xl font-bold max-w-md border-l-4 border-black pl-6 mb-12">
+                            <p className="text-xl font-bold max-w-md border-l-4 border-[#1a1a1a] pl-6 mb-12">
                                 Ferramentas poderosas para criadores que não aceitam o básico.
                             </p>
                         </div>
@@ -45,7 +45,7 @@ export default function VectorFooter() {
                                     href={item.href}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-12 h-12 border-2 border-black rounded-lg flex items-center justify-center hover:bg-black hover:text-white hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#000] transition-all"
+                                    className="w-12 h-12 border-2 border-[#1a1a1a] rounded-lg flex items-center justify-center hover:bg-[#1a1a1a] hover:text-white hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#1a1a1a] transition-all"
                                 >
                                     <item.icon size={24} strokeWidth={2.5} />
                                 </a>
@@ -56,8 +56,8 @@ export default function VectorFooter() {
                     {/* Links Grid - Right */}
                     <div className="grid grid-cols-2 lg:h-full">
                         {/* Column 1 */}
-                        <div className="p-12 border-r-2 border-black flex flex-col gap-6">
-                            <h4 className="font-black uppercase text-lg bg-[#ffdf00] inline-block px-2 self-start border-2 border-black shadow-[4px_4px_0px_0px_#000]">Produto</h4>
+                        <div className="p-12 border-r-2 border-[#1a1a1a] flex flex-col gap-6">
+                            <h4 className="font-black uppercase text-lg bg-[#ffdf00] inline-block px-2 self-start border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a]">Produto</h4>
                             <nav className="flex flex-col gap-4 font-bold text-sm">
                                 <a href="#features" className="hover:translate-x-2 transition-transform flex items-center gap-2">
                                     <ArrowRight size={14} /> Funcionalidades
@@ -76,7 +76,7 @@ export default function VectorFooter() {
 
                         {/* Column 2 */}
                         <div className="p-12 flex flex-col gap-6">
-                            <h4 className="font-black uppercase text-lg bg-[#97cd7a] inline-block px-2 self-start border-2 border-black shadow-[4px_4px_0px_0px_#000]">Legal</h4>
+                            <h4 className="font-black uppercase text-lg bg-[#97cd7a] inline-block px-2 self-start border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a]">Legal</h4>
                             <nav className="flex flex-col gap-4 font-bold text-sm">
                                 <a href="/privacy" className="hover:translate-x-2 transition-transform flex items-center gap-2">
                                     <ArrowRight size={14} /> Privacidade
@@ -93,7 +93,7 @@ export default function VectorFooter() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="flex flex-col md:flex-row justify-between items-center p-6 bg-black text-white font-bold uppercase text-xs tracking-widest gap-4">
+                <div className="flex flex-col md:flex-row justify-between items-center p-6 bg-[#1a1a1a] text-white font-bold uppercase text-xs tracking-widest gap-4">
                     <p>Um sistema Nexus</p>
                     <p>© 2026 Nodus Inc.</p>
                 </div>

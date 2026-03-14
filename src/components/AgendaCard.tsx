@@ -181,7 +181,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                     }}
                                     exit={{ opacity: 0, scale: 0.8 }}
                                     onClick={() => scroll('left')}
-                                    className="absolute left-[-12px] top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center text-black hover:scale-110 active:scale-95 transition-all cursor-pointer border border-black/5"
+                                    className="absolute left-[-12px] top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white flex items-center justify-center text-black hover:scale-110 active:scale-95 transition-all cursor-pointer border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_#1a1a1a]"
                                 >
                                     <ChevronLeft size={16} strokeWidth={2} />
                                 </motion.button>
@@ -196,7 +196,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                     }}
                                     exit={{ opacity: 0, scale: 0.8 }}
                                     onClick={() => scroll('right')}
-                                    className="absolute right-[-12px] top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center text-black hover:scale-110 active:scale-95 transition-all cursor-pointer border border-black/5"
+                                    className="absolute right-[-12px] top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white flex items-center justify-center text-black hover:scale-110 active:scale-95 transition-all cursor-pointer border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_#1a1a1a]"
                                 >
                                     <ChevronRight size={16} strokeWidth={2} />
                                 </motion.button>
@@ -234,7 +234,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                             >
                                 {/* Date Box */}
                                 <div className="w-[85px] h-[85px] p-2 shrink-0 flex items-center justify-center my-auto">
-                                    <div className="w-full h-full border border-white/10 rounded-xl flex flex-col items-center justify-center bg-black/5 backdrop-blur-sm">
+                                    <div className="w-full h-full border-2 border-[#1a1a1a] rounded-xl flex flex-col items-center justify-center bg-[#1a1a1a]/5 backdrop-blur-sm shadow-[2px_2px_0px_0px_#1a1a1a]">
                                         <span className="text-[10px] font-bold tracking-tighter opacity-70 leading-none mb-[-1px]" style={{ color: themeTextHex }}>{month}</span>
                                         <span className="text-[32px] font-black leading-none my-[-4px]" style={{ color: themeTextHex }}>{day}</span>
                                         <span className="text-[10px] font-bold tracking-widest opacity-30 leading-none mt-[-1px]" style={{ color: themeTextHex }}>{year}</span>
@@ -275,7 +275,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 onClick={() => setSelectedEvent(null)}
-                                className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto"
+                                className="absolute inset-0 bg-[#1a1a1a]/60 backdrop-blur-sm pointer-events-auto"
                             />
                             <motion.div
                                 drag="y"
@@ -292,7 +292,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                 animate={{ y: 0 }}
                                 exit={{ y: "100%" }}
                                 transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                                className="relative w-full max-w-lg bg-white shadow-[0_-20px_60px_rgba(0,0,0,0.15)] rounded-t-[32px] overflow-hidden flex flex-col max-h-[90vh] pb-safe pointer-events-auto"
+                                className="relative w-full max-w-lg bg-white border-t-2 border-x-2 border-[#1a1a1a] rounded-t-[32px] overflow-hidden flex flex-col max-h-[90vh] pb-safe pointer-events-auto shadow-[0_-8px_0_0_#1a1a1a]"
                                 style={{ fontFamily }}
                             >
                                 {/* Drag Handle Container (Header) */}
@@ -301,11 +301,11 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                     onPointerDown={(e) => dragControls.start(e)}
                                     style={{ touchAction: "none" }}
                                 >
-                                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1.5 bg-black/10 rounded-full md:hidden" />
+                                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1.5 bg-[#1a1a1a]/20 rounded-full md:hidden" />
 
                                     <button
                                         onClick={() => setSelectedEvent(null)}
-                                        className="absolute right-6 top-6 w-8 h-8 rounded-full bg-black/5 flex items-center justify-center text-black/40 hover:bg-black/10 hover:text-black active:scale-95 transition-all hidden md:flex cursor-pointer pointer-events-auto"
+                                        className="absolute right-6 top-6 w-8 h-8 rounded-full bg-[#1a1a1a]/5 flex items-center justify-center text-black/40 hover:bg-[#1a1a1a]/10 hover:text-black active:scale-95 transition-all hidden md:flex cursor-pointer pointer-events-auto"
                                     >
                                         <X size={18} strokeWidth={2.5} />
                                     </button>
@@ -324,7 +324,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                 <div className="flex-1 overflow-y-auto px-8 custom-scrollbar space-y-0 w-full bg-white">
                                     <div className="flex flex-col">
                                         {/* Item: Data */}
-                                        <div className="flex items-start gap-4 py-5 border-b border-black/5">
+                                        <div className="flex items-start gap-4 py-5 border-b-2 border-[#1a1a1a]/10">
                                             <div className="w-10 h-10 flex items-center justify-center shrink-0">
                                                 <Calendar size={22} className="text-black" strokeWidth={2.5} />
                                             </div>
@@ -340,9 +340,9 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedEvent.location)}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="flex items-start gap-4 py-5 border-b border-black/5 hover:bg-black/5 transition-colors cursor-pointer group"
+                                                className="flex items-start gap-4 py-5 border-b-2 border-[#1a1a1a]/10 hover:bg-[#1a1a1a]/5 transition-colors cursor-pointer group"
                                             >
-                                                <div className="w-10 h-10 flex items-center justify-center shrink-0 group-hover:bg-black/5 transition-colors">
+                                                <div className="w-10 h-10 flex items-center justify-center shrink-0 group-hover:bg-[#1a1a1a]/5 transition-colors">
                                                     <MapPin size={22} className="text-black" strokeWidth={2.5} />
                                                 </div>
                                                 <div className="flex-1 min-w-0 pt-0.5">
@@ -356,7 +356,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
 
                                         {/* Item: Horário */}
                                         {selectedEvent.time && (
-                                            <div className="flex items-start gap-4 py-5 border-b border-black/5">
+                                            <div className="flex items-start gap-4 py-5 border-b-2 border-[#1a1a1a]/10">
                                                 <div className="w-10 h-10 flex items-center justify-center shrink-0">
                                                     <Clock size={22} className="text-black" strokeWidth={2.5} />
                                                 </div>
@@ -382,13 +382,13 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                 </div>
 
                                 {/* Footer Button */}
-                                <div className="px-6 py-6 border-t border-black/5 shrink-0 bg-white">
+                                <div className="px-6 py-6 border-t border-[#1a1a1a]/5 shrink-0 bg-white">
                                     {selectedEvent.url && (
                                         <a
                                             href={selectedEvent.url}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="flex w-full h-14 items-center justify-center gap-2 bg-black text-white rounded-[16px] font-bold uppercase tracking-[0.05em] text-[15px] hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                                            className="flex w-full h-14 items-center justify-center gap-2 bg-[#1a1a1a] text-white border-2 border-[#1a1a1a] rounded-[16px] font-bold uppercase tracking-[0.05em] text-[15px] hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-[4px_4px_0px_0px_#1a1a1a]"
                                         >
                                             {selectedEvent.status === 'Sold Out' ? t('agenda.statusSoldOut').toUpperCase() :
                                                 selectedEvent.status === 'Free' ? t('agenda.statusFree').toUpperCase() :

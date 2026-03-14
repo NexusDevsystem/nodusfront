@@ -45,7 +45,7 @@ export const advocacyThemes: Theme[] = [
         avatarBorder: 'rounded-[1.5rem] border-2 border-[#10b981]/50 shadow-lg',
         fontFamily: "'Playfair Display', serif",
         category: 'advocacy',
-        isPro: false
+        isPro: true
     },
     // 4. Equity (Kept as requested)
     {
@@ -60,7 +60,7 @@ export const advocacyThemes: Theme[] = [
         avatarBorder: 'rounded-[2rem] border-4 border-white shadow-md',
         fontFamily: "'Lora', serif",
         category: 'advocacy',
-        isPro: false
+        isPro: true
     },
     // 5. Justice Scale (High-End Minimalist)
     {

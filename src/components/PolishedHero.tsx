@@ -5,10 +5,10 @@ export default function PolishedHero() {
     return (
         <section className="w-full min-h-[calc(100vh-80px)] bg-white text-black font-sans flex flex-col">
 
-            <div className="flex-1 max-w-[1600px] mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-0 border-x-2 border-black border-b-2">
+            <div className="flex-1 max-w-[1600px] mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-0 border-x-2 border-[#1a1a1a] border-b-2">
 
                 {/* Left: Copy & Value Prop */}
-                <div className="p-8 md:p-16 lg:p-24 flex flex-col justify-center border-b-2 lg:border-b-0 lg:border-r-2 border-black bg-white relative overflow-hidden">
+                <div className="p-8 md:p-16 lg:p-24 flex flex-col justify-center border-b-2 lg:border-b-0 lg:border-r-2 border-[#1a1a1a] bg-white relative overflow-hidden">
                     {/* Background Pattern */}
                     <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none"
                         style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
@@ -41,7 +41,7 @@ export default function PolishedHero() {
                     {/* Mockup Composition */}
                     <div className="relative z-10 transform lg:translate-x-12">
                         {/* Phone Frame */}
-                        <div className="relative w-[340px] h-[680px] bg-black rounded-[3.5rem] border-[14px] border-black shadow-[25px_25px_0px_0px_rgba(0,0,0,0.2)] overflow-hidden ring-1 ring-white/20">
+                        <div className="relative w-[340px] h-[680px] bg-black rounded-[3.5rem] border-[14px] border-[#1a1a1a] shadow-[25px_25px_0px_0px_rgba(26,26,26,0.2)] overflow-hidden ring-1 ring-white/20">
                             {/* Notch */}
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-black rounded-b-2xl z-20"></div>
 

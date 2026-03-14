@@ -14,7 +14,7 @@ export const modernThemes: Theme[] = [
         avatarBorder: 'rounded-full border border-gray-300 p-1',
         fontFamily: "'Inter', sans-serif",
         category: 'creative',
-        isPro: true
+        isPro: false
     },
     // 2. Cyberpunk (Brighter Text)
     {
@@ -59,7 +59,7 @@ export const modernThemes: Theme[] = [
         avatarBorder: 'rounded-[30px] border-4 border-white shadow-md',
         fontFamily: "'Quicksand', sans-serif",
         category: 'kawaii',
-        isPro: false
+        isPro: true
     },
     // 5. Dark Elegant (Gold/White Text)
     {
@@ -117,18 +117,18 @@ export const modernThemes: Theme[] = [
         avatarBorder: 'rounded-full border-2 border-[#558B2F] p-1',
         fontFamily: "'Lora', serif",
         category: 'creative',
-        isPro: false
+        isPro: true
     },
     // 9. High-Contrast
     {
         id: 'modern-high-contrast',
         name: 'High Contrast',
         backgroundClass: 'bg-white',
-        buttonClass: 'bg-black text-white hover:bg-white hover:text-black hover:ring-4 hover:ring-black transition-all duration-200 w-full rounded-none py-4 px-6 flex items-center justify-between font-bold border-2 border-black',
-        buttonHex: '#000000',
-        textHex: '#000000',
+        buttonClass: 'bg-black text-white hover:bg-white hover:text-black hover:ring-4 hover:ring-[#1a1a1a] transition-all duration-200 w-full rounded-none py-4 px-6 flex items-center justify-between font-bold border-2 border-[#1a1a1a]',
+        buttonHex: '#1a1a1a',
+        textHex: '#1a1a1a',
         textClass: 'text-black font-sans font-black tracking-tight',
-        avatarBorder: 'rounded-full border-[6px] border-black',
+        avatarBorder: 'rounded-full border-[6px] border-[#1a1a1a]',
         fontFamily: "'Archivo Black', sans-serif",
         category: 'creative',
         isPro: true

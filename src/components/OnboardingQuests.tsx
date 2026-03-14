@@ -49,7 +49,7 @@ export default function OnboardingQuests({ quests, progress }: OnboardingQuestsP
     return (
         <>
             {/* Sidebar Card */}
-            <div className="mx-5 md:mx-4 mt-6 md:mt-4 bg-white border-2 border-black rounded-[24px] p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden group">
+            <div className="mx-5 md:mx-4 mt-6 md:mt-4 bg-white border-2 border-[#1a1a1a] rounded-[24px] p-4 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] relative overflow-hidden group">
                 <div className="flex flex-col gap-4 relative z-10">
 
                     {/* Progress Circle & Text */}
@@ -82,7 +82,7 @@ export default function OnboardingQuests({ quests, progress }: OnboardingQuestsP
 
                     <button
                         onClick={() => setIsOpen(true)}
-                        className="w-full bg-black text-[#97cd7a] border-2 border-black py-2.5 rounded-full text-[12px] font-bold tracking-tight shadow-[2px_2px_0px_0px_rgba(151,205,122,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(151,205,122,1)] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                        className="w-full bg-black text-[#97cd7a] border-2 border-[#1a1a1a] py-2.5 rounded-full text-[12px] font-bold tracking-tight shadow-[2px_2px_0px_0px_rgba(151,205,122,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(151,205,122,1)] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                     >
                         {t('quests.finishSetup', 'Terminar configuração')}
                     </button>
@@ -104,7 +104,7 @@ export default function OnboardingQuests({ quests, progress }: OnboardingQuestsP
                             initial={{ opacity: 0, y: 20, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                            className="relative bg-white border-2 border-black rounded-[32px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] w-full max-w-sm overflow-hidden flex flex-col max-h-[90vh]"
+                            className="relative bg-white border-2 border-[#1a1a1a] rounded-[32px] shadow-[4px_4px_0px_0px_#1a1a1a] w-full max-w-sm overflow-hidden flex flex-col max-h-[90vh]"
                         >
                             {/* Header */}
                             <div className="p-6 pb-4 flex items-center justify-between bg-white shrink-0">
@@ -112,7 +112,7 @@ export default function OnboardingQuests({ quests, progress }: OnboardingQuestsP
                                     <h3 className="text-[18px] font-bold tracking-tight text-black m-0">
                                         {t('quests.title', 'Checklist de Inicialização')}
                                     </h3>
-                                    <span className="bg-[#97cd7a] text-black border-2 border-black text-[12px] font-bold px-3 py-1 rounded-full tracking-tighter">
+                                    <span className="bg-[#97cd7a] text-black border-2 border-[#1a1a1a] text-[12px] font-bold px-3 py-1 rounded-full tracking-tighter">
                                         {completedCount}/{quests.length}
                                     </span>
                                 </div>

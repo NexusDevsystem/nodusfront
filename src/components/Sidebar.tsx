@@ -26,7 +26,8 @@ import {
   ChevronsLeft,
   ShieldAlert,
   X,
-  Share2
+  Share2,
+  Globe
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -78,9 +79,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
     {
       id: 'connections',
       label: t('sidebar.connections'),
-      groupIcon: Share2,
+      groupIcon: Globe,
       items: [
-        { id: 'integrations', label: t('sidebar.integrations'), icon: Share2 },
+        { id: 'integrations', label: t('sidebar.integrations'), icon: Globe },
       ]
     },
     {
@@ -108,16 +109,16 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
   }, []);
 
   return (
-    <aside className={`w-full md:w-64 shrink-0 bg-[#ffffff] md:border-r-2 border-black h-full flex flex-col select-none overflow-hidden relative ${className || ''}`}>
+    <aside className={`w-full md:w-64 shrink-0 bg-[#ffffff] md:border-r-2 border-[#1a1a1a] h-full flex flex-col select-none overflow-hidden relative ${className || ''}`}>
       {/* Subtle Grid Background Pattern */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
 
       {/* Profile Header - Compact & Brutalist */}
-      <div className="p-5 md:p-4 border-b-2 border-black bg-white flex flex-col gap-2 relative z-10">
+      <div className="p-5 md:p-4 border-b-2 border-[#1a1a1a] bg-white flex flex-col gap-2 relative z-10">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-12 h-12 md:w-10 md:h-10 border-2 border-black overflow-hidden shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] md:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 bg-white">
+            <div className="w-12 h-12 md:w-10 md:h-10 border-2 border-[#1a1a1a] overflow-hidden shadow-[4px_4px_0px_0px_#1a1a1a] md:shadow-[3px_3px_0px_0px_#1a1a1a] shrink-0 bg-white rounded-xl">
               <img src={userProfile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`}
                 alt="Public"
                 className="w-full h-full object-cover"
@@ -139,7 +140,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
             <Tooltip text={t('common.close')} position="bottom">
               <button
                 onClick={onClose}
-                className="md:hidden p-2 text-black hover:bg-black/5 transition-colors"
+                className="md:hidden p-2 text-black hover:bg-[#1a1a1a]/5 transition-colors"
               >
                 <X size={24} strokeWidth={2.5} />
               </button>
@@ -201,8 +202,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                         className={`
                         w-full flex items-center justify-between px-4 md:px-3 py-3.5 md:py-2.5 transition-all border-2 group relative
                         ${isActive
-                            ? 'bg-[#97cd7a] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] md:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[0.5px] -translate-y-[0.5px] text-black'
-                            : 'bg-transparent border-transparent text-black/60 hover:text-black hover:bg-black/5'}
+                            ? 'bg-[#97cd7a] border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] md:shadow-[3px_3px_0px_0px_#1a1a1a] -translate-x-[0.5px] -translate-y-[0.5px] text-black rounded-xl'
+                            : 'bg-transparent border-transparent text-black/60 hover:text-black hover:bg-[#1a1a1a]/5 rounded-xl'}
                         ${item.disabled ? 'opacity-30 cursor-not-allowed' : ''}
                       `}
                       >
@@ -215,12 +216,12 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
 
                         {isLocked ? (
                           <div className="flex items-center justify-center h-full">
-                            <span className="text-[8px] md:text-[7px] bg-black text-white px-2 md:px-1.5 py-1 md:py-0.5 font-bold border border-black uppercase tracking-widest leading-none flex items-center justify-center">
+                            <span className="text-[8px] md:text-[7px] bg-[#1a1a1a] text-white px-2 md:px-1.5 py-1 md:py-0.5 font-bold border border-[#1a1a1a] uppercase tracking-widest leading-none flex items-center justify-center">
                               VIP
                             </span>
                           </div>
                         ) : isActive && (
-                          <div className="w-2 h-2 md:w-1.5 md:h-1.5 bg-black rounded-full" />
+                          <div className="w-2 h-2 md:w-1.5 md:h-1.5 bg-[#1a1a1a] rounded-full" />
                         )}
                       </button>
                     );
@@ -233,20 +234,20 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
       </div>
 
       {/* Footer Area */}
-      <div className="p-5 md:p-4 border-t-2 border-black bg-white relative z-10 space-y-4 md:space-y-0">
+      <div className="p-5 md:p-4 border-t-2 border-[#1a1a1a] bg-white relative z-10 space-y-4 md:space-y-0">
         <div className="hidden md:flex flex-col gap-1 mb-4">
           <button
             onClick={() => setActiveTab('billing')}
-            className={`flex items-center gap-3 text-[9px] font-black uppercase tracking-widest transition-all py-2.5 px-3 border-2 group shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] ${activeTab === 'billing' ? 'border-black bg-[#97cd7a]' : 'border-black bg-white text-black hover:bg-[#ffdf00]'}`}
+            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'billing' ? 'border-[#1a1a1a] bg-[#97cd7a] shadow-[4px_4px_0px_0px_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#1a1a1a]/5 rounded-xl'}`}
           >
-            <CreditCard size={13} strokeWidth={3} />
+            <CreditCard size={13} strokeWidth={2} />
             {t('sidebar.upgrade')}
           </button>
 
           {userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com' ? (
             <button
               onClick={() => setActiveTab('admin')}
-              className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'admin' ? 'border-black bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-black/5'}`}
+              className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'admin' ? 'border-[#1a1a1a] bg-[#97cd7a] shadow-[4px_4px_0px_0px_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#1a1a1a]/5'}`}
             >
               <ShieldAlert size={13} strokeWidth={2} />
               {t('sidebar.administration')}
@@ -255,13 +256,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
 
           <button
             onClick={() => setActiveTab('support')}
-            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'support' ? 'border-black bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-black/5'}`}
+            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'support' ? 'border-[#1a1a1a] bg-[#97cd7a] shadow-[4px_4px_0px_0px_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#1a1a1a]/5'}`}
           >
             <HelpCircle size={13} strokeWidth={2} />
             {t('sidebar.support')}
           </button>
 
-          <div className="flex items-center justify-between pt-2 border-t border-black/10">
+          <div className="flex items-center justify-between pt-2 border-t border-[#1a1a1a]/10">
             <span className="text-[8px] uppercase tracking-widest text-black/30 font-medium">{t('sidebar.language')}</span>
             <LanguageToggle />
           </div>
@@ -275,20 +276,20 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute bottom-[calc(100%+8px)] left-0 right-0 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden z-20 flex flex-col"
+                className="absolute bottom-[calc(100%+8px)] left-0 right-0 bg-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] overflow-hidden z-20 flex flex-col"
               >
                 <button
                   onClick={() => { setActiveTab('billing'); setIsAccountMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-5 bg-[#ffdf00] text-black hover:bg-[#97cd7a] transition-colors border-b-2 border-black text-[11px] font-black uppercase tracking-widest"
+                  className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#1a1a1a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
                 >
-                  <CreditCard size={18} strokeWidth={3} />
+                  <CreditCard size={18} strokeWidth={2.5} />
                   <span>{t('sidebar.upgrade')}</span>
                 </button>
 
                 {(userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com') && (
                   <button
                     onClick={() => { setActiveTab('admin'); setIsAccountMenuOpen(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-black/5 transition-colors border-b-2 border-black text-[11px] font-bold uppercase tracking-widest"
+                    className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#1a1a1a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
                   >
                     <ShieldAlert size={18} strokeWidth={2.5} />
                     {t('sidebar.administration')}
@@ -297,13 +298,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
 
                 <button
                   onClick={() => { setActiveTab('support'); setIsAccountMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-black/5 transition-colors border-b-2 border-black text-[11px] font-bold uppercase tracking-widest"
+                  className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#1a1a1a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
                 >
                   <HelpCircle size={18} strokeWidth={2.5} />
                   {t('sidebar.support')}
                 </button>
 
-                <div className="flex items-center justify-between px-4 py-3 border-b-2 border-black">
+                <div className="flex items-center justify-between px-4 py-3 border-b-2 border-[#1a1a1a]">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-black/50">{t('sidebar.lang')}</span>
                   <LanguageToggle />
                 </div>
@@ -321,14 +322,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
 
           <div
             onClick={() => isMobile && setIsAccountMenuOpen(!isAccountMenuOpen)}
-            className="p-4 md:p-3 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] md:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between group/user cursor-pointer md:cursor-default"
+            className="p-4 md:p-3 bg-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] flex items-center justify-between group/user cursor-pointer md:cursor-default rounded-2xl"
           >
             <div className="flex items-center gap-3 md:gap-2.5 min-w-0">
-              <div className="w-10 h-10 md:w-8 md:h-8 border-2 md:border border-black overflow-hidden bg-slate-50 shrink-0">
+              <div className="w-10 h-10 md:w-8 md:h-8 border-2 md:border border-[#1a1a1a] overflow-hidden bg-slate-50 shrink-0">
                 {user?.picture ? (
                   <img src={user.picture} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-black text-white"><User size={isMobile ? 16 : 14} /></div>
+                  <div className="w-full h-full flex items-center justify-center bg-[#1a1a1a] text-white"><User size={isMobile ? 16 : 14} /></div>
                 )}
               </div>
               <div className="min-w-0">

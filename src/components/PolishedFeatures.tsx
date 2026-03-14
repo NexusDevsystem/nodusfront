@@ -16,14 +16,14 @@ const FeatureCard = ({ title, description, icon: Icon, index }: any) => {
 
     return (
         <div className={`
-            group relative p-8 border-2 border-black bg-white transition-all duration-300
-            hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1
+            group relative p-8 border-2 border-[#1a1a1a] bg-white transition-all duration-300
+            hover:shadow-[8px_8px_0px_0px_rgba(26,26,26,0.2)] hover:-translate-y-1 hover:-translate-x-1
             flex flex-col h-full justify-between items-start
         `}>
             {/* Hover Background */}
             <div className={`absolute inset-0 ${hoverColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10`}></div>
 
-            <div className="w-16 h-16 bg-black text-white flex items-center justify-center rounded-lg mb-6 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] group-hover:bg-white group-hover:text-black transition-colors">
+            <div className="w-16 h-16 bg-black text-white flex items-center justify-center rounded-lg mb-6 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_rgba(26,26,26,0.2)] group-hover:bg-white group-hover:text-black transition-colors">
                 <Icon size={32} strokeWidth={2} />
             </div>
 
@@ -77,7 +77,7 @@ export default function PolishedFeatures() {
         <section className="py-24 px-6 md:px-12 bg-[#f8f8f8]">
             <div className="max-w-[1600px] mx-auto">
 
-                <div className="mb-16 flex flex-col md:flex-row items-end justify-between border-b-2 border-black pb-8 gap-8">
+                <div className="mb-16 flex flex-col md:flex-row items-end justify-between border-b-2 border-[#1a1a1a] pb-8 gap-8">
                     <h2 className="text-5xl md:text-7xl font-black uppercase leading-[0.9]">
                         Ferramentas <br />
                         de Poder.

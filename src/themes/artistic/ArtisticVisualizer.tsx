@@ -42,8 +42,8 @@ const ArtisticVisualizer: React.FC<ArtisticVisualizerProps> = ({ variant }) => {
                         </svg>
                     </div>
                     {/* Floating abstract lines */}
-                    <div className="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] border-[1px] border-black/5 rounded-full animate-spin-slow" style={{ animationDuration: '60s' }} />
-                    <div className="absolute top-[10%] left-[10%] w-[80%] h-[80%] border-[1px] border-black/5 rounded-full animate-spin-slow" style={{ animationDuration: '45s', animationDirection: 'reverse' }} />
+                    <div className="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] border-[1px] border-[#1a1a1a]/5 rounded-full animate-spin-slow" style={{ animationDuration: '60s' }} />
+                    <div className="absolute top-[10%] left-[10%] w-[80%] h-[80%] border-[1px] border-[#1a1a1a]/5 rounded-full animate-spin-slow" style={{ animationDuration: '45s', animationDirection: 'reverse' }} />
                 </div>
             );
 

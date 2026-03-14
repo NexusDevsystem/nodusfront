@@ -17,7 +17,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, title, className = '' 
 
     if (isPlaying) {
         return (
-            <div className={`w-full overflow-hidden shadow-lg aspect-video ${className}`}>
+            <div className={`w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] aspect-video ${className}`}>
                 <iframe
                     width="100%"
                     height="100%"
@@ -33,7 +33,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, title, className = '' 
 
     return (
         <div
-            className={`relative w-full overflow-hidden shadow-lg aspect-video group cursor-pointer ${className}`}
+            className={`relative w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] aspect-video group cursor-pointer ${className}`}
             onClick={() => setIsPlaying(true)}
         >
             {/* Thumbnail */}
@@ -68,7 +68,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, title, className = '' 
 
             {/* Custom Play Button - Scaled down even more, NO BACKGROUND */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 opacity-80 drop-shadow-[0_0_15px_rgba(0,0,0,0.4)]">
+                <div className="transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 opacity-80 drop-shadow-[0_0_15px_rgba(26,26,26,0.4)]">
                     <Play size={32} fill="white" className="text-white ml-0.5" />
                 </div>
             </div>

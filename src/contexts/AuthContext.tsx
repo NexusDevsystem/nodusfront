@@ -13,6 +13,7 @@ interface AuthContextType {
     setProfile: React.Dispatch<React.SetStateAction<any | null>>;
     token: string | null;
     authError: string | null;
+    stripeConfig: { publishableKey: string; env: string } | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -62,6 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [loading, setLoading] = useState(true);
     const [token, setToken] = useState<string | null>(localStorage.getItem('nodus_access_token'));
     const [authError, setAuthError] = useState<string | null>(null);
+    const [stripeConfig, setStripeConfig] = useState<{ publishableKey: string; env: string } | null>(null);
 
     const getOrCreateProfile = async () => {
         try {
@@ -94,6 +96,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         const initAuth = async () => {
+            // Fetch Stripe configuration automatically (Public)
+            try {
+                const config = await apiClient.getStripeConfig();
+                setStripeConfig(config);
+                console.log(`💳 Stripe Mode: ${config.env.toUpperCase()}`);
+            } catch (e) {
+                console.error('Failed to load Stripe config:', e);
+            }
+
             const token = localStorage.getItem('nodus_access_token');
 
             // If no token, we're done
@@ -289,7 +300,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             signOut,
             setProfile,
             token,
-            authError
+            authError,
+            stripeConfig
         }}>
             {children}
         </AuthContext.Provider>

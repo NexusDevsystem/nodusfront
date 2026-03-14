@@ -97,7 +97,7 @@ export const musicThemes: Theme[] = [
         fontFamily: "'Lexend', sans-serif",
         category: 'music',
         buttonRoundness: 'full',
-        isPro: false
+        isPro: true
     },
     {
         id: 'music-harpa-cosmica',

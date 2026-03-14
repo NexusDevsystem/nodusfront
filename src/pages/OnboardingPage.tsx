@@ -307,14 +307,14 @@ export default function OnboardingPage() {
 
 
             {/* Left Side: Form */}
-            <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-12 relative border-b-2 lg:border-b-0 lg:border-r-2 border-black z-10 flex-1">
+            <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-12 relative border-b-2 lg:border-b-0 lg:border-r-2 border-[#1a1a1a] z-10 flex-1">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-16">
                     <button
                         onClick={() => navigate('/')}
                         className="group flex items-center gap-2 font-bold text-sm uppercase hover:text-[#97cd7a] transition-colors"
                     >
-                        <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none transition-all">
+                        <div className="w-8 h-8 border-2 border-[#1a1a1a] flex items-center justify-center bg-white shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none transition-all">
                             <ArrowLeft size={16} />
                         </div>
                         {t('onboarding.back')}
@@ -374,13 +374,13 @@ export default function OnboardingPage() {
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9._]/g, ''))}
                                         className={`
-                                            w-full bg-white border-2 border-black py-6 pl-[135px] pr-12 text-xl font-black
-                                            shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
+                                            w-full bg-white border-2 border-[#1a1a1a] py-6 pl-[135px] pr-12 text-xl font-black
+                                            shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]
                                             focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] 
                                             transition-all duration-200
                                             ${available === true ? 'border-[#97cd7a]' :
                                                 available === false ? 'border-red-500' :
-                                                    'border-black hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}
+                                                    'border-[#1a1a1a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'}
                                         `}
                                         placeholder="seu-nome"
                                         required
@@ -418,9 +418,9 @@ export default function OnboardingPage() {
                                 type="submit"
                                 disabled={!available || loading || checking}
                                 className={`
-                                    w-full h-20 border-2 border-black font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300
+                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300
                                     ${available && !loading && !checking
-                                        ? 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
+                                        ? 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
@@ -442,14 +442,14 @@ export default function OnboardingPage() {
                                     className={`
                                         w-full p-6 border-2 text-left transition-all duration-200 relative group
                                         ${userCategory === cat.id
-                                            ? 'border-black bg-[#97cd7a] translate-x-[2px] translate-y-[2px] shadow-none'
-                                            : 'border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}
+                                            ? 'border-[#1a1a1a] bg-[#97cd7a] translate-x-[2px] translate-y-[2px] shadow-none'
+                                            : 'border-[#1a1a1a] bg-white shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'}
                                     `}
                                 >
                                     <h3 className={`font-black uppercase text-xl ${userCategory === cat.id ? 'text-black' : 'text-black'}`}>{cat.label}</h3>
                                     <p className={`text-sm font-bold ${userCategory === cat.id ? 'text-black/60' : 'text-black/40'}`}>{cat.description}</p>
                                     {userCategory === cat.id && (
-                                        <div className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 bg-white border-2 border-black flex items-center justify-center">
+                                        <div className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 bg-white border-2 border-[#1a1a1a] flex items-center justify-center">
                                             <Check className="text-black" size={18} strokeWidth={4} />
                                         </div>
                                     )}
@@ -459,9 +459,9 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(3)}
                                 disabled={!userCategory}
                                 className={`
-                                    w-full h-20 border-2 border-black font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6
+                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6
                                     ${userCategory
-                                        ? 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
+                                        ? 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
@@ -488,13 +488,13 @@ export default function OnboardingPage() {
                                         className={`
                                             w-full p-6 border-2 text-left transition-all duration-200 relative group
                                             ${referralSource === opt.label
-                                                ? 'border-black bg-[#97cd7a] translate-x-[2px] translate-y-[2px] shadow-none'
-                                                : 'border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}
+                                                ? 'border-[#1a1a1a] bg-[#97cd7a] translate-x-[2px] translate-y-[2px] shadow-none'
+                                                : 'border-[#1a1a1a] bg-white shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'}
                                         `}
                                     >
                                         <span className="font-black uppercase text-lg text-black">{opt.label}</span>
                                         {referralSource === opt.label && (
-                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 bg-white border-2 border-black flex items-center justify-center">
+                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 bg-white border-2 border-[#1a1a1a] flex items-center justify-center">
                                                 <Check className="text-black" size={18} strokeWidth={4} />
                                             </div>
                                         )}
@@ -507,9 +507,9 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(4)}
                                 disabled={!referralSource}
                                 className={`
-                                    w-full h-20 border-2 border-black font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6
+                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6
                                     ${referralSource
-                                        ? 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
+                                        ? 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
@@ -523,7 +523,7 @@ export default function OnboardingPage() {
                         <div className="space-y-6">
                             <div className="flex justify-center mb-6">
                                 <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
-                                    <div className="w-32 h-32 rounded-full border-4 border-black overflow-hidden bg-slate-100 flex flex-col items-center justify-center relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1">
+                                    <div className="w-32 h-32 rounded-full border-4 border-[#1a1a1a] overflow-hidden bg-slate-100 flex flex-col items-center justify-center relative shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-transform hover:-translate-y-1">
                                         {avatarUrl ? (
                                             <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                         ) : (
@@ -546,7 +546,7 @@ export default function OnboardingPage() {
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-white border-2 border-black py-4 px-4 text-lg font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all duration-200"
+                                    className="w-full bg-white border-2 border-[#1a1a1a] py-4 px-4 text-lg font-bold shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all duration-200"
                                     placeholder={t('onboarding.namePlaceholder')}
                                     required
                                 />
@@ -557,7 +557,7 @@ export default function OnboardingPage() {
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
                                     rows={3}
-                                    className="w-full bg-white border-2 border-black py-4 px-4 text-base font-medium shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all duration-200 resize-none"
+                                    className="w-full bg-white border-2 border-[#1a1a1a] py-4 px-4 text-base font-medium shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all duration-200 resize-none"
                                     placeholder={t('onboarding.bioPlaceholder')}
                                 />
                             </div>
@@ -566,9 +566,9 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(5)}
                                 disabled={!name}
                                 className={`
-                                    w-full h-16 border-2 border-black font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-4
+                                    w-full h-16 border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-4
                                     ${name
-                                        ? 'bg-[#ffdf00] text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none'
+                                        ? 'bg-[#ffdf00] text-black shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
@@ -583,7 +583,7 @@ export default function OnboardingPage() {
                             <p className="font-bold text-slate-500 text-sm">{t('onboarding.addSocialsAndLinks')}</p>
 
                             {/* Redes Sociais */}
-                            <div className="bg-white border-2 border-black p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="bg-white border-2 border-[#1a1a1a] p-5 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]">
                                 <div className="flex items-center justify-between mb-4">
                                     <div>
                                         <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.socialNetworks')}</h3>
@@ -592,7 +592,7 @@ export default function OnboardingPage() {
                                     <button
                                         type="button"
                                         onClick={() => { setConfiguringSocialPlatform(null); setSocialSearchTerm(''); setIsSocialModalOpen(true); }}
-                                        className="w-10 h-10 border-2 border-black flex items-center justify-center hover:bg-[#ffdf00] transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:bg-black active:text-white"
+                                        className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#ffdf00] transition-colors shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:bg-black active:text-white"
                                     >
                                         <Plus size={20} />
                                     </button>
@@ -608,7 +608,7 @@ export default function OnboardingPage() {
                                                     key={link.id}
                                                     type="button"
                                                     onClick={() => handleAddSocialClick(link.provider!)}
-                                                    className={`w-12 h-12 flex items-center justify-center border-2 border-black bg-slate-50 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none ${platform?.color}`}
+                                                    className={`w-12 h-12 flex items-center justify-center border-2 border-[#1a1a1a] bg-slate-50 transition-all shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none ${platform?.color}`}
                                                 >
                                                     <Icon size={24} />
                                                 </button>
@@ -624,7 +624,7 @@ export default function OnboardingPage() {
                             </div>
 
                             {/* Meus Links */}
-                            <div className="bg-white border-2 border-black p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="bg-white border-2 border-[#1a1a1a] p-5 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]">
                                 <div className="flex items-center justify-between mb-4">
                                     <div>
                                         <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.myLinks')}</h3>
@@ -633,7 +633,7 @@ export default function OnboardingPage() {
                                     <button
                                         type="button"
                                         onClick={handleAddGeneralLink}
-                                        className="w-10 h-10 border-2 border-black flex items-center justify-center hover:bg-[#97cd7a] transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:bg-black active:text-white"
+                                        className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#97cd7a] transition-colors shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:bg-black active:text-white"
                                     >
                                         <Plus size={20} />
                                     </button>
@@ -642,9 +642,9 @@ export default function OnboardingPage() {
                                 <div className="space-y-3">
                                     {quickLinks.filter(l => l.layout === 'classic').length > 0 ? (
                                         quickLinks.filter(l => l.layout === 'classic').map(link => (
-                                            <div key={link.id} className="border-2 border-black bg-white p-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] relative group">
+                                            <div key={link.id} className="border-2 border-[#1a1a1a] bg-white p-3 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] relative group">
                                                 <div className="flex items-start gap-3">
-                                                    <div className="w-10 h-10 border-2 border-black bg-slate-50 flex items-center justify-center shrink-0 text-slate-400">
+                                                    <div className="w-10 h-10 border-2 border-[#1a1a1a] bg-slate-50 flex items-center justify-center shrink-0 text-slate-400">
                                                         <LinkIcon size={18} />
                                                     </div>
                                                     <div className="flex-1 min-w-0 space-y-2">
@@ -684,7 +684,7 @@ export default function OnboardingPage() {
 
                             <button
                                 onClick={() => setStep(6)}
-                                className="w-full h-16 bg-[#ffdf00] border-2 border-black font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none mt-8"
+                                className="w-full h-16 bg-[#ffdf00] border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none mt-8"
                             >
                                 {t('onboarding.continue')}
                             </button>
@@ -709,8 +709,8 @@ export default function OnboardingPage() {
                                             className={`
                                                 p-4 border-2 flex flex-col items-center gap-2 transition-all duration-200 relative group
                                                 ${headerLayout === layout.id
-                                                    ? 'border-black bg-[#97cd7a] translate-x-[2px] translate-y-[2px] shadow-none'
-                                                    : 'border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}
+                                                    ? 'border-[#1a1a1a] bg-[#97cd7a] translate-x-[2px] translate-y-[2px] shadow-none'
+                                                    : 'border-[#1a1a1a] bg-white shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'}
                                             `}
                                         >
                                             <Icon size={24} className={headerLayout === layout.id ? 'text-black' : 'text-slate-500 group-hover:text-black'} />
@@ -724,9 +724,9 @@ export default function OnboardingPage() {
                                 type="submit"
                                 disabled={loading}
                                 className={`
-                                    w-full h-20 border-2 border-black font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300
+                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300
                                     ${!loading
-                                        ? 'bg-[#97cd7a] text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
+                                        ? 'bg-[#97cd7a] text-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
@@ -754,7 +754,7 @@ export default function OnboardingPage() {
                         {/* Big Visual Element */}
                         <div className="relative w-full max-w-lg aspect-square">
                             {/* Circle Background */}
-                            <div className="absolute inset-0 bg-white rounded-full border-4 border-black shadow-[20px_20px_0px_0px_rgba(0,0,0,1)]"></div>
+                            <div className="absolute inset-0 bg-white rounded-full border-4 border-[#1a1a1a] shadow-[20px_20px_0px_0px_rgba(26,26,26,1)]"></div>
 
                             {/* Center Logo instead of Mockup */}
                             <div className="absolute inset-0 flex items-center justify-center z-10 p-12 overflow-hidden rounded-full">
@@ -773,8 +773,8 @@ export default function OnboardingPage() {
 
                             {/* Brutalist Floating elements */}
                             {/* 1. Status */}
-                            <div className="absolute top-0 left-0 bg-white border-2 border-black p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3 transform -rotate-3 z-20 animate-float">
-                                <div className="w-8 h-8 bg-[#97cd7a] border-2 border-black rounded-full flex items-center justify-center">
+                            <div className="absolute top-0 left-0 bg-white border-2 border-[#1a1a1a] p-4 shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] flex items-center gap-3 transform -rotate-3 z-20 animate-float">
+                                <div className="w-8 h-8 bg-[#97cd7a] border-2 border-[#1a1a1a] rounded-full flex items-center justify-center">
                                     <Check className="text-black" size={16} strokeWidth={4} />
                                 </div>
                                 <div className="flex flex-col">
@@ -784,19 +784,19 @@ export default function OnboardingPage() {
                             </div>
 
                             {/* 2. Analytics */}
-                            <div className="absolute top-[20%] -right-8 bg-white border-2 border-black p-4 shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] flex flex-col gap-2 transform rotate-6 z-20 animate-float-delayed w-36">
+                            <div className="absolute top-[20%] -right-8 bg-white border-2 border-[#1a1a1a] p-4 shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] flex flex-col gap-2 transform rotate-6 z-20 animate-float-delayed w-36">
                                 <div className="flex justify-between items-center">
-                                    <div className="w-6 h-6 border-2 border-black bg-blue-400 flex items-center justify-center">
+                                    <div className="w-6 h-6 border-2 border-[#1a1a1a] bg-blue-400 flex items-center justify-center">
                                         <LinkIcon size={12} className="text-white" />
                                     </div>
-                                    <span className="text-[10px] font-black bg-[#97cd7a] text-black px-1.5 border-2 border-black">+12%</span>
+                                    <span className="text-[10px] font-black bg-[#97cd7a] text-black px-1.5 border-2 border-[#1a1a1a]">+12%</span>
                                 </div>
                                 <div className="text-2xl font-black text-black">2.840</div>
                                 <div className="text-[9px] font-black text-black/30 uppercase tracking-tighter">{t('onboarding.totalClicks')}</div>
                             </div>
 
                             {/* 3. Theme */}
-                            <div className="absolute bottom-[10%] -left-8 bg-black text-white border-2 border-black p-4 shadow-[6px_6px_0px_0px_#ffdf00] flex items-center gap-3 transform rotate-2 z-20 animate-float">
+                            <div className="absolute bottom-[10%] -left-8 bg-black text-white border-2 border-[#1a1a1a] p-4 shadow-[6px_6px_0px_0px_#ffdf00] flex items-center gap-3 transform rotate-2 z-20 animate-float">
                                 <div className="grid grid-cols-2 gap-1">
                                     <div className="w-2 h-2 bg-[#97cd7a] border-[1px] border-white/20"></div>
                                     <div className="w-2 h-2 bg-white/10 border-[1px] border-white/20"></div>
@@ -810,8 +810,8 @@ export default function OnboardingPage() {
                             </div>
 
                             {/* 4. Realtime Badge */}
-                            <div className="absolute -bottom-4 right-10 bg-white border-2 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black text-[10px] font-black uppercase flex items-center gap-2 z-20">
-                                <div className="w-3 h-3 bg-red-500 border-2 border-black animate-pulse"></div>
+                            <div className="absolute -bottom-4 right-10 bg-white border-2 border-[#1a1a1a] px-4 py-2 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] text-black text-[10px] font-black uppercase flex items-center gap-2 z-20">
+                                <div className="w-3 h-3 bg-red-500 border-2 border-[#1a1a1a] animate-pulse"></div>
                                 {t('onboarding.livePreview')}
                             </div>
                         </div>
@@ -848,25 +848,25 @@ export default function OnboardingPage() {
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-md bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col max-h-[85vh] overflow-hidden"
+                            className="relative w-full max-w-md bg-white border-4 border-[#1a1a1a] shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] flex flex-col max-h-[85vh] overflow-hidden"
                         >
-                            <div className="p-5 border-b-2 border-black flex items-center justify-between bg-[#ffdf00] shrink-0">
+                            <div className="p-5 border-b-2 border-[#1a1a1a] flex items-center justify-between bg-[#ffdf00] shrink-0">
                                 {configuringSocialPlatform ? (
-                                    <button onClick={() => setConfiguringSocialPlatform(null)} className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-black transition-colors">
+                                    <button onClick={() => setConfiguringSocialPlatform(null)} className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-[#1a1a1a] transition-colors">
                                         <ChevronLeft size={24} />
                                     </button>
                                 ) : <div className="w-8" />}
                                 <h3 className="font-black text-lg uppercase tracking-tight">
                                     {configuringSocialPlatform ? `${t('onboarding.configure')} ${SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.label}` : t('onboarding.addSocialNetwork')}
                                 </h3>
-                                <button onClick={() => { setIsSocialModalOpen(false); setConfiguringSocialPlatform(null); }} className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-black transition-colors">
+                                <button onClick={() => { setIsSocialModalOpen(false); setConfiguringSocialPlatform(null); }} className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-[#1a1a1a] transition-colors">
                                     <X size={24} />
                                 </button>
                             </div>
 
                             {!configuringSocialPlatform ? (
                                 <div className="flex flex-col flex-1 min-h-0 bg-white">
-                                    <div className="p-5 border-b-2 border-black shrink-0 bg-[#ffdf00]/20">
+                                    <div className="p-5 border-b-2 border-[#1a1a1a] shrink-0 bg-[#ffdf00]/20">
                                         <div className="relative">
                                             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                             <input
@@ -875,7 +875,7 @@ export default function OnboardingPage() {
                                                 value={socialSearchTerm}
                                                 onChange={(e) => setSocialSearchTerm(e.target.value)}
                                                 placeholder={t('onboarding.searchPlatformPlaceholder')}
-                                                className="w-full bg-white border-2 border-black py-3 pl-12 pr-4 text-sm font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none transition-all placeholder:font-normal"
+                                                className="w-full bg-white border-2 border-[#1a1a1a] py-3 pl-12 pr-4 text-sm font-bold shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] focus:outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none transition-all placeholder:font-normal"
                                             />
                                         </div>
                                     </div>
@@ -901,8 +901,8 @@ export default function OnboardingPage() {
                                                     className={`
                                                         w-full flex items-center justify-between p-4 border-2 transition-all cursor-pointer group
                                                         ${isSelected
-                                                            ? 'border-black bg-[#97cd7a]/20 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
-                                                            : 'border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none hover:bg-slate-50'}
+                                                            ? 'border-[#1a1a1a] bg-[#97cd7a]/20 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'
+                                                            : 'border-[#1a1a1a] bg-white shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none hover:bg-slate-50'}
                                                     `}
                                                 >
                                                     <div className="flex items-center gap-4">
@@ -917,13 +917,13 @@ export default function OnboardingPage() {
                                                                     e.stopPropagation();
                                                                     setQuickLinks(quickLinks.filter(l => !(l.provider === platform.id && l.layout === 'social')));
                                                                 }}
-                                                                className="p-2 border-2 border-transparent hover:border-black hover:bg-black hover:text-white transition-colors text-slate-400 group-hover:text-white"
+                                                                className="p-2 border-2 border-transparent hover:border-[#1a1a1a] hover:bg-black hover:text-white transition-colors text-slate-400 group-hover:text-white"
                                                             >
                                                                 <Trash2 size={16} />
                                                             </button>
                                                         </div>
                                                     ) : (
-                                                        <div className="w-8 h-8 border-2 border-black rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <div className="w-8 h-8 border-2 border-[#1a1a1a] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                             <Plus size={16} />
                                                         </div>
                                                     )}
@@ -939,15 +939,15 @@ export default function OnboardingPage() {
                                 </div>
                             ) : (
                                 <div className="p-8 bg-white flex flex-col items-center">
-                                    <div className={`w-24 h-24 flex items-center justify-center border-4 border-black bg-slate-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-8 ${SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.color}`}>
+                                    <div className={`w-24 h-24 flex items-center justify-center border-4 border-[#1a1a1a] bg-slate-50 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] mb-8 ${SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.color}`}>
                                         {SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.icon({ size: 48 })}
                                     </div>
 
                                     <div className="w-full space-y-3 mb-10">
                                         <label className="text-xs font-black uppercase tracking-widest text-black">{t('onboarding.enterHandle')}</label>
-                                        <div className="flex items-stretch border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus-within:translate-x-[2px] focus-within:translate-y-[2px] focus-within:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
+                                        <div className="flex items-stretch border-2 border-[#1a1a1a] bg-white shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] focus-within:translate-x-[2px] focus-within:translate-y-[2px] focus-within:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] transition-all">
                                             {SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.baseUrl && (
-                                                <div className="px-4 border-r-2 border-black py-4 bg-slate-50 text-sm font-bold text-slate-500 whitespace-nowrap flex items-center">
+                                                <div className="px-4 border-r-2 border-[#1a1a1a] py-4 bg-slate-50 text-sm font-bold text-slate-500 whitespace-nowrap flex items-center">
                                                     {SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.baseUrl?.replace('https://', '')}
                                                 </div>
                                             )}
@@ -967,8 +967,8 @@ export default function OnboardingPage() {
                                         onClick={confirmSocialPlatform}
                                         disabled={!tempSocialUrl}
                                         className={`
-                                            w-full h-16 border-2 border-black font-black uppercase tracking-wider text-lg transition-all flex items-center justify-center gap-3
-                                            ${tempSocialUrl ? 'bg-[#97cd7a] text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px]' : 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 shadow-none'}
+                                            w-full h-16 border-2 border-[#1a1a1a] font-black uppercase tracking-wider text-lg transition-all flex items-center justify-center gap-3
+                                            ${tempSocialUrl ? 'bg-[#97cd7a] text-black shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px]' : 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 shadow-none'}
                                         `}
                                     >
                                         <Check size={24} strokeWidth={3} /> {t('onboarding.saveLink')}

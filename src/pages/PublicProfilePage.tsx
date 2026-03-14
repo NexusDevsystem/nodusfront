@@ -133,7 +133,7 @@ export default function PublicProfilePage() {
 
             {/* Brutalist QR Code */}
             <div className="fixed bottom-8 right-8 hidden xl:block z-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-white p-3 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+                <div className="bg-white p-3 border-4 border-[#1a1a1a] shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] transition-transform hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[12px_12px_0px_0px_rgba(26,26,26,1)]">
                     <QRCodeCanvas
                         value={window.location.href}
                         size={100}

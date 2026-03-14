@@ -15,7 +15,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShar
   return (
     <div className="flex flex-col items-center lg:justify-center w-full h-full lg:overflow-visible select-none lg:px-4">
       {/* Public URL Preview Bar - Hidden on mobile for immersive feel */}
-      <div className="hidden lg:flex mb-6 items-center gap-2 px-3 py-2 bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black text-[9px] font-black uppercase tracking-widest">
+      <div className="hidden lg:flex mb-6 items-center gap-2 px-3 py-2 bg-white border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] text-black text-[9px] font-black uppercase tracking-widest">
         <Globe size={12} strokeWidth={3} className="text-black/40" />
         <span className="opacity-70">nodus.my/</span>
         <span className="text-black">{profile.username || profile.name.toLowerCase().replace(/\s+/g, '')}</span>
@@ -28,7 +28,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShar
       </div>      {/* Frame Container - Full screen on mobile, S24 Ultra mockup on desktop */}
       <div className={`relative origin-center flex items-center justify-center w-full h-full lg:w-[350px] lg:h-[740px] lg:scale-[0.83] xl:scale-100`}>
         {/* Phone Body */}
-        <div className="relative w-full h-full lg:bg-black lg:border-[8px] lg:border-[#1a1a1a] lg:rounded-[24px] lg:shadow-[20px_20px_40px_-10px_rgba(0,0,0,0.4)] flex flex-col lg:ring-1 lg:ring-[#2a2a2a] transform z-10">
+        <div className="relative w-full h-full lg:bg-black lg:border-[8px] lg:border-[#1a1a1a] lg:rounded-[24px] lg:shadow-[20px_20px_40px_-10px_rgba(26,26,26,0.4)] flex flex-col lg:ring-1 lg:ring-[#2a2a2a] transform z-10">
 
           {/* Screen Content Wrapper */}
           <div className="relative w-full h-full lg:rounded-[16px] overflow-hidden bg-white flex flex-col transform">

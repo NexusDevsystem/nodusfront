@@ -14,8 +14,17 @@ export default function Tooltip({ children, text, position = 'bottom', className
     const [coords, setCoords] = useState({ top: 0, left: 0, width: 0, height: 0 });
     const wrapperRef = useRef<HTMLDivElement>(null);
 
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     const updatePosition = () => {
-        if (!wrapperRef.current) return;
+        if (!wrapperRef.current || isMobile) return;
         const rect = wrapperRef.current.getBoundingClientRect();
 
         setCoords({
@@ -27,7 +36,7 @@ export default function Tooltip({ children, text, position = 'bottom', className
     };
 
     useEffect(() => {
-        if (isVisible) {
+        if (isVisible && !isMobile) {
             updatePosition();
             window.addEventListener('scroll', updatePosition, true);
             window.addEventListener('resize', updatePosition);
@@ -40,7 +49,7 @@ export default function Tooltip({ children, text, position = 'bottom', className
                 window.removeEventListener('resize', updatePosition);
             };
         }
-    }, [isVisible]);
+    }, [isVisible, isMobile]);
 
     let transform = '';
     let tooltipLeft = coords.left;
@@ -73,13 +82,13 @@ export default function Tooltip({ children, text, position = 'bottom', className
         <div
             ref={wrapperRef}
             className={`inline-flex ${className}`}
-            onMouseEnter={() => setIsVisible(true)}
+            onMouseEnter={() => !isMobile && setIsVisible(true)}
             onMouseLeave={() => setIsVisible(false)}
-            onFocus={() => setIsVisible(true)}
+            onFocus={() => !isMobile && setIsVisible(true)}
             onBlur={() => setIsVisible(false)}
         >
             {children}
-            {isVisible && createPortal(
+            {isVisible && !isMobile && createPortal(
                 <div
                     style={{
                         position: 'absolute',
@@ -87,7 +96,7 @@ export default function Tooltip({ children, text, position = 'bottom', className
                         left: tooltipLeft,
                         transform: transform,
                     }}
-                    className="z-[999999] px-2.5 py-1.5 bg-white text-black text-[9px] font-black uppercase tracking-widest whitespace-nowrap border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] pointer-events-none animate-in fade-in zoom-in-95 duration-200"
+                    className="z-[999999] px-2.5 py-1.5 bg-white text-black text-[9px] font-black uppercase tracking-widest whitespace-nowrap border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] pointer-events-none animate-in fade-in zoom-in-95 duration-200"
                 >
                     {text}
                 </div>,

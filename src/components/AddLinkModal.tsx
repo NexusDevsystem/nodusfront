@@ -6,9 +6,9 @@ import {
     MessageSquare, Instagram, Youtube, MessageCircle,
     ChevronRight, Plus, DollarSign, Store, Share2,
     Smartphone, Mail, Type, Hash, Send as SendIcon, Zap, CreditCard,
-    Tag, Grid, Calendar, BarChart3, Lock
+    Tag, Grid, Calendar, BarChart3, Lock, Video, Phone
 } from 'lucide-react';
-import { SiSpotify, SiTiktok, SiPaypal, SiWhatsapp } from 'react-icons/si';
+import { SiSpotify, SiTiktok, SiPaypal, SiWhatsapp, SiDiscord, SiThreads } from 'react-icons/si';
 import { SOCIAL_NETWORKS } from '../constants';
 
 interface AddLinkModalProps {
@@ -72,15 +72,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     const { t } = useTranslation();
     const [url, setUrl] = useState('');
 
-    const CATEGORIES = useMemo(() => [
-        { id: 'suggested', label: t('links.suggested'), icon: <Plus size={16} strokeWidth={1.5} /> },
-        { id: 'commerce', label: t('links.commerce'), icon: <ShoppingBag size={16} strokeWidth={1.5} /> },
-        { id: 'social', label: t('links.social'), icon: <Share2 size={16} strokeWidth={1.5} /> },
-        { id: 'media', label: t('links.media'), icon: <Youtube size={16} strokeWidth={1.5} /> },
-        { id: 'contact', label: t('links.contact'), icon: <Smartphone size={16} strokeWidth={1.5} /> },
-    ], [t]);
 
-    const [activeCategory, setActiveCategory] = useState('suggested');
     const [detectedInfo, setDetectedInfo] = useState<{ platform: string, icon: React.ReactNode, type: 'social' | 'link' } | null>(null);
     const [showShopCollectionStep, setShowShopCollectionStep] = useState(false);
     const [shopCollectionName, setShopCollectionName] = useState('');
@@ -110,32 +102,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
-
-        // Tour integration: Close modal when requested by the tour
-        const handleTourClose = () => {
-            onClose();
-            setShowCollectionStep(false);
-            setShowShopCollectionStep(false);
-            setShowIncentiveStep(false);
-        };
-
-        // Tour integration: Open modal
-        const handleTourOpen = () => {
-            // Trigger the parent's logic to open it (usually via isOpen prop, 
-            // but here we might need to simulate the click or use a custom hook)
-            // Since this component is managed by parent isOpen, we use the event to tell 
-            // the parent to open us, but the state is already in parent.
-            // Wait, EditorPage has the state. Let's see if we can trigger it there.
-        };
-
-        window.addEventListener('tour-close-all-modals', handleTourClose);
-        window.addEventListener('tour-open-add-link-modal', handleTourOpen);
-
-        return () => {
-            window.removeEventListener('resize', handleResize);
-            window.removeEventListener('tour-close-all-modals', handleTourClose);
-            window.removeEventListener('tour-open-add-link-modal', handleTourOpen);
-        };
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     // Auto-detect link type
@@ -195,29 +162,29 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     const renderContent = () => {
         if (showCollectionStep) {
             return (
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-400">
-                    <div className="flex items-center gap-3 mb-2">
+                <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-400">
+                    <div className="flex items-center gap-4 mb-2">
                         <button
                             onClick={() => setShowCollectionStep(false)}
-                            className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                            className="p-2 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-black transition-all rounded-lg shadow-[3px_3px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5"
                         >
-                            <ChevronRight size={18} className="rotate-180" />
+                            <ChevronRight size={16} strokeWidth={3} className="rotate-180" />
                         </button>
-                        <h4 className="font-medium text-slate-900 text-sm">{t('links.createCollection')}</h4>
+                        <h4 className="text-lg font-black text-black uppercase tracking-tighter">{t('links.createCollection')}</h4>
                     </div>
 
-                    <div className="space-y-4">
-                        <p className="text-sm font-normal text-black/70 leading-relaxed uppercase tracking-widest">
+                    <div className="space-y-6 bg-slate-50 p-6 border-2 border-black rounded-3xl">
+                        <p className="text-[9px] font-black text-black/50 leading-relaxed uppercase tracking-[0.2em] px-1">
                             {t('links.collectionDesc', { extra: url.trim() ? t('links.collectionUrlHint') : "" })}
                         </p>
 
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-medium uppercase tracking-widest text-black px-1">{t('links.collectionNameLabel')}</label>
+                        <div className="space-y-2.5">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 px-1">{t('links.collectionNameLabel')}</label>
                             <input
                                 autoFocus
                                 type="text"
                                 placeholder={t('links.collectionNamePlaceholder')}
-                                className="w-full bg-white border border-black rounded-none py-2 px-3 text-sm font-normal text-black focus:outline-none focus:ring-0 focus:border-black transition-all placeholder:text-black/30"
+                                className="w-full bg-white border-2 border-black rounded-xl py-3 px-4 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_#1a1a1a] transition-all uppercase tracking-widest"
                                 value={collectionName}
                                 onChange={(e) => setCollectionName(e.target.value)}
                                 onKeyDown={(e) => {
@@ -229,19 +196,19 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             />
                         </div>
 
-                        <div className="space-y-4">
-                            <label className="text-xs font-medium uppercase tracking-widest text-black px-1">{t('links.layoutLabel')}</label>
-                            <div className="grid grid-cols-2 gap-4 md:max-w-[340px]">
+                        <div className="space-y-6">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 px-1">{t('links.layoutLabel')}</label>
+                            <div className="grid grid-cols-2 gap-5">
                                 {[
                                     {
                                         id: 'list',
                                         label: t('links.layoutList') || 'Lista',
                                         icon: (
-                                            <svg viewBox="0 0 100 80" className="w-10 h-auto">
-                                                <rect x="10" y="10" width="80" height="24" fill="white" stroke="black" strokeWidth="6" />
-                                                <rect x="23" y="20" width="30" height="4" fill="black" />
-                                                <rect x="10" y="44" width="80" height="24" fill="white" stroke="black" strokeWidth="6" />
-                                                <rect x="23" y="54" width="30" height="4" fill="black" />
+                                            <svg viewBox="0 0 100 80" className="w-14 h-auto">
+                                                <rect x="10" y="10" width="80" height="24" fill="white" stroke="black" strokeWidth="6" rx="6" />
+                                                <rect x="23" y="19.5" width="30" height="5" fill="black" rx="1.5" />
+                                                <rect x="10" y="44" width="80" height="24" fill="white" stroke="black" strokeWidth="6" rx="6" />
+                                                <rect x="23" y="53.5" width="30" height="5" fill="black" rx="1.5" />
                                             </svg>
                                         )
                                     },
@@ -249,10 +216,10 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                         id: 'carousel',
                                         label: t('links.layoutCarousel') || 'Carrossel',
                                         icon: (
-                                            <svg viewBox="0 0 100 80" className="w-10 h-auto overflow-visible">
-                                                <rect x="0" y="10" width="40" height="60" fill="white" stroke="black" strokeWidth="6" />
-                                                <rect x="50" y="10" width="40" height="60" fill="white" stroke="black" strokeWidth="6" opacity="0.6" />
-                                                <rect x="100" y="10" width="40" height="60" fill="white" stroke="black" strokeWidth="6" opacity="0.3" />
+                                            <svg viewBox="0 0 100 80" className="w-14 h-auto overflow-visible">
+                                                <rect x="0" y="10" width="40" height="60" fill="white" stroke="black" strokeWidth="8" rx="6" />
+                                                <rect x="55" y="10" width="40" height="60" fill="white" stroke="black" strokeWidth="8" opacity="0.6" rx="6" />
+                                                <rect x="110" y="10" width="40" height="60" fill="white" stroke="black" strokeWidth="8" opacity="0.3" rx="6" />
                                             </svg>
                                         )
                                     },
@@ -260,12 +227,12 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                     <button
                                         key={opt.id}
                                         onClick={() => setCollectionLayout(opt.id as any)}
-                                        className={`flex flex-col items-center gap-3 p-3 md:p-4 border-2 transition-all ${collectionLayout === opt.id ? 'border-black bg-[#ffdf00] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -translate-x-1 -translate-y-1' : 'border-black/5 bg-slate-50 hover:border-black'}`}
+                                        className={`group relative flex flex-col items-center gap-3 p-4 border-2 rounded-2xl transition-all duration-300 ${collectionLayout === opt.id ? 'border-black bg-[#ffdf00] shadow-[3px_3px_0px_0px_#1a1a1a] -translate-x-0.5 -translate-y-0.5' : 'border-black/5 bg-white hover:border-black'}`}
                                     >
-                                        <div className="flex items-center justify-center p-1">
+                                        <div className="flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
                                             {opt.icon}
                                         </div>
-                                        <span className="text-[9px] font-black uppercase tracking-widest">{opt.label}</span>
+                                        <span className={`text-[10px] font-black uppercase tracking-widest ${collectionLayout === opt.id ? 'text-black' : 'text-black/40'}`}>{opt.label}</span>
                                     </button>
                                 ))}
                             </div>
@@ -277,10 +244,10 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 onAddCollection(collectionName, url, collectionLayout);
                                 onClose();
                             }}
-                            className="w-full py-3 bg-[#97cd7a] text-black border-[1.5px] border-black rounded-none text-xs font-medium uppercase tracking-widest hover:bg-[#ffdf00] disabled:opacity-50 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none flex items-center justify-center gap-2"
+                            className="w-full py-4 bg-[#97cd7a] text-black border-2 border-black rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3"
                         >
+                            <Plus size={18} strokeWidth={4} />
                             <span>{t('links.createCollectionButton')}</span>
-                            <Plus size={16} strokeWidth={3} />
                         </button>
                     </div>
                 </div>
@@ -289,29 +256,29 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
 
         if (showShopCollectionStep) {
             return (
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-400">
-                    <div className="flex items-center gap-3 mb-2">
+                <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-400">
+                    <div className="flex items-center gap-4 mb-2">
                         <button
                             onClick={() => setShowShopCollectionStep(false)}
-                            className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                            className="p-2 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-black transition-all rounded-lg shadow-[3px_3px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5"
                         >
-                            <ChevronRight size={18} className="rotate-180" />
+                            <ChevronRight size={16} strokeWidth={3} className="rotate-180" />
                         </button>
-                        <h4 className="font-medium text-slate-900 text-sm">{t('links.createProductCollection')}</h4>
+                        <h4 className="text-lg font-black text-black uppercase tracking-tighter">{t('links.createProductCollection')}</h4>
                     </div>
 
-                    <div className="space-y-4">
-                        <p className="text-sm font-normal text-black/70 leading-relaxed uppercase tracking-widest">
-                            {t('links.commerceCollectionDesc')}
+                    <div className="space-y-6 bg-slate-50 p-6 border-2 border-black rounded-3xl">
+                        <p className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em] leading-relaxed">
+                            {t('links.commerceCollectionDesc') || 'Agrupe seus produtos em uma vitrine visual irresistível'}
                         </p>
 
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-medium uppercase tracking-widest text-black px-1">{t('links.categoryNameLabel')}</label>
+                        <div className="space-y-2.5">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 px-1">{t('links.categoryNameLabel')}</label>
                             <input
                                 autoFocus
                                 type="text"
-                                placeholder={t('links.categoryPlaceholder')}
-                                className="w-full bg-white border border-black rounded-none py-2 px-3 text-sm font-normal text-black focus:outline-none focus:ring-0 focus:border-black transition-all placeholder:text-black/30"
+                                placeholder={t('links.categoryPlaceholder') || 'Ex: Meus Favoritos, Nova Coleção...'}
+                                className="w-full bg-white border-2 border-black rounded-xl py-3 px-4 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_#1a1a1a] transition-all uppercase tracking-widest"
                                 value={shopCollectionName}
                                 onChange={(e) => setShopCollectionName(e.target.value)}
                                 onKeyDown={(e) => {
@@ -323,442 +290,344 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             />
                         </div>
 
+                        <div className="p-6 bg-cyan-400/10 border-2 border-black/10 rounded-3xl flex items-start gap-4">
+                            <Zap size={24} className="text-cyan-500 shrink-0" />
+                            <p className="text-[10px] font-bold text-black/60 uppercase tracking-widest leading-relaxed">
+                                {t('links.shopCollectionTip') || 'Dica: Coleções de produtos convertem 40% mais quando têm nomes diretos e curtos.'}
+                            </p>
+                        </div>
+
                         <button
                             disabled={!shopCollectionName.trim()}
                             onClick={() => {
                                 onAddProduct(shopCollectionName);
                                 onClose();
                             }}
-                            className="w-full py-3 bg-[#ffdf00] text-black border-[1.5px] border-black rounded-none text-xs font-medium uppercase tracking-widest hover:bg-[#97cd7a] disabled:opacity-50 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none flex items-center justify-center gap-2"
+                                className="w-full py-4 bg-cyan-400 text-black border-2 border-black rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3"
                         >
-                            <span>{t('common.continueTo')} {t('sidebar.shop')}</span>
-                            <ChevronRight size={16} strokeWidth={3} />
+                            <Plus size={18} strokeWidth={4} />
+                            <span>{t('links.createCollectionButton')}</span>
                         </button>
                     </div>
                 </div>
             );
         }
 
-        switch (activeCategory) {
-            case 'suggested':
-                if (isMobile) {
-                    return (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-1 duration-300">
-                            {/* Mobile Grid - Brutalist style */}
-                            <div className="grid grid-cols-3 gap-4">
-                                {[
-                                    { id: 'link', icon: <LinkIcon size={24} strokeWidth={2} />, label: t('links.linkLabel'), color: 'text-black', action: () => { onAddLink(); onClose(); } },
-                                    { id: 'collection', icon: <Layout size={24} strokeWidth={2} />, label: t('links.collectionLabel'), color: 'text-black', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
-                                    { id: 'product', icon: <ShoppingBag size={24} strokeWidth={2} />, label: t('links.productLabel'), color: 'text-black', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
-                                    { id: 'agenda', icon: <Calendar size={24} strokeWidth={2} />, label: t('agenda.title') || 'Agenda', color: 'text-black', action: () => { onAddAgenda(); onClose(); } },
-                                    { id: 'map', icon: <Store size={24} strokeWidth={2} />, label: t('links.mapLabelMobile') || 'Mapa', color: 'text-black', action: () => { onAddMap(); onClose(); } },
-                                    { id: 'mediakit', icon: <BarChart3 size={24} strokeWidth={2} />, label: t('mediakit.title') || 'Mídia Kit', color: 'text-black', action: () => { onAddMediaKit(); onClose(); } },
-                                ].map((item) => (
-                                    <button
-                                        key={item.id}
-                                        data-tour={`add-link-type-${item.id}`}
-                                        onClick={item.action}
-                                        className="flex flex-col items-center gap-3 active:translate-x-[1px] active:translate-y-[1px]"
-                                    >
-                                        <div className={`w-full aspect-square flex flex-col items-center justify-center border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:shadow-none bg-white`}>
-                                            <div className={`${item.color}`}>
-                                                {item.icon}
-                                            </div>
-                                        </div>
-                                        <span className="text-[10px] font-medium text-black uppercase tracking-widest leading-none">{item.label}</span>
-                                    </button>
-                                ))}
-                            </div>
-
-                            <div className="space-y-4">
-                                <h4 className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1 border-b-2 border-black pb-1 inline-block">{t('links.popularLinks')}</h4>
-                                <div className="space-y-3">
-                                    {[
-                                        { id: 'instagram', icon: <Instagram size={20} className="text-black" strokeWidth={3} />, title: 'Instagram', desc: t('links.postsReels'), action: () => onAddSocial('instagram') },
-                                        { id: 'tiktok', icon: <SiTiktok size={18} />, title: 'TikTok', desc: t('links.shortVideos'), action: () => onAddSocial('tiktok') },
-                                        { id: 'youtube', icon: <Youtube size={20} className="text-black" strokeWidth={3} />, title: 'YouTube', desc: t('links.channelOrVideos'), action: () => onAddSocial('youtube') },
-                                        { id: 'spotify', icon: <SiSpotify size={18} className="text-black" />, title: 'Spotify', desc: t('links.musicPlaylists'), action: () => onAddSocial('spotify') },
-                                        { id: 'whatsapp', icon: <SiWhatsapp size={20} className="text-black" />, title: 'WhatsApp', desc: t('links.directChat'), action: () => onAddSocial('whatsapp') },
-                                    ].map((item) => (
-                                        <button
-                                            key={item.id}
-                                            onClick={() => { item.action(); onClose(); }}
-                                            className="w-full flex items-center gap-4 p-3.5 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#ffdf00] transition-all active:shadow-none active:translate-x-[1px] active:translate-y-[1px] group"
-                                        >
-                                            <div className="w-11 h-11 flex items-center justify-center border-2 border-black shrink-0 bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                                {item.icon}
-                                            </div>
-                                            <div className="flex-1 text-left min-w-0">
-                                                <div className="text-[13px] font-medium text-black uppercase tracking-widest leading-none mb-1">{item.title}</div>
-                                                <div className="text-[9px] text-black/50 font-normal uppercase tracking-widest">{item.desc}</div>
-                                            </div>
-                                            <ChevronRight size={18} strokeWidth={3} className="text-black group-active:translate-x-0.5 transition-all" />
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    );
-                }
-                return (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        {/* Desktop Grid - Premium Brutalist */}
-                        <div className="grid grid-cols-3 gap-4">
-                            {[
-                                { id: 'link', icon: <LinkIcon size={32} strokeWidth={1.5} />, label: t('links.externalLink'), desc: t('links.insertAnyUrl'), color: 'text-black', hoverBg: 'hover:bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
-                                { id: 'collection', icon: <Layout size={32} strokeWidth={1.5} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { setShowCollectionStep(true); setActiveCategory('suggested'); } },
-                                { id: 'product', icon: <ShoppingBag size={32} strokeWidth={1.5} />, label: t('links.newProduct'), desc: t('links.productDescShort'), color: 'text-black', hoverBg: 'hover:bg-cyan-400', action: () => { setShowShopCollectionStep(true); setActiveCategory('commerce'); } },
-                                { id: 'agenda', icon: <Calendar size={32} strokeWidth={1.5} />, label: t('agenda.title') || 'Agenda', desc: t('agenda.descShort') || 'Liste seus eventos e shows', color: 'text-black', hoverBg: 'hover:bg-[#ffdf00]', action: () => { onAddAgenda(); onClose(); } },
-                                { id: 'map', icon: <Store size={32} strokeWidth={1.5} />, label: t('links.mapLabel') || 'Endereço', desc: t('links.mapDesc') || 'Destaque a localização do seu negócio', color: 'text-black', hoverBg: 'hover:bg-[#97cd7a]', action: () => { onAddMap(); onClose(); } },
-                                { id: 'mediakit', icon: isPro ? <BarChart3 size={32} strokeWidth={1.5} /> : <Lock size={32} strokeWidth={1.5} className="text-black/30" />, label: t('mediakit.title') || 'Mídia Kit (PRO)', desc: t('mediakit.descShort') || 'Mostre seus números p/ marcas', color: isPro ? 'text-black' : 'text-black/40', hoverBg: isPro ? 'hover:bg-[#97cd7a]' : 'hover:bg-slate-100', action: isPro ? () => { onAddMediaKit(); onClose(); } : () => { /* Bloqueado */ } },
-                            ].map((item) => (
-                                <button
-                                    key={item.id}
-                                    data-tour={`add-link-type-${item.id}`}
-                                    onClick={item.action}
-                                    className={`relative flex flex-col items-center text-center p-6 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none ${item.hoverBg} transition-all group overflow-hidden bg-white`}
-                                >
-                                    <div className={`mb-4 ${item.color} group-hover:scale-110 transition-transform duration-300`}>
+        return (
+            <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {/* Section: Essentials */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="w-1.5 h-6 bg-[#ffdf00] border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full mr-1"></div>
+                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.suggested')}</h4>
+                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                        {[
+                            { id: 'link', icon: <LinkIcon size={isMobile ? 20 : 24} strokeWidth={3} />, label: isMobile ? t('links.linkLabel') : t('links.externalLink'), desc: t('links.insertAnyUrl'), color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
+                            { id: 'collection', icon: <Layout size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { setShowCollectionStep(true); } },
+                            { id: 'product', icon: <ShoppingBag size={isMobile ? 20 : 24} strokeWidth={3} />, label: isMobile ? t('links.productLabel') : t('links.newProduct'), desc: t('links.productDescShort'), color: 'bg-white', accent: 'bg-cyan-400', action: () => { setShowShopCollectionStep(true); } },
+                            { id: 'agenda', icon: <Calendar size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('agenda.title') || 'Agenda', desc: t('agenda.descShort') || 'Liste seus eventos e shows', color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddAgenda(); onClose(); } },
+                            { id: 'map', icon: <Store size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.mapLabel') || 'Endereço', desc: t('links.mapDesc') || 'Destaque a localização do seu negócio', color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { onAddMap(); onClose(); } },
+                            { id: 'mediakit', icon: isPro ? <BarChart3 size={isMobile ? 20 : 24} strokeWidth={3} /> : <Lock size={isMobile ? 20 : 24} strokeWidth={3} className="text-black/30" />, label: t('mediakit.title') || 'Mídia Kit (PRO)', desc: t('mediakit.descShort') || 'Mostre seus números p/ marcas', color: 'bg-white', accent: isPro ? 'bg-[#97cd7a]' : 'bg-slate-100', action: isPro ? () => { onAddMediaKit(); onClose(); } : () => { /* Bloqueado */ } },
+                        ].map((item) => (
+                            <button
+                                key={item.id}
+                                data-tour={`add-link-type-${item.id}`}
+                                onClick={item.action}
+                                className={`
+                                    group relative flex flex-col items-start p-4 md:p-5 border-2 border-black text-left transition-all duration-300
+                                    ${item.color} rounded-xl md:rounded-2xl shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 overflow-hidden
+                                `}
+                            >
+                                <div className={`
+                                    mb-3 md:mb-4 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center border-2 border-black ${item.accent} 
+                                    shadow-[3px_3px_0px_0px_#1a1a1a] rounded-lg md:rounded-xl group-hover:scale-110 transition-transform
+                                `}>
+                                    <div className="text-black group-hover:rotate-6 transition-transform">
                                         {item.icon}
                                     </div>
-                                    <span className="text-xs font-medium text-black uppercase tracking-widest mb-1">{item.label}</span>
-                                    <span className="text-[10px] font-normal text-black/50 uppercase tracking-tighter leading-tight">{item.desc}</span>
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-4">
-                                <h4 className="text-[11px] font-medium text-black uppercase tracking-[0.2em] whitespace-nowrap">{t('links.popularLinks')}</h4>
-                                <div className="h-[2px] flex-1 bg-black/10"></div>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4">
-                                {[
-                                    { id: 'instagram', icon: <Instagram size={22} strokeWidth={3} className="text-black" />, title: 'Instagram', desc: t('links.postsReels'), color: 'bg-[#ffdf00]', action: () => onAddSocial('instagram') },
-                                    { id: 'tiktok', icon: <SiTiktok size={20} className="text-black" />, title: 'TikTok', desc: t('links.shortVideos'), color: 'bg-[#97cd7a]', action: () => onAddSocial('tiktok') },
-                                    { id: 'youtube', icon: <Youtube size={22} strokeWidth={3} className="text-black" />, title: 'YouTube', desc: t('links.channelOrVideos'), color: 'bg-red-400', action: () => onAddSocial('youtube') },
-                                    { id: 'spotify', icon: <SiSpotify size={20} className="text-black" />, title: 'Spotify', desc: t('links.musicPlaylists'), color: 'bg-green-400', action: () => onAddSocial('spotify') },
-                                    { id: 'whatsapp', icon: <SiWhatsapp size={22} className="text-black" />, title: 'WhatsApp', desc: t('links.directChat'), color: 'bg-cyan-300', action: () => onAddSocial('whatsapp') },
-                                ].map((item) => (
-                                    <button
-                                        key={item.id}
-                                        onClick={() => { item.action(); onClose(); }}
-                                        className="w-full flex items-center gap-4 p-4 bg-white border-2 border-black hover:bg-black group transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
-                                    >
-                                        <div className={`w-12 h-12 flex items-center justify-center shrink-0 border-2 border-black ${item.color} shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
-                                            {item.icon}
-                                        </div>
-                                        <div className="flex-1 text-left min-w-0">
-                                            <div className="text-[11px] font-medium uppercase text-black group-hover:text-white leading-none mb-1.5">{item.title}</div>
-                                            <div className="text-[9px] text-black/50 group-hover:text-white/50 font-normal uppercase tracking-widest truncate">{item.desc}</div>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                                </div>
+                                <h5 className="text-[10px] md:text-[11px] font-black text-black uppercase tracking-wider mb-1 leading-none">{item.label}</h5>
+                                {!isMobile && <p className="text-[9px] font-bold text-black/40 uppercase tracking-widest leading-none truncate w-full">{item.desc}</p>}
+                                
+                                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-20 transition-opacity">
+                                    <Plus size={12} strokeWidth={4} />
+                                </div>
+                            </button>
+                        ))}
                     </div>
-                );
-            case 'commerce':
-                if (showIncentiveStep) {
-                    return (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-400">
-                            <div className="flex items-center gap-3 mb-2">
-                                <button
-                                    onClick={() => setShowIncentiveStep(false)}
-                                    className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
-                                >
-                                    <ChevronRight size={18} className="rotate-180" />
-                                </button>
-                                <h4 className="font-medium text-slate-900 text-sm">{t('links.setupDonations')}</h4>
-                            </div>
+                </div>
 
-                            <div className="space-y-6">
-                                <div>
-                                    <label className="text-[10px] font-normal text-slate-400 uppercase tracking-widest px-1 mb-2 block">{t('links.chooseMethod')}</label>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <button
-                                            onClick={() => setIncentiveType('pix')}
-                                            className={`flex items-center justify-center gap-2.5 p-3.5 rounded-xl border transition-all ${incentiveType === 'pix' ? 'bg-[#32bcad]/10 border-[#32bcad] text-[#32bcad]' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-                                        >
-                                            <PixIcon size={18} />
-                                            <span className="text-xs font-normal leading-none">PIX</span>
-                                        </button>
-                                        <button
-                                            onClick={() => setIncentiveType('paypal')}
-                                            className={`flex items-center justify-center gap-2.5 p-3.5 rounded-xl border transition-all ${incentiveType === 'paypal' ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-                                        >
-                                            <SiPaypal size={16} />
-                                            <span className="text-xs font-normal leading-none">PAYPAL</span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-normal uppercase tracking-widest text-slate-400 px-1">
-                                        {incentiveType === 'pix' ? t('links.pixKeyLabel') : t('links.paypalLinkLabel')}
-                                    </label>
-                                    <input
-                                        autoFocus
-                                        type="text"
-                                        placeholder={incentiveType === 'pix' ? t('links.pixPlaceholder') : t('links.paypalPlaceholder')}
-                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#32a800]/10 focus:bg-white transition-all font-medium"
-                                        value={incentiveKey}
-                                        onChange={(e) => setIncentiveKey(e.target.value)}
-                                    />
-                                </div>
-
-                                <button
-                                    disabled={!incentiveKey.trim()}
-                                    onClick={() => {
-                                        onAddIncentive(incentiveType, incentiveKey);
-                                        onClose();
-                                    }}
-                                    className="w-full py-4 bg-slate-900 text-white rounded-xl text-xs font-normal uppercase tracking-widest hover:bg-black disabled:opacity-30 transition-all shadow-md flex items-center justify-center gap-2"
-                                >
-                                    <span>{t('links.saveAndContinue')}</span>
-                                    <ChevronRight size={14} />
-                                </button>
-                            </div>
-                        </div>
-                    );
-                }
-                return (
-                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-1 duration-300">
-                        <div className="p-4 border-[1.5px] border-black bg-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4">
-                            <h4 className="font-medium text-black text-lg uppercase tracking-widest leading-none">{t('links.monetizeProfile')}</h4>
-                            <p className="text-[10px] font-normal text-black/70 mt-2 uppercase tracking-widest">{t('links.monetizeProfileDesc')}</p>
-                        </div>
+                {/* Section: Popular Links */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="w-1.5 h-6 bg-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full mr-1"></div>
+                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.popularLinks')}</h4>
+                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {[
-                            { id: 'product', icon: <ShoppingBag size={18} strokeWidth={2} />, title: t('links.productStore'), desc: t('links.physicalOrDigital'), action: () => setShowShopCollectionStep(true) },
-                            { id: 'incentive', icon: <DollarSign size={18} strokeWidth={2} />, title: t('links.incentives'), desc: t('links.receiveSupportDirectly'), action: () => setShowIncentiveStep(true) },
-                            { id: 'affiliate', icon: <Store size={18} strokeWidth={2} />, title: t('links.affiliateLink'), desc: t('links.affiliateDesc'), action: () => { } },
+                            { id: 'instagram', icon: <Instagram size={18} strokeWidth={3} className="text-black" />, title: 'Instagram', desc: t('links.postsReels'), color: 'bg-white', action: () => onAddSocial('instagram') },
+                            { id: 'tiktok', icon: <SiTiktok size={16} className="text-black" />, title: 'TikTok', desc: t('links.shortVideos'), color: 'bg-white', action: () => onAddSocial('tiktok') },
+                            { id: 'youtube', icon: <Youtube size={18} strokeWidth={3} className="text-black" />, title: 'YouTube', desc: t('links.channelOrVideos'), color: 'bg-white', action: () => onAddSocial('youtube') },
+                            { id: 'spotify', icon: <SiSpotify size={16} className="text-black" />, title: 'Spotify', desc: t('links.musicPlaylists'), color: 'bg-white', action: () => onAddSocial('spotify') },
+                            { id: 'whatsapp', icon: <SiWhatsapp size={18} className="text-black" />, title: 'WhatsApp', desc: t('links.directChat'), color: 'bg-white', action: () => onAddSocial('whatsapp') },
+                        ].map((item) => (
+                            <button
+                                key={item.id}
+                                onClick={() => { item.action(); onClose(); }}
+                                className="w-full flex items-center gap-3 p-3 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[3.5px_3.5px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 rounded-xl group"
+                            >
+                                <div className={`w-9 h-9 flex items-center justify-center shrink-0 border-2 border-black bg-slate-50 shadow-[2px_2px_0px_0px_#1a1a1a] rounded-lg group-hover:scale-105 transition-transform`}>
+                                    {item.icon}
+                                </div>
+                                <div className="flex-1 text-left min-w-0">
+                                    <div className="text-[10px] font-black uppercase text-black leading-none mb-1">{item.title}</div>
+                                    <div className="text-[8px] text-black/40 font-bold uppercase tracking-widest truncate">{item.desc}</div>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Section: Monetization */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="w-1.5 h-6 bg-cyan-400 border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full mr-1"></div>
+                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.commerce')}</h4>
+                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                            { id: 'product', icon: <ShoppingBag size={24} strokeWidth={2.5} />, title: t('links.productStore'), desc: t('links.physicalOrDigital'), accent: 'bg-cyan-400', action: () => setShowShopCollectionStep(true) },
+                            { id: 'incentive', icon: <DollarSign size={24} strokeWidth={2.5} />, title: t('links.incentives'), desc: t('links.receiveSupportDirectly'), accent: 'bg-[#97cd7a]', action: () => setShowIncentiveStep(true) },
+                            { id: 'affiliate', icon: <Store size={24} strokeWidth={2.5} />, title: t('links.affiliateLink'), desc: t('links.affiliateDesc'), accent: 'bg-[#ffdf00]', action: () => { } },
+                            { id: 'subscription', icon: <Lock size={24} strokeWidth={2.5} />, title: t('links.subscription') || 'Assinatura', desc: t('links.subscriptionDesc') || 'Conteúdo exclusivo p/ assinantes', accent: 'bg-indigo-400', action: () => { } },
                         ].map((item, idx) => (
                             <button
                                 key={idx}
                                 onClick={item.action}
-                                className="w-full flex items-center gap-3 p-3 bg-white border-[1.5px] border-black hover:bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all group"
+                                className="group flex items-center gap-5 p-5 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-1 hover:translate-y-1 rounded-2xl text-left"
                             >
-                                <div className="w-10 h-10 flex items-center justify-center shrink-0 border border-black bg-white shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] text-black">
+                                <div className={`w-12 h-12 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[4px_4px_0px_0px_#1a1a1a] rounded-xl group-hover:rotate-6 transition-transform`}>
                                     {item.icon}
                                 </div>
-                                <div className="flex-1 text-left min-w-0">
-                                    <div className="text-xs font-medium text-black uppercase tracking-wider">{item.title}</div>
-                                    <div className="text-[10px] text-black/70 font-normal uppercase tracking-widest truncate">{item.desc}</div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-[11px] font-black text-black uppercase tracking-widest leading-none mb-1.5">{item.title}</div>
+                                    <div className="text-[9px] text-black/40 font-bold uppercase tracking-widest leading-tight">{item.desc}</div>
                                 </div>
-                                <Plus size={18} strokeWidth={3} className="text-black group-hover:rotate-90 transition-transform" />
                             </button>
                         ))}
                     </div>
-                );
+                </div>
 
-            case 'media':
-                return (
-                    <div className="space-y-3.5 animate-in fade-in slide-in-from-bottom-1 duration-300">
-                        <div className="p-4 border-[1.5px] border-black bg-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] mb-4">
-                            <h4 className="font-medium text-black text-lg uppercase tracking-widest leading-none">{t('links.mediaIntegrations')}</h4>
-                            <p className="text-[10px] font-normal text-black/70 mt-2 uppercase tracking-widest">{t('links.mediaIntegrationsDesc')}</p>
-                        </div>
+                {/* Section: Media & Integrations */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="w-1.5 h-6 bg-red-400 border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full mr-1"></div>
+                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.media')}</h4>
+                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {[
-                            { id: 'youtube', icon: <Youtube size={18} strokeWidth={2} />, title: 'YouTube', desc: t('links.videosOrShorts'), color: 'text-red-500' },
-                            { id: 'spotify', icon: <SiSpotify size={18} />, title: 'Spotify', desc: t('links.musicOrPlaylists'), color: 'text-emerald-500' },
-                            { id: 'tiktok', icon: <SiTiktok size={18} />, title: 'TikTok', desc: t('links.viralVideos'), color: 'text-black' },
-                            { id: 'twitch', icon: <TwitchIcon size={18} />, title: 'Twitch', desc: t('links.yourLiveStream'), color: 'text-purple-500' },
+                            { id: 'youtube', icon: <Youtube size={24} strokeWidth={2.5} />, title: 'YouTube', desc: t('links.videosOrShorts'), accent: 'bg-red-400' },
+                            { id: 'spotify', icon: <SiSpotify size={22} />, title: 'Spotify', desc: t('links.musicOrPlaylists'), accent: 'bg-green-400' },
+                            { id: 'tiktok', icon: <SiTiktok size={22} />, title: 'TikTok', desc: t('links.viralVideos'), accent: 'bg-white' },
+                            { id: 'twitch', icon: <TwitchIcon size={24} strokeWidth={2.5} />, title: 'Twitch', desc: t('links.yourLiveStream'), accent: 'bg-purple-400' },
+                            { id: 'soundcloud', icon: <Share2 size={24} strokeWidth={2.5} />, title: 'SoundCloud', desc: 'Sua música e podcasts', accent: 'bg-orange-400' },
+                            { id: 'vimeo', icon: <Video size={24} strokeWidth={2.5} />, title: 'Vimeo', desc: 'Vídeos em alta qualidade', accent: 'bg-sky-400' },
                         ].map((item) => (
                             <button
                                 key={item.id}
                                 onClick={() => { onAddLink(); onClose(); }}
-                                className="w-full flex items-center gap-3 p-3 bg-white border-[1.5px] border-black hover:bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all group"
+                                className="group flex items-center gap-5 p-5 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-1 hover:translate-y-1 rounded-2xl text-left"
                             >
-                                <div className={`w-10 h-10 flex items-center justify-center shrink-0 border border-black bg-white shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${item.color}`}>
+                                <div className={`w-12 h-12 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[3px_3px_0px_0px_#1a1a1a] rounded-xl group-hover:scale-110 transition-transform`}>
                                     {item.icon}
                                 </div>
-                                <div className="flex-1 text-left min-w-0">
-                                    <div className="text-xs font-medium text-black uppercase tracking-wider">{item.title}</div>
-                                    <div className="text-[10px] text-black/70 font-normal uppercase tracking-widest truncate">{item.desc}</div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-[11px] font-black text-black uppercase tracking-widest leading-none mb-1.5">{item.title}</div>
+                                    <div className="text-[9px] text-black/40 font-bold uppercase tracking-widest leading-none truncate">{item.desc}</div>
                                 </div>
-                                <Plus size={18} strokeWidth={3} className="text-black group-hover:rotate-90 transition-transform" />
+                                <Plus size={16} strokeWidth={4} className="text-black/10 group-hover:text-black group-hover:rotate-90 transition-all px-1" />
                             </button>
                         ))}
                     </div>
-                );
+                </div>
 
-            case 'social':
-                return (
-                    <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-bottom-1 duration-300">
+                {/* Section: Contact */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="w-1.5 h-6 bg-[#ffdf00] border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full mr-1"></div>
+                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.contact')}</h4>
+                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {[
-                            { id: 'instagram', icon: <Instagram size={18} strokeWidth={3} />, title: 'Instagram' },
-                            { id: 'tiktok', icon: <SiTiktok size={18} />, title: 'TikTok' },
-                            { id: 'twitter', icon: <Hash size={18} strokeWidth={3} />, title: 'X (Twitter)' },
-                            { id: 'linkedin', icon: <Share2 size={18} strokeWidth={3} />, title: 'LinkedIn' },
-                            { id: 'facebook', icon: <FacebookIcon size={18} />, title: 'Facebook' },
-                            { id: 'youtube', icon: <Youtube size={18} strokeWidth={3} />, title: 'YouTube' },
-                            { id: 'twitch', icon: <TwitchIcon size={18} />, title: 'Twitch' },
+                            { id: 'whatsapp', icon: <SiWhatsapp size={24} />, title: 'WhatsApp', desc: 'Conversa direta e rápida', accent: 'bg-green-400', action: () => onAddSocial('whatsapp') },
+                            { id: 'email', icon: <Share2 size={24} strokeWidth={2.5} />, title: 'E-mail', desc: 'Contato profissional oficial', accent: 'bg-[#ffdf00]', action: () => onAddSocial('email') },
+                            { id: 'phone', icon: <Phone size={24} strokeWidth={2.5} />, title: 'Telefone', desc: 'Chamada direta via voz', accent: 'bg-cyan-400', action: () => onAddSocial('phone') },
+                            { id: 'location', icon: <Store size={24} strokeWidth={2.5} />, title: 'Localização', desc: 'Endereço físico no mapa', accent: 'bg-indigo-400', action: () => onAddMap() },
+                        ].map((item) => (
+                            <button
+                                key={item.id}
+                                onClick={() => { item.action(); onClose(); }}
+                                className="group flex items-center gap-4 p-4 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 rounded-2xl text-left"
+                            >
+                                <div className={`w-11 h-11 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[3px_3px_0px_0px_#1a1a1a] rounded-xl group-hover:rotate-6 transition-transform`}>
+                                    {item.icon}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-[11px] font-black text-black uppercase tracking-widest leading-none mb-1.5">{item.title}</div>
+                                    <div className="text-[9px] text-black/40 font-bold uppercase tracking-widest leading-none truncate">{item.desc}</div>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Section: Social Profiles */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="w-1.5 h-6 bg-indigo-400 border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full mr-1"></div>
+                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.social')}</h4>
+                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[
+                            { id: 'instagram', icon: <Instagram size={22} strokeWidth={3} />, title: 'Instagram', accent: 'bg-[#ffdf00]' },
+                            { id: 'tiktok', icon: <SiTiktok size={20} />, title: 'TikTok', accent: 'bg-white' },
+                            { id: 'twitter', icon: <Hash size={22} strokeWidth={3} />, title: 'X (Twitter)', accent: 'bg-slate-100' },
+                            { id: 'linkedin', icon: <Share2 size={22} strokeWidth={3} />, title: 'LinkedIn', accent: 'bg-blue-100' },
+                            { id: 'facebook', icon: <FacebookIcon size={22} />, title: 'Facebook', accent: 'bg-cyan-50' },
+                            { id: 'youtube', icon: <Youtube size={22} strokeWidth={3} />, title: 'YouTube', accent: 'bg-red-50' },
+                            { id: 'threads', icon: <SiThreads size={22} />, title: 'Threads', accent: 'bg-slate-50' },
+                            { id: 'discord', icon: <SiDiscord size={22} />, title: 'Discord', accent: 'bg-indigo-100' },
                         ].map((item) => (
                             <button
                                 key={item.id}
                                 onClick={() => { onAddSocial(item.id); onClose(); }}
-                                className="flex items-center gap-3 p-3 bg-white border-[1.5px] border-black hover:bg-[#ffdf00] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all group"
+                                className="group flex flex-col items-center justify-center gap-3 p-6 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-1 hover:translate-y-1 rounded-2xl"
                             >
-                                <div className="w-8 h-8 flex items-center justify-center text-black shrink-0 border border-black bg-white shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                                <div className={`w-12 h-12 flex items-center justify-center border-2 border-black ${item.accent} shadow-[3px_3px_0px_0px_#1a1a1a] rounded-xl group-hover:scale-110 group-hover:-rotate-3 transition-transform`}>
                                     {item.icon}
                                 </div>
-                                <span className="text-xs font-medium text-black uppercase tracking-wider leading-none">{item.title}</span>
+                                <span className="text-[9px] font-black text-black uppercase tracking-widest leading-none">{item.title}</span>
                             </button>
                         ))}
                     </div>
-                );
+                    
 
-            default:
-                return <div className="p-10 text-center text-slate-400 text-xs font-medium">{t('common.comingSoon')} 🚀</div>;
-        }
+                </div>
+            </div>
+        );
     };
 
     return (
-        <div className={`fixed inset-0 z-[10000] flex ${isMobile ? 'items-end' : 'items-end md:items-center'} justify-center`}>
+        <div className="fixed inset-0 z-[10000] flex items-end md:items-center justify-center p-0 md:p-6 overflow-hidden">
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
-                className="absolute inset-0 bg-slate-900/60 md:bg-slate-900/40 md:backdrop-blur-[2px]"
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
 
             <motion.div
-                initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.98, y: 10 }}
+                initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
                 animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
-                exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.98, y: 10 }}
-                transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                drag={isMobile ? "y" : false}
-                dragConstraints={isMobile ? { top: 0, bottom: 0 } : undefined}
-                dragElastic={isMobile ? 0.8 : 1}
-                onDragEnd={(_, info) => {
-                    if (isMobile && info.offset.y > 100) {
-                        onClose();
-                    }
-                }}
-                className={`
-                    relative bg-white flex flex-col border-2 border-black overflow-hidden tour-add-element-modal
-                    ${isMobile ? 'w-full h-[65dvh] h-[65svh] h-[65vh] rounded-none border-b-0 shadow-none touch-none' : 'w-[820px] h-[580px] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]'}
-                `}
+                exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
+                className="relative bg-white flex flex-col border-2 border-black md:rounded-2xl shadow-none w-full md:max-w-[800px] h-[92vh] md:h-auto md:max-h-[85vh] rounded-t-[32px] md:rounded-2xl overflow-hidden tour-add-element-modal"
             >
-                {/* Global Header for Desktop (Unified across sidebar and content) */}
-                {!isMobile && (
-                    <div className="flex items-center justify-between p-6 shrink-0 border-b-2 border-black bg-white">
-                        <div>
-                            <h2 className="text-2xl font-medium text-black uppercase tracking-tighter leading-none">{t('links.addElement')}</h2>
-                            <div className="h-1 w-12 bg-[#97cd7a] mt-2"></div>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className="p-1.5 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-transparent hover:border-black transition-all active:translate-x-[1px] active:translate-y-[1px]"
-                        >
-                            <X size={24} strokeWidth={1.5} />
-                        </button>
-                    </div>
-                )}
 
-                {/* Drag Handle for Mobile - Brutalist */}
-                {isMobile && (
-                    <div className="flex justify-center p-4 pt-5 shrink-0 cursor-grab active:cursor-grabbing">
-                        <div className="w-12 h-1.5 bg-black" />
+                {/* Header Section - Refined Design */}
+                <div className="flex items-center justify-between px-6 pt-10 pb-6 md:px-10 md:pt-10 md:pb-8 shrink-0">
+                    <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-6 bg-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full"></div>
+                        <h2 className="text-xl md:text-2xl font-black text-black uppercase tracking-tight leading-none">
+                            {t('links.addElement')}
+                        </h2>
                     </div>
-                )}
+                    <button
+                        onClick={onClose}
+                        className="w-10 h-10 flex items-center justify-center text-black bg-white border-2 border-black transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none shadow-[4px_4px_0px_0px_#1a1a1a] rounded-xl"
+                    >
+                        <X size={20} strokeWidth={4} />
+                    </button>
+                </div>
 
                 <div className="flex flex-col flex-1 overflow-hidden">
-                    {/* Category Tabs - The "Command Bar" */}
-                    {!isMobile && (
-                        <div className="flex bg-black border-b-2 border-black shrink-0 overflow-x-auto no-scrollbar">
-                            {CATEGORIES.map((cat) => (
-                                <button
-                                    key={cat.id}
-                                    onClick={() => {
-                                        setActiveCategory(cat.id);
-                                        setShowShopCollectionStep(false);
-                                        setShowIncentiveStep(false);
-                                        setShowCollectionStep(false);
-                                    }}
-                                    className={`
-                                        flex-1 min-w-[120px] flex items-center justify-center gap-3 py-3.5 px-4 transition-all relative border-r-2 border-black
-                                        ${activeCategory === cat.id
-                                            ? 'bg-[#ffdf00] text-black'
-                                            : 'bg-white text-black/50 hover:bg-[#97cd7a] hover:text-black'}
-                                    `}
-                                >
-                                    <span className={`shrink-0 flex items-center justify-center ${activeCategory === cat.id ? 'scale-110 text-black' : ''}`}>
-                                        {cat.icon}
-                                    </span>
-                                    <span className="text-[9px] font-medium uppercase tracking-[0.2em] leading-none text-black/70">
-                                        {cat.label}
-                                    </span>
-                                    {activeCategory === cat.id && (
-                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black"></div>
+                    {/* Integrated URL Input Component */}
+                    <div className={`px-6 md:px-8 pb-6 md:pb-8 shrink-0`}>
+                        <form onSubmit={handleUrlSubmit} className="relative group max-w-2xl">
+                            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none z-10">
+                                <LinkIcon size={18} strokeWidth={2.5} className="text-black/20 group-focus-within:text-black transition-colors" />
+                            </div>
+                            <input
+                                data-tour="add-link-input"
+                                type="text"
+                                placeholder={t('links.pasteUrlHint')}
+                                value={url}
+                                onChange={(e) => setUrl(e.target.value)}
+                                className={`
+                                    w-full bg-slate-50 border-2 border-black rounded-xl py-3 md:py-3.5 pl-10 pr-20 text-xs font-bold text-black
+                                    focus:outline-none focus:ring-0 focus:bg-white focus:shadow-[4px_4px_0px_0px_#1a1a1a] transition-all
+                                    placeholder:text-black/20 placeholder:font-bold uppercase tracking-[0.05em]
+                                `}
+                            />
+                            <div className="absolute inset-y-0 right-4 flex items-center">
+                                <AnimatePresence mode="wait">
+                                    {detectedInfo ? (
+                                        <motion.button
+                                            key="detected"
+                                            initial={{ opacity: 0, x: 10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 10 }}
+                                            type="submit"
+                                            className="flex items-center gap-2 px-3 py-1.5 bg-[#ffdf00] border-2 border-black shadow-[3px_3px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all rounded-lg"
+                                        >
+                                            <span className="text-black">{detectedInfo.icon}</span>
+                                            <Plus size={16} strokeWidth={4} className="text-black" />
+                                        </motion.button>
+                                    ) : (
+                                        <motion.div
+                                            key="waiting"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 0.3 }}
+                                            className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-black/5 border border-dashed border-black/20 rounded-lg"
+                                        >
+                                            <Zap size={12} className="text-black" />
+                                            <span className="text-[9px] font-black uppercase tracking-widest">{t('common.waiting')}</span>
+                                        </motion.div>
                                     )}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Main Workbench Area */}
-                    <div className="flex-1 flex flex-col min-w-0 bg-white overflow-hidden relative">
-                        {/* URL Terminal Input */}
-                        <div className={`${isMobile ? 'px-6 py-4' : 'px-8 py-5 border-b-2 border-black'} shrink-0 bg-slate-50`}>
-                            <div className="mb-2 flex items-center gap-2">
-                                <div className="w-1 h-3 bg-[#97cd7a]"></div>
-                                <span className="text-[9px] font-normal uppercase tracking-[0.3em] text-black/40">{t('links.linkInputLabel')}</span>
+                                </AnimatePresence>
                             </div>
-                            <form onSubmit={handleUrlSubmit} className="relative group">
-                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none z-10 transition-transform group-focus-within:scale-110">
-                                    <LinkIcon size={18} strokeWidth={1.5} className="text-black/30 group-focus-within:text-black transition-colors" />
-                                </div>
-                                <input
-                                    data-tour="add-link-input"
-                                    type="text"
-                                    placeholder={isMobile ? t('links.pasteUrlPlaceholder') : t('links.pasteUrlHint')}
-                                    value={url}
-                                    onChange={(e) => setUrl(e.target.value)}
-                                    className={`
-                                        w-full bg-white border-2 border-black rounded-none py-4 pr-24 text-xs font-medium text-black
-                                        focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all
-                                        placeholder:text-black/20 placeholder:font-normal uppercase tracking-[0.1em]
-                                        ${isMobile ? 'pl-11 pr-10' : 'pl-11'}
-                                    `}
-                                />
-                                {!isMobile && (
-                                    <div className="absolute inset-y-0 right-5 flex items-center">
-                                        <AnimatePresence>
-                                            {detectedInfo ? (
-                                                <motion.div
-                                                    initial={{ opacity: 0, scale: 0.8 }}
-                                                    animate={{ opacity: 1, scale: 1 }}
-                                                    exit={{ opacity: 0, scale: 0.8 }}
-                                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                                                >
-                                                    <span className="text-black">{detectedInfo.icon}</span>
-                                                    <span className="text-[9px] font-medium text-black uppercase tracking-widest">{detectedInfo.platform} {t('common.ready')}</span>
-                                                </motion.div>
-                                            ) : (
-                                                <div className="px-3 py-1.5 border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                                    <span className="text-[9px] font-medium text-black/30 uppercase tracking-widest">{t('common.waiting')}...</span>
-                                                </div>
-                                            )}
-                                        </AnimatePresence>
-                                    </div>
-                                )}
-                            </form>
-                        </div>
+                        </form>
+                    </div>
 
-                        {/* Scrollable Content Modules */}
-                        <div
-                            className={`flex-1 overflow-y-auto custom-scrollbar touch-pan-y overscroll-contain ${isMobile ? 'px-6 pb-[calc(5rem+env(safe-area-inset-bottom))]' : 'px-8 py-6'}`}
-                            onPointerDown={(e) => isMobile && e.stopPropagation()}
-                            style={{ WebkitOverflowScrolling: 'touch' }}
-                        >
-                            <div className="max-w-3xl mx-auto w-full">
-                                {renderContent()}
-                            </div>
+
+
+                    {/* Main Scrollable Area */}
+                    <div className="flex-1 overflow-y-auto no-scrollbar px-6 md:px-8 py-4">
+                        <div className="max-w-4xl mx-auto w-full pb-10">
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={showCollectionStep ? 'collection' : showShopCollectionStep ? 'shop' : showIncentiveStep ? 'incentive' : 'main'}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    {renderContent()}
+                                </motion.div>
+                            </AnimatePresence>
                         </div>
                     </div>
                 </div>
+
+
             </motion.div>
         </div>
     );

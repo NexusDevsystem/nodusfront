@@ -21,7 +21,7 @@ export const kawaiiSakuraTheme: Theme = {
     // Avatar: Borda dupla fofa
     avatarBorder: 'ring-4 ring-[#FFCAD4] ring-offset-4 ring-offset-[#FFF0F5] rounded-full shadow-lg',
 
-    isPro: true,
+    isPro: false,
     buttonHex: '#9D5C63', // Definido como a cor do TEXTO/ÍCONES para garantir contraste (já que o bg do botão é definido por classe)
     category: 'kawaii',
     fontFamily: "'Fredoka', sans-serif" // Mantendo a fonte arredondada que combina com o tema

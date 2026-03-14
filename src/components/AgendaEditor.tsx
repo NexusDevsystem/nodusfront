@@ -47,14 +47,14 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
             exit={{ opacity: 0, scale: 0.95 }}
             whileDrag={{
                 scale: 1,
-                boxShadow: "6px 6px 0px 0px rgba(0,0,0,1)",
+                boxShadow: "8px 8px 0px 0px rgba(26,26,26,1)",
                 zIndex: 50
             }}
-            className="relative bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex flex-col select-none touch-none"
+            className="relative bg-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] flex flex-col select-none touch-none"
         >
-            <div className="flex border-b border-black items-stretch min-h-[50px] bg-white">
+            <div className="flex border-b border-[#1a1a1a] items-stretch min-h-[50px] bg-white">
                 <div
-                    className="w-8 md:w-10 flex items-center justify-center cursor-move text-black hover:bg-black hover:text-white border-r border-black transition-colors touch-none"
+                    className="w-8 md:w-10 flex items-center justify-center cursor-move text-black hover:bg-black hover:text-white border-r-2 border-[#1a1a1a] transition-colors touch-none"
                     onPointerDown={(e) => {
                         e.preventDefault();
                         dragControls.start(e);
@@ -72,7 +72,7 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
                                     type="text"
                                     value={event.title}
                                     onChange={(e) => updateEvent(event.id!, 'title', e.target.value)}
-                                    className="w-full bg-white border-2 border-black py-1.5 px-3 text-[11px] font-bold uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                                    className="w-full bg-white border-2 border-[#1a1a1a] py-1.5 px-3 text-[11px] font-bold uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[3px_3px_0px_0px_#1a1a1a]"
                                     placeholder={t('agenda.titlePlaceholder') || 'Ex: Show em São Paulo'}
                                 />
                             </div>
@@ -83,7 +83,7 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
                                     type="date"
                                     value={event.date ? new Date(event.date).toISOString().slice(0, 10) : ''}
                                     onChange={(e) => updateEvent(event.id!, 'date', e.target.value)}
-                                    className="w-full bg-white border-2 border-black py-1.5 px-3 text-[11px] font-medium uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                                    className="w-full bg-white border-2 border-[#1a1a1a] py-1.5 px-3 text-[11px] font-medium uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[3px_3px_0px_0px_#1a1a1a]"
                                 />
                             </div>
 
@@ -93,7 +93,7 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
                                     type="text"
                                     value={event.location}
                                     onChange={(e) => updateEvent(event.id!, 'location', e.target.value)}
-                                    className="w-full bg-white border-2 border-black py-1.5 px-3 text-[11px] font-medium uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                                    className="w-full bg-white border-2 border-[#1a1a1a] py-1.5 px-3 text-[11px] font-medium uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[3px_3px_0px_0px_#1a1a1a]"
                                     placeholder={t('agenda.locationPlaceholder') || 'Cidade, Local...'}
                                 />
                             </div>
@@ -102,7 +102,7 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
                         <div className="flex items-center gap-2 shrink-0">
                             <button
                                 onClick={() => setDeletingEventId(event.id!)}
-                                className="p-2 bg-white text-black border-2 border-black hover:text-white hover:bg-red-500 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all"
+                                className="p-2 bg-white text-black border-2 border-[#1a1a1a] hover:text-white hover:bg-red-500 shadow-[2px_2px_0px_0px_#1a1a1a] hover:shadow-none transition-all"
                             >
                                 <Trash2 size={16} strokeWidth={3} />
                             </button>
@@ -110,10 +110,10 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
                     </div>
 
                     {/* Extended fields row */}
-                    <div className="flex flex-col md:flex-row gap-4 border-t border-black/10 pt-4">
+                    <div className="flex flex-col md:flex-row gap-4 border-t border-[#1a1a1a]/10 pt-4">
                         <div className="flex-1 space-y-1">
                             <label className="text-[8px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('agenda.urlLabel') || 'URL / Link'}</label>
-                            <div className="flex items-center bg-white border-2 border-black px-3 focus-within:bg-white transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="flex items-center bg-white border-2 border-[#1a1a1a] px-3 focus-within:bg-white transition-all shadow-[3px_3px_0px_0px_#1a1a1a]">
                                 <ExternalLink size={12} strokeWidth={3} className="text-black/40 mr-2" />
                                 <input
                                     type="url"
@@ -131,7 +131,7 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
                                 type="time"
                                 value={event.time || ''}
                                 onChange={(e) => updateEvent(event.id!, 'time', e.target.value)}
-                                className="w-full bg-white border-2 border-black py-2 px-3 text-[10px] font-medium uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+                                className="w-full bg-white border-2 border-[#1a1a1a] py-2 px-3 text-[10px] font-medium uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[3px_3px_0px_0px_#1a1a1a]"
                             />
                         </div>
 
@@ -140,7 +140,7 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
                             <select
                                 value={event.status}
                                 onChange={(e) => updateEvent(event.id!, 'status', e.target.value)}
-                                className="w-full bg-white border-2 border-black py-2 px-3 text-[10px] font-bold uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] appearance-none"
+                                className="w-full bg-white border-2 border-[#1a1a1a] py-2 px-3 text-[10px] font-bold uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[3px_3px_0px_0px_#1a1a1a] appearance-none"
                             >
                                 <option value="Tickets">{t('agenda.statusTickets') || 'Tickets'}</option>
                                 <option value="Sold Out">{t('agenda.statusSoldOut') || 'Sold Out'}</option>
@@ -152,10 +152,10 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
                     </div>
 
                     {/* PRO Scheduling Section for Existing Event */}
-                    <div className="pt-4 border-t border-black border-dashed">
+                    <div className="pt-4 border-t border-[#1a1a1a] border-dashed">
                         <div className="flex items-center gap-2 mb-4">
                             <Clock size={14} strokeWidth={3} className="text-black" />
-                            <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-black">
+                            <h4 className="text-[9px] font-bold uppercase tracking-[0.2em] text-black">
                                 {t('links.schedule') || 'Agendar Exibição'} (PRO)
                             </h4>
                         </div>
@@ -167,15 +167,15 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
                                         type="checkbox"
                                         checked={!!event.scheduleStart}
                                         onChange={(e) => updateEvent(event.id!, 'scheduleStart', e.target.checked ? new Date().toISOString() : null)}
-                                        className="w-3 h-3 border-2 border-black rounded-none appearance-none checked:bg-[#97cd7a] cursor-pointer"
+                                        className="w-3 h-3 border-2 border-[#1a1a1a] rounded-none appearance-none checked:bg-[#97cd7a] cursor-pointer"
                                     />
-                                    <label className="text-[8px] font-black uppercase tracking-widest text-black/60">{t('links.scheduleStart') || 'Início (Agendar)'}</label>
+                                    <label className="text-[8px] font-bold uppercase tracking-widest text-black/60">{t('links.scheduleStart') || 'Início (Agendar)'}</label>
                                 </div>
                                 <input
                                     type="datetime-local"
                                     value={event.scheduleStart ? new Date(new Date(event.scheduleStart).getTime() - new Date(event.scheduleStart).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
                                     onChange={(e) => updateEvent(event.id!, 'scheduleStart', e.target.value ? new Date(e.target.value).toISOString() : null)}
-                                    className="w-full bg-white border-2 border-black p-2 text-[10px] font-bold uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                                    className="w-full bg-white border-2 border-[#1a1a1a] p-2 text-[10px] font-bold uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[3px_3px_0px_0px_#1a1a1a]"
                                 />
                             </div>
 
@@ -185,15 +185,15 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
                                         type="checkbox"
                                         checked={!!event.scheduleEnd}
                                         onChange={(e) => updateEvent(event.id!, 'scheduleEnd', e.target.checked ? new Date(Date.now() + 86400000).toISOString() : null)}
-                                        className="w-3 h-3 border-2 border-black rounded-none appearance-none checked:bg-red-400 cursor-pointer"
+                                        className="w-3 h-3 border-2 border-[#1a1a1a] rounded-none appearance-none checked:bg-red-400 cursor-pointer"
                                     />
-                                    <label className="text-[8px] font-black uppercase tracking-widest text-black/60">{t('links.scheduleEnd') || 'Fim (Expirar)'}</label>
+                                    <label className="text-[8px] font-bold uppercase tracking-widest text-black/60">{t('links.scheduleEnd') || 'Fim (Expirar)'}</label>
                                 </div>
                                 <input
                                     type="datetime-local"
                                     value={event.scheduleEnd ? new Date(new Date(event.scheduleEnd).getTime() - new Date(event.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
                                     onChange={(e) => updateEvent(event.id!, 'scheduleEnd', e.target.value ? new Date(e.target.value).toISOString() : null)}
-                                    className="w-full bg-white border-2 border-black p-2 text-[10px] font-bold uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                                    className="w-full bg-white border-2 border-[#1a1a1a] p-2 text-[10px] font-bold uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[3px_3px_0px_0px_#1a1a1a]"
                                 />
                             </div>
                         </div>
@@ -206,13 +206,13 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
                                 exit={{ opacity: 0, height: 0 }}
-                                className="bg-red-50 border-t-2 border-black overflow-hidden -m-3 md:-m-4 mt-2"
+                                className="bg-red-50 border-t-2 border-[#1a1a1a] overflow-hidden -m-3 md:-m-4 mt-2"
                             >
                                 <div className="p-4 flex items-center justify-between gap-4">
                                     <span className="text-[9px] font-bold uppercase tracking-widest text-red-600">{t('links.deleteConfirm') || 'Excluir este evento?'}</span>
                                     <div className="flex gap-2">
-                                        <button onClick={() => setDeletingEventId(null)} className="px-3 py-1.5 bg-white text-black border-2 border-black text-[8px] font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">{t('common.no') || 'Não'}</button>
-                                        <button onClick={() => removeEvent(event.id!)} className="px-3 py-1.5 bg-red-600 text-white border-2 border-black text-[8px] font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">{t('common.yes') || 'Sim, Excluir'}</button>
+                                        <button onClick={() => setDeletingEventId(null)} className="px-3 py-1.5 bg-white text-black border-2 border-[#1a1a1a] text-[8px] font-bold uppercase shadow-[2px_2px_0px_0px_#1a1a1a]">{t('common.no') || 'Não'}</button>
+                                        <button onClick={() => removeEvent(event.id!)} className="px-3 py-1.5 bg-red-600 text-white border-2 border-[#1a1a1a] text-[8px] font-bold uppercase shadow-[2px_2px_0px_0px_#1a1a1a]">{t('common.yes') || 'Sim, Excluir'}</button>
                                     </div>
                                 </div>
                             </motion.div>
@@ -276,8 +276,8 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
     };
 
     const renderEventForm = () => (
-        <div className="bg-white p-4 md:p-6 border-2 border-black border-dashed mt-4 animate-fade-in space-y-4 md:space-y-6 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-            <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-black border-b border-black/10 pb-3">
+        <div className="bg-white p-4 md:p-6 border-2 border-[#1a1a1a] border-dashed mt-4 animate-fade-in space-y-4 md:space-y-6 shadow-[4px_4px_0px_0px_#1a1a1a]">
+            <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-black border-b border-[#1a1a1a]/10 pb-3">
                 <Plus size={18} strokeWidth={3} />
                 <span>{t('agenda.addEvent') || 'Novo Evento'}</span>
             </div>
@@ -288,14 +288,14 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
                     <input
                         type="text"
                         placeholder={t('agenda.titlePlaceholder') || 'Ex: Show em São Paulo'}
-                        className="w-full px-4 py-3 bg-white border-2 border-black text-xs font-medium uppercase tracking-widest outline-none focus:bg-white transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-medium uppercase tracking-widest outline-none focus:bg-white transition shadow-[3px_3px_0px_0px_#1a1a1a]"
                         value={newEvent.title || ''}
                         onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}
                     />
                 </div>
                 <div className="space-y-2">
                     <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('agenda.urlLabel') || 'Link de Ingressos/Mais Info'}</label>
-                    <div className="flex items-center bg-white border-2 border-black px-4 focus-within:bg-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="flex items-center bg-white border-2 border-[#1a1a1a] px-4 focus-within:bg-white transition-all shadow-[3px_3px_0px_0px_#1a1a1a]">
                         <ExternalLink size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
                             type="url"
@@ -308,7 +308,7 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
                 </div>
                 <div className="space-y-2">
                     <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('agenda.dateLabel') || 'Data'}</label>
-                    <div className="flex items-center bg-white border-2 border-black px-4 focus-within:bg-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="flex items-center bg-white border-2 border-[#1a1a1a] px-4 focus-within:bg-white transition-all shadow-[3px_3px_0px_0px_#1a1a1a]">
                         <CalendarIcon size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
                             type="date"
@@ -320,7 +320,7 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
                 </div>
                 <div className="space-y-2">
                     <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('agenda.timeLabel') || 'Horário (Opcional)'}</label>
-                    <div className="flex items-center bg-white border-2 border-black px-4 focus-within:bg-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="flex items-center bg-white border-2 border-[#1a1a1a] px-4 focus-within:bg-white transition-all shadow-[3px_3px_0px_0px_#1a1a1a]">
                         <Clock size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
                             type="time"
@@ -332,7 +332,7 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
                 </div>
                 <div className="space-y-2">
                     <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('agenda.locationLabel') || 'Localização'}</label>
-                    <div className="flex items-center bg-white border-2 border-black px-4 focus-within:bg-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="flex items-center bg-white border-2 border-[#1a1a1a] px-4 focus-within:bg-white transition-all shadow-[3px_3px_0px_0px_#1a1a1a]">
                         <MapPin size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
                             type="text"
@@ -345,7 +345,7 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
                 </div>
                 <div className="space-y-2">
                     <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('agenda.statusLabel') || 'Status do Botão'}</label>
-                    <div className="flex items-center bg-white border-2 border-black px-4 focus-within:bg-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="flex items-center bg-white border-2 border-[#1a1a1a] px-4 focus-within:bg-white transition-all shadow-[3px_3px_0px_0px_#1a1a1a]">
                         <Tag size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <select
                             className="w-full bg-transparent py-3 text-[10px] font-bold uppercase tracking-widest text-black outline-none appearance-none"
@@ -363,10 +363,10 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
             </div>
 
             {/* PRO Scheduling Section for New Event */}
-            <div className="pt-4 border-t border-black border-dashed mt-4">
+            <div className="pt-4 border-t border-[#1a1a1a] border-dashed mt-4">
                 <div className="flex items-center gap-2 mb-4">
                     <Clock size={14} strokeWidth={3} className="text-black" />
-                    <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-black">
+                    <h4 className="text-[9px] font-bold uppercase tracking-[0.2em] text-black">
                         {t('links.schedule') || 'Agendar Exibição'} (PRO)
                     </h4>
                 </div>
@@ -378,16 +378,16 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
                                 type="checkbox"
                                 checked={!!newEvent.scheduleStart}
                                 onChange={(e) => setNewEvent({ ...newEvent, scheduleStart: e.target.checked ? new Date().toISOString() : null })}
-                                className="w-3 h-3 border-2 border-black rounded-none appearance-none checked:bg-[#97cd7a] cursor-pointer"
+                                className="w-3 h-3 border-2 border-[#1a1a1a] rounded-none appearance-none checked:bg-[#97cd7a] cursor-pointer"
                             />
-                            <label className="text-[8px] font-black uppercase tracking-widest text-black/60">{t('links.scheduleStart') || 'Início (Agendar)'}</label>
+                            <label className="text-[8px] font-bold uppercase tracking-widest text-black/60">{t('links.scheduleStart') || 'Início (Agendar)'}</label>
                         </div>
                         {newEvent.scheduleStart && (
                             <input
                                 type="datetime-local"
                                 value={newEvent.scheduleStart ? new Date(new Date(newEvent.scheduleStart).getTime() - new Date(newEvent.scheduleStart).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
                                 onChange={(e) => setNewEvent({ ...newEvent, scheduleStart: e.target.value ? new Date(e.target.value).toISOString() : null })}
-                                className="w-full bg-white border-2 border-black p-2 text-[10px] font-bold uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                                className="w-full bg-white border-2 border-[#1a1a1a] p-2 text-[10px] font-bold uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[3px_3px_0px_0px_#1a1a1a]"
                             />
                         )}
                     </div>
@@ -398,33 +398,33 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
                                 type="checkbox"
                                 checked={!!newEvent.scheduleEnd}
                                 onChange={(e) => setNewEvent({ ...newEvent, scheduleEnd: e.target.checked ? new Date(Date.now() + 86400000).toISOString() : null })}
-                                className="w-3 h-3 border-2 border-black rounded-none appearance-none checked:bg-red-400 cursor-pointer"
+                                className="w-3 h-3 border-2 border-[#1a1a1a] rounded-none appearance-none checked:bg-red-400 cursor-pointer"
                             />
-                            <label className="text-[8px] font-black uppercase tracking-widest text-black/60">{t('links.scheduleEnd') || 'Fim (Expirar)'}</label>
+                            <label className="text-[8px] font-bold uppercase tracking-widest text-black/60">{t('links.scheduleEnd') || 'Fim (Expirar)'}</label>
                         </div>
                         {newEvent.scheduleEnd && (
                             <input
                                 type="datetime-local"
                                 value={newEvent.scheduleEnd ? new Date(new Date(newEvent.scheduleEnd).getTime() - new Date(newEvent.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
                                 onChange={(e) => setNewEvent({ ...newEvent, scheduleEnd: e.target.value ? new Date(e.target.value).toISOString() : null })}
-                                className="w-full bg-white border-2 border-black p-2 text-[10px] font-bold uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                                className="w-full bg-white border-2 border-[#1a1a1a] p-2 text-[10px] font-bold uppercase tracking-widest text-black focus:bg-white outline-none transition-all shadow-[3px_3px_0px_0px_#1a1a1a]"
                             />
                         )}
                     </div>
                 </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t-2 border-black/10">
+            <div className="flex justify-end gap-3 pt-4 border-t-2 border-[#1a1a1a]/10">
                 <button
                     onClick={() => { setAddingEvent(false); setNewEvent({ status: 'Tickets' }); }}
-                    className="px-6 py-2.5 bg-white border-2 border-black text-[9px] font-medium uppercase tracking-widest text-black hover:bg-black hover:text-white transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    className="px-6 py-2.5 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-black hover:text-white transition shadow-[3px_3px_0px_0px_#1a1a1a]"
                 >
                     {t('common.cancel')}
                 </button>
                 <button
                     onClick={handleAddEvent}
                     disabled={!newEvent.title || !newEvent.date}
-                    className="px-6 py-2.5 bg-[#97cd7a] border-2 border-black text-black text-[9px] font-medium uppercase tracking-widest hover:bg-black hover:text-[#97cd7a] disabled:opacity-50 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    className="px-6 py-2.5 bg-[#97cd7a] border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-black hover:text-[#97cd7a] disabled:opacity-50 transition-all shadow-[3px_3px_0px_0px_#1a1a1a]"
                 >
                     {t('agenda.saveEvent') || 'Salvar Evento'}
                 </button>
@@ -434,14 +434,14 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
 
     return (
         <div className="space-y-6 mt-4">
-            <div className="flex items-center justify-between gap-4 border-b border-black pb-2.5">
+            <div className="flex items-center justify-between gap-4 border-b border-[#1a1a1a] pb-2.5">
                 <div className="flex items-center gap-2.5">
                     <CalendarIcon size={18} strokeWidth={3} className="text-black" />
                     <h2 className="text-xs md:text-sm font-bold uppercase tracking-widest text-black">{t('agenda.title') || 'Lista de Eventos / Agenda'}</h2>
                 </div>
                 <button
                     onClick={() => setAddingEvent(true)}
-                    className="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-black text-[#97cd7a] hover:bg-black hover:text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none text-[9px] font-medium uppercase tracking-widest transition-all"
+                    className="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-black text-[#97cd7a] hover:bg-black hover:text-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_#1a1a1a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none text-[9px] font-medium uppercase tracking-widest transition-all"
                 >
                     <Plus size={16} strokeWidth={3} />
                     <span className="hidden sm:inline">{t('agenda.newEvent') || 'Novo Evento'}</span>
@@ -450,7 +450,7 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
 
             <div className="space-y-3">
                 {events.length === 0 && !addingEvent && (
-                    <div className="text-center py-10 bg-white border-2 border-dashed border-black">
+                    <div className="text-center py-10 bg-white border-2 border-dashed border-[#1a1a1a]">
                         <p className="text-[10px] text-black/50 uppercase tracking-widest">{t('agenda.noEvents') || 'Nenhum evento adicionado ainda.'}</p>
                     </div>
                 )}

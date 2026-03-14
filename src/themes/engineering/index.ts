@@ -8,8 +8,8 @@ export const engineeringCraneTheme: Theme = {
     name: 'Sky Crane',
     backgroundClass: 'bg-sky-300', // Fallback
     solidColor: '#7dd3fc',
-    buttonClass: 'bg-yellow-500 text-black hover:bg-yellow-400 rounded-sm font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] px-6 border-2 border-black transition-all hover:-translate-y-0.5',
-    cardClass: 'bg-white/90 backdrop-blur-sm border-2 border-black rounded-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] text-black',
+    buttonClass: 'bg-yellow-500 text-black hover:bg-yellow-400 rounded-sm font-bold shadow-[4px_4px_0px_0px_rgba(26,26,26,0.2)] px-6 border-2 border-[#1a1a1a] transition-all hover:-translate-y-0.5',
+    cardClass: 'bg-white/90 backdrop-blur-sm border-2 border-[#1a1a1a] rounded-sm shadow-[4px_4px_0px_0px_rgba(26,26,26,0.1)] text-black',
     textClass: 'text-black font-bold tracking-tight',
     avatarBorder: 'border-4 border-yellow-500 rounded-full',
     isPro: true,
@@ -28,7 +28,7 @@ export const engineeringBlueprintTheme: Theme = {
     cardClass: 'bg-blue-900/50 backdrop-blur-md border border-white/20 rounded-none shadow-none text-blue-100',
     textClass: 'text-white font-mono tracking-wide',
     avatarBorder: 'border-2 border-white dashed rounded-full',
-    isPro: false,
+    isPro: true,
     buttonHex: '#1e40af',
     category: 'engineering',
     fontFamily: "'Space Mono', monospace"
@@ -77,7 +77,7 @@ export const engineeringStructureTheme: Theme = {
     cardClass: 'bg-slate-900/80 backdrop-blur-md border border-cyan-500/20 rounded-none text-cyan-100',
     textClass: 'text-cyan-400 font-light tracking-widest uppercase',
     avatarBorder: 'border border-cyan-500 rounded-none',
-    isPro: false,
+    isPro: true,
     buttonHex: '#0f172a',
     textHex: '#22d3ee',
     category: 'engineering',

@@ -29,7 +29,8 @@ import {
     CreditCard,
     Youtube,
     Presentation,
-    BarChart3
+    BarChart3,
+    Lock
 } from 'lucide-react';
 import YouTubeEmbed from './YouTubeEmbed';
 import TikTokEmbed from './TikTokEmbed';
@@ -37,7 +38,7 @@ import verifiedBadge from '../assets/verified-badge.png';
 
 import BackgroundLayer from './BackgroundLayer';
 import { apiClient } from '../services/apiClient';
-import { SiSpotify } from 'react-icons/si';
+import { SiSpotify, SiPaypal } from 'react-icons/si';
 import { InstagramCard } from './InstagramCard';
 import { TwitchCard } from './TwitchCard';
 import { KickCard } from './KickCard';
@@ -49,6 +50,7 @@ import { AgendaCard } from './AgendaCard';
 import { MapBlock } from './MapBlock';
 import PasswordLinkModal from './PasswordLinkModal';
 import MediaKitModal from './MediaKitModal';
+
 
 
 interface ProfileRendererProps {
@@ -79,34 +81,118 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 60% { transform: translateX(2%) rotate(2deg); }
                 75% { transform: translateX(-1%) rotate(-1deg); }
             }
-            .animate-wobble { animation: wobble 1s infinite; }
-            .animate-shake { animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both infinite; transform: translate3d(0, 0, 0); }
+            .animate-wobble { animation: wobble 1s infinite !important; transition: none !important; }
+            
+            .animate-shake { animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both infinite !important; transform: translate3d(0, 0, 0); transition: none !important; }
             @keyframes shake {
                 10%, 90% { transform: translate3d(-1px, 0, 0); }
                 20%, 80% { transform: translate3d(2px, 0, 0); }
                 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
                 40%, 60% { transform: translate3d(4px, 0, 0); }
             }
-            .animate-glow { animation: glow-pulse 2s infinite; }
+            .animate-glow { animation: glow-pulse 2s infinite !important; }
             @keyframes glow-pulse {
                 0% { box-shadow: 0 0 5px rgba(255,255,255,0.2); }
                 50% { box-shadow: 0 0 20px rgba(255,255,255,0.6); }
                 100% { box-shadow: 0 0 5px rgba(255,255,255,0.2); }
             }
-            @keyframes wobble-shape {
-                0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-                25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-                50% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1.02); }
-                75% { border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%; }
+            @keyframes tada {
+                0% { transform: scale3d(1, 1, 1); }
+                10%, 20% { transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg); }
+                30%, 50%, 70%, 90% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg); }
+                40%, 60%, 80% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg); }
+                100% { transform: scale3d(1, 1, 1); }
             }
-            .noise-overlay {
-                position: absolute;
-                inset: 0;
-                background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-                opacity: 0.4;
-                mix-blend-mode: overlay;
-                pointer-events: none;
-                z-index: 1;
+            .animate-tada { animation: tada 1s infinite !important; transition: none !important; }
+            @keyframes jello {
+                11.1% { transform: none; }
+                22.2% { transform: skewX(-12.5deg) skewY(-12.5deg); }
+                33.3% { transform: skewX(6.25deg) skewY(6.25deg); }
+                44.4% { transform: skewX(-3.125deg) skewY(-3.125deg); }
+                55.5% { transform: skewX(1.5625deg) skewY(1.5625deg); }
+                66.6% { transform: skewX(-0.78125deg) skewY(-0.78125deg); }
+                77.7% { transform: skewX(0.390625deg) skewY(0.390625deg); }
+                88.8% { transform: skewX(-0.1953125deg) skewY(-0.1953125deg); }
+                100% { transform: none; }
+            }
+            .animate-jello { animation: jello 1.5s infinite !important; transform-origin: center !important; transition: none !important; }
+            @keyframes rubberBand {
+                0% { transform: scale3d(1, 1, 1); }
+                30% { transform: scale3d(1.25, 0.75, 1); }
+                40% { transform: scale3d(0.75, 1.25, 1); }
+                50% { transform: scale3d(1.15, 0.85, 1); }
+                65% { transform: scale3d(0.95, 1.05, 1); }
+                75% { transform: scale3d(1.05, 0.95, 1); }
+                100% { transform: scale3d(1, 1, 1); }
+            }
+            .animate-rubber { animation: rubberBand 1s infinite !important; transition: none !important; }
+            
+            /* Override for standard Tailwind animations to ensure they work with Framer Motion/Themes */
+            @keyframes pulse-custom {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+            .animate-pulse { animation: pulse-custom 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important; }
+            
+            @keyframes bounce-custom {
+                0%, 100% { transform: translateY(-8%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
+                50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+            }
+            .animate-bounce { animation: bounce-custom 1s infinite !important; transition: none !important; }
+
+            @keyframes heartbeat {
+                0% { transform: scale(1); }
+                14% { transform: scale(1.1); }
+                28% { transform: scale(1); }
+                42% { transform: scale(1.1); }
+                70% { transform: scale(1); }
+            }
+            .animate-heartbeat { animation: heartbeat 1.3s infinite !important; transition: none !important; }
+
+            @keyframes flash {
+                0%, 50%, 100% { opacity: 1; }
+                25%, 75% { opacity: 0; }
+            }
+            .animate-flash { animation: flash 2s infinite !important; transition: none !important; }
+
+            @keyframes swing {
+                20% { transform: rotate3d(0, 0, 1, 15deg); }
+                40% { transform: rotate3d(0, 0, 1, -10deg); }
+                60% { transform: rotate3d(0, 0, 1, 5deg); }
+                80% { transform: rotate3d(0, 0, 1, -5deg); }
+                100% { transform: rotate3d(0, 0, 1, 0deg); }
+            }
+            .animate-swing { transform-origin: top center !important; animation: swing 2s infinite !important; transition: none !important; }
+
+            @keyframes pulsar {
+                0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+                70% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+            }
+            .animate-pulsar { animation: pulsar 1.5s infinite !important; transition: none !important; }
+
+            @keyframes flip {
+                0% { transform: perspective(400px) rotate3d(0, 1, 0, -360deg); animation-timing-function: ease-out; }
+                40% { transform: perspective(400px) translate3d(0, 0, 30px) rotate3d(0, 1, 0, -190deg); animation-timing-function: ease-out; }
+                50% { transform: perspective(400px) translate3d(0, 0, 30px) rotate3d(0, 1, 0, -170deg); animation-timing-function: ease-in; }
+                80% { transform: perspective(400px) scale3d(.95, .95, .95); animation-timing-function: ease-in; }
+                100% { transform: perspective(400px); animation-timing-function: ease-in; }
+            }
+            .animate-flip { backface-visibility: visible !important; animation: flip 2s infinite !important; transition: none !important; }
+
+            .animate-social-marquee {
+                display: flex;
+                white-space: nowrap;
+                width: max-content;
+                animation: marquee-scroll var(--duration, 20s) linear infinite;
+            }
+            @keyframes marquee-scroll {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+            }
+            .social-marquee-mask {
+                mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+                -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
             }
         `}</style>
     ), []); // Empty deps — these never change
@@ -132,7 +218,23 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         return true;
     };
 
-    const activeLinks = links.filter(l => l.isActive && !l.isArchived && isScheduled(l));
+    const activeLinks = React.useMemo(() => {
+        // Collect all IDs of links that are children of a collection
+        const childIds = new Set<string>();
+        links.forEach(l => {
+            if (l.children && l.children.length > 0) {
+                l.children.forEach(child => childIds.add(child.id));
+            }
+        });
+
+        // Filter links: must be active, not archived, scheduled, AND not a child of another link
+        return links.filter(l =>
+            l.isActive &&
+            !l.isArchived &&
+            isScheduled(l) &&
+            !childIds.has(l.id)
+        );
+    }, [links, currentTime, isPreview]);
     const [activeTab, setActiveTab] = useState<'links' | 'shop'>(() => {
         return (localStorage.getItem('nodus_profile_active_tab') as 'links' | 'shop') || 'links';
     });
@@ -200,37 +302,42 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         }
     }, [profile.id, isPreview]);
 
-    // Top level social links - Now includes any social network even if it's a classic button
+    // Top level social links - Now strictly matching the editor's "Social Networks" list
     const socialLinks = React.useMemo(() => {
-        const manualSocial = activeLinks.filter(l => {
-            if (l.type === 'collection') return false;
-            if (l.layout === 'social') return true;
-            const lowerUrl = l.url.toLowerCase();
-            const lowerTitle = l.title?.toLowerCase() || '';
-            return SOCIAL_NETWORKS.some(sn =>
-                sn.id !== 'custom' && sn.id !== 'site' && sn.id !== 'telefone' && sn.id !== 'email' &&
-                (lowerUrl.includes(sn.id) || (lowerTitle && lowerTitle.includes(sn.id)))
-            );
-        });
+        const foundSocials: LinkItem[] = [];
+        const seenProviders = new Set<string>();
 
-        const integrations = profile.integrations || [];
-        const result = [...manualSocial];
+        const processItems = (items: LinkItem[]) => {
+            items.forEach(l => {
+                if (!l.isActive || l.isArchived || !isScheduled(l)) return;
 
-        const hasLinkDeep = (list: LinkItem[], provider: string): boolean => {
-            return list.some(l => {
-                const urlMatch = l.url?.toLowerCase().includes(provider);
-                const titleMatch = l.title?.toLowerCase().includes(provider);
-                const platformMatch = l.platform === provider;
-                if (urlMatch || titleMatch || platformMatch) return true;
-                if (l.children && l.children.length > 0) return hasLinkDeep(l.children, provider);
-                return false;
+                // ONLY pick links explicitly marked with 'social' layout
+                if (l.layout === 'social' && l.type !== 'collection') {
+                    // Try to identify the provider to avoid duplicates of the same network
+                    const provider = SOCIAL_NETWORKS.find(sn =>
+                        sn.id !== 'custom' &&
+                        (l.url.toLowerCase().includes(sn.id) || (l.title?.toLowerCase() || '').includes(sn.id))
+                    )?.id || l.url;
+
+                    if (!seenProviders.has(provider)) {
+                        foundSocials.push(l);
+                        seenProviders.add(provider);
+                    }
+                }
+
+                if (l.children && l.children.length > 0) {
+                    processItems(l.children);
+                }
             });
         };
 
-        integrations.forEach(integration => {
-            const isDuplicate = hasLinkDeep(activeLinks, integration.provider);
+        processItems(links);
 
-            if (!isDuplicate) {
+        const integrations = profile.integrations || [];
+        const result = [...foundSocials];
+
+        integrations.forEach(integration => {
+            if (!seenProviders.has(integration.provider)) {
                 const network = SOCIAL_NETWORKS.find(sn => sn.id === integration.provider);
                 const username = integration.profile_data?.username;
                 if (network && username) {
@@ -239,6 +346,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     else if (integration.provider === 'tiktok') url = `https://tiktok.com/@${username}`;
                     else if (integration.provider === 'twitch') url = `https://twitch.tv/${username}`;
                     else if (integration.provider === 'youtube') url = `https://youtube.com/@${username}`;
+                    else if (integration.provider === 'kick') url = `https://kick.com/${username}`;
 
                     if (url) {
                         result.push({
@@ -249,12 +357,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             layout: 'social',
                             type: 'link'
                         } as any);
+                        seenProviders.add(integration.provider);
                     }
                 }
             }
         });
         return result;
-    }, [activeLinks, profile.integrations]);
+    }, [links, profile.integrations, currentTime]);
 
     // Button links - no longer filtering out 'social' layout to support dual-state
     const buttonLinks = React.useMemo(() => {
@@ -264,12 +373,30 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
         const order = ['instagram', 'youtube', 'twitch', 'kick'];
 
+        const isPlatformMatch = (link: LinkItem, provider: string): boolean => {
+            const lowerUrl = (link.url || '').toLowerCase();
+            const lowerTitle = (link.title || '').toLowerCase();
+            const platform = (link.platform || '').toLowerCase();
+
+            // Matches providers and common short links (e.g. youtu.be for youtube)
+            const matchMap: Record<string, string[]> = {
+                'instagram': ['instagram.com', 'instagr.am'],
+                'youtube': ['youtube.com', 'youtu.be', 'youtube-nocookie.com'],
+                'twitch': ['twitch.tv'],
+                'tiktok': ['tiktok.com'],
+                'kick': ['kick.com']
+            };
+
+            if (platform === provider) return true;
+            if (lowerTitle.includes(provider)) return true;
+
+            const domainMatches = matchMap[provider] || [provider];
+            return domainMatches.some(domain => lowerUrl.includes(domain));
+        };
+
         const hasLinkDeep = (list: LinkItem[], provider: string): boolean => {
             return list.some(l => {
-                const urlMatch = l.url?.toLowerCase().includes(provider);
-                const titleMatch = l.title?.toLowerCase().includes(provider);
-                const platformMatch = l.platform === provider;
-                if (urlMatch || titleMatch || platformMatch) return true;
+                if (isPlatformMatch(l, provider)) return true;
                 if (l.children && l.children.length > 0) return hasLinkDeep(l.children, provider);
                 return false;
             });
@@ -277,7 +404,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
         const providersToInject = order.filter(p =>
             integrations.some(i => i.provider === p) &&
-            !hasLinkDeep(activeLinks, p)
+            !hasLinkDeep(links, p)
         );
 
         [...providersToInject].reverse().forEach(provider => {
@@ -370,6 +497,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             case 'shake': return 'animate-shake';
             case 'glow': return 'animate-glow';
             case 'wobble': return 'animate-wobble';
+            case 'tada': return 'animate-tada';
+            case 'jello': return 'animate-jello';
+            case 'rubberBand': return 'animate-rubber';
+            case 'heartbeat': return 'animate-heartbeat';
+            case 'flash': return 'animate-flash';
+            case 'swing': return 'animate-swing';
+            case 'pulsar': return 'animate-pulsar';
+            case 'flip': return 'animate-flip';
             default: return '';
         }
     };
@@ -446,14 +581,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         : profile.buttonRoundness;
 
     const roundedClass = effectiveRoundness === 'square' ? 'rounded-none' :
-        effectiveRoundness === 'round' ? 'rounded-lg' :
-            effectiveRoundness === 'rounder' ? 'rounded-2xl' :
+        effectiveRoundness === 'round' ? 'rounded-xl' :
+            effectiveRoundness === 'rounder' ? 'rounded-[24px]' :
                 effectiveRoundness === 'full' ? 'rounded-full' :
                     (currentTheme.buttonClass.match(/rounded-[^\s]+(?=\s|$)/g)?.join(' ') || null);
 
     const borderRadiusValue = profile.buttonRoundness === 'square' ? 0 :
-        profile.buttonRoundness === 'round' ? 8 :
-            profile.buttonRoundness === 'rounder' ? 16 :
+        profile.buttonRoundness === 'round' ? 12 :
+            profile.buttonRoundness === 'rounder' ? 24 :
                 profile.buttonRoundness === 'full' ? 40 :
                     undefined; // Let theme CSS handle it
 
@@ -465,6 +600,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         if (types.includes('bg')) cleaned = cleaned.replace(/\bbg-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(none|50|100|200|300|400|500|600|700|800|900|950)\b|\bbg-(white|black|transparent|current)\b|\bbg-\[.*?\]\b/g, '');
         if (types.includes('text')) cleaned = cleaned.replace(/\btext-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(none|50|100|200|300|400|500|600|700|800|900|950)\b|\btext-(white|black|transparent|current)\b|\btext-\[.*?\]\b/g, '');
         if (types.includes('border')) cleaned = cleaned.replace(/\bborder-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(none|50|100|200|300|400|500|600|700|800|900|950)\b|\bborder-(white|black|transparent|current)\b|\bborder-\[.*?\]\b/g, '');
+        if (types.includes('shadow')) cleaned = cleaned.replace(/\bshadow-\[.*?\]\b|\bshadow-(sm|md|lg|xl|2xl|inner|none|default)\b/g, '');
         return cleaned.trim();
     };
 
@@ -478,6 +614,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
     // 1. Button Class - Start with theme base and apply surgical overrides
     let buttonClass = cleanClass(currentTheme.buttonClass, overrideTypes);
+
     if (roundedClass) buttonClass += ` ${roundedClass}`;
 
     // 2. Button Color Logic - Custom colors ONLY apply to 'custom' theme
@@ -514,8 +651,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
     const headerContentBg = isProfileMode
         ? (secColor2
-            ? `linear-gradient(135deg, ${secColor1}, ${secColor2})`
-            : secColor1)
+            ? `linear-gradient(135deg, ${secColor1}cc, ${secColor2}cc)`
+            : `${secColor1}cc`)
         : 'transparent';
 
     // For getContrastColor, use the primary color only
@@ -536,7 +673,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         .replace(/\bp[xy]?-(none|\d+|\[.*?\])\b/g, '') // Remove padding (cards handle their own)
         .replace(/\bh-\[.*?\]\b/g, '') // Remove height constraints usually found on buttons
         .replace(/\bmin-h-\[.*?\]\b/g, '')
-        .trim();
+        .trim() + ' overflow-hidden'; // Ensure content respects rounding
 
     // Reapply roundedness if global override exists
     if (roundedClass) {
@@ -584,7 +721,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
         return (
             <div
-                className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${baseCardClass} h-[80px] p-0 items-center justify-between mb-1`}
+                className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${baseCardClass} h-[72px] p-0 items-center justify-between mb-1 ${getHighlightClass(link.highlight)}`}
                 style={mainButtonStyle}
             >
                 <div className="flex h-full items-center px-4 gap-3.5 flex-1 min-w-0">
@@ -706,7 +843,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             </div>
 
                             {/* Header Section */}
-                            <div className={`px-6 pt-4 pb-6 flex items-center gap-5 border-b ${isDark ? 'border-white/5' : 'border-black/5'}`}>
+                            <div className={`px-6 pt-4 pb-6 flex items-center gap-5 border-b ${isDark ? 'border-white/5' : 'border-[#1a1a1a]/5'}`}>
                                 <div className="relative group/cover shrink-0">
                                     <img src={openPlaylist?.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
                                         className="w-20 h-20 rounded-xl object-cover shadow-lg group-hover:scale-105 transition-transform duration-500"
@@ -803,8 +940,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 <div
                     className="absolute inset-0 z-10 pointer-events-none md:backdrop-blur-[20px] bg-gradient-to-b from-transparent via-black/10 to-black/90 md:bg-none"
                     style={{
-                        maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
-                        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(0,0,0,0.05) 5%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.95) 40%, black 45%)',
+                        maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(26,26,26,0.05) 5%, rgba(26,26,26,0.3) 15%, rgba(26,26,26,0.7) 30%, rgba(26,26,26,0.95) 40%, black 45%)',
+                        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 2%, rgba(26,26,26,0.05) 5%, rgba(26,26,26,0.3) 15%, rgba(26,26,26,0.7) 30%, rgba(26,26,26,0.95) 40%, black 45%)',
                         contain: 'layout style'
                     }}
                 />
@@ -831,8 +968,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <div
                             className="absolute inset-0"
                             style={{
-                                maskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 95%)',
-                                WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 50%, transparent 95%)'
+                                maskImage: 'radial-gradient(ellipse 140% 100% at 50% 0%, black 0%, black 70%, transparent 100%)',
+                                WebkitMaskImage: 'radial-gradient(ellipse 140% 100% at 50% 0%, black 0%, black 70%, transparent 100%)'
                             }}
                         >
                             {/* The Large Image */}
@@ -840,34 +977,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 alt={profile.name}
                                 className="w-full h-full object-cover" loading="lazy" decoding="async" />
 
-                            {/* Color tint overlay — tints the photo with the chosen banner color(s) */}
-                            {profile.bannerBlurColor && (() => {
-                                const parts = profile.bannerBlurColor!.split('|');
-                                const c1 = parts[0];
-                                const c2 = parts[1];
-                                return (
-                                    <div
-                                        className="absolute inset-0 z-[5] overflow-hidden"
-                                        style={{
-                                            background: c2
-                                                ? `linear-gradient(135deg, ${c1}, ${c2})`
-                                                : c1,
-                                            opacity: 0.45,
-                                            mixBlendMode: 'multiply',
-                                        }}
-                                    >
-                                        <div className="noise-overlay" />
-                                    </div>
-                                );
-                            })()}
-
-                            {/* Subtle text readability gradient */}
-                            <div
-                                className="absolute inset-0 z-10"
-                                style={{
-                                    background: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.3) 100%)',
-                                }}
-                            />
                         </div>
 
                         {/* Content Overlaid at Bottom (Shifted Down) */}
@@ -962,7 +1071,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
                 <div
-                    className={`px-6 ${profile.headerLayout === 'banner' ? 'pt-12 pb-2' : (profile.headerLayout === 'compact' ? 'pt-0 pb-20' : (isPreview ? 'pt-12 pb-2' : 'pt-16 pb-2'))} flex flex-col relative flex-1`}
+                    className={`px-6 ${profile.headerLayout === 'banner' ? 'pt-12 pb-2' : (profile.headerLayout === 'compact' ? 'pt-0 pb-12' : (isPreview ? 'pt-12 pb-0' : 'pt-16 pb-0'))} flex flex-col relative`}
                     style={profile.headerLayout === 'banner' ? {
                         minHeight: '250px'
                     } : {}}
@@ -982,10 +1091,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             </div>
                             {/* Full-length Intelligent Backdrop for Social Layout */}
                             <div
-                                className={`absolute top-[165px] -left-6 w-[calc(100%+3rem)] bottom-0 rounded-t-[48px] z-0 shadow-[0_-15px_40px_rgba(0,0,0,0.1)] overflow-hidden`}
+                                className={`absolute top-[165px] -left-6 w-[calc(100%+3rem)] bottom-0 rounded-t-[48px] z-0 shadow-[0_-15px_40px_rgba(26,26,26,0.1)] overflow-hidden backdrop-blur-md`}
                                 style={{ background: headerContentBg }}
                             >
-                                <div className="noise-overlay" />
+                                <div className="noise-overlay opacity-20" />
                             </div>
                         </>
                     )}
@@ -1069,34 +1178,59 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                     {/* Social Icons Row - Shared for other layouts */}
                     {profile.headerLayout !== 'banner' && socialLinks.length > 0 && (
-                        <div className="flex items-center justify-center gap-2 mt-1 mb-1 flex-wrap relative">
-                            {socialLinks.map(link => {
-                                const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
-                                    SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id)) ||
-                                    SOCIAL_NETWORKS[0];
+                        <div className={`w-full overflow-hidden mt-1 mb-1 relative ${socialLinks.length > 5 ? 'social-marquee-mask' : ''}`}>
+                            <div
+                                className={`flex items-center gap-2 px-4 ${socialLinks.length > 5 ? 'animate-social-marquee' : 'justify-center flex-wrap'}`}
+                                style={{ '--duration': `${socialLinks.length * 3}s` } as any}
+                            >
+                                {/* First set / Main set */}
+                                {socialLinks.map((link, idx) => {
+                                    const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
+                                        SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id)) ||
+                                        SOCIAL_NETWORKS[0];
+                                    const Icon = network.icon || Globe;
 
-                                const Icon = network.icon || Globe;
+                                    return (
+                                        <motion.a
+                                            key={`${link.id}-m1`}
+                                            layout
+                                            initial={{ scale: 0.8, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            onClick={() => handleLinkClick(link.id)}
+                                            className={`transition-all duration-300 ${roundedClass || 'rounded-full'} p-2 shrink-0`}
+                                            style={{ ...mainTextColorStyle }}
+                                        >
+                                            <Icon size={24} />
+                                        </motion.a>
+                                    );
+                                })}
 
-                                return (
-                                    <motion.a
-                                        key={link.id}
-                                        layout
-                                        initial={{ scale: 0.8, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                                        href={link.url}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        onClick={() => handleLinkClick(link.id)}
-                                        className={`transition-all duration-300 ${roundedClass || 'rounded-full'} p-2`}
-                                        style={{
-                                            ...mainTextColorStyle
-                                        }}
-                                    >
-                                        <Icon size={24} />
-                                    </motion.a>
-                                );
-                            })}
+                                {/* Duplicated set for infinite loop (only if marquee is active) */}
+                                {socialLinks.length > 5 && socialLinks.map((link, idx) => {
+                                    const network = SOCIAL_NETWORKS.find(n => n.name === link.title) ||
+                                        SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id)) ||
+                                        SOCIAL_NETWORKS[0];
+                                    const Icon = network.icon || Globe;
+
+                                    return (
+                                        <a
+                                            key={`${link.id}-m2`}
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            onClick={() => handleLinkClick(link.id)}
+                                            className={`transition-all duration-300 ${roundedClass || 'rounded-full'} p-2 shrink-0`}
+                                            style={{ ...mainTextColorStyle }}
+                                        >
+                                            <Icon size={24} />
+                                        </a>
+                                    );
+                                })}
+                            </div>
                         </div>
                     )}
 
@@ -1141,7 +1275,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
                     {/* Main Dynamic Content Area */}
-                    <div className="flex-1 flex flex-col w-full relative">
+                    <div className="flex flex-col w-full relative">
                         <AnimatePresence mode="popLayout" initial={false}>
                             {/* SHOP VIEW (Collections or Grid) */}
                             {products.length > 0 && activeTab === 'shop' && (
@@ -1172,13 +1306,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     className={`w-full group relative transition-all duration-300 ${cleanClass(baseCardClass, ['bg', 'text']).replace('overflow-hidden', '')}`}
                                                     style={{
                                                         ...mainButtonStyle,
-                                                        backgroundColor: buttonHex,
-                                                        color: getSmartTextColor()
+                                                        color: getSmartTextColor(),
+                                                        ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
                                                     }}
                                                 >
                                                     <div className={`flex flex-col w-full h-full overflow-hidden ${roundedClass}`}>
                                                         {/* Preview Images Collage - Refined */}
-                                                        <div className="flex h-48 w-full gap-1 p-1 bg-black/5">
+                                                        <div className={`flex h-48 w-full gap-1 p-1 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
                                                             {items.length === 1 ? (
                                                                 <div className="flex-1 h-full relative overflow-hidden rounded-xl">
                                                                     <img src={items[0].image} alt={items[0].name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" loading="lazy" decoding="async" />
@@ -1201,14 +1335,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 </>
                                                             )}
                                                         </div>
-                                                        <div className="p-4 flex items-center justify-between bg-black/5">
+                                                        <div className={`p-4 flex items-center justify-between ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
                                                             <div className="text-left">
                                                                 <h3 className="text-sm font-normal" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
                                                                 <p className="text-[10px] font-normal uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                                     {items.length} {items.length === 1 ? 'Produto' : 'Produtos'}
                                                                 </p>
                                                             </div>
-                                                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center transition-colors">
+                                                            <div className={`w-8 h-8 rounded-full ${isDarkTheme ? 'bg-white/10' : 'bg-black/10'} flex items-center justify-center transition-colors`}>
                                                                 <ChevronRight size={16} />
                                                             </div>
                                                         </div>
@@ -1242,10 +1376,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 {activeCollection && collections[activeCollection]?.map(product => {
                                                     const productContent = (
                                                         <div className="flex flex-col w-full h-full relative">
-                                                            <div className={`relative w-full aspect-[4/5] transform transition-transform group-hover:scale-[1.02] duration-300`}>
-                                                                <div className={`absolute inset-0 overflow-hidden ${roundedClass} border-none shadow-none`} style={{ backgroundColor: buttonHex, ...mainButtonStyle }}>
-                                                                    <img src={product.image} alt={product.name} className="w-full h-full block object-cover" loading="lazy" decoding="async" />
-                                                                    <div className="absolute inset-0 bg-black/5" />
+                                                            <div className={`relative w-full aspect-[4/5] transform transition-transform group-hover:scale-[1.02] duration-300 ${currentTheme.id.startsWith('brutalist-') ? 'overflow-visible' : ''}`}>
+                                                                <div className={`absolute inset-0 overflow-hidden ${roundedClass} border-none shadow-none`}>
+                                                                    <div
+                                                                        className={`absolute inset-0 z-0 ${buttonClass.replace(/\b(w-full|p[xy]?-\d+|min-h-\d+|items-center|justify-between)\b/g, '').trim()}`}
+                                                                        style={{ ...mainButtonStyle }}
+                                                                    />
+                                                                    <img src={product.image} alt={product.name} className="relative z-10 w-full h-full block object-cover" loading="lazy" decoding="async" />
+                                                                    <div className="absolute inset-0 z-20 bg-black/5" />
 
                                                                     {/* Badge container with high z-index and clip safety */}
                                                                     <div className="absolute top-2 left-2 z-10">
@@ -1339,11 +1477,16 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     initial={{ scale: 0.8, opacity: 0 }}
                                                                     animate={{ scale: 1, opacity: 1 }}
                                                                     transition={{ duration: 0 }}
-                                                                    href={iconLink.url}
-                                                                    onClick={() => handleLinkClick(iconLink.id)}
+                                                                    href={iconLink.isPasswordProtected ? undefined : iconLink.url}
+                                                                    target={iconLink.isPasswordProtected ? undefined : "_blank"}
+                                                                    rel="noreferrer"
+                                                                    onClick={(e) => {
+                                                                        if (handlePasswordProtectedLink(iconLink, e)) return;
+                                                                        handleLinkClick(iconLink.id);
+                                                                    }}
                                                                     // AQUI: Aplicamos buttonClass (limpa) para que o ícone social tenha o mesmo "feel" do botão (hover, shadow)
                                                                     // Removemos classes de layout/padding do botão para que não quebre o ícone
-                                                                    className={`relative group flex items-center justify-center w-12 h-12 transition-all duration-300 ${buttonClass.replace(/\b(block|w-full|min-h-\[.*?\]|px-\d+(\.\d+)?|py-\d+(\.\d+)?|justify-between|text-center)\b/g, '').trim()}`}
+                                                                    className={`relative group flex items-center justify-center w-[72px] h-[72px] transition-all duration-300 ${buttonClass.replace(/\b(block|w-full|min-h-\[.*?\]|px-\d+(\.\d+)?|py-\d+(\.\d+)?|justify-between|text-center)\b/g, '').trim()} ${getHighlightClass(iconLink.highlight)}`}
                                                                     style={{ ...mainButtonStyle, borderRadius: borderRadiusValue }} // Força o estilo do botão (cor e redondura)
                                                                 >
                                                                     <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${currentTheme.id.includes('dark') ? 'bg-white' : 'bg-black'}`}></div>
@@ -1430,11 +1573,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     initial={{ scale: 0.95, opacity: 0 }}
                                                                     whileInView={{ scale: 1, opacity: 1 }}
                                                                     viewport={{ once: true }}
-                                                                    href={cardLink.url}
-                                                                    target="_blank"
+                                                                    href={cardLink.isPasswordProtected ? undefined : cardLink.url}
+                                                                    target={cardLink.isPasswordProtected ? undefined : "_blank"}
                                                                     rel="noreferrer"
-                                                                    onClick={() => handleLinkClick(cardLink.id)}
-                                                                    className={`group relative overflow-hidden transition-all duration-300 w-full ${baseCardClass}`}
+                                                                    onClick={(e) => {
+                                                                        if (handlePasswordProtectedLink(cardLink, e)) return;
+                                                                        handleLinkClick(cardLink.id);
+                                                                    }}
+                                                                    className={`group relative overflow-hidden transition-all duration-300 w-full ${baseCardClass} ${getHighlightClass(cardLink.highlight)}`}
                                                                     style={{ ...mainButtonStyle, backgroundColor: buttonHex }}
                                                                 >
                                                                     {cardContent}
@@ -1461,8 +1607,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     media_type: c.videoUrl ? 'VIDEO' : 'IMAGE'
                                                 }));
                                                 renderedItems.push(
-                                                    <motion.div key={`instagram-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
-                                                        {link.title && <div className="text-center mb-2 font-normal opacity-90 text-sm uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>}
+                                                    <motion.div key={`instagram-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                        {link.title && (
+                                                            <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
+                                                                <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
+                                                            </div>
+                                                        )}
                                                         <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={collectionMedia.length > 0 ? collectionMedia : instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={link.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                     </motion.div>
                                                 );
@@ -1470,7 +1620,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <motion.div key={`instagram-profile-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                    <motion.div key={`instagram-profile-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                         <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={link.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                     </motion.div>
                                                 );
@@ -1478,7 +1628,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <motion.div key={`youtube-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                    <motion.div key={`youtube-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                         <YouTubeCard username={youtubeUsername || link.url} title={youtubeTitle || link.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                     </motion.div>
                                                 );
@@ -1486,7 +1636,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <motion.div key={`twitch-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                    <motion.div key={`twitch-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                         <TwitchCard username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                     </motion.div>
                                                 );
@@ -1494,7 +1644,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <motion.div key={`kick-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                    <motion.div key={`kick-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                         <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                     </motion.div>
                                                 );
@@ -1502,8 +1652,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <motion.div key={`agenda-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
-                                                        {link.title && <div className="text-center mb-2 font-normal opacity-90 text-sm uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>}
+                                                    <motion.div key={`agenda-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                        {link.title && (
+                                                            <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
+                                                                <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
+                                                            </div>
+                                                        )}
                                                         <AgendaCard
                                                             events={link.events || []}
                                                             themeButtonClass={baseCardClass}
@@ -1524,7 +1678,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
                                                 // MapBlock for specific Map items
-                                                renderedItems.push(<MapBlock key={link.id} link={link} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} />);
+                                                renderedItems.push(
+                                                    <div key={link.id} className={getHighlightClass(link.highlight)}>
+                                                        <MapBlock link={link} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                    </div>
+                                                );
                                             } else if (link.layout === 'icon') {
                                                 flushCards();
                                                 currentIconGroup.push(link);
@@ -1543,12 +1701,28 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     const scrollRight = () => { const el = document.getElementById(scrollContainerId); if (el) el.scrollBy({ left: 250, behavior: 'smooth' }); };
                                                     renderedItems.push(
                                                         <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 group/carousel ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
-                                                            {link.title && <div className="text-center mb-2 font-normal opacity-90 text-sm uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>}
+                                                            {link.title && (
+                                                                <div className="text-center mb-2 px-4 flex flex-col items-center gap-0.5">
+                                                                    <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
+                                                                </div>
+                                                            )}
                                                             <div className="relative w-full">
                                                                 <button onClick={scrollLeft} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
                                                                 <div id={scrollContainerId} className="flex overflow-x-auto gap-2 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
                                                                     {(activeChildren.length > 0 ? activeChildren : [link]).map(child => (
-                                                                        <motion.a key={child.id} transition={{ duration: 0 }} href={child.url} target="_blank" rel="noreferrer" onClick={() => handleLinkClick(child.id)} className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass}`} style={mainButtonStyle}>
+                                                                        <motion.a 
+                                                                            key={child.id} 
+                                                                            transition={{ duration: 0 }} 
+                                                                            href={child.isPasswordProtected ? undefined : child.url} 
+                                                                            target={child.isPasswordProtected ? undefined : "_blank"} 
+                                                                            rel="noreferrer" 
+                                                                            onClick={(e) => {
+                                                                                if (handlePasswordProtectedLink(child, e)) return;
+                                                                                handleLinkClick(child.id);
+                                                                            }}
+                                                                            className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass} ${getHighlightClass(child.highlight)}`} 
+                                                                            style={mainButtonStyle}
+                                                                        >
                                                                             <div className="relative z-10 flex flex-col h-full w-full">
                                                                                 <div className="relative overflow-hidden h-36 w-full bg-white">
                                                                                     {child.image ? <img
@@ -1578,7 +1752,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 } else {
                                                     renderedItems.push(
                                                         <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
-                                                            {link.title && <div className="text-center mb-2 opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>}
+                                                            {link.title && (
+                                                                <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
+                                                                    <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
+                                                                </div>
+                                                            )}
                                                             <div className="flex flex-col gap-2 relative">
                                                                 {(() => {
                                                                     const nestedItems: React.ReactNode[] = [];
@@ -1589,40 +1767,72 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                                         // Standard items
                                                                         if (isMusicLink(child)) {
-                                                                            nestedItems.push(<MusicRichCard key={child.id} link={child} handleLinkClick={handleLinkClick} />);
+                                                                            nestedItems.push(
+                                                                                <div key={child.id} className={getHighlightClass(child.highlight)}>
+                                                                                    <MusicRichCard link={child} handleLinkClick={handleLinkClick} />
+                                                                                </div>
+                                                                            );
                                                                         } else if (child.embedType === 'youtube') {
-                                                                            nestedItems.push(<YouTubeEmbed key={child.id} url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} />);
+                                                                            nestedItems.push(
+                                                                                <div key={child.id} className={getHighlightClass(child.highlight)}>
+                                                                                    <YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} />
+                                                                                </div>
+                                                                            );
                                                                         } else if (child.embedType === 'tiktok') {
-                                                                            nestedItems.push(<TikTokEmbed key={child.id} url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} />);
+                                                                            nestedItems.push(
+                                                                                <div key={child.id} className={getHighlightClass(child.highlight)}>
+                                                                                    <TikTokEmbed url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} />
+                                                                                </div>
+                                                                            );
                                                                         } else {
                                                                             // Check Integrations for children
                                                                             let renderedSpecial = false;
                                                                             if (child.platform === 'instagram' || (child.url.includes('instagram.com') && child.type !== 'collection')) {
                                                                                 if (instagramIntegration) {
-                                                                                    nestedItems.push(<InstagramCard key={child.id} username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={child.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />);
+                                                                                    nestedItems.push(
+                                                                                        <div key={child.id} className={getHighlightClass(child.highlight)}>
+                                                                                            <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={child.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                                        </div>
+                                                                                    );
                                                                                     renderedSpecial = true;
                                                                                 }
                                                                             }
                                                                             if (!renderedSpecial && (child.platform === 'youtube' || (child.url.includes('youtube.com') && !child.url.includes('watch?v=') && !child.url.includes('/shorts/')))) {
                                                                                 if (youtubeIntegration) {
-                                                                                    nestedItems.push(<YouTubeCard key={child.id} username={youtubeUsername || child.url} title={youtubeTitle || child.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />);
+                                                                                    nestedItems.push(
+                                                                                        <div key={child.id} className={getHighlightClass(child.highlight)}>
+                                                                                            <YouTubeCard username={youtubeUsername || child.url} title={youtubeTitle || child.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                                        </div>
+                                                                                    );
                                                                                     renderedSpecial = true;
                                                                                 }
                                                                             }
                                                                             if (!renderedSpecial && (child.platform === 'twitch' || child.title.toLowerCase().includes('twitch'))) {
                                                                                 if (twitchIntegration) {
-                                                                                    nestedItems.push(<TwitchCard key={child.id} username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />);
+                                                                                    nestedItems.push(
+                                                                                        <div key={child.id} className={getHighlightClass(child.highlight)}>
+                                                                                            <TwitchCard username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                                        </div>
+                                                                                    );
                                                                                     renderedSpecial = true;
                                                                                 }
                                                                             }
                                                                             if (!renderedSpecial && (child.platform === 'kick' || child.title.toLowerCase().includes('kick'))) {
                                                                                 if (kickIntegration) {
-                                                                                    nestedItems.push(<KickCard key={child.id} username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />);
+                                                                                    nestedItems.push(
+                                                                                        <div key={child.id} className={getHighlightClass(child.highlight)}>
+                                                                                            <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                                        </div>
+                                                                                    );
                                                                                     renderedSpecial = true;
                                                                                 }
                                                                             }
                                                                             if (!renderedSpecial && (child.type === 'map' || child.title?.toLowerCase() === 'localização')) {
-                                                                                nestedItems.push(<MapBlock key={child.id} link={child} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} />);
+                                                                                nestedItems.push(
+                                                                                    <div key={child.id} className={getHighlightClass(child.highlight)}>
+                                                                                        <MapBlock link={child} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                                    </div>
+                                                                                );
                                                                                 renderedSpecial = true;
                                                                             }
 
@@ -1634,16 +1844,25 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         key={child.id}
                                                                                         transition={{ duration: 0.2 }}
                                                                                         whileHover={{ scale: 1.005 }}
-                                                                                        href={child.url}
-                                                                                        target="_blank"
+                                                                                        href={child.isPasswordProtected ? undefined : child.url}
+                                                                                        target={child.isPasswordProtected ? undefined : "_blank"}
                                                                                         rel="noreferrer"
-                                                                                        onClick={() => handleLinkClick(child.id)}
-                                                                                        className={`block w-full min-h-[66px] transform group relative py-2.5 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} overflow-hidden`}
-                                                                                        style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                                                        onClick={(e) => {
+                                                                                            if (handlePasswordProtectedLink(child, e)) return;
+                                                                                            handleLinkClick(child.id);
+                                                                                        }}
+                                                                                        className={`block w-full h-[72px] transform group relative py-2.5 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)}`}
+                                                                                        style={{
+                                                                                            ...mainButtonStyle,
+                                                                                            fontFamily: profile.fontFamily,
+                                                                                            fontWeight: (profile.fontWeight || undefined),
+                                                                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
+                                                                                        }}
                                                                                     >
                                                                                         <div className="relative shrink-0 z-10">
                                                                                             {child.image ? (
-                                                                                                <div className="w-9 h-9 rounded-lg overflow-hidden border border-black/5 group-hover:scale-105 transition-transform">
+                                                                                                <div className="w-9 h-9 rounded-lg overflow-hidden border border-[#1a1a1a]/5 group-hover:scale-105 transition-transform">
                                                                                                     <img
                                                                                                         src={child.image}
                                                                                                         alt=""
@@ -1693,11 +1912,23 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     );
                                                 }
                                             } else if (isMusicLink(link)) {
-                                                renderedItems.push(<MusicRichCard key={link.id} link={link} handleLinkClick={handleLinkClick} />);
+                                                renderedItems.push(
+                                                    <div key={link.id} className={getHighlightClass(link.highlight)}>
+                                                        <MusicRichCard link={link} handleLinkClick={handleLinkClick} />
+                                                    </div>
+                                                );
                                             } else if (link.embedType === 'youtube') {
-                                                renderedItems.push(<YouTubeEmbed key={link.id} url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} />);
+                                                renderedItems.push(
+                                                    <div key={link.id} className={getHighlightClass(link.highlight)}>
+                                                        <YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} />
+                                                    </div>
+                                                );
                                             } else if (link.embedType === 'tiktok') {
-                                                renderedItems.push(<TikTokEmbed key={link.id} url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} />);
+                                                renderedItems.push(
+                                                    <div key={link.id} className={getHighlightClass(link.highlight)}>
+                                                        <TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} />
+                                                    </div>
+                                                );
                                             } else if (link.type === 'mediakit') {
                                                 flushIcons();
                                                 flushCards();
@@ -1710,16 +1941,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     >
                                                         <button
                                                             onClick={(e) => {
+                                                                if (handlePasswordProtectedLink(link, e)) return;
                                                                 handleLinkClick(link.id);
                                                                 handleMediaKitLink(link, e);
                                                             }}
-                                                            className={`w-full transform group relative flex items-center p-0 ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden cursor-pointer`}
+                                                            className={`w-full h-[72px] transform group relative flex items-center p-0 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                             style={{
                                                                 ...mainButtonStyle,
                                                                 borderRadius: borderRadiusValue,
                                                                 fontFamily: profile.fontFamily,
                                                                 fontWeight: (profile.fontWeight || undefined),
-                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
                                                             }}
                                                         >
                                                             <div className="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shrink-0 border-r bg-black/[0.03]" style={{ borderColor: `${getSmartTextColor()}0A` }}>
@@ -1776,13 +2009,19 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             if (handlePasswordProtectedLink(link, e)) return;
                                                             handleLinkClick(link.id);
                                                         }}
-                                                        className={`block w-full min-h-[66px] transform group relative py-3 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} overflow-hidden cursor-pointer`}
-                                                        style={{ ...mainButtonStyle, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                        className={`block w-full h-[72px] transform group relative py-3 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                        style={{
+                                                            ...mainButtonStyle,
+                                                            fontFamily: profile.fontFamily,
+                                                            fontWeight: (profile.fontWeight || undefined),
+                                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
+                                                        }}
                                                     >
                                                         {/* Icon/Image Container */}
                                                         <div className="relative shrink-0 z-10">
                                                             {link.image ? (
-                                                                <div className="w-10 h-10 rounded-lg overflow-hidden border border-black/5 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                                                                <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#1a1a1a]/5 shadow-sm group-hover:scale-105 transition-transform duration-300">
                                                                     <img
                                                                         src={link.image}
                                                                         alt=""
@@ -1822,10 +2061,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         {/* Action Indicator (Right Side) — 🔐 lock if password protected */}
                                                         <div className="w-10 shrink-0 flex items-center justify-center z-10 relative opacity-40 group-hover:opacity-100 transition-all">
                                                             {link.isPasswordProtected ? (
-                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={getSmartTextColor()} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                                                                </svg>
+                                                                <div className="bg-black/5 p-1.5 rounded-md border border-black/5">
+                                                                    <Lock size={15} style={{ color: getSmartTextColor() }} strokeWidth={2.5} />
+                                                                </div>
                                                             ) : (
                                                                 <ChevronRight size={18} style={{ color: getSmartTextColor() }} strokeWidth={3} />
                                                             )}
@@ -1862,21 +2100,28 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             alert('Chave Pix copiada!');
                                                         }
                                                     }}
-                                                    className={`relative w-full overflow-hidden transition-all duration-300 group ${buttonClass} min-h-[56px] flex items-center justify-center`}
+                                                    className={`relative w-full h-[72px] transition-all duration-300 group ${buttonClass.replace('justify-between', 'justify-center')} flex items-center justify-center`}
                                                     style={{
                                                         ...mainButtonStyle,
-                                                        backgroundColor: buttonHex,
                                                         color: getSmartTextColor(),
-                                                        borderRadius: borderRadiusValue
+                                                        borderRadius: borderRadiusValue,
+                                                        ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
                                                     }}
                                                 >
                                                     <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                                    <div className="relative z-10 flex items-center justify-center gap-3">
-                                                        {method.type === 'pix' ? <Zap size={20} fill="currentColor" /> : <CreditCard size={20} />}
-                                                        <span className="font-medium text-sm">
+                                                    <div className="relative z-10 flex items-center justify-center gap-3 w-full px-6">
+                                                        <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                                                            {method.type === 'pix' ? (
+                                                                <img src="/icons/pix-svgrepo-com.svg" className="w-6 h-6 opacity-90" style={{ filter: getSmartTextColor() === '#ffffff' ? 'invert(1) brightness(2)' : 'none' }} alt="Pix" />
+                                                            ) : (
+                                                                <SiPaypal size={22} className="opacity-90" />
+                                                            )}
+                                                        </div>
+                                                        <span className="font-bold text-[15px] uppercase tracking-tight flex-1 text-center">
                                                             {method.label || (method.type === 'pix' ? 'Fazer um Pix' : 'Pagar com PayPal')}
                                                         </span>
+                                                        <div className="w-8 shrink-0" /> {/* Spacer to balance the layout */}
                                                     </div>
                                                 </motion.button>
                                             ))}
@@ -1905,8 +2150,16 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         navigator.clipboard.writeText(profile.supportKey || '');
                                     }
                                 }}
-                                className={`block w-full min-h-[64px] text-center text-base transition-all duration-300 transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} overflow-hidden`}
-                                style={{ fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                className={`block w-full h-[72px] text-center text-base transition-all duration-300 transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass}`}
+                                style={{
+                                    ...mainButtonStyle,
+                                    color: getSmartTextColor(),
+                                    borderRadius: borderRadiusValue,
+                                    fontFamily: profile.fontFamily,
+                                    fontWeight: (profile.fontWeight || undefined),
+                                    fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                    ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
+                                }}
                             >
                                 <div className="relative z-10 w-full flex items-center justify-between">
                                     {profile.supportType === 'pix' ? (
@@ -1920,49 +2173,47 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             </motion.a>
                         )}
 
-                        <motion.div layout className="mt-2 mb-8 flex flex-col items-center gap-4 w-full px-4 font-sans text-center">
-
-                            <div className="flex flex-col items-center gap-4">
-                                {profile.planType !== 'annual' && (
+                        {(profile.planType === 'free' || !profile.planType || !profile.hideBranding) && (
+                            <div className="mt-4 mb-2 flex flex-col items-center w-full px-4 text-center gap-1.5 relative z-30">
+                                <div className="flex flex-col items-center gap-0.5">
+                                    <span style={{
+                                        color: effectiveCollectionTextColor || '#111827',
+                                        opacity: 0.6,
+                                        fontSize: '8px',
+                                        letterSpacing: '0.5em',
+                                        textTransform: 'uppercase',
+                                        fontWeight: 400,
+                                        display: 'block'
+                                    }}>
+                                        POWERED BY
+                                    </span>
                                     <a
                                         href="https://www.nodus.my"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex flex-col items-center gap-0 group no-underline"
+                                        className="no-underline"
+                                        style={{ display: 'block', textDecoration: 'none' }}
                                     >
-                                        <span
-                                            className="text-[8px] font-normal tracking-[0.5em] uppercase transition-opacity group-hover:opacity-70 leading-none"
-                                            style={{ color: isDarkTheme ? '#ffffff' : '#000000', opacity: 0.3 }}
-                                        >
-                                            Powered by
+                                        <span style={{
+                                            color: effectiveCollectionTextColor || '#111827',
+                                            fontSize: '14px',
+                                            fontWeight: 900,
+                                            letterSpacing: '0.3em',
+                                            textTransform: 'uppercase',
+                                            display: 'block',
+                                            opacity: 1
+                                        }}>
+                                            NODUS
                                         </span>
-                                        <img
-                                            src="/icons/logo.png"
-                                            alt="Nodus"
-                                            loading="lazy"
-                                            decoding="async"
-                                            className="w-[80px] h-auto object-contain transition-opacity duration-300 group-hover:opacity-60 opacity-100 -mt-6"
-                                            style={{
-                                                filter: isDarkTheme ? 'invert(1) brightness(10)' : 'brightness(1)'
-                                            }}
-                                        />
                                     </a>
-                                )}
+                                </div>
 
-                                {/* Legal Links (Minimalist) */}
-                                <div
-                                    className="flex items-center gap-3 text-[7px] transition-opacity duration-300 font-normal -mt-10"
-                                    style={{
-                                        color: isDarkTheme ? '#ffffff' : '#000000',
-                                        fontStyle: profile.fontItalic ? 'italic' : 'normal'
-                                    }}
-                                >
-                                    <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-30 hover:opacity-100 tracking-[0.2em]">TERMOS</a>
-                                    <span className="opacity-15 text-[5px]">•</span>
-                                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:underline opacity-30 hover:opacity-100 tracking-[0.2em]">PRIVACIDADE</a>
+                                <div className="flex items-center gap-4 mt-1">
+                                    <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: effectiveCollectionTextColor || '#111827', opacity: 0.4, fontSize: '8px', textTransform: 'uppercase', textDecoration: 'none', letterSpacing: '0.15em', fontWeight: 400 }}>Termos</a>
+                                    <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: effectiveCollectionTextColor || '#111827', opacity: 0.4, fontSize: '8px', textTransform: 'uppercase', textDecoration: 'none', letterSpacing: '0.15em', fontWeight: 400 }}>Privacidade</a>
                                 </div>
                             </div>
-                        </motion.div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -19,9 +19,9 @@ const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveS
     ];
 
     return (
-        <div className="w-full bg-white border-b-4 border-black sticky top-0 z-[50]">
+        <div className="w-full bg-white/90 backdrop-blur-lg sticky top-0 z-[50] py-3 md:py-5 border-b-2 border-black/5">
             <div className="max-w-7xl mx-auto px-4 md:px-8">
-                <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
+                <div className="flex items-center gap-1.5 md:gap-3 overflow-x-auto scrollbar-hide py-2">
                     {DESIGN_MENU_ITEMS.map((item) => {
                         const isActive = activeSection === item.id;
                         return (
@@ -29,19 +29,22 @@ const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveS
                                 key={item.id}
                                 data-tour={`design-${item.id}`}
                                 onClick={() => setActiveSection(item.id)}
-                                className={`py-4 px-1 text-xs font-medium uppercase tracking-widest transition-all relative whitespace-nowrap ${isActive
+                                className={`px-4 md:px-5 py-2 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.15em] transition-all relative whitespace-nowrap flex items-center justify-center min-h-[38px] md:min-h-[44px] group rounded-xl overflow-visible ${isActive
                                     ? 'text-black'
                                     : 'text-black/50 hover:text-black'
                                     }`}
                             >
-                                {item.label}
                                 {isActive && (
                                     <motion.div
-                                        layoutId="sidebarActiveTab"
-                                        className="absolute bottom-0 left-0 right-0 h-1 bg-black"
+                                        layoutId="designActiveTab"
+                                        className="absolute inset-0 bg-[#97cd7a] border-2 border-black rounded-xl -z-10 shadow-[3px_3px_0px_0px_#000]"
                                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                     />
                                 )}
+                                {!isActive && (
+                                    <div className="absolute inset-0 border-2 border-transparent group-hover:border-black/5 rounded-xl -z-10 transition-all bg-black/0 group-hover:bg-black/[0.02]" />
+                                )}
+                                <span className="relative z-10">{item.label}</span>
                             </button>
                         );
                     })}

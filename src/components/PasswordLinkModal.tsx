@@ -78,14 +78,14 @@ export default function PasswordLinkModal({ linkId, linkTitle, onClose, apiBaseU
 
                 {/* Modal */}
                 <motion.div
-                    className="relative w-full sm:max-w-sm mx-4 bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mb-4 sm:mb-0"
+                    className="relative w-full sm:max-w-sm mx-4 bg-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] mb-4 sm:mb-0"
                     initial={{ y: 80, opacity: 0, scale: 0.95 }}
                     animate={{ y: 0, opacity: 1, scale: 1 }}
                     exit={{ y: 80, opacity: 0, scale: 0.95 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 >
                     {/* Header */}
-                    <div className="flex items-center justify-between border-b-2 border-black px-4 py-3">
+                    <div className="flex items-center justify-between border-b-2 border-[#1a1a1a] px-4 py-3">
                         <div className="flex items-center gap-2">
                             <div className="w-7 h-7 bg-black flex items-center justify-center">
                                 <Lock size={14} strokeWidth={3} className="text-[#97cd7a]" />
@@ -106,7 +106,7 @@ export default function PasswordLinkModal({ linkId, linkTitle, onClose, apiBaseU
                         </p>
 
                         {linkTitle && (
-                            <div className="px-3 py-2 bg-black/5 border border-black/20">
+                            <div className="px-3 py-2 bg-black/5 border border-[#1a1a1a]/20">
                                 <span className="text-[10px] font-bold uppercase tracking-widest text-black truncate block">{linkTitle}</span>
                             </div>
                         )}
@@ -119,7 +119,7 @@ export default function PasswordLinkModal({ linkId, linkTitle, onClose, apiBaseU
                                     value={password}
                                     onChange={e => { setPassword(e.target.value); setError(''); }}
                                     placeholder={t('passwordLink.placeholder') || 'Digite a senha...'}
-                                    className="w-full border-2 border-black px-3 py-3 pr-10 text-[12px] font-medium tracking-widest text-black bg-white outline-none focus:bg-[#fffde7] transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                                    className="w-full border-2 border-[#1a1a1a] px-3 py-3 pr-10 text-[12px] font-medium tracking-widest text-black bg-white outline-none focus:bg-[#fffde7] transition-colors shadow-[2px_2px_0px_0px_#1a1a1a]"
                                     autoComplete="off"
                                     disabled={loading}
                                 />
@@ -149,7 +149,7 @@ export default function PasswordLinkModal({ linkId, linkTitle, onClose, apiBaseU
                             <button
                                 type="submit"
                                 disabled={loading || !password.trim()}
-                                className="w-full py-3 bg-black text-[#97cd7a] border-2 border-black text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#97cd7a] hover:text-black transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full py-3 bg-black text-[#97cd7a] border-2 border-[#1a1a1a] text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#97cd7a] hover:text-black transition-all shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {loading ? (
                                     <Loader2 size={14} strokeWidth={3} className="animate-spin" />

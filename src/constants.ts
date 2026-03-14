@@ -37,7 +37,7 @@ export const FONTS: FontOption[] = [
   { name: '8-Bit Retro', family: "'Press Start 2P', cursive", type: 'display', isPro: true },
   { name: 'Neon Line', family: "'Monoton', display", type: 'display', isPro: true },
   { name: 'Horror Fun', family: "'Creepster', cursive", type: 'display', isPro: true },
-  { name: 'Soft Round', family: "'Fredoka', sans-serif", type: 'sans', isPro: true },
+  { name: 'Soft Round', family: "'Fredoka', sans-serif", type: 'sans' },
   { name: 'Marker Street', family: "'Permanent Marker', cursive", type: 'handwriting', isPro: true },
   { name: 'Fancy Fun', family: "'Lobster', cursive", type: 'display', isPro: true },
   { name: 'Wild Beast', family: "'Rubik Beastly', display", type: 'display', isPro: true },
@@ -47,7 +47,7 @@ export const FONTS: FontOption[] = [
   { name: 'Editorial Serif', family: "'Caudex', serif", type: 'serif', isPro: true },
   { name: 'Italiana Display', family: "'Italiana', serif", type: 'display', isPro: true },
   { name: 'Indie Variable', family: "'Fraunces', serif", type: 'serif', isPro: true },
-  { name: 'Brutalist Mono', family: "'Space Mono', monospace", type: 'mono', isPro: true },
+  { name: 'Brutalist Mono', family: "'Space Mono', monospace", type: 'mono' },
   { name: 'Clean Handwriting', family: "'Shadows Into Light', cursive", type: 'handwriting', isPro: true },
   { name: 'Grunge Style', family: "'Rock Salt', cursive", type: 'handwriting', isPro: true },
   { name: 'Typewriter', family: "'Special Elite', cursive", type: 'mono', isPro: true },
@@ -93,9 +93,11 @@ export const FONTS: FontOption[] = [
   { name: 'Cyber Orbitron', family: "'Orbitron', sans-serif", type: 'display', isPro: true },
   { name: 'Pirate Display', family: "'Pirata One', display", type: 'display', isPro: true },
   { name: 'Stencil Classic', family: "'Stardos Stencil', display", type: 'display', isPro: true },
+  { name: 'Roboto Condensed', family: "'Roboto Condensed', sans-serif", type: 'sans' },
+  { name: 'Handwritten', family: "'Patrick Hand', cursive", type: 'handwriting' },
+  { name: 'Typewriter Mono', family: "'Courier New', monospace", type: 'mono' },
 ];
 
-import { nodusOfficialTheme } from './themes/nodus-official';
 import { kawaiiSakuraTheme } from './themes/kawaii-sakura';
 import { businessThemes } from './themes/business';
 import { engineeringThemes } from './themes/engineering';
@@ -123,7 +125,6 @@ export const THEMES: Theme[] = [
     cardClass: 'bg-white border border-slate-200 shadow-sm rounded-2xl',
     fontFamily: "'Questrial', sans-serif"
   },
-  nodusOfficialTheme,
   kawaiiSakuraTheme,
   ...businessThemes,
   ...advocacyThemes,

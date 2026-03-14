@@ -16,6 +16,7 @@ import SupportView from '../components/SupportView';
 import ManageBillingView from '../components/ManageBillingView';
 import AdminView from '../components/AdminView';
 import BillingView from '../components/BillingView';
+import BillingModal from '../components/BillingModal';
 import QRCodeModal from '../components/QRCodeModal';
 import UpgradeBanner from '../components/UpgradeBanner';
 import DesignSidebar from '../components/DesignSidebar';
@@ -44,7 +45,7 @@ export default function EditorPage() {
         name: '',
         bio: '',
         avatarUrl: '',
-        themeId: 'animated-nodus-official',
+        themeId: 'brutalist-bauhaus',
         fontFamily: "'Inter', sans-serif",
         onboardingCompleted: true, // Default to true so it doesn't pop up before data loads
         tutorialStatus: 'yes'     // Default to yes so it doesn't pop up before data loads
@@ -52,6 +53,12 @@ export default function EditorPage() {
 
     const [links, setLinks] = useState<LinkItem[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
+
+    // --- SYNCED STATES for LIVE PREVIEW ---
+    // We only update these AFTER the API call succeeds, as requested.
+    const [syncedProfile, setSyncedProfile] = useState<UserProfile>(profile);
+    const [syncedLinks, setSyncedLinks] = useState<LinkItem[]>([]);
+    const [syncedProducts, setSyncedProducts] = useState<Product[]>([]);
 
     const updateProfile = (updates: Partial<UserProfile>) => {
         setProfile(prev => ({ ...prev, ...updates }));
@@ -109,6 +116,11 @@ export default function EditorPage() {
                 setProfile(profileData);
                 setLinks(linksData);
                 setProducts(productsData);
+
+                // Initialize synced states
+                setSyncedProfile(profileData);
+                setSyncedLinks(linksData);
+                setSyncedProducts(productsData);
 
                 // --- AUTOMATIC PAYMENT RECONCILIATION ---
                 // Trigger silently in background
@@ -210,9 +222,14 @@ export default function EditorPage() {
                 const response = await apiClient.updateProfile(profile);
                 console.log('✅ [EditorPage] Auto-save profile success:', response);
                 lastSavedProfile.current = JSON.stringify(profile);
+
+                // UPDATE PREVIEW ONLY AFTER SUCCESS
+                setSyncedProfile(profile);
+
                 // Sync any backend updates (like business logic timestamps)
                 if (response.usernameUpdatedAt && response.usernameUpdatedAt !== profile.usernameUpdatedAt) {
                     setProfile(prev => ({ ...prev, usernameUpdatedAt: response.usernameUpdatedAt }));
+                    setSyncedProfile(prev => ({ ...prev, usernameUpdatedAt: response.usernameUpdatedAt }));
                 }
             } catch (error: any) {
                 console.error('❌ [EditorPage] Auto-save profile failed:', error);
@@ -254,6 +271,9 @@ export default function EditorPage() {
             try {
                 const savedLinks = await apiClient.replaceAllLinks(linksSnapshot);
 
+                // UPDATE PREVIEW ONLY AFTER SUCCESS
+                setSyncedLinks(linksSnapshot);
+
                 // Sync backend-generated IDs back to state
                 setLinks(currentLinks => {
                     if (savedLinks.length !== linksSnapshot.length) return currentLinks;
@@ -278,6 +298,9 @@ export default function EditorPage() {
                     }));
 
                     const updatedLinks = updateIds(currentLinks);
+
+                    // Sync synced state with mapped IDs too
+                    setSyncedLinks(updatedLinks);
 
                     // Also sync expanded states so editors don't close!
                     setExpandedLinks(prev => {
@@ -334,6 +357,9 @@ export default function EditorPage() {
             try {
                 const savedProducts = await apiClient.replaceAllProducts(productsSnapshot);
 
+                // UPDATE PREVIEW ONLY AFTER SUCCESS
+                setSyncedProducts(productsSnapshot);
+
                 // Sync backend-generated IDs back to state
                 setProducts(currentProducts => {
                     if (savedProducts.length !== productsSnapshot.length) return currentProducts;
@@ -353,6 +379,9 @@ export default function EditorPage() {
                         ...p,
                         id: idMap.get(p.id) || p.id
                     }));
+
+                    // Sync synced state with mapped IDs too
+                    setSyncedProducts(updatedProducts);
 
                     lastSavedProducts.current = JSON.stringify(updatedProducts);
                     return updatedProducts;
@@ -396,7 +425,7 @@ export default function EditorPage() {
     React.useEffect(() => {
         const handleOpenBilling = () => setIsUpgradeOpen(true);
         window.addEventListener('open-billing-modal', handleOpenBilling);
-        document.title = 'Nodus | Editor';
+        document.title = 'Nodus admin';
         return () => window.removeEventListener('open-billing-modal', handleOpenBilling);
     }, []);
 
@@ -656,7 +685,7 @@ export default function EditorPage() {
             },
             {
                 target: '[data-tour="integrations"]',
-                content: t('tour.integrationsTab', 'Conecte ferramentas externas como WhatsApp, Instagram Feed e muito mais em Integrações.'),
+                content: t('tour.integrationsTab', 'Conecte ferramentas externas como WhatsApp, Instagram Feed e muito mais em Conexões.'),
                 disableBeacon: true,
                 spotlightClicks: true,
                 placement: isMobile ? 'auto' : 'right',
@@ -793,7 +822,7 @@ export default function EditorPage() {
                 <main className="flex-1 flex flex-col md:flex-row min-w-0 h-full relative transition-all duration-300">
 
                     {/* Mobile Header */}
-                    <div className={`md:hidden bg-white border-b-2 border-black px-4 py-4 flex items-center justify-between shrink-0 z-[60] shadow-sm relative`}>
+                    <div className={`md:hidden bg-white border-b-2 border-[#1a1a1a] px-4 py-4 flex items-center justify-between shrink-0 z-[60] shadow-sm relative`}>
                         <div className="flex items-center gap-3">
                             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                                 <Menu size={24} className="text-black" />
@@ -802,7 +831,7 @@ export default function EditorPage() {
                         </div>
                         <div className="flex gap-2 items-center">
                             {/* Sync Status - Brutalist */}
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-[#1a1a1a] bg-white shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]">
                                 {(isSaving || visualSavingProfile) ? (
                                     <>
                                         <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
@@ -820,14 +849,14 @@ export default function EditorPage() {
                             <button
                                 data-tour="share"
                                 onClick={() => setIsShareModalOpen(true)}
-                                className="w-9 h-9 flex items-center justify-center bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all text-black"
+                                className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all text-black"
                             >
                                 <Share size={18} strokeWidth={2.5} />
                             </button>
 
                             {/* Preview Button - Brutalist */}
                             <button
-                                className="w-9 h-9 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+                                className="w-9 h-9 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
                                 onClick={() => setShowMobilePreview(!showMobilePreview)}
                             >
                                 {showMobilePreview ? <X size={18} strokeWidth={3} /> : <Eye size={18} strokeWidth={2.5} />}
@@ -851,7 +880,7 @@ export default function EditorPage() {
                                     animate={{ x: 0 }}
                                     exit={{ x: '-100%' }}
                                     transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                    className="relative w-72 h-full bg-white border-r-4 border-black flex flex-col overflow-hidden"
+                                    className="relative w-72 h-full bg-white border-r-4 border-[#1a1a1a] flex flex-col overflow-hidden"
                                 >
                                     <Sidebar
                                         activeTab={activeTab}
@@ -874,7 +903,7 @@ export default function EditorPage() {
                     <div className={`flex-1 h-full overflow-y-auto scrollbar-hide ${showMobilePreview ? 'hidden lg:block' : 'block'}`}>
 
                         {/* Desktop Header (Sticky) */}
-                        <header className={`hidden md:flex items-center justify-between px-8 py-3 bg-white border-b-2 border-black sticky top-0 z-20`}>
+                        <header className={`hidden md:flex items-center justify-between px-8 py-3 bg-white border-b-2 border-[#1a1a1a] sticky top-0 z-20`}>
                             <div className="flex items-center gap-2">
                                 {!isSidebarOpen && (
                                     <button
@@ -890,18 +919,18 @@ export default function EditorPage() {
                             </div>
                             <div className="flex items-center gap-4">
                                 {isPreviewMode ? (
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0">
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#97cd7a] border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] shrink-0">
                                         <Eye size={10} className="text-black" strokeWidth={3} />
                                         <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Modo Preview</span>
                                     </div>
                                 ) : (isSaving || visualSavingProfile) ? (
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 transition-all">
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] shrink-0 transition-all">
                                         <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
                                         <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.syncing')}</span>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0 transition-all">
-                                        <div className="w-1.5 h-1.5 bg-[#97cd7a] border border-black" />
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] shrink-0 transition-all">
+                                        <div className="w-1.5 h-1.5 bg-[#97cd7a] border border-[#1a1a1a]" />
                                         <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.synced')}</span>
                                     </div>
                                 )}
@@ -910,7 +939,7 @@ export default function EditorPage() {
                                     <button
                                         data-tour="share"
                                         onClick={() => setIsShareModalOpen(true)}
-                                        className="w-9 h-9 flex items-center justify-center bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all text-black"
+                                        className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all text-black"
                                         title="Compartilhar"
                                     >
                                         <Share size={18} strokeWidth={2.5} />
@@ -918,7 +947,7 @@ export default function EditorPage() {
                                     <a
                                         href={shareUrl}
                                         target="_blank"
-                                        className="w-9 h-9 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
+                                        className="w-9 h-9 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
                                         title="Abrir Link Público"
                                     >
                                         <ExternalLink size={18} strokeWidth={2.5} />
@@ -929,42 +958,35 @@ export default function EditorPage() {
                         <div className="w-full py-4 md:py-6 px-4 md:px-6 pb-24">
 
                             {/* Page Title - Brutalist Design */}
-                            {activeTab !== 'admin' && activeTab !== 'support' && (
-                                <div className="mb-8 border-l-4 border-black pl-6 py-2 relative">
-                                    <div className="absolute -left-[4px] top-0 bottom-0 w-[4px] bg-[#97cd7a]"></div>
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className="px-2 py-0.5 bg-black text-[#97cd7a] text-[8px] font-medium uppercase tracking-[0.2em]">
-                                            Nodus System
-                                        </div>
-                                        {(!profile?.planType || profile.planType === 'free') && (
-                                            <div className="px-2 py-0.5 bg-[#ffdf00] border border-black text-black text-[8px] font-medium uppercase tracking-[0.2em]">
-                                                {t('editor.freePlan')}
-                                            </div>
-                                        )}
+                            {activeTab !== 'admin' && activeTab !== 'support' && activeTab !== 'billing' && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b-4 border-[#1a1a1a] pb-8 w-full mb-12 px-2 md:px-6"
+                                >
+                                    <div className="relative ml-4 md:ml-6">
+                                        <div className="absolute -left-7 top-1/2 -translate-y-1/2 w-2.5 h-10 bg-[#ffdf00] border-2 border-[#1a1a1a]" />
+                                        <h1 className="text-4xl font-black text-black uppercase tracking-tighter leading-none italic">
+                                            {activeTab === 'links' && t('editor.tabs.links')}
+                                            {activeTab === 'appearance' && t('editor.tabs.appearance')}
+                                            {activeTab === 'shop' && t('editor.tabs.shop')}
+                                            {activeTab === 'analytics' && t('editor.tabs.analytics')}
+                                            {activeTab === 'earn' && t('editor.tabs.earn')}
+                                            {activeTab === 'files' && t('editor.tabs.files')}
+                                            {activeTab === 'integrations' && t('editor.tabs.integrations')}
+                                            {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'earn' && activeTab !== 'files' && activeTab !== 'integrations' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                                        </h1>
+                                        <p className="text-[10px] text-black/40 font-black uppercase tracking-[0.3em] mt-3 ml-1">
+                                            {activeTab === 'links' && t('editor.tabDesc.links')}
+                                            {activeTab === 'appearance' && t('editor.tabDesc.appearance')}
+                                            {activeTab === 'shop' && t('editor.tabDesc.shop')}
+                                            {activeTab === 'analytics' && t('editor.tabDesc.analytics')}
+                                            {activeTab === 'earn' && t('editor.tabDesc.earn')}
+                                            {activeTab === 'files' && t('editor.tabDesc.files')}
+                                            {activeTab === 'integrations' && t('editor.tabDesc.integrations')}
+                                        </p>
                                     </div>
-                                    <h1 className="text-3xl md:text-4xl font-medium uppercase text-black tracking-tighter leading-none mb-1">
-                                        {activeTab === 'links' && t('editor.tabs.links')}
-                                        {activeTab === 'appearance' && t('editor.tabs.appearance')}
-                                        {activeTab === 'shop' && t('editor.tabs.shop')}
-                                        {activeTab === 'analytics' && t('editor.tabs.analytics')}
-                                        {activeTab === 'earn' && t('editor.tabs.earn')}
-                                        {activeTab === 'files' && t('editor.tabs.files')}
-                                        {activeTab === 'billing' && t('editor.tabs.billing')}
-                                        {activeTab === 'integrations' && t('editor.tabs.integrations')}
-                                        {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'earn' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'billing' && activeTab !== 'integrations' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                                    </h1>
-                                    <p className="text-black/50 font-normal text-[10px] md:text-xs uppercase tracking-widest max-w-lg">
-                                        {activeTab === 'links' && t('editor.tabDesc.links')}
-                                        {activeTab === 'appearance' && t('editor.tabDesc.appearance')}
-                                        {activeTab === 'shop' && t('editor.tabDesc.shop')}
-                                        {activeTab === 'analytics' && t('editor.tabDesc.analytics')}
-                                        {activeTab === 'earn' && t('editor.tabDesc.earn')}
-                                        {activeTab === 'files' && t('editor.tabDesc.files')}
-                                        {activeTab === 'billing' && t('editor.tabDesc.billing')}
-                                        {activeTab === 'integrations' && t('editor.tabDesc.integrations')}
-                                    </p>
-                                    <div className="mt-4 w-full h-[1px] bg-black/10"></div>
-                                </div>
+                                </motion.div>
                             )}
 
 
@@ -988,6 +1010,7 @@ export default function EditorPage() {
                                             setExpandedLinks={setExpandedLinks}
                                             expandedCollections={expandedCollections}
                                             setExpandedCollections={setExpandedCollections}
+                                            setProfile={setProfile}
                                         />
                                     </div>
                                 )}
@@ -1100,7 +1123,7 @@ export default function EditorPage() {
         */}
                     <div className={`
             ${activeTab !== 'admin' ? 'lg:flex' : 'hidden'} flex-col items-center justify-center 
-            lg:border-l-4 lg:border-black lg:bg-white 
+            lg:border-l-4 lg:border-[#1a1a1a] lg:bg-white 
             w-full lg:w-[350px] xl:w-[450px] shrink-0
             ${!showMobilePreview ? 'hidden' : 'flex-1 h-full flex flex-col z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0 bg-white md:bg-transparent'}
         `}>
@@ -1111,9 +1134,9 @@ export default function EditorPage() {
                                w-full min-h-full lg:py-12 transform transition-transform duration-300 origin-center flex items-center justify-center relative z-10
             `}>
                                 <Preview
-                                    profile={profile}
-                                    links={links}
-                                    products={products}
+                                    profile={syncedProfile}
+                                    links={syncedLinks}
+                                    products={syncedProducts}
                                     onShare={() => setIsShareModalOpen(true)}
                                     forcedTab={activeTab === 'shop' ? 'shop' : 'links'}
                                 />
@@ -1133,42 +1156,14 @@ export default function EditorPage() {
                     />
                 )}
 
-                {/* Full-Screen Upgrade View */}
+                {/* Billing Modal Overlay */}
                 <AnimatePresence>
                     {isUpgradeOpen && (
-                        <motion.div
-                            key="upgrade-screen"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            transition={{ duration: 0.2 }}
-                            className="fixed inset-0 z-[300] bg-[#fafafa] overflow-y-auto"
-                        >
-                            {/* Header */}
-                            <div className="flex items-center justify-between px-6 md:px-10 py-4 border-b-4 border-black bg-white sticky top-0 z-10">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <div className="px-2 py-0.5 bg-black text-[#ffdf00] text-[9px] font-black uppercase tracking-[0.2em]">Nodus Pro</div>
-                                    </div>
-                                    <h2 className="text-2xl md:text-3xl font-black text-black uppercase tracking-tighter leading-none">
-                                        {t('billing.upgradeTitle')}
-                                    </h2>
-                                    <p className="text-black/40 font-black text-[10px] uppercase tracking-[0.3em] mt-1">
-                                        {t('billing.upgradeSubtitle')}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={() => setIsUpgradeOpen(false)}
-                                    className="p-2.5 text-black hover:bg-black hover:text-[#ffdf00] border-4 border-black bg-white transition-all active:translate-x-[2px] active:translate-y-[2px] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none shrink-0"
-                                >
-                                    <X size={20} strokeWidth={4} />
-                                </button>
-                            </div>
-                            {/* Content */}
-                            <div className="max-w-7xl mx-auto px-4 md:px-8 pb-24 pt-8">
-                                <BillingView profile={profile} onChange={updateProfile} />
-                            </div>
-                        </motion.div>
+                        <BillingModal
+                            profile={profile}
+                            onChange={updateProfile}
+                            onClose={() => setIsUpgradeOpen(false)}
+                        />
                     )}
                 </AnimatePresence>
 
@@ -1188,10 +1183,10 @@ export default function EditorPage() {
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: '100%', opacity: 0 }}
                                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                className="relative w-full md:max-w-md bg-white border-t-4 border-x-4 md:border-b-4 border-black p-8 shadow-none md:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] rounded-t-[32px] md:rounded-[32px] pointer-events-auto"
+                                className="relative w-full md:max-w-md bg-white border-t-4 border-x-4 md:border-b-4 border-[#1a1a1a] p-8 shadow-none md:shadow-[12px_12px_0px_0px_rgba(26,26,26,1)] rounded-t-[32px] md:rounded-[32px] pointer-events-auto"
                             >
                                 <div className="flex flex-col items-center text-center">
-                                    <div className="w-20 h-20 bg-[#ffdf00] border-4 border-black flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                    <div className="w-20 h-20 bg-[#ffdf00] border-4 border-[#1a1a1a] flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]">
                                         <AlertTriangle size={40} className="text-black fill-black" />
                                     </div>
                                     <h2 className="text-2xl font-black uppercase tracking-tighter text-black mb-4">
@@ -1204,14 +1199,14 @@ export default function EditorPage() {
                                     <div className="grid grid-cols-1 w-full gap-4">
                                         <button
                                             onClick={handleUpgradeToSave}
-                                            className="w-full py-4 bg-[#97cd7a] border-4 border-black text-black font-black text-xs uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 active:scale-95"
+                                            className="w-full py-4 bg-[#97cd7a] border-4 border-[#1a1a1a] text-black font-black text-xs uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 active:scale-95"
                                         >
                                             <Check size={20} strokeWidth={4} />
                                             Fazer Upgrade e Salvar
                                         </button>
                                         <button
                                             onClick={handleDiscardChanges}
-                                            className="w-full py-4 bg-white border-4 border-black text-black font-black text-xs uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 active:scale-95"
+                                            className="w-full py-4 bg-white border-4 border-[#1a1a1a] text-black font-black text-xs uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 active:scale-95"
                                         >
                                             <X size={20} strokeWidth={4} />
                                             Descartar e Continuar
