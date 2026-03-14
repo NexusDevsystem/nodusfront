@@ -50,6 +50,9 @@ import { AgendaCard } from './AgendaCard';
 import { MapBlock } from './MapBlock';
 import PasswordLinkModal from './PasswordLinkModal';
 import MediaKitModal from './MediaKitModal';
+import InteractiveButton from './animations/InteractiveButton';
+import ElasticButton from './animations/ElasticButton';
+import GlitchButton from './animations/GlitchButton';
 
 
 
@@ -171,14 +174,95 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             }
             .animate-pulsar { animation: pulsar 1.5s infinite !important; transition: none !important; }
 
-            @keyframes flip {
-                0% { transform: perspective(400px) rotate3d(0, 1, 0, -360deg); animation-timing-function: ease-out; }
-                40% { transform: perspective(400px) translate3d(0, 0, 30px) rotate3d(0, 1, 0, -190deg); animation-timing-function: ease-out; }
-                50% { transform: perspective(400px) translate3d(0, 0, 30px) rotate3d(0, 1, 0, -170deg); animation-timing-function: ease-in; }
-                80% { transform: perspective(400px) scale3d(.95, .95, .95); animation-timing-function: ease-in; }
-                100% { transform: perspective(400px); animation-timing-function: ease-in; }
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
             }
-            .animate-flip { backface-visibility: visible !important; animation: flip 2s infinite !important; transition: none !important; }
+            .animate-spin-slow { animation: spin 3s linear infinite !important; transition: none !important; }
+
+            @keyframes float {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-8px); }
+            }
+            .animate-float { animation: float 3s ease-in-out infinite !important; transition: none !important; }
+
+            @keyframes neon-glow {
+                0%, 100% { filter: drop-shadow(0 0 2px #ff00ff) drop-shadow(0 0 5px #00ffff); }
+                50% { filter: drop-shadow(0 0 10px #00ffff) drop-shadow(0 0 15px #ff00ff); }
+            }
+            .animate-neon { animation: neon-glow 2s ease-in-out infinite !important; }
+
+            @keyframes spotlight {
+                0% { left: -100%; }
+                100% { left: 200%; }
+            }
+            .animate-spotlight {
+                position: relative;
+                overflow: hidden !important;
+            }
+            .animate-spotlight::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.3),
+                    transparent
+                );
+                transform: skewX(-20deg);
+                animation: spotlight 2.5s infinite linear !important;
+            }
+
+            @keyframes rainbow {
+                0% { border-color: #ff0000; box-shadow: 0 0 5px #ff0000; }
+                17% { border-color: #ff8800; box-shadow: 0 0 5px #ff8800; }
+                33% { border-color: #ffff00; box-shadow: 0 0 5px #ffff00; }
+                50% { border-color: #00ff00; box-shadow: 0 0 5px #00ff00; }
+                67% { border-color: #0088ff; box-shadow: 0 0 5px #0088ff; }
+                83% { border-color: #8800ff; box-shadow: 0 0 5px #8800ff; }
+                100% { border-color: #ff0000; box-shadow: 0 0 5px #ff0000; }
+            }
+            .animate-rainbow { animation: rainbow 4s linear infinite !important; }
+
+            @keyframes glitch {
+                0% { transform: translate(0); }
+                20% { transform: translate(-2px, 2px); }
+                40% { transform: translate(-2px, -2px); }
+                60% { transform: translate(2px, 2px); }
+                80% { transform: translate(2px, -2px); }
+                100% { transform: translate(0); }
+            }
+            .animate-glitch-fast { animation: glitch 0.2s linear infinite !important; }
+
+            @keyframes ping-custom {
+                0% { transform: scale(1); opacity: 1; }
+                70%, 100% { transform: scale(1.1); opacity: 0; }
+            }
+            .animate-ping-custom {
+                position: relative;
+            }
+            .animate-ping-custom::before {
+                content: "";
+                position: absolute;
+                inset: -2px;
+                border: 2px solid currentColor;
+                border-radius: inherit;
+                animation: ping-custom 1.5s cubic-bezier(0, 0, 0.2, 1) infinite !important;
+                pointer-events: none;
+            }
+
+            @keyframes vibrate {
+                0% { transform: translate(0); }
+                25% { transform: translate(1px, 1px) rotate(0.5deg); }
+                50% { transform: translate(-1px, -1px) rotate(-0.5deg); }
+                75% { transform: translate(1px, -1px) rotate(0.5deg); }
+                100% { transform: translate(-1px, 1px) rotate(-0.5deg); }
+            }
+            .animate-vibrate { animation: vibrate 0.1s linear infinite !important; }
 
             .animate-social-marquee {
                 display: flex;
@@ -502,9 +586,16 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             case 'rubberBand': return 'animate-rubber';
             case 'heartbeat': return 'animate-heartbeat';
             case 'flash': return 'animate-flash';
-            case 'swing': return 'animate-swing';
-            case 'pulsar': return 'animate-pulsar';
-            case 'flip': return 'animate-flip';
+            case 'pendulum': return 'animate-swing';
+            case 'aura': return 'animate-pulsar';
+            case 'spin': return 'animate-spin-slow';
+            case 'float': return 'animate-float';
+            case 'neon': return 'animate-neon';
+            case 'spotlight': return 'animate-spotlight';
+            case 'rainbow': return 'animate-rainbow';
+            case 'glitch': return 'animate-glitch-fast';
+            case 'ping': return 'animate-ping-custom';
+            case 'vibrate': return 'animate-vibrate';
             default: return '';
         }
     };
@@ -673,7 +764,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         .replace(/\bp[xy]?-(none|\d+|\[.*?\])\b/g, '') // Remove padding (cards handle their own)
         .replace(/\bh-\[.*?\]\b/g, '') // Remove height constraints usually found on buttons
         .replace(/\bmin-h-\[.*?\]\b/g, '')
-        .trim() + ' overflow-hidden'; // Ensure content respects rounding
+        .trim() + ' overflow-hidden cursor-target'; // Ensure content respects rounding and is targetable by cursor
 
     // Reapply roundedness if global override exists
     if (roundedClass) {
@@ -1046,26 +1137,30 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                 {/* Share Button (Adjusted for Banner/Perfil) */}
                 <div className={`absolute ${(['banner', 'compact'].includes(profile.headerLayout || '')) ? 'top-4' : 'top-[34px]'} right-6 z-30`}>
-                    <button
-                        onClick={onShare}
-                        className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all"
-                    >
-                        <Share size={18} />
-                    </button>
+                    <InteractiveButton strength={10} tiltStrength={5}>
+                        <button
+                            onClick={onShare}
+                            className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all"
+                        >
+                            <Share size={18} />
+                        </button>
+                    </InteractiveButton>
                 </div>
                 {/* Menu / Options Button (Adjusted for Banner/Perfil) */}
                 <div className={`absolute ${(['banner', 'compact'].includes(profile.headerLayout || '')) ? 'top-4' : 'top-[34px]'} left-6 z-30`}>
-                    <div className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 transition-all overflow-hidden">
-                        <video
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="w-[92%] h-[92%] object-contain"
-                        >
-                            <source src="/icons/Anime_mascot_fixed_white_background_delpmaspu_.mp4" type="video/mp4" />
-                        </video>
-                    </div>
+                    <InteractiveButton strength={10} tiltStrength={5}>
+                        <div className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 transition-all overflow-hidden cursor-pointer">
+                            <video
+                                src="https://assets.mixkit.co/videos/preview/mixkit-circular-blue-and-red-lights-spinning-on-black-background-3453-large.mp4"
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                className="w-full h-full object-cover scale-150 rotate-45"
+                                style={{ transform: 'scale(2.5) rotate(45deg)' }}
+                            />
+                        </div>
+                    </InteractiveButton>
                 </div>
 
 
@@ -1192,7 +1287,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                     return (
                                         <motion.a
-                                            key={`${link.id}-m1`}
                                             layout
                                             initial={{ scale: 0.8, opacity: 0 }}
                                             animate={{ scale: 1, opacity: 1 }}
@@ -1241,34 +1335,38 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <div className="w-full mb-6 px-1 flex justify-center">
                             <div className={`w-auto min-w-[180px] p-1 rounded-full flex relative ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'bg-white/10' : 'bg-slate-200/60'}`}>
                                 {/* Sliding background could be complex, sticking to simple conditional classes for now */}
-                                <button
-                                    onClick={() => setActiveTab('links')}
-                                    className={`flex-1 py-1.5 rounded-full text-sm transition-all duration-300 ${activeTab === 'links'
-                                        ? 'bg-white text-slate-900 shadow-sm'
-                                        : 'opacity-70 hover:opacity-100'
-                                        }`}
-                                    style={{
-                                        ...(activeTab === 'links' ? {} : mainTextColorStyle),
-                                        fontWeight: (profile.fontWeight || undefined),
-                                        fontStyle: profile.fontItalic ? 'italic' : 'normal'
-                                    }}
-                                >
-                                    Links
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('shop')}
-                                    className={`flex-1 py-1.5 rounded-full text-sm transition-all duration-300 ${activeTab === 'shop'
-                                        ? 'bg-white text-slate-900 shadow-sm'
-                                        : 'opacity-70 hover:opacity-100'
-                                        }`}
-                                    style={{
-                                        ...(activeTab === 'shop' ? {} : mainTextColorStyle),
-                                        fontWeight: (profile.fontWeight || undefined),
-                                        fontStyle: profile.fontItalic ? 'italic' : 'normal'
-                                    }}
-                                >
-                                    Loja
-                                </button>
+                                <InteractiveButton className="flex-1" strength={10} tiltStrength={5}>
+                                    <button
+                                        onClick={() => setActiveTab('links')}
+                                        className={`w-full py-1.5 rounded-full text-sm transition-all duration-300 ${activeTab === 'links'
+                                            ? 'bg-white text-slate-900 shadow-sm'
+                                            : 'opacity-70 hover:opacity-100'
+                                            }`}
+                                        style={{
+                                            ...(activeTab === 'links' ? {} : mainTextColorStyle),
+                                            fontWeight: (profile.fontWeight || undefined),
+                                            fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                                        }}
+                                    >
+                                        Links
+                                    </button>
+                                </InteractiveButton>
+                                <InteractiveButton className="flex-1" strength={10} tiltStrength={5}>
+                                    <button
+                                        onClick={() => setActiveTab('shop')}
+                                        className={`w-full py-1.5 rounded-full text-sm transition-all duration-300 ${activeTab === 'shop'
+                                            ? 'bg-white text-slate-900 shadow-sm'
+                                            : 'opacity-70 hover:opacity-100'
+                                            }`}
+                                        style={{
+                                            ...(activeTab === 'shop' ? {} : mainTextColorStyle),
+                                            fontWeight: (profile.fontWeight || undefined),
+                                            fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                                        }}
+                                    >
+                                        Loja
+                                    </button>
+                                </InteractiveButton>
                             </div>
                         </div>
                     )}
@@ -1300,54 +1398,49 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             </div>
 
                                             {Object.entries(collections).map(([name, items]) => (
-                                                <button
-                                                    key={name}
-                                                    onClick={() => handleCollectionClick(name)}
-                                                    className={`w-full group relative transition-all duration-300 ${cleanClass(baseCardClass, ['bg', 'text']).replace('overflow-hidden', '')}`}
-                                                    style={{
-                                                        ...mainButtonStyle,
-                                                        color: getSmartTextColor(),
-                                                        ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
-                                                    }}
-                                                >
-                                                    <div className={`flex flex-col w-full h-full overflow-hidden ${roundedClass}`}>
-                                                        {/* Preview Images Collage - Refined */}
-                                                        <div className={`flex h-48 w-full gap-1 p-1 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
-                                                            {items.length === 1 ? (
-                                                                <div className="flex-1 h-full relative overflow-hidden rounded-xl">
-                                                                    <img src={items[0].image} alt={items[0].name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" loading="lazy" decoding="async" />
-                                                                    <div className="absolute inset-0 bg-black/5" />
+                                                <InteractiveButton key={name} className="w-full">
+                                                    <button
+                                                        onClick={() => handleCollectionClick(name)}
+                                                        className={`w-full group relative transition-all duration-300 ${cleanClass(baseCardClass, ['bg', 'text']).replace('overflow-hidden', '')}`}
+                                                        style={{
+                                                            ...mainButtonStyle,
+                                                            color: getSmartTextColor(),
+                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
+                                                        }}
+                                                    >
+                                                        <div className={`flex flex-col w-full h-full overflow-hidden ${roundedClass}`}>
+                                                            {/* Preview Images Collage - Refined */}
+                                                            <div className={`flex h-48 w-full gap-1 p-1 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
+                                                                {items.length === 1 ? (
+                                                                    <div className="flex-1 h-full relative overflow-hidden rounded-xl">
+                                                                        <img src={items[0].image} alt={items[0].name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" loading="lazy" decoding="async" />
+                                                                        <div className="absolute inset-0 bg-black/5" />
+                                                                    </div>
+                                                                ) : (
+                                                                    <>
+                                                                        {items.slice(0, 3).map((item, i) => (
+                                                                            <div key={item.id} className={`flex-1 h-full relative overflow-hidden ${i === 0 ? 'rounded-l-xl' : i === items.slice(0, 3).length - 1 ? 'rounded-r-xl' : ''}`}>
+                                                                                <img src={item.image} alt={item.name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" loading="lazy" decoding="async" />
+                                                                                <div className="absolute inset-0 bg-black/5" />
+                                                                            </div>
+                                                                        ))}
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                            <div className={`p-4 flex items-center justify-between ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
+                                                                <div className="text-left">
+                                                                    <h3 className="text-sm font-normal" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
+                                                                    <p className="text-[10px] font-normal uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                                                                        {items.length} {items.length === 1 ? 'Produto' : 'Produtos'}
+                                                                    </p>
                                                                 </div>
-                                                            ) : (
-                                                                <>
-                                                                    {items.slice(0, 3).map((item, i) => (
-                                                                        <div key={item.id} className={`flex-1 h-full relative overflow-hidden ${i === 0 ? 'rounded-l-xl' : i === items.slice(0, 3).length - 1 ? 'rounded-r-xl' : ''}`}>
-                                                                            <img src={item.image} alt={item.name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" loading="lazy" decoding="async" />
-                                                                            <div className="absolute inset-0 bg-black/5" />
-                                                                        </div>
-                                                                    ))}
-                                                                    {/* Placeholder if less than 3 items */}
-                                                                    {items.length < 3 && Array.from({ length: 3 - items.length }).map((_, i) => (
-                                                                        <div key={`empty-${i}`} className="flex-1 h-full bg-slate-100/50 flex items-center justify-center text-slate-300">
-                                                                            <ShoppingBag size={24} strokeWidth={1.5} />
-                                                                        </div>
-                                                                    ))}
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                        <div className={`p-4 flex items-center justify-between ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
-                                                            <div className="text-left">
-                                                                <h3 className="text-sm font-normal" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
-                                                                <p className="text-[10px] font-normal uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                    {items.length} {items.length === 1 ? 'Produto' : 'Produtos'}
-                                                                </p>
-                                                            </div>
-                                                            <div className={`w-8 h-8 rounded-full ${isDarkTheme ? 'bg-white/10' : 'bg-black/10'} flex items-center justify-center transition-colors`}>
-                                                                <ChevronRight size={16} />
+                                                                <div className={`w-8 h-8 rounded-full ${isDarkTheme ? 'bg-white/10' : 'bg-black/10'} flex items-center justify-center transition-colors`}>
+                                                                    <ChevronRight size={16} />
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </button>
+                                                    </button>
+                                                </InteractiveButton>
                                             ))}
                                         </div>
                                     ) : (
@@ -1355,14 +1448,16 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         <div className="relative">
                                             <div className="flex items-center justify-between mb-8 px-1">
                                                 <div className="flex flex-col">
-                                                    <button
-                                                        onClick={() => setActiveCollection(null)}
-                                                        className={`flex items-center gap-1.5 text-[10px] font-normal uppercase tracking-widest opacity-50 hover:opacity-100 transition-all mb-1.5`}
-                                                        style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                    >
-                                                        <ChevronLeft size={12} strokeWidth={3} />
-                                                        <span>Voltar</span>
-                                                    </button>
+                                                    <InteractiveButton strength={5} tiltStrength={3}>
+                                                        <button
+                                                            onClick={() => setActiveCollection(null)}
+                                                            className={`flex items-center gap-1.5 text-[10px] font-normal uppercase tracking-widest opacity-50 hover:opacity-100 transition-all mb-1.5`}
+                                                            style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                                        >
+                                                            <ChevronLeft size={12} strokeWidth={3} />
+                                                            <span>Voltar</span>
+                                                        </button>
+                                                    </InteractiveButton>
                                                     <h2 className={`text-xl font-medium tracking-tight`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                                                         {activeCollection}
                                                     </h2>
@@ -1418,16 +1513,17 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     );
 
                                                     return (
-                                                        <a
-                                                            key={product.id}
-                                                            href={product.url}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            onClick={() => handleLinkClick(product.id)}
-                                                            className={`flex flex-col group relative transition-all duration-300`}
-                                                        >
-                                                            {productContent}
-                                                        </a>
+                                                        <InteractiveButton key={product.id} className="w-full flex">
+                                                            <a
+                                                                href={product.url}
+                                                                target="_blank"
+                                                                rel="noreferrer"
+                                                                onClick={() => handleLinkClick(product.id)}
+                                                                className={`flex flex-col group relative transition-all duration-300 w-full`}
+                                                            >
+                                                                {productContent}
+                                                            </a>
+                                                        </InteractiveButton>
                                                     );
                                                 })}
                                             </div>
@@ -1486,7 +1582,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     }}
                                                                     // AQUI: Aplicamos buttonClass (limpa) para que o ícone social tenha o mesmo "feel" do botão (hover, shadow)
                                                                     // Removemos classes de layout/padding do botão para que não quebre o ícone
-                                                                    className={`relative group flex items-center justify-center w-[72px] h-[72px] transition-all duration-300 ${buttonClass.replace(/\b(block|w-full|min-h-\[.*?\]|px-\d+(\.\d+)?|py-\d+(\.\d+)?|justify-between|text-center)\b/g, '').trim()} ${getHighlightClass(iconLink.highlight)}`}
+                                                                    className={`relative group flex items-center justify-center w-[72px] h-[72px] transition-all duration-300 ${buttonClass.replace(/\b(block|w-full|min-h-\[.*?\]|px-\d+(\.\d+)?|py-\d+(\.\d+)?|justify-between|text-center)\b/g, '').trim()} ${getHighlightClass(iconLink.highlight)} cursor-pointer`}
                                                                     style={{ ...mainButtonStyle, borderRadius: borderRadiusValue }} // Força o estilo do botão (cor e redondura)
                                                                 >
                                                                     <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${currentTheme.id.includes('dark') ? 'bg-white' : 'bg-black'}`}></div>
@@ -1568,23 +1664,24 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             );
 
                                                             return (
-                                                                <motion.a
-                                                                    key={cardLink.id}
-                                                                    initial={{ scale: 0.95, opacity: 0 }}
-                                                                    whileInView={{ scale: 1, opacity: 1 }}
-                                                                    viewport={{ once: true }}
-                                                                    href={cardLink.isPasswordProtected ? undefined : cardLink.url}
-                                                                    target={cardLink.isPasswordProtected ? undefined : "_blank"}
-                                                                    rel="noreferrer"
-                                                                    onClick={(e) => {
-                                                                        if (handlePasswordProtectedLink(cardLink, e)) return;
-                                                                        handleLinkClick(cardLink.id);
-                                                                    }}
-                                                                    className={`group relative overflow-hidden transition-all duration-300 w-full ${baseCardClass} ${getHighlightClass(cardLink.highlight)}`}
-                                                                    style={{ ...mainButtonStyle, backgroundColor: buttonHex }}
-                                                                >
-                                                                    {cardContent}
-                                                                </motion.a>
+                                                                <InteractiveButton key={cardLink.id} className="w-full">
+                                                                    <motion.a
+                                                                        initial={{ scale: 0.95, opacity: 0 }}
+                                                                        whileInView={{ scale: 1, opacity: 1 }}
+                                                                        viewport={{ once: true }}
+                                                                        href={cardLink.isPasswordProtected ? undefined : cardLink.url}
+                                                                        target={cardLink.isPasswordProtected ? undefined : "_blank"}
+                                                                        rel="noreferrer"
+                                                                        onClick={(e) => {
+                                                                            if (handlePasswordProtectedLink(cardLink, e)) return;
+                                                                            handleLinkClick(cardLink.id);
+                                                                        }}
+                                                                        className={`group relative overflow-hidden transition-all duration-300 w-full ${baseCardClass} ${getHighlightClass(cardLink.highlight)} cursor-pointer`}
+                                                                        style={{ ...mainButtonStyle, backgroundColor: buttonHex }}
+                                                                    >
+                                                                        {cardContent}
+                                                                    </motion.a>
+                                                                </InteractiveButton>
                                                             );
                                                         })}
                                                     </div>
@@ -1607,68 +1704,80 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     media_type: c.videoUrl ? 'VIDEO' : 'IMAGE'
                                                 }));
                                                 renderedItems.push(
-                                                    <motion.div key={`instagram-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
-                                                        {link.title && (
-                                                            <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
-                                                                <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
-                                                            </div>
-                                                        )}
-                                                        <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={collectionMedia.length > 0 ? collectionMedia : instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={link.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                    </motion.div>
+                                                    <InteractiveButton key={`instagram-card-${link.id}`} className="w-full mb-1">
+                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                            {link.title && (
+                                                                <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
+                                                                    <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
+                                                                </div>
+                                                            )}
+                                                            <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={collectionMedia.length > 0 ? collectionMedia : instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={link.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                        </motion.div>
+                                                    </InteractiveButton>
                                                 );
                                             } else if (instagramIntegration && (link.platform === 'instagram' || (link.url.includes('instagram.com') && link.type !== 'collection'))) {
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <motion.div key={`instagram-profile-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
-                                                        <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={link.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                    </motion.div>
+                                                    <InteractiveButton key={`instagram-profile-card-${link.id}`} className="w-full mb-1">
+                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                            <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={link.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                        </motion.div>
+                                                    </InteractiveButton>
                                                 );
                                             } else if (youtubeIntegration && (link.platform === 'youtube' || (link.url.includes('youtube.com') && !link.url.includes('watch?v=') && !link.url.includes('/shorts/')))) {
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <motion.div key={`youtube-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
-                                                        <YouTubeCard username={youtubeUsername || link.url} title={youtubeTitle || link.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                    </motion.div>
+                                                    <InteractiveButton key={`youtube-card-${link.id}`} className="w-full mb-1">
+                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                            <YouTubeCard username={youtubeUsername || link.url} title={youtubeTitle || link.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                        </motion.div>
+                                                    </InteractiveButton>
                                                 );
                                             } else if (twitchIntegration && (link.platform === 'twitch' || link.title.toLowerCase().includes('twitch'))) {
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <motion.div key={`twitch-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
-                                                        <TwitchCard username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                    </motion.div>
+                                                    <InteractiveButton key={`twitch-card-${link.id}`} className="w-full mb-1">
+                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                            <TwitchCard username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                        </motion.div>
+                                                    </InteractiveButton>
                                                 );
                                             } else if (kickIntegration && (link.platform === 'kick' || link.title.toLowerCase().includes('kick'))) {
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <motion.div key={`kick-card-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
-                                                        <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                    </motion.div>
+                                                    <InteractiveButton key={`kick-card-${link.id}`} className="w-full mb-1">
+                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                            <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                        </motion.div>
+                                                    </InteractiveButton>
                                                 );
                                             } else if (link.type === 'agenda') {
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <motion.div key={`agenda-${link.id}`} transition={{ duration: 0 }} className={`w-full mb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
-                                                        {link.title && (
-                                                            <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
-                                                                <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
-                                                            </div>
-                                                        )}
-                                                        <AgendaCard
-                                                            events={link.events || []}
-                                                            themeButtonClass={baseCardClass}
-                                                            themeButtonStyle={mainButtonStyle}
-                                                            themeTextHex={getSmartTextColor()}
-                                                            isDark={isDarkTheme}
-                                                            fontFamily={profile.fontFamily}
-                                                            fontWeight={profile.fontWeight || undefined}
-                                                            fontItalic={profile.fontItalic}
-                                                        />
-                                                    </motion.div>
+                                                    <InteractiveButton key={`agenda-${link.id}`} className="w-full mb-1">
+                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                            {link.title && (
+                                                                <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
+                                                                    <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
+                                                                </div>
+                                                            )}
+                                                            <AgendaCard
+                                                                events={link.events || []}
+                                                                themeButtonClass={baseCardClass}
+                                                                themeButtonStyle={mainButtonStyle}
+                                                                themeTextHex={getSmartTextColor()}
+                                                                isDark={isDarkTheme}
+                                                                fontFamily={profile.fontFamily}
+                                                                fontWeight={profile.fontWeight || undefined}
+                                                                fontItalic={profile.fontItalic}
+                                                            />
+                                                        </motion.div>
+                                                    </InteractiveButton>
                                                 );
                                             } else if (link.type === 'header') {
                                                 flushIcons();
@@ -1679,9 +1788,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushCards();
                                                 // MapBlock for specific Map items
                                                 renderedItems.push(
-                                                    <div key={link.id} className={getHighlightClass(link.highlight)}>
-                                                        <MapBlock link={link} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                    </div>
+                                                    <InteractiveButton key={link.id} className="w-full">
+                                                        <div className={getHighlightClass(link.highlight)}>
+                                                            <MapBlock link={link} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                        </div>
+                                                    </InteractiveButton>
                                                 );
                                             } else if (link.layout === 'icon') {
                                                 flushCards();
@@ -1710,39 +1821,39 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 <button onClick={scrollLeft} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
                                                                 <div id={scrollContainerId} className="flex overflow-x-auto gap-2 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
                                                                     {(activeChildren.length > 0 ? activeChildren : [link]).map(child => (
-                                                                        <motion.a 
-                                                                            key={child.id} 
-                                                                            transition={{ duration: 0 }} 
-                                                                            href={child.isPasswordProtected ? undefined : child.url} 
-                                                                            target={child.isPasswordProtected ? undefined : "_blank"} 
-                                                                            rel="noreferrer" 
-                                                                            onClick={(e) => {
-                                                                                if (handlePasswordProtectedLink(child, e)) return;
-                                                                                handleLinkClick(child.id);
-                                                                            }}
-                                                                            className={`relative group flex-shrink-0 w-44 snap-start flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass} ${getHighlightClass(child.highlight)}`} 
-                                                                            style={mainButtonStyle}
-                                                                        >
-                                                                            <div className="relative z-10 flex flex-col h-full w-full">
-                                                                                <div className="relative overflow-hidden h-36 w-full bg-white">
-                                                                                    {child.image ? <img
-                                                                                        src={child.image}
-                                                                                        alt=""
-                                                                                        className="w-full h-full block object-contain"
-                                                                                        loading="lazy"
-                                                                                        decoding="async"
-                                                                                        onError={(e) => {
-                                                                                            e.currentTarget.onerror = null;
-                                                                                            e.currentTarget.style.display = 'none';
-                                                                                            e.currentTarget.className = "w-full h-full block object-contain p-8 opacity-20";
-                                                                                        }}
-                                                                                    /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
+                                                                        <InteractiveButton key={child.id} className="flex-shrink-0 w-44">
+                                                                            <motion.a
+                                                                                transition={{ duration: 0 }}
+                                                                                href={child.isPasswordProtected ? undefined : child.url}
+                                                                                target={child.isPasswordProtected ? undefined : "_blank"}
+                                                                                rel="noreferrer"
+                                                                                onClick={(e) => {
+                                                                                    if (handlePasswordProtectedLink(child, e)) return;
+                                                                                    handleLinkClick(child.id);
+                                                                                }}
+                                                                                className={`relative group flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass} ${getHighlightClass(child.highlight)}`}
+                                                                                style={mainButtonStyle}
+                                                                            >
+                                                                                <div className="relative z-10 flex flex-col h-full w-full">
+                                                                                    <div className="relative overflow-hidden h-36 w-full bg-white">
+                                                                                        {child.image ? <img
+                                                                                            src={child.image}
+                                                                                            alt=""
+                                                                                            className="w-full h-full block object-contain"
+                                                                                            loading="lazy"
+                                                                                            decoding="async"
+                                                                                            onError={(e) => {
+                                                                                                e.currentTarget.onerror = null;
+                                                                                                e.currentTarget.className = "w-full h-full block object-contain p-8 opacity-20";
+                                                                                            }}
+                                                                                        /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
+                                                                                    </div>
+                                                                                    <div className="p-2 flex flex-col justify-center items-center text-center h-12 relative">
+                                                                                        <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
+                                                                                    </div>
                                                                                 </div>
-                                                                                <div className="p-2 flex flex-col justify-center items-center text-center h-12 relative">
-                                                                                    <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </motion.a>
+                                                                            </motion.a>
+                                                                        </InteractiveButton>
                                                                     ))}
                                                                 </div>
                                                                 <button onClick={scrollRight} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronRight size={20} /></button>
@@ -1762,27 +1873,33 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     const nestedItems: React.ReactNode[] = [];
 
                                                                     activeChildren.forEach(child => {
-                                                                        // Links inside collections lose their individual layout overrides 
+                                                                        // Links inside collections lose their individual layout overrides
                                                                         // and follow the collection's display rules.
 
                                                                         // Standard items
                                                                         if (isMusicLink(child)) {
                                                                             nestedItems.push(
-                                                                                <div key={child.id} className={getHighlightClass(child.highlight)}>
-                                                                                    <MusicRichCard link={child} handleLinkClick={handleLinkClick} />
-                                                                                </div>
+                                                                                <InteractiveButton key={child.id} className="w-full">
+                                                                                    <div className={getHighlightClass(child.highlight)}>
+                                                                                        <MusicRichCard link={child} handleLinkClick={handleLinkClick} />
+                                                                                    </div>
+                                                                                </InteractiveButton>
                                                                             );
                                                                         } else if (child.embedType === 'youtube') {
                                                                             nestedItems.push(
-                                                                                <div key={child.id} className={getHighlightClass(child.highlight)}>
-                                                                                    <YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} />
-                                                                                </div>
+                                                                                <InteractiveButton key={child.id} className="w-full">
+                                                                                    <div className={getHighlightClass(child.highlight)}>
+                                                                                        <YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} />
+                                                                                    </div>
+                                                                                </InteractiveButton>
                                                                             );
                                                                         } else if (child.embedType === 'tiktok') {
                                                                             nestedItems.push(
-                                                                                <div key={child.id} className={getHighlightClass(child.highlight)}>
-                                                                                    <TikTokEmbed url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} />
-                                                                                </div>
+                                                                                <InteractiveButton key={child.id} className="w-full">
+                                                                                    <div className={getHighlightClass(child.highlight)}>
+                                                                                        <TikTokEmbed url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} />
+                                                                                    </div>
+                                                                                </InteractiveButton>
                                                                             );
                                                                         } else {
                                                                             // Check Integrations for children
@@ -1790,9 +1907,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             if (child.platform === 'instagram' || (child.url.includes('instagram.com') && child.type !== 'collection')) {
                                                                                 if (instagramIntegration) {
                                                                                     nestedItems.push(
-                                                                                        <div key={child.id} className={getHighlightClass(child.highlight)}>
-                                                                                            <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={child.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                                        </div>
+                                                                                        <InteractiveButton key={child.id} className="w-full">
+                                                                                            <div className={getHighlightClass(child.highlight)}>
+                                                                                                <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={child.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                                            </div>
+                                                                                        </InteractiveButton>
                                                                                     );
                                                                                     renderedSpecial = true;
                                                                                 }
@@ -1800,9 +1919,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             if (!renderedSpecial && (child.platform === 'youtube' || (child.url.includes('youtube.com') && !child.url.includes('watch?v=') && !child.url.includes('/shorts/')))) {
                                                                                 if (youtubeIntegration) {
                                                                                     nestedItems.push(
-                                                                                        <div key={child.id} className={getHighlightClass(child.highlight)}>
-                                                                                            <YouTubeCard username={youtubeUsername || child.url} title={youtubeTitle || child.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                                        </div>
+                                                                                        <InteractiveButton key={child.id} className="w-full">
+                                                                                            <div className={getHighlightClass(child.highlight)}>
+                                                                                                <YouTubeCard username={youtubeUsername || child.url} title={youtubeTitle || child.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                                            </div>
+                                                                                        </InteractiveButton>
                                                                                     );
                                                                                     renderedSpecial = true;
                                                                                 }
@@ -1810,9 +1931,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             if (!renderedSpecial && (child.platform === 'twitch' || child.title.toLowerCase().includes('twitch'))) {
                                                                                 if (twitchIntegration) {
                                                                                     nestedItems.push(
-                                                                                        <div key={child.id} className={getHighlightClass(child.highlight)}>
-                                                                                            <TwitchCard username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                                        </div>
+                                                                                        <InteractiveButton key={child.id} className="w-full">
+                                                                                            <div className={getHighlightClass(child.highlight)}>
+                                                                                                <TwitchCard username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                                            </div>
+                                                                                        </InteractiveButton>
                                                                                     );
                                                                                     renderedSpecial = true;
                                                                                 }
@@ -1820,86 +1943,100 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             if (!renderedSpecial && (child.platform === 'kick' || child.title.toLowerCase().includes('kick'))) {
                                                                                 if (kickIntegration) {
                                                                                     nestedItems.push(
-                                                                                        <div key={child.id} className={getHighlightClass(child.highlight)}>
-                                                                                            <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                                        </div>
+                                                                                        <InteractiveButton key={child.id} className="w-full">
+                                                                                            <div className={getHighlightClass(child.highlight)}>
+                                                                                                <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                                            </div>
+                                                                                        </InteractiveButton>
                                                                                     );
                                                                                     renderedSpecial = true;
                                                                                 }
                                                                             }
                                                                             if (!renderedSpecial && (child.type === 'map' || child.title?.toLowerCase() === 'localização')) {
                                                                                 nestedItems.push(
-                                                                                    <div key={child.id} className={getHighlightClass(child.highlight)}>
-                                                                                        <MapBlock link={child} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                                    </div>
+                                                                                    <InteractiveButton key={child.id} className="w-full">
+                                                                                        <div className={getHighlightClass(child.highlight)}>
+                                                                                            <MapBlock link={child} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                                        </div>
+                                                                                    </InteractiveButton>
                                                                                 );
                                                                                 renderedSpecial = true;
                                                                             }
-
                                                                             if (!renderedSpecial) {
                                                                                 const network = SOCIAL_NETWORKS.find(n => child.title.toLowerCase().includes(n.id)) || SOCIAL_NETWORKS.find(n => child.url.toLowerCase().includes(n.id));
                                                                                 const Icon = network?.icon;
+                                                                                const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
+                                                                                const isVideo = (child.url.includes('youtube.com') || child.url.includes('youtu.be') || child.url.includes('tiktok.com'));
+
+                                                                                const EffectWrapper = isHighlighted ? GlitchButton : isVideo ? ElasticButton : React.Fragment;
+                                                                                const effectProps = (isHighlighted || isVideo) ? { className: "w-full" } : {};
+
                                                                                 nestedItems.push(
-                                                                                    <motion.a
-                                                                                        key={child.id}
-                                                                                        transition={{ duration: 0.2 }}
-                                                                                        whileHover={{ scale: 1.005 }}
-                                                                                        href={child.isPasswordProtected ? undefined : child.url}
-                                                                                        target={child.isPasswordProtected ? undefined : "_blank"}
-                                                                                        rel="noreferrer"
-                                                                                        onClick={(e) => {
-                                                                                            if (handlePasswordProtectedLink(child, e)) return;
-                                                                                            handleLinkClick(child.id);
-                                                                                        }}
-                                                                                        className={`block w-full h-[72px] transform group relative py-2.5 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)}`}
-                                                                                        style={{
-                                                                                            ...mainButtonStyle,
-                                                                                            fontFamily: profile.fontFamily,
-                                                                                            fontWeight: (profile.fontWeight || undefined),
-                                                                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
-                                                                                        }}
-                                                                                    >
-                                                                                        <div className="relative shrink-0 z-10">
-                                                                                            {child.image ? (
-                                                                                                <div className="w-9 h-9 rounded-lg overflow-hidden border border-[#1a1a1a]/5 group-hover:scale-105 transition-transform">
-                                                                                                    <img
-                                                                                                        src={child.image}
-                                                                                                        alt=""
-                                                                                                        className="w-full h-full object-cover"
-                                                                                                        loading="lazy"
-                                                                                                        decoding="async"
-                                                                                                        onError={(e) => {
-                                                                                                            e.currentTarget.onerror = null;
-                                                                                                            e.currentTarget.style.display = 'none';
-                                                                                                            e.currentTarget.className = "w-full h-full object-contain p-1.5 opacity-30 bg-white/10";
-                                                                                                        }}
-                                                                                                    />
+                                                                                    <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`}>
+                                                                                        <EffectWrapper {...effectProps}>
+                                                                                            <motion.a
+                                                                                                transition={{ duration: 0.2 }}
+                                                                                                whileHover={{ scale: 1.005 }}
+                                                                                                href={child.isPasswordProtected ? undefined : child.url}
+                                                                                                target={child.isPasswordProtected ? undefined : "_blank"}
+                                                                                                rel="noreferrer"
+                                                                                                onClick={(e) => {
+                                                                                                    if (handlePasswordProtectedLink(child, e)) return;
+                                                                                                    handleLinkClick(child.id);
+                                                                                                }}
+                                                                                                className={`block w-full h-[72px] transform group relative py-2.5 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)}`}
+                                                                                                style={{
+                                                                                                    ...mainButtonStyle,
+                                                                                                    fontFamily: profile.fontFamily,
+                                                                                                    fontWeight: (profile.fontWeight || undefined),
+                                                                                                    fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                                    ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                                                    borderRadius: borderRadiusValue
+                                                                                                }}
+                                                                                            >
+                                                                                                {/* Icon/Image Container */}
+                                                                                                <div className="relative shrink-0 z-10">
+                                                                                                    {child.image ? (
+                                                                                                        <div className="w-9 h-9 rounded-lg overflow-hidden border border-[#1a1a1a]/5 group-hover:scale-105 transition-transform">
+                                                                                                            <img
+                                                                                                                src={child.image}
+                                                                                                                alt=""
+                                                                                                                className="w-full h-full object-cover"
+                                                                                                                loading="lazy"
+                                                                                                                decoding="async"
+                                                                                                                onError={(e) => {
+                                                                                                                    e.currentTarget.onerror = null;
+                                                                                                                    e.currentTarget.style.display = 'none';
+                                                                                                                    e.currentTarget.className = "w-full h-full object-contain p-1.5 opacity-30 bg-white/10";
+                                                                                                                }}
+                                                                                                            />
+                                                                                                        </div>
+                                                                                                    ) : Icon ? (
+                                                                                                        <div className="w-9 h-9 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform">
+                                                                                                            <Icon size={20} />
+                                                                                                        </div>
+                                                                                                    ) : (
+                                                                                                        <div className="w-9" />
+                                                                                                    )}
                                                                                                 </div>
-                                                                                            ) : Icon ? (
-                                                                                                <div className="w-9 h-9 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform">
-                                                                                                    <Icon size={20} />
+
+                                                                                                <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                                    <span className={`text-[14px] font-bold leading-tight uppercase tracking-tight ${child.subtitle ? 'line-clamp-1 truncate' : 'break-words'}`} style={{ color: getSmartTextColor() }}>
+                                                                                                        {child.title}
+                                                                                                    </span>
+                                                                                                    {child.subtitle && (
+                                                                                                        <span className="text-[10px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor() }}>
+                                                                                                            {child.subtitle}
+                                                                                                        </span>
+                                                                                                    )}
                                                                                                 </div>
-                                                                                            ) : (
-                                                                                                <div className="w-9" />
-                                                                                            )}
-                                                                                        </div>
 
-                                                                                        <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
-                                                                                            <span className={`text-[14px] font-bold leading-tight uppercase tracking-tight ${child.subtitle ? 'line-clamp-1 truncate' : 'break-words'}`} style={{ color: getSmartTextColor() }}>
-                                                                                                {child.title}
-                                                                                            </span>
-                                                                                            {child.subtitle && (
-                                                                                                <span className="text-[10px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor() }}>
-                                                                                                    {child.subtitle}
-                                                                                                </span>
-                                                                                            )}
-                                                                                        </div>
-
-                                                                                        <div className="w-9 shrink-0 flex items-center justify-center z-10 relative opacity-20 group-hover:opacity-100 transition-opacity">
-                                                                                            <ChevronRight size={16} style={{ color: getSmartTextColor() }} strokeWidth={3} />
-                                                                                        </div>
-                                                                                    </motion.a>
+                                                                                                <div className="w-9 shrink-0 flex items-center justify-center z-10 relative opacity-20 group-hover:opacity-100 transition-opacity">
+                                                                                                    <ChevronRight size={16} style={{ color: getSmartTextColor() }} strokeWidth={3} />
+                                                                                                </div>
+                                                                                            </motion.a>
+                                                                                        </EffectWrapper>
+                                                                                    </InteractiveButton>
                                                                                 );
                                                                             }
                                                                         }
@@ -1913,166 +2050,180 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 }
                                             } else if (isMusicLink(link)) {
                                                 renderedItems.push(
-                                                    <div key={link.id} className={getHighlightClass(link.highlight)}>
-                                                        <MusicRichCard link={link} handleLinkClick={handleLinkClick} />
-                                                    </div>
+                                                    <InteractiveButton key={link.id} className="w-full">
+                                                        <div className={getHighlightClass(link.highlight)}>
+                                                            <MusicRichCard link={link} handleLinkClick={handleLinkClick} />
+                                                        </div>
+                                                    </InteractiveButton>
                                                 );
                                             } else if (link.embedType === 'youtube') {
                                                 renderedItems.push(
-                                                    <div key={link.id} className={getHighlightClass(link.highlight)}>
-                                                        <YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} />
-                                                    </div>
+                                                    <InteractiveButton key={link.id} className="w-full">
+                                                        <div className={getHighlightClass(link.highlight)}>
+                                                            <YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} />
+                                                        </div>
+                                                    </InteractiveButton>
                                                 );
                                             } else if (link.embedType === 'tiktok') {
                                                 renderedItems.push(
-                                                    <div key={link.id} className={getHighlightClass(link.highlight)}>
-                                                        <TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} />
-                                                    </div>
+                                                    <InteractiveButton key={link.id} className="w-full">
+                                                        <div className={getHighlightClass(link.highlight)}>
+                                                            <TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} />
+                                                        </div>
+                                                    </InteractiveButton>
                                                 );
                                             } else if (link.type === 'mediakit') {
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <motion.div
-                                                        key={`mediakit-${link.id}`}
-                                                        transition={{ duration: 0.2 }}
-                                                        whileHover={{ scale: 1.02 }}
-                                                        className="w-full mb-3"
-                                                    >
-                                                        <button
-                                                            onClick={(e) => {
-                                                                if (handlePasswordProtectedLink(link, e)) return;
-                                                                handleLinkClick(link.id);
-                                                                handleMediaKitLink(link, e);
-                                                            }}
-                                                            className={`w-full h-[72px] transform group relative flex items-center p-0 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
-                                                            style={{
-                                                                ...mainButtonStyle,
-                                                                borderRadius: borderRadiusValue,
-                                                                fontFamily: profile.fontFamily,
-                                                                fontWeight: (profile.fontWeight || undefined),
-                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                                                ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
-                                                            }}
+                                                    <InteractiveButton key={`mediakit-${link.id}`} className="w-full mb-3" glowColor={`${getSmartTextColor()}33`}>
+                                                        <motion.div
+                                                            transition={{ duration: 0.2 }}
+                                                            whileHover={{ scale: 1.02 }}
                                                         >
-                                                            <div className="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shrink-0 border-r bg-black/[0.03]" style={{ borderColor: `${getSmartTextColor()}0A` }}>
-                                                                <BarChart3 size={22} className="group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} style={{ color: getSmartTextColor() }} />
-                                                            </div>
-                                                            <div className="flex-1 min-w-0 flex flex-col items-start justify-center px-6 py-2 text-left">
-                                                                <span
-                                                                    className="uppercase tracking-[0.1em] truncate w-full flex items-center gap-2"
-                                                                    style={{
-                                                                        color: getSmartTextColor(),
-                                                                        fontSize: `${profile.fontSize || 15}px`,
-                                                                        fontWeight: profile.fontWeight || '700',
-                                                                        fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                                                        lineHeight: '1.2'
-                                                                    }}
-                                                                >
-                                                                    {link.title || t('mediakit.title')}
-                                                                </span>
-                                                                {link.subtitle && (
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    if (handlePasswordProtectedLink(link, e)) return;
+                                                                    handleLinkClick(link.id);
+                                                                    handleMediaKitLink(link, e);
+                                                                }}
+                                                                className={`w-full h-[72px] transform group relative flex items-center p-0 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                style={{
+                                                                    ...mainButtonStyle,
+                                                                    borderRadius: borderRadiusValue,
+                                                                    fontFamily: profile.fontFamily,
+                                                                    fontWeight: (profile.fontWeight || undefined),
+                                                                    fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                    ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
+                                                                }}
+                                                            >
+                                                                <div className="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shrink-0 border-r bg-black/[0.03]" style={{ borderColor: `${getSmartTextColor()}0A` }}>
+                                                                    <BarChart3 size={22} className="group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} style={{ color: getSmartTextColor() }} />
+                                                                </div>
+                                                                <div className="flex-1 min-w-0 flex flex-col items-start justify-center px-6 py-2 text-left">
                                                                     <span
-                                                                        className="opacity-50 uppercase tracking-[0.05em] truncate w-full mt-0.5"
+                                                                        className="uppercase tracking-[0.1em] truncate w-full flex items-center gap-2"
                                                                         style={{
                                                                             color: getSmartTextColor(),
-                                                                            fontSize: `${Math.max((profile.fontSize || 15) - 4, 10)}px`,
-                                                                            fontWeight: profile.fontWeight || '400',
+                                                                            fontSize: `${profile.fontSize || 15}px`,
+                                                                            fontWeight: profile.fontWeight || '700',
                                                                             fontStyle: profile.fontItalic ? 'italic' : 'normal',
                                                                             lineHeight: '1.2'
                                                                         }}
                                                                     >
-                                                                        {link.subtitle}
+                                                                        {link.title || t('mediakit.title')}
                                                                     </span>
-                                                                )}
-                                                            </div>
-                                                            <div className="w-12 h-full flex items-center justify-center border-l shrink-0" style={{ borderColor: `${getSmartTextColor()}0A` }}>
-                                                                <ChevronRight size={16} className="opacity-30 group-hover:opacity-100 transition-opacity translate-x-1 group-hover:translate-x-0 transition-transform" strokeWidth={1.5} style={{ color: getSmartTextColor() }} />
-                                                            </div>
-                                                        </button>
-                                                    </motion.div>
+                                                                    {link.subtitle && (
+                                                                        <span
+                                                                            className="opacity-50 uppercase tracking-[0.05em] truncate w-full mt-0.5"
+                                                                            style={{
+                                                                                color: getSmartTextColor(),
+                                                                                fontSize: `${Math.max((profile.fontSize || 15) - 4, 10)}px`,
+                                                                                fontWeight: profile.fontWeight || '400',
+                                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                lineHeight: '1.2'
+                                                                            }}
+                                                                        >
+                                                                            {link.subtitle}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <div className="w-12 h-full flex items-center justify-center border-l shrink-0" style={{ borderColor: `${getSmartTextColor()}0A` }}>
+                                                                    <ChevronRight size={16} className="opacity-30 group-hover:opacity-100 transition-opacity translate-x-1 group-hover:translate-x-0 transition-transform" strokeWidth={1.5} style={{ color: getSmartTextColor() }} />
+                                                                </div>
+                                                            </button>
+                                                        </motion.div>
+                                                    </InteractiveButton>
                                                 );
                                             } else {
                                                 flushIcons();
-                                                flushCards();
                                                 const network = SOCIAL_NETWORKS.find(n => link.title.toLowerCase().includes(n.id)) || SOCIAL_NETWORKS.find(n => link.url.toLowerCase().includes(n.id));
                                                 const Icon = network?.icon;
+                                                const isHighlighted = link.highlight === 'blink' || link.highlight === 'glow' || link.highlight === 'flash' || link.highlight === 'rainbow' || link.highlight === 'glitch';
+                                                const isVideo = (link.url.includes('youtube.com') || link.url.includes('youtu.be') || link.url.includes('tiktok.com'));
+
+                                                const EffectWrapper = isHighlighted ? GlitchButton : isVideo ? ElasticButton : React.Fragment;
+                                                const effectProps = (isHighlighted || isVideo) ? { className: "w-full" } : {};
+
                                                 renderedItems.push(
-                                                    <motion.a
-                                                        key={link.id}
-                                                        transition={{ duration: 0.2 }}
-                                                        whileHover={{ scale: 1.005 }}
-                                                        href={link.isPasswordProtected ? undefined : link.url}
-                                                        target={link.isPasswordProtected ? undefined : "_blank"}
-                                                        rel="noreferrer"
-                                                        onClick={(e) => {
-                                                            if (handlePasswordProtectedLink(link, e)) return;
-                                                            handleLinkClick(link.id);
-                                                        }}
-                                                        className={`block w-full h-[72px] transform group relative py-3 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
-                                                        style={{
-                                                            ...mainButtonStyle,
-                                                            fontFamily: profile.fontFamily,
-                                                            fontWeight: (profile.fontWeight || undefined),
-                                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
-                                                        }}
-                                                    >
-                                                        {/* Icon/Image Container */}
-                                                        <div className="relative shrink-0 z-10">
-                                                            {link.image ? (
-                                                                <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#1a1a1a]/5 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                                                                    <img
-                                                                        src={link.image}
-                                                                        alt=""
-                                                                        className="w-full h-full object-cover"
-                                                                        loading="lazy"
-                                                                        decoding="async"
-                                                                        onError={(e) => {
-                                                                            e.currentTarget.onerror = null;
-                                                                            e.currentTarget.style.display = 'none';
-                                                                            e.currentTarget.className = "w-full h-full object-contain p-2 opacity-30 bg-white/10";
-                                                                        }}
-                                                                    />
+                                                    <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`}>
+                                                        <EffectWrapper {...effectProps}>
+                                                            <motion.a
+                                                                transition={{ duration: 0.2 }}
+                                                                whileHover={{ scale: 1.005 }}
+                                                                href={link.isPasswordProtected ? undefined : link.url}
+                                                                target={link.isPasswordProtected ? undefined : "_blank"}
+                                                                rel="noreferrer"
+                                                                onClick={(e) => {
+                                                                    if (handlePasswordProtectedLink(link, e)) return;
+                                                                    handleLinkClick(link.id);
+                                                                }}
+                                                                className={`block w-full h-[72px] transform group relative py-3 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                style={{
+                                                                    ...mainButtonStyle,
+                                                                    fontFamily: profile.fontFamily,
+                                                                    fontWeight: (profile.fontWeight || undefined),
+                                                                    fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                    ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                    borderRadius: borderRadiusValue
+                                                                }}
+                                                            >
+                                                                {/* Icon/Image Container */}
+                                                                <div className="relative shrink-0 z-10">
+                                                                    {link.image ? (
+                                                                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#1a1a1a]/5 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                                                                            <img
+                                                                                src={link.image}
+                                                                                alt=""
+                                                                                className="w-full h-full object-cover"
+                                                                                loading="lazy"
+                                                                                decoding="async"
+                                                                                onError={(e) => {
+                                                                                    e.currentTarget.onerror = null;
+                                                                                    e.currentTarget.style.display = 'none';
+                                                                                    e.currentTarget.className = "w-full h-full object-contain p-2 opacity-30 bg-white/10";
+                                                                                }}
+                                                                            />
+                                                                        </div>
+                                                                    ) : Icon ? (
+                                                                        <div className="w-10 h-10 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform duration-300">
+                                                                            <Icon size={22} />
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="w-10" /> // Spacer to keep title centered if no icon
+                                                                    )}
                                                                 </div>
-                                                            ) : Icon ? (
-                                                                <div className="w-10 h-10 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform duration-300">
-                                                                    <Icon size={22} />
+
+                                                                {/* Text Content */}
+                                                                <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                    <span className={`text-[15px] font-bold leading-tight uppercase tracking-tight ${link.subtitle ? 'line-clamp-1 truncate' : 'line-clamp-2 break-words'}`} style={{ color: getSmartTextColor() }}>
+                                                                        {link.title}
+                                                                    </span>
+                                                                    {link.subtitle && (
+                                                                        <span className="text-[11px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor() }}>
+                                                                            {(link.url.includes('youtube.com') || link.url.includes('youtu.be')) && !link.url.includes('watch?v=') && !link.url.includes('/shorts/') && !link.url.includes('/live/') && <Youtube size={10} className="shrink-0" />}
+                                                                            {link.url.includes('tiktok.com') && <Music size={10} fill="currentColor" className="shrink-0" />}
+                                                                            {link.subtitle}
+                                                                        </span>
+                                                                    )}
                                                                 </div>
-                                                            ) : (
-                                                                <div className="w-10" /> // Spacer to keep title centered if no icon
-                                                            )}
-                                                        </div>
 
-                                                        {/* Text Content */}
-                                                        <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
-                                                            <span className={`text-[15px] font-bold leading-tight uppercase tracking-tight ${link.subtitle ? 'line-clamp-1 truncate' : 'line-clamp-2 break-words'}`} style={{ color: getSmartTextColor() }}>
-                                                                {link.title}
-                                                            </span>
-                                                            {link.subtitle && (
-                                                                <span className="text-[11px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor() }}>
-                                                                    {(link.url.includes('youtube.com') || link.url.includes('youtu.be')) && !link.url.includes('watch?v=') && !link.url.includes('/shorts/') && !link.url.includes('/live/') && <Youtube size={10} className="shrink-0" />}
-                                                                    {link.url.includes('tiktok.com') && <Music size={10} fill="currentColor" className="shrink-0" />}
-                                                                    {link.subtitle}
-                                                                </span>
-                                                            )}
-                                                        </div>
-
-                                                        {/* Action Indicator (Right Side) — 🔐 lock if password protected */}
-                                                        <div className="w-10 shrink-0 flex items-center justify-center z-10 relative opacity-40 group-hover:opacity-100 transition-all">
-                                                            {link.isPasswordProtected ? (
-                                                                <div className="bg-black/5 p-1.5 rounded-md border border-black/5">
-                                                                    <Lock size={15} style={{ color: getSmartTextColor() }} strokeWidth={2.5} />
+                                                                {/* Action Indicator (Right Side) — 🔐 lock if password protected */}
+                                                                <div className="w-10 shrink-0 flex items-center justify-center z-10 relative opacity-40 group-hover:opacity-100 transition-all">
+                                                                    {link.isPasswordProtected ? (
+                                                                        <div className="bg-black/5 p-1.5 rounded-md border border-black/5">
+                                                                            <Lock size={15} style={{ color: getSmartTextColor() }} strokeWidth={2.5} />
+                                                                        </div>
+                                                                    ) : (
+                                                                        <ChevronRight size={18} style={{ color: getSmartTextColor() }} strokeWidth={3} />
+                                                                    )}
                                                                 </div>
-                                                            ) : (
-                                                                <ChevronRight size={18} style={{ color: getSmartTextColor() }} strokeWidth={3} />
-                                                            )}
-                                                        </div>
 
-                                                        {/* Subtle shine effect on hover */}
-                                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
-                                                    </motion.a>
-
+                                                                {/* Subtle shine effect on hover */}
+                                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+                                                            </motion.a>
+                                                        </EffectWrapper>
+                                                    </InteractiveButton>
                                                 );
                                             }
                                         });
@@ -2088,26 +2239,26 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     {profile.paymentMethods && profile.paymentMethods.length > 0 && (
                                         <div className="flex flex-col gap-3 w-full mb-2">
                                             {profile.paymentMethods.filter(pm => pm.isActive !== false).map(method => (
-                                                <motion.button
-                                                    key={method.id}
-                                                    whileHover={{ scale: 1.02 }}
-                                                    whileTap={{ scale: 0.98 }}
-                                                    onClick={() => {
-                                                        if (method.type === 'paypal') {
-                                                            window.open(method.key.startsWith('http') ? method.key : `https://${method.key}`, '_blank');
-                                                        } else {
-                                                            navigator.clipboard.writeText(method.key);
-                                                            alert('Chave Pix copiada!');
-                                                        }
-                                                    }}
-                                                    className={`relative w-full h-[72px] transition-all duration-300 group ${buttonClass.replace('justify-between', 'justify-center')} flex items-center justify-center`}
-                                                    style={{
-                                                        ...mainButtonStyle,
-                                                        color: getSmartTextColor(),
-                                                        borderRadius: borderRadiusValue,
-                                                        ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
-                                                    }}
-                                                >
+                                                <InteractiveButton key={method.id} className="w-full">
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.02 }}
+                                                        whileTap={{ scale: 0.98 }}
+                                                        onClick={() => {
+                                                            if (method.type === 'paypal') {
+                                                                window.open(method.key.startsWith('http') ? method.key : `https://${method.key}`, '_blank');
+                                                            } else {
+                                                                navigator.clipboard.writeText(method.key);
+                                                                alert('Chave Pix copiada!');
+                                                            }
+                                                        }}
+                                                        className={`relative w-full h-[72px] transition-all duration-300 group ${buttonClass.replace('justify-between', 'justify-center')} flex items-center justify-center cursor-pointer`}
+                                                        style={{
+                                                            ...mainButtonStyle,
+                                                            color: getSmartTextColor(),
+                                                            borderRadius: borderRadiusValue,
+                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
+                                                        }}
+                                                    >
                                                     <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                                                     <div className="relative z-10 flex items-center justify-center gap-3 w-full px-6">
@@ -2123,7 +2274,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         </span>
                                                         <div className="w-8 shrink-0" /> {/* Spacer to balance the layout */}
                                                     </div>
-                                                </motion.button>
+                                                    </motion.button>
+                                                </InteractiveButton>
                                             ))}
                                         </div>
                                     )}
@@ -2140,37 +2292,41 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {/* Theme-Integrated Support Button & Newsletter */}
                     <div className="mt-4 flex flex-col gap-4">
                         {profile.supportKey && (
-                            <motion.a
-                                transition={{ duration: 0 }}
-                                href={profile.supportType === 'paypal' ? `https://${profile.supportKey}` : '#'}
-                                onClick={(e) => {
-                                    if (profile.supportType === 'pix') {
-                                        e.preventDefault();
-                                        alert(`Chave Pix copiada: ${profile.supportKey}`);
-                                        navigator.clipboard.writeText(profile.supportKey || '');
-                                    }
-                                }}
-                                className={`block w-full h-[72px] text-center text-base transition-all duration-300 transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass}`}
-                                style={{
-                                    ...mainButtonStyle,
-                                    color: getSmartTextColor(),
-                                    borderRadius: borderRadiusValue,
-                                    fontFamily: profile.fontFamily,
-                                    fontWeight: (profile.fontWeight || undefined),
-                                    fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                    ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
-                                }}
-                            >
-                                <div className="relative z-10 w-full flex items-center justify-between">
-                                    {profile.supportType === 'pix' ? (
-                                        <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" loading="lazy" decoding="async" />
-                                    ) : (
-                                        <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" loading="lazy" decoding="async" />
-                                    )}
-                                    <span className="truncate flex-1 px-3" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Apoiar</span>
-                                    <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={20} /></span>
-                                </div>
-                            </motion.a>
+                            <InteractiveButton key="support-button" className="w-full">
+                                <motion.a
+                                    transition={{ duration: 0.2 }}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    href={profile.supportType === 'paypal' ? `https://${profile.supportKey}` : '#'}
+                                    onClick={(e) => {
+                                        if (profile.supportType === 'pix') {
+                                            e.preventDefault();
+                                            alert(`Chave Pix copiada: ${profile.supportKey}`);
+                                            navigator.clipboard.writeText(profile.supportKey || '');
+                                        }
+                                    }}
+                                    className={`block w-full h-[72px] text-center text-base transition-all duration-300 transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} cursor-pointer`}
+                                    style={{
+                                        ...mainButtonStyle,
+                                        color: getSmartTextColor(),
+                                        borderRadius: borderRadiusValue,
+                                        fontFamily: profile.fontFamily,
+                                        fontWeight: (profile.fontWeight || undefined),
+                                        fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                        ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
+                                    }}
+                                >
+                                    <div className="relative z-10 w-full flex items-center justify-between">
+                                        {profile.supportType === 'pix' ? (
+                                            <img src="https://img.icons8.com/?size=100&id=CuUOYOfd3Dy9&format=png&color=000000" alt="Pix" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-0.5" loading="lazy" decoding="async" />
+                                        ) : (
+                                            <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" loading="lazy" decoding="async" />
+                                        )}
+                                        <span className="truncate flex-1 px-3" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Apoiar</span>
+                                        <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={20} /></span>
+                                    </div>
+                                </motion.a>
+                            </InteractiveButton>
                         )}
 
                         {(profile.planType === 'free' || !profile.planType || !profile.hideBranding) && (

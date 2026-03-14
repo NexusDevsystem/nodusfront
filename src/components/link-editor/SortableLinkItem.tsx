@@ -19,7 +19,8 @@ import {
     Hash, Send as SendIcon, Columns2, Music, MapPin, ChevronUp,
     Calendar as CalendarIcon, Loader2, BarChart3, Lock,
     Activity, Sun, Waves, PartyPopper, Box as Package,
-    Heart, RotateCw, Disc, RefreshCw
+    Heart, RotateCw, Disc, RefreshCw,
+    Move, Target, Lightbulb, Rainbow, ZapOff, Radio, Vibrate, Bolt
 } from 'lucide-react';
 
 // Lazy-imported to break circular dep (LinkEditor uses SortableLinkItem uses LinkEditor)
@@ -398,7 +399,7 @@ function SortableLinkItem({
                 layout
                 onDrag={() => { }}
                 onDragEnd={() => { }}
-                className={`relative border-2 border-[#1a1a1a] rounded-xl ${isExpanded ? 'bg-white shadow-[4px_4px_0px_0px_#1a1a1a]' : 'bg-white shadow-[4px_4px_0px_0px_#1a1a1a]'} select-none`}
+                className={`relative border-2 border-[#1a1a1a] rounded-xl ${isExpanded ? 'bg-white shadow-[4px_4px_0px_0px_#1a1a1a]' : 'bg-white shadow-[4px_4px_0px_0px_#1a1a1a]'} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
                 whileDrag={{ scale: 1.01, boxShadow: '10px 10px 0px 0px rgba(26,26,26,1)', zIndex: 50, borderRadius: '12px' }}
                 style={{ willChange: 'transform' }}
             >
@@ -920,10 +921,17 @@ function SortableLinkItem({
                                                                 { id: 'jello', label: t('links.animJello'), icon: Package },
                                                                 { id: 'rubberBand', label: t('links.animRubber'), icon: PartyPopper },
                                                                 { id: 'heartbeat', label: t('links.animHeartbeat'), icon: Heart },
-                                                                { id: 'flash', label: t('links.animFlash'), icon: Zap },
-                                                                { id: 'swing', label: t('links.animSwing'), icon: RotateCw },
-                                                                { id: 'pulsar', label: t('links.animPulsar'), icon: Disc },
-                                                                { id: 'flip', label: t('links.animFlip'), icon: RefreshCw }
+                                                                { id: 'flash', label: t('links.animFlash'), icon: Bolt },
+                                                                { id: 'pendulum', label: t('links.animPendulum'), icon: RefreshCw },
+                                                                { id: 'aura', label: t('links.animAura'), icon: Disc },
+                                                                { id: 'spin', label: t('links.animSpin'), icon: RotateCw },
+                                                                { id: 'float', label: t('links.animFloat'), icon: Move },
+                                                                { id: 'neon', label: t('links.animNeon'), icon: Lightbulb },
+                                                                { id: 'spotlight', label: t('links.animSpotlight'), icon: Target },
+                                                                { id: 'rainbow', label: t('links.animRainbow'), icon: Rainbow },
+                                                                { id: 'glitch', label: t('links.animGlitch'), icon: ZapOff },
+                                                                { id: 'ping', label: t('links.animPing'), icon: Radio },
+                                                                { id: 'vibrate', label: t('links.animVibrate'), icon: Vibrate }
                                                             ].map((anim) => {
                                                                 const AnimIcon = anim.icon;
                                                                 const isSelected = (link.highlight || 'none') === anim.id;

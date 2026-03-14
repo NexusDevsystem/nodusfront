@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.39.0",
+    "@gsap/react": "^2.1.2",
     "@list-labs/react-joyride": "^2.9.4",
     "@react-oauth/google": "^0.13.4",
     "@react-three/drei": "^10.7.7",
