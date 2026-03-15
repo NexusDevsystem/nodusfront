@@ -1129,20 +1129,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     </div>
                 )}
 
-                {/* Status Bar - Only for Preview Mode (Absolute if Banner or Perfil) */}
-                {isPreview && (
-                    <div className={`w-full px-6 pt-3 pb-2 flex justify-between items-center z-30 ${(['banner', 'compact'].includes(profile.headerLayout || '')) ? 'absolute top-0 left-0 pt-3' : ''} ${(isDarkTheme || profile.customBackground || currentTheme.id === 'glass' || profile.headerLayout === 'banner')
-                        ? 'text-white'
-                        : (profile.headerLayout === 'compact' ? 'text-white/80' : 'text-slate-900')
-                        }`}>
-                        <span className="text-xs font-medium tracking-wide">9:41</span>
-                        <div className="flex items-center gap-1.5 opacity-90">
-                            <Signal size={12} strokeWidth={2.5} />
-                            <Wifi size={12} strokeWidth={2.5} />
-                            <Battery size={14} strokeWidth={2.5} />
-                        </div>
-                    </div>
-                )}
 
                 {/* Share Button (Adjusted for Banner/Perfil) */}
                 <div className={`absolute ${(['banner', 'compact'].includes(profile.headerLayout || '')) ? 'top-4' : 'top-[34px]'} right-6 z-30`}>
