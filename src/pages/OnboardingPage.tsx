@@ -216,7 +216,6 @@ export default function OnboardingPage() {
             // 1. Update Profile with all onboarding data via Backend
             const updatedProfile = await apiClient.updateProfile({
                 username: username.toLowerCase(),
-                onboardingCompleted: true,
                 userCategory: userCategory,
                 referralSource: referralSource || t('common.notProvided'),
                 name: name || username,

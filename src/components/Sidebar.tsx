@@ -190,7 +190,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                     return (
                       <button
                         key={item.id}
-                        data-tour={item.id}
                         onClick={() => {
                           if (isLocked) {
                             onUpgradeClick?.();

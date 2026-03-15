@@ -99,7 +99,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                                 if (updateProfile) updateProfile({ fontWeight: w.val });
                                                 else onChange({ ...profile, fontWeight: w.val });
                                             }}
-                                            className={`flex-1 py-2 text-[10px] font-medium transition-all ${idx !== 0 ? 'border-l border-[#1a1a1a]' : ''} ${(profile.fontWeight || '400') === w.val
+                                            className={`flex-1 py-2 text-[10px] font-medium transition-all cursor-target ${idx !== 0 ? 'border-l border-[#1a1a1a]' : ''} ${(profile.fontWeight || '400') === w.val
                                                 ? 'bg-[#1a1a1a] text-[#97cd7a]'
                                                 : 'bg-white text-black hover:bg-[#1a1a1a] hover:text-white'
                                                 }`}
@@ -260,7 +260,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                     if (updateProfile) updateProfile({ fontFamily: font.family });
                                     else onChange({ ...profile, fontFamily: font.family });
                                 }}
-                                className={`flex items-center justify-between p-2.5 border-2 transition-all text-left relative group rounded-2xl ${isSelected
+                                className={`flex items-center justify-between p-2.5 border-2 transition-all text-left relative group rounded-2xl cursor-target ${isSelected
                                     ? 'border-[#1a1a1a] bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'
                                     : 'border-[#1a1a1a] bg-white hover:bg-[#1a1a1a] hover:text-[#97cd7a] shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none'
                                     }`}

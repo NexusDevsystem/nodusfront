@@ -168,6 +168,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // This handles the case where the Google token expires after ~1h of use
     const signOutRef = useRef<(() => void) | undefined>(undefined);
     signOutRef.current = () => {
+        const isProtectedRoute = window.location.pathname.startsWith('/admin') || 
+                               window.location.pathname.startsWith('/onboarding');
+        
         setUser(null);
         setProfile(null);
         setToken(null);
@@ -176,7 +179,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('nodus_profile');
         localStorage.removeItem('nodus_links');
         localStorage.removeItem('nodus_products');
-        window.location.href = '/login';
+        
+        if (isProtectedRoute) {
+            window.location.href = '/login';
+        }
     };
 
     useEffect(() => {
@@ -286,7 +292,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // An existing user is considered to have completed onboarding if:
     // 1. The field is explicitly true, OR
     // 2. They already have a username set (meaning they onboarded before this field was added to the DB)
-    const hasCompletedOnboarding = !!profile?.onboardingCompleted || !!(profile?.username);
+    const hasCompletedOnboarding = !!(profile?.username);
 
     return (
         <AuthContext.Provider value={{

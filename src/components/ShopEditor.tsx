@@ -371,7 +371,6 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                     </div>
                     <Tooltip text={t('shop.newCategory')} position="bottom">
                         <button
-                            data-tour="shop-new-category"
                             onClick={() => setIsAddingCollection(true)}
                             className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] text-[#97cd7a] hover:bg-[#1a1a1a] hover:text-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none text-[9px] font-medium uppercase tracking-widest transition-all rounded-xl"
                         >

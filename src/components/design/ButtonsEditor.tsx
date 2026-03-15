@@ -30,7 +30,7 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                         <div key={roundness.id} className="flex flex-col items-center gap-2">
                             <button
                                 onClick={() => updateProfile({ buttonRoundness: roundness.id as any })}
-                                className={`group relative h-10 w-full flex items-center justify-center transition-all border-2 border-[#1a1a1a] ${roundness.rounded} ${profile.buttonRoundness === roundness.id
+                                className={`group relative h-10 w-full flex items-center justify-center transition-all border-2 border-[#1a1a1a] cursor-target ${roundness.rounded} ${profile.buttonRoundness === roundness.id
                                     ? 'bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] -translate-x-[0.5px] -translate-y-[0.5px]'
                                     : 'bg-white shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:bg-slate-50 text-black/40 hover:text-black'
                                     }`}
@@ -70,14 +70,14 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                                     value={profile.customButtonColor || ''}
                                     onChange={(e) => updateProfile({ customButtonColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}` })}
                                     placeholder="Hex (#000000)"
-                                    className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-sm font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] tracking-widest"
+                                    className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-sm font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] tracking-widest cursor-target"
                                 />
                             </div>
                             {profile.customButtonColor && (
                                 <Tooltip text={t('common.reset')} position="top">
                                     <button
                                         onClick={() => updateProfile({ customButtonColor: null })}
-                                        className="text-[10px] text-black border border-[#1a1a1a] bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all w-full sm:w-auto"
+                                        className="text-[10px] text-black border border-[#1a1a1a] bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all w-full sm:w-auto cursor-target"
                                     >
                                         {t('common.reset')}
                                     </button>

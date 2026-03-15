@@ -65,7 +65,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
     const [isConnectingKick, setIsConnectingKick] = useState(false);
     const [connectionError, setConnectionError] = useState<string | null>(null);
     const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
-    const isAuthorized = profile?.username === 'nodus' || profile?.username === 'nexus' || profile?.username === 'jaoom' || authProfile?.email === 'jaoomarcos75@gmail.com';
+    const isAuthorized = profile?.username === 'nodus' || profile?.username === 'nexus' || profile?.username === 'nyill' || profile?.username === 'jaoom' || authProfile?.email === 'jaoomarcos75@gmail.com';
 
     useEffect(() => {
         setMounted(true);
@@ -78,24 +78,8 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
 
-        // Tour integration: Close modal when requested by the tour
-        const handleTourClose = () => {
-            setIsModalOpen(false);
-            setConfiguringPlatform(null);
-        };
-
-        // Tour integration: Open modal when requested by the tour
-        const handleTourOpen = () => {
-            setIsModalOpen(true);
-        };
-
-        window.addEventListener('tour-close-all-modals', handleTourClose);
-        window.addEventListener('tour-open-social-modal', handleTourOpen);
-
         return () => {
             window.removeEventListener('resize', handleResize);
-            window.removeEventListener('tour-close-all-modals', handleTourClose);
-            window.removeEventListener('tour-open-social-modal', handleTourOpen);
         };
     }, []);
 
@@ -193,7 +177,6 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                     </div>
                     <Tooltip text={t('social.manage')} position="top">
                         <button
-                            data-tour="add-socials"
                              onClick={handleOpenModal}
                              className="w-10 h-10 md:w-11 md:h-11 flex items-center justify-center text-black bg-white border-2 border-[#1a1a1a] hover:bg-[#ffdf00] transition-all shadow-[4px_4px_0px_0px_#1a1a1a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none shrink-0 rounded-xl"
                          >
@@ -292,16 +275,12 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                 className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
                                 onClick={handleCloseModal}
                             />
-                            <motion.div
-                                initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
-                                animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
-                                exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
-                                transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                                className={`
-                                    relative bg-white flex flex-col overflow-hidden border-2 border-[#1a1a1a] tour-social-modal
-                                    ${isMobile ? 'w-full h-[92vh] rounded-t-3xl shadow-none translate-y-1' : 'w-full max-w-sm max-h-[70vh] shadow-[4px_4px_0px_0px_#1a1a1a] rounded-[2rem]'}
-                                `}
-                            >
+                                <div
+                                    className={`
+                                        relative bg-white flex flex-col overflow-hidden border-2 border-[#1a1a1a]
+                                        ${isMobile ? 'w-full h-[92vh] rounded-t-3xl shadow-none translate-y-1' : 'w-full max-w-sm max-h-[70vh] shadow-[4px_4px_0px_0px_#1a1a1a] rounded-[2rem]'}
+                                    `}
+                                >
 
                                 <div className="p-4 flex items-center justify-between shrink-0 relative border-b-2 border-[#1a1a1a]">
                                     <button
@@ -1011,7 +990,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                         </div>
                                     </div>
                                 )}
-                            </motion.div>
+                                </div>
                         </div>
                     )}
                 </AnimatePresence>,

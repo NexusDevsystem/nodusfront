@@ -331,10 +331,9 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             { id: 'map', icon: <Store size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.mapLabel') || 'Endereço', desc: t('links.mapDesc') || 'Destaque a localização do seu negócio', color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { onAddMap(); onClose(); } },
                             { id: 'mediakit', icon: isPro ? <BarChart3 size={isMobile ? 20 : 24} strokeWidth={3} /> : <Lock size={isMobile ? 20 : 24} strokeWidth={3} className="text-black/30" />, label: t('mediakit.title') || 'Mídia Kit (PRO)', desc: t('mediakit.descShort') || 'Mostre seus números p/ marcas', color: 'bg-white', accent: isPro ? 'bg-[#97cd7a]' : 'bg-slate-100', action: isPro ? () => { onAddMediaKit(); onClose(); } : () => { /* Bloqueado */ } },
                         ].map((item) => (
-                            <button
-                                key={item.id}
-                                data-tour={`add-link-type-${item.id}`}
-                                onClick={item.action}
+                                <button
+                                    key={item.id}
+                                    onClick={item.action}
                                 className={`
                                     group relative flex flex-col items-start p-4 md:p-5 border-2 border-black text-left transition-all duration-300
                                     ${item.color} rounded-xl md:rounded-2xl shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 overflow-hidden
@@ -539,7 +538,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
                 exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
-                className="relative bg-white flex flex-col border-2 border-black md:rounded-2xl shadow-none w-full md:max-w-[800px] h-[92vh] md:h-auto md:max-h-[85vh] rounded-t-[32px] md:rounded-2xl overflow-hidden tour-add-element-modal"
+                className="relative bg-white flex flex-col border-2 border-black md:rounded-2xl shadow-none w-full md:max-w-[800px] h-[92vh] md:h-auto md:max-h-[85vh] rounded-t-[32px] md:rounded-2xl overflow-hidden"
             >
 
                 {/* Header Section - Refined Design */}
@@ -566,7 +565,6 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 <LinkIcon size={18} strokeWidth={2.5} className="text-black/20 group-focus-within:text-black transition-colors" />
                             </div>
                             <input
-                                data-tour="add-link-input"
                                 type="text"
                                 placeholder={t('links.pasteUrlHint')}
                                 value={url}

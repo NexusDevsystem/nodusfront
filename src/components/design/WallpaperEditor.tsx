@@ -67,7 +67,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="bg-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-black cursor-pointer hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none rounded-xl">
+                            <label htmlFor="bg-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-black cursor-pointer hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none rounded-xl cursor-target">
                                 <Upload size={14} strokeWidth={3} /> {profile.customBackground ? t('design.changeImage') : t('design.uploadImage')}
                             </label>
                             <p className="text-[8px] font-normal text-black/50 uppercase tracking-widest text-center px-2">

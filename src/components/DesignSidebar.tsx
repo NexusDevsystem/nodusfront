@@ -27,9 +27,8 @@ const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveS
                         return (
                             <button
                                 key={item.id}
-                                data-tour={`design-${item.id}`}
                                 onClick={() => setActiveSection(item.id)}
-                                className={`px-4 md:px-5 py-2 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.15em] transition-all relative whitespace-nowrap flex items-center justify-center min-h-[38px] md:min-h-[44px] group rounded-xl overflow-visible ${isActive
+                                className={`px-4 md:px-5 py-2 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.15em] transition-all relative whitespace-nowrap flex items-center justify-center min-h-[38px] md:min-h-[44px] group rounded-xl overflow-visible cursor-target ${isActive
                                     ? 'text-black'
                                     : 'text-black/50 hover:text-black'
                                     }`}

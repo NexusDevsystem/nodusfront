@@ -66,7 +66,8 @@ class ApiClient {
                 }
 
                 // If 401, the Google token expired — dispatch a global event for AuthContext to handle
-                if (response.status === 401) {
+                // EXCEPTION: Don't trigger logout if it's a simple link password verification failure
+                if (response.status === 401 && !path.includes('verify-password')) {
                     console.warn(`🔑 [ApiClient] 401 Unauthorized on ${path}. Dispatching session-expired event.`);
                     window.dispatchEvent(new CustomEvent('nodus:session-expired'));
                 }
@@ -357,7 +358,7 @@ class ApiClient {
         return this.request('/api/billing/invoices');
     }
     async createLead(profileId: string, email: string): Promise<any> {
-        return this.request('/api/leads/subscribe', {
+        return this.request('/api/leads', {
             method: 'POST',
             body: JSON.stringify({ profileId, email })
         });

@@ -24,8 +24,6 @@ import HeaderEditor from '../components/design/HeaderEditor';
 import TypographyEditor from '../components/design/TypographyEditor';
 import WallpaperEditor from '../components/design/WallpaperEditor';
 import ButtonsEditor from '../components/design/ButtonsEditor';
-import TourGuide from '../components/TourGuide';
-import WelcomeTourModal from '../components/WelcomeTourModal';
 import { compressImage } from '../utils/imageUtils';
 import { apiClient } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
@@ -46,9 +44,7 @@ export default function EditorPage() {
         bio: '',
         avatarUrl: '',
         themeId: 'brutalist-bauhaus',
-        fontFamily: "'Inter', sans-serif",
-        onboardingCompleted: true, // Default to true so it doesn't pop up before data loads
-        tutorialStatus: 'yes'     // Default to yes so it doesn't pop up before data loads
+        fontFamily: "'Inter', sans-serif"
     });
 
     const [links, setLinks] = useState<LinkItem[]>([]);
@@ -475,272 +471,6 @@ export default function EditorPage() {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
 
-    // Tour/Tutorial State
-    const [tourRun, setTourRun] = useState(false);
-    const [tourSteps, setTourSteps] = useState<any[]>([]);
-
-    const [showWelcomeModal, setShowWelcomeModal] = useState(false);
-    const [tourStepIndex, setTourStepIndex] = useState(0);
-
-    // Initial check for tour
-    React.useEffect(() => {
-        // Show if tutorial_status is 'no' and data is loaded
-        if (!isLoading && profile.id && profile.tutorialStatus === 'no') {
-            const sessionKey = `nodus_welcomed_${profile.id}`;
-            if (!sessionStorage.getItem(sessionKey)) {
-                setShowWelcomeModal(true);
-                sessionStorage.setItem(sessionKey, 'true');
-            }
-        }
-    }, [isLoading, profile.id, profile.tutorialStatus]);
-
-    // Handle interactive tour actions
-    const handleTourStepChange = (index: number) => {
-        const currentStep = tourSteps[index];
-        if (currentStep?.action) {
-            currentStep.action();
-            // Demora para deixar o modal carregar e animar
-            setTimeout(() => {
-                setTourStepIndex(index);
-            }, 400);
-        } else {
-            setTourStepIndex(index);
-        }
-    };
-
-    React.useEffect(() => {
-        const handleInteraction = (e: MouseEvent) => {
-            if (!tourRun) return;
-
-            const target = e.target as HTMLElement;
-            const tourElement = target.closest('[data-tour]');
-            if (!tourElement) return;
-
-            const tourId = tourElement.getAttribute('data-tour');
-            const currentStep = tourSteps[tourStepIndex];
-
-            // If the clicked element matches the current step's target, advance the tour
-            if (currentStep && currentStep.target === `[data-tour="${tourId}"]`) {
-                // Delay slightly to allow the app state to update (e.g. modal opening)
-                setTimeout(() => {
-                    handleTourStepChange(tourStepIndex + 1);
-                }, 100);
-            }
-        };
-
-        window.addEventListener('click', handleInteraction);
-        return () => window.removeEventListener('click', handleInteraction);
-    }, [tourRun, tourStepIndex, tourSteps]);
-
-    const startTour = () => {
-        setShowWelcomeModal(false);
-        setActiveTab('links');
-        setTourStepIndex(0);
-
-        // Helper to find and close modals globally if needed
-        const closeAllModals = () => {
-            // We'll trigger custom events that components listen to
-            window.dispatchEvent(new CustomEvent('tour-close-all-modals'));
-        };
-
-        const isMobile = window.innerWidth < 768;
-
-        setTourSteps([
-            {
-                target: 'body',
-                placement: 'center',
-                content: t('tour.welcome', 'Bem-vindo ao Nodus! Vamos fazer um tour pelos bastidores e te mostrar como tudo funciona.'),
-                disableBeacon: true,
-                action: () => {
-                    setActiveTab('links');
-                    closeAllModals();
-                }
-            },
-            {
-                target: '[data-tour="add-socials"]',
-                content: t('tour.addSocials', 'Meus Links: Comece aqui! Adicione suas redes sociais para que seu público te encontre em qualquer lugar.'),
-                disableBeacon: true,
-                spotlightClicks: true,
-                placement: isMobile ? 'auto' : 'right',
-                action: () => {
-                    setActiveTab('links');
-                    closeAllModals();
-                }
-            },
-            {
-                target: '.tour-social-modal',
-                content: t('tour.socialModal', 'Aqui você pode escolher quais redes quer exibir e configurar o link de cada uma.'),
-                placement: isMobile ? 'top' : 'right',
-                disableScrolling: true,
-                action: () => {
-                    window.dispatchEvent(new CustomEvent('tour-open-social-modal'));
-                    // Force Joyride to recalculate spotlight size/position after motion.div animation
-                    setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
-                    setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
-                    setTimeout(() => window.dispatchEvent(new Event('resize')), 800);
-                }
-            },
-            {
-                target: '[data-tour="add-link"]',
-                content: t('tour.addLink', 'Agora, vamos adicionar seus canais principais. Clique aqui para inserir links de sites, vídeos ou qualquer URL.'),
-                disableBeacon: true,
-                spotlightClicks: true,
-                placement: isMobile ? 'auto' : 'right',
-                action: () => {
-                    setActiveTab('links');
-                    closeAllModals();
-                }
-            },
-            {
-                target: '.tour-add-element-modal',
-                content: t('tour.addLinkModal', 'Nesta tela você escolhe o tipo de elemento: um link direto, uma coleção organizada ou até um produto da sua loja!'),
-                placement: isMobile ? 'top' : 'right',
-                disableScrolling: true,
-                action: () => {
-                    window.dispatchEvent(new CustomEvent('tour-open-add-link-modal'));
-                    // Force Joyride to recalculate spotlight size/position after motion.div animation
-                    setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
-                    setTimeout(() => window.dispatchEvent(new Event('resize')), 300);
-                    setTimeout(() => window.dispatchEvent(new Event('resize')), 500);
-                }
-            },
-            {
-                target: '[data-tour="appearance"]',
-                content: t('tour.designTab', 'Agora vamos deixar seu Nodus com a sua cara! Vamos para a aba Design.'),
-                disableBeacon: true,
-                spotlightClicks: true,
-                placement: isMobile ? 'auto' : 'right',
-                action: () => {
-                    setActiveTab('appearance');
-                    closeAllModals();
-                    if (isMobile) setIsMobileMenuOpen(true);
-                }
-            },
-            {
-                target: '[data-tour="design-header"]',
-                content: t('tour.designHeader', 'No Cabeçalho, você personaliza sua foto, nome e biografia para criar uma primeira impressão marcante.'),
-                placement: isMobile ? 'auto' : 'right',
-                action: () => {
-                    setActiveTab('appearance');
-                    closeAllModals();
-                    if (isMobile) setIsMobileMenuOpen(false);
-                }
-            },
-            {
-                target: '[data-tour="design-theme"]',
-                content: t('tour.designTheme', 'Escolha Temas prontos que combinam cores e estilos instantaneamente.'),
-                placement: isMobile ? 'auto' : 'right',
-                action: () => {
-                    if (isMobile) setIsMobileMenuOpen(false);
-                }
-            },
-            {
-                target: '[data-tour="design-buttons"]',
-                content: t('tour.designButtons', 'Personalize o estilo dos seus botões: cores, formatos e sombras brutais!'),
-                placement: isMobile ? 'auto' : 'right',
-            },
-            {
-                target: '[data-tour="design-wallpaper"]',
-                content: t('tour.designWallpaper', 'Mude o fundo com cores sólidas, gradientes ou imagens premium.'),
-                placement: isMobile ? 'auto' : 'right',
-            },
-            {
-                target: '[data-tour="design-text"]',
-                content: t('tour.designText', 'A Tipografia certa faz toda a diferença. Escolha entre fontes modernas e elegantes.'),
-                placement: isMobile ? 'auto' : 'right',
-            },
-            {
-                target: '[data-tour="shop"]',
-                content: t('tour.shopTab', 'Próxima parada: Loja! Transforme seus cliques em vendas.'),
-                disableBeacon: true,
-                spotlightClicks: true,
-                placement: isMobile ? 'auto' : 'right',
-                action: () => {
-                    setActiveTab('shop');
-                    closeAllModals();
-                    if (isMobile) setIsMobileMenuOpen(true);
-                }
-            },
-            {
-                target: '[data-tour="shop-new-category"]',
-                content: t('tour.shopNewCategory', 'Crie coleções para organizar seus produtos. Clique aqui para começar sua primeira vitrine!'),
-                placement: isMobile ? 'auto' : 'right',
-                action: () => {
-                    setActiveTab('shop');
-                    closeAllModals();
-                    if (isMobile) setIsMobileMenuOpen(false);
-                }
-            },
-            {
-                target: '[data-tour="earn"]',
-                content: t('tour.earnTab', 'Em Monetização, você configura recebimentos via PIX ou PayPal para aceitar apoios e vendas.'),
-                disableBeacon: true,
-                spotlightClicks: true,
-                placement: isMobile ? 'auto' : 'right',
-                action: () => {
-                    setActiveTab('earn');
-                    closeAllModals();
-                    if (isMobile) setIsMobileMenuOpen(true);
-                }
-            },
-            {
-                target: '[data-tour="integrations"]',
-                content: t('tour.integrationsTab', 'Conecte ferramentas externas como WhatsApp, Instagram Feed e muito mais em Conexões.'),
-                disableBeacon: true,
-                spotlightClicks: true,
-                placement: isMobile ? 'auto' : 'right',
-                action: () => {
-                    setActiveTab('integrations');
-                    closeAllModals();
-                    if (isMobile) setIsMobileMenuOpen(true);
-                }
-            },
-            {
-                target: '[data-tour="analytics"]',
-                content: t('tour.analyticsTab', 'Acompanhe seu crescimento! Veja quantos cliques e visualizações seu perfil está recebendo.'),
-                disableBeacon: true,
-                spotlightClicks: true,
-                placement: isMobile ? 'auto' : 'right',
-                action: () => {
-                    setActiveTab('analytics');
-                    closeAllModals();
-                    if (isMobile) setIsMobileMenuOpen(true);
-                }
-            },
-            {
-                target: '[data-tour="files"]',
-                content: t('tour.filesTab', 'Gerencie seus arquivos e mídias de forma centralizada aqui.'),
-                disableBeacon: true,
-                spotlightClicks: true,
-                placement: isMobile ? 'auto' : 'right',
-                action: () => {
-                    setActiveTab('files');
-                    closeAllModals();
-                    if (isMobile) setIsMobileMenuOpen(true);
-                }
-            },
-            {
-                target: 'body',
-                placement: 'center',
-                content: t('tour.finish', 'Pronto! Agora você conhece o básico. Explore cada detalhe e crie algo incrível!'),
-                action: () => {
-                    setActiveTab('links');
-                    closeAllModals();
-                }
-            }
-        ]);
-        setTourRun(true);
-    };
-
-    const skipTour = () => {
-        setShowWelcomeModal(false);
-        // Persist to backend
-        updateProfile({ tutorialStatus: 'skip' });
-        apiClient.updateProfile({ tutorialStatus: 'skip' }).catch(err => console.error('Failed to update tutorial status:', err));
-    };
-
-
-
     // Design Sidebar State
     const [activeDesignSection, setActiveDesignSection] = useState('header');
 
@@ -751,26 +481,6 @@ export default function EditorPage() {
 
     return (
         <div className="h-screen w-full bg-white font-sans text-black selection:bg-black selection:text-[#ffdf00] flex flex-col overflow-hidden">
-            {/* Tour Guide Wrapper */}
-            <TourGuide
-                run={tourRun}
-                steps={tourSteps}
-                stepIndex={tourStepIndex}
-                onStepChange={handleTourStepChange}
-                onFinish={() => {
-                    setTourRun(false);
-                    // Persist to backend
-                    updateProfile({ tutorialStatus: 'yes' });
-                    apiClient.updateProfile({ tutorialStatus: 'yes' }).catch(err => console.error('Failed to update tutorial status:', err));
-                }}
-            />
-
-            <WelcomeTourModal
-                isOpen={showWelcomeModal}
-                onAccept={startTour}
-                onDecline={skipTour}
-            />
-
             {/* Quests Checklist moved to Sidebar component */}
             {/* Top Banner for Free Users */}
             {(!profile.planType || profile.planType === 'free') && (
@@ -847,7 +557,6 @@ export default function EditorPage() {
 
                             {/* Share Button - Brutalist */}
                             <button
-                                data-tour="share"
                                 onClick={() => setIsShareModalOpen(true)}
                                 className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all text-black"
                             >
@@ -937,7 +646,6 @@ export default function EditorPage() {
 
                                 <div className="flex items-center gap-2">
                                     <button
-                                        data-tour="share"
                                         onClick={() => setIsShareModalOpen(true)}
                                         className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all text-black"
                                         title="Compartilhar"

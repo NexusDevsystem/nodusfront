@@ -66,6 +66,12 @@ function SortableLinkItem({
     const { t } = useTranslation();
     const dragControls = useDragControls();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [animCategory, setAnimCategory] = useState(() => {
+        const h = link.highlight || 'none';
+        if (['none', 'pulse', 'float', 'heartbeat', 'aura', 'glow'].includes(h)) return 'soft';
+        if (['bounce', 'shake', 'tada', 'jello', 'rubberBand', 'vibrate', 'wobble'].includes(h)) return 'dynamic';
+        return 'special';
+    });
     const [isUploadingImage, setIsUploadingImage] = useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -909,30 +915,48 @@ function SortableLinkItem({
                                                             <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em]">{t('links.animations')}</label>
                                                         </div>
 
+                                                        <div className="flex bg-slate-100 p-1.5 rounded-2xl border-2 border-[#1a1a1a]/5 gap-1.5 overflow-visible">
+                                                            {[
+                                                                { id: 'soft', label: t('links.categorySoft').includes('links.') ? 'Suave' : t('links.categorySoft') },
+                                                                { id: 'dynamic', label: t('links.categoryDynamic').includes('links.') ? 'Energia' : t('links.categoryDynamic') },
+                                                                { id: 'special', label: t('links.categorySpecial').includes('links.') ? 'Efeitos' : t('links.categorySpecial') }
+                                                            ].map(cat => (
+                                                                <button
+                                                                    key={cat.id}
+                                                                    onClick={() => setAnimCategory(cat.id)}
+                                                                    className={`flex-1 py-2 text-[8px] font-bold uppercase tracking-widest transition-all rounded-xl border-2 relative ${animCategory === cat.id ? 'bg-black text-[#ffdf00] border-black shadow-[2px_2px_0px_0px_#1a1a1a] z-10' : 'bg-transparent text-black/40 border-transparent hover:text-black z-0'}`}
+                                                                >
+                                                                    {cat.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+
                                                         <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
                                                             {[
-                                                                { id: 'none', label: t('links.animNone'), icon: Ban },
-                                                                { id: 'pulse', label: t('links.animPulse'), icon: Activity },
-                                                                { id: 'bounce', label: t('links.animBounce'), icon: Zap },
-                                                                { id: 'shake', label: t('links.animShake'), icon: Smartphone },
-                                                                { id: 'glow', label: t('links.animGlow'), icon: Sun },
-                                                                { id: 'wobble', label: t('links.animWobble'), icon: Waves },
-                                                                { id: 'tada', label: t('links.animTada'), icon: Sparkles },
-                                                                { id: 'jello', label: t('links.animJello'), icon: Package },
-                                                                { id: 'rubberBand', label: t('links.animRubber'), icon: PartyPopper },
-                                                                { id: 'heartbeat', label: t('links.animHeartbeat'), icon: Heart },
-                                                                { id: 'flash', label: t('links.animFlash'), icon: Bolt },
-                                                                { id: 'pendulum', label: t('links.animPendulum'), icon: RefreshCw },
-                                                                { id: 'aura', label: t('links.animAura'), icon: Disc },
-                                                                { id: 'spin', label: t('links.animSpin'), icon: RotateCw },
-                                                                { id: 'float', label: t('links.animFloat'), icon: Move },
-                                                                { id: 'neon', label: t('links.animNeon'), icon: Lightbulb },
-                                                                { id: 'spotlight', label: t('links.animSpotlight'), icon: Target },
-                                                                { id: 'rainbow', label: t('links.animRainbow'), icon: Rainbow },
-                                                                { id: 'glitch', label: t('links.animGlitch'), icon: ZapOff },
-                                                                { id: 'ping', label: t('links.animPing'), icon: Radio },
-                                                                { id: 'vibrate', label: t('links.animVibrate'), icon: Vibrate }
-                                                            ].map((anim) => {
+                                                                { id: 'none', label: t('links.animNone'), icon: Ban, cat: 'soft' },
+                                                                { id: 'pulse', label: t('links.animPulse'), icon: Activity, cat: 'soft' },
+                                                                { id: 'float', label: t('links.animFloat'), icon: Move, cat: 'soft' },
+                                                                { id: 'heartbeat', label: t('links.animHeartbeat'), icon: Heart, cat: 'soft' },
+                                                                { id: 'aura', label: t('links.animAura'), icon: Disc, cat: 'soft' },
+                                                                { id: 'glow', label: t('links.animGlow'), icon: Sun, cat: 'soft' },
+
+                                                                { id: 'bounce', label: t('links.animBounce'), icon: Zap, cat: 'dynamic' },
+                                                                { id: 'shake', label: t('links.animShake'), icon: Smartphone, cat: 'dynamic' },
+                                                                { id: 'tada', label: t('links.animTada'), icon: Sparkles, cat: 'dynamic' },
+                                                                { id: 'jello', label: t('links.animJello'), icon: Package, cat: 'dynamic' },
+                                                                { id: 'rubberBand', label: t('links.animRubber'), icon: PartyPopper, cat: 'dynamic' },
+                                                                { id: 'vibrate', label: t('links.animVibrate'), icon: Vibrate, cat: 'dynamic' },
+                                                                { id: 'wobble', label: t('links.animWobble'), icon: Waves, cat: 'dynamic' },
+
+                                                                { id: 'spin', label: t('links.animSpin'), icon: RotateCw, cat: 'special' },
+                                                                { id: 'flash', label: t('links.animFlash'), icon: Bolt, cat: 'special' },
+                                                                { id: 'pendulum', label: t('links.animPendulum'), icon: RefreshCw, cat: 'special' },
+                                                                { id: 'neon', label: t('links.animNeon'), icon: Lightbulb, cat: 'special' },
+                                                                { id: 'spotlight', label: t('links.animSpotlight'), icon: Target, cat: 'special' },
+                                                                { id: 'rainbow', label: t('links.animRainbow'), icon: Rainbow, cat: 'special' },
+                                                                { id: 'glitch', label: t('links.animGlitch'), icon: ZapOff, cat: 'special' },
+                                                                { id: 'ping', label: t('links.animPing'), icon: Radio, cat: 'special' }
+                                                            ].filter(a => a.cat === animCategory).map((anim) => {
                                                                 const AnimIcon = anim.icon;
                                                                 const isSelected = (link.highlight || 'none') === anim.id;
 
@@ -992,7 +1016,7 @@ function SortableLinkItem({
                                                                             <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[1.5px_1.5px_0px_0px_#1a1a1a] rounded-sm ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-white'}`}></div>
                                                                             {t('links.scheduleEnd')}
                                                                         </div>
-                                                                        <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px) font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[2px_2px_0px_0px_#1a1a1a] rounded-xl" />
+                                                                        <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[2px_2px_0px_0px_#1a1a1a] rounded-xl" />
                                                                     </div>
                                                                 </div>
                                                             </div>

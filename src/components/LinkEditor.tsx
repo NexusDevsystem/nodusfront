@@ -260,12 +260,6 @@ function LinkEditor({
 
   const isAnyExpanded = Object.values(expandedLinks).some(Boolean) || Object.values(expandedCollections).some(Boolean);
 
-  React.useEffect(() => {
-    if (level !== 0) return;
-    const handleTourOpenModal = () => setIsAddModalOpen(true);
-    window.addEventListener('tour-open-add-link-modal', handleTourOpenModal);
-    return () => window.removeEventListener('tour-open-add-link-modal', handleTourOpenModal);
-  }, [level]);
 
   const toggleCollection = (id: string) => {
     const isCurrentlyExpanded = !!expandedCollections[id];
@@ -493,7 +487,6 @@ function LinkEditor({
                   </Tooltip>
                   <Tooltip text={t('links.addLink')} position="top">
                     <button
-                      data-tour="add-link"
                       onClick={() => setIsAddModalOpen(true)}
                       disabled={isLimitReached}
                       className={`w-10 h-10 flex items-center justify-center border-2 transition-all hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none rounded-xl ${isLimitReached ? 'border-[#1a1a1a] bg-slate-200 text-black/30 cursor-not-allowed' : 'border-[#1a1a1a] bg-[#ffdf00] text-black shadow-[2px_2px_0px_0px_#1a1a1a]'}`}

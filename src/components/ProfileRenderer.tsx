@@ -174,11 +174,20 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             }
             .animate-pulsar { animation: pulsar 1.5s infinite !important; transition: none !important; }
 
-            @keyframes spin {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
+            @keyframes spin-3d {
+                0% { transform: perspective(1000px) rotateX(0deg) scale(1); }
+                10% { transform: perspective(1000px) rotateX(-20deg) scale(0.95); }
+                45% { transform: perspective(1000px) rotateX(190deg) translateZ(100px) scale(1.15); }
+                60% { transform: perspective(1000px) rotateX(360deg) translateZ(0) scale(1); }
+                100% { transform: perspective(1000px) rotateX(360deg) scale(1); }
             }
-            .animate-spin-slow { animation: spin 3s linear infinite !important; transition: none !important; }
+            .animate-spin-slow { 
+                animation: spin-3d 3s cubic-bezier(0.34, 1.56, 0.64, 1) infinite !important; 
+                transition: none !important; 
+                transform-style: preserve-3d !important;
+                position: relative !important;
+                z-index: 50 !important;
+            }
 
             @keyframes float {
                 0%, 100% { transform: translateY(0); }
@@ -1149,15 +1158,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 {/* Menu / Options Button (Adjusted for Banner/Perfil) */}
                 <div className={`absolute ${(['banner', 'compact'].includes(profile.headerLayout || '')) ? 'top-4' : 'top-[34px]'} left-6 z-30`}>
                     <InteractiveButton strength={10} tiltStrength={5}>
-                        <div className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 transition-all overflow-hidden cursor-pointer">
+                        <div className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-lg hover:scale-110 active:scale-90 transition-all overflow-hidden cursor-pointer relative p-[6px]">
                             <video
-                                src="https://assets.mixkit.co/videos/preview/mixkit-circular-blue-and-red-lights-spinning-on-black-background-3453-large.mp4"
+                                src="/icons/Anime_mascot_fixed_white_background_delpmaspu_.mp4"
                                 autoPlay
                                 loop
                                 muted
                                 playsInline
-                                className="w-full h-full object-cover scale-150 rotate-45"
-                                style={{ transform: 'scale(2.5) rotate(45deg)' }}
+                                className="w-full h-full object-cover rounded-full"
                             />
                         </div>
                     </InteractiveButton>
@@ -2259,21 +2267,21 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
                                                         }}
                                                     >
-                                                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                                    <div className="relative z-10 flex items-center justify-center gap-3 w-full px-6">
-                                                        <div className="w-8 h-8 flex items-center justify-center shrink-0">
-                                                            {method.type === 'pix' ? (
-                                                                <img src="/icons/pix-svgrepo-com.svg" className="w-6 h-6 opacity-90" style={{ filter: getSmartTextColor() === '#ffffff' ? 'invert(1) brightness(2)' : 'none' }} alt="Pix" />
-                                                            ) : (
-                                                                <SiPaypal size={22} className="opacity-90" />
-                                                            )}
+                                                        <div className="relative z-10 flex items-center justify-center gap-3 w-full px-6">
+                                                            <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                                                                {method.type === 'pix' ? (
+                                                                    <img src="/icons/pix-svgrepo-com.svg" className="w-6 h-6 opacity-90" style={{ filter: getSmartTextColor() === '#ffffff' ? 'invert(1) brightness(2)' : 'none' }} alt="Pix" />
+                                                                ) : (
+                                                                    <SiPaypal size={22} className="opacity-90" />
+                                                                )}
+                                                            </div>
+                                                            <span className="font-bold text-[15px] uppercase tracking-tight flex-1 text-center">
+                                                                {method.label || (method.type === 'pix' ? 'Fazer um Pix' : 'Pagar com PayPal')}
+                                                            </span>
+                                                            <div className="w-8 shrink-0" /> {/* Spacer to balance the layout */}
                                                         </div>
-                                                        <span className="font-bold text-[15px] uppercase tracking-tight flex-1 text-center">
-                                                            {method.label || (method.type === 'pix' ? 'Fazer um Pix' : 'Pagar com PayPal')}
-                                                        </span>
-                                                        <div className="w-8 shrink-0" /> {/* Spacer to balance the layout */}
-                                                    </div>
                                                     </motion.button>
                                                 </InteractiveButton>
                                             ))}

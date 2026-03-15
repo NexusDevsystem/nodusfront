@@ -174,7 +174,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
     const { t } = useTranslation();
 
     const integrations = profile.integrations || [];
-    const isAuthorized = profile?.username === 'nodus' || profile?.username === 'nexus';
+    const isAuthorized = profile?.username === 'nodus' || profile?.username === 'nexus' || profile?.username === 'nyill';
 
     const handleConnect = async (provider: string) => {
         try {

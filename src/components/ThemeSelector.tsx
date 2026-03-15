@@ -54,7 +54,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
                 key={theme.id}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="flex flex-col gap-2 group cursor-pointer relative"
+                className="flex flex-col gap-2 group cursor-pointer relative cursor-target"
                 onClick={() => handleThemeSelect(theme.id)}
             >
                 <div className={`relative aspect-[3/4] w-full border-2 transition-all duration-300 rounded-2xl overflow-hidden ${isActive ? 'border-black bg-black shadow-[4px_4px_0px_0px_#1a1a1a] -translate-x-1 -translate-y-1' : 'border-black/10 hover:border-black/30 bg-white'}`}>

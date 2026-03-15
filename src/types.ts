@@ -70,7 +70,6 @@ export interface UserProfile {
   subscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid';
   subscriptionExpiryDate?: string | null;
   stripeCustomerId?: string | null;
-  onboardingCompleted?: boolean;
   seoTitle?: string;
   seoDescription?: string;
   customCSS?: string;
@@ -94,7 +93,6 @@ export interface UserProfile {
   usernameUpdatedAt?: string | null;
   bannerBlurColor?: string | null;
   cardBackgroundColor?: string | null;
-  tutorialStatus?: 'yes' | 'no' | 'skip' | null;
   hideBranding?: boolean;
 }
 

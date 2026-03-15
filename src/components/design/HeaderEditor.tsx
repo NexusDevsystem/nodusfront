@@ -195,7 +195,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                             <button
                                 key={option.id}
                                 onClick={() => handleLayoutChange(option.id)}
-                                className={`flex flex-col items-center justify-center gap-2 p-4 border-2 transition-all flex-1 rounded-lg
+                                className={`flex flex-col items-center justify-center gap-2 p-4 border-2 transition-all flex-1 rounded-lg cursor-target
                                     ${(profile.headerLayout || 'classic') === option.id
                                         ? `border-[#1a1a1a] bg-white text-[#1a1a1a] shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] -translate-x-[1px] -translate-y-[1px]`
                                         : 'border-transparent bg-transparent text-[#1a1a1a]/20 hover:text-[#1a1a1a] hover:border-[#1a1a1a]/5'
