@@ -25,7 +25,7 @@ const UpgradeBanner: React.FC<UpgradeBannerProps> = ({ onUpgradeClick }) => {
                 {/* Upgrade Button (Minimalist) */}
                 <button
                     onClick={onUpgradeClick}
-                    className="flex items-center gap-1.5 px-3 py-1 bg-[#1a1a1a] text-white hover:bg-white hover:text-[#1a1a1a] transition-all text-[9px] font-black uppercase tracking-widest relative z-10 border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]"
+                    className="flex items-center gap-1.5 px-3 py-1 bg-[#1a1a1a] text-white hover:bg-white hover:text-[#1a1a1a] transition-all text-[9px] font-black uppercase tracking-widest relative z-10 border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] active:shadow-none active:translate-y-[1px]"
                 >
                     <CreditCard size={12} strokeWidth={3} />
                     {t('upgradeBanner.button')}

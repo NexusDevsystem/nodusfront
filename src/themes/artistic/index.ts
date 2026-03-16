@@ -8,7 +8,7 @@ export const artisticThemes: Theme[] = [
         name: 'Sketchbook',
         backgroundClass: 'bg-[#fdfaf5]', // Creamy paper
         // Button: Dashed border, hand-drawn feel
-        buttonClass: 'bg-transparent text-[#2c2c2c] border-2 border-dashed border-[#2c2c2c] hover:bg-[#2c2c2c]/5 hover:scale-[1.02] transform transition-all duration-300 w-full rounded-md py-4 px-6 flex items-center justify-between font-bold shadow-[2px_2px_0px_rgba(44,44,44,0.2)]',
+        buttonClass: 'bg-transparent text-[#2c2c2c] border-2 border-dashed border-[#2c2c2c] hover:bg-[#2c2c2c]/5 hover:scale-[1.02] transform transition-all duration-300 w-full rounded-md py-4 px-6 flex items-center justify-between font-bold shadow-[0_2px_0_0_rgba(44,44,44,0.2)]',
         buttonHex: '#2c2c2c',
         textHex: '#2c2c2c',
         textClass: 'text-[#2c2c2c] font-sans font-bold tracking-tight',
@@ -38,7 +38,7 @@ export const artisticThemes: Theme[] = [
         name: 'Pop Art',
         backgroundClass: 'bg-[#FFF200]', // Bright Yellow
         // Button: Bold comic style
-        buttonClass: 'bg-[#00AEEF] text-white border-4 border-[#1a1a1a] hover:-translate-y-1 hover:shadow-[8px_8px_0px_#1a1a1a] active:translate-y-0 active:shadow-none transition-all duration-200 w-full rounded-none py-4 px-6 flex items-center justify-between font-black uppercase shadow-[6px_6px_0px_#1a1a1a]',
+        buttonClass: 'bg-[#00AEEF] text-white border-4 border-[#1a1a1a] hover:-translate-y-1 hover:shadow-[0_8px_0_0_#1a1a1a] active:translate-y-0 active:shadow-none transition-all duration-200 w-full rounded-none py-4 px-6 flex items-center justify-between font-black uppercase shadow-[0_6px_0_0_#1a1a1a]',
         buttonHex: '#00AEEF',
         textHex: '#1a1a1a',
         textClass: 'text-black font-sans font-black uppercase tracking-tight italic',
@@ -68,7 +68,7 @@ export const artisticThemes: Theme[] = [
         name: 'Bauhaus',
         backgroundClass: 'bg-[#f4f1ea]', // Off-white
         // Button: Geometric blocks
-        buttonClass: 'bg-[#D22630] text-[#f4f1ea] border-none hover:bg-[#1a1a1a] transition-colors duration-300 w-full rounded-none py-4 px-6 flex items-center justify-between font-bold tracking-wide shadow-[5px_5px_0px_#1a1a1a]',
+        buttonClass: 'bg-[#D22630] text-[#f4f1ea] border-none hover:bg-[#1a1a1a] transition-colors duration-300 w-full rounded-none py-4 px-6 flex items-center justify-between font-bold tracking-wide shadow-[0_5px_0_0_#1a1a1a]',
         buttonHex: '#D22630',
         textHex: '#1a1a1a',
         textClass: 'text-[#1a1a1a] font-sans font-bold tracking-tighter',

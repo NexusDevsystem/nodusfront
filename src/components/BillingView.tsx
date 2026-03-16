@@ -54,8 +54,6 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
             name: t('billing.plans.monthly.name'),
             price: t('billing.plans.monthly.price'),
             priceUSD: t('billing.plans.monthly.priceUSD'),
-            trial: t('billing.plans.monthly.trial'),
-            thenPay: t('billing.plans.monthly.thenPay'),
             period: '/MÊS',
             description: t('billing.plans.monthly.description'),
             features: [
@@ -221,7 +219,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                         initial={{ scale: 0, rotate: -45 }}
                         animate={{ scale: 1, rotate: 5 }}
                         transition={{ type: "spring", damping: 12 }}
-                        className="w-32 h-32 bg-[#97cd7a] border-4 border-[#1a1a1a] shadow-[8px_8px_0px_0px_#1a1a1a] flex items-center justify-center relative z-10"
+                        className="w-32 h-32 bg-[#97cd7a] border-4 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] flex items-center justify-center relative z-10"
                     >
                         <PartyPopper size={64} className="text-black" strokeWidth={2.5} />
                     </motion.div>
@@ -240,7 +238,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                         {t('billing.upgradeComplete')}
                     </h2>
                     
-                    <p className="text-lg md:text-xl font-bold bg-[#1a1a1a] text-white inline-block px-6 py-3 mb-8 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#97cd7a] rotate-1">
+                    <p className="text-lg md:text-xl font-bold bg-[#1a1a1a] text-white inline-block px-6 py-3 mb-8 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#97cd7a] rotate-1">
                         {t('billing.accountNow')} <span className="text-[#97cd7a]">{profile.planType === 'monthly' ? t('billing.premiumMonthly') : t('billing.premiumAnnual')}</span>
                     </p>
 
@@ -250,16 +248,16 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex items-center gap-3 px-8 py-4 bg-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a]">
+                    <div className="flex items-center gap-3 px-8 py-4 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a]">
                         <ShieldCheck size={24} className="text-[#97cd7a]" strokeWidth={3} />
                         <span className="font-black uppercase tracking-widest text-xs">{t('billing.activeSubscription')}</span>
                     </div>
 
                     <button
                         onClick={() => window.location.reload()}
-                        className="group relative px-8 py-4 bg-[#ffdf00] border-2 border-[#1a1a1a] font-black text-xs uppercase tracking-[0.2em] transition-all hover:-translate-y-1 hover:-translate-x-1 active:translate-y-0 active:translate-x-0"
+                        className="group relative px-8 py-4 bg-[#ffdf00] border-2 border-[#1a1a1a] font-black text-xs uppercase tracking-[0.2em] transition-all hover:-translate-y-1 active:translate-y-0"
                     >
-                        <div className="absolute inset-0 bg-[#1a1a1a] translate-x-1 translate-y-1 -z-10 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform" />
+                        <div className="absolute inset-0 bg-[#1a1a1a] translate-y-1 -z-10 group-hover:translate-y-2 transition-transform" />
                         Acessar Studio
                     </button>
                 </div>
@@ -281,7 +279,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                         <motion.div 
                             animate={{ rotate: -360 }}
                             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                            className="absolute inset-0 m-auto w-16 h-16 border-4 border-[#ffdf00] border-t-transparent rounded-full shadow-[4px_4px_0px_0px_#1a1a1a]"
+                            className="absolute inset-0 m-auto w-16 h-16 border-4 border-[#ffdf00] border-t-transparent rounded-full shadow-[0_4px_0_0_#1a1a1a]"
                         />
                         <div className="absolute inset-0 flex items-center justify-center">
                             <motion.div
@@ -294,8 +292,8 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                     </div>
                     
                     {/* Decorative bits */}
-                    <div className="absolute -top-4 -right-4 w-8 h-8 bg-[#97cd7a] border-2 border-[#1a1a1a] rotate-12 shadow-[2px_2px_0px_0px_#1a1a1a]" />
-                    <div className="absolute -bottom-2 -left-6 w-6 h-6 bg-[#ffdf00] border-2 border-[#1a1a1a] -rotate-12 shadow-[2px_2px_0px_0px_#1a1a1a]" />
+                    <div className="absolute -top-4 -right-4 w-8 h-8 bg-[#97cd7a] border-2 border-[#1a1a1a] rotate-12 shadow-[0_2px_0_0_#1a1a1a]" />
+                    <div className="absolute -bottom-2 -left-6 w-6 h-6 bg-[#ffdf00] border-2 border-[#1a1a1a] -rotate-12 shadow-[0_2px_0_0_#1a1a1a]" />
                 </div>
 
                 <div className="max-w-sm">
@@ -319,9 +317,9 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
 
                 <button
                     onClick={() => setStatus('idle')}
-                    className="group relative px-10 py-4 bg-white border-2 border-[#1a1a1a] font-black text-[12px] uppercase tracking-widest transition-all hover:-translate-y-1 hover:-translate-x-1 active:translate-y-0 active:translate-x-0"
+                    className="group relative px-10 py-4 bg-white border-2 border-[#1a1a1a] font-black text-[12px] uppercase tracking-widest transition-all hover:-translate-y-1 active:translate-y-0"
                 >
-                    <div className="absolute inset-0 bg-[#1a1a1a] translate-x-1 translate-y-1 -z-10 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform" />
+                    <div className="absolute inset-0 bg-[#1a1a1a] translate-y-1 -z-10 group-hover:translate-y-2 transition-transform" />
                     {t('billing.backToPlans')}
                 </button>
             </div>
@@ -353,9 +351,9 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                     animate={{ opacity: 1, x: 0 }}
                     className="w-full lg:w-[340px] shrink-0"
                 >
-                    <div className="bg-white border-2 border-[#1a1a1a] shadow-[6px_6px_0px_0px_#1a1a1a] md:shadow-[8px_8px_0px_0px_#1a1a1a] rounded-[24px] md:rounded-[32px] p-6 md:p-8 h-full">
+                    <div className="bg-white border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] md:shadow-[0_8px_0_0_#1a1a1a] rounded-[24px] md:rounded-[32px] p-6 md:p-8 h-full">
                         <div className="flex items-center gap-3 mb-8">
-                            <div className="w-10 h-10 bg-[#ffdf00] border-2 border-[#1a1a1a] rounded-xl flex items-center justify-center shadow-[3px_3px_0px_0px_#1a1a1a]">
+                            <div className="w-10 h-10 bg-[#ffdf00] border-2 border-[#1a1a1a] rounded-xl flex items-center justify-center shadow-[0_3px_0_0_#1a1a1a]">
                                 <BarChart3 size={20} className="text-black" />
                             </div>
                             <h3 className="text-xl font-black uppercase tracking-tighter">Especificações</h3>
@@ -406,7 +404,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                 {/* Right Side: Plans Carousel */}
                 <div className="w-full lg:max-w-xl flex flex-col gap-4 md:gap-6">
                     {/* Unified Carousel Controls */}
-                    <div className="flex items-center justify-between bg-white border-2 border-[#1a1a1a] rounded-xl md:rounded-2xl px-4 md:px-6 py-2.5 md:py-3 shadow-[4px_4px_0px_0px_#1a1a1a]">
+                    <div className="flex items-center justify-between bg-white border-2 border-[#1a1a1a] rounded-xl md:rounded-2xl px-4 md:px-6 py-2.5 md:py-3 shadow-[0_4px_0_0_#1a1a1a]">
                         <div className="flex items-center gap-2">
                             {PLANS.map((_, i) => (
                                 <button
@@ -452,18 +450,18 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                                     const plan = PLANS[activeIndex];
                                     return (
                                         <div
-                                            className="relative bg-white p-4 md:p-12 border-2 border-[#1a1a1a] rounded-[32px] md:rounded-[40px] flex flex-col group shadow-[8px_8px_0px_0px_#1a1a1a] md:shadow-[12px_12px_0px_0px_#1a1a1a]"
+                                            className="relative bg-white p-4 md:p-12 border-2 border-[#1a1a1a] rounded-[32px] md:rounded-[40px] flex flex-col group shadow-[0_8px_0_0_#1a1a1a] md:shadow-[0_12px_0_0_#1a1a1a]"
                                         >
                                             {plan.id === 'monthly' && (
                                                 <div className="absolute -top-4 left-10 flex justify-center z-40">
-                                                    <span className="bg-[#97cd7a] text-black border-2 border-[#1a1a1a] px-5 py-2 text-[11px] font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_#1a1a1a] rounded-xl">
+                                                    <span className="bg-[#97cd7a] text-black border-2 border-[#1a1a1a] px-5 py-2 text-[11px] font-black uppercase tracking-widest shadow-[0_4px_0_0_#1a1a1a] rounded-xl">
                                                         {t('common.tip')}
                                                     </span>
                                                 </div>
                                             )}
 
                                             {plan.badge && (
-                                                <div className="absolute -top-4 left-10 px-5 py-2 bg-black text-[#ffdf00] text-[11px] font-black uppercase tracking-widest border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] flex items-center gap-2 z-40 rounded-xl">
+                                                <div className="absolute -top-4 left-10 px-5 py-2 bg-black text-[#ffdf00] text-[11px] font-black uppercase tracking-widest border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex items-center gap-2 z-40 rounded-xl">
                                                     <Star size={14} fill="currentColor" />
                                                     {plan.badge}
                                                 </div>
@@ -485,12 +483,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                                                         <span className="text-[10px] font-black text-black/20 uppercase tracking-widest">USD</span>
                                                     </div>
 
-                                                    {plan.trial && (
-                                                        <div className="mt-6 inline-flex items-center self-start px-5 py-2.5 bg-[#97cd7a] text-black text-[12px] font-black uppercase tracking-[0.1em] border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] rounded-xl">
-                                                            <Zap size={16} fill="currentColor" className="mr-2" />
-                                                            {plan.trial}
-                                                        </div>
-                                                    )}
+
                                                 </div>
                                                 <p className="text-[14px] font-bold leading-relaxed uppercase tracking-tight text-black/40 border-l-4 border-[#ffdf00] pl-6 max-w-sm">
                                                     {plan.description}
@@ -500,7 +493,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 mb-10 pt-10 border-t-2 border-black/5">
                                                 {plan.features.slice(0, 6).map((feature, idx) => (
                                                     <div key={idx} className="flex items-start gap-4">
-                                                        <div className="mt-0.5 w-6 h-6 bg-[#97cd7a] border-2 border-[#1a1a1a] flex items-center justify-center shrink-0 rounded-lg shadow-[2px_2px_0px_0px_#1a1a1a]">
+                                                        <div className="mt-0.5 w-6 h-6 bg-[#97cd7a] border-2 border-[#1a1a1a] flex items-center justify-center shrink-0 rounded-lg shadow-[0_2px_0_0_#1a1a1a]">
                                                             <Check size={12} strokeWidth={4} className="text-black" />
                                                         </div>
                                                         <span className="text-[11px] leading-tight font-black uppercase tracking-tight text-black/70">
@@ -518,8 +511,8 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                                                     ${plan.id === currentPlan
                                                         ? 'bg-[#f0f0f0] text-black/20 cursor-default border-neutral-200 shadow-none'
                                                         : plan.id === 'annual'
-                                                            ? 'bg-black text-white shadow-[8px_8px_0px_0px_#ffdf00] hover:translate-x-1 hover:translate-y-1 hover:shadow-none'
-                                                            : 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_#1a1a1a] hover:translate-x-1 hover:translate-y-1 hover:shadow-none'}
+                                                            ? 'bg-black text-white shadow-[0_8px_0_0_#ffdf00] hover:translate-y-1 hover:shadow-none'
+                                                            : 'bg-[#ffdf00] text-black shadow-[0_8px_0_0_#1a1a1a] hover:translate-y-1 hover:shadow-none'}
                                                 `}
                                             >
                                                 {plan.id === currentPlan ? (

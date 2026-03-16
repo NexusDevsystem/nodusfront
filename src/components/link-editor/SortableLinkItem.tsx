@@ -313,50 +313,50 @@ function SortableLinkItem({
     const renderLinkTags = () => (
         <>
             {link.scheduleStart && new Date(link.scheduleStart) > new Date() && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-[#97cd7a] text-[8px] font-medium text-black border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[2px_2px_0px_0px_#1a1a1a]">
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#97cd7a] text-[8px] font-medium text-black border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[0_2px_0_0_#1a1a1a]">
                     {t('links.scheduled').toUpperCase()}
                 </span>
             )}
             {link.scheduleEnd && new Date(link.scheduleEnd) < new Date() && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-red-400 text-[8px] font-medium text-black border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[3px_3px_0px_0px_#1a1a1a]">
+                <span className="shrink-0 px-1.5 py-0.5 bg-red-400 text-[8px] font-medium text-black border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[0_3px_0_0_#1a1a1a]">
                     {t('links.expired').toUpperCase()}
                 </span>
             )}
             {(link.embedType === 'youtube' || link.platform === 'youtube' || link.url?.includes('youtube.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">YOUTUBE</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">YOUTUBE</span>
             )}
             {(link.embedType === 'tiktok' || link.platform === 'tiktok' || link.url?.includes('tiktok.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">TIKTOK</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">TIKTOK</span>
             )}
             {(link.platform === 'twitch' || link.url?.includes('twitch.tv')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-[#6441a5] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">TWITCH</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#6441a5] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">TWITCH</span>
             )}
             {(link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">KICK</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">KICK</span>
             )}
             {(link.platform === 'instagram' || link.url?.includes('instagram.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-[#E1306C] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">INSTAGRAM</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#E1306C] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">INSTAGRAM</span>
             )}
             {(link.embedType === 'spotify' || link.platform === 'spotify' || link.url?.includes('spotify.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">SPOTIFY</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">SPOTIFY</span>
             )}
             {(link.embedType === 'deezer' || link.platform === 'deezer' || link.url?.includes('deezer.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">DEEZER</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">DEEZER</span>
             )}
         </>
     );
 
     const renderTypeLabel = () => {
-        if (link.type === 'header') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a] leading-none italic">{t('links.headerLabel')}</span>;
-        if (link.type === 'map' || link.title?.toLowerCase() === 'localização') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#ffdf00] text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] leading-none italic">{t('links.mapLabelMobile').toUpperCase()}</span>;
-        if (link.type === 'agenda') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] leading-none italic">{t('links.agendaTag').toUpperCase()}</span>;
+        if (link.type === 'header') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a] leading-none italic">{t('links.headerLabel')}</span>;
+        if (link.type === 'map' || link.title?.toLowerCase() === 'localização') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#ffdf00] text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[0_2px_0_0_rgba(26,26,26,1)] leading-none italic">{t('links.mapLabelMobile').toUpperCase()}</span>;
+        if (link.type === 'agenda') return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[0_2px_0_0_rgba(26,26,26,1)] leading-none italic">{t('links.agendaTag').toUpperCase()}</span>;
         if (link.type === 'mediakit') return (
-            <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] leading-none italic">
+            <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[0_2px_0_0_rgba(26,26,26,1)] leading-none italic">
                 {t('mediakit.title')?.toUpperCase() || 'MÍDIA KIT'}
             </span>
         );
-        if (link.layout === 'social' || (link.platform && !['custom', 'site', 'telefone', 'email'].includes(link.platform))) return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] leading-none italic">{t('links.mergedTag').toUpperCase()}</span>;
-        return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] leading-none italic">{t('links.linkLabel').toUpperCase()}</span>;
+        if (link.layout === 'social' || (link.platform && !['custom', 'site', 'telefone', 'email'].includes(link.platform))) return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[0_2px_0_0_rgba(26,26,26,1)] leading-none italic">{t('links.mergedTag').toUpperCase()}</span>;
+        return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-bold text-black border-2 border-[#1a1a1a] uppercase shadow-[0_2px_0_0_rgba(26,26,26,1)] leading-none italic">{t('links.linkLabel').toUpperCase()}</span>;
     };
 
     const DeleteConfirm = ({ message }: { message: string }) => (
@@ -371,8 +371,8 @@ function SortableLinkItem({
                     <div className="p-3 flex items-center justify-between gap-3 px-4">
                         <span className="text-[10px] font-medium uppercase tracking-widest text-red-600">{message}</span>
                         <div className="flex gap-2">
-                            <button onClick={() => removeLink(link.id)} className="px-3 py-1.5 bg-red-600 text-white border border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] shadow-none">{t('common.confirm')}</button>
-                            <button onClick={() => setShowDeleteConfirm(false)} className="px-3 py-1.5 bg-white text-black border border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] shadow-none">{t('common.cancel')}</button>
+                            <button onClick={() => removeLink(link.id)} className="px-3 py-1.5 bg-red-600 text-white border border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none">{t('common.confirm')}</button>
+                            <button onClick={() => setShowDeleteConfirm(false)} className="px-3 py-1.5 bg-white text-black border border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none">{t('common.cancel')}</button>
                         </div>
                     </div>
                 </motion.div>
@@ -383,7 +383,7 @@ function SortableLinkItem({
     const ToggleSwitch = () => (
         <label className="relative inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
             <input type="checkbox" checked={link.isActive} onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)} className="sr-only peer" />
-            <div className="w-12 h-6 border-2 border-[#1a1a1a] bg-white rounded-full transition-all duration-300 peer-checked:bg-[#97cd7a] shadow-[3px_3px_0px_0px_#1a1a1a] peer-active:shadow-none peer-active:translate-x-[0.5px] peer-active:translate-y-[0.5px] after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-2 after:border-[#1a1a1a] after:w-4 after:h-4 after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
+            <div className="w-12 h-6 border-2 border-[#1a1a1a] bg-white rounded-full transition-all duration-300 peer-checked:bg-[#97cd7a] shadow-[0_3px_0_0_#1a1a1a] peer-active:shadow-none peer-active:translate-y-[3px] after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-2 after:border-[#1a1a1a] after:w-4 after:h-4 after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
         </label>
     );
 
@@ -405,8 +405,8 @@ function SortableLinkItem({
                 layout
                 onDrag={() => { }}
                 onDragEnd={() => { }}
-                className={`relative border-2 border-[#1a1a1a] rounded-xl ${isExpanded ? 'bg-white shadow-[4px_4px_0px_0px_#1a1a1a]' : 'bg-white shadow-[4px_4px_0px_0px_#1a1a1a]'} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
-                whileDrag={{ scale: 1.01, boxShadow: '10px 10px 0px 0px rgba(26,26,26,1)', zIndex: 50, borderRadius: '12px' }}
+                className={`relative border-2 border-[#1a1a1a] rounded-xl ${isExpanded ? 'bg-white shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
+                whileDrag={{ scale: 1.01, boxShadow: '0px 10px 0px 0px rgba(26,26,26,1)', zIndex: 50, borderRadius: '12px' }}
                 style={{ willChange: 'transform' }}
             >
                 <div className={`transition-all duration-300 rounded-[10px] overflow-hidden ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${(isExpanded || isCollectionExpanded) ? 'bg-[#fefcbf]' : 'bg-white'}`}>
@@ -432,7 +432,7 @@ function SortableLinkItem({
                                         <div className="shrink-0">
                                             <div className="relative">
                                                 {link.image ? (
-                                                    <div className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} border-2 border-[#1a1a1a] overflow-hidden shadow-[3px_3px_0px_0px_#1a1a1a] rounded-lg`}>
+                                                    <div className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} border-2 border-[#1a1a1a] overflow-hidden shadow-[0_3px_0_0_#1a1a1a] rounded-lg`}>
                                                         <img
                                                             src={link.image}
                                                             alt="Thumbnail"
@@ -447,7 +447,7 @@ function SortableLinkItem({
                                                 ) : (
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                                                        className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} bg-white border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] flex items-center justify-center text-black hover:bg-black hover:text-white transition-all rounded-lg`}
+                                                        className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} bg-white border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] flex items-center justify-center text-black hover:bg-black hover:text-white transition-all rounded-lg`}
                                                     >
                                                         {getThumbnailIcon()}
                                                     </button>
@@ -462,13 +462,13 @@ function SortableLinkItem({
                                                 {link.title || t('links.collectionUnnamed')}
                                             </div>
                                             {(link.embedType === 'spotify' || link.platform === 'spotify' || link.url?.toLowerCase().includes('spotify.com')) && (
-                                                <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[3px_3px_0px_0px_#1a1a1a]">SPOTIFY</span>
+                                                <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[0_3px_0_0_#1a1a1a]">SPOTIFY</span>
                                             )}
                                             {(link.embedType === 'deezer' || link.platform === 'deezer' || link.url?.toLowerCase().includes('deezer.com')) && (
-                                                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[3px_3px_0px_0px_#1a1a1a]">DEEZER</span>
+                                                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[0_3px_0_0_#1a1a1a]">DEEZER</span>
                                             )}
                                             {(link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
-                                                <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[3px_3px_0px_0px_#1a1a1a]">KICK</span>
+                                                <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border-2 border-[#1a1a1a] uppercase flex items-center gap-1 shadow-[0_3px_0_0_#1a1a1a]">KICK</span>
                                             )}
                                         </div>
                                         <div className="text-[10px] md:text-[11px] text-black/70 font-semibold uppercase tracking-[0.15em] truncate leading-tight">
@@ -509,13 +509,13 @@ function SortableLinkItem({
                                                         {(link.embedType === 'spotify' || link.platform === 'spotify' || link.url?.includes('spotify.com')) && (
                                                             <div className="flex items-center gap-1.5 ml-auto">
                                                                 <SiSpotify className="text-[#1DB954]" size={14} />
-                                                                <span className="px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">SPOTIFY</span>
+                                                                <span className="px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">SPOTIFY</span>
                                                             </div>
                                                         )}
                                                         {(link.embedType === 'deezer' || link.platform === 'deezer' || link.url?.includes('deezer.com')) && (
                                                             <div className="flex items-center gap-1.5 ml-auto">
                                                                 <DeezerIcon size={14} />
-                                                                <span className="px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[3px_3px_0px_0px_#1a1a1a]">DEEZER</span>
+                                                                <span className="px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">DEEZER</span>
                                                             </div>
                                                         )}
                                                     </div>
@@ -523,7 +523,7 @@ function SortableLinkItem({
                                                         type="text"
                                                         value={link.title}
                                                         onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                                                        className="w-full font-medium text-sm text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[4px_4px_0px_0px_#1a1a1a]"
+                                                        className="w-full font-medium text-sm text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[0_4px_0_0_#1a1a1a]"
                                                         placeholder={t('links.collectionNamePlaceholder')}
                                                     />
                                                 </div>
@@ -541,10 +541,10 @@ function SortableLinkItem({
                                                                 <button
                                                                     key={opt.id}
                                                                     onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                    className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-xl transition-all ${isActive ? 'bg-[#ffdf00] shadow-[3px_3px_0px_0px_#1a1a1a] -translate-x-1 -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-x-0.5 hover:-translate-y-0.5 shadow-[2px_2px_0px_0px_#1a1a1a]'}`}
+                                                                    className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-xl transition-all ${isActive ? 'bg-[#ffdf00] shadow-none translate-y-[3px]' : 'bg-white hover:bg-[#f8f8f8] hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] shadow-[0_2px_0_0_#1a1a1a]'}`}
                                                                 >
                                                                     {isActive && (
-                                                                        <div className="absolute top-1 right-1 w-4 h-4 bg-black flex items-center justify-center border border-[#1a1a1a] rounded-md z-10 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)]">
+                                                                        <div className="absolute top-1 right-1 w-4 h-4 bg-black flex items-center justify-center border border-[#1a1a1a] rounded-md z-10 shadow-[0_1px_0_0_rgba(255,255,255,0.2)]">
                                                                             <Check size={10} strokeWidth={2.5} className="text-[#ffdf00]" />
                                                                         </div>
                                                                     )}
@@ -586,9 +586,9 @@ function SortableLinkItem({
                                                     <span>{link.clicks || 0} {t('analytics.totalClicks').toUpperCase()}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                                                    <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] text-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_#1a1a1a] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none">{t('links.moveTo')}</button>
-                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-[#1a1a1a] text-[#ffdf00] shadow-[2px_2px_0px_0px_#1a1a1a]' : 'bg-white border-[#1a1a1a] text-black hover:bg-black hover:text-[#ffdf00] shadow-[2px_2px_0px_0px_#1a1a1a] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none'}`}>{link.isArchived ? t('links.restore') : t('links.archive')}</button>
-                                                    <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_#1a1a1a] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-[#1a1a1a] text-white' : 'bg-white border border-[#1a1a1a] text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
+                                                    <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] text-black hover:bg-[#ffdf00] transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none">{t('links.moveTo')}</button>
+                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-[#1a1a1a] text-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none' : 'bg-white border-[#1a1a1a] text-black hover:bg-black hover:text-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none'}`}>{link.isArchived ? t('links.restore') : t('links.archive')}</button>
+                                                    <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-[#1a1a1a] text-white' : 'bg-white border border-[#1a1a1a] text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
                                                 </div>
                                             </div>
 
@@ -685,7 +685,7 @@ function SortableLinkItem({
                                                     <div className="space-y-4 mb-6">
                                                         <div className="space-y-1">
                                                             <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.titleLabel')}</label>
-                                                            <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border-2 border-[#1a1a1a] px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 select-text shadow-[2px_2px_0px_0px_#1a1a1a]" placeholder={t('agenda.titlePlaceholder') || 'Título da Agenda'} />
+                                                            <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border-2 border-[#1a1a1a] px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 shadow-[0_2px_0_0_#1a1a1a]" placeholder={t('agenda.titlePlaceholder') || 'Título da Agenda'} />
                                                         </div>
                                                     </div>
                                                     <AgendaEditor link={link} onEventsChange={(events) => updateLink(link.id, 'events', events)} />
@@ -701,7 +701,7 @@ function SortableLinkItem({
                                                             {link.type !== 'collection' && link.type !== 'mediakit' && (
                                                                 <div className="relative shrink-0">
                                                                     {link.image ? (
-                                                                        <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border-2 border-[#1a1a1a] bg-white relative group/img shadow-[2px_2px_0px_0px_#1a1a1a]">
+                                                                        <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border-2 border-[#1a1a1a] bg-white relative group/img shadow-[0_2px_0_0_#1a1a1a]">
                                                                             <img
                                                                                 src={link.image}
                                                                                 alt="Thumbnail"
@@ -710,17 +710,17 @@ function SortableLinkItem({
                                                                                 decoding="async"
                                                                             />
                                                                             <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                                                <button onClick={() => fileInputRef.current?.click()} className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] transition-colors">
+                                                                                <button onClick={() => fileInputRef.current?.click()} className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] transition-colors">
                                                                                     {isUploadingImage ? <Loader2 size={14} className="animate-spin" /> : <Pencil size={14} strokeWidth={2} />}
                                                                                 </button>
-                                                                                <button onClick={() => updateLink(link.id, 'image', undefined)} className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] transition-colors"><Trash2 size={14} strokeWidth={2} /></button>
+                                                                                <button onClick={() => updateLink(link.id, 'image', undefined)} className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] transition-colors"><Trash2 size={14} strokeWidth={2} /></button>
                                                                             </div>
                                                                         </div>
                                                                     ) : (
                                                                         <button
                                                                             onClick={() => fileInputRef.current?.click()}
                                                                             disabled={isUploadingImage}
-                                                                            className="w-14 h-14 md:w-16 md:h-16 bg-white border-2 border-dashed border-[#1a1a1a] flex flex-col items-center justify-center text-black hover:bg-black hover:text-[#ffdf00] transition-all group/btn shadow-[4px_4px_0px_0px_#1a1a1a] disabled:opacity-50"
+                                                                            className="w-14 h-14 md:w-16 md:h-16 bg-white border-2 border-dashed border-[#1a1a1a] flex flex-col items-center justify-center text-black hover:bg-black hover:text-[#ffdf00] transition-all group/btn shadow-[0_4px_0_0_#1a1a1a] disabled:opacity-50"
                                                                         >
                                                                             {isUploadingImage ? <Loader2 size={18} className="animate-spin mb-0.5" /> : <ImageIcon size={18} className="mb-0.5" strokeWidth={2} />}
                                                                             <span className="text-[8px] font-medium uppercase tracking-widest">{isUploadingImage ? '...' : t('links.imageLabel')}</span>
@@ -732,17 +732,17 @@ function SortableLinkItem({
                                                             <div className="flex-1 min-w-0 space-y-4">
                                                                 <div className="space-y-1">
                                                                     <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.titleLabel')}</label>
-                                                                    <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[4px_4px_0px_0px_#1a1a1a]" placeholder={link.type === 'header' ? t('links.sectionPlaceholder') : link.type === 'mediakit' ? t('mediakit.titlePlaceholder') || 'Título da Chamada' : t('links.titlePlaceholder')} />
+                                                                    <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[0_4px_0_0_#1a1a1a]" placeholder={link.type === 'header' ? t('links.sectionPlaceholder') : link.type === 'mediakit' ? t('mediakit.titlePlaceholder') || 'Título da Chamada' : t('links.titlePlaceholder')} />
                                                                 </div>
                                                                 {link.type !== 'header' && (
                                                                     <div className="space-y-1">
                                                                         <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{link.type === 'mediakit' ? t('mediakit.contactUrlLabel') || 'URL de Contato (Ex: WhatsApp, Email)' : t('links.urlLabel')}</label>
-                                                                        <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className="w-full text-xs font-medium uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[4px_4px_0px_0px_#1a1a1a]" placeholder={link.type === 'mediakit' ? t('mediakit.contactPlaceholder') || "https://wa.me/5511999999999" : "https://exemplo.com"} />
+                                                                        <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className="w-full text-xs font-medium uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[0_4px_0_0_#1a1a1a]" placeholder={link.type === 'mediakit' ? t('mediakit.contactPlaceholder') || "https://wa.me/5511999999999" : "https://exemplo.com"} />
                                                                     </div>
                                                                 )}
                                                                 <div className="space-y-1">
                                                                     <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.subtitleLabel')}</label>
-                                                                    <input type="text" value={link.subtitle || ''} onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)} className="w-full text-xs font-normal uppercase tracking-wider text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[4px_4px_0px_0px_#1a1a1a]" placeholder={link.type === 'mediakit' ? t('mediakit.subtitlePlaceholder') || 'Chamada para ação extra' : t('links.subtitlePlaceholder')} />
+                                                                    <input type="text" value={link.subtitle || ''} onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)} className="w-full text-xs font-normal uppercase tracking-wider text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[0_4px_0_0_#1a1a1a]" placeholder={link.type === 'mediakit' ? t('mediakit.subtitlePlaceholder') || 'Chamada para ação extra' : t('links.subtitlePlaceholder')} />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -764,10 +764,10 @@ function SortableLinkItem({
                                                                         <button
                                                                             key={opt.id}
                                                                             onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                            className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-xl transition-all ${isActive ? 'bg-[#97cd7a] shadow-[6px_6px_0px_0px_#1a1a1a] -translate-x-1 -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-x-0.5 hover:-translate-y-0.5 shadow-[4px_4px_0px_0px_#1a1a1a]'}`}
+                                                                            className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-xl transition-all ${isActive ? 'bg-[#97cd7a] shadow-[0_6px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-y-0.5 shadow-[0_4px_0_0_#1a1a1a]'}`}
                                                                         >
                                                                             {isActive && (
-                                                                                <div className="absolute top-1 right-1 w-4 h-4 bg-black flex items-center justify-center border border-[#1a1a1a] z-10 shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)]">
+                                                                                <div className="absolute top-1 right-1 w-4 h-4 bg-black flex items-center justify-center border border-[#1a1a1a] z-10 shadow-[0_1px_0_0_rgba(255,255,255,0.2)]">
                                                                                     <Check size={10} strokeWidth={2} className="text-[#97cd7a]" />
                                                                                 </div>
                                                                             )}
@@ -821,8 +821,8 @@ function SortableLinkItem({
                                                     {level === 0 && link.type === 'mediakit' && (
                                                         <div className="flex-1 space-y-4 pt-4 mt-2 border-t border-[#1a1a1a] border-dashed">
                                                             {!(profile.planType === 'monthly' || profile.planType === 'annual') ? (
-                                                                <div className="bg-slate-50 border-2 border-[#1a1a1a] p-8 text-center space-y-4 shadow-[3px_3px_0px_0px_#1a1a1a]">
-                                                                    <div className="w-16 h-16 bg-white border-2 border-[#1a1a1a] flex items-center justify-center mx-auto shadow-[2px_2px_0px_0px_#1a1a1a]">
+                                                                <div className="bg-slate-50 border-2 border-[#1a1a1a] p-8 text-center space-y-4 shadow-[0_3px_0_0_#1a1a1a]">
+                                                                    <div className="w-16 h-16 bg-white border-2 border-[#1a1a1a] flex items-center justify-center mx-auto shadow-[0_2px_0_0_#1a1a1a]">
                                                                         <Lock size={32} className="text-black" strokeWidth={2} />
                                                                     </div>
                                                                     <div>
@@ -831,7 +831,7 @@ function SortableLinkItem({
                                                                     </div>
                                                                     <button
                                                                         onClick={(e) => { e.stopPropagation(); /* logic to open billing */ }}
-                                                                        className="mt-2 text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] px-4 py-2 shadow-[2px_2px_0px_0px_#1a1a1a] hover:bg-[#ffdf00] transition-all active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none"
+                                                                        className="mt-2 text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] px-4 py-2 shadow-[0_2px_0_0_#1a1a1a] hover:bg-[#ffdf00] transition-all active:translate-y-[0.5px] active:shadow-none"
                                                                     >
                                                                         {t('links.seePlans')}
                                                                     </button>
@@ -847,11 +847,11 @@ function SortableLinkItem({
                                                                             <div className="flex bg-black/[0.05] rounded-sm p-0.5 mb-0.5 border border-[#1a1a1a]/5">
                                                                                 <button
                                                                                     onClick={() => updateLink(link.id, 'currency', 'BRL')}
-                                                                                    className={`px-1.5 py-0.5 text-[8px] font-bold rounded-sm transition-all ${(!link.currency || link.currency === 'BRL') ? 'bg-white text-black shadow-[5px_5px_0px_0px_rgba(26,26,26,1)]' : 'text-black/30 hover:text-black'}`}
+                                                                                    className={`px-1.5 py-0.5 text-[8px] font-bold rounded-sm transition-all ${(!link.currency || link.currency === 'BRL') ? 'bg-white text-black shadow-[0_5px_0_0_#1a1a1a]' : 'text-black/30 hover:text-black'}`}
                                                                                 >BRL</button>
                                                                                 <button
                                                                                     onClick={() => updateLink(link.id, 'currency', 'USD')}
-                                                                                    className={`px-1.5 py-0.5 text-[8px] font-bold rounded-sm transition-all ${link.currency === 'USD' ? 'bg-white text-black shadow-[5px_5px_0px_0px_rgba(26,26,26,1)]' : 'text-black/30 hover:text-black'}`}
+                                                                                    className={`px-1.5 py-0.5 text-[8px] font-bold rounded-sm transition-all ${link.currency === 'USD' ? 'bg-white text-black shadow-[0_5px_0_0_#1a1a1a]' : 'text-black/30 hover:text-black'}`}
                                                                                 >USD</button>
                                                                             </div>
                                                                         </div>
@@ -860,11 +860,11 @@ function SortableLinkItem({
                                                                             const defaultPrice = link.currency === 'USD' ? '$ 0.00' : 'R$ 0,00';
                                                                             const newPackage = { id: crypto.randomUUID(), clientId: crypto.randomUUID(), title: 'Publi Completa', subtitle: 'Ex: 1 Reel + 2 Stories', url: defaultPrice, isActive: true, layout: 'list' as const, type: 'link' as const };
                                                                             updateLink(link.id, 'children', [...(link.children || []), newPackage]);
-                                                                        }} className="px-2 py-1.5 text-[9px] bg-white border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] text-black hover:bg-[#97cd7a] uppercase font-bold tracking-widest active:translate-x-[1px] active:translate-y-[1px] active:shadow-none">+ {t('mediakit.addPackage') || t('common.add')}</button>
+                                                                        }} className="px-2 py-1.5 text-[9px] bg-white border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] text-black hover:bg-[#97cd7a] uppercase font-bold tracking-widest active:translate-y-[1px] active:shadow-none">+ {t('mediakit.addPackage') || t('common.add')}</button>
                                                                     </div>
                                                                     <div className="space-y-3">
                                                                         {(link.children || []).map((pkg, i) => (
-                                                                            <div key={pkg.id} className="flex gap-3 p-3 bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] items-center group/pkg">
+                                                                            <div key={pkg.id} className="flex gap-3 p-3 bg-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] items-center group/pkg">
                                                                                 <div className="flex-1 space-y-2">
                                                                                     <input type="text" value={pkg.title} onChange={(e) => {
                                                                                         const newChildren = [...(link.children || [])];
@@ -909,7 +909,7 @@ function SortableLinkItem({
                                                     {/* 🎬 Section 1: Animations */}
                                                     <div className="space-y-4">
                                                         <div className="flex items-center gap-2">
-                                                            <div className="p-1 px-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_#1a1a1a] rounded-lg">
+                                                            <div className="p-1 px-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-lg">
                                                                 <Zap size={10} strokeWidth={3} className="text-black" />
                                                             </div>
                                                             <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em]">{t('links.animations')}</label>
@@ -924,7 +924,7 @@ function SortableLinkItem({
                                                                 <button
                                                                     key={cat.id}
                                                                     onClick={() => setAnimCategory(cat.id)}
-                                                                    className={`flex-1 py-2 text-[8px] font-bold uppercase tracking-widest transition-all rounded-xl border-2 relative ${animCategory === cat.id ? 'bg-black text-[#ffdf00] border-black shadow-[2px_2px_0px_0px_#1a1a1a] z-10' : 'bg-transparent text-black/40 border-transparent hover:text-black z-0'}`}
+                                                                    className={`flex-1 py-2 text-[8px] font-bold uppercase tracking-widest transition-all rounded-xl border-2 relative ${animCategory === cat.id ? 'bg-black text-[#ffdf00] border-black shadow-[0_2px_0_0_#1a1a1a] z-10' : 'bg-transparent text-black/40 border-transparent hover:text-black z-0'}`}
                                                                 >
                                                                     {cat.label}
                                                                 </button>
@@ -966,8 +966,8 @@ function SortableLinkItem({
                                                                         onClick={() => updateLink(link.id, 'highlight', anim.id as any)}
                                                                         className={`flex flex-col items-center justify-center gap-2 px-2 py-3 rounded-2xl border-2 transition-all duration-200 group relative
                                                                             ${isSelected
-                                                                                ? 'bg-[#ffdf00] border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] translate-x-[-1px] translate-y-[-1px]'
-                                                                                : 'bg-white border-[#1a1a1a]/10 hover:border-[#1a1a1a] hover:shadow-[3px_3px_0px_0px_#1a1a1a] text-black/40 hover:text-black hover:translate-x-[-1px] hover:translate-y-[-1px]'}`}
+                                                                                ? 'bg-[#ffdf00] border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] translate-y-[-1px]'
+                                                                                : 'bg-white border-[#1a1a1a]/10 hover:border-[#1a1a1a] hover:shadow-[0_3px_0_0_#1a1a1a] text-black/40 hover:text-black hover:translate-y-[-1px]'}`}
                                                                     >
                                                                         <AnimIcon size={14} strokeWidth={isSelected ? 3 : 2} className={isSelected ? 'text-black' : 'text-black/30 group-hover:text-black'} />
                                                                         <span className={`text-[8px] font-bold uppercase tracking-wider ${isSelected ? 'text-black' : 'text-black/40 group-hover:text-black'}`}>
@@ -992,7 +992,7 @@ function SortableLinkItem({
                                                             <div className="flex items-center justify-between">
                                                                 <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('links.schedule')} (PRO)</label>
                                                                 {(!profile.planType || profile.planType === 'free') && (
-                                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[2px_2px_0px_0px_#1a1a1a] relative overflow-hidden rounded-lg">
+                                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-lg">
                                                                         <motion.div
                                                                             animate={{ x: ['-200%', '200%'] }}
                                                                             transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
@@ -1002,21 +1002,21 @@ function SortableLinkItem({
                                                                     </span>
                                                                 )}
                                                             </div>
-                                                            <div className={`p-4 border-2 shadow-[4px_4px_0px_0px_#1a1a1a] rounded-3xl ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
+                                                            <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-3xl ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
                                                                 <div className="grid grid-cols-1 gap-4">
                                                                     <div className="space-y-1.5">
                                                                         <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-black">
-                                                                            <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[1.5px_1.5px_0px_0px_#1a1a1a] rounded-sm ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-[#97cd7a]' : 'bg-white'}`}></div>
+                                                                            <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-[#97cd7a]' : 'bg-white'}`}></div>
                                                                             {t('links.scheduleStart')}
                                                                         </div>
-                                                                        <input type="datetime-local" value={link.scheduleStart ? new Date(new Date(link.scheduleStart).getTime() - new Date(link.scheduleStart).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleStart', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[2px_2px_0px_0px_#1a1a1a] rounded-xl" />
+                                                                        <input type="datetime-local" value={link.scheduleStart ? new Date(new Date(link.scheduleStart).getTime() - new Date(link.scheduleStart).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleStart', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl" />
                                                                     </div>
                                                                     <div className="space-y-1.5">
                                                                         <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-black">
-                                                                            <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[1.5px_1.5px_0px_0px_#1a1a1a] rounded-sm ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-white'}`}></div>
+                                                                            <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-white'}`}></div>
                                                                             {t('links.scheduleEnd')}
                                                                         </div>
-                                                                        <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[2px_2px_0px_0px_#1a1a1a] rounded-xl" />
+                                                                        <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl" />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1029,7 +1029,7 @@ function SortableLinkItem({
                                                             <div className="flex items-center justify-between">
                                                                 <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('passwordLink.toggle') || 'Proteger com Senha'} (PRO)</label>
                                                                 {(!profile.planType || profile.planType === 'free') && (
-                                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[2px_2px_0px_0px_#1a1a1a] relative overflow-hidden rounded-lg">
+                                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-lg">
                                                                         <motion.div
                                                                             animate={{ x: ['-200%', '200%'] }}
                                                                             transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
@@ -1039,12 +1039,12 @@ function SortableLinkItem({
                                                                     </span>
                                                                 )}
                                                             </div>
-                                                            <div className={`p-4 border-2 shadow-[4px_4px_0px_0px_#1a1a1a] rounded-3xl ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
+                                                            <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-3xl ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
                                                                 <div className="flex items-center gap-3 mb-4">
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => updateLink(link.id, 'isPasswordProtected', !link.isPasswordProtected)}
-                                                                        className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-colors shadow-[1.5px_1.5px_0px_0px_#1a1a1a] rounded-full ${link.isPasswordProtected ? 'bg-black' : 'bg-white'}`}
+                                                                        className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-colors shadow-[0_1.5px_0_0_#1a1a1a] rounded-full ${link.isPasswordProtected ? 'bg-black' : 'bg-white'}`}
                                                                     >
                                                                         <div className={`absolute top-[1.5px] w-3 h-3 transition-all rounded-full ${link.isPasswordProtected ? 'left-[22px] bg-[#97cd7a]' : 'left-[2px] bg-black/30'}`} />
                                                                     </button>
@@ -1058,7 +1058,7 @@ function SortableLinkItem({
                                                                         value={(link as any).linkPassword || ''}
                                                                         onChange={e => updateLink(link.id, 'linkPassword' as any, e.target.value)}
                                                                         placeholder={t('passwordLink.placeholder') || 'Digite a senha...'}
-                                                                        className="w-full text-[10px] font-medium uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[2px_2px_0px_0px_#1a1a1a] rounded-xl"
+                                                                        className="w-full text-[10px] font-medium uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl"
                                                                         autoComplete="new-password"
                                                                     />
                                                                 )}
@@ -1074,9 +1074,9 @@ function SortableLinkItem({
                                                     <span>{link.clicks || 0} {t('analytics.totalClicks').toUpperCase()}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                                                    <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] text-black hover:bg-[#ffdf00] transition-all shadow-[2px_2px_0px_0px_#1a1a1a] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none">{t('links.moveTo')}</button>
-                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-[#1a1a1a] text-[#ffdf00] shadow-[2px_2px_0px_0px_#1a1a1a]' : 'bg-white border-[#1a1a1a] text-black hover:bg-black hover:text-[#ffdf00] shadow-[2px_2px_0px_0px_#1a1a1a] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none'}`}>{link.isArchived ? t('links.restore') : t('links.archive')}</button>
-                                                    <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_#1a1a1a] active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-[#1a1a1a] text-white' : 'bg-white border border-[#1a1a1a] text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
+                                                    <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] text-black hover:bg-[#ffdf00] transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none">{t('links.moveTo')}</button>
+                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-[#1a1a1a] text-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a]' : 'bg-white border-[#1a1a1a] text-black hover:bg-black hover:text-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none'}`}>{link.isArchived ? t('links.restore') : t('links.archive')}</button>
+                                                    <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-[#1a1a1a] text-white' : 'bg-white border border-[#1a1a1a] text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
                                                 </div>
                                             </div>
                                         </div>

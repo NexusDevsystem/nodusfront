@@ -76,9 +76,8 @@ export default function PasswordLinkModal({ linkId, linkTitle, onClose, apiBaseU
                     onClick={onClose}
                 />
 
-                {/* Modal */}
                 <motion.div
-                    className="relative w-full sm:max-w-sm mx-4 bg-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] mb-4 sm:mb-0"
+                    className="relative w-full sm:max-w-sm mx-4 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] mb-4 sm:mb-0"
                     initial={{ y: 80, opacity: 0, scale: 0.95 }}
                     animate={{ y: 0, opacity: 1, scale: 1 }}
                     exit={{ y: 80, opacity: 0, scale: 0.95 }}
@@ -119,7 +118,7 @@ export default function PasswordLinkModal({ linkId, linkTitle, onClose, apiBaseU
                                     value={password}
                                     onChange={e => { setPassword(e.target.value); setError(''); }}
                                     placeholder={t('passwordLink.placeholder') || 'Digite a senha...'}
-                                    className="w-full border-2 border-[#1a1a1a] px-3 py-3 pr-10 text-[12px] font-medium tracking-widest text-black bg-white outline-none focus:bg-[#fffde7] transition-colors shadow-[2px_2px_0px_0px_#1a1a1a]"
+                                    className="w-full border-2 border-[#1a1a1a] px-3 py-3 pr-10 text-[12px] font-medium tracking-widest text-black bg-white outline-none focus:bg-[#fffde7] transition-colors shadow-[0_2px_0_0_#1a1a1a]"
                                     autoComplete="off"
                                     disabled={loading}
                                 />
@@ -149,7 +148,7 @@ export default function PasswordLinkModal({ linkId, linkTitle, onClose, apiBaseU
                             <button
                                 type="submit"
                                 disabled={loading || !password.trim()}
-                                className="w-full py-3 bg-black text-[#97cd7a] border-2 border-[#1a1a1a] text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#97cd7a] hover:text-black transition-all shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full py-3 bg-black text-[#97cd7a] border-2 border-[#1a1a1a] text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#97cd7a] hover:text-black transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {loading ? (
                                     <Loader2 size={14} strokeWidth={3} className="animate-spin" />

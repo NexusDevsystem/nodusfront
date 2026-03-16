@@ -8,7 +8,7 @@ export const socialThemes: Theme[] = [
         name: 'TikTok Creative',
         backgroundClass: 'bg-[#121212]',
         // Button: Unique Asymmetric Shape with "Glitch" Shadow
-        buttonClass: 'bg-[#1a1a1a] text-white border border-white/10 hover:bg-[#252525] transition-all duration-300 w-full py-4 px-6 flex items-center justify-between font-bold shadow-[4px_4px_0px_0px_#00f2ea,-4px_-4px_0px_0px_#ff0050] hover:shadow-[2px_2px_0px_0px_#00f2ea,-2px_-2px_0px_0px_#ff0050] hover:translate-y-[1px] rounded-tl-[24px] rounded-br-[24px] rounded-tr-[4px] rounded-bl-[4px]',
+        buttonClass: 'bg-[#1a1a1a] text-white border border-white/10 hover:bg-[#252525] transition-all duration-300 w-full py-4 px-6 flex items-center justify-between font-bold shadow-[0_4px_0_0_#00f2ea,0_-4px_0_0_#ff0050] hover:shadow-[0_2px_0_0_#00f2ea,0_-2px_0_0_#ff0050] hover:translate-y-[1px] rounded-tl-[24px] rounded-br-[24px] rounded-tr-[4px] rounded-bl-[4px]',
         buttonHex: '#1a1a1a', // Dark background for correct contrast logic (was cyan)
         textHex: '#ffffff',
         textClass: 'text-white font-sans font-bold tracking-wide antialiased',
@@ -23,7 +23,7 @@ export const socialThemes: Theme[] = [
         name: 'Twitch Ultra',
         backgroundClass: 'bg-[#0e0e10]',
         // Button: "Gamer" blocky shape (Sharp TL/BR, Round TR/BL) with heavy 3D shadow
-        buttonClass: 'bg-[#9146FF] text-white border-2 border-[#9146FF] hover:bg-[#772ce8] hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_0px_#ffffff] active:translate-y-[2px] active:shadow-none transition-all duration-150 w-full py-4 px-6 flex items-center justify-between font-bold shadow-[6px_6px_0px_0px_#000000] rounded-tr-[24px] rounded-bl-[24px] rounded-tl-[4px] rounded-br-[4px]',
+        buttonClass: 'bg-[#9146FF] text-white border-2 border-[#9146FF] hover:bg-[#772ce8] hover:translate-y-[-2px] hover:shadow-[0_4px_0_0_#ffffff] active:translate-y-[2px] active:shadow-none transition-all duration-150 w-full py-4 px-6 flex items-center justify-between font-bold shadow-[0_6px_0_0_#000000] rounded-tr-[24px] rounded-bl-[24px] rounded-tl-[4px] rounded-br-[4px]',
         buttonHex: '#9146FF',
         textHex: '#ffffff',
         textClass: 'text-white font-sans font-bold tracking-tight',

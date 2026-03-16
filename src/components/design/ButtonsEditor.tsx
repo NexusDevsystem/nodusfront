@@ -31,8 +31,8 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                             <button
                                 onClick={() => updateProfile({ buttonRoundness: roundness.id as any })}
                                 className={`group relative h-10 w-full flex items-center justify-center transition-all border-2 border-[#1a1a1a] cursor-target ${roundness.rounded} ${profile.buttonRoundness === roundness.id
-                                    ? 'bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] -translate-x-[0.5px] -translate-y-[0.5px]'
-                                    : 'bg-white shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:bg-slate-50 text-black/40 hover:text-black'
+                                    ? 'bg-[#97cd7a] shadow-[0_2px_0_0_#1a1a1a] -translate-y-[0.5px]'
+                                    : 'bg-white shadow-[0_1px_0_0_#1a1a1a] hover:shadow-none hover:bg-slate-50 text-black/40 hover:text-black'
                                     }`}
                             >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -57,7 +57,7 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                     <div className="space-y-4">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                             <div className="flex items-center gap-2 w-full sm:w-auto">
-                                <div className="relative w-10 h-10 overflow-hidden border border-[#1a1a1a] shrink-0 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] bg-white">
+                                <div className="relative w-10 h-10 overflow-hidden border border-[#1a1a1a] shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-white">
                                     <input
                                         type="color"
                                         value={profile.customButtonColor || '#000000'}
@@ -70,14 +70,14 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                                     value={profile.customButtonColor || ''}
                                     onChange={(e) => updateProfile({ customButtonColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}` })}
                                     placeholder="Hex (#000000)"
-                                    className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-sm font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] tracking-widest cursor-target"
+                                    className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-sm font-medium uppercase text-black shadow-[0_2px_0_0_#1a1a1a] tracking-widest cursor-target"
                                 />
                             </div>
                             {profile.customButtonColor && (
                                 <Tooltip text={t('common.reset')} position="top">
                                     <button
                                         onClick={() => updateProfile({ customButtonColor: null })}
-                                        className="text-[10px] text-black border border-[#1a1a1a] bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all w-full sm:w-auto cursor-target"
+                                        className="text-[10px] text-black border border-[#1a1a1a] bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[0_1px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all w-full sm:w-auto cursor-target"
                                     >
                                         {t('common.reset')}
                                     </button>
@@ -86,8 +86,8 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-[#f8f8f8] border border-[#1a1a1a] p-5 flex flex-col items-center text-center gap-3 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]">
-                        <div className="w-10 h-10 bg-white border border-[#1a1a1a] text-[#97cd7a] flex items-center justify-center shadow-[1px_1px_0px_0px_rgba(26,26,26,1)]">
+                    <div className="bg-[#f8f8f8] border border-[#1a1a1a] p-5 flex flex-col items-center text-center gap-3 shadow-[0_2px_0_0_#1a1a1a]">
+                        <div className="w-10 h-10 bg-white border border-[#1a1a1a] text-[#97cd7a] flex items-center justify-center shadow-[0_1px_0_0_#1a1a1a]">
                             <Zap size={20} className="fill-[#97cd7a]" />
                         </div>
                         <div className="space-y-1">
@@ -98,7 +98,7 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                         </div>
                         <button
                             onClick={() => updateProfile({ themeId: 'custom' })}
-                            className="mt-1 text-[9px] font-black bg-[#97cd7a] border-2 border-[#1a1a1a] text-black px-6 py-3 uppercase tracking-widest shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all active:scale-95"
+                            className="mt-1 text-[9px] font-black bg-[#97cd7a] border-2 border-[#1a1a1a] text-black px-6 py-3 uppercase tracking-widest shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none transition-all active:scale-95"
                         >
                             {t('design.enablePreview', 'Enable Preview')}
                         </button>

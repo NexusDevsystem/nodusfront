@@ -111,14 +111,14 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
     if (error) {
         return (
             <div className="w-full h-96 flex flex-col items-center justify-center text-center p-8 max-w-sm mx-auto">
-                <div className="w-16 h-16 bg-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] flex items-center justify-center mb-6 rounded-2xl">
+                <div className="w-16 h-16 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex items-center justify-center mb-6 rounded-2xl">
                     <Activity size={24} strokeWidth={3} className="text-black" />
                 </div>
                 <h3 className="text-sm font-black text-black uppercase tracking-widest">{t('common.error')}</h3>
                 <p className="text-[10px] text-black/50 font-bold uppercase tracking-widest mt-2 mb-8">{error}</p>
                 <button
                     onClick={() => window.location.reload()}
-                    className="w-full py-3 bg-black text-[#97cd7a] border-2 border-[#1a1a1a] text-[10px] font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_#1a1a1a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all rounded-xl"
+                    className="w-full py-3 bg-black text-[#97cd7a] border-2 border-[#1a1a1a] text-[10px] font-black uppercase tracking-widest shadow-[0_4px_0_0_#1a1a1a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all rounded-xl"
                 >
                     {t('common.reload')}
                 </button>
@@ -186,7 +186,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
     return (
         <div className="space-y-6 animate-fade-in w-full pb-20 max-w-4xl mx-auto px-4">
             {/* Standard Header Card */}
-            <div className="bg-white p-5 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] rounded-[32px]">
+            <div className="bg-white p-5 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-[32px]">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 border-b border-[#1a1a1a] pb-4">
                     <div className="flex items-center gap-2 text-black">
                         <BarChart3 size={16} strokeWidth={3} />
@@ -194,7 +194,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                     </div>
 
                     {/* Date Range Selector */}
-                    <div className="flex bg-white border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] overflow-hidden self-start md:self-auto rounded-xl">
+                    <div className="flex bg-white border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] overflow-hidden self-start md:self-auto rounded-xl">
                         {(['7d', '14d', '30d', '1y', 'all'] as DateRange[]).map((range) => {
                             const isLocked = (range === '14d' || range === '30d' || range === '1y' || range === 'all') && !isPro;
                             const isActive = dateRange === range;
@@ -206,7 +206,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                                     className={`
                                         relative px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-r last:border-r-0 border-[#1a1a1a]
                                         ${isActive
-                                            ? 'bg-black text-[#97cd7a]'
+                                            ? 'bg-[#ffdf00] text-black'
                                             : 'bg-white text-black hover:bg-slate-50'}
                                         ${isLocked ? 'opacity-80' : ''}
                                     `}
@@ -228,7 +228,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                     <p className="text-[10px] text-black font-bold uppercase tracking-widest opacity-60">
                         {t('analytics.tagline')}
                     </p>
-                    <div className="px-3 py-1.5 bg-black text-[#97cd7a] border-2 border-[#1a1a1a] text-[9px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_#1a1a1a] rounded-lg">
+                    <div className="px-3 py-1.5 bg-black text-[#97cd7a] border-2 border-[#1a1a1a] text-[9px] font-black uppercase tracking-widest shadow-[0_2px_0_0_#1a1a1a] rounded-lg">
                         {getRangeLabel()}
                     </div>
                 </div>
@@ -270,7 +270,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
             </div>
 
             {/* Performance Chart Section */}
-            <div className="bg-white p-5 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] rounded-[32px]">
+            <div className="bg-white p-5 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-[32px]">
                 <div className="flex items-center justify-between mb-8 border-b border-[#1a1a1a]/5 pb-4">
                     <div className="flex items-center gap-2 text-black">
                         <Activity size={16} strokeWidth={3} />
@@ -299,7 +299,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                                 return (
                                     <div key={i} className="flex-1 h-full flex flex-col justify-end items-center group relative cursor-pointer">
                                         {/* Tooltip */}
-                                        <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white border-2 border-[#1a1a1a] p-2.5 z-20 pointer-events-none whitespace-nowrap shadow-[4px_4px_0px_0px_#1a1a1a] flex flex-col gap-1.5">
+                                        <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white border-2 border-[#1a1a1a] p-2.5 z-20 pointer-events-none whitespace-nowrap shadow-[0_4px_0_0_#1a1a1a] flex flex-col gap-1.5">
                                             <p className="text-[10px] text-black font-black uppercase tracking-widest leading-none border-b-2 border-[#1a1a1a] pb-2 text-center">
                                                 {new Date(d.date).toLocaleDateString(t('common.locale', { defaultValue: 'pt-BR' }))}
                                             </p>
@@ -357,7 +357,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
             {/* Advanced Analytics Grids */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Funil de Conversão */}
-                <div className="bg-white p-5 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] flex flex-col rounded-[32px]">
+                <div className="bg-white p-5 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex flex-col rounded-[32px]">
                     <div className="flex items-center justify-between mb-8 border-b border-[#1a1a1a]/5 pb-4">
                         <div className="flex items-center gap-2 text-black">
                             <Filter size={16} strokeWidth={3} />
@@ -367,7 +367,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
 
                     <div className="flex-1 flex flex-col justify-center gap-4">
                         <div className="w-full relative group">
-                            <div className="w-full bg-[#97cd7a] border-2 border-[#1a1a1a] h-12 flex items-center justify-between px-4 shadow-[3px_3px_0px_0px_#1a1a1a] transition-transform group-hover:-translate-y-1 rounded-xl">
+                            <div className="w-full bg-[#97cd7a] border-2 border-[#1a1a1a] h-12 flex items-center justify-between px-4 shadow-[0_3px_0_0_#1a1a1a] transition-transform group-hover:-translate-y-1 rounded-xl">
                                 <span className="text-[10px] font-black text-black uppercase tracking-widest">1. {t('analytics.totalViews')}</span>
                                 <span className="text-sm font-black text-black">{summary.totalViews}</span>
                             </div>
@@ -379,7 +379,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
 
                         <div className="w-full relative flex justify-center group">
                             <div
-                                className="bg-black border-2 border-[#1a1a1a] h-12 flex items-center justify-between px-4 shadow-[3px_3px_0px_0px_#1a1a1a] transition-transform group-hover:-translate-y-1 rounded-xl"
+                                className="bg-black border-2 border-[#1a1a1a] h-12 flex items-center justify-between px-4 shadow-[0_3px_0_0_#1a1a1a] transition-transform group-hover:-translate-y-1 rounded-xl"
                                 style={{ width: summary.totalViews > 0 ? `${Math.max((summary.totalClicks / summary.totalViews) * 100, 30)}%` : '100%' }}
                             >
                                 <span className="text-[10px] font-black text-white uppercase tracking-widest truncate mr-2">2. {t('analytics.clicks')}</span>
@@ -392,7 +392,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                         </div>
 
                         <div className="w-full flex justify-center mt-2">
-                            <div className="border-2 border-[#1a1a1a] bg-white px-6 py-3 shadow-[4px_4px_0px_0px_#1a1a1a] text-center cursor-default hover:bg-black hover:text-[#97cd7a] transition-colors group rounded-2xl">
+                            <div className="border-2 border-[#1a1a1a] bg-white px-6 py-3 shadow-[0_4px_0_0_#1a1a1a] text-center cursor-default hover:bg-black hover:text-[#97cd7a] transition-colors group rounded-2xl">
                                 <p className="text-[8px] font-black uppercase tracking-widest opacity-50 group-hover:opacity-100 group-hover:text-white mb-1">{t('analytics.conversionRate')}</p>
                                 <p className="text-2xl font-black">{summary.ctr.toFixed(1)}%</p>
                             </div>
@@ -401,7 +401,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                 </div>
 
                 {/* Distribuição de Cliques */}
-                <div className="bg-white p-5 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] flex flex-col rounded-[32px]">
+                <div className="bg-white p-5 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex flex-col rounded-[32px]">
                     <div className="flex items-center justify-between mb-8 border-b border-[#1a1a1a]/5 pb-4">
                         <div className="flex items-center gap-2 text-black">
                             <PieChart size={16} strokeWidth={3} />
@@ -417,7 +417,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                         ) : (
                             <div className="space-y-6">
                                 {/* Barra Compartilhada */}
-                                <div className="h-8 w-full border-2 border-[#1a1a1a] flex shadow-[3px_3px_0px_0px_#1a1a1a] overflow-hidden rounded-xl">
+                                <div className="h-8 w-full border-2 border-[#1a1a1a] flex shadow-[0_3px_0_0_#1a1a1a] overflow-hidden rounded-xl">
                                     {enrichedTopLinks.slice(0, 3).map((link, i) => {
                                         const percent = (link.clicks / summary.totalClicks) * 100;
                                         const colors = ['bg-[#97cd7a]', 'bg-black', 'bg-slate-300'];
@@ -490,7 +490,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
             </div>
 
             {/* Top Links Section */}
-            <div className="bg-white p-5 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] rounded-[32px]">
+            <div className="bg-white p-5 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-[32px]">
                 <div className="flex items-center gap-2 mb-6 border-b border-[#1a1a1a] pb-4">
                     <Zap size={16} strokeWidth={3} className="text-black" />
                     <h3 className="text-xs font-black uppercase tracking-widest">{t('analytics.clickRanking')}</h3>
@@ -503,9 +503,9 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                         </div>
                     ) : (
                         enrichedTopLinks.map((link, i) => (
-                            <div key={link.id} className="flex items-center justify-between p-4 border-2 border-[#1a1a1a] bg-white hover:bg-[#97cd7a]/10 transition-all group shadow-[3px_3px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] rounded-2xl">
+                            <div key={link.id} className="flex items-center justify-between p-4 border-2 border-[#1a1a1a] bg-white hover:bg-[#97cd7a]/10 transition-all group shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] rounded-2xl">
                                 <div className="flex items-center gap-4 overflow-hidden">
-                                    <div className="w-8 h-8 border-2 border-[#1a1a1a] bg-black text-[#97cd7a] flex items-center justify-center text-[10px] font-black shrink-0 shadow-[2px_2px_0px_0px_#1a1a1a] rounded-lg">
+                                    <div className="w-8 h-8 border-2 border-[#1a1a1a] bg-black text-[#97cd7a] flex items-center justify-center text-[10px] font-black shrink-0 shadow-[0_2px_0_0_#1a1a1a] rounded-lg">
                                         {i + 1}
                                     </div>
                                     <div className="min-w-0">
@@ -536,12 +536,12 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
 
 function KpiCard({ label, value, icon: Icon, isActive }: any) {
     return (
-        <div className={`p-5 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] transition-all rounded-3xl ${isActive
+        <div className={`p-5 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] transition-all rounded-3xl ${isActive
             ? 'bg-[#97cd7a] text-black'
             : 'bg-white text-black'
             }`}>
             <div className="flex items-center justify-between mb-6">
-                <div className={`p-2 border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_#1a1a1a] rounded-xl ${isActive ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
+                <div className={`p-2 border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-xl ${isActive ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
                     <Icon size={16} strokeWidth={3} />
                 </div>
                 <div className="w-2 h-2 border border-[#1a1a1a] bg-black"></div>

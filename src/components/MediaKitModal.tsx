@@ -82,7 +82,7 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200, mass: 0.8 }}
-                        className={`bg-white flex flex-col pointer-events-auto border-t-2 border-x-2 border-[#1a1a1a] shadow-[0_-8px_0_0_#1a1a1a] w-full max-w-lg h-auto max-h-[85%] rounded-t-[2.5rem] relative overflow-hidden`}
+                        className={`bg-white flex flex-col pointer-events-auto border-t-2 border-x-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] w-full max-w-lg h-auto max-h-[85%] rounded-t-[2.5rem] relative overflow-hidden`}
                         style={{ willChange: 'transform' }}
                     >
                         <div className="flex-none bg-white">
@@ -96,7 +96,7 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
                                 </button>
 
                                 <div className="flex items-center gap-4 pt-1">
-                                    <div className="w-20 h-20 bg-white shadow-[4px_4px_0px_0px_#1a1a1a] rounded-2xl shrink-0 overflow-hidden border-2 border-[#1a1a1a]">
+                                    <div className="w-20 h-20 bg-white shadow-[0_4px_0_0_#1a1a1a] rounded-2xl shrink-0 overflow-hidden border-2 border-[#1a1a1a]">
                                         {profile.avatarUrl ? (
                                             <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
                                         ) : (
@@ -265,7 +265,7 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
                                 href={mediaKitLink?.url || `mailto:${profile.email || ''}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-full flex items-center justify-center gap-2 py-4 bg-[#609942] text-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] rounded-2xl font-bold text-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                                className="w-full flex items-center justify-center gap-2 py-4 bg-[#609942] text-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-2xl font-bold text-sm hover:translate-y-[1px] hover:shadow-none transition-all"
                             >
                                 <Mail size={18} />
                                 {mediaKitLink?.subtitle || t('mediakit.contactMe') || 'Entrar em Contato'}

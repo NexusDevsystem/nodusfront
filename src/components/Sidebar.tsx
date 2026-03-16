@@ -118,7 +118,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
       <div className="p-5 md:p-4 border-b-2 border-[#1a1a1a] bg-white flex flex-col gap-2 relative z-10">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-12 h-12 md:w-10 md:h-10 border-2 border-[#1a1a1a] overflow-hidden shadow-[4px_4px_0px_0px_#1a1a1a] md:shadow-[3px_3px_0px_0px_#1a1a1a] shrink-0 bg-white rounded-xl">
+            <div className="w-12 h-12 md:w-10 md:h-10 border-2 border-[#1a1a1a] overflow-hidden shadow-[0_4px_0_0_#1a1a1a] md:shadow-[0_3px_0_0_#1a1a1a] shrink-0 bg-white rounded-xl">
               <img src={userProfile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`}
                 alt="Public"
                 className="w-full h-full object-cover"
@@ -201,7 +201,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                         className={`
                         w-full flex items-center justify-between px-4 md:px-3 py-3.5 md:py-2.5 transition-all border-2 group relative
                         ${isActive
-                            ? 'bg-[#97cd7a] border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] md:shadow-[3px_3px_0px_0px_#1a1a1a] -translate-x-[0.5px] -translate-y-[0.5px] text-black rounded-xl'
+                            ? 'bg-[#ffdf00] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] md:shadow-[0_3px_0_0_#1a1a1a] -translate-y-[0.5px] text-black rounded-xl'
                             : 'bg-transparent border-transparent text-black/60 hover:text-black hover:bg-[#1a1a1a]/5 rounded-xl'}
                         ${item.disabled ? 'opacity-30 cursor-not-allowed' : ''}
                       `}
@@ -237,7 +237,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
         <div className="hidden md:flex flex-col gap-1 mb-4">
           <button
             onClick={() => setActiveTab('billing')}
-            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'billing' ? 'border-[#1a1a1a] bg-[#97cd7a] shadow-[4px_4px_0px_0px_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#1a1a1a]/5 rounded-xl'}`}
+            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'billing' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#1a1a1a]/5 rounded-xl'}`}
           >
             <CreditCard size={13} strokeWidth={2} />
             {t('sidebar.upgrade')}
@@ -246,7 +246,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
           {userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com' ? (
             <button
               onClick={() => setActiveTab('admin')}
-              className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'admin' ? 'border-[#1a1a1a] bg-[#97cd7a] shadow-[4px_4px_0px_0px_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#1a1a1a]/5'}`}
+              className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'admin' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#1a1a1a]/5'}`}
             >
               <ShieldAlert size={13} strokeWidth={2} />
               {t('sidebar.administration')}
@@ -255,7 +255,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
 
           <button
             onClick={() => setActiveTab('support')}
-            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'support' ? 'border-[#1a1a1a] bg-[#97cd7a] shadow-[4px_4px_0px_0px_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#1a1a1a]/5'}`}
+            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'support' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#1a1a1a]/5'}`}
           >
             <HelpCircle size={13} strokeWidth={2} />
             {t('sidebar.support')}
@@ -275,7 +275,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute bottom-[calc(100%+8px)] left-0 right-0 bg-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] overflow-hidden z-20 flex flex-col"
+                className="absolute bottom-[calc(100%+8px)] left-0 right-0 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] overflow-hidden z-20 flex flex-col"
               >
                 <button
                   onClick={() => { setActiveTab('billing'); setIsAccountMenuOpen(false); }}
@@ -321,7 +321,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
 
           <div
             onClick={() => isMobile && setIsAccountMenuOpen(!isAccountMenuOpen)}
-            className="p-4 md:p-3 bg-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] flex items-center justify-between group/user cursor-pointer md:cursor-default rounded-2xl"
+            className="p-4 md:p-3 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex items-center justify-between group/user cursor-pointer md:cursor-default rounded-2xl"
           >
             <div className="flex items-center gap-3 md:gap-2.5 min-w-0">
               <div className="w-10 h-10 md:w-8 md:h-8 border-2 md:border border-[#1a1a1a] overflow-hidden bg-slate-50 shrink-0">

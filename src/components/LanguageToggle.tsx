@@ -14,11 +14,11 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({ className }) => {
     };
 
     return (
-        <div className={`flex border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] ${className || ''}`}>
+        <div className={`flex border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] ${className || ''}`}>
             <button
                 onClick={() => switchTo('pt-BR')}
                 className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest transition-all ${currentLang === 'pt-BR'
-                        ? 'bg-black text-[#97cd7a]'
+                        ? 'bg-[#ffdf00] text-black'
                         : 'bg-white text-black hover:bg-black/5'
                     }`}
             >
@@ -27,7 +27,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({ className }) => {
             <button
                 onClick={() => switchTo('en')}
                 className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest border-l-2 border-[#1a1a1a] transition-all ${currentLang === 'en'
-                        ? 'bg-black text-[#97cd7a]'
+                        ? 'bg-[#ffdf00] text-black'
                         : 'bg-white text-black hover:bg-black/5'
                     }`}
             >

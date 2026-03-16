@@ -13,7 +13,7 @@ export default function MapEditor({ link, updateLink }: MapEditorProps) {
 
     return (
         <div className="space-y-4">
-            <div className="p-4 border-2 border-[#1a1a1a] bg-[#f1f1f1] shadow-[3px_3px_0px_0px_#1a1a1a] flex gap-3">
+            <div className="p-4 border-2 border-[#1a1a1a] bg-[#f1f1f1] shadow-[0_3px_0_0_#1a1a1a] flex gap-3">
                 <Info size={18} strokeWidth={2.5} className="text-black shrink-0 mt-0.5" />
                 <div>
                     <h4 className="font-bold text-[11px] text-black uppercase tracking-widest leading-none mb-1">
@@ -32,7 +32,7 @@ export default function MapEditor({ link, updateLink }: MapEditorProps) {
                         type="text"
                         value={link.title}
                         onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                        className="w-full bg-white border-2 border-[#1a1a1a] px-4 py-3 text-sm font-bold uppercase tracking-tight text-black focus:bg-white outline-none transition-all shadow-[3px_3px_0px_0px_#1a1a1a] placeholder:text-black/30"
+                        className="w-full bg-white border-2 border-[#1a1a1a] px-4 py-3 text-sm font-bold uppercase tracking-tight text-black focus:bg-white outline-none transition-all shadow-[0_3px_0_0_#1a1a1a] placeholder:text-black/30"
                         placeholder={t('mapEditor.locationInputPlaceholder', 'Ex: Main Store')}
                     />
                 </div>
@@ -42,7 +42,7 @@ export default function MapEditor({ link, updateLink }: MapEditorProps) {
                     <textarea
                         value={link.url}
                         onChange={(e) => updateLink(link.id, 'url', e.target.value)}
-                        className="w-full bg-white border-2 border-[#1a1a1a] px-4 py-3 text-sm font-medium text-black focus:bg-white outline-none transition-all shadow-[3px_3px_0px_0px_#1a1a1a] resize-none"
+                        className="w-full bg-white border-2 border-[#1a1a1a] px-4 py-3 text-sm font-medium text-black focus:bg-white outline-none transition-all shadow-[0_3px_0_0_#1a1a1a] resize-none"
                         placeholder="Rua Exemplo, 123 - São Paulo, SP"
                         rows={3}
                     />
@@ -54,7 +54,7 @@ export default function MapEditor({ link, updateLink }: MapEditorProps) {
                         type="text"
                         value={link.subtitle || ''}
                         onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)}
-                        className="w-full font-normal text-xs text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 outline-none focus:bg-white transition-colors shadow-[3px_3px_0px_0px_#1a1a1a] placeholder:text-black/30"
+                        className="w-full font-normal text-xs text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 outline-none focus:bg-white transition-colors shadow-[0_3px_0_0_#1a1a1a] placeholder:text-black/30"
                         placeholder={t('mapEditor.instructionsPlaceholder', 'Ex: Landmark, across the park')}
                     />
                 </div>
@@ -62,9 +62,9 @@ export default function MapEditor({ link, updateLink }: MapEditorProps) {
                 {/* Map Preview */}
                 {link.url && (
                     <div className="space-y-3">
-                        <div className="bg-[#fefcbf] border-2 border-[#1a1a1a] p-4 shadow-[3px_3px_0px_0px_#1a1a1a]">
+                        <div className="bg-[#fefcbf] border-2 border-[#1a1a1a] p-4 shadow-[0_3px_0_0_#1a1a1a]">
                             <div className="flex items-start gap-3">
-                                <div className="w-10 h-10 bg-white border-2 border-[#1a1a1a] flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_#1a1a1a]">
+                                <div className="w-10 h-10 bg-white border-2 border-[#1a1a1a] flex items-center justify-center shrink-0 shadow-[0_2px_0_0_#1a1a1a]">
                                     <MapPin size={20} className="text-black" />
                                 </div>
                                 <div className="flex-1 min-w-0">

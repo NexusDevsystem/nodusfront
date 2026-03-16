@@ -50,12 +50,6 @@ export default function EditorPage() {
     const [links, setLinks] = useState<LinkItem[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
 
-    // --- SYNCED STATES for LIVE PREVIEW ---
-    // We only update these AFTER the API call succeeds, as requested.
-    const [syncedProfile, setSyncedProfile] = useState<UserProfile>(profile);
-    const [syncedLinks, setSyncedLinks] = useState<LinkItem[]>([]);
-    const [syncedProducts, setSyncedProducts] = useState<Product[]>([]);
-
     const updateProfile = (updates: Partial<UserProfile>) => {
         setProfile(prev => ({ ...prev, ...updates }));
     };
@@ -113,10 +107,6 @@ export default function EditorPage() {
                 setLinks(linksData);
                 setProducts(productsData);
 
-                // Initialize synced states
-                setSyncedProfile(profileData);
-                setSyncedLinks(linksData);
-                setSyncedProducts(productsData);
 
                 // --- AUTOMATIC PAYMENT RECONCILIATION ---
                 // Trigger silently in background
@@ -219,13 +209,10 @@ export default function EditorPage() {
                 console.log('✅ [EditorPage] Auto-save profile success:', response);
                 lastSavedProfile.current = JSON.stringify(profile);
 
-                // UPDATE PREVIEW ONLY AFTER SUCCESS
-                setSyncedProfile(profile);
 
                 // Sync any backend updates (like business logic timestamps)
                 if (response.usernameUpdatedAt && response.usernameUpdatedAt !== profile.usernameUpdatedAt) {
                     setProfile(prev => ({ ...prev, usernameUpdatedAt: response.usernameUpdatedAt }));
-                    setSyncedProfile(prev => ({ ...prev, usernameUpdatedAt: response.usernameUpdatedAt }));
                 }
             } catch (error: any) {
                 console.error('❌ [EditorPage] Auto-save profile failed:', error);
@@ -267,8 +254,6 @@ export default function EditorPage() {
             try {
                 const savedLinks = await apiClient.replaceAllLinks(linksSnapshot);
 
-                // UPDATE PREVIEW ONLY AFTER SUCCESS
-                setSyncedLinks(linksSnapshot);
 
                 // Sync backend-generated IDs back to state
                 setLinks(currentLinks => {
@@ -295,8 +280,6 @@ export default function EditorPage() {
 
                     const updatedLinks = updateIds(currentLinks);
 
-                    // Sync synced state with mapped IDs too
-                    setSyncedLinks(updatedLinks);
 
                     // Also sync expanded states so editors don't close!
                     setExpandedLinks(prev => {
@@ -353,8 +336,6 @@ export default function EditorPage() {
             try {
                 const savedProducts = await apiClient.replaceAllProducts(productsSnapshot);
 
-                // UPDATE PREVIEW ONLY AFTER SUCCESS
-                setSyncedProducts(productsSnapshot);
 
                 // Sync backend-generated IDs back to state
                 setProducts(currentProducts => {
@@ -376,8 +357,6 @@ export default function EditorPage() {
                         id: idMap.get(p.id) || p.id
                     }));
 
-                    // Sync synced state with mapped IDs too
-                    setSyncedProducts(updatedProducts);
 
                     lastSavedProducts.current = JSON.stringify(updatedProducts);
                     return updatedProducts;
@@ -541,7 +520,7 @@ export default function EditorPage() {
                         </div>
                         <div className="flex gap-2 items-center">
                             {/* Sync Status - Brutalist */}
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-[#1a1a1a] bg-white shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]">
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-[#1a1a1a] bg-white shadow-[0_2px_0_0_#1a1a1a]">
                                 {(isSaving || visualSavingProfile) ? (
                                     <>
                                         <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
@@ -558,14 +537,14 @@ export default function EditorPage() {
                             {/* Share Button - Brutalist */}
                             <button
                                 onClick={() => setIsShareModalOpen(true)}
-                                className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all text-black"
+                                className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none transition-all text-black"
                             >
                                 <Share size={18} strokeWidth={2.5} />
                             </button>
 
                             {/* Preview Button - Brutalist */}
                             <button
-                                className="w-9 h-9 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+                                className="w-9 h-9 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none transition-all"
                                 onClick={() => setShowMobilePreview(!showMobilePreview)}
                             >
                                 {showMobilePreview ? <X size={18} strokeWidth={3} /> : <Eye size={18} strokeWidth={2.5} />}
@@ -628,17 +607,17 @@ export default function EditorPage() {
                             </div>
                             <div className="flex items-center gap-4">
                                 {isPreviewMode ? (
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#97cd7a] border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] shrink-0">
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#97cd7a] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] shrink-0">
                                         <Eye size={10} className="text-black" strokeWidth={3} />
                                         <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Modo Preview</span>
                                     </div>
                                 ) : (isSaving || visualSavingProfile) ? (
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] shrink-0 transition-all">
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] shrink-0 transition-all">
                                         <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
                                         <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.syncing')}</span>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] shrink-0 transition-all">
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] shrink-0 transition-all">
                                         <div className="w-1.5 h-1.5 bg-[#97cd7a] border border-[#1a1a1a]" />
                                         <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.synced')}</span>
                                     </div>
@@ -647,7 +626,7 @@ export default function EditorPage() {
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => setIsShareModalOpen(true)}
-                                        className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all text-black"
+                                        className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[1px] transition-all text-black"
                                         title="Compartilhar"
                                     >
                                         <Share size={18} strokeWidth={2.5} />
@@ -655,7 +634,7 @@ export default function EditorPage() {
                                     <a
                                         href={shareUrl}
                                         target="_blank"
-                                        className="w-9 h-9 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
+                                        className="w-9 h-9 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[1px] transition-all"
                                         title="Abrir Link Público"
                                     >
                                         <ExternalLink size={18} strokeWidth={2.5} />
@@ -842,9 +821,9 @@ export default function EditorPage() {
                                w-full min-h-full lg:py-12 transform transition-transform duration-300 origin-center flex items-center justify-center relative z-10
             `}>
                                 <Preview
-                                    profile={syncedProfile}
-                                    links={syncedLinks}
-                                    products={syncedProducts}
+                                    profile={profile}
+                                    links={links}
+                                    products={products}
                                     onShare={() => setIsShareModalOpen(true)}
                                     forcedTab={activeTab === 'shop' ? 'shop' : 'links'}
                                 />
@@ -891,10 +870,10 @@ export default function EditorPage() {
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: '100%', opacity: 0 }}
                                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                className="relative w-full md:max-w-md bg-white border-t-4 border-x-4 md:border-b-4 border-[#1a1a1a] p-8 shadow-none md:shadow-[12px_12px_0px_0px_rgba(26,26,26,1)] rounded-t-[32px] md:rounded-[32px] pointer-events-auto"
+                                className="relative w-full md:max-w-md bg-white border-t-4 border-x-4 md:border-b-4 border-[#1a1a1a] p-8 shadow-none md:shadow-[0_12px_0_0_#1a1a1a] rounded-t-[32px] md:rounded-[32px] pointer-events-auto"
                             >
                                 <div className="flex flex-col items-center text-center">
-                                    <div className="w-20 h-20 bg-[#ffdf00] border-4 border-[#1a1a1a] flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]">
+                                    <div className="w-20 h-20 bg-[#ffdf00] border-4 border-[#1a1a1a] flex items-center justify-center mb-6 shadow-[0_4px_0_0_#1a1a1a]">
                                         <AlertTriangle size={40} className="text-black fill-black" />
                                     </div>
                                     <h2 className="text-2xl font-black uppercase tracking-tighter text-black mb-4">
@@ -907,14 +886,14 @@ export default function EditorPage() {
                                     <div className="grid grid-cols-1 w-full gap-4">
                                         <button
                                             onClick={handleUpgradeToSave}
-                                            className="w-full py-4 bg-[#97cd7a] border-4 border-[#1a1a1a] text-black font-black text-xs uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 active:scale-95"
+                                            className="w-full py-4 bg-[#97cd7a] border-4 border-[#1a1a1a] text-black font-black text-xs uppercase tracking-[0.2em] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 active:scale-95"
                                         >
                                             <Check size={20} strokeWidth={4} />
                                             Fazer Upgrade e Salvar
                                         </button>
                                         <button
                                             onClick={handleDiscardChanges}
-                                            className="w-full py-4 bg-white border-4 border-[#1a1a1a] text-black font-black text-xs uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 active:scale-95"
+                                            className="w-full py-4 bg-white border-4 border-[#1a1a1a] text-black font-black text-xs uppercase tracking-[0.2em] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[2px] transition-all flex items-center justify-center gap-3 active:scale-95"
                                         >
                                             <X size={20} strokeWidth={4} />
                                             Descartar e Continuar

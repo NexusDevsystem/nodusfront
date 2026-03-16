@@ -166,7 +166,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     <div className="flex items-center gap-4 mb-2">
                         <button
                             onClick={() => setShowCollectionStep(false)}
-                            className="p-2 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-black transition-all rounded-lg shadow-[3px_3px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5"
+                            className="p-2 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-black transition-all rounded-lg shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[3px]"
                         >
                             <ChevronRight size={16} strokeWidth={3} className="rotate-180" />
                         </button>
@@ -184,7 +184,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 autoFocus
                                 type="text"
                                 placeholder={t('links.collectionNamePlaceholder')}
-                                className="w-full bg-white border-2 border-black rounded-xl py-3 px-4 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_#1a1a1a] transition-all uppercase tracking-widest"
+                                className="w-full bg-white border-2 border-black rounded-xl py-3 px-4 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:shadow-[0_4px_0_0_#1a1a1a] transition-all uppercase tracking-widest"
                                 value={collectionName}
                                 onChange={(e) => setCollectionName(e.target.value)}
                                 onKeyDown={(e) => {
@@ -227,7 +227,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                     <button
                                         key={opt.id}
                                         onClick={() => setCollectionLayout(opt.id as any)}
-                                        className={`group relative flex flex-col items-center gap-3 p-4 border-2 rounded-2xl transition-all duration-300 ${collectionLayout === opt.id ? 'border-black bg-[#ffdf00] shadow-[3px_3px_0px_0px_#1a1a1a] -translate-x-0.5 -translate-y-0.5' : 'border-black/5 bg-white hover:border-black'}`}
+                                        className={`group relative flex flex-col items-center gap-3 p-4 border-2 rounded-2xl transition-all duration-300 ${collectionLayout === opt.id ? 'border-black bg-[#ffdf00] shadow-none translate-y-[3px]' : 'border-black/5 bg-white hover:border-black hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] shadow-[0_2px_0_0_#1a1a1a]'}`}
                                     >
                                         <div className="flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
                                             {opt.icon}
@@ -244,7 +244,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 onAddCollection(collectionName, url, collectionLayout);
                                 onClose();
                             }}
-                            className="w-full py-4 bg-[#97cd7a] text-black border-2 border-black rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3"
+                            className="w-full py-4 bg-[#97cd7a] text-black border-2 border-black rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] active:translate-y-[2px] transition-all flex items-center justify-center gap-3"
                         >
                             <Plus size={18} strokeWidth={4} />
                             <span>{t('links.createCollectionButton')}</span>
@@ -260,7 +260,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     <div className="flex items-center gap-4 mb-2">
                         <button
                             onClick={() => setShowShopCollectionStep(false)}
-                            className="p-2 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-black transition-all rounded-lg shadow-[3px_3px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5"
+                            className="p-2 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-black transition-all rounded-lg shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-0.5"
                         >
                             <ChevronRight size={16} strokeWidth={3} className="rotate-180" />
                         </button>
@@ -278,7 +278,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 autoFocus
                                 type="text"
                                 placeholder={t('links.categoryPlaceholder') || 'Ex: Meus Favoritos, Nova Coleção...'}
-                                className="w-full bg-white border-2 border-black rounded-xl py-3 px-4 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_#1a1a1a] transition-all uppercase tracking-widest"
+                                className="w-full bg-white border-2 border-black rounded-xl py-3 px-4 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:shadow-[0_4px_0_0_#1a1a1a] transition-all uppercase tracking-widest"
                                 value={shopCollectionName}
                                 onChange={(e) => setShopCollectionName(e.target.value)}
                                 onKeyDown={(e) => {
@@ -303,7 +303,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 onAddProduct(shopCollectionName);
                                 onClose();
                             }}
-                                className="w-full py-4 bg-cyan-400 text-black border-2 border-black rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3"
+                            className="w-full py-4 bg-cyan-400 text-black border-2 border-black rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] active:translate-y-[2px] transition-all flex items-center justify-center gap-3"
                         >
                             <Plus size={18} strokeWidth={4} />
                             <span>{t('links.createCollectionButton')}</span>
@@ -318,7 +318,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 {/* Section: Essentials */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-6 bg-[#ffdf00] border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full mr-1"></div>
+                        <div className="w-1.5 h-6 bg-[#ffdf00] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
                         <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.suggested')}</h4>
                         <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
                     </div>
@@ -331,17 +331,17 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             { id: 'map', icon: <Store size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.mapLabel') || 'Endereço', desc: t('links.mapDesc') || 'Destaque a localização do seu negócio', color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { onAddMap(); onClose(); } },
                             { id: 'mediakit', icon: isPro ? <BarChart3 size={isMobile ? 20 : 24} strokeWidth={3} /> : <Lock size={isMobile ? 20 : 24} strokeWidth={3} className="text-black/30" />, label: t('mediakit.title') || 'Mídia Kit (PRO)', desc: t('mediakit.descShort') || 'Mostre seus números p/ marcas', color: 'bg-white', accent: isPro ? 'bg-[#97cd7a]' : 'bg-slate-100', action: isPro ? () => { onAddMediaKit(); onClose(); } : () => { /* Bloqueado */ } },
                         ].map((item) => (
-                                <button
-                                    key={item.id}
-                                    onClick={item.action}
+                            <button
+                                key={item.id}
+                                onClick={item.action}
                                 className={`
                                     group relative flex flex-col items-start p-4 md:p-5 border-2 border-black text-left transition-all duration-300
-                                    ${item.color} rounded-xl md:rounded-2xl shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 overflow-hidden
+                                    ${item.color} rounded-xl md:rounded-2xl shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] overflow-hidden
                                 `}
                             >
                                 <div className={`
                                     mb-3 md:mb-4 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center border-2 border-black ${item.accent} 
-                                    shadow-[3px_3px_0px_0px_#1a1a1a] rounded-lg md:rounded-xl group-hover:scale-110 transition-transform
+                                    shadow-[0_3px_0_0_#1a1a1a] rounded-lg md:rounded-xl group-hover:scale-110 transition-transform
                                 `}>
                                     <div className="text-black group-hover:rotate-6 transition-transform">
                                         {item.icon}
@@ -349,7 +349,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 </div>
                                 <h5 className="text-[10px] md:text-[11px] font-black text-black uppercase tracking-wider mb-1 leading-none">{item.label}</h5>
                                 {!isMobile && <p className="text-[9px] font-bold text-black/40 uppercase tracking-widest leading-none truncate w-full">{item.desc}</p>}
-                                
+
                                 <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-20 transition-opacity">
                                     <Plus size={12} strokeWidth={4} />
                                 </div>
@@ -361,7 +361,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 {/* Section: Popular Links */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-6 bg-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full mr-1"></div>
+                        <div className="w-1.5 h-6 bg-[#97cd7a] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
                         <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.popularLinks')}</h4>
                         <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
                     </div>
@@ -376,9 +376,9 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             <button
                                 key={item.id}
                                 onClick={() => { item.action(); onClose(); }}
-                                className="w-full flex items-center gap-3 p-3 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[3.5px_3.5px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 rounded-xl group"
+                                className="w-full flex items-center gap-3 p-3 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] rounded-xl group"
                             >
-                                <div className={`w-9 h-9 flex items-center justify-center shrink-0 border-2 border-black bg-slate-50 shadow-[2px_2px_0px_0px_#1a1a1a] rounded-lg group-hover:scale-105 transition-transform`}>
+                                <div className={`w-9 h-9 flex items-center justify-center shrink-0 border-2 border-black bg-slate-50 shadow-[0_2px_0_0_#1a1a1a] rounded-lg group-hover:scale-105 transition-transform`}>
                                     {item.icon}
                                 </div>
                                 <div className="flex-1 text-left min-w-0">
@@ -393,7 +393,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 {/* Section: Monetization */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-6 bg-cyan-400 border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full mr-1"></div>
+                        <div className="w-1.5 h-6 bg-cyan-400 border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
                         <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.commerce')}</h4>
                         <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
                     </div>
@@ -407,9 +407,9 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             <button
                                 key={idx}
                                 onClick={item.action}
-                                className="group flex items-center gap-5 p-5 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-1 hover:translate-y-1 rounded-2xl text-left"
+                                className="group flex items-center gap-5 p-5 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_5px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[5px] rounded-2xl text-left"
                             >
-                                <div className={`w-12 h-12 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[4px_4px_0px_0px_#1a1a1a] rounded-xl group-hover:rotate-6 transition-transform`}>
+                                <div className={`w-12 h-12 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[0_4px_0_0_#1a1a1a] rounded-xl group-hover:rotate-6 transition-transform`}>
                                     {item.icon}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -424,7 +424,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 {/* Section: Media & Integrations */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-6 bg-red-400 border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full mr-1"></div>
+                        <div className="w-1.5 h-6 bg-red-400 border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
                         <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.media')}</h4>
                         <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
                     </div>
@@ -440,9 +440,9 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             <button
                                 key={item.id}
                                 onClick={() => { onAddLink(); onClose(); }}
-                                className="group flex items-center gap-5 p-5 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-1 hover:translate-y-1 rounded-2xl text-left"
+                                className="group flex items-center gap-5 p-5 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_5px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[5px] rounded-2xl text-left"
                             >
-                                <div className={`w-12 h-12 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[3px_3px_0px_0px_#1a1a1a] rounded-xl group-hover:scale-110 transition-transform`}>
+                                <div className={`w-12 h-12 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[0_3px_0_0_#1a1a1a] rounded-xl group-hover:scale-110 transition-transform`}>
                                     {item.icon}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -458,7 +458,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 {/* Section: Contact */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-6 bg-[#ffdf00] border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full mr-1"></div>
+                        <div className="w-1.5 h-6 bg-[#ffdf00] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
                         <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.contact')}</h4>
                         <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
                     </div>
@@ -472,9 +472,9 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             <button
                                 key={item.id}
                                 onClick={() => { item.action(); onClose(); }}
-                                className="group flex items-center gap-4 p-4 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 rounded-2xl text-left"
+                                className="group flex items-center gap-4 p-4 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] rounded-2xl text-left"
                             >
-                                <div className={`w-11 h-11 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[3px_3px_0px_0px_#1a1a1a] rounded-xl group-hover:rotate-6 transition-transform`}>
+                                <div className={`w-11 h-11 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[0_3px_0_0_#1a1a1a] rounded-xl group-hover:rotate-6 transition-transform`}>
                                     {item.icon}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -489,7 +489,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 {/* Section: Social Profiles */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-6 bg-indigo-400 border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full mr-1"></div>
+                        <div className="w-1.5 h-6 bg-indigo-400 border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
                         <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.social')}</h4>
                         <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
                     </div>
@@ -507,16 +507,16 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             <button
                                 key={item.id}
                                 onClick={() => { onAddSocial(item.id); onClose(); }}
-                                className="group flex flex-col items-center justify-center gap-3 p-6 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-1 hover:translate-y-1 rounded-2xl"
+                                className="group flex flex-col items-center justify-center gap-3 p-6 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] rounded-2xl"
                             >
-                                <div className={`w-12 h-12 flex items-center justify-center border-2 border-black ${item.accent} shadow-[3px_3px_0px_0px_#1a1a1a] rounded-xl group-hover:scale-110 group-hover:-rotate-3 transition-transform`}>
+                                <div className={`w-12 h-12 flex items-center justify-center border-2 border-black ${item.accent} shadow-[0_3px_0_0_#1a1a1a] rounded-xl group-hover:scale-110 group-hover:-rotate-3 transition-transform`}>
                                     {item.icon}
                                 </div>
                                 <span className="text-[9px] font-black text-black uppercase tracking-widest leading-none">{item.title}</span>
                             </button>
                         ))}
                     </div>
-                    
+
 
                 </div>
             </div>
@@ -544,14 +544,14 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 {/* Header Section - Refined Design */}
                 <div className="flex items-center justify-between px-6 pt-10 pb-6 md:px-10 md:pt-10 md:pb-8 shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-1.5 h-6 bg-[#97cd7a] border-2 border-black shadow-[2px_2px_0px_0px_#1a1a1a] rounded-full"></div>
+                         <div className="w-1.5 h-6 bg-[#97cd7a] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full"></div>
                         <h2 className="text-xl md:text-2xl font-black text-black uppercase tracking-tight leading-none">
                             {t('links.addElement')}
                         </h2>
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-10 h-10 flex items-center justify-center text-black bg-white border-2 border-black transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none shadow-[4px_4px_0px_0px_#1a1a1a] rounded-xl"
+                         className="w-10 h-10 flex items-center justify-center text-black bg-white border-2 border-black transition-all active:translate-y-[2px] active:shadow-none shadow-[0_4px_0_0_#1a1a1a] rounded-xl"
                     >
                         <X size={20} strokeWidth={4} />
                     </button>
@@ -570,8 +570,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
                                 className={`
-                                    w-full bg-slate-50 border-2 border-black rounded-xl py-3 md:py-3.5 pl-10 pr-20 text-xs font-bold text-black
-                                    focus:outline-none focus:ring-0 focus:bg-white focus:shadow-[4px_4px_0px_0px_#1a1a1a] transition-all
+                                     w-full bg-slate-50 border-2 border-black rounded-xl py-3 md:py-3.5 pl-10 pr-20 text-xs font-bold text-black
+                                     focus:outline-none focus:ring-0 focus:bg-white focus:shadow-[0_4px_0_0_#1a1a1a] transition-all
                                     placeholder:text-black/20 placeholder:font-bold uppercase tracking-[0.05em]
                                 `}
                             />
@@ -584,7 +584,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: 10 }}
                                             type="submit"
-                                            className="flex items-center gap-2 px-3 py-1.5 bg-[#ffdf00] border-2 border-black shadow-[3px_3px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all rounded-lg"
+                                             className="flex items-center gap-2 px-3 py-1.5 bg-[#ffdf00] border-2 border-black shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-0.5 transition-all rounded-lg"
                                         >
                                             <span className="text-black">{detectedInfo.icon}</span>
                                             <Plus size={16} strokeWidth={4} className="text-black" />

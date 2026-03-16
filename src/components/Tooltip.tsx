@@ -96,7 +96,7 @@ export default function Tooltip({ children, text, position = 'bottom', className
                         left: tooltipLeft,
                         transform: transform,
                     }}
-                    className="z-[999999] px-2.5 py-1.5 bg-white text-black text-[9px] font-black uppercase tracking-widest whitespace-nowrap border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] pointer-events-none animate-in fade-in zoom-in-95 duration-200"
+                    className="z-[999999] px-2.5 py-1.5 bg-white text-black text-[9px] font-black uppercase tracking-widest whitespace-nowrap border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] pointer-events-none animate-in fade-in zoom-in-95 duration-200"
                 >
                     {text}
                 </div>,

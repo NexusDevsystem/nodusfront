@@ -63,7 +63,7 @@ const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative w-full max-w-2xl bg-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] flex flex-col overflow-hidden"
+                        className="relative w-full max-w-2xl bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex flex-col overflow-hidden"
                     >
                         {/* Header */}
                         <div className="p-6 border-b-2 border-[#1a1a1a] flex items-center justify-between bg-[#ffdf00]">
@@ -73,7 +73,7 @@ const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                             </div>
                             <button
                                 onClick={onClose}
-                                className="w-10 h-10 border-2 border-[#1a1a1a] bg-white flex items-center justify-center hover:bg-black hover:text-white transition-all shadow-[3px_3px_0px_0px_#1a1a1a] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+                                className="w-10 h-10 border-2 border-[#1a1a1a] bg-white flex items-center justify-center hover:bg-black hover:text-white transition-all shadow-[0_3px_0_0_#1a1a1a] active:shadow-none active:translate-y-[2px]"
                             >
                                 <X size={20} strokeWidth={3} />
                             </button>
@@ -121,7 +121,7 @@ const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
                                 <button
                                     onClick={handleConfirm}
                                     disabled={isProcessing}
-                                    className="flex-1 py-4 bg-[#97cd7a] border-2 border-[#1a1a1a] font-black uppercase tracking-widest text-black shadow-[4px_4px_0px_0px_#1a1a1a] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:bg-black active:text-[#97cd7a] transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="flex-1 py-4 bg-[#97cd7a] border-2 border-[#1a1a1a] font-black uppercase tracking-widest text-black shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[4px] active:shadow-none active:bg-black active:text-[#97cd7a] transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isProcessing ? (
                                         <div className="w-5 h-5 border-2 border-[#1a1a1a] border-t-transparent rounded-full animate-spin" />

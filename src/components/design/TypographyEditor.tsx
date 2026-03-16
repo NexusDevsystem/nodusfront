@@ -18,7 +18,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
         <div className="space-y-5 animate-fade-in pb-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
                 {/* Advanced Controls */}
-                <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] h-full rounded-3xl">
+                <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] h-full rounded-3xl">
                     <div className="flex items-center gap-2 mb-4 text-black border-b border-[#1a1a1a] pb-2">
                         <Zap size={16} strokeWidth={3} />
                         <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.fineAdjustments')}</h3>
@@ -31,7 +31,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                             <div className="space-y-2.5">
                                 <div className="flex items-center justify-between px-1">
                                     <span className="text-[10px] font-medium text-black uppercase tracking-widest">{t('design.titleFontSize', 'Title Font Size')}</span>
-                                    <span className="text-[10px] font-medium text-black bg-[#97cd7a] px-2 py-1 border border-[#1a1a1a] uppercase shadow-[1.5px_1.5px_0px_0px_rgba(26,26,26,1)] rounded-lg">
+                                    <span className="text-[10px] font-medium text-black bg-[#97cd7a] px-2 py-1 border border-[#1a1a1a] uppercase shadow-[0_1.5px_0_0_#1a1a1a] rounded-lg">
                                         {profile.fontSize || 16}PX
                                     </span>
                                 </div>
@@ -58,7 +58,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                             <div className="space-y-2.5">
                                 <div className="flex items-center justify-between px-1">
                                     <span className="text-[10px] font-medium text-black uppercase tracking-widest">{t('design.subtitleFontSize', 'Subtitle Font Size')}</span>
-                                    <span className="text-[10px] font-medium text-black bg-[#97cd7a] px-2 py-1 border border-[#1a1a1a] uppercase shadow-[1.5px_1.5px_0px_0px_rgba(26,26,26,1)] rounded-lg">
+                                    <span className="text-[10px] font-medium text-black bg-[#97cd7a] px-2 py-1 border border-[#1a1a1a] uppercase shadow-[0_1.5px_0_0_#1a1a1a] rounded-lg">
                                         {profile.bioFontSize || 16}PX
                                     </span>
                                 </div>
@@ -86,7 +86,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                             {/* Font Weight */}
                             <div className="space-y-2">
                                 <span className="text-[9px] font-medium text-black uppercase tracking-widest block px-1">{t('design.fontWeight')}</span>
-                                <div className="flex bg-white border border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] overflow-hidden rounded-xl">
+                                <div className="flex bg-white border border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] overflow-hidden rounded-xl">
                                     {[
                                         { label: t('design.thin'), val: '100' },
                                         { label: t('design.regular'), val: '400' },
@@ -120,7 +120,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                             if (updateProfile) updateProfile({ fontItalic: val });
                                             else onChange({ ...profile, fontItalic: val });
                                         }}
-                                        className={`flex items-center justify-between px-3 py-2 border border-[#1a1a1a] transition-all w-full shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] rounded-xl ${profile.fontItalic
+                                        className={`flex items-center justify-between px-3 py-2 border border-[#1a1a1a] transition-all w-full shadow-[0_2px_0_0_#1a1a1a] rounded-xl ${profile.fontItalic
                                             ? 'bg-[#1a1a1a] text-[#97cd7a]'
                                             : 'bg-white text-black hover:bg-slate-50'
                                             }`}
@@ -140,9 +140,9 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                 </div>
 
                 {/* Colors Section */}
-                <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] h-full rounded-3xl">
+                <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] h-full rounded-3xl">
                     <div className="flex items-center gap-2 mb-4 text-black border-b border-[#1a1a1a] pb-2">
-                        <div className="w-4 h-4 border border-[#1a1a1a] bg-[#97cd7a] shadow-[1px_1px_0px_0px_rgba(26,26,26,1)]"></div>
+                        <div className="w-4 h-4 border border-[#1a1a1a] bg-[#97cd7a] shadow-[0_1.5px_0_0_#1a1a1a]"></div>
                         <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.textColors')}</h3>
                     </div>
 
@@ -151,7 +151,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                         <div className="space-y-2">
                             <span className="text-[9px] font-medium text-black uppercase tracking-widest block px-1">{t('design.headersAndText')}</span>
                             <div className="flex items-center gap-2">
-                                <div className="relative w-10 h-10 overflow-hidden border border-[#1a1a1a] shrink-0 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] bg-white rounded-xl">
+                                <div className="relative w-10 h-10 overflow-hidden border border-[#1a1a1a] shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-white rounded-xl">
                                     <input
                                         type="color"
                                         value={profile.customTextColor || '#000000'}
@@ -172,7 +172,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                         else onChange({ ...profile, customTextColor: val });
                                     }}
                                     placeholder="#000000"
-                                    className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] tracking-widest rounded-xl"
+                                    className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium uppercase text-black shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-xl"
                                 />
                             </div>
                         </div>
@@ -181,7 +181,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                         <div className="space-y-2">
                             <span className="text-[9px] font-medium text-black uppercase tracking-widest block px-1">{t('design.collectionTitle')}</span>
                             <div className="flex items-center gap-2">
-                                <div className="relative w-10 h-10 overflow-hidden border border-[#1a1a1a] shrink-0 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] bg-white rounded-xl">
+                                <div className="relative w-10 h-10 overflow-hidden border border-[#1a1a1a] shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-white rounded-xl">
                                     <input
                                         type="color"
                                         value={profile.customCollectionTextColor || profile.customTextColor || '#000000'}
@@ -202,7 +202,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                         else onChange({ ...profile, customCollectionTextColor: val });
                                     }}
                                     placeholder={profile.customTextColor || "#000000"}
-                                    className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] tracking-widest rounded-xl"
+                                    className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium uppercase text-black shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-xl"
                                 />
                             </div>
                         </div>
@@ -211,7 +211,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                         <div className="space-y-2">
                             <span className="text-[9px] font-medium text-black uppercase tracking-widest block px-1">{t('design.buttonText')}</span>
                             <div className="flex items-center gap-2">
-                                <div className="relative w-10 h-10 overflow-hidden border border-[#1a1a1a] shrink-0 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] bg-white rounded-xl">
+                                <div className="relative w-10 h-10 overflow-hidden border border-[#1a1a1a] shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-white rounded-xl">
                                     <input
                                         type="color"
                                         value={profile.customButtonTextColor || '#ffffff'}
@@ -232,7 +232,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                         else onChange({ ...profile, customButtonTextColor: val });
                                     }}
                                     placeholder="#FFFFFF"
-                                    className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium uppercase text-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] tracking-widest rounded-xl"
+                                    className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium uppercase text-black shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-xl"
                                 />
                             </div>
                         </div>
@@ -242,7 +242,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
             </div>
 
             {/* Font Library */}
-            <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] mt-2 rounded-3xl">
+            <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] mt-2 rounded-3xl">
                 <div className="flex items-center gap-2 mb-4 text-black border-b border-[#1a1a1a] pb-2">
                     <Type size={16} strokeWidth={3} />
                     <h3 className="text-xs font-medium uppercase tracking-widest text-black">{t('design.fontLibrary')}</h3>
@@ -261,8 +261,8 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                     else onChange({ ...profile, fontFamily: font.family });
                                 }}
                                 className={`flex items-center justify-between p-2.5 border-2 transition-all text-left relative group rounded-2xl cursor-target ${isSelected
-                                    ? 'border-[#1a1a1a] bg-[#97cd7a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'
-                                    : 'border-[#1a1a1a] bg-white hover:bg-[#1a1a1a] hover:text-[#97cd7a] shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none'
+                                    ? 'border-[#1a1a1a] bg-[#97cd7a] shadow-[0_2px_0_0_#1a1a1a]'
+                                    : 'border-[#1a1a1a] bg-white hover:bg-[#1a1a1a] hover:text-[#97cd7a] shadow-[0_1.5px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none'
                                     }`}
                             >
                                 <div className="flex items-center gap-3 min-w-0 flex-1">

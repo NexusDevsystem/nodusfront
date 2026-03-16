@@ -17,7 +17,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, title, className = '' 
 
     if (isPlaying) {
         return (
-            <div className={`w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] aspect-video ${className}`}>
+            <div className={`w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] aspect-video ${className}`}>
                 <iframe
                     width="100%"
                     height="100%"
@@ -33,7 +33,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, title, className = '' 
 
     return (
         <div
-            className={`relative w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] aspect-video group cursor-pointer ${className}`}
+            className={`relative w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] aspect-video group cursor-pointer ${className}`}
             onClick={() => setIsPlaying(true)}
         >
             {/* Thumbnail */}

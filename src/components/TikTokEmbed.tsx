@@ -29,7 +29,7 @@ const TikTokEmbed: React.FC<TikTokEmbedProps> = ({ url, title, videoUrl, classNa
     // If we have a direct videoUrl, use a clean native player
     if (videoUrl && !hasError) {
         return (
-            <div className={`relative w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] aspect-[9/16] max-h-[650px] bg-black group rounded-2xl ${className}`}>
+            <div className={`relative w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] aspect-[9/16] max-h-[650px] bg-black group rounded-2xl ${className}`}>
                 <video
                     ref={videoRef}
                     src={videoUrl}
@@ -64,7 +64,7 @@ const TikTokEmbed: React.FC<TikTokEmbedProps> = ({ url, title, videoUrl, classNa
     // Fallback to Iframe if direct videoUrl is not available or fails
     // FALLBACK: Standard TikTok Embed
     return (
-        <div className={`relative w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] aspect-[9/16] max-h-[650px] bg-white group rounded-2xl ${className}`}>
+        <div className={`relative w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] aspect-[9/16] max-h-[650px] bg-white group rounded-2xl ${className}`}>
             <iframe
                 src={`https://www.tiktok.com/embed/v2/${videoId}`}
                 className="absolute inset-0 w-full h-full border-0"

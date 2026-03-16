@@ -157,7 +157,7 @@ export const modernAgencyTheme: Theme = {
     backgroundClass: 'bg-white',
     solidColor: '#ffffff',
     buttonClass: 'bg-black text-white hover:bg-[#ff4d00] rounded-full font-bold uppercase tracking-tighter px-8 border-none transition-colors duration-300',
-    cardClass: 'bg-slate-50 border-2 border-[#1a1a1a] rounded-xl shadow-[4px_4px_0px_0px_#1a1a1a] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#1a1a1a] transition-all text-black',
+    cardClass: 'bg-slate-50 border-2 border-[#1a1a1a] rounded-xl shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a] transition-all text-black',
     textClass: 'text-black font-black uppercase tracking-tighter',
     avatarBorder: 'border-4 border-[#1a1a1a] rounded-full',
     isPro: true,

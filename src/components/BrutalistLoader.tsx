@@ -15,7 +15,7 @@ export default function BrutalistLoader({
 }: BrutalistLoaderProps) {
     return (
         <div className="fixed inset-0 bg-[#f0f0f0] z-[9999] flex items-center justify-center p-6">
-            <div className="bg-white border-2 border-[#1a1a1a] p-10 shadow-[4px_4px_0px_0px_#1a1a1a] w-full max-w-sm relative overflow-hidden">
+            <div className="bg-white border-2 border-[#1a1a1a] p-10 shadow-[0_4px_0_0_#1a1a1a] w-full max-w-sm relative overflow-hidden">
                 {/* Decorative Corner */}
                 <div className="absolute top-0 right-0 w-12 h-12 bg-black flex items-center justify-center rotate-45 translate-x-6 -translate-y-6">
                     <Plus size={16} className="text-white -rotate-45" />
@@ -24,7 +24,7 @@ export default function BrutalistLoader({
                 <div className="flex flex-col items-center">
                     {/* Brutalist Logo */}
                     <div className="mb-8 flex flex-col items-center">
-                        <div className="px-4 py-2 bg-black text-white text-3xl font-medium uppercase tracking-tighter transform -rotate-1 shadow-[4px_4px_0px_0px_#97cd7a]">
+                        <div className="px-4 py-2 bg-black text-white text-3xl font-medium uppercase tracking-tighter transform -rotate-1 shadow-[0_4px_0_0_#97cd7a]">
                             Nodus
                         </div>
                         <div className="h-1.5 w-12 bg-black mt-3"></div>
@@ -41,7 +41,7 @@ export default function BrutalistLoader({
                     </div>
 
                     {/* Brutalist Progress Bar Container */}
-                    <div className="w-full h-8 border-2 border-[#1a1a1a] bg-white relative overflow-hidden shadow-[3px_3px_0px_0px_#1a1a1a]">
+                    <div className="w-full h-8 border-2 border-[#1a1a1a] bg-white relative overflow-hidden shadow-[0_3px_0_0_#1a1a1a]">
                         {/* Progress Fill */}
                         <motion.div
                             initial={{ width: 0 }}

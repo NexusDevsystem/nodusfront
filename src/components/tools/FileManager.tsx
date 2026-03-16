@@ -149,7 +149,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
                 {/* 1. Upload Section */}
                 <div className="xl:col-span-1 space-y-4">
-                    <div className="bg-white p-6 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] rounded-2xl">
+                    <div className="bg-white p-6 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-2xl">
                         <div className="flex items-center gap-2 mb-4 border-b border-[#1a1a1a] pb-2">
                             <Upload size={16} strokeWidth={3} className="text-black" />
                             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black">{t('files.uploadTitle')}</h3>
@@ -162,7 +162,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                             onDragOver={handleDrag}
                             onDrop={handleDrop}
                         >
-                            <div className={`w-12 h-12 flex items-center justify-center border-2 border-[#1a1a1a] ${dragActive || isUploading ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'} shadow-[3px_3px_0px_0px_#1a1a1a] transition-colors rounded-lg`}>
+                            <div className={`w-12 h-12 flex items-center justify-center border-2 border-[#1a1a1a] ${dragActive || isUploading ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'} shadow-[0_3px_0_0_#1a1a1a] transition-colors rounded-lg`}>
                                 {isUploading ? <Loader2 size={24} className="animate-spin" strokeWidth={3} /> : <Upload size={24} strokeWidth={3} />}
                             </div>
 
@@ -176,7 +176,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                             {!isUploading && (
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="w-full py-2 bg-black text-white text-[9px] font-black uppercase tracking-[0.2em] hover:bg-[#97cd7a] hover:text-black transition-all shadow-[4px_4px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] rounded-xl"
+                                    className="w-full py-2 bg-black text-white text-[9px] font-black uppercase tracking-[0.2em] hover:bg-[#97cd7a] hover:text-black transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[1px] rounded-xl"
                                 >
                                     {t('files.openFiles')}
                                 </button>
@@ -193,7 +193,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                     </div>
 
                     {/* Pro Tip Card */}
-                    <div className="bg-[#ffdf00] p-4 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] rounded-2xl">
+                    <div className="bg-[#ffdf00] p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-2xl">
                         <div className="flex gap-3">
                             <FileText size={16} strokeWidth={3} className="shrink-0" />
                             <div>
@@ -206,7 +206,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
 
                 {/* 2. Files List Section */}
                 <div className="xl:col-span-2">
-                    <div className="bg-white border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] overflow-hidden flex flex-col min-h-[400px] rounded-2xl">
+                    <div className="bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] overflow-hidden flex flex-col min-h-[400px] rounded-2xl">
                         <div className="p-4 border-b-2 border-[#1a1a1a] flex justify-between items-center bg-white sticky top-0 z-10">
                             <div className="flex items-center gap-2">
                                 <FileIcon size={16} strokeWidth={3} />
@@ -239,7 +239,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                                 className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:bg-slate-50 transition-colors group relative"
                                             >
                                                 {/* File Icon / Preview Container */}
-                                                <div className="w-9 h-9 sm:w-10 sm:h-10 border-2 border-[#1a1a1a] bg-white flex items-center justify-center shrink-0 shadow-[3px_3px_0px_0px_#1a1a1a] group-hover:bg-[#97cd7a] transition-colors overflow-hidden rounded-lg">
+                                                <div className="w-9 h-9 sm:w-10 sm:h-10 border-2 border-[#1a1a1a] bg-white flex items-center justify-center shrink-0 shadow-[0_3px_0_0_#1a1a1a] group-hover:bg-[#97cd7a] transition-colors overflow-hidden rounded-lg">
                                                     {file.filename.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
                                                         <img src={file.url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                                     ) : getFileIcon(file.filename)}
@@ -260,7 +260,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                                             <Tooltip text={t('files.confirmDelete')} position="top">
                                                                 <button
                                                                     onClick={() => handleDelete(file.filename, true)}
-                                                                    className="w-8 h-8 flex items-center justify-center bg-red-600 text-white border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] rounded-lg"
+                                                                    className="w-8 h-8 flex items-center justify-center bg-red-600 text-white border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[1px] rounded-lg"
                                                                 >
                                                                     <Check size={14} strokeWidth={4} />
                                                                 </button>
@@ -268,7 +268,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                                             <Tooltip text={t('files.cancel')} position="top">
                                                                 <button
                                                                     onClick={() => setDeletingFilename(null)}
-                                                                    className="w-8 h-8 flex items-center justify-center bg-white text-black border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] rounded-lg"
+                                                                    className="w-8 h-8 flex items-center justify-center bg-white text-black border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[1px] rounded-lg"
                                                                 >
                                                                     <X size={14} strokeWidth={4} />
                                                                 </button>
@@ -280,8 +280,8 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                                                 <button
                                                                     onClick={() => copyLink(file.url, file.filename)}
                                                                     className={`w-8 h-8 flex items-center justify-center border-2 border-[#1a1a1a] transition-all ${copiedId === file.filename
-                                                                        ? 'bg-[#97cd7a] shadow-none translate-x-[1px] translate-y-[1px]'
-                                                                        : 'bg-white hover:bg-black hover:text-white shadow-[3px_3px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] rounded-lg'
+                                                                        ? 'bg-[#97cd7a] shadow-none translate-y-[1px]'
+                                                                        : 'bg-white hover:bg-black hover:text-white shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[1px] rounded-lg'
                                                                         }`}
                                                                 >
                                                                     {copiedId === file.filename ? <Check size={14} strokeWidth={3} /> : <Copy size={14} strokeWidth={3} />}
@@ -293,7 +293,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                                                     href={file.url}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
-                                                                    className="w-8 h-8 flex items-center justify-center border-2 border-[#1a1a1a] bg-white hover:bg-[#ffdf00] transition-all shadow-[3px_3px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] rounded-lg"
+                                                                    className="w-8 h-8 flex items-center justify-center border-2 border-[#1a1a1a] bg-white hover:bg-[#ffdf00] transition-all shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[1px] rounded-lg"
                                                                 >
                                                                     <ExternalLink size={14} strokeWidth={3} />
                                                                 </a>
@@ -301,7 +301,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                                             <Tooltip text={t('files.delete')} position="top">
                                                                 <button
                                                                     onClick={() => handleDelete(file.filename)}
-                                                                    className="w-8 h-8 flex items-center justify-center border-2 border-[#1a1a1a] bg-white hover:bg-red-400 transition-all shadow-[3px_3px_0px_0px_#1a1a1a] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] rounded-lg"
+                                                                    className="w-8 h-8 flex items-center justify-center border-2 border-[#1a1a1a] bg-white hover:bg-red-400 transition-all shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[1px] rounded-lg"
                                                                 >
                                                                     <Trash2 size={14} strokeWidth={3} />
                                                                 </button>

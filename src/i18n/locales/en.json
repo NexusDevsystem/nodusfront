@@ -892,7 +892,11 @@
         "free": "FREE",
         "monthly": "MONTHLY",
         "yearly": "YEARLY",
-        "unidentified": "DEFAULT"
+        "unidentified": "DEFAULT",
+        "overview": "Overview",
+        "analytics": "Analytics",
+        "assets": "Assets",
+        "manage": "Manage"
     },
     "shop": {
         "title": "Configure Showcase",

@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap');
+
+:root {
+  --font-sans: "Yusei Magic", sans-serif;
+  --font-display: "Yusei Magic", sans-serif;
+
+  --color-bg: #f5f5f5;
+  --color-brand: #97cd7a;
+  --color-dark: #000000;
+  --color-pink: #FFA6F6;
+  --color-yellow: #ffdf00;
+
+  --shadow-brutal: 0px 6px 0px #000000;
+  --shadow-brutal-lg: 0px 8px 0px #000000;
+  --shadow-brutal-sm: 0px 4px 0px #000000;
+}
+
+.landing-page-root {
+  background-color: var(--color-bg);
+  color: var(--color-dark);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+/* Força as cores brutas da Imagem 2 */
+.landing-page-root .bg-brand { background-color: #97cd7a !important; }
+.landing-page-root .bg-yellow { background-color: #ffdf00 !important; }
+.landing-page-root .bg-pink { background-color: #FFA6F6 !important; }
+.landing-page-root .bg-bg { background-color: #f5f5f5 !important; }
+.landing-page-root .text-brand { color: #97cd7a !important; }
+.landing-page-root .border-dark { border-color: #000000 !important; }
+
+/* Força as sombras brutas da Imagem 2 */
+.landing-page-root .shadow-brutal { 
+  box-shadow: 0px 6px 0px 0px #000000 !important; 
+}
+.landing-page-root .shadow-brutal-lg { 
+  box-shadow: 0px 8px 0px 0px #000000 !important; 
+}
+.landing-page-root .shadow-brutal-sm { 
+  box-shadow: 0px 4px 0px 0px #000000 !important; 
+}
+
+.landing-page-root h1, 
+.landing-page-root h2, 
+.landing-page-root h3, 
+.landing-page-root h4, 
+.landing-page-root h5, 
+.landing-page-root h6 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  -webkit-text-stroke: 1.5px currentColor; /* Simula um negrito "gordinho" */
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.landing-page-root p,
+.landing-page-root span,
+.landing-page-root a,
+.landing-page-root button,
+.landing-page-root input {
+  font-family: var(--font-sans);
+}
+
+@keyframes marquee-landing {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse-landing {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-marquee-landing {
+  animation: marquee-landing 20s linear infinite;
+}
+
+.animate-marquee-reverse-landing {
+  animation: marquee-reverse-landing 20s linear infinite;
+}

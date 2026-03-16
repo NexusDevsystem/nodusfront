@@ -134,13 +134,13 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
     };
 
     const renderProduct = (product: Product) => (
-        <div key={product.clientId || product.id} className="relative bg-white p-2.5 border border-[#1a1a1a] shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all group flex gap-2.5 items-center overflow-hidden mb-2.5 rounded-xl">
+        <div key={product.clientId || product.id} className="relative bg-white p-2.5 border border-[#1a1a1a] shadow-[0_1px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none transition-all group flex gap-2.5 items-center overflow-hidden mb-2.5 rounded-xl">
             <div className="cursor-move text-black hover:text-[#97cd7a] shrink-0">
                 <GripVertical size={18} strokeWidth={3} />
             </div>
 
             <div className="relative group/edit shrink-0">
-                <div className="w-10 h-10 border border-[#1a1a1a] bg-white overflow-hidden shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] rounded-lg">
+                <div className="w-10 h-10 border border-[#1a1a1a] bg-white overflow-hidden shadow-[0_1px_0_0_#1a1a1a] rounded-lg">
                     <img src={product.image} alt={product.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </div>
                 <div className="absolute inset-0 bg-[#1a1a1a]/40 flex items-center justify-center opacity-0 group-hover/edit:opacity-100 transition-opacity">
@@ -172,13 +172,13 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                         type="text"
                         value={product.name}
                         onChange={(e) => updateProduct(product.id, 'name', e.target.value)}
-                        className="w-full bg-white border border-[#1a1a1a] py-1 px-2.5 text-[11px] font-medium uppercase tracking-widest text-black focus:bg-[#f1f1f1] outline-none transition-all shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] rounded-lg"
+                        className="w-full bg-white border border-[#1a1a1a] py-1 px-2.5 text-[11px] font-medium uppercase tracking-widest text-black focus:bg-[#f1f1f1] outline-none transition-all shadow-[0_1px_0_0_#1a1a1a] rounded-lg"
                         placeholder={t('shop.productNamePlaceholder')}
                     />
                 </div>
                 <div className="space-y-1">
                     <label className="text-[8px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.linkLabel')}</label>
-                    <div className="flex items-center bg-white border border-[#1a1a1a] px-2.5 focus-within:bg-[#f1f1f1] transition-all shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] rounded-lg">
+                    <div className="flex items-center bg-white border border-[#1a1a1a] px-2.5 focus-within:bg-[#f1f1f1] transition-all shadow-[0_1px_0_0_#1a1a1a] rounded-lg">
                         <ExternalLink size={10} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
                             type="text"
@@ -191,7 +191,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                 </div>
                 <div className="space-y-1">
                     <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.priceLabel')}</label>
-                    <div className="flex items-center bg-white border-2 border-[#1a1a1a] px-3 focus-within:bg-[#f1f1f1] transition-all shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]">
+                    <div className="flex items-center bg-white border-2 border-[#1a1a1a] px-3 focus-within:bg-[#f1f1f1] transition-all shadow-[0_2px_0_0_#1a1a1a]">
                         <DollarSign size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
                             type="text"
@@ -204,7 +204,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                 </div>
                 <div className="space-y-1">
                     <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.couponLabel')}</label>
-                    <div className="flex items-center bg-white border-2 border-[#1a1a1a] px-3 focus-within:bg-[#f1f1f1] transition-all shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]">
+                    <div className="flex items-center bg-white border-2 border-[#1a1a1a] px-3 focus-within:bg-[#f1f1f1] transition-all shadow-[0_2px_0_0_#1a1a1a]">
                         <Tag size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
                         <input
                             type="text"
@@ -220,7 +220,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
             <Tooltip text={t('common.delete')} position="top">
                 <button
                     onClick={() => setDeletingProductId(product.id)}
-                    className="p-2 bg-white text-black border border-[#1a1a1a] hover:text-white hover:bg-red-500 hover:translate-x-[0.5px] hover:translate-y-[0.5px] shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] hover:shadow-none transition-all ml-2 rounded-lg"
+                    className="p-2 bg-white text-black border border-[#1a1a1a] hover:text-white hover:bg-red-500 hover:translate-y-[0.5px] shadow-[0_1px_0_0_#1a1a1a] hover:shadow-none transition-all ml-2 rounded-lg"
                 >
                     <Trash2 size={16} strokeWidth={3} />
                 </button>
@@ -243,13 +243,13 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setDeletingProductId(null)}
-                                    className="px-4 py-2 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#1a1a1a] hover:text-white transition shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+                                    className="px-4 py-2 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#1a1a1a] hover:text-white transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
                                 >
                                     {t('common.cancel')}
                                 </button>
                                 <button
                                     onClick={() => handleDeleteProduct(product.id)}
-                                    className="px-4 py-2 bg-red-400 border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-red-500 transition shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+                                    className="px-4 py-2 bg-red-400 border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-red-500 transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
                                 >
                                     {t('common.confirm')}
                                 </button>
@@ -262,7 +262,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
     );
 
     const renderAddForm = (collectionName: string) => (
-        <div className="bg-[#f8f8f8] p-6 border-2 border-[#1a1a1a] border-dashed mt-4 animate-fade-in space-y-6 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] rounded-2xl">
+        <div className="bg-[#f8f8f8] p-6 border-2 border-[#1a1a1a] border-dashed mt-4 animate-fade-in space-y-6 shadow-[0_2px_0_0_#1a1a1a] rounded-2xl">
             <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-black border-b border-[#1a1a1a]/10 pb-3">
                 <Plus size={18} strokeWidth={3} />
                 <span>{t('shop.addProduct')}</span>
@@ -274,7 +274,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                     <input
                         type="text"
                         placeholder={t('shop.productNamePlaceholder')}
-                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-medium uppercase tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] placeholder:text-black/30 placeholder:font-normal"
+                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-medium uppercase tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[0_2px_0_0_#1a1a1a] placeholder:text-black/30 placeholder:font-normal"
                         value={newProduct.name || ''}
                         onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
                     />
@@ -284,7 +284,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                     <input
                         type="url"
                         placeholder={t('shop.destinationUrlPlaceholder')}
-                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-normal tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] placeholder:text-black/30 placeholder:uppercase"
+                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-normal tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[0_2px_0_0_#1a1a1a] placeholder:text-black/30 placeholder:uppercase"
                         value={newProduct.url || ''}
                         onChange={e => setNewProduct({ ...newProduct, url: e.target.value })}
                     />
@@ -294,7 +294,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                     <input
                         type="text"
                         placeholder={t('shop.pricePlaceholder')}
-                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-normal tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] placeholder:text-black/30"
+                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-normal tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[0_2px_0_0_#1a1a1a] placeholder:text-black/30"
                         value={newProduct.price || ''}
                         onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
                     />
@@ -304,7 +304,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                     <input
                         type="text"
                         placeholder={t('shop.couponPlaceholder')}
-                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-normal uppercase tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] placeholder:text-black/30"
+                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-normal uppercase tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[0_2px_0_0_#1a1a1a] placeholder:text-black/30"
                         value={newProduct.discountCode || ''}
                         onChange={e => setNewProduct({ ...newProduct, discountCode: e.target.value })}
                     />
@@ -312,7 +312,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
             </div>
 
             <div className="flex items-start gap-4 p-4 bg-white border-4 border-[#1a1a1a] border-dashed">
-                <div className="relative w-24 h-24 border-2 border-[#1a1a1a] bg-white flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:bg-[#ffdf00] transition group shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
+                <div className="relative w-24 h-24 border-2 border-[#1a1a1a] bg-white flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:bg-[#ffdf00] transition group shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none">
                     {newProduct.image ? (
                         <img src={newProduct.image} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     ) : (
@@ -346,14 +346,14 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
             <div className="flex justify-end gap-3 pt-4 border-t-2 border-[#1a1a1a]/10">
                 <button
                     onClick={() => { setAddingToCollection(null); setNewProduct({}); }}
-                    className="px-6 py-2.5 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#1a1a1a] hover:text-white transition shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+                    className="px-6 py-2.5 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#1a1a1a] hover:text-white transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
                 >
                     Cancelar
                 </button>
                 <button
                     onClick={() => handleAddProduct(collectionName)}
                     disabled={!newProduct.name || !newProduct.url}
-                    className="px-6 py-2.5 bg-[#97cd7a] border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-[#1a1a1a] hover:text-[#97cd7a] disabled:opacity-50 disabled:grayscale transition-all shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+                    className="px-6 py-2.5 bg-[#97cd7a] border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-[#1a1a1a] hover:text-[#97cd7a] disabled:opacity-50 disabled:grayscale transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
                 >
                     {t('shop.saveProduct')}
                 </button>
@@ -363,7 +363,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
 
     return (
         <div className="space-y-6">
-        <div className="bg-white p-4 rounded-3xl border-[1.5px] border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]">
+        <div className="bg-white p-4 rounded-3xl border-[1.5px] border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a]">
                 <div className="flex items-center justify-between gap-4 mb-4 border-b border-[#1a1a1a] pb-2.5">
                     <div className="flex items-center gap-2.5">
                         <ShoppingBag size={18} strokeWidth={3} className="text-black" />
@@ -372,7 +372,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                     <Tooltip text={t('shop.newCategory')} position="bottom">
                         <button
                             onClick={() => setIsAddingCollection(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] text-[#97cd7a] hover:bg-[#1a1a1a] hover:text-white border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none text-[9px] font-medium uppercase tracking-widest transition-all rounded-xl"
+                            className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] text-[#97cd7a] hover:bg-[#1a1a1a] hover:text-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none text-[9px] font-medium uppercase tracking-widest transition-all rounded-xl"
                         >
                             <FolderPlus size={18} strokeWidth={3} />
                             <span className="hidden sm:inline">{t('shop.newCategory')}</span>
@@ -385,7 +385,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                 </p>
 
                 {isAddingCollection && (
-                    <div className="animate-fade-in bg-[#ffdf00] p-4 border-4 border-[#1a1a1a] shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] mb-6 rounded-2xl">
+                    <div className="animate-fade-in bg-[#ffdf00] p-4 border-4 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] mb-6 rounded-2xl">
                         <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
                                 <Folder size={20} strokeWidth={3} className="text-black shrink-0" />
@@ -402,7 +402,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                             <div className="flex items-center gap-2 justify-end sm:justify-start">
                                 <button
                                     onClick={handleAddCollection}
-                                    className="flex-1 sm:flex-none whitespace-nowrap bg-[#1a1a1a] text-[#97cd7a] px-6 py-2 border-2 border-[#1a1a1a] hover:text-white font-medium text-[10px] transition-all uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]"
+                                    className="flex-1 sm:flex-none whitespace-nowrap bg-[#1a1a1a] text-[#97cd7a] px-6 py-2 border-2 border-[#1a1a1a] hover:text-white font-medium text-[10px] transition-all uppercase tracking-widest shadow-[0_2px_0_0_#1a1a1a]"
                                 >
                                     {t('shop.create')}
                                 </button>
@@ -443,7 +443,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                     const isExpanded = expandedCollections.includes(collectionName);
 
                     return (
-                        <div key={collectionName} className="bg-white border border-[#1a1a1a] overflow-hidden shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none transition-all rounded-2xl">
+                        <div key={collectionName} className="bg-white border border-[#1a1a1a] overflow-hidden shadow-[0_1px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none transition-all rounded-2xl">
                             <div
                                 className="flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50 transition border-b border-transparent"
                                 onClick={() => toggleCollection(collectionName)}
@@ -468,13 +468,13 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                                             }
                                             setAddingToCollection(collectionName === addingToCollection ? null : collectionName);
                                         }}
-                                        className="flex items-center gap-1.5 px-3 py-2 bg-white text-black border-2 border-[#1a1a1a] hover:bg-[#ffdf00] text-[10px] font-medium uppercase tracking-widest transition-all shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+                                        className="flex items-center gap-1.5 px-3 py-2 bg-white text-black border-2 border-[#1a1a1a] hover:bg-[#ffdf00] text-[10px] font-medium uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
                                     >
                                         <PlusCircle size={14} strokeWidth={3} /> {t('shop.addItem')}
                                     </button>
                                     <button
                                         onClick={() => setDeletingCollection(collectionName)}
-                                        className="p-2 bg-white text-black border-2 border-[#1a1a1a] hover:bg-red-500 hover:text-white transition-all shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+                                        className="p-2 bg-white text-black border-2 border-[#1a1a1a] hover:bg-red-500 hover:text-white transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
                                     >
                                         <Trash2 size={18} strokeWidth={3} />
                                     </button>
@@ -499,13 +499,13 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                                             <div className="flex items-center gap-3">
                                                 <button
                                                     onClick={() => setDeletingCollection(null)}
-                                                    className="px-4 py-2 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#1a1a1a] hover:text-white transition shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+                                                    className="px-4 py-2 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#1a1a1a] hover:text-white transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
                                                 >
                                                     {t('common.cancel')}
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteCollection(collectionName)}
-                                                    className="px-4 py-2 bg-red-400 border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-red-500 transition shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+                                                    className="px-4 py-2 bg-red-400 border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-red-500 transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
                                                 >
                                                     {t('common.confirm')}
                                                 </button>
@@ -535,7 +535,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                 })}
 
                 {uncategorizedProducts.length > 0 && (
-                    <div className="bg-white border-2 border-dashed border-[#1a1a1a] opacity-80 overflow-hidden shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] rounded-2xl">
+                    <div className="bg-white border-2 border-dashed border-[#1a1a1a] opacity-80 overflow-hidden shadow-[0_4px_0_0_#1a1a1a] rounded-2xl">
                         <div
                             className="flex items-center justify-between p-4 cursor-pointer hover:bg-[#ffdf00] transition-colors"
                             onClick={() => toggleCollection('uncategorized')}
@@ -561,7 +561,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
 
                 {collections.length === 0 && uncategorizedProducts.length === 0 && !addingToCollection && (
                     <div className="text-center py-16 px-6 bg-white border-4 border-dashed border-[#1a1a1a] rounded-3xl">
-                        <div className="w-16 h-16 bg-[#ffdf00] text-black border-4 border-[#1a1a1a] shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] rounded-full flex items-center justify-center mx-auto mb-6">
+                        <div className="w-16 h-16 bg-[#ffdf00] text-black border-4 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-6">
                             <ShoppingBag size={28} strokeWidth={3} />
                         </div>
                         <h3 className="text-black font-medium text-xl uppercase tracking-wider mb-2">{t('shop.emptyShopTitle')}</h3>

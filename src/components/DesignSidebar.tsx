@@ -36,7 +36,7 @@ const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveS
                                 {isActive && (
                                     <motion.div
                                         layoutId="designActiveTab"
-                                        className="absolute inset-0 bg-[#97cd7a] border-2 border-black rounded-xl -z-10 shadow-[3px_3px_0px_0px_#000]"
+                                        className="absolute inset-0 bg-[#97cd7a] border-2 border-black rounded-xl -z-10 shadow-[0_3px_0_0_#000]"
                                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                     />
                                 )}

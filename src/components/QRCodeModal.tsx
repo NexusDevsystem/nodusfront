@@ -42,7 +42,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 md:bg-black/60 md:backdrop-blur-sm animate-fade-in p-4">
-            <div className="bg-white border-4 border-[#1a1a1a] shadow-[12px_12px_0px_0px_rgba(26,26,26,1)] p-6 sm:p-8 w-full max-w-[400px] relative animate-in zoom-in-95 duration-200">
+            <div className="bg-white border-4 border-[#1a1a1a] shadow-[0_12px_0_0_#1a1a1a] p-6 sm:p-8 w-full max-w-[400px] relative animate-in zoom-in-95 duration-200">
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 text-black hover:bg-black hover:text-[#ffdf00] transition-all p-1 border-2 border-transparent hover:border-[#1a1a1a]"
@@ -56,7 +56,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                         <div className="h-1 w-12 bg-black mt-1"></div>
                     </div>
 
-                    <div className="bg-white p-6 border-4 border-[#1a1a1a] shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] mb-8" ref={canvasRef}>
+                    <div className="bg-white p-6 border-4 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] mb-8" ref={canvasRef}>
                         <QRCodeCanvas
                             value={fullUrl}
                             size={200}
@@ -80,7 +80,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                             <label className="text-[9px] font-black uppercase tracking-widest text-black/40 px-1">Link Encurtado</label>
                             <div
                                 onClick={() => copyToClipboard(shortUrl)}
-                                className="flex items-center justify-between gap-3 bg-white border-2 border-[#1a1a1a] p-3 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all cursor-pointer group"
+                                className="flex items-center justify-between gap-3 bg-white border-2 border-[#1a1a1a] p-3 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none transition-all cursor-pointer group"
                             >
                                 <span className="text-xs font-bold truncate text-black">{shortUrl}</span>
                                 <Copy size={14} strokeWidth={3} className="text-black/20 group-hover:text-black transition-colors" />
@@ -91,7 +91,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                             <label className="text-[9px] font-black uppercase tracking-widest text-black/40 px-1">Link Completo</label>
                             <div
                                 onClick={() => copyToClipboard(fullUrl)}
-                                className="flex items-center justify-between gap-3 bg-white border-2 border-[#1a1a1a] p-3 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all cursor-pointer group"
+                                className="flex items-center justify-between gap-3 bg-white border-2 border-[#1a1a1a] p-3 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none transition-all cursor-pointer group"
                             >
                                 <span className="text-[10px] font-bold truncate text-black/60 group-hover:text-black transition-colors">{fullUrl}</span>
                                 <Copy size={14} strokeWidth={3} className="text-black/20 group-hover:text-black transition-colors" />
@@ -102,7 +102,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                     <div className="w-full">
                         <button
                             onClick={handleDownload}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-black text-white border-2 border-[#1a1a1a] font-black uppercase tracking-widest text-[10px] shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-black text-white border-2 border-[#1a1a1a] font-black uppercase tracking-widest text-[10px] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[2px] transition-all"
                         >
                             <Download size={16} strokeWidth={3} /> {t('profile.saveQR')}
                         </button>

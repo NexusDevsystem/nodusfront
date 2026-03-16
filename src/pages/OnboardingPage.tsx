@@ -65,6 +65,18 @@ export default function OnboardingPage() {
     const [username, setUsername] = useState('');
     const [userCategory, setUserCategory] = useState<'creator' | 'personal' | 'business' | null>(null);
     const [referralSource, setReferralSource] = useState('');
+    
+    // Load reserved username from landing page
+    useEffect(() => {
+        const reserved = localStorage.getItem('nodus_reserved_username');
+        if (reserved) {
+            setUsername(reserved);
+            // We keep it in storage until they actually finish or if we want to clear it now
+            // user said "quando for pra onboarding, o nome ja estara escolhido"
+            // so if they refresh, it should still be there.
+        }
+    }, []);
+
     const [loading, setLoading] = useState(false);
     const [checking, setChecking] = useState(false);
     const [available, setAvailable] = useState<boolean | null>(null);
@@ -267,6 +279,7 @@ export default function OnboardingPage() {
             setProfile(updatedProfile);
 
             // 4. Navigate to admin
+            localStorage.removeItem('nodus_reserved_username');
             navigate('/admin');
 
         } catch (err: any) {
@@ -313,7 +326,7 @@ export default function OnboardingPage() {
                         onClick={() => navigate('/')}
                         className="group flex items-center gap-2 font-bold text-sm uppercase hover:text-[#97cd7a] transition-colors"
                     >
-                        <div className="w-8 h-8 border-2 border-[#1a1a1a] flex items-center justify-center bg-white shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none transition-all">
+                        <div className="w-8 h-8 border-2 border-[#1a1a1a] flex items-center justify-center bg-white shadow-[0_2px_0_0_#1a1a1a] group-hover:translate-y-[2px] group-hover:shadow-none transition-all rounded-lg">
                             <ArrowLeft size={16} />
                         </div>
                         {t('onboarding.back')}
@@ -373,26 +386,26 @@ export default function OnboardingPage() {
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9._]/g, ''))}
                                         className={`
-                                            w-full bg-white border-2 border-[#1a1a1a] py-6 pl-[135px] pr-12 text-xl font-black
-                                            shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]
-                                            focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] 
+                                            w-full bg-white border-2 border-[#1a1a1a] py-6 pl-[135px] pr-12 text-xl font-black rounded-2xl
+                                            shadow-[0_4px_0_0_#1a1a1a]
+                                            focus:outline-none focus:shadow-none focus:translate-y-[4px] 
                                             transition-all duration-200
                                             ${available === true ? 'border-[#97cd7a]' :
                                                 available === false ? 'border-red-500' :
-                                                    'border-[#1a1a1a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'}
+                                                    'border-[#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a]'}
                                         `}
                                         placeholder="seu-nome"
                                         required
                                     />
                                     <div className="absolute left-5 inset-y-0 flex items-center gap-1 text-black font-black text-xl select-none pointer-events-none z-10 
-                                        group-focus-within:text-[#97cd7a] group-focus-within:translate-x-[2px] group-focus-within:translate-y-[2px]
-                                        group-hover:translate-x-[1px] group-hover:translate-y-[1px]
+                                        group-focus-within:text-[#97cd7a] group-focus-within:translate-y-[4px]
+                                        group-hover:translate-y-[2px]
                                         transition-all duration-200">
                                         nodus.my<span className="opacity-30">/</span>
                                     </div>
                                     <div className="absolute right-5 inset-y-0 flex items-center gap-3 bg-white pl-2 z-10
-                                        group-focus-within:translate-x-[2px] group-focus-within:translate-y-[2px]
-                                        group-hover:translate-x-[1px] group-hover:translate-y-[1px]
+                                        group-focus-within:translate-y-[4px]
+                                        group-hover:translate-y-[2px]
                                         transition-all duration-200">
                                         {checking && <Loader2 className="animate-spin text-black" size={24} />}
                                         {!checking && available === true && <Check className="text-[#97cd7a]" size={24} strokeWidth={4} />}
@@ -401,12 +414,12 @@ export default function OnboardingPage() {
                                 </div>
                                 <div className="h-6 mt-2">
                                     {available === true && (
-                                        <div className="bg-[#97cd7a]/10 border-2 border-[#97cd7a] text-[#5b8c41] px-3 py-1 text-[10px] font-black uppercase tracking-tight inline-block shadow-[2px_2px_0px_0px_#97cd7a]">
+                                        <div className="bg-[#97cd7a]/10 border-2 border-[#97cd7a] text-[#5b8c41] px-3 py-1 text-[10px] font-black uppercase tracking-tight inline-block shadow-[0_2px_0_0_#97cd7a] rounded-lg">
                                             {t('onboarding.usernameAvailable')}
                                         </div>
                                     )}
                                     {available === false && username && !checking && (
-                                        <div className="bg-red-50 border-2 border-red-500 text-red-600 px-3 py-1 text-[10px] font-black uppercase tracking-tight inline-block shadow-[2px_2px_0px_0px_#ef4444]">
+                                        <div className="bg-red-50 border-2 border-red-500 text-red-600 px-3 py-1 text-[10px] font-black uppercase tracking-tight inline-block shadow-[0_2px_0_0_#ef4444] rounded-lg">
                                             {t('onboarding.usernameUnavailable')}
                                         </div>
                                     )}
@@ -417,9 +430,9 @@ export default function OnboardingPage() {
                                 type="submit"
                                 disabled={!available || loading || checking}
                                 className={`
-                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300
+                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 rounded-2xl
                                     ${available && !loading && !checking
-                                        ? 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
+                                        ? 'bg-[#ffdf00] text-black shadow-[0_8px_0_0_#1a1a1a] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[8px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
@@ -439,10 +452,10 @@ export default function OnboardingPage() {
                                     key={cat.id}
                                     onClick={() => setUserCategory(cat.id as any)}
                                     className={`
-                                        w-full p-6 border-2 text-left transition-all duration-200 relative group
+                                        w-full p-6 border-2 text-left transition-all duration-200 relative group rounded-2xl
                                         ${userCategory === cat.id
-                                            ? 'border-[#1a1a1a] bg-[#97cd7a] translate-x-[2px] translate-y-[2px] shadow-none'
-                                            : 'border-[#1a1a1a] bg-white shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'}
+                                            ? 'border-[#1a1a1a] bg-[#97cd7a] translate-y-[4px] shadow-none'
+                                            : 'border-[#1a1a1a] bg-white shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a]'}
                                     `}
                                 >
                                     <h3 className={`font-black uppercase text-xl ${userCategory === cat.id ? 'text-black' : 'text-black'}`}>{cat.label}</h3>
@@ -458,9 +471,9 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(3)}
                                 disabled={!userCategory}
                                 className={`
-                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6
+                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6 rounded-2xl
                                     ${userCategory
-                                        ? 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
+                                        ? 'bg-[#ffdf00] text-black shadow-[0_8px_0_0_#1a1a1a] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[8px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
@@ -485,10 +498,10 @@ export default function OnboardingPage() {
                                         key={opt.id}
                                         onClick={() => setReferralSource(opt.label)}
                                         className={`
-                                            w-full p-6 border-2 text-left transition-all duration-200 relative group
+                                            w-full p-6 border-2 text-left transition-all duration-200 relative group rounded-2xl
                                             ${referralSource === opt.label
-                                                ? 'border-[#1a1a1a] bg-[#97cd7a] translate-x-[2px] translate-y-[2px] shadow-none'
-                                                : 'border-[#1a1a1a] bg-white shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'}
+                                                ? 'border-[#1a1a1a] bg-[#97cd7a] translate-y-[4px] shadow-none'
+                                                : 'border-[#1a1a1a] bg-white shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a]'}
                                         `}
                                     >
                                         <span className="font-black uppercase text-lg text-black">{opt.label}</span>
@@ -506,9 +519,9 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(4)}
                                 disabled={!referralSource}
                                 className={`
-                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6
+                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6 rounded-2xl
                                     ${referralSource
-                                        ? 'bg-[#ffdf00] text-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
+                                        ? 'bg-[#ffdf00] text-black shadow-[0_8px_0_0_#1a1a1a] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[8px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
@@ -522,7 +535,7 @@ export default function OnboardingPage() {
                         <div className="space-y-6">
                             <div className="flex justify-center mb-6">
                                 <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
-                                    <div className="w-32 h-32 rounded-full border-4 border-[#1a1a1a] overflow-hidden bg-slate-100 flex flex-col items-center justify-center relative shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-transform hover:-translate-y-1">
+                                    <div className="w-32 h-32 rounded-full border-4 border-[#1a1a1a] overflow-hidden bg-slate-100 flex flex-col items-center justify-center relative shadow-[0_4px_0_0_#1a1a1a] transition-all hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a]">
                                         {avatarUrl ? (
                                             <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                         ) : (
@@ -545,7 +558,7 @@ export default function OnboardingPage() {
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-white border-2 border-[#1a1a1a] py-4 px-4 text-lg font-bold shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all duration-200"
+                                    className="w-full bg-white border-2 border-[#1a1a1a] py-4 px-4 text-lg font-bold rounded-2xl shadow-[0_4px_0_0_#1a1a1a] focus:outline-none focus:shadow-none focus:translate-y-[4px] transition-all duration-200"
                                     placeholder={t('onboarding.namePlaceholder')}
                                     required
                                 />
@@ -556,7 +569,7 @@ export default function OnboardingPage() {
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
                                     rows={3}
-                                    className="w-full bg-white border-2 border-[#1a1a1a] py-4 px-4 text-base font-medium shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] focus:outline-none focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all duration-200 resize-none"
+                                    className="w-full bg-white border-2 border-[#1a1a1a] py-4 px-4 text-base font-medium rounded-2xl shadow-[0_4px_0_0_#1a1a1a] focus:outline-none focus:shadow-none focus:translate-y-[4px] transition-all duration-200 resize-none"
                                     placeholder={t('onboarding.bioPlaceholder')}
                                 />
                             </div>
@@ -565,9 +578,9 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(5)}
                                 disabled={!name}
                                 className={`
-                                    w-full h-16 border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-4
+                                    w-full h-16 border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-4 rounded-2xl
                                     ${name
-                                        ? 'bg-[#ffdf00] text-black shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none'
+                                        ? 'bg-[#ffdf00] text-black shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[3px] hover:shadow-[0_3px_0_0_#1a1a1a] active:translate-y-[6px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
@@ -582,7 +595,7 @@ export default function OnboardingPage() {
                             <p className="font-bold text-slate-500 text-sm">{t('onboarding.addSocialsAndLinks')}</p>
 
                             {/* Redes Sociais */}
-                            <div className="bg-white border-2 border-[#1a1a1a] p-5 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]">
+                            <div className="bg-white border-2 border-[#1a1a1a] p-5 shadow-[0_4px_0_0_#1a1a1a] rounded-3xl">
                                 <div className="flex items-center justify-between mb-4">
                                     <div>
                                         <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.socialNetworks')}</h3>
@@ -591,7 +604,7 @@ export default function OnboardingPage() {
                                     <button
                                         type="button"
                                         onClick={() => { setConfiguringSocialPlatform(null); setSocialSearchTerm(''); setIsSocialModalOpen(true); }}
-                                        className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#ffdf00] transition-colors shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:bg-black active:text-white"
+                                        className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#ffdf00] transition-colors shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none rounded-xl"
                                     >
                                         <Plus size={20} />
                                     </button>
@@ -607,7 +620,7 @@ export default function OnboardingPage() {
                                                     key={link.id}
                                                     type="button"
                                                     onClick={() => handleAddSocialClick(link.provider!)}
-                                                    className={`w-12 h-12 flex items-center justify-center border-2 border-[#1a1a1a] bg-slate-50 transition-all shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none ${platform?.color}`}
+                                                    className={`w-12 h-12 flex items-center justify-center border-2 border-[#1a1a1a] rounded-xl bg-slate-50 transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none ${platform?.color}`}
                                                 >
                                                     <Icon size={24} />
                                                 </button>
@@ -623,7 +636,7 @@ export default function OnboardingPage() {
                             </div>
 
                             {/* Meus Links */}
-                            <div className="bg-white border-2 border-[#1a1a1a] p-5 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]">
+                            <div className="bg-white border-2 border-[#1a1a1a] p-5 shadow-[0_4px_0_0_#1a1a1a] rounded-3xl">
                                 <div className="flex items-center justify-between mb-4">
                                     <div>
                                         <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.myLinks')}</h3>
@@ -632,7 +645,7 @@ export default function OnboardingPage() {
                                     <button
                                         type="button"
                                         onClick={handleAddGeneralLink}
-                                        className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#97cd7a] transition-colors shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:bg-black active:text-white"
+                                        className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#97cd7a] transition-colors shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none rounded-xl"
                                     >
                                         <Plus size={20} />
                                     </button>
@@ -641,7 +654,7 @@ export default function OnboardingPage() {
                                 <div className="space-y-3">
                                     {quickLinks.filter(l => l.layout === 'classic').length > 0 ? (
                                         quickLinks.filter(l => l.layout === 'classic').map(link => (
-                                            <div key={link.id} className="border-2 border-[#1a1a1a] bg-white p-3 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] relative group">
+                                            <div key={link.id} className="border-2 border-[#1a1a1a] bg-white p-3 shadow-[0_2px_0_0_#1a1a1a] rounded-2xl relative group">
                                                 <div className="flex items-start gap-3">
                                                     <div className="w-10 h-10 border-2 border-[#1a1a1a] bg-slate-50 flex items-center justify-center shrink-0 text-slate-400">
                                                         <LinkIcon size={18} />
@@ -683,7 +696,7 @@ export default function OnboardingPage() {
 
                             <button
                                 onClick={() => setStep(6)}
-                                className="w-full h-16 bg-[#ffdf00] border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none mt-8"
+                                className="w-full h-16 bg-[#ffdf00] border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[3px] hover:shadow-[0_3px_0_0_#1a1a1a] active:translate-y-[6px] active:shadow-none mt-8 rounded-2xl"
                             >
                                 {t('onboarding.continue')}
                             </button>
@@ -706,10 +719,10 @@ export default function OnboardingPage() {
                                             type="button"
                                             onClick={() => setHeaderLayout(layout.id as any)}
                                             className={`
-                                                p-4 border-2 flex flex-col items-center gap-2 transition-all duration-200 relative group
+                                                p-4 border-2 flex flex-col items-center gap-2 transition-all duration-200 relative group rounded-2xl
                                                 ${headerLayout === layout.id
-                                                    ? 'border-[#1a1a1a] bg-[#97cd7a] translate-x-[2px] translate-y-[2px] shadow-none'
-                                                    : 'border-[#1a1a1a] bg-white shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'}
+                                                    ? 'border-[#1a1a1a] bg-[#97cd7a] translate-y-[4px] shadow-none'
+                                                    : 'border-[#1a1a1a] bg-white shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a]'}
                                             `}
                                         >
                                             <Icon size={24} className={headerLayout === layout.id ? 'text-black' : 'text-slate-500 group-hover:text-black'} />
@@ -723,9 +736,9 @@ export default function OnboardingPage() {
                                 type="submit"
                                 disabled={loading}
                                 className={`
-                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300
+                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 rounded-2xl
                                     ${!loading
-                                        ? 'bg-[#97cd7a] text-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none'
+                                        ? 'bg-[#97cd7a] text-black shadow-[0_8px_0_0_#1a1a1a] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[8px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
                             >
@@ -772,7 +785,7 @@ export default function OnboardingPage() {
 
                             {/* Brutalist Floating elements */}
                             {/* 1. Status */}
-                            <div className="absolute top-0 left-0 bg-white border-2 border-[#1a1a1a] p-4 shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] flex items-center gap-3 transform -rotate-3 z-20 animate-float">
+                            <div className="absolute top-0 left-0 bg-white border-2 border-[#1a1a1a] p-4 shadow-[0_6px_0_0_rgba(26,26,26,1)] flex items-center gap-3 transform -rotate-3 z-20 animate-float">
                                 <div className="w-8 h-8 bg-[#97cd7a] border-2 border-[#1a1a1a] rounded-full flex items-center justify-center">
                                     <Check className="text-black" size={16} strokeWidth={4} />
                                 </div>
@@ -809,7 +822,7 @@ export default function OnboardingPage() {
                             </div>
 
                             {/* 4. Realtime Badge */}
-                            <div className="absolute -bottom-4 right-10 bg-white border-2 border-[#1a1a1a] px-4 py-2 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] text-black text-[10px] font-black uppercase flex items-center gap-2 z-20">
+                            <div className="absolute -bottom-4 right-10 bg-white border-2 border-[#1a1a1a] px-4 py-2 shadow-[0_4px_0_0_rgba(26,26,26,1)] text-black text-[10px] font-black uppercase flex items-center gap-2 z-20">
                                 <div className="w-3 h-3 bg-red-500 border-2 border-[#1a1a1a] animate-pulse"></div>
                                 {t('onboarding.livePreview')}
                             </div>
@@ -847,7 +860,7 @@ export default function OnboardingPage() {
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-md bg-white border-4 border-[#1a1a1a] shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] flex flex-col max-h-[85vh] overflow-hidden"
+                            className="relative w-full max-w-md bg-white border-4 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] flex flex-col max-h-[85vh] overflow-hidden rounded-[32px]"
                         >
                             <div className="p-5 border-b-2 border-[#1a1a1a] flex items-center justify-between bg-[#ffdf00] shrink-0">
                                 {configuringSocialPlatform ? (
@@ -874,7 +887,7 @@ export default function OnboardingPage() {
                                                 value={socialSearchTerm}
                                                 onChange={(e) => setSocialSearchTerm(e.target.value)}
                                                 placeholder={t('onboarding.searchPlatformPlaceholder')}
-                                                className="w-full bg-white border-2 border-[#1a1a1a] py-3 pl-12 pr-4 text-sm font-bold shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] focus:outline-none focus:translate-x-[2px] focus:translate-y-[2px] focus:shadow-none transition-all placeholder:font-normal"
+                                                className="w-full bg-white border-2 border-[#1a1a1a] py-3 pl-12 pr-4 text-sm font-bold shadow-[0_2px_0_0_#1a1a1a] rounded-xl focus:outline-none focus:translate-y-[2px] focus:shadow-none transition-all placeholder:font-normal"
                                             />
                                         </div>
                                     </div>
@@ -900,8 +913,8 @@ export default function OnboardingPage() {
                                                     className={`
                                                         w-full flex items-center justify-between p-4 border-2 transition-all cursor-pointer group
                                                         ${isSelected
-                                                            ? 'border-[#1a1a1a] bg-[#97cd7a]/20 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'
-                                                            : 'border-[#1a1a1a] bg-white shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none hover:bg-slate-50'}
+                                                            ? 'border-[#1a1a1a] bg-[#97cd7a]/20 shadow-none translate-y-[2px] rounded-xl'
+                                                            : 'border-[#1a1a1a] bg-white shadow-[0_2px_0_0_#1a1a1a] rounded-xl hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] hover:bg-slate-50'}
                                                     `}
                                                 >
                                                     <div className="flex items-center gap-4">
@@ -938,13 +951,13 @@ export default function OnboardingPage() {
                                 </div>
                             ) : (
                                 <div className="p-8 bg-white flex flex-col items-center">
-                                    <div className={`w-24 h-24 flex items-center justify-center border-4 border-[#1a1a1a] bg-slate-50 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] mb-8 ${SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.color}`}>
+                                    <div className={`w-24 h-24 flex items-center justify-center border-4 border-[#1a1a1a] bg-slate-50 shadow-[0_4px_0_0_#1a1a1a] rounded-2xl mb-8 ${SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.color}`}>
                                         {SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.icon({ size: 48 })}
                                     </div>
 
                                     <div className="w-full space-y-3 mb-10">
                                         <label className="text-xs font-black uppercase tracking-widest text-black">{t('onboarding.enterHandle')}</label>
-                                        <div className="flex items-stretch border-2 border-[#1a1a1a] bg-white shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] focus-within:translate-x-[2px] focus-within:translate-y-[2px] focus-within:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] transition-all">
+                                        <div className="flex items-stretch border-2 border-[#1a1a1a] bg-white shadow-[0_4px_0_0_#1a1a1a] rounded-xl focus-within:translate-y-[2px] focus-within:shadow-[0_2px_0_0_#1a1a1a] transition-all overflow-hidden">
                                             {SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.baseUrl && (
                                                 <div className="px-4 border-r-2 border-[#1a1a1a] py-4 bg-slate-50 text-sm font-bold text-slate-500 whitespace-nowrap flex items-center">
                                                     {SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.baseUrl?.replace('https://', '')}
@@ -966,8 +979,8 @@ export default function OnboardingPage() {
                                         onClick={confirmSocialPlatform}
                                         disabled={!tempSocialUrl}
                                         className={`
-                                            w-full h-16 border-2 border-[#1a1a1a] font-black uppercase tracking-wider text-lg transition-all flex items-center justify-center gap-3
-                                            ${tempSocialUrl ? 'bg-[#97cd7a] text-black shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px]' : 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 shadow-none'}
+                                            w-full h-16 border-2 border-[#1a1a1a] font-black uppercase tracking-wider text-lg transition-all flex items-center justify-center gap-3 rounded-2xl
+                                            ${tempSocialUrl ? 'bg-[#97cd7a] text-black shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[3px] hover:shadow-[0_3px_0_0_#1a1a1a] active:shadow-none active:translate-y-[6px]' : 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 shadow-none'}
                                         `}
                                     >
                                         <Check size={24} strokeWidth={3} /> {t('onboarding.saveLink')}

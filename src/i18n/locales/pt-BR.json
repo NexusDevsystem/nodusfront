@@ -896,7 +896,11 @@
         "free": "GRATUITO",
         "monthly": "MENSAL",
         "yearly": "ANUAL",
-        "unidentified": "PADRÃO"
+        "unidentified": "PADRÃO",
+        "overview": "Visão Geral",
+        "analytics": "Estatísticas",
+        "assets": "Inventário",
+        "manage": "Gerenciar"
     },
     "shop": {
         "title": "Configurar Vitrine",

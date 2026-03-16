@@ -229,6 +229,10 @@ class ApiClient {
             avatar_url?: string;
             is_verified?: boolean;
             user_category?: string;
+            links?: { count: number, type?: string }[];
+            clicks?: { count: number }[];
+            products?: { count: number }[];
+            views?: number;
         }[];
     }> {
         return this.request('/api/admin/stats');
@@ -245,6 +249,10 @@ class ApiClient {
         return this.request(`/api/admin/users/${userId}`, {
             method: 'DELETE'
         });
+    }
+
+    async getAdminUserStats(userId: string): Promise<any> {
+        return this.request(`/api/admin/users/${userId}/stats`);
     }
 
     // Analytics

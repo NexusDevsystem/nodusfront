@@ -58,7 +58,7 @@ export const kawaiiThemes: Theme[] = [
         id: 'kawaii-peach-milk',
         name: 'Peach Milk',
         backgroundClass: 'bg-[#FFF3E0]', // Peach Light
-        buttonClass: 'bg-[#FFCCBC] text-[#BF360C] shadow-[6px_6px_0px_0px_rgba(191,54,12,0.2)] hover:shadow-[8px_8px_0px_0px_rgba(191,54,12,0.15)] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-300 w-full rounded-xl px-6 py-4 flex items-center justify-between border-2 border-[#BF360C]/10',
+        buttonClass: 'bg-[#FFCCBC] text-[#BF360C] shadow-[0_6px_0_0_rgba(191,54,12,0.2)] hover:shadow-[0_8px_0_0_rgba(191,54,12,0.15)] hover:-translate-y-1 transition-all duration-300 w-full rounded-xl px-6 py-4 flex items-center justify-between border-2 border-[#BF360C]/10',
         buttonHex: '#FFCCBC',
         cardClass: '',
         textClass: 'text-[#BF360C]',

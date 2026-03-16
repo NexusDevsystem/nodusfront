@@ -180,13 +180,13 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
         <div className="space-y-6 animate-fade-in pb-10">
             <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 items-start`}>
                 {/* Header Layout Section */}
-                <div className="bg-white p-6 border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] rounded-2xl h-full">
+                <div className="bg-white p-6 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-2xl h-full">
                     <div className="flex items-center gap-2 mb-6 text-[#1a1a1a] border-b-2 border-[#1a1a1a]/10 pb-3">
                         <Layout size={20} strokeWidth={2.5} />
                         <h3 className="text-sm font-black uppercase tracking-[0.2em]">{t('design.profileLayout')}</h3>
                     </div>
 
-                    <div className="flex bg-[#fcfcfc] p-1.5 border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] rounded-xl">
+                    <div className="flex bg-[#fcfcfc] p-1.5 border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-xl">
                         {[
                             { id: 'classic', label: t('design.classic'), icon: <Layout className="w-4 h-4" /> },
                             { id: 'compact', label: t('design.profile'), icon: <User className="w-4 h-4" /> },
@@ -197,7 +197,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                 onClick={() => handleLayoutChange(option.id)}
                                 className={`flex flex-col items-center justify-center gap-2 p-4 border-2 transition-all flex-1 rounded-lg cursor-target
                                     ${(profile.headerLayout || 'classic') === option.id
-                                        ? `border-[#1a1a1a] bg-white text-[#1a1a1a] shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] -translate-x-[1px] -translate-y-[1px]`
+                                        ? `border-[#1a1a1a] bg-white text-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] -translate-y-[1px]`
                                         : 'border-transparent bg-transparent text-[#1a1a1a]/20 hover:text-[#1a1a1a] hover:border-[#1a1a1a]/5'
                                     }`}
                             >
@@ -212,7 +212,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="mt-6 p-4 bg-[#f8f8f8] border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] flex gap-4 items-start rounded-2xl"
+                            className="mt-6 p-4 bg-[#f8f8f8] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] flex gap-4 items-start rounded-2xl"
                         >
                             <div className="p-2 bg-[#1a1a1a] text-[#97cd7a] border-2 border-[#1a1a1a] shrink-0 rounded-lg">
                                 <Info size={16} strokeWidth={3} />
@@ -228,7 +228,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                 </div>
 
                 {/* Profile Picture Section */}
-                <div className={`bg-white p-4 border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] h-full rounded-2xl`}>
+                <div className={`bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] h-full rounded-2xl`}>
                     <div className="flex items-center gap-2 mb-4 border-b border-[#1a1a1a]/10 pb-2 text-[#1a1a1a]">
                         <Camera size={16} strokeWidth={3} />
                         <h3 className="text-xs font-medium uppercase tracking-widest">{t('design.profileImage')}</h3>
@@ -236,7 +236,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                     <div className="flex flex-col items-center sm:flex-row gap-5">
                         <div className="relative shrink-0">
-                            <div className="w-20 h-20 border border-[#1a1a1a] bg-white shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] rounded-xl overflow-hidden">
+                            <div className="w-20 h-20 border border-[#1a1a1a] bg-white shadow-[0_3px_0_0_#1a1a1a] rounded-xl overflow-hidden">
                                 {profile.avatarUrl ? (
                                     <img src={profile.avatarUrl}
                                         alt="Avatar"
@@ -255,14 +255,14 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                         <div className="flex-1 w-full space-y-4">
                             <div className="flex gap-2">
-                                <label htmlFor="avatar-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none rounded-xl">
+                                <label htmlFor="avatar-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-xl">
                                     <Upload size={14} strokeWidth={3} /> {profile.avatarUrl ? t('common.change') : t('design.chooseImage')}
                                 </label>
                                 {profile.avatarUrl && (
                                     <Tooltip text={t('common.delete')} position="top">
                                         <button
                                             onClick={() => onChange({ ...profile, avatarUrl: '' })}
-                                            className="px-3 py-2.5 bg-white border border-[#1a1a1a] text-[#1a1a1a] hover:text-white hover:bg-red-400 transition-all shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none rounded-xl"
+                                            className="px-3 py-2.5 bg-white border border-[#1a1a1a] text-[#1a1a1a] hover:text-white hover:bg-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-xl"
                                         >
                                             <Trash2 size={16} strokeWidth={3} />
                                         </button>
@@ -285,7 +285,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                                 onClick={() => onChange({ ...profile, avatarSize: size.id as any })}
                                                 className={`px-4 py-2 text-[8px] font-medium uppercase tracking-widest transition-all rounded-xl ${profile.avatarSize === size.id
                                                     ? 'bg-[#1a1a1a] text-[#97cd7a]'
-                                                    : 'bg-white text-[#1a1a1a] hover:bg-slate-50 border border-[#1a1a1a] shadow-[1px_1px_0px_0px_rgba(26,26,26,1)]'
+                                                    : 'bg-white text-[#1a1a1a] hover:bg-slate-50 border border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a]'
                                                     }`}
                                             >
                                                 {size.label}
@@ -303,7 +303,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                 {/* Banner Upload for Profile Layout */}
                 {profile.headerLayout === 'compact' && (
-                    <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] h-full order-2 rounded-2xl">
+                    <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] h-full order-2 rounded-2xl">
                         <div className="flex items-center gap-2 mb-4 border-b border-[#1a1a1a]/10 pb-2 text-[#1a1a1a]">
                             <ImageIcon size={16} strokeWidth={3} />
                             <h3 className="text-xs font-medium uppercase tracking-widest">{t('design.profileBanner')}</h3>
@@ -311,7 +311,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                         <div className="flex flex-col items-center sm:flex-row gap-5">
                             <div className="relative shrink-0">
-                                <div className="w-36 h-16 border border-[#1a1a1a] bg-white shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] rounded-xl overflow-hidden">
+                                <div className="w-36 h-16 border border-[#1a1a1a] bg-white shadow-[0_3px_0_0_#1a1a1a] rounded-xl overflow-hidden">
                                     {profile.customBackground ? (
                                         <img src={profile.customBackground}
                                             alt="Banner"
@@ -326,14 +326,14 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                             <div className="flex-1 w-full space-y-3">
                                 <div className="flex gap-2">
-                                    <label htmlFor="banner-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none rounded-xl">
+                                    <label htmlFor="banner-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-xl">
                                         <Upload size={14} strokeWidth={3} /> {profile.customBackground ? t('common.change') : t('design.chooseBanner')}
                                     </label>
                                     {profile.customBackground && (
                                         <Tooltip text={t('common.delete')} position="top">
                                             <button
                                                 onClick={() => onChange({ ...profile, customBackground: null })}
-                                                className="px-3 py-2 bg-white border border-[#1a1a1a] text-[#1a1a1a] hover:text-white hover:bg-red-400 transition-all shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none rounded-xl"
+                                                className="px-3 py-2 bg-white border border-[#1a1a1a] text-[#1a1a1a] hover:text-white hover:bg-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-xl"
                                             >
                                                 <Trash2 size={16} strokeWidth={3} />
                                             </button>
@@ -365,7 +365,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                     return (
                         <>
                             {/* Card 1: Primary Color */}
-                            <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] animate-slide-up h-full order-3 rounded-2xl">
+                            <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] animate-slide-up h-full order-3 rounded-2xl">
                                 <div className="flex items-center justify-between mb-4 border-b border-[#1a1a1a]/10 pb-2">
                                     <div className="flex items-center gap-2 text-[#1a1a1a]">
                                         <div className="w-4 h-4 border-2 border-[#1a1a1a] bg-[#1a1a1a] shrink-0 rounded-md" />
@@ -382,14 +382,14 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                             <span className="text-[8px] font-black uppercase tracking-widest text-[#1a1a1a]/40 group-hover:text-[#1a1a1a] transition-colors">
                                                 {t('design.blurColorGradient')}
                                             </span>
-                                            <div className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-all shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] rounded-md ${isGradient ? 'bg-[#1a1a1a]' : 'bg-white'}`}>
+                                            <div className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md ${isGradient ? 'bg-[#1a1a1a]' : 'bg-white'}`}>
                                                 <div className={`absolute top-[2px] w-3 h-3 border border-[#1a1a1a] transition-all rounded-sm ${isGradient ? 'right-[2px] bg-[#97cd7a]' : 'left-[2px] bg-[#1a1a1a]'}`} />
                                             </div>
                                         </button>
                                     </Tooltip>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <div className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:scale-105 transition-transform cursor-pointer rounded-xl" style={{ backgroundColor: bannerColor1 }}>
+                                    <div className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[0_3px_0_0_#1a1a1a] hover:scale-105 transition-transform cursor-pointer rounded-xl" style={{ backgroundColor: bannerColor1 }}>
                                         <input type="color" value={bannerColor1} onChange={(e) => setBannerColor(e.target.value, bannerColor2)} className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0 opacity-0" />
                                     </div>
                                     <div className="flex-1">
@@ -397,8 +397,8 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                             {isGradient ? t('design.bannerColor1') : t('design.blurColor')}
                                         </label>
                                         <div className="flex gap-2">
-                                            <input type="text" value={bannerColor1} onChange={(e) => { const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`; setBannerColor(val, bannerColor2); }} placeholder="#1a1a1a" className="flex-1 h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] tracking-widest rounded-xl" />
-                                            <button onClick={() => setBannerColor('#1a1a1a', bannerColor2)} className="px-2 h-9 flex items-center justify-center text-[#1a1a1a] bg-white border border-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-red-400 transition-all shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] text-[9px] font-bold uppercase rounded-xl">{t('common.clear')}</button>
+                                            <input type="text" value={bannerColor1} onChange={(e) => { const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`; setBannerColor(val, bannerColor2); }} placeholder="#1a1a1a" className="flex-1 h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-xl" />
+                                            <button onClick={() => setBannerColor('#1a1a1a', bannerColor2)} className="px-2 h-9 flex items-center justify-center text-[#1a1a1a] bg-white border border-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] text-[9px] font-bold uppercase rounded-xl">{t('common.clear')}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -406,18 +406,18 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                             {/* Card 2: Secondary Color — in empty column when gradient ON */}
                             {isGradient && (
-                                <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] animate-slide-up h-full order-4 rounded-2xl">
+                                <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] animate-slide-up h-full order-4 rounded-2xl">
                                     <div className="flex items-center gap-2 mb-4 border-b border-[#1a1a1a]/10 pb-2 text-[#1a1a1a]">
                                         <div className="w-4 h-4 border-2 border-[#1a1a1a] bg-[#1a1a1a] shrink-0 rounded-md" />
                                         <h3 className="text-xs font-medium uppercase tracking-widest">{t('design.bannerColor2')}</h3>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <div className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:scale-105 transition-transform cursor-pointer rounded-xl" style={{ backgroundColor: bannerColor2 || '#1e3a5f' }}>
+                                        <div className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[0_3px_0_0_#1a1a1a] hover:scale-105 transition-transform cursor-pointer rounded-xl" style={{ backgroundColor: bannerColor2 || '#1e3a5f' }}>
                                             <input type="color" value={bannerColor2 || '#1e3a5f'} onChange={(e) => setBannerColor(bannerColor1, e.target.value)} className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0 opacity-0" />
                                         </div>
                                         <div className="flex-1">
                                             <label className="block text-[8px] font-medium text-[#1a1a1a] uppercase tracking-[0.2em] mb-1.5">{t('design.bannerColor2')}</label>
-                                            <input type="text" value={bannerColor2 || ''} onChange={(e) => { const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`; setBannerColor(bannerColor1, val); }} placeholder="#1e3a5f" className="w-full h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] tracking-widest rounded-xl" />
+                                            <input type="text" value={bannerColor2 || ''} onChange={(e) => { const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`; setBannerColor(bannerColor1, val); }} placeholder="#1e3a5f" className="w-full h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-xl" />
                                         </div>
                                     </div>
                                     <div className="mt-4 w-full h-4 border border-[#1a1a1a]/20 rounded-sm" style={{ background: `linear-gradient(135deg, ${bannerColor1}, ${bannerColor2 || '#1e3a5f'})` }} />
@@ -445,7 +445,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                     return (
                         <>
                             {/* Card 1: Primary Color (always visible) */}
-                            <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] animate-slide-up h-full order-3 rounded-2xl">
+                            <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] animate-slide-up h-full order-3 rounded-2xl">
                                 <div className="flex items-center justify-between mb-4 border-b border-[#1a1a1a]/10 pb-2">
                                     <div className="flex items-center gap-2 text-[#1a1a1a]">
                                         <Scaling size={16} strokeWidth={3} />
@@ -463,7 +463,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                             <span className="text-[8px] font-black uppercase tracking-widest text-[#1a1a1a]/40 group-hover:text-[#1a1a1a] transition-colors">
                                                 {t('design.blurColorGradient')}
                                             </span>
-                                            <div className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-all shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] rounded-md ${isGradient ? 'bg-[#1a1a1a]' : 'bg-white'}`}>
+                                            <div className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md ${isGradient ? 'bg-[#1a1a1a]' : 'bg-white'}`}>
                                                 <div className={`absolute top-[2px] w-3 h-3 border border-[#1a1a1a] transition-all rounded-sm ${isGradient ? 'right-[2px] bg-[#97cd7a]' : 'left-[2px] bg-[#1a1a1a]'}`} />
                                             </div>
                                         </button>
@@ -472,7 +472,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                                 <div className="flex items-center gap-3">
                                     <div
-                                        className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:scale-105 transition-transform cursor-pointer rounded-xl"
+                                        className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[0_3px_0_0_#1a1a1a] hover:scale-105 transition-transform cursor-pointer rounded-xl"
                                         style={{ backgroundColor: color1 }}
                                     >
                                         <input
@@ -495,11 +495,11 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                                     setColors(val, color2);
                                                 }}
                                                 placeholder="#0f172a"
-                                                className="flex-1 h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] tracking-widest rounded-xl"
+                                                className="flex-1 h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-xl"
                                             />
                                             <button
                                                 onClick={() => setColors('#0f172a', color2)}
-                                                className="px-2 h-9 flex items-center justify-center text-[#1a1a1a] bg-white border border-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-red-400 transition-all shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] text-[9px] font-bold uppercase rounded-xl"
+                                                className="px-2 h-9 flex items-center justify-center text-[#1a1a1a] bg-white border border-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] text-[9px] font-bold uppercase rounded-xl"
                                             >
                                                 {t('common.clear')}
                                             </button>
@@ -511,7 +511,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                             {/* Card 2: Secondary Color — appears in the empty column when gradient is ON */}
                             {/* Card 2: Secondary Color — appears in the empty column when gradient is ON */}
                             {isGradient && (
-                                <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] animate-slide-up h-full order-4 rounded-2xl">
+                                <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] animate-slide-up h-full order-4 rounded-2xl">
                                     <div className="flex items-center gap-2 mb-4 border-b border-[#1a1a1a]/10 pb-2 text-[#1a1a1a]">
                                         <div className="w-4 h-4 border-2 border-[#1a1a1a] bg-[#1a1a1a] shrink-0 rounded-md" />
                                         <h3 className="text-xs font-medium uppercase tracking-widest">{t('design.bannerColor2')}</h3>
@@ -519,7 +519,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                                     <div className="flex items-center gap-3">
                                         <div
-                                            className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:scale-105 transition-transform cursor-pointer rounded-xl"
+                                            className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[0_3px_0_0_#1a1a1a] hover:scale-105 transition-transform cursor-pointer rounded-xl"
                                             style={{ backgroundColor: color2 || '#1e3a5f' }}
                                         >
                                             <input
@@ -541,14 +541,14 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                                     setColors(color1, val);
                                                 }}
                                                 placeholder="#1e3a5f"
-                                                className="w-full h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[1px_1px_0px_0px_rgba(26,26,26,1)] tracking-widest rounded-xl"
+                                                className="w-full h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-xl"
                                             />
                                         </div>
                                     </div>
 
                                     {/* Gradient preview stripe */}
                                     <div
-                                        className="mt-4 w-full h-4 border border-[#1a1a1a]/20 shadow-[1px_1px_0px_0px_rgba(26,26,26,0.3)] rounded-sm"
+                                        className="mt-4 w-full h-4 border border-[#1a1a1a]/20 shadow-[0_2px_0_0_rgba(26,26,26,0.3)] rounded-sm"
                                         style={{ background: `linear-gradient(135deg, ${color1}, ${color2 || '#1e3a5f'})` }}
                                     />
                                 </div>
@@ -561,7 +561,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
 
                 {/* Title / Identity Section */}
-                <div className={`bg-white p-6 border-2 border-[#1a1a1a] shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] rounded-2xl ${['compact', 'banner'].includes(profile.headerLayout || 'classic') ? 'lg:col-span-2 order-last' : ''}`}>
+                <div className={`bg-white p-6 border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] rounded-2xl ${['compact', 'banner'].includes(profile.headerLayout || 'classic') ? 'lg:col-span-2 order-last' : ''}`}>
                     <div className="flex items-center gap-2 mb-6 border-b border-[#1a1a1a]/10 pb-2 text-[#1a1a1a] relative">
                         <UserCircle size={18} strokeWidth={2.5} />
                         <h3 className="text-xs font-black uppercase tracking-[0.2em]">{t('design.identity')}</h3>
@@ -580,7 +580,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                     value={tempUsername}
                                     onChange={(e) => handleTempUsernameChange(e.target.value)}
                                     placeholder={t('design.usernamePlaceholder')}
-                                    className={`w-full h-12 pl-10 pr-12 border-2 border-[#1a1a1a] bg-white focus:bg-[#fcfcfc] outline-none transition-all text-sm font-medium tracking-wide text-[#1a1a1a] shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] focus:shadow-none focus:translate-x-[1px] focus:translate-y-[1px] rounded-xl ${!isUsernameAvailable && tempUsername.length >= 3 ? 'border-red-400' : ''}`}
+                                    className={`w-full h-12 pl-10 pr-12 border-2 border-[#1a1a1a] bg-white focus:bg-[#fcfcfc] outline-none transition-all text-sm font-medium tracking-wide text-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] focus:shadow-none focus:translate-y-[2px] rounded-xl ${!isUsernameAvailable && tempUsername.length >= 3 ? 'border-red-400' : ''}`}
                                 />
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
                                     {isCheckingUsername && <Loader2 size={14} className="animate-spin text-[#1a1a1a]/20" />}
@@ -618,7 +618,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                     initial={{ opacity: 0, y: -5 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     onClick={handleConfirmUsernameChange}
-                                    className="w-full py-3 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] font-black text-[10px] uppercase tracking-[0.2em] shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] hover:shadow-none hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all flex items-center justify-center gap-2 active:scale-95 rounded-xl"
+                                    className="w-full py-3 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_6px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 active:scale-95 rounded-xl"
                                 >
                                     <Check size={14} strokeWidth={4} />
                                     {t('design.confirmUsernameChange')}
@@ -637,7 +637,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                     else onChange({ ...profile, name: e.target.value });
                                 }}
                                 placeholder={t('design.displayNamePlaceholder')}
-                                className="w-full h-12 px-4 border-2 border-[#1a1a1a] bg-white focus:bg-[#fcfcfc] outline-none transition-all text-sm font-medium tracking-wide text-[#1a1a1a] shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] focus:shadow-none focus:translate-x-[1px] focus:translate-y-[1px] rounded-xl"
+                                className="w-full h-12 px-4 border-2 border-[#1a1a1a] bg-white focus:bg-[#fcfcfc] outline-none transition-all text-sm font-medium tracking-wide text-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] focus:shadow-none focus:translate-y-[2px] rounded-xl"
                             />
                         </div>
 
@@ -651,7 +651,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                     else onChange({ ...profile, bio: e.target.value });
                                 }}
                                 placeholder={t('design.bioPlaceholder')}
-                                className="w-full h-28 p-4 border-2 border-[#1a1a1a] bg-white focus:bg-[#fcfcfc] outline-none transition-all text-sm font-medium tracking-wide text-[#1a1a1a] shadow-[3px_3px_0px_0px_rgba(26,26,26,1)] focus:shadow-none focus:translate-x-[1px] focus:translate-y-[1px] resize-none rounded-xl"
+                                className="w-full h-28 p-4 border-2 border-[#1a1a1a] bg-white focus:bg-[#fcfcfc] outline-none transition-all text-sm font-medium tracking-wide text-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] focus:shadow-none focus:translate-y-[2px] resize-none rounded-xl"
                             />
                         </div>
                     </div>

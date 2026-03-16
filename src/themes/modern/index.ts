@@ -96,7 +96,7 @@ export const modernThemes: Theme[] = [
         id: 'modern-retro',
         name: 'Retro Futurist',
         backgroundClass: 'bg-[#240046]',
-        buttonClass: 'bg-gradient-to-r from-[#ff006e] to-[#8338ec] text-white hover:brightness-110 hover:-translate-y-1 transition-transform duration-200 w-full rounded-md py-4 px-6 flex items-center justify-between shadow-[4px_4px_0px_rgba(0,0,0,0.5)]',
+        buttonClass: 'bg-gradient-to-r from-[#ff006e] to-[#8338ec] text-white hover:brightness-110 hover:-translate-y-1 transition-transform duration-200 w-full rounded-md py-4 px-6 flex items-center justify-between shadow-[0_4px_0_0_rgba(0,0,0,0.5)]',
         buttonHex: '#ff006e',
         textHex: '#ffffff',
         textClass: 'text-white font-sans italic tracking-wide',
