@@ -14,6 +14,7 @@ interface AuthContextType {
     token: string | null;
     authError: string | null;
     stripeConfig: { publishableKey: string; env: string } | null;
+    isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,7 +25,6 @@ const safeSetItem = (key: string, value: string) => {
         localStorage.setItem(key, value);
     } catch (e) {
         if (e instanceof DOMException && e.name === 'QuotaExceededError') {
-            console.warn('localStorage quota exceeded, clearing snapshots and retrying...');
             // Clear snapshot data (less critical than auth data)
             localStorage.removeItem('nodus_profile_snapshot');
             localStorage.removeItem('nodus_links_snapshot');
@@ -33,7 +33,6 @@ const safeSetItem = (key: string, value: string) => {
                 localStorage.setItem(key, value);
             } catch (retryError) {
                 // Still failing, need more aggressive cleanup
-                console.warn('Still quota exceeded, clearing ALL non-essential data...');
                 const token = localStorage.getItem('nodus_access_token');
                 localStorage.clear();
                 if (token) {
@@ -41,13 +40,10 @@ const safeSetItem = (key: string, value: string) => {
                 }
                 try {
                     localStorage.setItem(key, value);
-                    console.log('Successfully saved after aggressive cleanup');
                 } catch (finalError) {
-                    console.error('Failed to save to localStorage even after full cleanup:', finalError);
+                    // Silently handle storage errors
                 }
             }
-        } else {
-            console.error('Failed to save to localStorage:', e);
         }
     }
 };
@@ -73,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setProfile(profileData);
             return { success: true };
         } catch (err: any) {
-            console.error('Profile sync error:', err);
+            // Silently handle profile sync error
 
             // If 401, session expired - clear auth
             if (err.message?.includes('401') || err.message?.includes('Unauthorized')) {
@@ -100,9 +96,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             try {
                 const config = await apiClient.getStripeConfig();
                 setStripeConfig(config);
-                console.log(`💳 Stripe Mode: ${config.env.toUpperCase()}`);
             } catch (e) {
-                console.error('Failed to load Stripe config:', e);
+                // Stripe config load failure
             }
 
             const token = localStorage.getItem('nodus_access_token');
@@ -149,7 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     }
                 }
             } catch (e: any) {
-                console.error('Failed to rehydrate session:', e);
+                // Rehydration failure
                 // Clear session if it's explicitly unauthorized (401/403)
                 if (e.message?.includes('401') || e.message?.includes('Unauthorized')) {
                     signOut();
@@ -187,7 +182,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         const handleSessionExpired = () => {
-            console.warn('🔑 [AuthContext] Session expired event received. Signing out...');
             signOutRef.current?.();
         };
         window.addEventListener('nodus:session-expired', handleSessionExpired);
@@ -216,7 +210,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const profileData = await apiClient.getMyProfile();
             setProfile(profileData);
         } catch (err: any) {
-            console.error('Post-login profile fetch error:', err);
+            // Silently handle login profile error
             // If it's a 404, they just need onboarding, so we set profile to null and return success
             if (err.message?.includes('404')) {
                 setProfile(null);
@@ -307,7 +301,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setProfile,
             token,
             authError,
-            stripeConfig
+            stripeConfig,
+            isAdmin: user?.email?.toLowerCase() === 'jaoomarcos75@gmail.com'
         }}>
             {children}
         </AuthContext.Provider>

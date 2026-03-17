@@ -4,6 +4,7 @@ export const translations = {
       features: "Funcionalidades",
       howItWorks: "Como Funciona",
       pricing: "Preços",
+      blog: "Blog",
       create: "Criar meu Nodus"
     },
     hero: {
@@ -93,16 +94,51 @@ export const translations = {
     comparison: {
       title: "Por que o Nodus?",
       subtitle: "A diferença entre ser só mais um link e ter uma presença brutal.",
-      othersTitle: "Linktree",
-      nodusTitle: "Nodus",
-      point1_others: "Apenas botões empilhados em lista",
-      point1_nodus: "Bento grids e layouts dinâmicos",
-      point2_others: "Taxas de transação (até 10% nas vendas)",
-      point2_nodus: "Taxa ZERO nas suas vendas diretas",
-      point3_others: "Redireciona o cliente para fora",
-      point3_nodus: "Checkout e agendamento na própria página",
-      point4_others: "Analytics avançado apenas no plano Pro",
-      point4_nodus: "Métricas completas e detalhadas inclusas"
+      feature: "Funcionalidade",
+      nodus: "Nodus",
+      competitor: "Concorrente",
+      items: [
+        {
+          feature: "Integração Streams",
+          nodus: "Deep Sync: Puxa seguidores e avatar via API em tempo real.",
+          competitor: "Apenas link simples com ícone."
+        },
+        {
+          feature: "Media Kit Expansível",
+          nodus: "Nativo: Botão que revela métricas profissionais ao clicar.",
+          competitor: "Requer integração externa ou PDF estático."
+        },
+        {
+          feature: "PIX e Pagamentos BR",
+          nodus: "Nativo: Focado no mercado brasileiro com chaves e QR Codes.",
+          competitor: "Focado em Stripe/PayPal (taxas altas e menos intuitivo no BR)."
+        },
+        {
+          feature: "Music Card (Álbuns)",
+          nodus: "Agrupado: Expande a playlist inteira dentro de um único botão.",
+          competitor: "Geralmente apenas um embed de uma única faixa ou player externo."
+        },
+        {
+          feature: "Localização e Mapas",
+          nodus: "Card Ativo: Mapa interativo renderizado direto na bio.",
+          competitor: "Apenas redirecionamento para Google Maps."
+        },
+        {
+          feature: "Download de Arquivos",
+          nodus: "Nodus Storage: Hospedagem interna de PDFs e E-books.",
+          competitor: "Requer link externo (Google Drive/Dropbox)."
+        },
+        {
+          feature: "Estética Visual",
+          nodus: "Neobrutalismo: Bordas 1.5px, sombras rígidas e animações premium.",
+          competitor: "Design minimalista padrão (arredondado e genérico)."
+        },
+        {
+          feature: "Links com Senha",
+          nodus: "Nativo: Proteção direta na interface do editor.",
+          competitor: "Funcionalidade restrita apenas a planos pagos elevados."
+        }
+      ]
     },
     footer: {
       title1: "Sua bio",
@@ -124,6 +160,65 @@ export const translations = {
       support: "Suporte",
       partners: "Parcerias",
       rights: "Todos os direitos reservados."
+    },
+    blog: {
+      editorial: "Jornal Editorial",
+      prefix: "O",
+      name: "Nodus",
+      title: "Boletim",
+      search: "BUSCAR ARTIGOS...",
+      noPosts: "Aguardando novidades...",
+      est: "EST. 2024 — VOL. 01",
+      featured: "Destaque",
+      latest: "Últimas Atualizações",
+      quickReads: "Leituras Rápidas",
+      newsletterTitle: "Entre para o Clube",
+      newsletterSub: "Dicas de branding toda sexta no seu e-mail.",
+      subscribe: "ASSINAR",
+      readMore: "Ler matéria",
+      categories: {
+        design: "Atualização",
+        updates: "Novidades",
+        mastery: "Off Topic",
+        culture: "Cultura"
+      },
+      backToBlog: "Voltar ao Blog",
+      share: "Compartilhar",
+      enjoyedRead: "Gostou da leitura?",
+      likes: "Curtidas",
+      shareArticle: "Compartilhar Artigo",
+      whereToSend: "Para onde enviar?",
+      chooseNetwork: "Escolha sua rede favorita",
+      copyLink: "Ou apenas copie o link",
+      copy: "Copiar",
+      copied: "Copiado!",
+      close: "Fechar",
+      posts: [
+        {
+          id: 1,
+          title: "O Futuro da Presença Digital: Neobrutalismo e Autenticidade",
+          excerpt: "Entenda por que as marcas estão abandonando templates genéricos em busca de identidades viscerais e autênticas.",
+          author: "João Magno"
+        },
+        {
+          id: 2,
+          title: "Integração Nativa com o Instagram: Um Salto Profissional",
+          excerpt: "Sincronize seu feed do Instagram diretamente no seu perfil Nodus sem precisar de ferramentas externas.",
+          author: "Equipe Nodus"
+        },
+        {
+          id: 3,
+          title: "5 Estratégias para Maximizar a Conversão do seu Perfil",
+          excerpt: "Aprenda como a psicologia das cores e a arquitetura de links podem aumentar seus cliques em até 40%.",
+          author: "Ana Silva"
+        },
+        {
+          id: 4,
+          title: "Neobrutalismo: A Tendência que está Revolucionando a Web",
+          excerpt: "Contraste alto e bordas marcantes. Por que o design 'perfeito' está sendo trocado por algo mais humano.",
+          author: "João Magno"
+        }
+      ]
     }
   },
   en: {
@@ -131,6 +226,7 @@ export const translations = {
       features: "Features",
       howItWorks: "How it Works",
       pricing: "Pricing",
+      blog: "Blog",
       create: "Create my Nodus"
     },
     hero: {
@@ -220,16 +316,51 @@ export const translations = {
     comparison: {
       title: "Why Nodus?",
       subtitle: "The difference between being just another link and having a brutal presence.",
-      othersTitle: "Linktree",
-      nodusTitle: "Nodus",
-      point1_others: "Just stacked buttons in a list",
-      point1_nodus: "Bento grids and dynamic layouts",
-      point2_others: "Transaction fees (up to 10% on sales)",
-      point2_nodus: "ZERO fees on your direct sales",
-      point3_others: "Redirects customers to external sites",
-      point3_nodus: "In-page checkout and scheduling",
-      point4_others: "Advanced analytics only on Pro plan",
-      point4_nodus: "Complete and detailed metrics included"
+      feature: "Feature",
+      nodus: "Nodus",
+      competitor: "Competitor",
+      items: [
+        {
+          feature: "Streaming Integration",
+          nodus: "Deep Sync: Pulls followers and avatar via API in real-time.",
+          competitor: "Simple link with icon only."
+        },
+        {
+          feature: "Expandable Media Kit",
+          nodus: "Native: Button that reveals professional metrics upon clicking.",
+          competitor: "Requires external integration or static PDF."
+        },
+        {
+          feature: "Local Payments",
+          nodus: "Native: Focused on local markets with keys and QR Codes.",
+          competitor: "Focused on global processors (high fees and less intuitive)."
+        },
+        {
+          feature: "Music Card (Albums)",
+          nodus: "Grouped: Expands an entire playlist within a single button.",
+          competitor: "Usually just an embed of a single track or external player."
+        },
+        {
+          feature: "Location & Maps",
+          nodus: "Active Card: Interactive map rendered directly on bio.",
+          competitor: "Redirection to Google Maps only."
+        },
+        {
+          feature: "File Downloads",
+          nodus: "Nodus Storage: Internal hosting for PDFs and E-books.",
+          competitor: "Requires external link (Google Drive/Dropbox)."
+        },
+        {
+          feature: "Visual Aesthetic",
+          nodus: "Neobrutalism: 1.5px borders, hard shadows, and premium animations.",
+          competitor: "Standard minimalist design (rounded and generic)."
+        },
+        {
+          feature: "Password Links",
+          nodus: "Native: Direct protection within the editor interface.",
+          competitor: "Feature restricted to high-tier paid plans."
+        }
+      ]
     },
     footer: {
       title1: "Your bio",
@@ -251,6 +382,65 @@ export const translations = {
       support: "Support",
       partners: "Partners",
       rights: "All rights reserved."
+    },
+    blog: {
+      editorial: "Editorial Journal",
+      prefix: "The",
+      name: "Nodus",
+      title: "Bulletin",
+      search: "SEARCH ARTICLES...",
+      noPosts: "Coming soon...",
+      est: "EST. 2024 — VOL. 01",
+      featured: "Featured Story",
+      latest: "Latest Updates",
+      quickReads: "Quick Reads",
+      newsletterTitle: "Join the Club",
+      newsletterSub: "Expert branding tips every Friday in your inbox.",
+      subscribe: "SUBSCRIBE",
+      readMore: "Read more",
+      categories: {
+        design: "Update",
+        updates: "News",
+        mastery: "Off Topic",
+        culture: "Culture"
+      },
+      backToBlog: "Back to Blog",
+      share: "Share",
+      enjoyedRead: "Enjoyed the read?",
+      likes: "Likes",
+      shareArticle: "Share Article",
+      whereToSend: "Where to send?",
+      chooseNetwork: "Choose your favorite network",
+      copyLink: "Or just copy the link",
+      copy: "Copy",
+      copied: "Copied!",
+      close: "Close",
+      posts: [
+        {
+          id: 1,
+          title: "The Future of Digital Identity: Neobrutalism and Authenticity",
+          excerpt: "Explore how brands are moving away from generic templates in favor of visceral, authentic digital identities.",
+          author: "João Magno"
+        },
+        {
+          id: 2,
+          title: "Native Instagram Integration: A Professional Leap",
+          excerpt: "Sync your professional Instagram feed directly to your Nodus profile without manual uploads.",
+          author: "Nodus Team"
+        },
+        {
+          id: 3,
+          title: "5 Strategies to Maximize Profile Conversion",
+          excerpt: "Learn how color psychology and link architecture can increase your click-through rates by up to 40%.",
+          author: "Ana Silva"
+        },
+        {
+          id: 4,
+          title: "Neobrutalism: The Design Trend Revolutionizing the Web",
+          excerpt: "High contrast and bold borders. Why 'perfect' design is being replaced by something more human.",
+          author: "João Magno"
+        }
+      ]
     }
   }
 };

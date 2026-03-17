@@ -45,7 +45,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
             <div className="bg-white border-4 border-[#1a1a1a] shadow-[0_12px_0_0_#1a1a1a] p-6 sm:p-8 w-full max-w-[400px] relative animate-in zoom-in-95 duration-200">
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-black hover:bg-black hover:text-[#ffdf00] transition-all p-1 border-2 border-transparent hover:border-[#1a1a1a]"
+                    className="absolute top-4 right-4 text-black hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover:text-[#ffdf00] transition-all p-1 border-2 border-transparent hover:border-[#1a1a1a]"
                 >
                     <X size={24} strokeWidth={3} />
                 </button>
@@ -102,7 +102,7 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                     <div className="w-full">
                         <button
                             onClick={handleDownload}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-black text-white border-2 border-[#1a1a1a] font-black uppercase tracking-widest text-[10px] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[2px] transition-all"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  border-2 border-[#1a1a1a] font-black uppercase tracking-widest text-[10px] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[2px] transition-all"
                         >
                             <Download size={16} strokeWidth={3} /> {t('profile.saveQR')}
                         </button>

@@ -965,7 +965,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 </div>
                                 <button
                                     onClick={() => setOpenPlaylist(null)}
-                                    className={`p-2 rounded-full transform active:scale-95 transition-all ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
+                                    className={`p-2 rounded-full transform active:scale-95 transition-all ${isDark ? 'hover:bg-white/5' : 'hover:bg-[#ffdf00]/5'}`}
                                 >
                                     <ChevronDown size={24} />
                                 </button>
@@ -983,7 +983,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.03 }}
-                                        className={`flex items-center gap-4 p-3.5 rounded-2xl group transition-all relative overflow-hidden ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
+                                        className={`flex items-center gap-4 p-3.5 rounded-2xl group transition-all relative overflow-hidden ${isDark ? 'hover:bg-white/5' : 'hover:bg-[#ffdf00]/5'}`}
                                     >
                                         <div className="absolute inset-0 bg-current opacity-0 group-hover:opacity-[0.02] transition-opacity" />
 
@@ -1057,10 +1057,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     fontStyle: (profile.fontItalic) ? 'italic' : 'normal'
                 }}
             >
-                {/* Custom CSS Injection */}
-                {profile.customCSS && (
-                    <style dangerouslySetInnerHTML={{ __html: profile.customCSS }} />
-                )}
 
                 {profile.headerLayout === 'banner' && (
                     <div className="relative w-full h-[62vh] min-h-[380px] shrink-0 overflow-visible">
@@ -1542,9 +1538,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         // We no longer inject here at the top.
                                         // It will be rendered at its position in the loop below.
 
-                                        const themeButtonHex = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#0f172a');
+                                        const themeButtonHex = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#ffffff');
                                         const cardAccentColor = themeButtonHex;
-                                        const cardTextColor = (isDarkTheme || currentTheme.id === 'glass' ? '#ffffff' : '#0f172a');
+                                        const cardTextColor = (isDarkTheme || currentTheme.id === 'glass' ? '#ffffff' : '#1a1a1a');
 
                                         let currentIconGroup: LinkItem[] = [];
                                         let currentCardGroup: LinkItem[] = [];
@@ -1579,7 +1575,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     className={`relative group flex items-center justify-center w-[72px] h-[72px] transition-all duration-300 ${buttonClass.replace(/\b(block|w-full|min-h-\[.*?\]|px-\d+(\.\d+)?|py-\d+(\.\d+)?|justify-between|text-center)\b/g, '').trim()} ${getHighlightClass(iconLink.highlight)} cursor-pointer`}
                                                                     style={{ ...mainButtonStyle, borderRadius: borderRadiusValue }} // Força o estilo do botão (cor e redondura)
                                                                 >
-                                                                    <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${currentTheme.id.includes('dark') ? 'bg-white' : 'bg-black'}`}></div>
+                                                                    <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${currentTheme.id.includes('dark') ? 'bg-white' : 'bg-[#1a1a1a]'}`}></div>
 
                                                                     <div className="relative z-10 p-1">
                                                                         {iconLink.image ? (
@@ -1883,7 +1879,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             nestedItems.push(
                                                                                 <InteractiveButton key={child.id} className="w-full">
                                                                                     <div className={getHighlightClass(child.highlight)}>
-                                                                                        <YouTubeEmbed url={child.url} title={child.title} className={roundedClass || 'rounded-2xl'} />
+                                                                                        <YouTubeEmbed url={child.url} title={child.title} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} />
                                                                                     </div>
                                                                                 </InteractiveButton>
                                                                             );
@@ -1891,24 +1887,45 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             nestedItems.push(
                                                                                 <InteractiveButton key={child.id} className="w-full">
                                                                                     <div className={getHighlightClass(child.highlight)}>
-                                                                                        <TikTokEmbed url={child.url} title={child.title} videoUrl={child.videoUrl} className={roundedClass || 'rounded-2xl'} />
+                                                                                        <TikTokEmbed url={child.url} title={child.title} videoUrl={child.videoUrl} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} />
                                                                                     </div>
                                                                                 </InteractiveButton>
                                                                             );
                                                                         } else {
                                                                             // Check Integrations for children
                                                                             let renderedSpecial = false;
-                                                                            if (child.platform === 'instagram' || (child.url.includes('instagram.com') && child.type !== 'collection')) {
-                                                                                if (instagramIntegration) {
-                                                                                    nestedItems.push(
-                                                                                        <InteractiveButton key={child.id} className="w-full">
-                                                                                            <div className={getHighlightClass(child.highlight)}>
-                                                                                                <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={child.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                                            </div>
-                                                                                        </InteractiveButton>
-                                                                                    );
-                                                                                    renderedSpecial = true;
-                                                                                }
+                                                                            if (instagramIntegration && (child.platform === 'instagram' || child.url?.includes('instagram.com') || (child.type === 'collection' && child.platform === 'instagram'))) {
+                                                                                const childMedia = child.type === 'collection' ? (child.children || []).map(c => ({
+                                                                                    id: c.id,
+                                                                                    media_url: c.image,
+                                                                                    thumbnail_url: c.image,
+                                                                                    permalink: c.url,
+                                                                                    caption: c.title,
+                                                                                    media_type: c.videoUrl ? 'VIDEO' : 'IMAGE'
+                                                                                })) : [];
+
+                                                                                nestedItems.push(
+                                                                                    <InteractiveButton key={child.id} className="w-full">
+                                                                                        <div className={getHighlightClass(child.highlight)}>
+                                                                                            <InstagramCard
+                                                                                                username={instagramUsername || 'instagram_user'}
+                                                                                                followers={instagramFollowers || 0}
+                                                                                                avatarUrl={instagramAvatar || ''}
+                                                                                                media={childMedia.length > 0 ? childMedia : instagramMedia}
+                                                                                                themeButtonClass={baseCardClass}
+                                                                                                themeButtonStyle={mainButtonStyle}
+                                                                                                themeTextHex={getSmartTextColor()}
+                                                                                                buttonRoundness={roundedClass || undefined}
+                                                                                                isDark={isDarkTheme}
+                                                                                                variant={child.layout === 'classic' ? 'profile' : 'feed'}
+                                                                                                fontFamily={profile.fontFamily}
+                                                                                                fontWeight={profile.fontWeight || undefined}
+                                                                                                fontItalic={profile.fontItalic}
+                                                                                            />
+                                                                                        </div>
+                                                                                    </InteractiveButton>
+                                                                                );
+                                                                                renderedSpecial = true;
                                                                             }
                                                                             if (!renderedSpecial && (child.platform === 'youtube' || (child.url.includes('youtube.com') && !child.url.includes('watch?v=') && !child.url.includes('/shorts/')))) {
                                                                                 if (youtubeIntegration) {
@@ -2054,7 +2071,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 renderedItems.push(
                                                     <InteractiveButton key={link.id} className="w-full">
                                                         <div className={getHighlightClass(link.highlight)}>
-                                                            <YouTubeEmbed url={link.url} title={link.title} className={roundedClass || 'rounded-2xl'} />
+                                                            <YouTubeEmbed url={link.url} title={link.title} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} />
                                                         </div>
                                                     </InteractiveButton>
                                                 );
@@ -2062,7 +2079,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 renderedItems.push(
                                                     <InteractiveButton key={link.id} className="w-full">
                                                         <div className={getHighlightClass(link.highlight)}>
-                                                            <TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} className={roundedClass || 'rounded-2xl'} />
+                                                            <TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} />
                                                         </div>
                                                     </InteractiveButton>
                                                 );

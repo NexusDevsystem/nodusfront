@@ -85,7 +85,6 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                                 </div>
                             )}
                         </div>
-                        <p className="text-[10px] text-black/50 uppercase tracking-wider font-medium line-clamp-1">{description}</p>
                     </div>
                 </div>
 

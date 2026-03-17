@@ -108,7 +108,7 @@ export default function PasswordResetFlow({ onBack, initialEmail = '' }: Passwor
                     <button
                         type="submit"
                         disabled={loading || !email}
-                        className="w-full py-4 bg-black text-[#97cd7a] border-2 border-[#1a1a1a] font-black text-sm uppercase tracking-widest shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[2px] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  border-2 border-[#1a1a1a] font-black text-sm uppercase tracking-widest shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[2px] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {loading ? <Loader2 className="animate-spin" size={18} /> : 'Enviar Código'}
                     </button>
@@ -133,7 +133,7 @@ export default function PasswordResetFlow({ onBack, initialEmail = '' }: Passwor
                     <button
                         type="submit"
                         disabled={loading || code.length < 6}
-                        className="w-full py-4 bg-black text-[#97cd7a] border-2 border-[#1a1a1a] font-black text-sm uppercase tracking-widest shadow-[0_6px_0_0_rgba(0,0,0,0.2)] hover:translate-y-[2px] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  border-2 border-[#1a1a1a] font-black text-sm uppercase tracking-widest shadow-[0_6px_0_0_rgba(0,0,0,0.2)] hover:translate-y-[2px] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {loading ? <Loader2 className="animate-spin" size={18} /> : 'Verificar Código'}
                     </button>
@@ -166,7 +166,7 @@ export default function PasswordResetFlow({ onBack, initialEmail = '' }: Passwor
                     <button
                         type="submit"
                         disabled={loading || newPassword.length < 6}
-                        className="w-full py-4 bg-black text-[#97cd7a] border-2 border-[#1a1a1a] font-black text-sm uppercase tracking-widest shadow-[0_6px_0_0_rgba(0,0,0,0.2)] hover:translate-y-[2px] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  border-2 border-[#1a1a1a] font-black text-sm uppercase tracking-widest shadow-[0_6px_0_0_rgba(0,0,0,0.2)] hover:translate-y-[2px] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {loading ? <Loader2 className="animate-spin" size={18} /> : 'Redefinir Senha'}
                     </button>
@@ -182,7 +182,7 @@ export default function PasswordResetFlow({ onBack, initialEmail = '' }: Passwor
                     </div>
                     <button
                         onClick={onBack}
-                        className="w-full py-4 bg-black text-[#97cd7a] border-2 border-[#1a1a1a] font-black text-sm uppercase tracking-widest shadow-[0_6px_0_0_rgba(0,0,0,0.2)] hover:translate-y-[2px] transition-all"
+                        className="w-full py-4 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  border-2 border-[#1a1a1a] font-black text-sm uppercase tracking-widest shadow-[0_6px_0_0_rgba(0,0,0,0.2)] hover:translate-y-[2px] transition-all"
                     >
                         Ir para Login
                     </button>

@@ -57,7 +57,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
                 className="flex flex-col gap-2 group cursor-pointer relative cursor-target"
                 onClick={() => handleThemeSelect(theme.id)}
             >
-                <div className={`relative aspect-[3/4] w-full border-2 transition-all duration-300 rounded-2xl overflow-hidden ${isActive ? 'border-black bg-black shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'border-black/10 hover:border-black/30 bg-white'}`}>
+                <div className={`relative aspect-[3/4] w-full border-2 transition-all duration-300 rounded-2xl overflow-hidden ${isActive ? 'border-black bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'border-black/10 hover:border-black/30 bg-white'}`}>
                     <div className={`absolute inset-0 ${theme.backgroundClass}`} style={{ backgroundColor: theme.solidColor }} />
                     <div className="absolute inset-0 p-4 flex flex-col items-center justify-center gap-4">
                         <div className="flex-1 flex items-center justify-center w-full">
@@ -172,7 +172,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
                             onClick={() => onChange({ ...profile, enableBlur: !profile.enableBlur })}
                             className={`relative w-12 h-6 border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] rounded-full transition-all active:shadow-none active:translate-y-[0.5px] ${profile.enableBlur ? 'bg-[#97cd7a]' : 'bg-white'}`}
                         >
-                            <div className={`absolute top-[2px] w-4 h-4 border-2 border-[#1a1a1a] bg-white rounded-full transition-all ${profile.enableBlur ? 'left-[24px]' : 'left-[4px]'}`} />
+                            <div className={`absolute top-[3px] w-4 h-4 border-2 border-[#1a1a1a] bg-white rounded-full transition-all ${profile.enableBlur ? 'left-[24px]' : 'left-[4px]'}`} />
                         </button>
                     </div>
                 </div>

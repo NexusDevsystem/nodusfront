@@ -101,7 +101,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                             }}
                                             className={`flex-1 py-2 text-[10px] font-medium transition-all cursor-target ${idx !== 0 ? 'border-l border-[#1a1a1a]' : ''} ${(profile.fontWeight || '400') === w.val
                                                 ? 'bg-[#1a1a1a] text-[#97cd7a]'
-                                                : 'bg-white text-black hover:bg-[#1a1a1a] hover:text-white'
+                                                : 'bg-white text-black hover:bg-[#97cd7a] hover:text-white'
                                                 }`}
                                         >
                                             {w.label}
@@ -262,12 +262,12 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                 }}
                                 className={`flex items-center justify-between p-2.5 border-2 transition-all text-left relative group rounded-2xl cursor-target ${isSelected
                                     ? 'border-[#1a1a1a] bg-[#97cd7a] shadow-[0_2px_0_0_#1a1a1a]'
-                                    : 'border-[#1a1a1a] bg-white hover:bg-[#1a1a1a] hover:text-[#97cd7a] shadow-[0_1.5px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none'
+                                    : 'border-[#1a1a1a] bg-white hover:bg-[#97cd7a] hover:text-[#97cd7a] shadow-[0_1.5px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none'
                                     }`}
                             >
                                 <div className="flex items-center gap-3 min-w-0 flex-1">
                                     <div
-                                        className={`w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center font-medium shrink-0 transition-colors rounded-xl ${isSelected ? 'bg-white text-black' : 'bg-white text-black group-hover:bg-[#1a1a1a] group-hover:text-white'}`}
+                                        className={`w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center font-medium shrink-0 transition-colors rounded-xl ${isSelected ? 'bg-white text-black' : 'bg-white text-black group-hover:bg-[#97cd7a] group-hover:text-white'}`}
                                         style={{
                                             fontFamily: font.family,
                                             fontWeight: profile.fontWeight || '400',

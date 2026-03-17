@@ -77,7 +77,7 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                                 <Tooltip text={t('common.reset')} position="top">
                                     <button
                                         onClick={() => updateProfile({ customButtonColor: null })}
-                                        className="text-[10px] text-black border border-[#1a1a1a] bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[0_1px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all w-full sm:w-auto cursor-target"
+                                        className="text-[10px] text-black border border-[#1a1a1a] bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[0_1px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none hover:bg-[#97cd7a] hover:text-[#97cd7a] transition-all w-full sm:w-auto cursor-target"
                                     >
                                         {t('common.reset')}
                                     </button>

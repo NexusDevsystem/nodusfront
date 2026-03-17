@@ -39,7 +39,7 @@ const MusicRichCard: React.FC<MusicRichCardProps> = ({
         >
             <div className="flex h-full items-center px-4 gap-3.5 flex-1 min-w-0">
                 {/* Album Art */}
-                <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-lg'} overflow-hidden border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] shrink-0 group-hover:scale-105 transition-transform duration-500`}>
+                <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-lg'} overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] shrink-0 group-hover:scale-105 transition-transform duration-500`}>
                     <img src={link.image || (isDeezer
                             ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg'
                             : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b'
@@ -160,7 +160,7 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className={`relative w-full max-w-lg bg-white border-t-2 border-x-2 border-[#1a1a1a] rounded-t-[2.5rem] overflow-hidden pointer-events-auto flex flex-col shadow-[0_-8px_0_0_#1a1a1a]`}
+                        className={`relative w-full max-w-lg bg-white border-t-2 border-x-2 border-[#1a1a1a] rounded-t-[2.5rem] overflow-hidden pointer-events-auto flex flex-col shadow-[0_-4px_0_0_#1a1a1a]`}
                         style={{
                             backgroundColor: isDarkTheme ? '#121212' : '#FFFFFF',
                             color: isDarkTheme ? '#FFFFFF' : '#000000',
@@ -181,7 +181,7 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                                         ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg'
                                         : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b'
                                     )}
-                                    className="w-20 h-20 rounded-xl object-cover border-2 border-[#1a1a1a] shadow-[4px_4px_0px_0px_#1a1a1a] group-hover:scale-105 transition-transform duration-500"
+                                    className="w-20 h-20 rounded-xl object-cover border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] group-hover:scale-105 transition-transform duration-500"
                                     alt="" loading="lazy" decoding="async" />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -203,7 +203,7 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                             </div>
                             <button
                                 onClick={() => setOpenPlaylist(null)}
-                                className={`p-2 rounded-full transform active:scale-95 transition-all ${isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
+                                className={`p-2 rounded-full transform active:scale-95 transition-all ${isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-[#ffdf00]/5'}`}
                             >
                                 <ChevronDown size={24} />
                             </button>
@@ -221,7 +221,7 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: idx * 0.03 }}
-                                    className={`flex items-center gap-4 p-3.5 rounded-2xl group transition-all relative overflow-hidden ${isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
+                                    className={`flex items-center gap-4 p-3.5 rounded-2xl group transition-all relative overflow-hidden ${isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-[#ffdf00]/5'}`}
                                 >
                                     <div className="absolute inset-0 bg-current opacity-0 group-hover:opacity-[0.02] transition-opacity" />
                                     <div className="flex items-baseline gap-4 flex-1 min-w-0">

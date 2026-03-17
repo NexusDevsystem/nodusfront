@@ -21,7 +21,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShar
         <span className="text-black">{profile.username || profile.name.toLowerCase().replace(/\s+/g, '')}</span>
         <button
           onClick={() => window.open(`/${profile.username || profile.name.toLowerCase().replace(/\s+/g, '')}`, '_blank')}
-          className="ml-1 p-1 hover:bg-black hover:text-[#97cd7a] transition-all"
+          className="ml-1 p-1 hover:bg-[#ffdf00] hover:text-[#97cd7a] transition-all"
         >
           <ExternalLink size={12} strokeWidth={3} />
         </button>

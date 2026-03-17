@@ -118,7 +118,7 @@ export default function OnboardingQuests({ quests, progress }: OnboardingQuestsP
                                 </div>
                                 <button
                                     onClick={() => setIsOpen(false)}
-                                    className="w-8 h-8 flex items-center justify-center bg-transparent border-2 border-transparent transition-all rounded-full text-black hover:bg-black/5"
+                                    className="w-8 h-8 flex items-center justify-center bg-transparent border-2 border-transparent transition-all rounded-full text-black hover:bg-[#ffdf00]/5"
                                 >
                                     <X size={20} strokeWidth={2.5} />
                                 </button>

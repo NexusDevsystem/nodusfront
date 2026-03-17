@@ -422,13 +422,13 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                             <div className="flex gap-2">
                                 <button 
                                     onClick={prevPlan}
-                                    className="p-2 border-2 border-[#1a1a1a] bg-white rounded-lg hover:bg-black hover:text-white transition-colors active:scale-95"
+                                    className="p-2 border-2 border-[#1a1a1a] bg-white rounded-lg hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover: transition-colors active:scale-95"
                                 >
                                     <ChevronLeft size={18} strokeWidth={3} />
                                 </button>
                                 <button 
                                     onClick={nextPlan}
-                                    className="p-2 border-2 border-[#1a1a1a] bg-white rounded-lg hover:bg-black hover:text-white transition-colors active:scale-95"
+                                    className="p-2 border-2 border-[#1a1a1a] bg-white rounded-lg hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover: transition-colors active:scale-95"
                                 >
                                     <ChevronRight size={18} strokeWidth={3} />
                                 </button>

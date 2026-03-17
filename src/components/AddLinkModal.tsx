@@ -166,7 +166,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     <div className="flex items-center gap-4 mb-2">
                         <button
                             onClick={() => setShowCollectionStep(false)}
-                            className="p-2 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-black transition-all rounded-lg shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[3px]"
+                            className="p-2 text-black hover:bg-[#ffdf00] hover:text-black border-2 border-black transition-all rounded-lg shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[3px]"
                         >
                             <ChevronRight size={16} strokeWidth={3} className="rotate-180" />
                         </button>
@@ -260,7 +260,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     <div className="flex items-center gap-4 mb-2">
                         <button
                             onClick={() => setShowShopCollectionStep(false)}
-                            className="p-2 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-black transition-all rounded-lg shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-0.5"
+                            className="p-2 text-black hover:bg-[#ffdf00] hover:text-black border-2 border-black transition-all rounded-lg shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-0.5"
                         >
                             <ChevronRight size={16} strokeWidth={3} className="rotate-180" />
                         </button>

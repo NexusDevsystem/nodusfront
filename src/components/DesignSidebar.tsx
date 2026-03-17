@@ -41,7 +41,7 @@ const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveS
                                     />
                                 )}
                                 {!isActive && (
-                                    <div className="absolute inset-0 border-2 border-transparent group-hover:border-black/5 rounded-xl -z-10 transition-all bg-black/0 group-hover:bg-black/[0.02]" />
+                                    <div className="absolute inset-0 border-2 border-transparent group-hover:border-black/5 rounded-xl -z-10 transition-all bg-black/0 group-hover:bg-[#ffdf00]/[0.02]" />
                                 )}
                                 <span className="relative z-10">{item.label}</span>
                             </button>

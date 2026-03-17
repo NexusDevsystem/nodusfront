@@ -91,6 +91,7 @@
         "files": "Files",
         "upgrade": "Upgrade & Plans",
         "administration": "Administration",
+        "blogAdmin": "Blog Admin",
         "support": "Support",
         "signOut": "Sign Out",
         "user": "User",
@@ -126,7 +127,8 @@
             "files": "Files",
             "support": "Support",
             "billing": "Billing",
-            "admin": "Admin"
+            "admin": "Admin",
+            "blog": "Blog"
         },
         "tabDesc": {
             "links": "Manage your links, social media, and public profile information.",
@@ -136,7 +138,8 @@
             "earn": "Set up your payment methods to accept incentives and payments.",
             "files": "Host files and documents to use on your profile.",
             "billing": "Manage your subscription, view receipts and payment details.",
-            "integrations": "Connect official accounts to automate your profile with real data."
+            "integrations": "Connect official accounts to automate your profile with real data.",
+            "blog": "Create and manage posts for the Nodus editorial blog."
         }
     },
     "loading": {

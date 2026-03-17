@@ -76,7 +76,7 @@ export default function TourGuide({ run, steps, onFinish, onStepChange, stepInde
                                     {t('common.back', 'Voltar')}
                                 </button>
                             )}
-                            <button {...primaryProps} className="bg-[#1a1a1a] text-[#97cd7a] border-2 border-[#1a1a1a] px-6 py-4 font-black text-[11px] uppercase tracking-widest shadow-[0_4px_0_0_rgba(151,205,122,0.3)] hover:translate-y-[1px] hover:shadow-none transition-all">
+                            <button {...primaryProps} className="bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  border-2 border-[#1a1a1a] px-6 py-4 font-black text-[11px] uppercase tracking-widest shadow-[0_4px_0_0_rgba(151,205,122,0.3)] hover:translate-y-[1px] hover:shadow-none transition-all">
                                 {isLastStep ? t('common.finish', 'Concluir') : t('common.next', 'Próximo')}
                             </button>
                         </div>

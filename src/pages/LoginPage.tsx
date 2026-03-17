@@ -139,13 +139,13 @@ export default function LoginPage() {
                             <div className="flex border-2 border-[#1a1a1a] shadow-[0_6px_0_0_rgba(26,26,26,1)] mb-8 rounded-2xl overflow-hidden">
                                 <button
                                     onClick={() => switchMode('login')}
-                                    className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${mode === 'login' ? 'bg-[#ffdf00] text-black' : 'bg-white text-black hover:bg-black/5'}`}
+                                    className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${mode === 'login' ? 'bg-[#ffdf00] text-black' : 'bg-white text-black hover:bg-[#ffdf00]/5'}`}
                                 >
                                     {t('login.signIn')}
                                 </button>
                                 <button
                                     onClick={() => switchMode('register')}
-                                    className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest border-l-2 border-[#1a1a1a] transition-all ${mode === 'register' ? 'bg-[#ffdf00] text-black' : 'bg-white text-black hover:bg-black/5'}`}
+                                    className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest border-l-2 border-[#1a1a1a] transition-all ${mode === 'register' ? 'bg-[#ffdf00] text-black' : 'bg-white text-black hover:bg-[#ffdf00]/5'}`}
                                 >
                                     {t('login.register')}
                                 </button>
@@ -286,11 +286,11 @@ export default function LoginPage() {
                         </video>
                     </div>
 
-                    <div className="absolute top-0 right-10 bg-black text-[#97cd7a] p-4 border-4 border-[#1a1a1a] shadow-[0_8px_0_0_#fff] transform rotate-12 animate-float-delayed">
-                        <Star size={32} fill="#97cd7a" />
+                    <div className="absolute top-0 right-10 bg-[#ffdf00] text-black p-4 border-4 border-[#1a1a1a] shadow-[0_8px_0_0_#fff] transform rotate-12 animate-float-delayed">
+                        <Star size={32} fill="currentColor" />
                     </div>
 
-                    <div className="absolute bottom-10 left-0 bg-black text-[#97cd7a] px-6 py-3 border-4 border-[#1a1a1a] shadow-[0_8px_0_0_#fff] transform -rotate-6 font-black uppercase text-xl animate-float">
+                    <div className="absolute bottom-10 left-0 bg-[#97cd7a] text-black px-6 py-3 border-4 border-[#1a1a1a] shadow-[0_8px_0_0_#fff] transform -rotate-6 font-black uppercase text-xl animate-float">
                         {mode === 'login' ? t('login.welcomeLabel') : t('login.joinLabel')}
                     </div>
                 </div>

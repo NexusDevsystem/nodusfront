@@ -20,7 +20,7 @@ import {
     Calendar as CalendarIcon, Loader2, BarChart3, Lock,
     Activity, Sun, Waves, PartyPopper, Box as Package,
     Heart, RotateCw, Disc, RefreshCw,
-    Move, Target, Lightbulb, Rainbow, ZapOff, Radio, Vibrate, Bolt
+    Move, Target, Lightbulb, Rainbow, ZapOff, Radio, Vibrate, Bolt, Instagram
 } from 'lucide-react';
 
 // Lazy-imported to break circular dep (LinkEditor uses SortableLinkItem uses LinkEditor)
@@ -323,10 +323,10 @@ function SortableLinkItem({
                 </span>
             )}
             {(link.embedType === 'youtube' || link.platform === 'youtube' || link.url?.includes('youtube.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">YOUTUBE</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#ff0000] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">YOUTUBE</span>
             )}
             {(link.embedType === 'tiktok' || link.platform === 'tiktok' || link.url?.includes('tiktok.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">TIKTOK</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#FE2C55] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">TIKTOK</span>
             )}
             {(link.platform === 'twitch' || link.url?.includes('twitch.tv')) && (
                 <span className="shrink-0 px-1.5 py-0.5 bg-[#6441a5] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">TWITCH</span>
@@ -341,7 +341,7 @@ function SortableLinkItem({
                 <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">SPOTIFY</span>
             )}
             {(link.embedType === 'deezer' || link.platform === 'deezer' || link.url?.includes('deezer.com')) && (
-                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">DEEZER</span>
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#A238FF] text-[8px] font-medium text-white border-2 border-[#1a1a1a] uppercase shadow-[0_3px_0_0_#1a1a1a]">DEEZER</span>
             )}
         </>
     );
@@ -383,7 +383,7 @@ function SortableLinkItem({
     const ToggleSwitch = () => (
         <label className="relative inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
             <input type="checkbox" checked={link.isActive} onChange={(e) => updateLink(link.id, 'isActive', e.target.checked)} className="sr-only peer" />
-            <div className="w-12 h-6 border-2 border-[#1a1a1a] bg-white rounded-full transition-all duration-300 peer-checked:bg-[#97cd7a] shadow-[0_3px_0_0_#1a1a1a] peer-active:shadow-none peer-active:translate-y-[3px] after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-2 after:border-[#1a1a1a] after:w-4 after:h-4 after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
+            <div className="w-12 h-6 border-2 border-[#1a1a1a] bg-white rounded-full transition-all duration-300 peer-checked:bg-[#97cd7a] shadow-[0_3px_0_0_#1a1a1a] peer-active:shadow-none peer-active:translate-y-[3px] after:content-[''] after:absolute after:top-[3px] after:left-[4px] after:bg-white after:border-2 after:border-[#1a1a1a] after:w-4 after:h-4 after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
         </label>
     );
 
@@ -415,7 +415,7 @@ function SortableLinkItem({
                         <div className="overflow-hidden">
                             <div className={`flex border-b border-[#1a1a1a] items-stretch ${itemSize}`}>
                                 <div
-                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black ${isCollectionExpanded ? 'bg-[#fefcbf]' : 'hover:bg-black hover:text-white'} touch-none border-r-2 border-[#1a1a1a] transition-colors rounded-l-xl`}
+                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black ${isCollectionExpanded ? 'bg-[#fefcbf]' : 'hover:bg-[#ffdf00] hover:text-black'} touch-none border-r-2 border-[#1a1a1a] transition-colors rounded-l-xl`}
                                     onPointerDown={(e) => dragControls.start(e)}
                                 >
                                     <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="5" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="19" r="1" /></svg>
@@ -447,7 +447,7 @@ function SortableLinkItem({
                                                 ) : (
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                                                        className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} bg-white border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] flex items-center justify-center text-black hover:bg-black hover:text-white transition-all rounded-lg`}
+                                                        className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} bg-white border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] flex items-center justify-center text-black hover:bg-[#ffdf00] transition-all rounded-lg`}
                                                     >
                                                         {getThumbnailIcon()}
                                                     </button>
@@ -587,7 +587,7 @@ function SortableLinkItem({
                                                 </div>
                                                 <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
                                                     <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] text-black hover:bg-[#ffdf00] transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none">{t('links.moveTo')}</button>
-                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-[#1a1a1a] text-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none' : 'bg-white border-[#1a1a1a] text-black hover:bg-black hover:text-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none'}`}>{link.isArchived ? t('links.restore') : t('links.archive')}</button>
+                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all ${link.isArchived ? 'bg-[#ffdf00] border-[#1a1a1a] text-black shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none' : 'bg-white border-[#1a1a1a] text-black hover:bg-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none'}`}>{link.isArchived ? t('links.restore') : t('links.archive')}</button>
                                                     <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-[#1a1a1a] text-white' : 'bg-white border border-[#1a1a1a] text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
                                                 </div>
                                             </div>
@@ -617,7 +617,7 @@ function SortableLinkItem({
                             <div className={`flex items-stretch ${isExpanded ? 'bg-transparent' : 'bg-white'}`}>
                                 {/* Drag Handle - Full Height */}
                                 <div
-                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black border-r-2 border-[#1a1a1a] touch-none transition-colors hover:bg-black hover:text-[#ffdf00]`}
+                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black border-r-2 border-[#1a1a1a] touch-none transition-colors hover:bg-[#ffdf00]`}
                                     onPointerDown={(e) => dragControls.start(e)}
                                 >
                                     <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="5" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="19" r="1" /></svg>
@@ -710,7 +710,7 @@ function SortableLinkItem({
                                                                                 decoding="async"
                                                                             />
                                                                             <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                                                <button onClick={() => fileInputRef.current?.click()} className="p-1.5 bg-white text-black hover:bg-black hover:text-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] transition-colors">
+                                                                                <button onClick={() => fileInputRef.current?.click()} className="p-1.5 bg-white text-black hover:bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] transition-colors">
                                                                                     {isUploadingImage ? <Loader2 size={14} className="animate-spin" /> : <Pencil size={14} strokeWidth={2} />}
                                                                                 </button>
                                                                                 <button onClick={() => updateLink(link.id, 'image', undefined)} className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] transition-colors"><Trash2 size={14} strokeWidth={2} /></button>
@@ -720,7 +720,7 @@ function SortableLinkItem({
                                                                         <button
                                                                             onClick={() => fileInputRef.current?.click()}
                                                                             disabled={isUploadingImage}
-                                                                            className="w-14 h-14 md:w-16 md:h-16 bg-white border-2 border-dashed border-[#1a1a1a] flex flex-col items-center justify-center text-black hover:bg-black hover:text-[#ffdf00] transition-all group/btn shadow-[0_4px_0_0_#1a1a1a] disabled:opacity-50"
+                                                                            className="w-14 h-14 md:w-16 md:h-16 bg-white border-2 border-dashed border-[#1a1a1a] flex flex-col items-center justify-center text-black hover:bg-[#ffdf00] transition-all group/btn shadow-[0_4px_0_0_#1a1a1a] disabled:opacity-50"
                                                                         >
                                                                             {isUploadingImage ? <Loader2 size={18} className="animate-spin mb-0.5" /> : <ImageIcon size={18} className="mb-0.5" strokeWidth={2} />}
                                                                             <span className="text-[8px] font-medium uppercase tracking-widest">{isUploadingImage ? '...' : t('links.imageLabel')}</span>
@@ -743,10 +743,61 @@ function SortableLinkItem({
                                                                 <div className="space-y-1">
                                                                     <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.subtitleLabel')}</label>
                                                                     <input type="text" value={link.subtitle || ''} onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)} className="w-full text-xs font-normal uppercase tracking-wider text-black bg-white border-2 border-[#1a1a1a] px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[0_4px_0_0_#1a1a1a]" placeholder={link.type === 'mediakit' ? t('mediakit.subtitlePlaceholder') || 'Chamada para ação extra' : t('links.subtitlePlaceholder')} />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    )}
+                                                                 </div>
+
+                                                                 {(link.platform === 'instagram' || link.url?.includes('instagram.com')) && (
+                                                                     <div className="pt-2 pb-2">
+                                                                         <label className="text-[9px] font-bold text-black uppercase tracking-[0.2em] px-1 mb-3 block">Estilo de Exibição</label>
+                                                                         <div className="grid grid-cols-2 gap-3 max-w-[340px]">
+                                                                             {[
+                                                                                 { id: 'classic', label: 'LISTA SIMPLES' },
+                                                                                 { id: 'card', label: 'FEED DE POSTS' },
+                                                                             ].map((opt) => {
+                                                                                 const isActive = opt.id === 'card' ? link.layout === 'card' : link.layout !== 'card';
+                                                                                 return (
+                                                                                     <button
+                                                                                         key={opt.id}
+                                                                                         onClick={() => updateLink(link.id, 'layout', opt.id)}
+                                                                                         className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-xl transition-all ${isActive ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-0.5' : 'bg-white hover:bg-[#f8f8f8] shadow-[0_2px_0_0_#1a1a1a]'}`}
+                                                                                     >
+                                                                                         {isActive && (
+                                                                                             <div className="absolute top-1.5 right-1.5 w-4 h-4 bg-black flex items-center justify-center border-2 border-[#1a1a1a] rounded-full z-10">
+                                                                                                 <Check size={10} strokeWidth={4} className="text-[#ffdf00]" />
+                                                                                             </div>
+                                                                                         )}
+
+                                                                                         <div className="flex-1 flex items-center justify-center w-full mb-1 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
+                                                                                             {opt.id === 'classic' ? (
+                                                                                                 <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
+                                                                                                     <rect x="5" y="25" width="90" height="30" fill="white" stroke="black" strokeWidth="6" rx="4" />
+                                                                                                     <rect x="15" y="32" width="16" height="16" fill="black" rx="2" />
+                                                                                                     <rect x="40" y="35" width="45" height="4" fill="black" rx="1" />
+                                                                                                     <rect x="40" y="44" width="25" height="4" fill="black" opacity="0.3" rx="1" />
+                                                                                                 </svg>
+                                                                                             ) : (
+                                                                                                 <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
+                                                                                                    <rect x="10" y="10" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
+                                                                                                    <rect x="38" y="10" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
+                                                                                                    <rect x="66" y="10" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
+                                                                                                    <rect x="10" y="38" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
+                                                                                                    <rect x="38" y="38" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
+                                                                                                    <rect x="66" y="38" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
+                                                                                                 </svg>
+                                                                                             )}
+                                                                                         </div>
+
+                                                                                         <span className="text-[9px] font-bold uppercase tracking-tight text-black text-center leading-none mt-auto">
+                                                                                             {opt.label}
+                                                                                         </span>
+                                                                                     </button>
+                                                                                 );
+                                                                             })}
+                                                                         </div>
+                                                                     </div>
+                                                                 )}
+                                                             </div>
+                                                         </div>
+                                                     )}
 
                                                     {level === 0 && link.type !== 'mediakit' && (
                                                         <div className="flex-1 space-y-2">
@@ -754,10 +805,14 @@ function SortableLinkItem({
                                                             <div className="grid grid-cols-2 gap-3 max-w-[340px]">
                                                                 {[
                                                                     { id: 'classic', label: t('links.layoutClassic') || 'Botão' },
-                                                                    { id: 'card', label: t('links.layoutCard') || 'Card' },
+                                                                    { id: 'card', label: (link.platform === 'instagram' || link.url?.includes('instagram.com')) ? 'Feed de Posts' : (t('links.layoutCard') || 'Card') },
                                                                     { id: 'social', label: t('links.layoutSocial') || 'Ícones' },
                                                                     { id: 'carousel', label: t('links.layoutCarousel') || 'Carousel' },
-                                                                ].filter(opt => link.type === 'map' ? (opt.id === 'classic' || opt.id === 'card') : true).map((opt) => {
+                                                                ].filter(opt => {
+                                                                    if (link.type === 'map') return opt.id === 'classic' || opt.id === 'card';
+                                                                    if (link.platform === 'instagram' || link.url?.includes('instagram.com')) return false;
+                                                                    return true;
+                                                                }).map((opt) => {
                                                                     const isActive = link.layout === opt.id;
 
                                                                     return (
@@ -767,8 +822,8 @@ function SortableLinkItem({
                                                                             className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-xl transition-all ${isActive ? 'bg-[#97cd7a] shadow-[0_6px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-y-0.5 shadow-[0_4px_0_0_#1a1a1a]'}`}
                                                                         >
                                                                             {isActive && (
-                                                                                <div className="absolute top-1 right-1 w-4 h-4 bg-black flex items-center justify-center border border-[#1a1a1a] z-10 shadow-[0_1px_0_0_rgba(255,255,255,0.2)]">
-                                                                                    <Check size={10} strokeWidth={2} className="text-[#97cd7a]" />
+                                                                                <div className="absolute top-1 right-1 w-4 h-4 bg-[#97cd7a] flex items-center justify-center border border-[#1a1a1a] z-10 shadow-[0_1px_0_0_rgba(255,255,255,1)]">
+                                                                                    <Check size={10} strokeWidth={3} className="text-black" />
                                                                                 </div>
                                                                             )}
 
@@ -781,7 +836,11 @@ function SortableLinkItem({
                                                                                         <rect x="40" y="44" width="25" height="4" fill="black" opacity="0.3" rx="1" />
                                                                                     </svg>
                                                                                 )}
-                                                                                {opt.id === 'card' && (
+                                                                                {opt.id === 'card' && (link.platform === 'instagram' || link.url?.includes('instagram.com')) ? (
+                                                                                    <div className="flex items-center justify-center w-full h-full">
+                                                                                        <Instagram size={32} className="text-black/20" strokeWidth={1.5} />
+                                                                                    </div>
+                                                                                ) : opt.id === 'card' && (
                                                                                     <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
                                                                                         <rect x="30" y="5" width="40" height="70" fill="white" stroke="black" strokeWidth="6" rx="4" />
                                                                                         <rect x="30" y="5" width="40" height="35" fill="black" stroke="black" strokeWidth="6" rx="4" />
@@ -924,7 +983,7 @@ function SortableLinkItem({
                                                                 <button
                                                                     key={cat.id}
                                                                     onClick={() => setAnimCategory(cat.id)}
-                                                                    className={`flex-1 py-2 text-[8px] font-bold uppercase tracking-widest transition-all rounded-xl border-2 relative ${animCategory === cat.id ? 'bg-black text-[#ffdf00] border-black shadow-[0_2px_0_0_#1a1a1a] z-10' : 'bg-transparent text-black/40 border-transparent hover:text-black z-0'}`}
+                                                                    className={`flex-1 py-2 text-[8px] font-bold uppercase tracking-widest transition-all rounded-xl border-2 relative ${animCategory === cat.id ? 'bg-[#ffdf00] text-black border-black shadow-[0_2px_0_0_#1a1a1a] z-10' : 'bg-transparent text-black/40 border-transparent hover:text-black z-0'}`}
                                                                 >
                                                                     {cat.label}
                                                                 </button>
@@ -1044,9 +1103,9 @@ function SortableLinkItem({
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => updateLink(link.id, 'isPasswordProtected', !link.isPasswordProtected)}
-                                                                        className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-colors shadow-[0_1.5px_0_0_#1a1a1a] rounded-full ${link.isPasswordProtected ? 'bg-black' : 'bg-white'}`}
+                                                                        className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-colors shadow-[0_1.5px_0_0_#1a1a1a] rounded-full ${link.isPasswordProtected ? 'bg-[#97cd7a]' : 'bg-white'}`}
                                                                     >
-                                                                        <div className={`absolute top-[1.5px] w-3 h-3 transition-all rounded-full ${link.isPasswordProtected ? 'left-[22px] bg-[#97cd7a]' : 'left-[2px] bg-black/30'}`} />
+                                                                        <div className={`absolute top-[1.5px] w-3 h-3 transition-all rounded-full ${link.isPasswordProtected ? 'left-[22px] bg-white' : 'left-[2px] bg-[#1a1a1a]/20'}`} />
                                                                     </button>
                                                                     <span className="text-[9px] font-bold uppercase tracking-widest text-black/70">
                                                                         {link.isPasswordProtected ? (t('passwordLink.enabled') || 'Ativado') : (t('passwordLink.disabled') || 'Desativado')}
@@ -1075,7 +1134,7 @@ function SortableLinkItem({
                                                 </div>
                                                 <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
                                                     <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] text-black hover:bg-[#ffdf00] transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none">{t('links.moveTo')}</button>
-                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all ${link.isArchived ? 'bg-black border-[#1a1a1a] text-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a]' : 'bg-white border-[#1a1a1a] text-black hover:bg-black hover:text-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none'}`}>{link.isArchived ? t('links.restore') : t('links.archive')}</button>
+                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all ${link.isArchived ? 'bg-[#ffdf00] border-[#1a1a1a] text-black shadow-[0_2px_0_0_#1a1a1a]' : 'bg-white border-[#1a1a1a] text-black hover:bg-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none'}`}>{link.isArchived ? t('links.restore') : t('links.archive')}</button>
                                                     <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-[#1a1a1a] text-white' : 'bg-white border border-[#1a1a1a] text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
                                                 </div>
                                             </div>

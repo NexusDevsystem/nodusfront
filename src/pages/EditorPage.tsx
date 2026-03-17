@@ -15,6 +15,7 @@ import MonetizationView from '../components/MonetizationView';
 import SupportView from '../components/SupportView';
 import ManageBillingView from '../components/ManageBillingView';
 import AdminView from '../components/AdminView';
+import BlogAdminView from '../components/BlogAdminView';
 import BillingView from '../components/BillingView';
 import BillingModal from '../components/BillingModal';
 import QRCodeModal from '../components/QRCodeModal';
@@ -115,7 +116,7 @@ export default function EditorPage() {
                         if (reconciledProfile.planType && reconciledProfile.planType !== 'free') {
                             setProfile(prev => ({ ...prev, ...reconciledProfile }));
                         }
-                    }).catch(err => console.error('Silent reconcile failed:', err));
+                    }).catch(() => { /* Silent fail */ });
                 }
 
                 // Data loaded successfully
@@ -125,7 +126,6 @@ export default function EditorPage() {
                 // Small delay to show completion before hiding
                 await new Promise(resolve => setTimeout(resolve, 300));
             } catch (error) {
-                console.error('Failed to sync background data:', error);
                 setLoadingProgress(100);
                 setLoadError(true);
                 // Do NOT set hasLoadedOnce(true) here to prevent auto-save of empty state
@@ -190,33 +190,23 @@ export default function EditorPage() {
         // --- PRO PREVIEW CHECK ---
         const isFree = !profile.planType || profile.planType === 'free';
         if (isFree && hasProFeatures(profile)) {
-            console.log('✨ [EditorPage] PRO feature detected in FREE account. Entering Preview Mode (Auto-save suppressed).');
             setIsPreviewMode(true);
             return;
         }
 
         setIsPreviewMode(false);
-        console.log('🔄 [EditorPage] Profile change detected, scheduling auto-save...');
 
         const saveProfile = async () => {
-            console.log('💾 [EditorPage] Executing auto-save for profile:', {
-                headerLayout: profile.headerLayout,
-                id: profile.id
-            });
             setIsSavingProfile(true);
             try {
                 const response = await apiClient.updateProfile(profile);
-                console.log('✅ [EditorPage] Auto-save profile success:', response);
                 lastSavedProfile.current = JSON.stringify(profile);
-
 
                 // Sync any backend updates (like business logic timestamps)
                 if (response.usernameUpdatedAt && response.usernameUpdatedAt !== profile.usernameUpdatedAt) {
                     setProfile(prev => ({ ...prev, usernameUpdatedAt: response.usernameUpdatedAt }));
                 }
             } catch (error: any) {
-                console.error('❌ [EditorPage] Auto-save profile failed:', error);
-
                 // If it's a validation error (like the 7-day rule), we should probably alert the user 
                 // and revert the local state to the last known good state
                 if (error.message && (error.message.includes('7 dias') || error.message.includes('usuário'))) {
@@ -224,8 +214,6 @@ export default function EditorPage() {
                     const lastGoodProfile = JSON.parse(lastSavedProfile.current);
                     setProfile(lastGoodProfile);
                 }
-
-                if (error.response) console.error('Response details:', error.response.data);
             } finally {
                 setIsSavingProfile(false);
             }
@@ -307,7 +295,7 @@ export default function EditorPage() {
                     return updatedLinks;
                 });
             } catch (error) {
-                console.error('Auto-save links failed:', error);
+                // Silently handle link auto-save failure
             } finally {
                 setIsSavingLinks(false);
             }
@@ -362,7 +350,7 @@ export default function EditorPage() {
                     return updatedProducts;
                 });
             } catch (error) {
-                console.error('Auto-save products failed:', error);
+                // Silently handle product auto-save failure
             } finally {
                 setIsSavingProducts(false);
             }
@@ -544,7 +532,7 @@ export default function EditorPage() {
 
                             {/* Preview Button - Brutalist */}
                             <button
-                                className="w-9 h-9 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none transition-all"
+                                className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none transition-all"
                                 onClick={() => setShowMobilePreview(!showMobilePreview)}
                             >
                                 {showMobilePreview ? <X size={18} strokeWidth={3} /> : <Eye size={18} strokeWidth={2.5} />}
@@ -607,37 +595,39 @@ export default function EditorPage() {
                             </div>
                             <div className="flex items-center gap-4">
                                 {isPreviewMode ? (
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#97cd7a] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] shrink-0">
-                                        <Eye size={10} className="text-black" strokeWidth={3} />
-                                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black">Modo Preview</span>
+                                    <div className="flex items-center gap-2 h-9 px-4 bg-[#97cd7a]/10 border border-[#97cd7a] rounded-xl shadow-sm shrink-0">
+                                        <Eye size={14} className="text-[#4a7236]" strokeWidth={2.5} />
+                                        <span className="text-[11px] font-bold tracking-tight text-[#4a7236]">Modo Preview</span>
                                     </div>
                                 ) : (isSaving || visualSavingProfile) ? (
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] shrink-0 transition-all">
-                                        <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
-                                        <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.syncing')}</span>
+                                    <div className="flex items-center gap-2 h-9 px-4 bg-white border border-slate-200 rounded-xl shadow-sm shrink-0 transition-all">
+                                        <Loader2 size={14} className="animate-spin text-slate-400" strokeWidth={2.5} />
+                                        <span className="text-[11px] font-bold tracking-tight text-slate-600">{t('editor.syncing')}</span>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] shrink-0 transition-all">
-                                        <div className="w-1.5 h-1.5 bg-[#97cd7a] border border-[#1a1a1a]" />
-                                        <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.synced')}</span>
+                                    <div className="flex items-center gap-2 h-9 px-4 bg-white border border-slate-200 rounded-xl shadow-sm shrink-0 transition-all">
+                                        <div className="w-2 h-2 rounded-full bg-[#97cd7a]" />
+                                        <span className="text-[11px] font-bold tracking-tight text-slate-600">{t('editor.synced')}</span>
                                     </div>
                                 )}
 
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => setIsShareModalOpen(true)}
-                                        className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[1px] transition-all text-black"
-                                        title="Compartilhar"
+                                        className="h-9 px-4 flex items-center gap-2 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-[1px] transition-all text-slate-700 group"
+                                        title={t('editor.share')}
                                     >
-                                        <Share size={18} strokeWidth={2.5} />
+                                        <Share size={16} strokeWidth={2} className="group-hover:scale-110 transition-transform" />
+                                        <span className="text-[11px] font-bold tracking-tight hidden lg:inline">{t('editor.share')}</span>
                                     </button>
                                     <a
                                         href={shareUrl}
                                         target="_blank"
-                                        className="w-9 h-9 flex items-center justify-center bg-black text-[#97cd7a] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[1px] transition-all"
-                                        title="Abrir Link Público"
+                                        className="h-9 px-4 flex items-center gap-2 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-[1px] transition-all group text-slate-700"
+                                        title={t('editor.openPublicLink')}
                                     >
-                                        <ExternalLink size={18} strokeWidth={2.5} />
+                                        <ExternalLink size={16} strokeWidth={2} className="group-hover:scale-110 transition-transform" />
+                                        <span className="text-[11px] font-bold tracking-tight hidden lg:inline">{t('editor.viewProfile')}</span>
                                     </a>
                                 </div>
                             </div>
@@ -645,7 +635,7 @@ export default function EditorPage() {
                         <div className="w-full py-4 md:py-6 px-4 md:px-6 pb-24">
 
                             {/* Page Title - Brutalist Design */}
-                            {activeTab !== 'admin' && activeTab !== 'support' && activeTab !== 'billing' && (
+                            {activeTab !== 'admin' && activeTab !== 'blog' && activeTab !== 'support' && activeTab !== 'billing' && (
                                 <motion.div
                                     initial={{ opacity: 0, y: -20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -661,7 +651,8 @@ export default function EditorPage() {
                                             {activeTab === 'earn' && t('editor.tabs.earn')}
                                             {activeTab === 'files' && t('editor.tabs.files')}
                                             {activeTab === 'integrations' && t('editor.tabs.integrations')}
-                                            {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'earn' && activeTab !== 'files' && activeTab !== 'integrations' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                                            {activeTab === 'blog' && t('editor.tabs.blog')}
+                                            {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'earn' && activeTab !== 'files' && activeTab !== 'integrations' && activeTab !== 'blog' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                                         </h1>
                                         <p className="text-[10px] text-black/40 font-black uppercase tracking-[0.3em] mt-3 ml-1">
                                             {activeTab === 'links' && t('editor.tabDesc.links')}
@@ -671,6 +662,7 @@ export default function EditorPage() {
                                             {activeTab === 'earn' && t('editor.tabDesc.earn')}
                                             {activeTab === 'files' && t('editor.tabDesc.files')}
                                             {activeTab === 'integrations' && t('editor.tabDesc.integrations')}
+                                            {activeTab === 'blog' && t('editor.tabDesc.blog')}
                                         </p>
                                     </div>
                                 </motion.div>
@@ -741,6 +733,10 @@ export default function EditorPage() {
 
                                 {activeTab === 'admin' && (profile.username === 'nodus' || authProfile?.email === 'jaoomarcos75@gmail.com') && (
                                     <AdminView />
+                                )}
+
+                                {activeTab === 'blog' && (profile.username === 'nodus' || authProfile?.email === 'jaoomarcos75@gmail.com') && (
+                                    <BlogAdminView />
                                 )}
 
 

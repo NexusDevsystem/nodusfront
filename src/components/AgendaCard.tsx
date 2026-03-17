@@ -305,7 +305,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
 
                                     <button
                                         onClick={() => setSelectedEvent(null)}
-                                        className="absolute right-6 top-6 w-8 h-8 rounded-full bg-[#1a1a1a]/5 flex items-center justify-center text-black/40 hover:bg-[#1a1a1a]/10 hover:text-black active:scale-95 transition-all hidden md:flex cursor-pointer pointer-events-auto"
+                                        className="absolute right-6 top-6 w-8 h-8 rounded-full bg-[#1a1a1a]/5 flex items-center justify-center text-black/40 hover:bg-[#97cd7a]/10 hover:text-black active:scale-95 transition-all hidden md:flex cursor-pointer pointer-events-auto"
                                     >
                                         <X size={18} strokeWidth={2.5} />
                                     </button>
@@ -340,9 +340,9 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedEvent.location)}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="flex items-start gap-4 py-5 border-b-2 border-[#1a1a1a]/10 hover:bg-[#1a1a1a]/5 transition-colors cursor-pointer group"
+                                                className="flex items-start gap-4 py-5 border-b-2 border-[#1a1a1a]/10 hover:bg-[#97cd7a]/5 transition-colors cursor-pointer group"
                                             >
-                                                <div className="w-10 h-10 flex items-center justify-center shrink-0 group-hover:bg-[#1a1a1a]/5 transition-colors">
+                                                <div className="w-10 h-10 flex items-center justify-center shrink-0 group-hover:bg-[#97cd7a]/5 transition-colors">
                                                     <MapPin size={22} className="text-black" strokeWidth={2.5} />
                                                 </div>
                                                 <div className="flex-1 min-w-0 pt-0.5">

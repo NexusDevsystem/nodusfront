@@ -6,9 +6,18 @@ interface TikTokEmbedProps {
     title: string;
     videoUrl?: string;
     className?: string;
+    themeButtonClass?: string;
+    themeButtonStyle?: React.CSSProperties;
 }
 
-const TikTokEmbed: React.FC<TikTokEmbedProps> = ({ url, title, videoUrl, className = '' }) => {
+const TikTokEmbed: React.FC<TikTokEmbedProps> = ({ 
+    url, 
+    title, 
+    videoUrl, 
+    className = '',
+    themeButtonClass = '',
+    themeButtonStyle = {}
+}) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isMuted, setIsMuted] = useState(true);
     const [hasError, setHasError] = useState(false);
@@ -29,7 +38,10 @@ const TikTokEmbed: React.FC<TikTokEmbedProps> = ({ url, title, videoUrl, classNa
     // If we have a direct videoUrl, use a clean native player
     if (videoUrl && !hasError) {
         return (
-            <div className={`relative w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] aspect-[9/16] max-h-[650px] bg-black group rounded-2xl ${className}`}>
+            <div 
+                className={`relative w-full overflow-hidden aspect-[9/16] max-h-[650px] bg-black group ${themeButtonClass} ${className}`}
+                style={themeButtonStyle}
+            >
                 <video
                     ref={videoRef}
                     src={videoUrl}
@@ -44,7 +56,7 @@ const TikTokEmbed: React.FC<TikTokEmbedProps> = ({ url, title, videoUrl, classNa
                 {/* Unmute Overlay/Button */}
                 <button
                     onClick={toggleMute}
-                    className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95"
+                    className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]/40 backdrop-blur-md border border-white/20 flex items-center justify-center  transition-all hover:scale-110 active:scale-95"
                 >
                     {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
                 </button>
@@ -62,9 +74,11 @@ const TikTokEmbed: React.FC<TikTokEmbedProps> = ({ url, title, videoUrl, classNa
     }
 
     // Fallback to Iframe if direct videoUrl is not available or fails
-    // FALLBACK: Standard TikTok Embed
     return (
-        <div className={`relative w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] aspect-[9/16] max-h-[650px] bg-white group rounded-2xl ${className}`}>
+        <div 
+            className={`relative w-full overflow-hidden aspect-[9/16] max-h-[650px] bg-white group ${themeButtonClass} ${className}`}
+            style={themeButtonStyle}
+        >
             <iframe
                 src={`https://www.tiktok.com/embed/v2/${videoId}`}
                 className="absolute inset-0 w-full h-full border-0"

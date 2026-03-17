@@ -281,7 +281,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                                                                     onClick={() => copyLink(file.url, file.filename)}
                                                                     className={`w-8 h-8 flex items-center justify-center border-2 border-[#1a1a1a] transition-all ${copiedId === file.filename
                                                                         ? 'bg-[#97cd7a] shadow-none translate-y-[1px]'
-                                                                        : 'bg-white hover:bg-black hover:text-white shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[1px] rounded-lg'
+                                                                        : 'bg-white hover:bg-[#ffdf00] hover:text-white shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[1px] rounded-lg'
                                                                         }`}
                                                                 >
                                                                     {copiedId === file.filename ? <Check size={14} strokeWidth={3} /> : <Copy size={14} strokeWidth={3} />}

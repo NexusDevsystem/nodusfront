@@ -589,7 +589,7 @@ function LinkEditor({
                 disabled={profile.planType === 'free' || !profile.planType}
                 className={`w-12 h-6 border-2 border-[#1a1a1a] relative transition-all shadow-[0_3px_0_0_#1a1a1a] rounded-full active:shadow-none active:translate-y-[0.5px] ${!profile.hideBranding ? 'bg-[#97cd7a]' : 'bg-white'} ${profile.planType === 'free' || !profile.planType ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                <div className={`absolute top-[2px] w-4 h-4 border-2 border-[#1a1a1a] bg-white rounded-full transition-all ${!profile.hideBranding ? 'left-[24px]' : 'left-[4px]'}`} />
+                <div className={`absolute top-[3px] w-4 h-4 border-2 border-[#1a1a1a] bg-white rounded-full transition-all ${!profile.hideBranding ? 'left-[24px]' : 'left-[4px]'}`} />
               </button>
             </div>
           </div>
@@ -645,7 +645,7 @@ function LinkEditor({
                           </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <button onClick={() => updateLink(link.id, 'isArchived', false)} className="h-8 px-3 bg-white border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-[#ffdf00] transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-lg">{t('links.restore')}</button>
+                          <button onClick={() => updateLink(link.id, 'isArchived', false)} className="h-8 px-3 bg-white border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest hover:bg-[#ffdf00] transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-lg">{t('links.restore')}</button>
                           <button onClick={() => removeLink(link.id)} className="p-2 bg-white border-2 border-[#1a1a1a] text-black hover:text-white hover:bg-red-500 transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-lg"><Trash2 size={16} strokeWidth={3} /></button>
                         </div>
                       </motion.div>
@@ -654,7 +654,7 @@ function LinkEditor({
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-[#1a1a1a] border-dashed shrink-0">
-                  <button onClick={() => setShowArchive(false)} className="w-full h-11 bg-black text-[#ffdf00] font-black uppercase tracking-widest text-xs transition-all border-2 border-[#1a1a1a] hover:bg-white hover:text-black shadow-[0_4px_0_0_#1a1a1a] rounded-xl">
+                  <button onClick={() => setShowArchive(false)} className="w-full h-11 bg-[#ffdf00] text-black font-black uppercase tracking-widest text-xs transition-all border-2 border-[#1a1a1a] hover:bg-white shadow-[0_4px_0_0_#1a1a1a] rounded-xl">
                     {t('links.backToMyLinks')}
                   </button>
                 </div>
@@ -700,7 +700,7 @@ function LinkEditor({
               >
                 <div className="mb-6 flex items-center justify-between">
                   <h3 className={`${isMobile ? 'text-2xl' : 'text-lg'} font-black uppercase tracking-tighter text-black`}>{t('links.moveTo')}</h3>
-                  <button onClick={() => setMoveModalLinkId(null)} className="p-1.5 bg-white text-black border-2 border-[#1a1a1a] hover:bg-black hover:text-[#ffdf00] transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-lg">
+                  <button onClick={() => setMoveModalLinkId(null)} className="p-1.5 bg-white text-black border-2 border-[#1a1a1a] hover:bg-[#ffdf00] hover:text-[#ffdf00] transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-lg">
                     <X size={16} strokeWidth={4} />
                   </button>
                 </div>

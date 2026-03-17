@@ -3,6 +3,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLanguage } from './i18n/LanguageContext';
+import { AtSign, Zap, Rocket } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,9 +13,9 @@ export function HowItWorks() {
   const { t } = useLanguage();
 
   const steps = [
-    { num: "01", title: t.how.s1Title, desc: t.how.s1Desc },
-    { num: "02", title: t.how.s2Title, desc: t.how.s2Desc },
-    { num: "03", title: t.how.s3Title, desc: t.how.s3Desc }
+    { num: "01", title: t.how.s1Title, desc: t.how.s1Desc, icon: <AtSign size={32} strokeWidth={3} /> },
+    { num: "02", title: t.how.s2Title, desc: t.how.s2Desc, icon: <Zap size={32} strokeWidth={3} className="fill-yellow" /> },
+    { num: "03", title: t.how.s3Title, desc: t.how.s3Desc, icon: <Rocket size={32} strokeWidth={3} /> }
   ];
 
   useGSAP(() => {
@@ -79,8 +80,8 @@ export function HowItWorks() {
                   <span className="font-display font-black text-7xl text-dark leading-none drop-shadow-[3px_3px_0px_#fff]">
                     {step.num}
                   </span>
-                  <div className="w-16 h-16 rounded-none border-2 border-dark bg-white flex items-center justify-center shadow-[2px_2px_0px_#000000]">
-                    <div className="w-6 h-6 bg-dark rounded-none animate-pulse"></div>
+                  <div className="w-16 h-16 rounded-none border-2 border-dark bg-white flex items-center justify-center shadow-[4px_4px_0px_#000000]">
+                    {step.icon}
                   </div>
                 </div>
                 <div className="pt-2">

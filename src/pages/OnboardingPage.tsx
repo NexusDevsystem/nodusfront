@@ -864,14 +864,14 @@ export default function OnboardingPage() {
                         >
                             <div className="p-5 border-b-2 border-[#1a1a1a] flex items-center justify-between bg-[#ffdf00] shrink-0">
                                 {configuringSocialPlatform ? (
-                                    <button onClick={() => setConfiguringSocialPlatform(null)} className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-[#1a1a1a] transition-colors">
+                                    <button onClick={() => setConfiguringSocialPlatform(null)} className="p-1 hover:bg-[#ffdf00] hover:text-white border-2 border-transparent hover:border-[#1a1a1a] transition-colors">
                                         <ChevronLeft size={24} />
                                     </button>
                                 ) : <div className="w-8" />}
                                 <h3 className="font-black text-lg uppercase tracking-tight">
                                     {configuringSocialPlatform ? `${t('onboarding.configure')} ${SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.label}` : t('onboarding.addSocialNetwork')}
                                 </h3>
-                                <button onClick={() => { setIsSocialModalOpen(false); setConfiguringSocialPlatform(null); }} className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-[#1a1a1a] transition-colors">
+                                <button onClick={() => { setIsSocialModalOpen(false); setConfiguringSocialPlatform(null); }} className="p-1 hover:bg-[#ffdf00] hover:text-white border-2 border-transparent hover:border-[#1a1a1a] transition-colors">
                                     <X size={24} />
                                 </button>
                             </div>
@@ -929,7 +929,7 @@ export default function OnboardingPage() {
                                                                     e.stopPropagation();
                                                                     setQuickLinks(quickLinks.filter(l => !(l.provider === platform.id && l.layout === 'social')));
                                                                 }}
-                                                                className="p-2 border-2 border-transparent hover:border-[#1a1a1a] hover:bg-black hover:text-white transition-colors text-slate-400 group-hover:text-white"
+                                                                className="p-2 border-2 border-transparent hover:border-[#1a1a1a] hover:bg-[#ffdf00] hover:text-white transition-colors text-slate-400 group-hover:text-white"
                                                             >
                                                                 <Trash2 size={16} />
                                                             </button>

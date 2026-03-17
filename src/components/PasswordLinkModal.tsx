@@ -93,7 +93,7 @@ export default function PasswordLinkModal({ linkId, linkTitle, onClose, apiBaseU
                                 {t('passwordLink.modalTitle') || 'Conteúdo Exclusivo'}
                             </span>
                         </div>
-                        <button onClick={onClose} className="p-1 hover:bg-black hover:text-white transition-colors">
+                        <button onClick={onClose} className="p-1 hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover: transition-colors">
                             <X size={16} strokeWidth={3} />
                         </button>
                     </div>
@@ -148,7 +148,7 @@ export default function PasswordLinkModal({ linkId, linkTitle, onClose, apiBaseU
                             <button
                                 type="submit"
                                 disabled={loading || !password.trim()}
-                                className="w-full py-3 bg-black text-[#97cd7a] border-2 border-[#1a1a1a] text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#97cd7a] hover:text-black transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full py-3 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  border-2 border-[#1a1a1a] text-[11px] font-black uppercase tracking-[0.2em] hover:bg-[#97cd7a] hover:text-black transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[2px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {loading ? (
                                     <Loader2 size={14} strokeWidth={3} className="animate-spin" />

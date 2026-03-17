@@ -140,7 +140,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
             <Tooltip text={t('common.close')} position="bottom">
               <button
                 onClick={onClose}
-                className="md:hidden p-2 text-black hover:bg-[#1a1a1a]/5 transition-colors"
+                className="md:hidden p-2 text-black hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]/5 transition-colors"
               >
                 <X size={24} strokeWidth={2.5} />
               </button>
@@ -202,7 +202,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
                         w-full flex items-center justify-between px-4 md:px-3 py-3.5 md:py-2.5 transition-all border-2 group relative
                         ${isActive
                             ? 'bg-[#ffdf00] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] md:shadow-[0_3px_0_0_#1a1a1a] -translate-y-[0.5px] text-black rounded-xl'
-                            : 'bg-transparent border-transparent text-black/60 hover:text-black hover:bg-[#1a1a1a]/5 rounded-xl'}
+                            : 'bg-transparent border-transparent text-black/60 hover:text-black hover:bg-[#97cd7a]/5 rounded-xl'}
                         ${item.disabled ? 'opacity-30 cursor-not-allowed' : ''}
                       `}
                       >
@@ -237,25 +237,34 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
         <div className="hidden md:flex flex-col gap-1 mb-4">
           <button
             onClick={() => setActiveTab('billing')}
-            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'billing' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#1a1a1a]/5 rounded-xl'}`}
+            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'billing' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#97cd7a]/5 rounded-xl'}`}
           >
             <CreditCard size={13} strokeWidth={2} />
             {t('sidebar.upgrade')}
           </button>
 
           {userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com' ? (
-            <button
-              onClick={() => setActiveTab('admin')}
-              className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'admin' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#1a1a1a]/5'}`}
-            >
-              <ShieldAlert size={13} strokeWidth={2} />
-              {t('sidebar.administration')}
-            </button>
+            <>
+              <button
+                onClick={() => setActiveTab('admin')}
+                className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'admin' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#97cd7a]/5'}`}
+              >
+                <ShieldAlert size={13} strokeWidth={2} />
+                {t('sidebar.administration')}
+              </button>
+              <button
+                onClick={() => setActiveTab('blog')}
+                className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'blog' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#97cd7a]/5'}`}
+              >
+                <Layers size={13} strokeWidth={2} />
+                {t('sidebar.blogAdmin')}
+              </button>
+            </>
           ) : null}
 
           <button
             onClick={() => setActiveTab('support')}
-            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'support' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#1a1a1a]/5'}`}
+            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'support' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#97cd7a]/5'}`}
           >
             <HelpCircle size={13} strokeWidth={2} />
             {t('sidebar.support')}
@@ -279,25 +288,34 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
               >
                 <button
                   onClick={() => { setActiveTab('billing'); setIsAccountMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#1a1a1a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
+                  className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#97cd7a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
                 >
                   <CreditCard size={18} strokeWidth={2.5} />
                   <span>{t('sidebar.upgrade')}</span>
                 </button>
 
                 {(userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com') && (
-                  <button
-                    onClick={() => { setActiveTab('admin'); setIsAccountMenuOpen(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#1a1a1a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
-                  >
-                    <ShieldAlert size={18} strokeWidth={2.5} />
-                    {t('sidebar.administration')}
-                  </button>
+                  <>
+                    <button
+                      onClick={() => { setActiveTab('admin'); setIsAccountMenuOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#97cd7a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
+                    >
+                      <ShieldAlert size={18} strokeWidth={2.5} />
+                      {t('sidebar.administration')}
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('blog'); setIsAccountMenuOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#97cd7a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
+                    >
+                      <Layers size={18} strokeWidth={2.5} />
+                      {t('sidebar.blogAdmin')}
+                    </button>
+                  </>
                 )}
 
                 <button
                   onClick={() => { setActiveTab('support'); setIsAccountMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#1a1a1a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
+                  className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#97cd7a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
                 >
                   <HelpCircle size={18} strokeWidth={2.5} />
                   {t('sidebar.support')}

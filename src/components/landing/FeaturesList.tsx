@@ -68,7 +68,7 @@ export function FeaturesList() {
   }, { scope: containerRef });
 
   return (
-    <section ref={containerRef} className="h-[100svh] bg-bg border-y-2 border-dark overflow-hidden relative">
+    <section id="features" ref={containerRef} className="h-[100svh] bg-bg border-y-2 border-dark overflow-hidden relative">
       
       <div ref={trackRef} className="flex flex-col md:flex-row h-full w-max">
         

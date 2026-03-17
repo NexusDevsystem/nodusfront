@@ -72,7 +72,6 @@ export interface UserProfile {
   stripeCustomerId?: string | null;
   seoTitle?: string;
   seoDescription?: string;
-  customCSS?: string;
   supportType?: 'pix' | 'paypal'; // Deprecated/Legacy
   supportKey?: string; // Deprecated/Legacy
   paymentMethods?: PaymentMethod[]; // New Array
@@ -158,4 +157,21 @@ export interface SocialIntegration {
       channel_id: string;
     }>;
   };
+}
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  imageUrl?: string;
+  category: string;
+  author: string;
+  color?: string;
+  isPublished: boolean;
+  likesCount: number;
+  publishedAt?: string;
+  createdAt?: string;
+  position: number;
 }

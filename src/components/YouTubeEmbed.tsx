@@ -6,9 +6,17 @@ interface YouTubeEmbedProps {
     url: string;
     title: string;
     className?: string; // Allow passing extra classes like 'rounded-2xl' etc
+    themeButtonClass?: string;
+    themeButtonStyle?: React.CSSProperties;
 }
 
-const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, title, className = '' }) => {
+const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ 
+    url, 
+    title, 
+    className = '',
+    themeButtonClass = '',
+    themeButtonStyle = {}
+}) => {
     const [isPlaying, setIsPlaying] = useState(false);
 
     const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
@@ -17,7 +25,10 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, title, className = '' 
 
     if (isPlaying) {
         return (
-            <div className={`w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] aspect-video ${className}`}>
+            <div 
+                className={`w-full overflow-hidden aspect-video ${themeButtonClass} ${className}`}
+                style={themeButtonStyle}
+            >
                 <iframe
                     width="100%"
                     height="100%"
@@ -33,7 +44,8 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, title, className = '' 
 
     return (
         <div
-            className={`relative w-full overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] aspect-video group cursor-pointer ${className}`}
+            className={`relative w-full overflow-hidden aspect-video group cursor-pointer ${themeButtonClass} ${className}`}
+            style={themeButtonStyle}
             onClick={() => setIsPlaying(true)}
         >
             {/* Thumbnail */}
@@ -47,7 +59,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, title, className = '' 
             />
 
             {/* Overlays / Gradients for readability */}
-            <div className="absolute inset-0 bg-black/5 group-hover:bg-black/15 transition-colors duration-300" />
+            <div className="absolute inset-0 bg-black/5 group-hover:bg-[#ffdf00]/15 transition-colors duration-300" />
 
             {/* Bottom Gradient for title */}
             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90" />

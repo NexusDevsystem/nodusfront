@@ -65,6 +65,7 @@ export default function AdminView() {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [editPlan, setEditPlan] = useState<{ type: string, expiry: string } | null>(null);
     const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'manage'>('overview');
+    const [isUserDetailsLoading, setIsUserDetailsLoading] = useState(false);
 
     useEffect(() => {
         if (selectedUser) {
@@ -172,10 +173,13 @@ export default function AdminView() {
         
         // Fetch fresh and deep stats for this user immediately
         try {
+            setIsUserDetailsLoading(true);
             const fullStats = await apiClient.getAdminUserStats(u.id);
             setSelectedUser((prev: any) => prev && prev.id === u.id ? { ...prev, ...fullStats } : prev);
         } catch (error) {
             console.error('Failed to load user detailed stats', error);
+        } finally {
+            setIsUserDetailsLoading(false);
         }
     };
 
@@ -259,9 +263,9 @@ export default function AdminView() {
         : '0.0';
 
     return (
-        <div className="w-full max-w-6xl mx-auto pb-12 px-4 md:px-0">
+        <div className="w-full max-w-full pb-12 px-4 md:px-10 lg:px-12">
             {/* Header */}
-            <div className="bg-white border-2 border-[#1a1a1a] p-8 md:p-12 mb-10 shadow-[0_8px_0_0_#1a1a1a] relative overflow-hidden rounded-[32px]">
+            <div className="bg-white border border-black/10 p-8 md:p-12 mb-10 shadow-2xl relative overflow-hidden rounded-[32px]">
                 <div className="absolute -right-20 -top-20 text-[#1a1a1a]/5 pointer-events-none">
                     <ShieldAlert size={400} />
                 </div>
@@ -451,304 +455,224 @@ export default function AdminView() {
                                 transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
                                 className={`
                                     bg-white w-full relative overflow-hidden pointer-events-auto flex flex-col border-2 border-[#1a1a1a] shadow-[0_20px_0_0_rgba(0,0,0,0.1)]
-                                    ${isMobile ? 'h-[95vh] rounded-none' : 'max-w-[700px] h-[750px] rounded-[40px]'}
-                                `}
-                            >                                 {/* BRUTALIST HEADER */}
-                                 <div className="bg-white border-b-2 border-[#1a1a1a] p-6 md:p-8 rounded-t-[40px] flex flex-row items-center justify-between shrink-0 relative overflow-hidden">
-                                     <div className="absolute top-0 left-0 w-full h-[6px] bg-[#ffdf00]" />
+                                    ${isMobile ? 'h-[95vh] rounded-none' : 'max-w-[900px] h-[850px] rounded-[40px]'}
+                                `}                             >
+                                 <div className="flex-1 overflow-y-auto bg-[#fafafa] custom-scrollbar-brutal relative">
+                                     <div className="absolute top-0 left-0 w-full h-[8px] bg-[#ffdf00] z-[100]" />
                                      
-                                     <div className="flex items-center gap-4 md:gap-6 relative z-10 w-full">
-                                         <div className="relative shrink-0">
-                                             <div className="w-16 h-16 md:w-20 md:h-20 border-2 border-[#1a1a1a] bg-white shadow-[0_4px_0_0_#1a1a1a] rounded-2xl overflow-hidden relative z-10">
-                                                 {selectedUser.avatar_url ? (
-                                                     <img src={selectedUser.avatar_url} className="w-full h-full object-cover" alt={selectedUser.username} />
+                                     {/* HERO IDENTITY */}
+                                     <div className="p-10 md:p-14 pb-8">
+                                         <div className="flex flex-col md:flex-row gap-12 items-start md:items-center relative">
+                                             <div className="relative group/avatar shrink-0">
+                                                 <div className="w-32 h-32 md:w-44 md:h-44 rounded-[48px] border-4 border-[#1a1a1a] shadow-[0_16px_0_0_#1a1a1a] overflow-hidden bg-white shrink-0 relative z-10 transition-all duration-500 group-hover/avatar:-rotate-3 group-hover/avatar:scale-105">
+                                                     {selectedUser.avatar_url ? (
+                                                         <img src={selectedUser.avatar_url} className="w-full h-full object-cover" alt={selectedUser.username} />
+                                                     ) : (
+                                                         <div className="w-full h-full flex items-center justify-center font-black text-6xl text-black/5 bg-slate-50 uppercase">
+                                                             {selectedUser.username?.[0]}
+                                                         </div>
+                                                     )}
+                                                 </div>
+                                                 {selectedUser.is_verified && (
+                                                     <div className="absolute -right-4 -top-4 bg-[#97cd7a] border-[3px] border-[#1a1a1a] p-3 rounded-2xl shadow-[0_8px_0_0_#1a1a1a] z-20 animate-bounce">
+                                                         <Check size={24} className="text-black" strokeWidth={5} />
+                                                     </div>
+                                                 )}
+                                             </div>
+
+                                             <div className="flex-1 space-y-5">
+                                                 <div className="space-y-2">
+                                                     <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic text-black leading-none">{selectedUser.name || selectedUser.username}</h2>
+                                                     <div className="flex flex-wrap items-center gap-3">
+                                                         <span className="px-5 py-2 bg-white border-2 border-[#1a1a1a] text-black text-[12px] font-black uppercase tracking-[0.25em] rounded-xl shadow-[0_4px_0_0_#1a1a1a]">@{selectedUser.username}</span>
+                                                         <span className="px-5 py-2 bg-black/5 text-black/40 text-[12px] font-black uppercase tracking-wider rounded-xl border border-black/5">{selectedUser.email}</span>
+                                                     </div>
+                                                 </div>
+
+                                                 <div className="flex flex-wrap gap-5 pt-3">
+                                                     <button 
+                                                         onClick={() => window.open(`/${selectedUser.username}`, '_blank')}
+                                                         className="flex items-center gap-3 px-10 py-5 bg-[#ffdf00] border-[4px] border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1 active:scale-95 transition-all text-[11px] font-black uppercase tracking-widest rounded-2xl"
+                                                     >
+                                                         <ExternalLink size={18} strokeWidth={4} />
+                                                         Ver Perfil Público
+                                                     </button>
+                                                     <button 
+                                                         onClick={toggleVerification}
+                                                         className={`px-10 py-5 border-[4px] border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1 transition-all text-[11px] font-black uppercase tracking-widest rounded-2xl ${selectedUser.is_verified ? 'bg-white text-black' : 'bg-[#97cd7a] text-black'}`}
+                                                     >
+                                                         {selectedUser.is_verified ? 'Remover Verificado' : 'Conceder Selo'}
+                                                     </button>
+                                                 </div>
+                                             </div>
+
+                                             <button 
+                                                 onClick={() => setSelectedUser(null)} 
+                                                 className="absolute -top-4 -right-4 w-14 h-14 flex items-center justify-center bg-white border-[3px] border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] hover:bg-[#ff3333] hover:text-white transition-all rounded-3xl active:scale-90 group"
+                                             >
+                                                 <X size={28} strokeWidth={5} className="group-hover:rotate-90 transition-transform duration-300" />
+                                             </button>
+                                         </div>
+                                     </div>
+                                {/* MODULAR CONTENT AREA */}
+                                     {/* 2. ANALYTICS MATRIX */}
+                                     <div className="px-10 md:px-14 grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                                         <div className="bg-white border-[4px] border-[#1a1a1a] p-10 rounded-[48px] shadow-[0_10px_0_0_#66ccff] relative overflow-hidden group">
+                                             <div className="absolute -right-6 -bottom-6 opacity-[0.04] group-hover:scale-125 group-hover:rotate-12 transition-all duration-700 text-[#66ccff]"><Eye size={160} /></div>
+                                             <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-black/30 mb-3 block">Volume de Alcance</span>
+                                             <div className="text-6xl font-black italic tracking-tighter tabular-nums drop-shadow-sm">{isUserDetailsLoading ? '...' : (selectedUser.views || 0)}</div>
+                                             <div className="flex items-center gap-2 mt-4 text-[10px] font-black uppercase text-[#66ccff]">
+                                                 <div className="w-1.5 h-1.5 rounded-full bg-[#66ccff] animate-ping" />
+                                                 Visualizações únicas
+                                             </div>
+                                         </div>
+                                         <div className="bg-white border-[4px] border-[#1a1a1a] p-10 rounded-[48px] shadow-[0_10px_0_0_#ff66b2] relative overflow-hidden group">
+                                             <div className="absolute -right-6 -bottom-6 opacity-[0.04] group-hover:scale-125 -group-hover:rotate-12 transition-all duration-700 text-[#ff66b2]"><MousePointerClick size={160} /></div>
+                                             <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-black/30 mb-3 block">Interações Reais</span>
+                                             <div className="text-6xl font-black italic tracking-tighter tabular-nums drop-shadow-sm">{isUserDetailsLoading ? '...' : (selectedUser.clicks?.[0]?.count || 0)}</div>
+                                             <div className="text-[10px] font-black uppercase text-[#ff66b2] mt-4">Engajamento Direto</div>
+                                         </div>
+                                         <div className="bg-white border-[4px] border-[#1a1a1a] p-10 rounded-[48px] shadow-[0_10px_0_0_#97cd7a] relative overflow-hidden group">
+                                             <div className="absolute -right-6 -bottom-6 opacity-[0.04] group-hover:scale-125 group-hover:rotate-6 transition-all duration-700 text-[#97cd7a]"><TrendingUp size={160} /></div>
+                                             <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-black/30 mb-3 block">Performance Geral</span>
+                                             <div className="text-6xl font-black italic tracking-tighter tabular-nums drop-shadow-sm">{isUserDetailsLoading ? '...' : `${Math.round(((selectedUser.clicks?.[0]?.count || 0) / (selectedUser.views || 1)) * 100)}%`}</div>
+                                             <div className="text-[10px] font-black uppercase text-[#97cd7a] mt-4">Taxa de Conversão</div>
+                                         </div>
+                                     </div>
+
+                                     {/* 3. CORE MANAGEMENT GRID */}
+                                     <div className="px-10 md:px-14 grid grid-cols-1 lg:grid-cols-2 gap-12 pb-24">
+                                         {/* Profile Details */}
+                                         <div className="space-y-10">
+                                             <div className="bg-white border-[4px] border-[#1a1a1a] rounded-[48px] shadow-[0_16px_0_0_#1a1a1a] overflow-hidden">
+                                                 <div className="bg-slate-50 border-b-[4px] border-[#1a1a1a] p-8 flex justify-between items-center">
+                                                     <h3 className="text-sm font-black uppercase tracking-[0.25em] italic">Identidade e Conteúdo</h3>
+                                                     <User size={24} strokeWidth={4} className="opacity-20" />
+                                                 </div>
+                                                 <div className="p-10 space-y-10">
+                                                     <div className="bg-black/5 p-8 rounded-[32px] border-2 border-dashed border-black/10 relative">
+                                                         <div className="absolute -top-4 left-8 px-4 py-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest rounded-lg">Manifesto Bio</div>
+                                                         <p className="text-xl font-black italic uppercase text-black leading-tight">
+                                                             "{selectedUser.bio || 'SEM DESCRIÇÃO DEFINIDA'}"
+                                                         </p>
+                                                     </div>
+                                                     <div className="grid grid-cols-2 gap-8">
+                                                         <div className="space-y-2">
+                                                             <label className="text-[10px] font-black uppercase text-black/30 tracking-widest pl-2">Segmentação</label>
+                                                             <div className="p-5 bg-white border-[3px] border-[#1a1a1a] rounded-2xl text-[13px] font-black uppercase shadow-[0_4px_0_0_#1a1a1a]">{selectedUser.user_category || 'Não Classificado'}</div>
+                                                         </div>
+                                                         <div className="space-y-2">
+                                                             <label className="text-[10px] font-black uppercase text-black/30 tracking-widest pl-2">Estilo Visual</label>
+                                                             <div className="p-5 bg-[#ffdf00] border-[3px] border-[#1a1a1a] rounded-2xl text-[13px] font-black uppercase shadow-[0_4px_0_0_#1a1a1a]">{selectedUser.theme_id?.replace('theme-', '') || 'Padrão'}</div>
+                                                         </div>
+                                                     </div>
+                                                     <div className="flex flex-col gap-5">
+                                                         <div className="flex items-center justify-between p-6 bg-white border-[3px] border-[#1a1a1a] text-black rounded-[32px] shadow-[0_8px_0_0_#66ccff]">
+                                                              <div className="flex items-center gap-4">
+                                                                  <LinkIcon size={24} className="text-[#66ccff]" strokeWidth={4} />
+                                                                  <span className="text-xs font-black uppercase tracking-[0.15em]">Inventário de Links</span>
+                                                              </div>
+                                                              <span className="text-2xl font-black italic">{selectedUser.links?.[0]?.count || 0}</span>
+                                                         </div>
+                                                         <div className="flex items-center justify-between p-6 bg-white border-[3px] border-[#1a1a1a] text-black rounded-[32px] shadow-[0_8px_0_0_#ff66b2]">
+                                                              <div className="flex items-center gap-4">
+                                                                  <ShoppingBag size={24} className="text-[#ff66b2]" strokeWidth={4} />
+                                                                  <span className="text-xs font-black uppercase tracking-[0.15em]">Galeria de Produtos</span>
+                                                              </div>
+                                                              <span className="text-2xl font-black italic">{selectedUser.products?.[0]?.count || 0}</span>
+                                                         </div>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+
+                                         {/* Plan & Danger Zone */}
+                                         <div className="space-y-12">
+                                             <div className="bg-white border-[4px] border-[#1a1a1a] rounded-[48px] shadow-[0_16px_0_0_#97cd7a] overflow-hidden">
+                                                 <div className="bg-[#f6fbf0] border-b-[4px] border-[#1a1a1a] p-8 flex justify-between items-center">
+                                                     <h3 className="text-sm font-black uppercase tracking-[0.25em] text-[#6f9e52] italic">Nível de Assinatura</h3>
+                                                     <Crown size={24} strokeWidth={4} className="text-[#97cd7a]" />
+                                                 </div>
+                                                 <div className="p-10 space-y-10">
+                                                     <div className="flex items-center justify-between p-8 bg-slate-50 border-[3px] border-[#1a1a1a] rounded-[40px] relative overflow-hidden group">
+                                                         <div className="absolute top-0 right-0 w-32 h-full bg-[#97cd7a]/10 -skew-x-[30deg] translate-x-12" />
+                                                         <div className="relative z-10 space-y-2">
+                                                             <div className="flex items-center gap-3">
+                                                                 <span className="text-4xl font-black uppercase italic tracking-tighter">{selectedUser.plan_type}</span>
+                                                                 <div className="px-3 py-1 bg-[#97cd7a] text-black border-2 border-[#1a1a1a] text-[9px] font-black rounded-lg uppercase">Ativo</div>
+                                                             </div>
+                                                             <p className="text-[11px] font-bold uppercase text-black/40 italic">Ciclo Estendido até {selectedUser.subscription_expiry_date ? new Date(selectedUser.subscription_expiry_date).toLocaleDateString() : 'Perpetuidade'}</p>
+                                                         </div>
+                                                     </div>
+
+                                                     <div className="space-y-5">
+                                                         <label className="text-[11px] font-black uppercase tracking-widest text-black/30 pl-2">Upgrade/Downgrade Instantâneo</label>
+                                                         <div className="grid grid-cols-3 gap-4">
+                                                             {['free', 'monthly', 'annual'].map((type) => (
+                                                                 <button
+                                                                     key={type}
+                                                                     onClick={() => setEditPlan({ ...editPlan!, type })}
+                                                                     className={`py-5 text-[11px] font-black uppercase border-[3px] border-[#1a1a1a] rounded-24 transition-all rounded-2xl ${editPlan?.type === type ? 'bg-[#ffdf00] shadow-[0_8px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#ffdf00]/5 active:translate-y-0.5'}`}
+                                                                 >
+                                                                     {type}
+                                                                 </button>
+                                                             ))}
+                                                         </div>
+                                                     </div>
+
+                                                     <button 
+                                                         onClick={handleUpdatePlan}
+                                                         disabled={isUpdating}
+                                                         className="w-full py-6 bg-[#97cd7a] text-black border-[4px] border-[#1a1a1a] text-[13px] font-black uppercase tracking-[0.4em] rounded-[32px] shadow-[0_12px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1.5 transition-all active:scale-95 disabled:opacity-50"
+                                                     >
+                                                         {isUpdating ? 'SINCRONIZANDO...' : 'EXECUTAR ATUALIZAÇÃO'}
+                                                     </button>
+                                                 </div>
+                                             </div>
+
+                                             <div className="bg-[#fff1f1] border-[4px] border-[#1a1a1a] p-10 rounded-[48px] shadow-[0_16px_0_0_#ff3333] space-y-8">
+                                                 <div className="flex items-center gap-4 text-[#ff3333]">
+                                                     <ShieldAlert size={32} strokeWidth={4} />
+                                                     <h3 className="text-xl font-black uppercase tracking-tighter italic">Protocolo de Exclusão</h3>
+                                                 </div>
+                                                 
+                                                 {!deleteConfirm ? (
+                                                     <button 
+                                                         onClick={() => setDeleteConfirm(true)}
+                                                         className="w-full py-5 bg-white border-[3px] border-[#1a1a1a] text-[#ff3333] font-black uppercase text-xs tracking-[0.2em] rounded-24 transition-all shadow-[0_8px_0_0_#1a1a1a] active:translate-y-1 active:shadow-none hover:bg-red-50 rounded-2xl"
+                                                     >
+                                                         Terminar Registro do Usuário
+                                                     </button>
                                                  ) : (
-                                                     <div className="w-full h-full flex items-center justify-center font-black text-2xl text-black/5 bg-slate-50 uppercase">
-                                                         {selectedUser.username?.[0]}
+                                                     <div className="bg-white border-[3px] border-[#1a1a1a] p-8 rounded-[40px] space-y-6 shadow-[0_12px_0_0_rgba(255,51,51,0.2)]">
+                                                         <div className="text-center space-y-2">
+                                                             <p className="text-[12px] font-black uppercase text-[#ff3333] tracking-widest">Confirmação de Purga Requerida</p>
+                                                             <p className="text-[10px] font-bold uppercase opacity-30 tracking-tight">Digite 'DELETE' para confirmar a ação irreversível</p>
+                                                         </div>
+                                                         <input
+                                                             type="text"
+                                                             value={deleteInput}
+                                                             onChange={(e) => setDeleteInput(e.target.value)}
+                                                             placeholder="SEGURANÇA"
+                                                             className="w-full bg-slate-50 border-[3px] border-[#1a1a1a] p-5 text-center text-sm font-black rounded-2xl outline-none focus:bg-white transition-colors"
+                                                         />
+                                                         <div className="flex gap-4">
+                                                             <button 
+                                                                 onClick={handleDeleteUser} 
+                                                                 disabled={deleteInput.trim().toUpperCase() !== 'DELETE'}
+                                                                 className={`flex-1 py-5 border-[3px] border-[#1a1a1a] rounded-[24px] text-[11px] font-black uppercase transition-all rounded-2xl ${deleteInput.trim().toUpperCase() === 'DELETE' ? 'bg-[#ff3333] text-white shadow-[0_6px_0_0_#000]' : 'bg-slate-200 text-black/20'}`}
+                                                             >
+                                                                 Expurgar
+                                                             </button>
+                                                             <button onClick={() => setDeleteConfirm(false)} className="flex-1 py-5 bg-white border-[3px] border-[#1a1a1a] rounded-[24px] text-[11px] font-black uppercase hover:bg-[#97cd7a] hover:text-white transition-all shadow-[0_6px_0_0_#1a1a1a] rounded-2xl">Abortar</button>
+                                                         </div>
                                                      </div>
                                                  )}
                                              </div>
                                          </div>
-
-                                         <div className="flex-1 min-w-0 space-y-1">
-                                             <div className="flex items-center gap-3">
-                                                 <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter italic text-black truncate">{selectedUser.name || selectedUser.username}</h2>
-                                                 <div className="flex gap-1">
-                                                     {selectedUser.is_verified && <Check size={14} className="text-[#97cd7a] p-0.5 border border-black rounded" strokeWidth={4} />}
-                                                     <div className="w-2 h-2 rounded-full bg-[#97cd7a] self-center" />
-                                                 </div>
-                                             </div>
-                                             <p className="text-[10px] font-black uppercase text-black/40 tracking-widest truncate">@{selectedUser.username} • {selectedUser.email}</p>
-                                             <div className="flex gap-2 pt-1">
-                                                <button 
-                                                    onClick={(e) => { e.stopPropagation(); window.open(`/${selectedUser.username}`, '_blank'); }}
-                                                    className="px-3 py-1 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-0.5 text-[8px] font-black uppercase tracking-widest rounded-lg flex items-center gap-2 transition-all"
-                                                >
-                                                    View
-                                                </button>
-                                                <div className="px-3 py-1 bg-white border-2 border-[#1a1a1a] text-[8px] font-black uppercase tracking-widest rounded-lg">
-                                                    {translatePlan(selectedUser.plan_type, t)}
-                                                </div>
-                                             </div>
-                                         </div>
-
-                                         <button 
-                                             onClick={() => setSelectedUser(null)} 
-                                             className="w-10 h-10 flex items-center justify-center bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:bg-black hover:text-white transition-all rounded-xl active:scale-95 shrink-0"
-                                         >
-                                             <X size={20} strokeWidth={4} />
-                                         </button>
                                      </div>
                                  </div>
 
-
-                                {/* BRUTALIST TABS */}
-                                <div className="flex bg-[#fafafa] border-b-2 border-[#1a1a1a] px-8 md:px-10 shrink-0">
-                                    {[
-                                        { id: 'overview', label: t('admin.overview'), icon: <PieChart size={14} />, color: '#66ccff' },
-                                        { id: 'analytics', label: t('admin.analytics'), icon: <BarChart size={14} />, color: '#ff66b2' },
-                                        { id: 'manage', label: t('admin.manage'), icon: <Settings size={14} />, color: '#e6b3ff' }
-                                    ].map(tab => (
-                                        <button
-                                            key={tab.id}
-                                            onClick={() => setActiveTab(tab.id as any)}
-                                            className={`
-                                                relative px-8 py-5 text-[11px] font-black uppercase tracking-tight transition-all flex items-center gap-3 group
-                                                ${activeTab === tab.id ? 'text-black' : 'text-black/30 hover:text-black hover:bg-black/5'}
-                                            `}
-                                        >
-                                            {activeTab === tab.id && (
-                                                <motion.div 
-                                                    layoutId="activeTab"
-                                                    className="absolute bottom-0 left-0 right-0 h-[4px] bg-black"
-                                                />
-                                            )}
-                                            {tab.icon}
-                                            {tab.label}
-                                        </button>
-                                    ))}
-                                </div>
-                                {/* MODULAR CONTENT AREA */}
-                                 <div className="flex-1 overflow-y-auto bg-white p-4 md:p-6 custom-scrollbar-brutal scroll-smooth">
-                                     <AnimatePresence mode="wait">
-                                         <motion.div
-                                             key={activeTab}
-                                             initial={{ opacity: 0, scale: 0.95 }}
-                                             animate={{ opacity: 1, scale: 1 }}
-                                             exit={{ opacity: 0, scale: 1.05 }}
-                                             transition={{ duration: 0.15 }}
-                                             className="max-w-6xl mx-auto h-full"
-                                         >                                             {activeTab === 'overview' && (
-                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-10">
-                                                     <div className="md:col-span-2">
-                                                         <BrutalCard title="About Profile" color="#fff">
-                                                            <div className="space-y-4">
-                                                                <p className="text-xl font-black uppercase text-black break-words italic">
-                                                                    "{selectedUser.bio || 'NO BIO PROVIDED'}"
-                                                                </p>
-                                                                
-                                                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-4 border-t-2 border-dashed border-black/5">
-                                                                    <div className="bg-black/5 p-3 rounded-xl">
-                                                                        <span className="text-[8px] font-black text-black/40 uppercase block">Category</span>
-                                                                        <span className="text-[10px] font-black uppercase">{selectedUser.user_category || 'PERSONAL'}</span>
-                                                                    </div>
-                                                                    <div className="bg-black/5 p-3 rounded-xl">
-                                                                        <span className="text-[8px] font-black text-black/40 uppercase block">Theme</span>
-                                                                        <span className="text-[10px] font-black uppercase">{selectedUser.theme_id || 'DEFAULT'}</span>
-                                                                    </div>
-                                                                    <div className="bg-black/5 p-3 rounded-xl">
-                                                                        <span className="text-[8px] font-black text-black/40 uppercase block">Assets</span>
-                                                                        <span className="text-[10px] font-black uppercase">{(selectedUser.links?.[0]?.count || 0) + (selectedUser.products?.[0]?.count || 0)} UNITS</span>
-                                                                    </div>
-                                                                    <div className="bg-black/5 p-3 rounded-xl">
-                                                                        <span className="text-[8px] font-black text-black/40 uppercase block">Status</span>
-                                                                        <span className="text-[10px] font-black uppercase text-[#97cd7a]">ACTIVE</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                         </BrutalCard>
-                                                     </div>
-
-                                                     <div className="md:col-span-1">
-                                                         <BrutalMetric label="Total Views" value={selectedUser.views || 0} color="#66ccff" icon={<Eye size={24} />} />
-                                                     </div>
-                                                     <div className="md:col-span-1">
-                                                         <BrutalMetric label="Total Clicks" value={selectedUser.clicks?.[0]?.count || 0} color="#ff66b2" icon={<MousePointerClick size={24} />} />
-                                                     </div>
-                                                     <div className="md:col-span-2">
-                                                         <div className="bg-[#1a1a1a] border-2 border-[#1a1a1a] p-6 shadow-[0_4px_0_0_#000] rounded-[32px] text-white flex justify-between items-center group overflow-hidden relative">
-                                                            <div className="relative z-10">
-                                                                <h4 className="text-[10px] font-black uppercase tracking-widest text-[#97cd7a] mb-1">Efficiency Ratio</h4>
-                                                                <span className="text-4xl font-black italic">{Math.round(((selectedUser.clicks?.[0]?.count || 0) / (selectedUser.views || 1)) * 100)}% <span className="text-[10px] font-black uppercase opacity-40">CTR</span></span>
-                                                            </div>
-                                                            <div className="relative z-10 text-right">
-                                                                <div className="text-[8px] font-black uppercase px-2 py-1 bg-[#97cd7a] text-black rounded mb-2">Stable Growth</div>
-                                                                <div className="flex gap-1 justify-end">
-                                                                    {[1,2,3,4,5].map(i => <div key={i} className="w-1 h-4 bg-white/20 rounded-full" style={{ height: `${20 + Math.random() * 20}px` }} />)}
-                                                                </div>
-                                                            </div>
-                                                            <TrendingUp size={100} className="absolute -right-4 -bottom-4 text-white/5 group-hover:scale-110 transition-transform" />
-                                                         </div>
-                                                     </div>
-                                                 </div>
-                                             )}
-
-                                             {activeTab === 'analytics' && (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-10">
-                                                    <BrutalCard title="Platform Breakdown" color="#66ccff">
-                                                        <div className="space-y-6">
-                                                            <BrutalProgressBar label="Desktop Traffic" percentage={45} color="#000" />
-                                                            <BrutalProgressBar label="Mobile Traffic" percentage={55} color="#ff66b2" />
-                                                            <BrutalProgressBar label="Other" percentage={2} color="#97cd7a" />
-                                                        </div>
-                                                    </BrutalCard>
-                                                    <BrutalCard title="Referral Sources" color="#ff66b2">
-                                                        <div className="space-y-4">
-                                                            {['Instagram', 'TikTok', 'Direct', 'Other'].map((source, i) => (
-                                                                <div key={source} className="flex justify-between items-center bg-black/5 p-4 border-[3px] border-black">
-                                                                    <span className="font-black uppercase tracking-widest">{source}</span>
-                                                                    <span className="font-black text-2xl">{[65, 20, 10, 5][i]}%</span>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </BrutalCard>
-                                                    <BrutalCard title="Engagement Chronology" color="#fff" className="md:col-span-2">
-                                                        <div className="h-48 w-full border-[4px] border-black bg-slate-100 relative flex items-end gap-2 p-2">
-                                                            {[40, 70, 45, 90, 65, 30, 85, 40, 55, 95, 20, 60, 40, 75, 50, 80, 45, 70].map((h, i) => (
-                                                                <div key={i} className="flex-1 bg-black border-[2px] border-black hover:bg-white transition-colors" style={{ height: `${h}%` }} />
-                                                            ))}
-                                                        </div>
-                                                        <div className="mt-4 flex justify-between text-[10px] font-black uppercase">
-                                                            <span>00:00h</span>
-                                                            <span>12:00h</span>
-                                                            <span>23:59h</span>
-                                                        </div>
-                                                    </BrutalCard>
-                                                </div>
-                                             )}
-
-
-                                            {activeTab === 'manage' && (
-                                                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pb-10">
-                                                     <div className="md:col-span-12">
-                                                         <div className="bg-white border-2 border-[#1a1a1a] p-6 shadow-[0_4px_0_0_#1a1a1a] rounded-3xl flex items-center justify-between">
-                                                            <div className="space-y-0.5">
-                                                                <h3 className="text-xl font-black uppercase tracking-tighter italic text-black">Admin Controls</h3>
-                                                                <p className="text-[9px] font-black uppercase tracking-widest text-black/30 text-nowrap">Manage user hierarchy & status</p>
-                                                            </div>
-                                                            <button
-                                                                onClick={(e) => { e.stopPropagation(); toggleVerification(); }}
-                                                                disabled={isUpdating}
-                                                                className={`px-4 py-2 border-2 border-[#1a1a1a] font-black uppercase text-[10px] tracking-widest transition-all shadow-[0_3px_0_0_#1a1a1a] active:translate-y-1 active:shadow-none rounded-xl flex items-center gap-2 ${selectedUser.is_verified ? 'bg-white text-black' : 'bg-black text-[#97cd7a]'}`}
-                                                            >
-                                                                {selectedUser.is_verified ? 'REVOKE' : 'VERIFY'}
-                                                            </button>
-                                                         </div>
-                                                     </div>
-
-                                                     <div className="md:col-span-7">
-                                                         <BrutalCard title="Plan Configuration" color="#fff">
-                                                             <div className="space-y-6">
-                                                                <div className="grid grid-cols-3 gap-3">
-                                                                    {['free', 'monthly', 'annual'].map((type) => (
-                                                                        <button
-                                                                            key={type}
-                                                                            onClick={() => setEditPlan({ ...editPlan!, type })}
-                                                                            className={`
-                                                                                p-4 text-[10px] font-black uppercase tracking-widest border-2 border-[#1a1a1a] transition-all flex flex-col items-center gap-3 rounded-2xl
-                                                                                ${editPlan?.type === type ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-black/5'}
-                                                                            `}
-                                                                        >
-                                                                            <Crown size={18} className={editPlan?.type === type ? 'text-black' : 'text-black/10'} />
-                                                                            {type}
-                                                                            {editPlan?.type === type && <div className="w-1.5 h-1.5 bg-black rounded-full" />}
-                                                                        </button>
-                                                                    ))}
-                                                                </div>
-
-                                                                <div className="bg-slate-50 border-2 border-[#1a1a1a] p-6 rounded-2xl space-y-4 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)]">
-                                                                    <div className="flex justify-between items-center">
-                                                                        <label className="text-[10px] font-black uppercase tracking-widest text-black/40 italic">Cycle Expiration</label>
-                                                                        {editPlan?.expiry && <span className="text-[10px] font-black text-[#97cd7a] uppercase tracking-widest">Expires {new Date(editPlan.expiry).toLocaleDateString()}</span>}
-                                                                    </div>
-                                                                    <input 
-                                                                        type="date"
-                                                                        value={editPlan?.expiry}
-                                                                        onChange={(e) => setEditPlan({ ...editPlan!, expiry: e.target.value })}
-                                                                        className="w-full bg-white border-2 border-[#1a1a1a] p-4 text-xs font-black uppercase focus:outline-none rounded-xl"
-                                                                    />
-                                                                    <div className="flex gap-3">
-                                                                        <button onClick={() => {
-                                                                            const d = new Date(); d.setDate(d.getDate() + 30);
-                                                                            if (editPlan) setEditPlan({ ...editPlan, expiry: d.toISOString().substring(0, 10) });
-                                                                        }} className="flex-1 py-3 bg-black text-white font-black uppercase text-[9px] tracking-widest border-2 border-[#1a1a1a] hover:bg-white hover:text-black transition-colors rounded-xl shadow-[0_3px_0_0_#000]">+30 DAYS</button>
-                                                                        <button onClick={() => {
-                                                                            const d = new Date(); d.setFullYear(d.getFullYear() + 1);
-                                                                            if (editPlan) setEditPlan({ ...editPlan, expiry: d.toISOString().substring(0, 10) });
-                                                                        }} className="flex-1 py-3 bg-[#ffdf00] text-black font-black uppercase text-[9px] tracking-widest border-2 border-[#1a1a1a] hover:bg-white transition-colors rounded-xl shadow-[0_3px_0_0_#000]">+1 YEAR</button>
-                                                                    </div>
-                                                                </div>
-
-                                                                <button
-                                                                    onClick={(e) => { e.stopPropagation(); handleUpdatePlan(); }}
-                                                                    disabled={isUpdating}
-                                                                    className="w-full py-5 bg-[#97cd7a] text-black font-black uppercase text-xs tracking-[0.2em] border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1 transition-all active:scale-95 rounded-2xl"
-                                                                >
-                                                                    {isUpdating ? 'SYNCING DATA...' : 'APPLY_CHANGES_&_SYNC'}
-                                                                </button>
-                                                             </div>
-                                                         </BrutalCard>
-                                                     </div>
-
-                                                     <div className="md:col-span-5">
-                                                        <div className="bg-red-50 border-2 border-[#1a1a1a] p-8 shadow-[0_8px_0_0_#ff3333] rounded-[32px] h-full flex flex-col justify-between">
-                                                            <div className="space-y-4">
-                                                                <div className="flex items-center gap-3 text-red-600">
-                                                                    <ShieldAlert size={28} />
-                                                                    <h4 className="text-xl font-black uppercase tracking-tighter italic">Danger Zone</h4>
-                                                                </div>
-                                                                <p className="text-[10px] font-bold uppercase leading-relaxed text-black/50">Permament removal of all user assets and intelligence records. This action is irreversible.</p>
-                                                            </div>
-
-                                                            {!deleteConfirm ? (
-                                                                <button 
-                                                                    onClick={() => setDeleteConfirm(true)}
-                                                                    className="w-full py-4 bg-white border-2 border-[#1a1a1a] text-red-600 font-black uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all shadow-[0_4px_0_0_#1a1a1a] rounded-xl mt-8"
-                                                                >
-                                                                    PURGE_SYSTEM_USER
-                                                                </button>
-                                                            ) : (
-                                                                <div className="bg-white border-2 border-[#1a1a1a] p-5 space-y-5 shadow-[0_6px_0_0_rgba(0,0,0,0.1)] rounded-2xl mt-6">
-                                                                    <div className="space-y-2 text-center">
-                                                                        <p className="text-[9px] font-black uppercase text-red-600">VERIFICATION_CODE_REQUIRED</p>
-                                                                        <p className="text-[8px] font-bold uppercase opacity-40">TYPE 'DELETE' TO CONFIRM</p>
-                                                                        <input
-                                                                            type="text"
-                                                                            value={deleteInput}
-                                                                            onChange={(e) => setDeleteInput(e.target.value)}
-                                                                            placeholder="PASSWORD"
-                                                                            className="w-full bg-slate-50 border-2 border-[#1a1a1a] p-3 text-center text-sm font-black outline-none rounded-xl"
-                                                                        />
-                                                                    </div>
-                                                                    <div className="flex gap-2">
-                                                                        <button
-                                                                            onClick={(e) => { e.stopPropagation(); handleDeleteUser(); }}
-                                                                            disabled={isUpdating || deleteInput.trim().toUpperCase() !== 'DELETE'}
-                                                                            className={`flex-1 py-3 font-black uppercase border-2 border-[#1a1a1a] rounded-xl text-[9px] ${deleteInput.trim().toUpperCase() === 'DELETE' ? 'bg-red-600 text-white shadow-[0_3px_0_0_#000]' : 'bg-slate-200 text-black/20'}`}
-                                                                        >
-                                                                            PURGE
-                                                                        </button>
-                                                                        <button onClick={() => { setDeleteConfirm(false); setDeleteInput(''); }} className="flex-1 py-3 bg-white border-2 border-[#1a1a1a] font-black uppercase text-[9px] hover:bg-black hover:text-white transition-colors rounded-xl shadow-[0_3px_0_0_#000]">ABORT</button>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                     </div>
-                                                </div>
-                                            )}
-                                        </motion.div>
-                                    </AnimatePresence>
-                                </div>
                             </motion.div>
                         </div>
                     )}
@@ -780,26 +704,60 @@ function VisualRow({ label, value, icon, color, onClick }: any) {
 }
 
 function KPIBox({ label, value, icon, color, sublabel }: any) {
+    const { t } = useTranslation();
     return (
-        <div className="bg-white border-2 border-[#1a1a1a] p-7 rounded-[32px] shadow-[0_6px_0_0_#1a1a1a] flex flex-col relative overflow-hidden group hover:translate-y-1 hover:shadow-none transition-all duration-300">
-            <div className="flex justify-between items-start mb-8 relative z-10">
-                <div className="p-3.5 rounded-2xl border border-white/10 shadow-[0_3px_0_0_#1a1a1a] transition-all duration-500 group-hover:rotate-[15deg] group-hover:scale-110" style={{ backgroundColor: color }}>
-                    {React.cloneElement(icon as any, { size: 24, strokeWidth: 3, className: 'text-white' })}
+        <motion.div 
+            whileHover={{ y: -5 }}
+            className="group relative bg-white border border-black/10 p-8 rounded-[40px] shadow-xl flex flex-col transition-all duration-300 overflow-hidden cursor-default"
+        >
+            {/* Background Accent */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-black/[0.02] -mr-16 -mt-16 rounded-full group-hover:scale-110 transition-transform duration-700" />
+            
+            <div className="flex justify-between items-start mb-10 relative z-10">
+                <div 
+                    className="w-14 h-14 rounded-2xl border border-black/10 flex items-center justify-center transition-all duration-500 group-hover:rotate-12 group-hover:scale-110 shadow-lg" 
+                    style={{ backgroundColor: color }}
+                >
+                    {React.cloneElement(icon as any, { size: 28, strokeWidth: 3, className: 'text-white' })}
                 </div>
+                
                 <div className="flex flex-col items-end">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/20 leading-none mb-1">Status</span>
-                    <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#97cd7a] animate-pulse" /><span className="text-[8px] font-black uppercase text-[#97cd7a] tracking-widest">Active</span></div>
+                    <span className="text-[10px] font-black uppercase text-black/20 tracking-[0.2em] mb-1.5 flex items-center gap-1.5">
+                        {t('admin.status')}
+                    </span>
+                    <div className="flex items-center gap-2 bg-[#f6fbf0] border border-[#d6ebbf] px-2 py-0.5 rounded-full">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#97cd7a] animate-pulse" />
+                        <span className="text-[9px] font-black uppercase text-[#6f9e52] tracking-tighter">Live</span>
+                    </div>
                 </div>
             </div>
-            <div className="relative z-10 flex flex-col gap-2">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40">{label}</span>
-                <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black tracking-tighter tabular-nums">{typeof value === 'number' ? value.toLocaleString() : value}</span>
-                    <span className="text-[9px] font-bold text-black/20 uppercase tracking-widest">{sublabel}</span>
+
+            <div className="relative z-10 flex flex-col gap-3">
+                <span className="text-[11px] font-black uppercase tracking-[0.25em] text-black/40 group-hover:text-black/60 transition-colors">
+                    {label}
+                </span>
+                
+                <div className="flex flex-col">
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-5xl font-black tracking-tight tabular-nums italic">
+                            {typeof value === 'number' ? value.toLocaleString() : value}
+                        </span>
+                    </div>
+                    {sublabel && (
+                        <div className="mt-2 flex items-center gap-1.5 px-3 py-1 bg-black/5 rounded-lg w-fit transition-colors group-hover:bg-[#ffdf00]/10">
+                            <Activity size={10} className="text-black/30" />
+                            <span className="text-[10px] font-bold text-black/40 uppercase tracking-tight">{sublabel}</span>
+                        </div>
+                    )}
                 </div>
             </div>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/0 to-black/[0.02] -mr-16 -mt-16 rounded-full group-hover:scale-150 transition-transform duration-1000" />
-        </div>
+
+            {/* Subtle Gradient Shadow */}
+            <div 
+                className="absolute bottom-0 left-0 right-0 h-1 hidden group-hover:block transition-all"
+                style={{ backgroundColor: color }}
+            />
+        </motion.div>
     );
 }
 
@@ -876,7 +834,7 @@ function TrafficRow({ label, value, progress, color }: any) {
 
 function AssetStat({ label, value, icon, color }: any) {
     return (
-        <div className="p-8 bg-white border-2 border-[#1a1a1a] rounded-[32px] flex flex-col gap-6 group hover:translate-y-1 hover:shadow-none transition-all duration-500 shadow-[0_6px_0_0_#1a1a1a]">
+        <div className="p-8 bg-white border border-black/10 rounded-[32px] flex flex-col gap-6 group hover:translate-y-1 transition-all duration-500 shadow-xl">
             <div className="flex items-center justify-between">
                 <div className="p-4 rounded-[20px] border border-black/5 shadow-lg transition-transform group-hover:rotate-12 group-hover:scale-110" style={{ backgroundColor: color, color: '#fff' }}>
                     {React.cloneElement(icon as any, { size: 28, strokeWidth: 3 })}
@@ -927,7 +885,7 @@ function InfoCard({ label, value, icon, onCopy, isCopied }: any) {
                 </span>
                 <button
                     onClick={onCopy}
-                    className="p-1.5 bg-slate-50 border border-black/5 rounded-lg hover:bg-black hover:text-white transition-all shadow-sm"
+                    className="p-1.5 bg-slate-50 border border-black/5 rounded-lg hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover: transition-all shadow-sm"
                     title="Copiar para área de transferência"
                 >
                     {isCopied ? <Check size={12} className="text-[#97cd7a]" /> : <Copy size={12} />}
@@ -963,7 +921,7 @@ function GrowthLine({ label, value, percentage }: any) {
 
 function StatusIndicator({ label, status }: any) {
     return (
-        <div className="flex items-center justify-between p-4 bg-white border-2 border-[#1a1a1a] rounded-2xl group hover:shadow-none transition-all shadow-[0_4px_0_0_#1a1a1a]">
+        <div className="flex items-center justify-between p-4 bg-white border border-black/10 rounded-2xl group transition-all shadow-lg">
             <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-[#97cd7a] animate-pulse" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-black/40">{label}</span>
@@ -996,7 +954,7 @@ function Grid({ size, className, strokeWidth }: any) {
 
 function BrutalCard({ title, children, color = '#fff', textColor = '#000', className = '' }: any) {
     return (
-        <div className={`border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] rounded-[32px] overflow-hidden flex flex-col ${className}`} style={{ backgroundColor: color }}>
+        <div className={`border border-black/10 shadow-xl rounded-[32px] overflow-hidden flex flex-col ${className}`} style={{ backgroundColor: color }}>
             {title && (
                 <div className="border-b-2 border-black/5 p-4 flex items-center justify-between bg-[#fafafa]">
                     <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-black/60">{title}</h4>
@@ -1015,7 +973,7 @@ function BrutalCard({ title, children, color = '#fff', textColor = '#000', class
 
 function BrutalMetric({ label, value, color, icon }: any) {
     return (
-        <div className="border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] p-6 flex flex-col gap-2 relative overflow-hidden group rounded-[32px] bg-white hover:shadow-none hover:translate-y-0.5 transition-all" style={{ backgroundColor: color }}>
+        <div className="border border-black/10 shadow-xl p-6 flex flex-col gap-2 relative overflow-hidden group rounded-[32px] bg-white hover:translate-y-0.5 transition-all" style={{ backgroundColor: color }}>
             <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform duration-500">
                 {icon}
             </div>

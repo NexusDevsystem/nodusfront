@@ -67,7 +67,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="bg-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-black cursor-pointer hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-xl cursor-target">
+                            <label htmlFor="bg-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-black cursor-pointer hover:bg-[#97cd7a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-xl cursor-target">
                                 <Upload size={14} strokeWidth={3} /> {profile.customBackground ? t('design.changeImage') : t('design.uploadImage')}
                             </label>
                             <p className="text-[8px] font-normal text-black/50 uppercase tracking-widest text-center px-2">
@@ -127,7 +127,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                                                     if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: null });
                                                     else onChange({ ...profile, themeId: 'custom', customSolidColor: null });
                                                 }}
-                                                className="px-2 h-8 flex items-center justify-center text-black bg-white border border-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl"
+                                                className="px-2 h-8 flex items-center justify-center text-black bg-white border border-[#1a1a1a] hover:bg-[#97cd7a] hover:text-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl"
                                             >
                                                 <Trash2 size={14} strokeWidth={3} />
                                             </button>

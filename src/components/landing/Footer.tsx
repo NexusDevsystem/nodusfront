@@ -52,9 +52,9 @@ export function Footer() {
         <div className="p-8 md:p-12 !bg-[#ffffff] border-b-4 md:border-b-0 md:border-r-4 border-dark !text-[#000000]">
           <div className="font-display font-black text-2xl uppercase tracking-widest mb-8 !text-[#000000]">{t.footer.legal}</div>
           <ul className="flex flex-col gap-6 font-bold text-xl">
-            <li><a href="#" className="hover:text-pink transition-colors !text-[#000000]">{t.footer.privacy}</a></li>
-            <li><a href="#" className="hover:text-pink transition-colors !text-[#000000]">{t.footer.terms}</a></li>
-            <li><a href="#" className="hover:text-pink transition-colors !text-[#000000]">{t.footer.support}</a></li>
+            <li><a href="/privacy" className="hover:text-pink transition-colors !text-[#000000]">{t.footer.privacy}</a></li>
+            <li><a href="/terms" className="hover:text-pink transition-colors !text-[#000000]">{t.footer.terms}</a></li>
+            <li><a href="https://wa.me/5511910408544" target="_blank" rel="noopener noreferrer" className="hover:text-pink transition-colors !text-[#000000]">{t.footer.support}</a></li>
           </ul>
         </div>
 
@@ -76,22 +76,6 @@ export function Footer() {
 
       </div>
 
-      {/* Giant Text Bottom with Pressure Effect */}
-      <div className="relative !bg-[#000000] pt-12 pb-8 overflow-hidden min-h-[50vh]">
-        <div className="w-full h-[300px] md:h-[500px] relative pointer-events-auto">
-          <TextPressure
-            text="NODUS"
-            flex
-            alpha={false}
-            stroke={false}
-            width
-            weight
-            italic
-            textColor="#ffffff"
-            minFontSize={80}
-          />
-        </div>
-      </div>
     </footer>
   );
 }

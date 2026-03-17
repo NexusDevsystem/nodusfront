@@ -60,7 +60,6 @@ class ApiClient {
             if (!response.ok) {
                 // If it's a server error (5xx) and we have retries left, try again
                 if (response.status >= 500 && retries > 0) {
-                    console.warn(`⚠️ Server error ${response.status} on ${path}. Retrying... (${retries} left)`);
                     await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
                     return this.request(path, options, retries - 1);
                 }
@@ -68,7 +67,6 @@ class ApiClient {
                 // If 401, the Google token expired — dispatch a global event for AuthContext to handle
                 // EXCEPTION: Don't trigger logout if it's a simple link password verification failure
                 if (response.status === 401 && !path.includes('verify-password')) {
-                    console.warn(`🔑 [ApiClient] 401 Unauthorized on ${path}. Dispatching session-expired event.`);
                     window.dispatchEvent(new CustomEvent('nodus:session-expired'));
                 }
 
@@ -90,7 +88,6 @@ class ApiClient {
 
             if (error.name === 'AbortError') {
                 if (retries > 0) {
-                    console.warn(`⏱️ Timeout on ${path}. Retrying... (${retries} left)`);
                     return this.request(path, options, retries - 1);
                 }
                 throw new Error('Timeout de conexão - O servidor demorou muito para responder.');
@@ -98,7 +95,6 @@ class ApiClient {
 
             // Network error (not a fetch error response)
             if (retries > 0 && !(error.message?.includes('40'))) {
-                console.warn(`🌐 Network error on ${path}. Retrying... (${retries} left)`);
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 return this.request(path, options, retries - 1);
             }
@@ -163,7 +159,7 @@ class ApiClient {
                 method: 'POST'
             });
         } catch (e: any) {
-            console.error(`❌ [Nodus] Failed to track click for ${id}:`, e?.message || e);
+            // Silently fail or handle internally
         }
     }
 
@@ -333,7 +329,7 @@ class ApiClient {
                 body: JSON.stringify({ profileId })
             });
         } catch (e: any) {
-            console.error(`❌ [Nodus] Failed to track page view for ${profileId}:`, e?.message || e);
+            // Silently fail or handle internally
         }
     }
 
@@ -464,6 +460,52 @@ class ApiClient {
         return this.request('/api/events/bulk-upsert', {
             method: 'POST',
             body: JSON.stringify({ collectionId, events })
+        });
+    }
+
+    // Blog
+    async getAdminBlogPosts(): Promise<any[]> {
+        return this.request('/api/blog/admin');
+    }
+
+    async getPublicBlogPosts(): Promise<any[]> {
+        return this.request('/api/blog');
+    }
+
+    async getBlogPostBySlug(slug: string): Promise<any> {
+        return this.request(`/api/blog/${slug}`);
+    }
+
+    async createBlogPost(post: any): Promise<any> {
+        return this.request('/api/blog', {
+            method: 'POST',
+            body: JSON.stringify(post)
+        });
+    }
+
+    async updateBlogPost(id: string, post: any): Promise<any> {
+        return this.request(`/api/blog/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify(post)
+        });
+    }
+
+    async deleteBlogPost(id: string): Promise<any> {
+        return this.request(`/api/blog/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    async upvoteBlogPost(id: string): Promise<any> {
+        return this.request(`/api/blog/${id}/upvote`, {
+            method: 'POST'
+        });
+    }
+
+    async reorderBlogPosts(posts: any[]): Promise<any> {
+        return this.request('/api/blog/reorder', {
+            method: 'PUT',
+            body: JSON.stringify({ posts })
         });
     }
 }

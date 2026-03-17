@@ -84,7 +84,7 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
 
                     <button
                         onClick={onClose}
-                        className="group relative p-2 md:p-4 text-black hover:bg-black hover:text-[#ffdf00] border-2 border-[#1a1a1a] bg-white transition-all active:scale-95 shadow-[0_3px_0_0_#1a1a1a] md:shadow-[0_4px_0_0_#1a1a1a] z-30 rounded-lg md:rounded-xl"
+                        className="group relative p-2 md:p-4 text-black hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover:text-[#ffdf00] border-2 border-[#1a1a1a] bg-white transition-all active:scale-95 shadow-[0_3px_0_0_#1a1a1a] md:shadow-[0_4px_0_0_#1a1a1a] z-30 rounded-lg md:rounded-xl"
                     >
                         <X className="w-5 h-5 md:w-7 md:h-7" strokeWidth={4} />
                     </button>

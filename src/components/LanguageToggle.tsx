@@ -19,7 +19,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({ className }) => {
                 onClick={() => switchTo('pt-BR')}
                 className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest transition-all ${currentLang === 'pt-BR'
                         ? 'bg-[#ffdf00] text-black'
-                        : 'bg-white text-black hover:bg-black/5'
+                        : 'bg-white text-black hover:bg-[#ffdf00]/5'
                     }`}
             >
                 PT
@@ -28,7 +28,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({ className }) => {
                 onClick={() => switchTo('en')}
                 className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest border-l-2 border-[#1a1a1a] transition-all ${currentLang === 'en'
                         ? 'bg-[#ffdf00] text-black'
-                        : 'bg-white text-black hover:bg-black/5'
+                        : 'bg-white text-black hover:bg-[#ffdf00]/5'
                     }`}
             >
                 EN

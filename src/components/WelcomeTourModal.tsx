@@ -58,7 +58,7 @@ const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ isOpen, onAccept, o
                             </button>
                             <button
                                 onClick={onDecline}
-                                className="w-full bg-white text-black/50 border-2 border-[#1a1a1a] py-3.5 rounded-none text-[12px] font-bold uppercase tracking-widest hover:bg-[#1a1a1a]/5 hover:text-black transition-all active:scale-95 flex items-center justify-center gap-2"
+                                className="w-full bg-white text-black/50 border-2 border-[#1a1a1a] py-3.5 rounded-none text-[12px] font-bold uppercase tracking-widest hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]/5 hover:text-black transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
                                 <X size={16} strokeWidth={2.5} />
                                 Pular por enquanto

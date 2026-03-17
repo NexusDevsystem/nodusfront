@@ -193,7 +193,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                                         <div className="flex justify-end">
                                             <button
                                                 type="submit"
-                                                className="px-8 py-3 bg-[#1a1a1a] text-[#97cd7a] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] text-[10px] font-black uppercase tracking-widest hover:translate-y-[1px] hover:shadow-none transition-all"
+                                                className="px-8 py-3 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] text-[10px] font-black uppercase tracking-widest hover:translate-y-[1px] hover:shadow-none transition-all"
                                             >
                                                 {t('support.sendFeedbackButton')}
                                             </button>

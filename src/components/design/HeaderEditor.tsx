@@ -255,7 +255,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                         <div className="flex-1 w-full space-y-4">
                             <div className="flex gap-2">
-                                <label htmlFor="avatar-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-xl">
+                                <label htmlFor="avatar-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#97cd7a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-xl">
                                     <Upload size={14} strokeWidth={3} /> {profile.avatarUrl ? t('common.change') : t('design.chooseImage')}
                                 </label>
                                 {profile.avatarUrl && (
@@ -326,7 +326,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                             <div className="flex-1 w-full space-y-3">
                                 <div className="flex gap-2">
-                                    <label htmlFor="banner-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#1a1a1a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-xl">
+                                    <label htmlFor="banner-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#97cd7a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-xl">
                                         <Upload size={14} strokeWidth={3} /> {profile.customBackground ? t('common.change') : t('design.chooseBanner')}
                                     </label>
                                     {profile.customBackground && (
@@ -398,7 +398,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                         </label>
                                         <div className="flex gap-2">
                                             <input type="text" value={bannerColor1} onChange={(e) => { const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`; setBannerColor(val, bannerColor2); }} placeholder="#1a1a1a" className="flex-1 h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-xl" />
-                                            <button onClick={() => setBannerColor('#1a1a1a', bannerColor2)} className="px-2 h-9 flex items-center justify-center text-[#1a1a1a] bg-white border border-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] text-[9px] font-bold uppercase rounded-xl">{t('common.clear')}</button>
+                                            <button onClick={() => setBannerColor('#1a1a1a', bannerColor2)} className="px-2 h-9 flex items-center justify-center text-[#1a1a1a] bg-white border border-[#1a1a1a] hover:bg-[#97cd7a] hover:text-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] text-[9px] font-bold uppercase rounded-xl">{t('common.clear')}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -499,7 +499,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                             />
                                             <button
                                                 onClick={() => setColors('#0f172a', color2)}
-                                                className="px-2 h-9 flex items-center justify-center text-[#1a1a1a] bg-white border border-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] text-[9px] font-bold uppercase rounded-xl"
+                                                className="px-2 h-9 flex items-center justify-center text-[#1a1a1a] bg-white border border-[#1a1a1a] hover:bg-[#97cd7a] hover:text-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] text-[9px] font-bold uppercase rounded-xl"
                                             >
                                                 {t('common.clear')}
                                             </button>

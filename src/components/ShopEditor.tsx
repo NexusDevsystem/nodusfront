@@ -243,7 +243,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setDeletingProductId(null)}
-                                    className="px-4 py-2 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#1a1a1a] hover:text-white transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
+                                    className="px-4 py-2 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#97cd7a] hover:text-white transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
                                 >
                                     {t('common.cancel')}
                                 </button>
@@ -346,14 +346,14 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
             <div className="flex justify-end gap-3 pt-4 border-t-2 border-[#1a1a1a]/10">
                 <button
                     onClick={() => { setAddingToCollection(null); setNewProduct({}); }}
-                    className="px-6 py-2.5 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#1a1a1a] hover:text-white transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
+                    className="px-6 py-2.5 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#97cd7a] hover:text-white transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
                 >
                     Cancelar
                 </button>
                 <button
                     onClick={() => handleAddProduct(collectionName)}
                     disabled={!newProduct.name || !newProduct.url}
-                    className="px-6 py-2.5 bg-[#97cd7a] border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-[#1a1a1a] hover:text-[#97cd7a] disabled:opacity-50 disabled:grayscale transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
+                    className="px-6 py-2.5 bg-[#97cd7a] border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-[#97cd7a] hover:text-[#97cd7a] disabled:opacity-50 disabled:grayscale transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
                 >
                     {t('shop.saveProduct')}
                 </button>
@@ -372,7 +372,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                     <Tooltip text={t('shop.newCategory')} position="bottom">
                         <button
                             onClick={() => setIsAddingCollection(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] text-[#97cd7a] hover:bg-[#1a1a1a] hover:text-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none text-[9px] font-medium uppercase tracking-widest transition-all rounded-xl"
+                            className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] text-[#97cd7a] hover:bg-[#97cd7a] hover:text-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none text-[9px] font-medium uppercase tracking-widest transition-all rounded-xl"
                         >
                             <FolderPlus size={18} strokeWidth={3} />
                             <span className="hidden sm:inline">{t('shop.newCategory')}</span>
@@ -402,7 +402,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                             <div className="flex items-center gap-2 justify-end sm:justify-start">
                                 <button
                                     onClick={handleAddCollection}
-                                    className="flex-1 sm:flex-none whitespace-nowrap bg-[#1a1a1a] text-[#97cd7a] px-6 py-2 border-2 border-[#1a1a1a] hover:text-white font-medium text-[10px] transition-all uppercase tracking-widest shadow-[0_2px_0_0_#1a1a1a]"
+                                    className="flex-1 sm:flex-none whitespace-nowrap bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] text-[#97cd7a] px-6 py-2 border-2 border-[#1a1a1a] hover: font-medium text-[10px] transition-all uppercase tracking-widest shadow-[0_2px_0_0_#1a1a1a]"
                                 >
                                     {t('shop.create')}
                                 </button>
@@ -499,7 +499,7 @@ export default function ShopEditor({ products, onChange, pendingCollection, onPe
                                             <div className="flex items-center gap-3">
                                                 <button
                                                     onClick={() => setDeletingCollection(null)}
-                                                    className="px-4 py-2 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#1a1a1a] hover:text-white transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
+                                                    className="px-4 py-2 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#97cd7a] hover:text-white transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
                                                 >
                                                     {t('common.cancel')}
                                                 </button>

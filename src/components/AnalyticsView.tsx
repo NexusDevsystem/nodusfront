@@ -392,7 +392,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
                         </div>
 
                         <div className="w-full flex justify-center mt-2">
-                            <div className="border-2 border-[#1a1a1a] bg-white px-6 py-3 shadow-[0_4px_0_0_#1a1a1a] text-center cursor-default hover:bg-black hover:text-[#97cd7a] transition-colors group rounded-2xl">
+                            <div className="border-2 border-[#1a1a1a] bg-white px-6 py-3 shadow-[0_4px_0_0_#1a1a1a] text-center cursor-default hover:bg-[#ffdf00] hover:text-[#97cd7a] transition-colors group rounded-2xl">
                                 <p className="text-[8px] font-black uppercase tracking-widest opacity-50 group-hover:opacity-100 group-hover:text-white mb-1">{t('analytics.conversionRate')}</p>
                                 <p className="text-2xl font-black">{summary.ctr.toFixed(1)}%</p>
                             </div>
@@ -541,7 +541,7 @@ function KpiCard({ label, value, icon: Icon, isActive }: any) {
             : 'bg-white text-black'
             }`}>
             <div className="flex items-center justify-between mb-6">
-                <div className={`p-2 border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-xl ${isActive ? 'bg-black text-[#97cd7a]' : 'bg-white text-black'}`}>
+                <div className={`p-2 border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-xl ${isActive ? 'bg-[#97cd7a] text-black' : 'bg-white text-black'}`}>
                     <Icon size={16} strokeWidth={3} />
                 </div>
                 <div className="w-2 h-2 border border-[#1a1a1a] bg-black"></div>

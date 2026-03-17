@@ -17,20 +17,6 @@ import '../components/landing/landing.css';
 
 export default function LandingPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [footerHeight, setFooterHeight] = useState(0);
-  const footerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const updateHeight = () => {
-      if (footerRef.current) {
-        setFooterHeight(footerRef.current.offsetHeight);
-      }
-    };
-
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
-  }, []);
 
   useEffect(() => {
     // Only enable smooth scroll on desktop
@@ -59,37 +45,28 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <LanguageProvider>
-      <div className="landing-page-root">
-        {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
-        
-        {/* Main Content "Stack" */}
-        <div className="relative z-10 bg-bg shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
-          <Navbar />
-          <main>
-            <Hero />
-            <Marquee />
-            <BentoGrid />
-            <FeaturesList />
-            <HowItWorks />
-            <Comparison />
-            <FAQ />
-          </main>
-          {/* Bottom border/finish for the stack */}
-          <div className="h-4 bg-dark"></div>
-        </div>
-
-        {/* Spacer that creates the 'scroll room' for the reveal */}
-        <div style={{ height: footerHeight }} className="pointer-events-none" />
-
-        {/* The Footer fixed behind the stack */}
-        <div 
-          ref={footerRef}
-          className="fixed bottom-0 left-0 w-full z-0"
-        >
+    <div className="landing-page-root">
+      {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
+      
+      {/* Main Content Stack */}
+      <div className="relative z-10 bg-bg shadow-[0_20px_50px_rgba(0,0,0,0.2)] pb-12">
+        <Navbar />
+        <main>
+          <Hero />
+          <Marquee />
+          <BentoGrid />
+          <FeaturesList />
+          <HowItWorks />
+          <Comparison />
+          <FAQ />
           <Footer />
-        </div>
+        </main>
+        {/* Bottom border/finish for the stack */}
+        <div className="h-4 bg-dark"></div>
       </div>
-    </LanguageProvider>
+      
+      {/* Bottom Safety Spacer */}
+      <div className="h-1 bg-black w-full" />
+    </div>
   );
 }

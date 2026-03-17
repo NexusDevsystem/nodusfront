@@ -36,13 +36,13 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
     // We take up to 6 items for the dynamic grid layout
     const displayMedia = media.slice(0, 6);
 
-    if (variant === 'profile') {
-        const formatFollowers = (count: number) => {
-            if (count >= 1000000) return (count / 1000000).toFixed(1).replace('.0', '') + 'M';
-            if (count >= 1000) return (count / 1000).toFixed(1).replace('.0', '') + 'K';
-            return count.toLocaleString();
-        };
+    const formatFollowers = (count: number) => {
+        if (count >= 1000000) return (count / 1000000).toFixed(1).replace('.0', '') + 'M';
+        if (count >= 1000) return (count / 1000).toFixed(1).replace('.0', '') + 'K';
+        return count.toLocaleString();
+    };
 
+    if (variant === 'profile') {
         return (
             <div className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${themeButtonClass} h-[72px] p-0 items-center justify-between`}
                 style={themeButtonStyle}>
@@ -96,159 +96,160 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
 
                 {/* Overlay link */}
                 <a href={`https://instagram.com/${username}`} target="_blank" rel="noreferrer" className="absolute inset-0 z-30 cursor-pointer" />
-
-                {/* Subtle gloss effect */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </div>
         );
     }
 
     return (
-        <div className={`w-full overflow-hidden isolate relative group flex flex-col transition-all duration-300 ${themeButtonClass} hover:scale-[1.01] hover:shadow-xl active:scale-[0.99]`}
-            style={themeButtonStyle}>
+        <div className={`w-full overflow-hidden isolate relative group flex flex-col transition-all duration-300 ${themeButtonClass}`}
+            style={{ ...themeButtonStyle, height: 'auto' }}>
 
             {/* Dynamic Media Grid */}
-            <div className="bg-white/5 aspect-[16/10] overflow-hidden">
-                {displayMedia.length === 1 && (
-                    <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item">
-                        <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-105" alt="" loading="lazy" decoding="async" />
-                    </a>
-                )}
-
-                {displayMedia.length === 2 && (
-                    <div className="grid grid-cols-2 h-full gap-[2px]">
-                        {displayMedia.map(item => (
-                            <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item overflow-hidden">
-                                <img src={item.thumbnail_url || item.media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" loading="lazy" decoding="async" />
-                            </a>
-                        ))}
-                    </div>
-                )}
-
-                {displayMedia.length === 3 && (
-                    <div className="grid grid-cols-3 h-full gap-[2px]">
-                        <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer" className="col-span-2 h-full block group/item overflow-hidden">
-                            <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" loading="lazy" decoding="async" />
+            <div className={`overflow-hidden border-b border-black/5 ${isDark ? 'bg-zinc-800' : 'bg-slate-50'}`}>
+                <div className="aspect-square sm:aspect-video w-full">
+                    {displayMedia.length === 1 && (
+                        <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item">
+                            <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-105" alt="" loading="lazy" decoding="async" />
                         </a>
-                        <div className="grid grid-rows-2 gap-[2px]">
-                            {displayMedia.slice(1, 3).map(item => (
-                                <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item overflow-hidden">
+                    )}
+
+                    {displayMedia.length === 2 && (
+                        <div className="grid grid-cols-2 h-full gap-[2px] bg-black/5">
+                            {displayMedia.map(item => (
+                                <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item overflow-hidden bg-white">
                                     <img src={item.thumbnail_url || item.media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" loading="lazy" decoding="async" />
                                 </a>
                             ))}
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {displayMedia.length === 4 && (
-                    <div className="grid grid-cols-2 grid-rows-2 h-full gap-[2px]">
-                        {displayMedia.map(item => (
-                            <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item overflow-hidden">
-                                <img src={item.thumbnail_url || item.media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" loading="lazy" decoding="async" />
+                    {displayMedia.length === 3 && (
+                        <div className="grid grid-cols-3 h-full gap-[2px] bg-black/5">
+                            <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer" className="col-span-2 h-full block group/item overflow-hidden bg-white">
+                                <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" loading="lazy" decoding="async" />
                             </a>
-                        ))}
-                    </div>
-                )}
+                            <div className="grid grid-rows-2 gap-[2px] bg-black/5">
+                                {displayMedia.slice(1, 3).map(item => (
+                                    <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item overflow-hidden bg-white">
+                                        <img src={item.thumbnail_url || item.media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" loading="lazy" decoding="async" />
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
-                {displayMedia.length === 5 && (
-                    <div className="grid grid-cols-3 grid-rows-2 h-full gap-[2px]">
-                        <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer"
-                            className="row-span-2 relative overflow-hidden group/item">
-                            <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url}
-                                alt=""
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" loading="lazy" decoding="async" />
-                            {displayMedia[0].media_type === 'VIDEO' && (
-                                <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
-                                    <Play size={10} fill="white" className="text-white" />
-                                </div>
-                            )}
-                        </a>
-                        {displayMedia.slice(1, 5).map((item) => (
-                            <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer"
-                                className="relative overflow-hidden group/item">
-                                <img src={item.thumbnail_url || item.media_url}
+                    {displayMedia.length === 4 && (
+                        <div className="grid grid-cols-2 grid-rows-2 h-full gap-[2px] bg-black/5">
+                            {displayMedia.map(item => (
+                                <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item overflow-hidden bg-white">
+                                    <img src={item.thumbnail_url || item.media_url} className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" alt="" loading="lazy" decoding="async" />
+                                </a>
+                            ))}
+                        </div>
+                    )}
+
+                    {displayMedia.length === 5 && (
+                        <div className="grid grid-cols-3 grid-rows-2 h-full gap-[2px] bg-black/5">
+                            <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer"
+                                className="row-span-2 relative overflow-hidden group/item bg-white">
+                                <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url}
                                     alt=""
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" loading="lazy" decoding="async" />
-                                {item.media_type === 'VIDEO' && (
-                                    <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
-                                        <Play size={8} fill="white" className="text-white" />
+                                {displayMedia[0].media_type === 'VIDEO' && (
+                                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm p-1 rounded-md border border-black/10">
+                                        <Play size={10} fill="black" className="text-black" />
                                     </div>
                                 )}
                             </a>
-                        ))}
-                    </div>
-                )}
-
-                {displayMedia.length >= 6 && (
-                    <div className="grid grid-cols-3 grid-rows-3 h-full gap-[2px]">
-                        <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer"
-                            className="col-span-2 row-span-2 relative overflow-hidden group/item">
-                            <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url}
-                                alt=""
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-105" loading="lazy" decoding="async" />
-                            {displayMedia[0].media_type === 'VIDEO' && (
-                                <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
-                                    <Play size={10} fill="white" className="text-white" />
-                                </div>
-                            )}
-                        </a>
-                        <div className="grid grid-rows-2 gap-[2px] col-span-1">
-                            {displayMedia.slice(1, 3).map((item) => (
+                            {displayMedia.slice(1, 5).map((item) => (
                                 <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer"
-                                    className="relative overflow-hidden group/item">
+                                    className="relative overflow-hidden group/item bg-white">
                                     <img src={item.thumbnail_url || item.media_url}
                                         alt=""
                                         className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" loading="lazy" decoding="async" />
                                     {item.media_type === 'VIDEO' && (
-                                        <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
-                                            <Play size={8} fill="white" className="text-white" />
+                                        <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm p-0.5 rounded-sm border border-black/10">
+                                            <Play size={8} fill="black" className="text-black" />
                                         </div>
                                     )}
                                 </a>
                             ))}
                         </div>
-                        <div className="grid grid-cols-3 gap-[2px] col-span-3">
-                            {displayMedia.slice(3, 6).map((item) => (
-                                <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer"
-                                    className="relative overflow-hidden group/item">
-                                    <img src={item.thumbnail_url || item.media_url}
-                                        alt=""
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" loading="lazy" decoding="async" />
-                                    {item.media_type === 'VIDEO' && (
-                                        <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm p-1 rounded-md">
-                                            <Play size={8} fill="white" className="text-white" />
-                                        </div>
-                                    )}
-                                </a>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                    )}
 
-                {displayMedia.length === 0 && (
-                    <div className="flex items-center justify-center bg-zinc-950/60 text-zinc-500 text-[10px] font-bold uppercase tracking-widest italic min-h-[120px]">
-                        Nenhum post disponível
-                    </div>
-                )}
+                    {displayMedia.length >= 6 && (
+                        <div className="grid grid-cols-3 grid-rows-3 h-full gap-[2px] bg-black/5">
+                            <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer"
+                                className="col-span-2 row-span-2 relative overflow-hidden group/item bg-white">
+                                <img src={displayMedia[0].thumbnail_url || displayMedia[0].media_url}
+                                    alt=""
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-105" loading="lazy" decoding="async" />
+                                {displayMedia[0].media_type === 'VIDEO' && (
+                                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm p-1 rounded-md border border-black/10">
+                                        <Play size={12} fill="black" className="text-black" />
+                                    </div>
+                                )}
+                            </a>
+                            <div className="grid grid-rows-2 gap-[2px] col-span-1 bg-black/5">
+                                {displayMedia.slice(1, 3).map((item) => (
+                                    <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer"
+                                        className="relative overflow-hidden group/item bg-white">
+                                        <img src={item.thumbnail_url || item.media_url}
+                                            alt=""
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" loading="lazy" decoding="async" />
+                                        {item.media_type === 'VIDEO' && (
+                                            <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm p-0.5 rounded-sm border border-black/10">
+                                                <Play size={8} fill="black" className="text-black" />
+                                            </div>
+                                        )}
+                                    </a>
+                                ))}
+                            </div>
+                            <div className="grid grid-cols-3 gap-[2px] col-span-3 bg-black/5">
+                                {displayMedia.slice(3, 6).map((item) => (
+                                    <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer"
+                                        className="relative overflow-hidden group/item bg-white">
+                                        <img src={item.thumbnail_url || item.media_url}
+                                            alt=""
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110" loading="lazy" decoding="async" />
+                                        {item.media_type === 'VIDEO' && (
+                                            <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm p-0.5 rounded-sm border border-black/10">
+                                                <Play size={8} fill="black" className="text-black" />
+                                            </div>
+                                        )}
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {displayMedia.length === 0 && (
+                        <div className={`flex flex-col items-center justify-center h-full p-10 text-center gap-3 ${isDark ? 'bg-zinc-800' : 'bg-slate-50'}`}>
+                            <div className="w-12 h-12 rounded-2xl border-2 border-dashed border-black/10 flex items-center justify-center">
+                                <Instagram size={24} className="opacity-20" />
+                            </div>
+                            <div className="text-[10px] font-bold uppercase tracking-[0.2em] italic opacity-40">
+                                Nenhum post disponível
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {/* Ultra Compact Unified Footer Area */}
-            <div className="px-3 py-2.5 flex flex-col items-center gap-0.5 mt-auto relative" style={{ fontFamily, fontWeight: (fontWeight || undefined), fontStyle: fontItalic ? 'italic' : 'normal' }}>
-                {/* Subtle separator - keeping it very light to not distract */}
-                <div className="absolute top-0 left-3 right-3 h-[1px] bg-current opacity-20" style={{ color: themeTextHex }} />
+            {/* Compact Footer Area */}
+            <div className="px-4 py-4 flex flex-col items-center gap-1.5" style={{ fontFamily, fontWeight: (fontWeight || undefined), fontStyle: fontItalic ? 'italic' : 'normal' }}>
+                <div className="flex items-center gap-1.5 opacity-40">
+                    <Instagram size={10} style={{ color: themeTextHex }} />
+                    <span className="text-[8px] tracking-[0.25em] uppercase font-bold" style={{ color: themeTextHex }}>Instagram</span>
+                </div>
 
-                <h3 className="text-[9px] tracking-[0.2em] uppercase" style={{ color: themeTextHex }}>Instagram</h3>
-
-                {/* Profile Information - Maximum contrast for the @username */}
+                {/* Profile Information */}
                 <a href={`https://instagram.com/${username}`} target="_blank" rel="noreferrer"
-                    className="flex items-center gap-1 transition-opacity hover:opacity-70 active:scale-[0.98] group/pill">
-                    <div className="w-3 h-3 flex items-center justify-center group-hover/pill:opacity-100 transition-opacity">
-                        <Instagram size={9} style={{ color: themeTextHex }} strokeWidth={2.5} />
-                    </div>
-                    <div className="flex items-center gap-1 whitespace-nowrap">
-                        <span className="text-[8px] tracking-tight uppercase" style={{ color: themeTextHex }}>{username}</span>
-                        <span className="opacity-20 text-[8px]" style={{ color: themeTextHex }}>|</span>
-                        <span className="text-[8px] tracking-tight uppercase" style={{ color: themeTextHex }}>{followers.toLocaleString()} seguidores</span>
+                    className="flex flex-col items-center gap-0.5 transition-all hover:scale-105 active:scale-95 group/pill">
+                    <span className="text-[12px] font-black tracking-tight uppercase" style={{ color: themeTextHex }}>@{username}</span>
+                    <div className="flex items-center gap-1.5 opacity-60">
+                        <Users size={10} style={{ color: themeTextHex }} />
+                        <span className="text-[9px] font-bold tracking-tight uppercase" style={{ color: themeTextHex }}>{followers.toLocaleString()} seguidores</span>
                     </div>
                 </a>
             </div>

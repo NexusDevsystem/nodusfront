@@ -54,7 +54,7 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
         >
             <div className="flex border-b border-[#1a1a1a] items-stretch min-h-[50px] bg-white">
                 <div
-                    className="w-8 md:w-10 flex items-center justify-center cursor-move text-black hover:bg-black hover:text-white border-r-2 border-[#1a1a1a] transition-colors touch-none"
+                    className="w-8 md:w-10 flex items-center justify-center cursor-move text-black hover:bg-[#ffdf00] hover:text-white border-r-2 border-[#1a1a1a] transition-colors touch-none"
                     onPointerDown={(e) => {
                         e.preventDefault();
                         dragControls.start(e);
@@ -417,14 +417,14 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
             <div className="flex justify-end gap-3 pt-4 border-t-2 border-[#1a1a1a]/10">
                 <button
                     onClick={() => { setAddingEvent(false); setNewEvent({ status: 'Tickets' }); }}
-                    className="px-6 py-2.5 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-black hover:text-white transition shadow-[0_3px_0_0_#1a1a1a]"
+                    className="px-6 py-2.5 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#ffdf00] hover:text-white transition shadow-[0_3px_0_0_#1a1a1a]"
                 >
                     {t('common.cancel')}
                 </button>
                 <button
                     onClick={handleAddEvent}
                     disabled={!newEvent.title || !newEvent.date}
-                    className="px-6 py-2.5 bg-[#97cd7a] border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-black hover:text-[#97cd7a] disabled:opacity-50 transition-all shadow-[0_3px_0_0_#1a1a1a]"
+                    className="px-6 py-2.5 bg-[#97cd7a] border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover: disabled:opacity-50 transition-all shadow-[0_3px_0_0_#1a1a1a]"
                 >
                     {t('agenda.saveEvent') || 'Salvar Evento'}
                 </button>
@@ -441,7 +441,7 @@ export default function AgendaEditor({ link, onEventsChange }: AgendaEditorProps
                 </div>
                 <button
                     onClick={() => setAddingEvent(true)}
-                    className="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-black text-[#97cd7a] hover:bg-black hover:text-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none text-[9px] font-medium uppercase tracking-widest transition-all"
+                    className="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-black text-[#97cd7a] hover:bg-[#ffdf00] hover:text-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none text-[9px] font-medium uppercase tracking-widest transition-all"
                 >
                     <Plus size={16} strokeWidth={3} />
                     <span className="hidden sm:inline">{t('agenda.newEvent') || 'Novo Evento'}</span>

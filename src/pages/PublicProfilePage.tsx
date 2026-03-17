@@ -36,9 +36,9 @@ export default function PublicProfilePage() {
                 setLinks(response.links.filter(l => l.isActive));
                 setProducts(response.products);
 
-                setLoading(false);
             } catch (err) {
-                console.error("Error loading profile from API", err);
+                // Handle error state
+            } finally {
                 setLoading(false);
             }
         };
@@ -108,7 +108,7 @@ export default function PublicProfilePage() {
 
 
             <div
-                className="w-full h-auto min-h-screen relative z-10 overflow-hidden md:max-w-[500px] md:shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.5)] md:rounded-t-[3rem] md:border-t md:border-x md:border-white/10"
+                className="w-full h-auto min-h-screen relative z-10 overflow-hidden md:max-w-[500px] md:shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.5)] md:rounded-t-[3rem]"
                 style={{ backgroundColor: profile.headerLayout === 'banner' ? (profile.bannerBlurColor || '#000000') : (profile.customSolidColor || currentTheme.solidColor || '#000') }}
             >
                 <ProfileRenderer
