@@ -464,7 +464,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         const integrations = profile.integrations || [];
         const result = [...manual];
 
-        const order = ['instagram', 'youtube', 'twitch', 'kick'];
+        const order = ['instagram', 'youtube', 'tiktok', 'twitch', 'kick'];
 
         const isPlatformMatch = (link: LinkItem, provider: string): boolean => {
             const lowerUrl = (link.url || '').toLowerCase();
@@ -489,7 +489,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
         const hasLinkDeep = (list: LinkItem[], provider: string): boolean => {
             return list.some(l => {
-                if (isPlatformMatch(l, provider)) return true;
+                if (isPlatformMatch(l, provider) && l.type === 'social') return true;
                 if (l.children && l.children.length > 0) return hasLinkDeep(l.children, provider);
                 return false;
             });

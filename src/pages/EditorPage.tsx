@@ -593,43 +593,44 @@ export default function EditorPage() {
                                 {/* Breadcrumb or Title */}
                                 <h1 className="text-base font-medium uppercase tracking-widest text-black">Editor</h1>
                             </div>
-                            <div className="flex items-center gap-4">
-                                {isPreviewMode ? (
-                                    <div className="flex items-center gap-2 h-9 px-4 bg-[#97cd7a]/10 border border-[#97cd7a] rounded-xl shadow-sm shrink-0">
-                                        <Eye size={14} className="text-[#4a7236]" strokeWidth={2.5} />
-                                        <span className="text-[11px] font-bold tracking-tight text-[#4a7236]">Modo Preview</span>
+                            <div className="flex items-center gap-4">                                {isPreviewMode ? (
+                                    <div className="flex items-center gap-2 h-9 px-4 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl shrink-0">
+                                        <Eye size={14} className="text-[#1a1a1a]" strokeWidth={3} />
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-[#1a1a1a]">Modo Preview</span>
                                     </div>
                                 ) : (isSaving || visualSavingProfile) ? (
-                                    <div className="flex items-center gap-2 h-9 px-4 bg-white border border-slate-200 rounded-xl shadow-sm shrink-0 transition-all">
-                                        <Loader2 size={14} className="animate-spin text-slate-400" strokeWidth={2.5} />
-                                        <span className="text-[11px] font-bold tracking-tight text-slate-600">{t('editor.syncing')}</span>
+                                    <div className="flex items-center gap-2 h-9 px-4 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl shrink-0 transition-all">
+                                        <Loader2 size={14} className="animate-spin text-[#1a1a1a]" strokeWidth={3} />
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-[#1a1a1a]">{t('editor.syncing')}</span>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 h-9 px-4 bg-white border border-slate-200 rounded-xl shadow-sm shrink-0 transition-all">
-                                        <div className="w-2 h-2 rounded-full bg-[#97cd7a]" />
-                                        <span className="text-[11px] font-bold tracking-tight text-slate-600">{t('editor.synced')}</span>
+                                    <div className="flex items-center gap-2 h-9 px-4 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl shrink-0 transition-all">
+                                        <div className="w-2.5 h-2.5 bg-[#97cd7a] border-2 border-[#1a1a1a]" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-[#1a1a1a]">{t('editor.synced')}</span>
                                     </div>
                                 )}
 
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => setIsShareModalOpen(true)}
-                                        className="h-9 px-4 flex items-center gap-2 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-[1px] transition-all text-slate-700 group"
+                                        className="h-9 px-4 flex items-center gap-2 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl hover:translate-y-[1px] hover:shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[3px] active:shadow-none transition-all text-[#1a1a1a] group"
                                         title={t('editor.share')}
                                     >
-                                        <Share size={16} strokeWidth={2} className="group-hover:scale-110 transition-transform" />
-                                        <span className="text-[11px] font-bold tracking-tight hidden lg:inline">{t('editor.share')}</span>
+                                        <Share size={16} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest hidden lg:inline">{t('editor.share')}</span>
                                     </button>
                                     <a
                                         href={shareUrl}
                                         target="_blank"
-                                        className="h-9 px-4 flex items-center gap-2 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-[1px] transition-all group text-slate-700"
+                                        className="h-9 px-4 flex items-center gap-2 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl hover:translate-y-[1px] hover:shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[3px] active:shadow-none transition-all group text-[#1a1a1a]"
                                         title={t('editor.openPublicLink')}
                                     >
-                                        <ExternalLink size={16} strokeWidth={2} className="group-hover:scale-110 transition-transform" />
-                                        <span className="text-[11px] font-bold tracking-tight hidden lg:inline">{t('editor.viewProfile')}</span>
+                                        <ExternalLink size={16} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest hidden lg:inline">{t('editor.viewProfile')}</span>
                                     </a>
                                 </div>
+
+
                             </div>
                         </header>
                         <div className="w-full py-4 md:py-6 px-4 md:px-6 pb-24">
