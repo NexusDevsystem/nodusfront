@@ -144,6 +144,9 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
     return () => window.removeEventListener('mousedown', handleWindowClick, true);
   }, [sparkCount]);
 
+  const isMobile = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 1024);
+  if (isMobile) return <>{children}</>;
+
   return (
     <>
       <canvas

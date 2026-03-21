@@ -1,15 +1,17 @@
 import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QRCodeCanvas } from 'qrcode.react';
-import { X, Download, Copy, Check } from 'lucide-react';
+import { X, Download, Copy, Share, Loader2 } from 'lucide-react';
 
 interface QRCodeModalProps {
     url: string;
     profileName: string;
     onClose: () => void;
+    onGenerateShareImage?: () => void;
+    isGeneratingImage?: boolean;
 }
 
-export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalProps) {
+export default function QRCodeModal({ url, profileName, onClose, onGenerateShareImage, isGeneratingImage }: QRCodeModalProps) {
     const { t } = useTranslation();
     const canvasRef = useRef<HTMLDivElement>(null);
     const [copied, setCopied] = useState(false);
@@ -34,10 +36,6 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
         navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-    };
-
-    const handleCopyLink = () => {
-        copyToClipboard(shortUrl);
     };
 
     return (
@@ -99,13 +97,28 @@ export default function QRCodeModal({ url, profileName, onClose }: QRCodeModalPr
                         </div>
                     </div>
 
-                    <div className="w-full">
+                    <div className="w-full flex flex-col gap-3">
                         <button
                             onClick={handleDownload}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  border-2 border-[#1a1a1a] font-black uppercase tracking-widest text-[10px] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[2px] transition-all"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] font-black uppercase tracking-widest text-[10px] hover:shadow-none hover:translate-y-[2px] transition-all"
                         >
                             <Download size={16} strokeWidth={3} /> {t('profile.saveQR')}
                         </button>
+
+                        {onGenerateShareImage && (
+                            <button
+                                onClick={onGenerateShareImage}
+                                disabled={isGeneratingImage}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#ffdf00] border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] font-black uppercase tracking-widest text-[10px] hover:shadow-none hover:translate-y-[2px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isGeneratingImage ? (
+                                    <Loader2 className="animate-spin w-4 h-4" />
+                                ) : (
+                                    <Share size={16} strokeWidth={3} />
+                                )}
+                                {isGeneratingImage ? 'Gerando...' : 'Gerar Cartão Social'}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

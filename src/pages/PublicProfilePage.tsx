@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -9,8 +9,10 @@ import { THEMES } from '../constants';
 import { apiClient } from '../services/apiClient';
 // @ts-ignore
 import LightPillar from '../components/LightPillar';
-import QRCodeModal from '../components/QRCodeModal';
+import ShareImageModal from '../components/ShareImageModal';
 import BackgroundLayer from '../components/BackgroundLayer';
+import ShareCard from '../components/ShareCard';
+import html2canvas from 'html2canvas';
 
 export default function PublicProfilePage() {
     const { t } = useTranslation();
@@ -21,12 +23,13 @@ export default function PublicProfilePage() {
     const [links, setLinks] = useState<LinkItem[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const shareCardRef = useRef<HTMLDivElement>(null);
+    const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
     useEffect(() => {
         const loadPageData = async () => {
             try {
                 setLoading(true);
-                // Fetch data from backend API
                 if (!username) {
                     throw new Error('Username is required');
                 }
@@ -37,7 +40,7 @@ export default function PublicProfilePage() {
                 setProducts(response.products);
 
             } catch (err) {
-                // Handle error state
+                console.error('Failed to load profile:', err);
             } finally {
                 setLoading(false);
             }
@@ -46,19 +49,26 @@ export default function PublicProfilePage() {
         loadPageData();
     }, [username]);
 
+    useEffect(() => {
+        if (!username || loading) return;
+
+        const unsubscribe = apiClient.subscribeToProfileUpdates(username, () => {
+            apiClient.getPublicBootstrap(username)
+                .then(response => {
+                    setProfile(response.profile);
+                    setLinks(response.links.filter(l => l.isActive));
+                    setProducts(response.products);
+                })
+                .catch(err => console.error('Silent refresh failed:', err));
+        });
+
+        return () => unsubscribe();
+    }, [username, loading]);
 
     useEffect(() => {
         if (profile) {
-            document.title = `${profile.name} | Nodus`;
-        }
-    }, [profile]);
+            document.title = profile.seoTitle || `${profile.name} | Nodus`;
 
-    // Set page title and meta description (SEO)
-    useEffect(() => {
-        if (profile) {
-            document.title = profile.seoTitle || `${profile.name} | Link in Bio`;
-
-            // Update meta description if it exists
             let metaDescription = document.querySelector('meta[name="description"]');
             if (!metaDescription) {
                 metaDescription = document.createElement('meta');
@@ -67,7 +77,7 @@ export default function PublicProfilePage() {
             }
             metaDescription.setAttribute('content', profile.seoDescription || t('profile.checkOutLinks', { name: profile.name }));
         }
-    }, [profile]);
+    }, [profile, t]);
 
     if (loading) {
         return (
@@ -89,23 +99,87 @@ export default function PublicProfilePage() {
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
     const themeBgColor = profile.headerLayout === 'banner' ? (profile.bannerBlurColor || '#000000') : (profile.customSolidColor || currentTheme.solidColor || currentTheme.buttonHex || '#000000');
 
+    const generateShareImage = async () => {
+        if (!shareCardRef.current || !profile) return;
+        
+        try {
+            setIsGeneratingImage(true);
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const canvas = await html2canvas(shareCardRef.current, {
+                useCORS: true,
+                logging: false,
+                allowTaint: false,
+                // @ts-ignore
+                backgroundColor: null,
+                width: 1200,
+                height: 630,
+            });
+            
+            const dataUrl = canvas.toDataURL('image/png', 0.9);
+            
+            const link = document.createElement('a');
+            link.download = `nodus-share-${profile.username || 'profile'}.png`;
+            link.href = dataUrl;
+            link.click();
+        } catch (error) {
+            console.error('Error generating share image:', error);
+        } finally {
+            setIsGeneratingImage(false);
+        }
+    };
+
+    const handleShareImage = async () => {
+        if (!shareCardRef.current || !profile) return;
+        
+        try {
+            setIsGeneratingImage(true);
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            const canvas = await html2canvas(shareCardRef.current, {
+                useCORS: true,
+                logging: false,
+                allowTaint: false,
+                // @ts-ignore
+                backgroundColor: null,
+                width: 1200,
+                height: 630,
+            });
+            
+            const dataUrl = canvas.toDataURL('image/png', 0.8);
+            const res = await fetch(dataUrl);
+            const blob = await res.blob();
+            const file = new File([blob], 'share-card.png', { type: 'image/png' });
+
+            try {
+                apiClient.uploadFile(file, 'og', 'og');
+            } catch (uErr) {
+                console.warn('Silent OG upload failed', uErr);
+            }
+
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: `Nodus - ${profile.name}`,
+                    text: `Confira meu perfil no Nodus: https://api.nodus.my/api/social/share/${profile.username}`,
+                });
+            }
+        } catch (error) {
+            console.error('Error sharing image:', error);
+        } finally {
+            setIsGeneratingImage(false);
+        }
+    };
+
     return (
         <div className="w-full min-h-screen relative flex justify-center overflow-y-auto scrollbar-hide md:pt-8" style={{ backgroundColor: themeBgColor }}>
-
-            {/* Dynamic Full Page Background Layer */}
             <div className="fixed inset-0 z-0 overflow-hidden scale-110">
-                {/* Background Content (Blur removed for mobile performance, handled inside BackgroundLayer with lower radius if needed) */}
                 <div className="absolute inset-0">
                     <BackgroundLayer profile={profile} currentTheme={currentTheme} />
                 </div>
-
-                {/* Immersive Darkening Overlay */}
                 <div className="absolute inset-0 z-40 bg-black/10 transition-colors duration-1000"></div>
-
-                {/* Ambient Glow / Grain Layer */}
                 <div className="absolute inset-0 z-50 opacity-20 pointer-events-none mix-blend-soft-light"></div>
             </div>
-
 
             <div
                 className="w-full h-auto min-h-screen relative z-10 overflow-hidden md:max-w-[500px] md:shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.5)] md:rounded-t-[3rem]"
@@ -120,18 +194,18 @@ export default function PublicProfilePage() {
                 />
             </div>
 
-            {/* Share Modal */}
-            {
-                isShareModalOpen && (
-                    <QRCodeModal
-                        url={window.location.href}
-                        profileName={profile.name}
-                        onClose={() => setIsShareModalOpen(false)}
-                    />
-                )
-            }
+            {isShareModalOpen && (
+                <ShareImageModal
+                    profile={profile}
+                    onClose={() => setIsShareModalOpen(false)}
+                    onDownload={generateShareImage}
+                    onSyncShareCard={handleShareImage}
+                    isGenerating={isGeneratingImage}
+                />
+            )}
 
-            {/* Brutalist QR Code */}
+            <ShareCard profile={profile} cardRef={shareCardRef} />
+
             <div className="fixed bottom-8 right-8 hidden xl:block z-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="bg-white p-3 border-4 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] transition-transform hover:-translate-y-1 hover:shadow-[0_12px_0_0_#1a1a1a]">
                     <QRCodeCanvas
@@ -151,6 +225,6 @@ export default function PublicProfilePage() {
                     />
                 </div>
             </div>
-        </div >
+        </div>
     );
 }

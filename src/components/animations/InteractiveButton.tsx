@@ -17,8 +17,8 @@ const InteractiveButton: React.FC<InteractiveButtonProps> = ({
     className = '',
     style = {},
     onClick,
-    strength = 15,
-    tiltStrength = 10,
+    strength = 6,
+    tiltStrength = 4,
     glowStrength = 0.4,
     glowColor = 'rgba(255, 255, 255, 0.2)'
 }) => {
@@ -38,12 +38,12 @@ const InteractiveButton: React.FC<InteractiveButtonProps> = ({
     const spotlightOpacity = useSpring(0, { damping: 20, stiffness: 200 });
 
     // Smooth springs for magnetic pull
-    const springX = useSpring(x, { damping: 15, stiffness: 150 });
-    const springY = useSpring(y, { damping: 15, stiffness: 150 });
+    const springX = useSpring(x, { damping: 25, stiffness: 400 });
+    const springY = useSpring(y, { damping: 25, stiffness: 400 });
     
     // Smooth springs for tilt
-    const springRotateX = useSpring(rotateX, { damping: 20, stiffness: 200 });
-    const springRotateY = useSpring(rotateY, { damping: 20, stiffness: 200 });
+    const springRotateX = useSpring(rotateX, { damping: 30, stiffness: 300 });
+    const springRotateY = useSpring(rotateY, { damping: 30, stiffness: 300 });
 
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
         if (!buttonRef.current) return;
@@ -83,6 +83,7 @@ const InteractiveButton: React.FC<InteractiveButtonProps> = ({
 
     return (
         <motion.div
+            layout
             ref={buttonRef}
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}

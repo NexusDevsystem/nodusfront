@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Users, ExternalLink } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Users, ExternalLink, Play } from 'lucide-react';
 import { KickIcon } from '../constants'; // Assumes KickIcon is exported from constants
 
 interface KickCardProps {
@@ -23,6 +24,7 @@ export const KickCard: React.FC<KickCardProps> = ({
     displayName,
     followers,
     avatarUrl,
+    isLive = false,
     themeButtonClass = '',
     themeButtonStyle = {},
     themeTextHex = '',
@@ -33,6 +35,7 @@ export const KickCard: React.FC<KickCardProps> = ({
     fontItalic
 }) => {
     const [imgError, setImgError] = useState(false);
+    const [isInteracting, setIsInteracting] = useState(false);
 
     const formatFollowers = (count: number) => {
         if (count >= 1000000) return (count / 1000000).toFixed(1).replace('.0', '') + 'M';
@@ -41,13 +44,23 @@ export const KickCard: React.FC<KickCardProps> = ({
     };
 
     return (
-        <div className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${themeButtonClass} h-[72px] p-0 items-center justify-between`}
-            style={themeButtonStyle}>
+        <motion.div 
+            layout
+            initial={false}
+            animate={{ 
+                height: isLive ? 'auto' : 72
+            }}
+            transition={{
+                height: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+            }}
+            className={`w-full overflow-hidden isolate relative group flex flex-col ${themeButtonClass} p-0`}
+            style={{ ...themeButtonStyle }}>
 
-            <div className="flex h-full items-center px-4 sm:px-5 gap-3.5 flex-1 min-w-0">
+            <div className="flex h-[72px] items-center px-4 sm:px-5 gap-3.5 w-full shrink-0">
                 {/* Avatar with Status */}
                 <div className="relative shrink-0 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full p-[2px] transition-transform duration-500 group-hover:scale-105 bg-[#53FC18]">
+                    <div className={`w-12 h-12 rounded-full p-[2px] transition-transform duration-500 group-hover:scale-105 ${isLive ? 'bg-[#53FC18] animate-pulse' : 'bg-[#53FC18]'}`}>
                         <div className="w-full h-full rounded-full overflow-hidden border-2 border-white bg-white">
                             {!imgError && avatarUrl ? (
                                 <img src={avatarUrl}
@@ -62,6 +75,11 @@ export const KickCard: React.FC<KickCardProps> = ({
                             )}
                         </div>
                     </div>
+                    {isLive && (
+                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-red-600 outline outline-2 outline-white text-[7px] font-black text-white px-1.5 py-0.5 rounded-full whitespace-nowrap z-10 shadow-lg scale-[0.85]">
+                            AO VIVO
+                        </div>
+                    )}
                 </div>
 
                 {/* Info Column - Balanced Vertical Centering */}
@@ -97,18 +115,63 @@ export const KickCard: React.FC<KickCardProps> = ({
                         )}
                     </div>
                 </div>
+
+                {/* Action Area */}
+                <div className="shrink-0 h-full flex items-center pr-4">
+                    <ExternalLink size={16} style={{ color: themeTextHex }} className="opacity-40 group-hover:opacity-100 transition-opacity" />
+                </div>
             </div>
 
-            {/* Action Area */}
-            <div className="shrink-0 h-full flex items-center pr-4 sm:pr-5">
-                <ExternalLink size={16} style={{ color: themeTextHex }} className="opacity-40 group-hover:opacity-100 transition-opacity" />
-            </div>
+            {/* Live Embed Area */}
+            <AnimatePresence>
+                {isLive && (
+                    <motion.div 
+                        initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                        exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                        className="w-full aspect-video mt-1 mb-4 px-4 sm:px-5 relative group/embed overflow-hidden"
+                    >
+                        <div className={`w-full h-full rounded-2xl overflow-hidden bg-black relative border border-white/10 ${isInteracting ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+                            <iframe
+                                src={`https://player.kick.com/${username}?autoplay=true&muted=true&playsinline=true`}
+                                height="100%"
+                                width="100%"
+                                title="Kick Live Stream"
+                                className="select-none"
+                                frameBorder="0"
+                                allow="autoplay; fullscreen; encrypted-media; picture-in-picture;"
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+
+                        <div className="absolute inset-x-4 sm:inset-x-5 inset-y-0 z-20 pointer-events-none flex items-end justify-center pb-4">
+                            <motion.button 
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setIsInteracting(!isInteracting);
+                                }}
+                                className="pointer-events-auto bg-black/60 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-xs font-bold shadow-2xl hover:bg-black/80 transition-colors uppercase tracking-wider"
+                            >
+                                {isInteracting ? (
+                                    <><span className="w-2 h-2 rounded-full bg-[#53FC18]" /> BLOQUEAR PARA ANIMAR</>
+                                ) : (
+                                    <><Play size={12} className="fill-white" /> INTERAGIR NO PLAYER</>
+                                )}
+                            </motion.button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Overlay link */}
-            <a href={`https://kick.com/${username}`} target="_blank" rel="noreferrer" className="absolute inset-0 z-30 cursor-pointer" />
+            <a href={`https://kick.com/${username}`} target="_blank" rel="noreferrer" className="absolute top-0 inset-x-0 h-[72px] z-30 cursor-pointer" />
 
             {/* Subtle gloss effect */}
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-        </div>
+        </motion.div>
     );
 };

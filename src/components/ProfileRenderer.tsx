@@ -582,6 +582,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const youtubeTitle = youtubeIntegration?.profile_data?.title;
     const youtubeUsername = youtubeIntegration?.profile_data?.username;
     const youtubeAvatar = youtubeIntegration?.profile_data?.avatar_url;
+    const youtubeIsLive = (youtubeIntegration?.profile_data as any)?.is_live;
+    const youtubeChannelId = (youtubeIntegration?.profile_data as any)?.channelId;
 
     const getHighlightClass = (type?: string) => {
         switch (type) {
@@ -1530,7 +1532,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
                                     transition={{ duration: 0 }}
-                                    className="flex flex-col gap-1.5 w-full relative flex-1"
+                                    className="flex flex-col gap-4 w-full relative flex-1"
                                 >
                                     {(() => {
                                         const renderedItems: React.ReactNode[] = [];
@@ -1549,7 +1551,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             if (currentIconGroup.length > 0) {
                                                 const group = [...currentIconGroup];
                                                 renderedItems.push(
-                                                    <div key={`social-row-${group[0].id}`} className="flex items-center justify-center gap-2 w-full mb-3 flex-wrap relative">
+                                                    <div key={`social-row-${group[0].id}`} className="flex items-center justify-center gap-3 w-full mb-6 flex-wrap relative">
                                                         {group.map(iconLink => {
                                                             const network = SOCIAL_NETWORKS.find(n => iconLink.title.toLowerCase().includes(n.id)) ||
                                                                 SOCIAL_NETWORKS.find(n => iconLink.url.toLowerCase().includes(n.id)) ||
@@ -1608,7 +1610,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             if (currentCardGroup.length > 0) {
                                                 const group = [...currentCardGroup];
                                                 renderedItems.push(
-                                                    <div key={`card-grid-${group[0].id}`} className="flex flex-col gap-4 mb-8">
+                                                    <div key={`card-grid-${group[0].id}`} className="flex flex-col gap-4 mb-10">
                                                         {group.map((cardLink) => {
                                                             const cardBg = cardAccentColor;
                                                             const cardContent = (
@@ -1694,7 +1696,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     media_type: c.videoUrl ? 'VIDEO' : 'IMAGE'
                                                 }));
                                                 renderedItems.push(
-                                                    <InteractiveButton key={`instagram-card-${link.id}`} className="w-full mb-1">
+                                                    <InteractiveButton key={`instagram-card-${link.id}`} className="w-full mb-4">
                                                         <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                             {link.title && (
                                                                 <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
@@ -1709,7 +1711,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <InteractiveButton key={`instagram-profile-card-${link.id}`} className="w-full mb-1">
+                                                    <InteractiveButton key={`instagram-profile-card-${link.id}`} className="w-full mb-4">
                                                         <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                             <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={link.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                         </motion.div>
@@ -1719,9 +1721,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <InteractiveButton key={`youtube-card-${link.id}`} className="w-full mb-1">
+                                                    <InteractiveButton key={`youtube-card-${link.id}`} className="w-full mb-4">
                                                         <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
-                                                            <YouTubeCard username={youtubeUsername || link.url} title={youtubeTitle || link.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                            <YouTubeCard username={youtubeUsername || link.url} title={youtubeTitle || link.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} isLive={youtubeIsLive} channelId={youtubeChannelId} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                         </motion.div>
                                                     </InteractiveButton>
                                                 );
@@ -1729,7 +1731,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <InteractiveButton key={`twitch-card-${link.id}`} className="w-full mb-1">
+                                                    <InteractiveButton key={`twitch-card-${link.id}`} className="w-full mb-4">
                                                         <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                             <TwitchCard username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                         </motion.div>
@@ -1739,7 +1741,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <InteractiveButton key={`kick-card-${link.id}`} className="w-full mb-1">
+                                                    <InteractiveButton key={`kick-card-${link.id}`} className="w-full mb-4">
                                                         <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                             <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                         </motion.div>
@@ -1749,7 +1751,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <InteractiveButton key={`agenda-${link.id}`} className="w-full mb-1">
+                                                    <InteractiveButton key={`agenda-${link.id}`} className="w-full mb-4">
                                                         <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                             {link.title && (
                                                                 <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
@@ -1772,13 +1774,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             } else if (link.type === 'header') {
                                                 flushIcons();
                                                 flushCards();
-                                                renderedItems.push(<motion.div key={`header-${link.id}`} transition={{ duration: 0 }} className="w-full text-center py-2 mb-1 mt-1 opacity-80" style={{ ...mainTextColorStyle, fontWeight: 'bold', fontSize: '1.1em', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{link.title}</motion.div>);
+                                                renderedItems.push(<motion.div key={`header-${link.id}`} transition={{ duration: 0 }} className="w-full text-center py-2 mb-2 mt-4 opacity-80" style={{ ...mainTextColorStyle, fontWeight: 'bold', fontSize: '1.1em', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{link.title}</motion.div>);
                                             } else if (link.type === 'map' || link.title?.toLowerCase() === 'localização') {
                                                 flushIcons();
                                                 flushCards();
                                                 // MapBlock for specific Map items
                                                 renderedItems.push(
-                                                    <InteractiveButton key={link.id} className="w-full">
+                                                    <InteractiveButton key={link.id} className="w-full mb-4">
                                                         <div className={getHighlightClass(link.highlight)}>
                                                             <MapBlock link={link} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                         </div>
@@ -1858,7 +1860,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
                                                                 </div>
                                                             )}
-                                                            <div className="flex flex-col gap-2 relative">
+                                                            <div className="flex flex-col gap-4 relative">
                                                                 {(() => {
                                                                     const nestedItems: React.ReactNode[] = [];
 
@@ -1932,7 +1934,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     nestedItems.push(
                                                                                         <InteractiveButton key={child.id} className="w-full">
                                                                                             <div className={getHighlightClass(child.highlight)}>
-                                                                                                <YouTubeCard username={youtubeUsername || child.url} title={youtubeTitle || child.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                                                <YouTubeCard username={youtubeUsername || child.url} title={youtubeTitle || child.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} isLive={youtubeIsLive} channelId={youtubeChannelId} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                                                             </div>
                                                                                         </InteractiveButton>
                                                                                     );
@@ -2087,7 +2089,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushIcons();
                                                 flushCards();
                                                 renderedItems.push(
-                                                    <InteractiveButton key={`mediakit-${link.id}`} className="w-full mb-3" glowColor={`${getSmartTextColor()}33`}>
+                                                    <InteractiveButton key={`mediakit-${link.id}`} className="w-full mb-4" glowColor={`${getSmartTextColor()}33`}>
                                                         <motion.div
                                                             transition={{ duration: 0.2 }}
                                                             whileHover={{ scale: 1.02 }}
@@ -2157,7 +2159,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 const effectProps = (isHighlighted || isVideo) ? { className: "w-full" } : {};
 
                                                 renderedItems.push(
-                                                    <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`}>
+                                                    <InteractiveButton key={link.id} className="w-full mb-3" glowColor={`${getSmartTextColor()}33`}>
                                                         <EffectWrapper {...effectProps}>
                                                             <motion.a
                                                                 transition={{ duration: 0.2 }}

@@ -1,6 +1,17 @@
 {
     "rewrites": [
         {
+            "source": "/:username",
+            "has": [
+                {
+                    "type": "header",
+                    "key": "user-agent",
+                    "value": ".*(Twitterbot|facebookexternalhit|WhatsApp|LinkedInBot|TelegramBot).* "
+                }
+            ],
+            "destination": "https://api.nodus.my/api/social/share/:username"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }

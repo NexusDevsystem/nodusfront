@@ -39,6 +39,7 @@ export interface LinkItem {
   isPasswordProtected?: boolean;
   linkPassword?: string; // only in memory during editing, never persisted as plaintext
   currency?: 'BRL' | 'USD' | string;
+  isLive?: boolean;
 }
 
 export interface PaymentMethod {

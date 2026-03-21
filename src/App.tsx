@@ -29,12 +29,6 @@ export default function App() {
       sparkCount={8}
       duration={400}
     >
-      <style>{`
-        * { cursor: none !important; }
-        @media (max-width: 768px) {
-          * { cursor: auto !important; }
-        }
-      `}</style>
       <CustomCursor />
       <LanguageProvider>
         <I18nextProvider i18n={i18n}>

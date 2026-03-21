@@ -382,12 +382,12 @@ export default function BlogAdminView() {
       )}
 
       <div className="space-y-12">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-0">
           <div>
-            <h2 className="text-4xl font-black uppercase tracking-tighter italic border-l-8 border-[#ffdf00] pl-6">
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tighter italic border-l-8 border-[#ffdf00] pl-6 leading-none">
               Dashboard do Blog
             </h2>
-            <p className="text-xs text-black/40 font-black uppercase tracking-[0.3em] mt-3 ml-6">
+            <p className="text-[10px] sm:text-xs text-black/40 font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mt-3 ml-6">
               Gerencie o conteúdo editorial do sistema
             </p>
           </div>
@@ -402,9 +402,9 @@ export default function BlogAdminView() {
               color: '#97cd7a',
               position: 0
             })}
-            className="flex items-center gap-3 bg-[#97cd7a] border-2 border-black rounded-2xl px-10 py-5 font-black uppercase text-sm shadow-[0_8px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_6px_0_0_#000] active:translate-y-[4px] active:shadow-[0_4px_0_0_#000] transition-all group"
+            className="flex items-center justify-center gap-3 bg-[#97cd7a] border-2 border-black rounded-2xl px-6 sm:px-10 py-4 sm:py-5 font-black uppercase text-xs sm:text-sm shadow-[0_6px_0_0_#000] sm:shadow-[0_8px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all group w-full sm:w-auto"
           >
-            <Plus size={24} className="group-hover:rotate-90 transition-transform duration-300" />
+            <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
             {lang === 'pt' ? 'Criar publicação' : 'Create Post'}
           </button>
         </div>
@@ -449,34 +449,33 @@ function BlogListItem({ post, onEdit, onDelete, deletingPostId, setDeletingPostI
       value={post}
       dragListener={false}
       dragControls={dragControls}
-      className="bg-white border-2 border-black rounded-3xl p-4 flex items-center justify-between gap-6 shadow-[0_6px_0_0_#000] group cursor-default relative"
-      whileHover={{ boxShadow: '0 10px 0 0 #000' }}
+      className="bg-white border-2 border-black rounded-[32px] p-5 flex items-center justify-between gap-4 shadow-[0_6px_0_0_#000] group cursor-default relative overflow-hidden"
+      whileHover={{ scale: 1.005, boxShadow: '0 8px 0 0 #000' }}
       whileDrag={{ 
-        scale: 1.01, 
+        scale: 1.02, 
         boxShadow: '0 12px 0 0 #000',
         zIndex: 100
       }}
       onClick={() => onEdit(post)}
     >
-      <div className="flex items-center gap-6 overflow-hidden flex-1">
-        <div className="flex items-center gap-2">
-          <div 
-            onPointerDown={(e) => dragControls.start(e)}
-            className="p-2 cursor-grab active:cursor-grabbing text-slate-300 hover:text-black transition-colors"
-          >
-            <GripVertical size={20} />
-          </div>
-          <div className="w-20 h-20 bg-slate-50 border-2 border-black rounded-2xl flex items-center justify-center shrink-0 group-hover:bg-[#ffdf00] transition-all duration-300 overflow-hidden">
-            {post.imageUrl ? (
-              <img src={post.imageUrl} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <ImageIcon className="text-black/5" size={24} />
-            )}
-          </div>
+      <div className="flex items-center gap-4 flex-1 min-w-0">
+        <div 
+          onPointerDown={(e) => dragControls.start(e)}
+          className="cursor-grab active:cursor-grabbing text-slate-200 hover:text-black transition-colors hidden sm:block shrink-0"
+        >
+          <GripVertical size={20} />
+        </div>
+
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-50 border-2 border-black rounded-2xl flex items-center justify-center shrink-0 overflow-hidden shadow-[0_4px_0_0_#000]">
+          {post.imageUrl ? (
+            <img src={post.imageUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <ImageIcon className="text-black/5" size={20} />
+          )}
         </div>
         
-        <div className="min-w-0">
-          <div className="flex items-center gap-3 mb-1">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-1.5">
             <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md border border-black ${post.isPublished ? 'bg-[#97cd7a]' : 'bg-[#ffdf00]'}`}>
               {post.isPublished ? (lang === 'pt' ? 'PUBLICADO' : 'PUBLISHED') : (lang === 'pt' ? 'RASCUNHO' : 'DRAFT')}
             </span>
@@ -488,45 +487,39 @@ function BlogListItem({ post, onEdit, onDelete, deletingPostId, setDeletingPostI
                post.category}
             </span>
           </div>
-          <h4 className="font-black text-xl uppercase tracking-tighter truncate leading-none mb-1.5">{post.title}</h4>
-          <div className="flex items-center gap-4 text-[9px] font-bold text-black/20 uppercase">
+          <h4 className="font-black text-lg sm:text-xl uppercase tracking-tighter truncate leading-tight mb-2 sm:mb-1">{post.title}</h4>
+          <div className="flex items-center gap-3 text-[9px] font-bold text-black/20 uppercase whitespace-nowrap">
              <span className="flex items-center gap-1"><Clock size={12} /> {post.createdAt?.split('T')[0]}</span>
-             <span className="flex items-center gap-1"><Eye size={12} /> 0 {lang === 'pt' ? 'VISUALIZAÇÕES' : 'VIEWS'}</span>
+             <span className="flex items-center gap-1"><Eye size={12} /> 0 {lang === 'pt' ? 'VIS' : 'VIEWS'}</span>
           </div>
         </div>
       </div>
       
-      <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all pr-2 relative">
+      <div className="flex items-center gap-2 shrink-0">
         <AnimatePresence mode="wait">
           {deletingPostId === post.id ? (
             <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="flex items-center gap-2 bg-red-50 p-2 rounded-2xl border-2 border-black shadow-[0_4px_0_0_#000]"
+              className="flex items-center gap-2 bg-red-50 p-1.5 rounded-2xl border-2 border-black shadow-[0_4px_0_0_#000]"
               onClick={e => e.stopPropagation()}
             >
-              <span className="text-[10px] font-black uppercase text-red-600 px-2">Excluir?</span>
               <button
                 onClick={(e) => { e.stopPropagation(); onDelete(post.id); }}
-                className="p-2 bg-red-500 text-white rounded-xl border-2 border-black hover:bg-red-600 transition-all active:scale-95"
+                className="p-2 bg-red-500 text-white rounded-xl border-2 border-black active:scale-95"
               >
-                <CheckCircle size={18} />
+                <CheckCircle size={16} />
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); setDeletingPostId(null); }}
-                className="p-2 bg-white text-black rounded-xl border-2 border-black hover:bg-slate-50 transition-all active:scale-95"
+                className="p-2 bg-white text-black rounded-xl border-2 border-black active:scale-95"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </motion.div>
           ) : (
-            <motion.div 
-              key="actions"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex items-center gap-3"
-            >
+            <div className="flex items-center gap-2">
               <button
                 onClick={(e) => { e.stopPropagation(); onEdit(post); }}
                 className="p-3 bg-white border-2 border-black rounded-xl shadow-[0_4px_0_0_#000] hover:translate-y-[1px] hover:shadow-[0_2px_0_0_#000] active:translate-y-[3px] active:shadow-none transition-all"
@@ -539,7 +532,7 @@ function BlogListItem({ post, onEdit, onDelete, deletingPostId, setDeletingPostI
               >
                 <Trash2 size={18} />
               </button>
-            </motion.div>
+            </div>
           )}
         </AnimatePresence>
       </div>

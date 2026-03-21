@@ -9,9 +9,11 @@ export const API_URL = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
 class ApiClient {
     private async getHeaders(isMultipart = false) {
         const token = localStorage.getItem('nodus_access_token');
-        const headers: any = {
-            'Authorization': token ? `Bearer ${token}` : ''
-        };
+        const headers: any = {};
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
 
         if (!isMultipart) {
             headers['Content-Type'] = 'application/json';
@@ -34,9 +36,11 @@ class ApiClient {
     private async request(path: string, options: RequestInit = {}, retries = 2): Promise<any> {
         const isFormData = options.body instanceof FormData;
         const token = localStorage.getItem('nodus_access_token');
-        const baseHeaders: Record<string, string> = {
-            'Authorization': token ? `Bearer ${token}` : ''
-        };
+        const baseHeaders: Record<string, string> = {};
+
+        if (token) {
+            baseHeaders['Authorization'] = `Bearer ${token}`;
+        }
         // Do NOT set Content-Type for FormData — browser must set it with boundary
         if (!isFormData) {
             baseHeaders['Content-Type'] = 'application/json';
@@ -438,12 +442,14 @@ class ApiClient {
         return this.request('/api/files');
     }
 
-    async uploadFile(file: File): Promise<{ success: boolean; file?: any; message?: string }> {
+    async uploadFile(file: File, type = 'user_upload', folder = ''): Promise<{ success: boolean; file?: any; message?: string }> {
         const formData = new FormData();
         formData.append('file', file);
 
+        const queryParams = new URLSearchParams({ type, folder }).toString();
+        
         // Pass FormData directly — request() will auto-detect and skip Content-Type
-        return this.request('/api/files', {
+        return this.request(`/api/files?${queryParams}`, {
             method: 'POST',
             body: formData
         });
@@ -507,6 +513,31 @@ class ApiClient {
             method: 'PUT',
             body: JSON.stringify({ posts })
         });
+    }
+    // SSE Subscriptions
+    public subscribeToProfileUpdates(username: string, onUpdate: () => void): () => void {
+        const eventSource = new EventSource(`${API_URL}/api/profile/realtime/${username}`);
+        
+        eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'profile_update') {
+                    onUpdate();
+                }
+            } catch (error) {
+                console.error('SSE message parse error:', error);
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error('SSE error:', error);
+            // eventSource.close(); // Don't close, browser might retry
+        };
+
+        return () => {
+            console.log(`Closing SSE connection for ${username}`);
+            eventSource.close();
+        };
     }
 }
 
