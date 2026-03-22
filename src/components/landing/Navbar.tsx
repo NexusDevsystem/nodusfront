@@ -126,7 +126,7 @@ export function Navbar() {
           <div className="hidden md:flex bg-white border-2 border-dark rounded-2xl overflow-hidden font-bold shadow-[0_4px_0_0_#000]">
             <button 
               onClick={() => setLang('pt')}
-              className={`px-4 py-1.5 transition-colors ${lang === 'pt' ? 'bg-[#a5e6ab] text-dark' : 'text-gray-400 hover:bg-gray-100'}`}
+              className={`px-4 py-1.5 transition-colors ${lang === 'pt' ? 'bg-[#a5e6ab] text-dark' : 'text-dark/40 hover:bg-gray-100'}`}
             >
               PT
             </button>
@@ -208,7 +208,7 @@ export function Navbar() {
             <div className="flex justify-center bg-white border-2 border-dark rounded-2xl overflow-hidden font-bold shadow-[0_4px_0_0_#000] mx-auto w-fit">
               <button 
                 onClick={() => setLang('pt')}
-                className={`px-5 py-2 text-xs transition-colors ${lang === 'pt' ? 'bg-[#a5e6ab] text-dark' : 'text-gray-400 hover:bg-gray-100'}`}
+                className={`px-5 py-2 text-xs transition-colors ${lang === 'pt' ? 'bg-[#a5e6ab] text-dark' : 'text-dark/40 hover:bg-gray-100'}`}
               >
                 PT
               </button>

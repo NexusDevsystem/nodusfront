@@ -1,15 +1,26 @@
 {
     "rewrites": [
         {
+            "source": "/blog/:slug",
+            "has": [
+                {
+                    "type": "header",
+                    "key": "user-agent",
+                    "value": ".*(Twitterbot|facebookexternalhit|WhatsApp|LinkedInBot|TelegramBot).*"
+                }
+            ],
+            "destination": "https://nodusback-production.up.railway.app/api/social/blog/:slug"
+        },
+        {
             "source": "/:username",
             "has": [
                 {
                     "type": "header",
                     "key": "user-agent",
-                    "value": ".*(Twitterbot|facebookexternalhit|WhatsApp|LinkedInBot|TelegramBot).* "
+                    "value": ".*(Twitterbot|facebookexternalhit|WhatsApp|LinkedInBot|TelegramBot).*"
                 }
             ],
-            "destination": "https://api.nodus.my/api/social/share/:username"
+            "destination": "https://nodusback-production.up.railway.app/api/social/share/:username"
         },
         {
             "source": "/(.*)",

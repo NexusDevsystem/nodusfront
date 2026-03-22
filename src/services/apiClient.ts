@@ -502,9 +502,17 @@ class ApiClient {
         });
     }
 
-    async upvoteBlogPost(id: string): Promise<any> {
+    async upvoteBlogPost(id: string, fingerprint: string): Promise<any> {
         return this.request(`/api/blog/${id}/upvote`, {
-            method: 'POST'
+            method: 'POST',
+            body: JSON.stringify({ fingerprint })
+        });
+    }
+
+    async syncBlogCard(slug: string, imageData: string): Promise<any> {
+        return this.request(`/api/files/sync-blog/${slug}`, {
+            method: 'POST',
+            body: JSON.stringify({ image: imageData })
         });
     }
 

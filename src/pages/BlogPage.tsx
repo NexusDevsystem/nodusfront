@@ -16,9 +16,19 @@ function BlogContent() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [fingerprint, setFingerprint] = useState('');
+
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchPosts();
+
+    // Basic device identification for anonymous likes
+    let fp = localStorage.getItem('nodus_blog_fingerprint');
+    if (!fp) {
+      fp = Math.random().toString(36).substring(2) + Date.now().toString(36);
+      localStorage.setItem('nodus_blog_fingerprint', fp);
+    }
+    setFingerprint(fp);
   }, []);
 
   const fetchPosts = async () => {
@@ -38,7 +48,7 @@ function BlogContent() {
 
   const handleUpvote = async (postId: string) => {
     try {
-      const updated = await apiClient.upvoteBlogPost(postId);
+      const updated = await apiClient.upvoteBlogPost(postId, fingerprint);
       setPosts((prev: BlogPost[]) => prev.map((p: BlogPost) => p.id === postId ? { ...p, likesCount: updated.likesCount } : p));
     } catch (error) {
       console.error('Error upvoting post:', error);
@@ -255,18 +265,7 @@ function BlogContent() {
                 </div>
               </div>
 
-              <div className="p-8 bg-brand border-4 border-dark rounded-2xl shadow-[0_10px_0_0_#000]">
-                <h4 className="font-display font-black text-2xl uppercase mb-2">
-                  {blogT.newsletterTitle}
-                </h4>
-                <p className="font-bold text-sm mb-6">
-                  {blogT.newsletterSub}
-                </p>
-                <input type="email" placeholder="EMAIL ADDRESS" className="w-full bg-white border-2 border-dark px-4 py-2 font-black text-xs uppercase mb-4 outline-none" />
-                <button className="w-full bg-dark text-white font-black py-2 hover:translate-y-[-2px] transition-transform">
-                  {blogT.subscribe}
-                </button>
-              </div>
+
             </div>
           </aside>
         </div>

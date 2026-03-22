@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/landing/Navbar';
 import { Footer } from '../components/landing/Footer';
 import { useLanguage } from '../components/landing/i18n/LanguageContext';
-import { Calendar, User, Heart, ArrowLeft, FileText, ArrowRight, Share2, Twitter, Send, X } from 'lucide-react';
+import { Calendar, User, Heart, ArrowLeft, FileText, ArrowRight, Share2, Twitter, Send, X, Download, Loader2, Copy, Check, Facebook, Linkedin } from 'lucide-react';
+import { SiWhatsapp, SiX, SiMessenger, SiSnapchat } from 'react-icons/si';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toPng } from 'html-to-image';
+import BlogShareCard from '../components/BlogShareCard';
 import { apiClient } from '../services/apiClient';
 import { BlogPost } from '../types';
 
@@ -35,35 +38,129 @@ function BlogPostContent() {
     }
   };
 
+  const [hasLiked, setHasLiked] = useState(false);
+  const [fingerprint, setFingerprint] = useState('');
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const shareCardRef = useRef<HTMLDivElement>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isShareModalOpen && !previewImage) {
+      generateShareImage();
+    } else if (!isShareModalOpen) {
+      setPreviewImage(null);
+    }
+  }, [isShareModalOpen]);
+
+  useEffect(() => {
+    // Basic device identification for anonymous likes
+    let fp = localStorage.getItem('nodus_blog_fingerprint');
+    if (!fp) {
+      fp = Math.random().toString(36).substring(2) + Date.now().toString(36);
+      localStorage.setItem('nodus_blog_fingerprint', fp);
+    }
+    setFingerprint(fp);
+
+    // Check if already liked this post
+    const likedPosts = JSON.parse(localStorage.getItem('nodus_liked_posts') || '[]');
+    if (slug && likedPosts.includes(slug)) {
+      setHasLiked(true);
+    }
+  }, [slug]);
+
   const handleUpvote = async () => {
-    if (!post) return;
+    if (!post || hasLiked) return;
+    
+    // Optimistic Update
+    const originalCount = post.likesCount || 0;
+    setPost({ ...post, likesCount: originalCount + 1 });
+    setHasLiked(true);
+    
+    // Save to local storage immediately
+    const likedPosts = JSON.parse(localStorage.getItem('nodus_liked_posts') || '[]');
+    if (slug && !likedPosts.includes(slug)) {
+      likedPosts.push(slug);
+      localStorage.setItem('nodus_liked_posts', JSON.stringify(likedPosts));
+    }
+
     try {
-      const updated = await apiClient.upvoteBlogPost(post.id);
+      const updated = await apiClient.upvoteBlogPost(post.id, fingerprint);
+      // Sync with server result (just in case)
       setPost({ ...post, likesCount: updated.likesCount });
     } catch (error) {
       console.error('Error upvoting post:', error);
+      // Revert if error
+      setPost({ ...post, likesCount: originalCount });
+      setHasLiked(false);
+      const revertedLikes = JSON.parse(localStorage.getItem('nodus_liked_posts') || '[]');
+      const index = revertedLikes.indexOf(slug);
+      if (index > -1) {
+        revertedLikes.splice(index, 1);
+        localStorage.setItem('nodus_liked_posts', JSON.stringify(revertedLikes));
+      }
+    }
+  };
+
+  const generateShareImage = async () => {
+    if (!shareCardRef.current || !post) return;
+    try {
+      setIsGeneratingImage(true);
+      await new Promise(resolve => setTimeout(resolve, 500)); // wait for renders/fonts
+      
+      const dataUrl = await toPng(shareCardRef.current, {
+        cacheBust: true,
+        style: {
+          background: 'transparent'
+        },
+        width: 1200,
+        height: 630,
+        pixelRatio: 1, // Keep standard 1200x630
+        skipFonts: false,
+        fontEmbedCSS: '', // Try to avoid font fetch timeouts
+        filter: (node) => {
+          // Skip any node that might break serialization like tricky external SVGs
+          if (node.tagName === 'link' || node.tagName === 'script') return false;
+          return true;
+        }
+      });
+      
+      // If the dataUrl is too short or empty, it failed silently
+      if (dataUrl.length < 100) throw new Error('Renderização vazia');
+      
+      setPreviewImage(dataUrl);
+      
+      // Silently sync the card with the server for social preview bots
+      if (slug) {
+        apiClient.syncBlogCard(slug, dataUrl).catch(e => console.warn('Social card sync failed:', e));
+      }
+    } catch (error) {
+      console.error('Error generating share image:', error);
+    } finally {
+      setIsGeneratingImage(false);
     }
   };
   
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const shareOnWhatsApp = () => {
-    const text = encodeURIComponent(`Confira este artigo no Nodus: ${post?.title} - ${window.location.href}`);
-    window.open(`https://wa.me/?text=${text}`, '_blank');
-  };
-
-  const shareOnX = () => {
-    const text = encodeURIComponent(`Confira este artigo no Nodus: ${post?.title}\n\n`);
-    const url = encodeURIComponent(window.location.href);
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-  };
-
+  const shareUrl = window.location.href; // Regular URL for humans
+  const botFriendlyShareUrl = slug ? `${window.location.origin}/blog/${slug}` : shareUrl; // Rewritten by Vercel for bots
+  
+  const shareLinks = [
+    { name: 'Copiar', icon: copied ? Check : Copy, onClick: handleCopyLink, color: 'bg-white text-dark' },
+    { name: 'WhatsApp', icon: SiWhatsapp, url: `https://wa.me/?text=${encodeURIComponent(`Confira este artigo no Nodus: ${post?.title} - ${botFriendlyShareUrl}`)}`, color: 'bg-[#25D366] text-white' },
+    { name: 'X', icon: SiX, url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(botFriendlyShareUrl)}&text=${encodeURIComponent(`Confira este artigo no Nodus: ${post?.title}`)}`, color: 'bg-black text-white' },
+    { name: 'Facebook', icon: Facebook, url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(botFriendlyShareUrl)}`, color: 'bg-[#1877F2] text-white' },
+    { name: 'Messenger', icon: SiMessenger, url: `https://www.facebook.com/dialog/send?app_id=123456789&link=${encodeURIComponent(botFriendlyShareUrl)}&redirect_uri=${encodeURIComponent(botFriendlyShareUrl)}`, color: 'bg-[#00B2FF] text-white' },
+    { name: 'Snapchat', icon: SiSnapchat, url: `https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(botFriendlyShareUrl)}`, color: 'bg-[#FFFC00] text-black' },
+    { name: 'LinkedIn', icon: Linkedin, url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(botFriendlyShareUrl)}`, color: 'bg-[#0A66C2] text-white' },
+  ];
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-[#fdfdf6] flex items-center justify-center">
@@ -109,13 +206,14 @@ function BlogPostContent() {
               {post.title}
             </h1>
 
-            <div className="flex items-center gap-8 font-black uppercase text-sm tracking-widest text-dark/40 border-b-4 border-dark/5 pb-8">
+            <div className="flex items-center gap-8 font-black uppercase text-sm tracking-widest text-dark border-b-4 border-dark pb-8">
               <span className="flex items-center gap-2 text-dark"><User size={20} strokeWidth={2.5} /> @{(post.author?.toLowerCase().includes('nodus') ? 'Nodus' : post.author)}</span>
               <button 
                 onClick={handleUpvote}
-                className="flex items-center gap-2 hover:text-red-500 transition-colors"
+                className={`flex items-center gap-2 transition-colors ${hasLiked ? 'text-red-500' : 'hover:text-red-500'}`}
+                disabled={hasLiked}
               >
-                <Heart size={20} strokeWidth={2.5} className={post.likesCount ? "fill-red-500 text-red-500" : ""} /> {post.likesCount || 0}
+                <Heart size={20} strokeWidth={2.5} className={hasLiked ? "fill-red-500 text-red-500" : ""} /> {post.likesCount || 0}
               </button>
               <button 
                 onClick={() => setIsShareModalOpen(true)}
@@ -179,17 +277,18 @@ function BlogPostContent() {
           </div>
 
           {/* Footer Interactivity */}
-          <footer className="pt-20 border-t-4 border-dark/5 flex flex-col items-center gap-16">
+          <footer className="pt-20 border-t-4 border-dark flex flex-col items-center gap-16">
             <div className="flex flex-col items-center gap-8 text-center">
               <h3 className="font-display font-black text-4xl uppercase tracking-tighter">{blogT.enjoyedRead || (lang === 'pt' ? 'Gostou da leitura?' : 'Enjoyed the read?')}</h3>
               <div className="flex flex-wrap justify-center gap-6">
                 <button 
                   onClick={handleUpvote}
                   className="group relative"
+                  disabled={hasLiked}
                 >
-                  <div className="absolute inset-0 bg-brand translate-y-2 rounded-2xl group-hover:translate-y-3 transition-transform"></div>
+                  <div className={`absolute inset-0 bg-brand translate-y-2 rounded-2xl transition-transform ${!hasLiked && 'group-hover:translate-y-3'}`}></div>
                   <div className="relative px-8 md:px-12 py-5 md:py-6 bg-white border-4 border-dark rounded-2xl flex items-center gap-4 group-active:translate-y-1 transition-all">
-                    <Heart size={28} strokeWidth={3} className={post.likesCount ? "fill-red-500 text-red-500" : "text-dark"} />
+                    <Heart size={28} strokeWidth={3} className={hasLiked ? "fill-red-500 text-red-500" : "text-dark"} />
                     <span className="font-black uppercase text-lg md:text-xl tracking-widest">{post.likesCount || 0} {blogT.likes || (lang === 'pt' ? 'Curtidas' : 'Likes')}</span>
                   </div>
                 </button>
@@ -210,6 +309,9 @@ function BlogPostContent() {
         </article>
       </main>
 
+      {/* Hidden Card rendering for PNG output */}
+      <BlogShareCard post={post} cardRef={shareCardRef} />
+
       {/* Share Modal */}
       <AnimatePresence>
         {isShareModalOpen && (
@@ -225,56 +327,58 @@ function BlogPostContent() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-lg bg-white border-4 border-dark rounded-[32px] shadow-[0_20px_0_0_#000] p-8 md:p-12 overflow-hidden"
+              className="relative w-full max-w-xl bg-white border-4 border-[#000000] rounded-[32px] shadow-[0_20px_0_0_#000000] p-6 md:p-10 overflow-hidden"
             >
               <button 
                 onClick={() => setIsShareModalOpen(false)}
-                className="absolute top-6 right-6 p-2 hover:bg-slate-100 rounded-xl transition-colors"
+                className="absolute top-4 right-4 md:top-5 md:right-5 p-2 bg-[#ffdf00] border-[3px] border-[#000000] shadow-[0_4px_0_0_#000000] rounded-xl hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000000] transition-all z-20 active:translate-y-[4px] active:shadow-none"
                 title={blogT.close || (lang === 'pt' ? 'Fechar' : 'Close')}
               >
-                <X size={24} strokeWidth={3} />
+                <X size={20} strokeWidth={4} className="text-[#000000]" />
               </button>
 
-              <div className="space-y-8">
+              <div className="space-y-6 md:space-y-8">
+                {/* Image Preview Area */}
+                <div className="w-[108%] -ml-[4%] relative flex items-center justify-center -mt-2 mb-4 group">
+                  {!previewImage ? (
+                    <div className="w-full aspect-[1200/630] rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-3 text-dark/40 border-4 border-dashed border-dark/10">
+                      <Loader2 className="animate-spin w-8 h-8" />
+                      <span className="font-black uppercase text-xs tracking-widest">Montando cartão visual...</span>
+                    </div>
+                  ) : (
+                    <img 
+                      src={previewImage} 
+                      alt="Preview do Artigo" 
+                      className="w-full h-auto object-contain drop-shadow-2xl group-hover:scale-[1.02] transition-transform duration-300" 
+                    />
+                  )}
+                </div>
+
                 <div className="space-y-2">
                   <h2 className="font-display font-black text-4xl uppercase tracking-tighter">{blogT.whereToSend || (lang === 'pt' ? 'Para onde enviar?' : 'Where to send?')}</h2>
                   <p className="font-bold text-dark/40 uppercase text-xs tracking-widest">{blogT.chooseNetwork || (lang === 'pt' ? 'Escolha sua rede favorita' : 'Choose your favorite network')}</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <button 
-                    onClick={shareOnWhatsApp}
-                    className="flex items-center gap-4 p-6 bg-white border-2 border-dark rounded-2xl hover:bg-brand transition-all font-black uppercase text-sm tracking-widest shadow-[0_6px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#000] active:translate-y-[6px] active:shadow-none"
-                  >
-                    <div className="p-3 bg-[#a5e6ab] border-2 border-dark rounded-xl">
-                      <Send size={24} strokeWidth={3} />
+                <div className="grid grid-cols-4 sm:grid-cols-7 gap-4 px-2">
+                  {shareLinks.map((link, idx) => (
+                    <div key={idx} className="flex flex-col items-center gap-2">
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => {
+                          if (link.onClick) {
+                            e.preventDefault();
+                            link.onClick();
+                          }
+                        }}
+                        className={`${link.color} w-10 h-10 sm:w-12 sm:h-12 border-2 border-[#000000] flex items-center justify-center transition-all shadow-[0_4px_0_0_#000000] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000000] active:translate-y-[4px] active:shadow-none cursor-pointer rounded-full overflow-hidden`}
+                      >
+                        <link.icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={link.icon === Facebook || link.icon === Linkedin ? 1 : undefined} />
+                      </a>
+                      <span className="text-[9px] font-black uppercase tracking-tighter text-dark text-center">{link.name}</span>
                     </div>
-                    WhatsApp
-                  </button>
-                  <button 
-                    onClick={shareOnX}
-                    className="flex items-center gap-4 p-6 bg-white border-2 border-dark rounded-2xl hover:bg-dark hover:text-white transition-all font-black uppercase text-sm tracking-widest shadow-[0_6px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#000] active:translate-y-[6px] active:shadow-none group"
-                  >
-                    <div className="p-3 bg-white border-2 border-dark rounded-xl text-dark group-hover:bg-white group-hover:text-dark">
-                      <Twitter size={24} strokeWidth={3} />
-                    </div>
-                    X / Twitter
-                  </button>
-                </div>
-
-                <div className="pt-4">
-                  <span className="block font-black uppercase text-xs tracking-widest text-dark/30 mb-4">{blogT.copyLink || (lang === 'pt' ? 'Ou apenas copie o link' : 'Or just copy the link')}</span>
-                  <div className="flex gap-2">
-                    <div className="flex-1 bg-slate-100 border-2 border-dark rounded-xl px-4 py-3 font-bold text-dark/60 truncate text-sm">
-                      {window.location.href}
-                    </div>
-                    <button 
-                      onClick={handleCopyLink}
-                      className={`px-6 rounded-xl border-2 border-dark font-black uppercase text-xs tracking-widest transition-all shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none ${copied ? 'bg-green-500 text-white' : 'bg-white hover:bg-slate-50'}`}
-                    >
-                      {copied ? (blogT.copied || 'Copiado!') : (blogT.copy || 'Copiar')}
-                    </button>
-                  </div>
+                  ))}
                 </div>
               </div>
 
