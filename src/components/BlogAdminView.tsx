@@ -488,9 +488,14 @@ function BlogListItem({ post, onEdit, onDelete, deletingPostId, setDeletingPostI
             </span>
           </div>
           <h4 className="font-black text-lg sm:text-xl uppercase tracking-tighter truncate leading-tight mb-2 sm:mb-1">{post.title}</h4>
-          <div className="flex items-center gap-3 text-[9px] font-bold text-black/20 uppercase whitespace-nowrap">
-             <span className="flex items-center gap-1"><Clock size={12} /> {post.createdAt?.split('T')[0]}</span>
-             <span className="flex items-center gap-1"><Eye size={12} /> 0 {lang === 'pt' ? 'VIS' : 'VIEWS'}</span>
+          <div className="flex items-center gap-4 text-[9px] font-black uppercase whitespace-nowrap">
+             <span className="flex items-center gap-1 text-black/20"><Clock size={12} /> {post.createdAt?.split('T')[0]}</span>
+             <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-100 text-slate-500">
+               <Eye size={12} strokeWidth={3} /> {post.viewsCount || 0} {lang === 'pt' ? 'VISUALIZAÇÕES' : 'VIEWS'}
+             </span>
+             <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 border border-red-100 text-red-500">
+               <Smile size={12} strokeWidth={3} /> {post.likesCount || 0} {lang === 'pt' ? 'CURTIDAS' : 'LIKES'}
+             </span>
           </div>
         </div>
       </div>

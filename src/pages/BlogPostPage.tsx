@@ -30,6 +30,9 @@ function BlogPostContent() {
       setLoading(true);
       const data = await apiClient.getBlogPostBySlug(slug!);
       setPost(data);
+      if (data?.id) {
+        apiClient.trackBlogPostView(data.id);
+      }
     } catch (error) {
       console.error('Error fetching post:', error);
       navigate('/blog');
@@ -315,7 +318,7 @@ function BlogPostContent() {
       {/* Share Modal */}
       <AnimatePresence>
         {isShareModalOpen && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-[200] flex items-end md:items-center justify-center">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -324,18 +327,22 @@ function BlogPostContent() {
               className="absolute inset-0 bg-dark/60 backdrop-blur-sm"
             />
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={window.innerWidth < 768 ? { y: '100%' } : { scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-xl bg-white border-4 border-[#000000] rounded-[32px] shadow-[0_20px_0_0_#000000] p-6 md:p-10 overflow-hidden"
-            >
-              <button 
-                onClick={() => setIsShareModalOpen(false)}
-                className="absolute top-4 right-4 md:top-5 md:right-5 p-2 bg-[#ffdf00] border-[3px] border-[#000000] shadow-[0_4px_0_0_#000000] rounded-xl hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000000] transition-all z-20 active:translate-y-[4px] active:shadow-none"
-                title={blogT.close || (lang === 'pt' ? 'Fechar' : 'Close')}
+              exit={window.innerWidth < 768 ? { y: '100%' } : { scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                className="relative w-full max-w-xl bg-white border-t-8 md:border-4 border-[#000000] rounded-t-[40px] md:rounded-[32px] md:shadow-[0_20px_0_0_#000000] p-8 md:p-10 overflow-hidden z-10"
               >
-                <X size={20} strokeWidth={4} className="text-[#000000]" />
-              </button>
+                {/* Mobile Handle */}
+                <div className="md:hidden absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-dark/10 rounded-full" />
+                
+                <button 
+                  onClick={() => setIsShareModalOpen(false)}
+                  className="absolute top-6 right-6 md:top-5 md:right-5 p-2 bg-[#ffdf00] border-[3px] border-[#000000] shadow-[0_4px_0_0_#000000] rounded-xl hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000000] transition-all z-20 active:translate-y-[4px] active:shadow-none"
+                  title={blogT.close || (lang === 'pt' ? 'Fechar' : 'Close')}
+                >
+                  <X size={20} strokeWidth={4} className="text-[#000000]" />
+                </button>
 
               <div className="space-y-6 md:space-y-8">
                 {/* Image Preview Area */}
@@ -346,11 +353,25 @@ function BlogPostContent() {
                       <span className="font-black uppercase text-xs tracking-widest">Montando cartão visual...</span>
                     </div>
                   ) : (
-                    <img 
-                      src={previewImage} 
-                      alt="Preview do Artigo" 
-                      className="w-full h-auto object-contain drop-shadow-2xl group-hover:scale-[1.02] transition-transform duration-300" 
-                    />
+                    <div className="relative group/image">
+                      <img 
+                        src={previewImage} 
+                        alt="Preview do Artigo" 
+                        className="w-full h-auto object-contain drop-shadow-2xl transition-transform duration-300" 
+                      />
+                      <button
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = previewImage;
+                          link.download = `nodus-blog-${slug}.png`;
+                          link.click();
+                        }}
+                        className="absolute bottom-4 right-4 p-3 bg-[#ffdf00] border-2 border-dark shadow-[0_4px_0_0_#000] rounded-xl hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000] transition-all active:translate-y-[4px] active:shadow-none z-10"
+                        title="Baixar Imagem"
+                      >
+                        <Download size={20} strokeWidth={3} />
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -372,11 +393,11 @@ function BlogPostContent() {
                             link.onClick();
                           }
                         }}
-                        className={`${link.color} w-10 h-10 sm:w-12 sm:h-12 border-2 border-[#000000] flex items-center justify-center transition-all shadow-[0_4px_0_0_#000000] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000000] active:translate-y-[4px] active:shadow-none cursor-pointer rounded-full overflow-hidden`}
+                        className={`${link.color} w-14 h-14 border-2 border-[#000000] flex items-center justify-center transition-all shadow-[0_4px_0_0_#000000] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000000] active:translate-y-[4px] active:shadow-none cursor-pointer rounded-full overflow-hidden`}
                       >
-                        <link.icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={link.icon === Facebook || link.icon === Linkedin ? 1 : undefined} />
+                        <link.icon className="w-7 h-7" strokeWidth={link.icon === Facebook || link.icon === Linkedin ? 1 : undefined} />
                       </a>
-                      <span className="text-[9px] font-black uppercase tracking-tighter text-dark text-center">{link.name}</span>
+                      <span className="text-[10px] font-black uppercase tracking-tighter text-dark text-center">{link.name}</span>
                     </div>
                   ))}
                 </div>

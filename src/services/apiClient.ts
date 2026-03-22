@@ -522,6 +522,14 @@ class ApiClient {
             body: JSON.stringify({ posts })
         });
     }
+
+    async trackBlogPostView(id: string): Promise<void> {
+        try {
+            await this.request(`/api/blog/${id}/view`, {
+                method: 'POST'
+            });
+        } catch (e: any) { }
+    }
     // SSE Subscriptions
     public subscribeToProfileUpdates(username: string, onUpdate: () => void): () => void {
         const eventSource = new EventSource(`${API_URL}/api/profile/realtime/${username}`);

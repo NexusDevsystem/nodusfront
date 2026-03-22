@@ -172,6 +172,7 @@ export interface BlogPost {
   color?: string;
   isPublished: boolean;
   likesCount: number;
+  viewsCount: number;
   publishedAt?: string;
   createdAt?: string;
   position: number;
