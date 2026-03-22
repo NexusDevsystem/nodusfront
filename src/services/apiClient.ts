@@ -1,4 +1,4 @@
-import { UserProfile, LinkItem, Product, SocialIntegration } from '../types';
+import { UserProfile, LinkItem, Product, SocialIntegration, Store } from '../types';
 
 const rawUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : 'https://nodusback-production.up.railway.app');
 
@@ -119,7 +119,7 @@ class ApiClient {
         return response.json();
     }
 
-    async getPublicBootstrap(username: string): Promise<{ profile: UserProfile, links: LinkItem[], products: Product[] }> {
+    async getPublicBootstrap(username: string): Promise<{ profile: UserProfile, links: LinkItem[], products: Product[], stores?: Store[] }> {
         const response = await fetch(`${API_URL}/api/profile/public-bootstrap/${username}`);
         if (!response.ok) throw new Error('Falha ao carregar dados do perfil');
         return response.json();
@@ -199,6 +199,13 @@ class ApiClient {
         return this.request('/api/products/bulk', {
             method: 'PUT',
             body: JSON.stringify({ products })
+        });
+    }
+
+    async replaceAllStores(stores: Store[]): Promise<Store[]> {
+        return this.request('/api/products/stores/bulk', {
+            method: 'PUT',
+            body: JSON.stringify({ stores })
         });
     }
 
@@ -420,7 +427,7 @@ class ApiClient {
         return this.request('/api/integrations/me');
     }
 
-    async getBootstrapData(): Promise<{ profile: UserProfile, links: LinkItem[], products: Product[] }> {
+    async getBootstrapData(): Promise<{ profile: UserProfile, links: LinkItem[], products: Product[], stores: Store[] }> {
         return this.request('/api/profile/bootstrap');
     }
 

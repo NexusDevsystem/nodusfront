@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserProfile, LinkItem, Product, PaymentMethod } from '../types';
+import { UserProfile, LinkItem, Product, PaymentMethod, Store } from '../types';
 import { THEMES, FONTS } from '../constants';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeSelector from '../components/ThemeSelector';
@@ -50,6 +50,7 @@ export default function EditorPage() {
 
     const [links, setLinks] = useState<LinkItem[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
+    const [stores, setStores] = useState<Store[]>([]);
 
     const updateProfile = (updates: Partial<UserProfile>) => {
         setProfile(prev => ({ ...prev, ...updates }));
@@ -84,7 +85,7 @@ export default function EditorPage() {
             try {
                 // Load all items in a single bootstrap call for maximum efficiency
                 setLoadingProgress(30);
-                const { profile: profileData, links: linksDataRaw, products: productsDataRaw } = await apiClient.getBootstrapData();
+                const { profile: profileData, links: linksDataRaw, products: productsDataRaw, stores: storesDataRaw } = await apiClient.getBootstrapData();
 
                 setLoadingProgress(80);
 
@@ -103,10 +104,12 @@ export default function EditorPage() {
                     return l;
                 });
                 const productsData = withClientIds(productsDataRaw);
+                const storesData = withClientIds(storesDataRaw || []);
 
                 setProfile(profileData);
                 setLinks(linksData);
                 setProducts(productsData);
+                setStores(storesData);
 
 
                 // --- AUTOMATIC PAYMENT RECONCILIATION ---
@@ -140,16 +143,19 @@ export default function EditorPage() {
     const profileLoadHandled = React.useRef(false);
     const linksLoadHandled = React.useRef(false);
     const productsLoadHandled = React.useRef(false);
+    const storesLoadHandled = React.useRef(false);
 
     // Track last saved state to prevent redundant requests
     const lastSavedLinks = React.useRef<string>('');
     const lastSavedProfile = React.useRef<string>('');
     const lastSavedProducts = React.useRef<string>('');
+    const lastSavedStores = React.useRef<string>('');
 
     // Track saving states for each entity
     const [isSavingProfile, setIsSavingProfile] = React.useState(false);
     const [isSavingLinks, setIsSavingLinks] = React.useState(false);
     const [isSavingProducts, setIsSavingProducts] = React.useState(false);
+    const [isSavingStores, setIsSavingStores] = React.useState(false);
     const [isPreviewMode, setIsPreviewMode] = React.useState(false);
     const [isDiscardModalOpen, setIsDiscardModalOpen] = React.useState(false);
     const [pendingTab, setPendingTab] = React.useState<string | null>(null);
@@ -168,7 +174,7 @@ export default function EditorPage() {
     const [expandedLinks, setExpandedLinks] = React.useState<Record<string, boolean>>({});
     const [expandedCollections, setExpandedCollections] = React.useState<Record<string, boolean>>({});
 
-    const isSaving = isSavingProfile || isSavingLinks || isSavingProducts;
+    const isSaving = isSavingProfile || isSavingLinks || isSavingProducts || isSavingStores;
 
     // --- AUTO-SAVE: PROFILE ---
     React.useEffect(() => {
@@ -359,6 +365,59 @@ export default function EditorPage() {
         const timeoutId = setTimeout(saveProducts, 2500);
         return () => clearTimeout(timeoutId);
     }, [products, hasLoadedOnce]);
+
+    // --- AUTO-SAVE: STORES ---
+    React.useEffect(() => {
+        if (!hasLoadedOnce) return;
+
+        if (!storesLoadHandled.current) {
+            storesLoadHandled.current = true;
+            lastSavedStores.current = JSON.stringify(stores);
+            return;
+        }
+
+        const currentStoresString = JSON.stringify(stores);
+        if (currentStoresString === lastSavedStores.current) return;
+
+        const saveStores = async () => {
+            setIsSavingStores(true);
+            const storesSnapshot = stores;
+            try {
+                const savedStores = await apiClient.replaceAllStores(storesSnapshot);
+
+                // Sync backend-generated IDs back to state
+                setStores(currentStores => {
+                    if (savedStores.length !== storesSnapshot.length) return currentStores;
+                    const idMap = new Map<string, string>();
+                    for (let i = 0; i < storesSnapshot.length; i++) {
+                        if (storesSnapshot[i].id !== savedStores[i].id) {
+                            idMap.set(storesSnapshot[i].id, savedStores[i].id);
+                        }
+                    }
+
+                    if (idMap.size === 0) {
+                        lastSavedStores.current = JSON.stringify(currentStores);
+                        return currentStores;
+                    }
+
+                    const updatedStores = currentStores.map(s => ({
+                        ...s,
+                        id: idMap.get(s.id) || s.id
+                    }));
+
+                    lastSavedStores.current = JSON.stringify(updatedStores);
+                    return updatedStores;
+                });
+            } catch (error) {
+                // Silently handle store auto-save failure
+            } finally {
+                setIsSavingStores(false);
+            }
+        };
+
+        const timeoutId = setTimeout(saveStores, 2000);
+        return () => clearTimeout(timeoutId);
+    }, [stores, hasLoadedOnce]);
 
     const [pendingShopCollection, setPendingShopCollection] = useState<string | null>(null);
 
@@ -700,6 +759,8 @@ export default function EditorPage() {
                                         <ShopEditor
                                             products={products}
                                             onChange={setProducts}
+                                            stores={stores}
+                                            onStoresChange={setStores}
                                             userProfile={profile}
                                             pendingCollection={pendingShopCollection}
                                             onPendingCollectionConsumed={() => setPendingShopCollection(null)}

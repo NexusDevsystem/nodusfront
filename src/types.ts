@@ -124,6 +124,16 @@ export interface Product {
   discountCode?: string;
   clicks?: number;
   collection?: string;
+  storeId?: string;
+}
+
+export interface Store {
+  id: string;
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  position: number;
+  isActive: boolean;
 }
 
 export interface FontOption {
