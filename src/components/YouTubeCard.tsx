@@ -90,21 +90,21 @@ export const YouTubeCard: React.FC<YouTubeCardProps> = ({
                     )}
                 </div>
 
-                {/* Info Column */}
-                <div className="flex-1 min-w-0 flex flex-col justify-center h-full text-left" style={{ fontFamily, fontWeight: (fontWeight || undefined), fontStyle: fontItalic ? 'italic' : 'normal' }}>
-                    <div className="flex items-center gap-1.5 mb-1 opacity-50">
+                {/* Info Column - Balanced Vertical Centering */}
+                <div className="flex-1 min-w-0 flex flex-col justify-center text-left" style={{ fontFamily, fontWeight: (fontWeight || undefined), fontStyle: fontItalic ? 'italic' : 'normal' }}>
+                    <div className="flex items-center gap-1.5 opacity-50">
                         <Youtube size={8} className="shrink-0 text-[#ff0000]" />
                         <span className="text-[7px] uppercase tracking-[0.25em] leading-none font-bold" style={{ color: themeTextHex }}>
                             YouTube
                         </span>
                     </div>
 
-                    <h4 className="text-[14px] sm:text-[16px] font-bold truncate tracking-tight uppercase leading-none mb-1.5" style={{ color: themeTextHex }}>
+                    <h4 className="text-[14px] sm:text-[16px] font-bold truncate tracking-tight uppercase leading-none my-1" style={{ color: themeTextHex }}>
                         {title}
                     </h4>
 
                     <div className="flex items-center gap-2.5">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 opacity-60">
                             <Users size={10} style={{ color: themeTextHex }} className="opacity-50" />
                             <span className="text-[10px] sm:text-[11px] font-bold leading-none" style={{ color: themeTextHex }}>
                                 {formatCount(subscribers)}

@@ -8,6 +8,7 @@ interface InteractiveButtonProps {
     onClick?: (e: React.MouseEvent) => void;
     strength?: number; // Strength of the magnetic pull
     tiltStrength?: number; // Strength of the tilt effect
+    glowColor?: string; // Color for the hover glow effect
 }
 
 const InteractiveButton: React.FC<InteractiveButtonProps> = ({
@@ -16,7 +17,8 @@ const InteractiveButton: React.FC<InteractiveButtonProps> = ({
     style = {},
     onClick,
     strength = 6,
-    tiltStrength = 4
+    tiltStrength = 4,
+    glowColor
 }) => {
     const buttonRef = useRef<HTMLDivElement>(null);
     
@@ -43,16 +45,20 @@ const InteractiveButton: React.FC<InteractiveButtonProps> = ({
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
 
-        const distanceX = e.clientX - centerX;
-        const distanceY = e.clientY - centerY;
+        const distanceX = e.clientX - rect.left;
+        const distanceY = e.clientY - rect.top;
+
+        // Set CSS Variables for Glow
+        buttonRef.current.style.setProperty('--x', `${distanceX}px`);
+        buttonRef.current.style.setProperty('--y', `${distanceY}px`);
 
         // Update Magnetic Position
-        x.set(distanceX * (strength / 100));
-        y.set(distanceY * (strength / 100));
+        x.set((e.clientX - centerX) * (strength / 100));
+        y.set((e.clientY - centerY) * (strength / 100));
 
         // Update Tilt
-        rotateX.set(-distanceY * (tiltStrength / 100));
-        rotateY.set(distanceX * (tiltStrength / 100));
+        rotateX.set(-(e.clientY - centerY) * (tiltStrength / 100));
+        rotateY.set((e.clientX - centerX) * (tiltStrength / 100));
     }, [x, y, rotateX, rotateY, strength, tiltStrength]);
 
     const handleMouseLeave = useCallback(() => {
@@ -76,11 +82,27 @@ const InteractiveButton: React.FC<InteractiveButtonProps> = ({
                 rotateY: springRotateY,
                 perspective: 1000,
                 transformStyle: 'preserve-3d',
-                // Explicitly no background or extra layers here
             }}
             className={`relative touch-none cursor-pointer cursor-target ${className}`}
         >
-            {/* NO spotlight or reflection layers here - just the children */}
+            {glowColor && (
+                <motion.div
+                    style={{
+                        position: 'absolute',
+                        inset: -20,
+                        background: `radial-gradient(circle 100px at var(--x) var(--y), ${glowColor}, transparent)`,
+                        opacity: 0,
+                        pointerEvents: 'none',
+                        zIndex: 0,
+                        borderRadius: 'inherit'
+                    }}
+                    animate={{
+                        opacity: [0, 0.4, 0],
+                        transition: { duration: 2, repeat: Infinity }
+                    }}
+                    className="group-hover:opacity-100 transition-opacity"
+                />
+            )}
             {children}
         </motion.div>
     );

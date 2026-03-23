@@ -110,7 +110,7 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
         if (profile.themeId === 'custom' && profile.customBackground) {
             return (
                 <div className="absolute inset-0">
-                    <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                    <img src={profile.customBackground} alt="Background" className="w-full h-full object-cover" loading="eager" decoding="async" />
                     <div className="absolute inset-0 bg-black/20"></div>
                 </div>
             );

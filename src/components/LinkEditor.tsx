@@ -463,7 +463,7 @@ function LinkEditor({
 
   return (
     <div className="space-y-6 w-full">
-      <div className={`${level === 0 ? 'bg-white md:bg-transparent border-2 md:border-0 border-[#1a1a1a] px-1.5 md:px-0 py-3 md:py-0 shadow-[0_4px_0_0_#1a1a1a] md:shadow-none rounded-md' : ''}`}>
+      <div className={`${level === 0 ? 'bg-transparent md:bg-transparent border-0 md:border-0 px-0 md:px-0 py-0 md:py-0 shadow-none md:shadow-none rounded-md' : ''}`}>
         <div className="space-y-3">
         {level === 0 ? (
           <div className="px-3 md:px-5">
@@ -556,7 +556,7 @@ function LinkEditor({
 
       {/* Profile Footer Branding Section */}
       {level === 0 && (
-        <div className="bg-white md:bg-transparent border-2 md:border-0 border-[#1a1a1a] p-4 md:p-0 shadow-[0_4px_0_0_#1a1a1a] md:shadow-none rounded-md">
+        <div className="bg-transparent md:bg-transparent border-0 md:border-0 p-0 md:p-0 shadow-none md:shadow-none rounded-md">
           <div className="flex flex-col gap-5">
             <div>
               <h2 className="text-xs md:text-sm font-black uppercase text-black tracking-widest leading-none">Link Footer</h2>

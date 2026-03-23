@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, File as FileIcon, Trash2, Copy, Check, X, Loader2, Image as ImageIcon, FileText, Download, ExternalLink } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
 import { useAuth } from '../../contexts/AuthContext';
+import { compressImage } from '../../utils/imageUtils';
 import { UserProfile } from '../../types';
 
 interface FileItem {
@@ -57,7 +58,21 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
 
         setIsUploading(true);
         try {
-            const data = await apiClient.uploadFile(file);
+            let fileToUpload = file;
+            
+            // Compress if image (except GIF)
+            if (file.type.startsWith('image/') && !file.type.includes('gif')) {
+                try {
+                    const compressedBase64 = await compressImage(file, 1200, 0.7);
+                    const response = await fetch(compressedBase64);
+                    const blob = await response.blob();
+                    fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' });
+                } catch (err) {
+                    console.warn('Compression failed, using original file', err);
+                }
+            }
+
+            const data = await apiClient.uploadFile(fileToUpload);
 
             if (data.success) {
                 fetchFiles(); // Refresh list

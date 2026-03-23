@@ -59,7 +59,252 @@ import InteractiveButton from './animations/InteractiveButton';
 import ElasticButton from './animations/ElasticButton';
 import GlitchButton from './animations/GlitchButton';
 
+const MusicRichCard: React.FC<{ 
+    link: LinkItem, 
+    handleLinkClick: (id: string) => void,
+    baseCardClass: string,
+    mainButtonStyle: React.CSSProperties,
+    effectiveFontFamily: string,
+    profile: any,
+    getSmartTextColor: () => string | undefined,
+    getHighlightClass: (highlight?: string) => string,
+    setOpenPlaylist: (link: LinkItem | null) => void
+}> = ({ 
+    link, 
+    handleLinkClick, 
+    baseCardClass, 
+    mainButtonStyle, 
+    effectiveFontFamily, 
+    profile, 
+    getSmartTextColor, 
+    getHighlightClass, 
+    setOpenPlaylist 
+}) => {
+    const musicTitle = link.title || 'Música';
+    const musicArtist = link.subtitle || 'Artista';
+    const isDeezer = link.embedType === 'deezer' || link.url.includes('deezer');
+    const contrastColor = getSmartTextColor();
+    const hasTracks = link.children && link.children.length > 0;
 
+    return (
+        <div
+            className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${baseCardClass} h-[72px] p-0 items-center justify-between mb-1 ${getHighlightClass(link.highlight)}`}
+            style={mainButtonStyle}
+        >
+            <div className="flex h-full items-center px-4 gap-3.5 flex-1 min-w-0">
+                {/* Album Art */}
+                <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-sm'} overflow-hidden shadow-sm shrink-0 transition-transform duration-500`}>
+                    <img src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
+                        alt={musicTitle}
+                        className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                </div>
+
+                {/* Info Column */}
+                <div className="flex-1 min-w-0 flex flex-col justify-center h-full text-left" style={{ fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                    {/* Header Label */}
+                    <div className="flex items-center gap-1.5 mb-1 opacity-50">
+                        {isDeezer ? <Music size={10} color={getSmartTextColor()} /> : <SiSpotify size={10} color="#1DB954" />}
+                        <span className="text-[7px] uppercase tracking-[0.25em] leading-none font-bold" style={{ color: contrastColor }}>
+                            {isDeezer ? 'Deezer' : 'Spotify'} {hasTracks ? 'Álbum' : ''}
+                        </span>
+                    </div>
+
+                    {/* Song Title (Large & Uppercase like Twitch) */}
+                    <h4 className="text-[14px] font-bold truncate tracking-tight uppercase leading-none mb-1.5" style={{ color: contrastColor }}>
+                        {musicTitle}
+                    </h4>
+
+                    {/* Artist Info Row (Structured like Followers) */}
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 opacity-80">
+                            <Music size={10} style={{ color: contrastColor }} className="opacity-50" />
+                            <span className="text-[10px] font-bold uppercase leading-none" style={{ color: contrastColor }}>
+                                {musicArtist}
+                            </span>
+                            {(hasTracks || !isDeezer) && (
+                                <div className="flex items-end gap-0.5 h-2 ml-1 opacity-40">
+                                    <span className="w-0.5 h-full bg-current animate-[music-bar_0.8s_ease-in-out_infinite]" style={{ color: contrastColor }} />
+                                    <span className="w-0.5 h-1/2 bg-current animate-[music-bar_1.1s_ease-in-out_infinite]" style={{ color: contrastColor }} />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="shrink-0 h-full flex items-center pr-4">
+                {hasTracks ? (
+                    <ChevronUp size={20} style={{ color: contrastColor }} className="opacity-60 group-hover:opacity-100 transition-opacity" />
+                ) : (
+                    <Play size={18} fill={contrastColor} style={{ color: contrastColor }} className="ml-0.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                )}
+            </div>
+
+            {/* Overlay link */}
+            <a
+                href={hasTracks ? "#" : link.url}
+                target={hasTracks ? "_self" : "_blank"}
+                rel="noreferrer"
+                className="absolute inset-0 z-30 cursor-pointer"
+                onClick={(e) => {
+                    if (hasTracks) {
+                        e.preventDefault();
+                        setOpenPlaylist(link);
+                    } else {
+                        handleLinkClick(link.id);
+                    }
+                }}
+            />
+
+            <style>{`
+                @keyframes music-bar {
+                    0%, 100% { height: 25%; opacity: 0.5; }
+                    50% { height: 100%; opacity: 1; }
+                }
+            `}</style>
+        </div>
+    );
+};
+
+const MusicPlaylistDrawerComponent: React.FC<{
+    openPlaylist: LinkItem | null,
+    setOpenPlaylist: (link: LinkItem | null) => void,
+    isDarkTheme: boolean,
+    handleLinkClick: (id: string) => void,
+    profile: any,
+    currentTheme: any,
+    getSmartTextColor: () => string | undefined,
+    effectiveFontFamily: string,
+    borderRadiusValue: any,
+    isStatic: boolean
+}> = ({ 
+    openPlaylist, 
+    setOpenPlaylist, 
+    isDarkTheme, 
+    handleLinkClick,
+    profile,
+    currentTheme,
+    getSmartTextColor,
+    effectiveFontFamily,
+    borderRadiusValue,
+    isStatic
+}) => {
+    const isDeezer = openPlaylist?.embedType === 'deezer' || openPlaylist?.url.includes('deezer');
+    const isDark = isDarkTheme;
+    const contrastColor = getSmartTextColor() || (isDark ? '#FFFFFF' : '#000000');
+
+    return (
+        <AnimatePresence>
+            {openPlaylist && (
+                <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm pointer-events-none">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setOpenPlaylist(null)}
+                        className="absolute inset-0 pointer-events-auto"
+                    />
+                    <motion.div
+                        initial={{ y: '100%' }}
+                        animate={{ y: 0 }}
+                        exit={{ y: '100%' }}
+                        transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
+                        className={`relative w-full max-w-lg overflow-hidden flex flex-col shadow-2xl pointer-events-auto ${currentTheme.backgroundClass}`}
+                        style={{
+                            backgroundColor: (profile.themeId === 'custom' && profile.customSolidColor) ? profile.customSolidColor : undefined,
+                            color: contrastColor,
+                            fontFamily: effectiveFontFamily,
+                            borderTopLeftRadius: borderRadiusValue === 0 ? '0px' : '32px',
+                            borderTopRightRadius: borderRadiusValue === 0 ? '0px' : '32px',
+                            border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`,
+                            height: 'auto',
+                            maxHeight: '90%',
+                            willChange: 'transform'
+                        }}
+                    >
+                        {/* The Theme Background itself (Visualizers/Particles) */}
+                        <BackgroundLayer 
+                            profile={{ ...profile, headerLayout: 'classic' }} 
+                            currentTheme={currentTheme} 
+                            isStatic={isStatic} 
+                        />
+
+                        {/* Header Section */}
+                        <div className={`px-6 pt-6 pb-6 flex items-center gap-5 border-b relative z-10 ${isDark ? 'border-white/5' : 'border-black/5'}`}>
+                            <div className="relative group/cover shrink-0">
+                                <img src={openPlaylist?.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
+                                    className="w-16 h-16 rounded-lg object-cover shadow-lg transition-transform duration-500"
+                                    alt="" loading="lazy" decoding="async" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 mb-1 opacity-50">
+                                    {isDeezer ? <Music size={12} color={contrastColor} /> : <SiSpotify size={12} color="#1DB954" />}
+                                    <span className="text-[8px] uppercase tracking-[0.3em] font-black">
+                                        {isDeezer ? 'Deezer' : 'Spotify'} {openPlaylist?.url.includes('album') ? 'Álbum' : 'Playlist'}
+                                    </span>
+                                </div>
+                                <h3 className="text-xl font-black truncate leading-none uppercase tracking-tight mb-1">
+                                    {openPlaylist?.title}
+                                </h3>
+                                <p className="text-sm opacity-60 font-medium truncate italic" style={{ color: contrastColor }}>
+                                    {openPlaylist?.subtitle || 'Várias faixas'}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setOpenPlaylist(null)}
+                                className={`p-2.5 rounded-full transform active:scale-90 transition-all ${isDark ? 'bg-white/5 hover:bg-white/10' : 'bg-black/5 hover:bg-black/10'}`}
+                            >
+                                <X size={20} style={{ color: contrastColor }} />
+                            </button>
+                        </div>
+
+                        {/* Tracks List */}
+                        <div className="overflow-y-auto flex-1 px-4 py-4 space-y-1 overscroll-contain scrollbar-hide relative z-10">
+                            {openPlaylist.children?.map((track, idx) => (
+                                <motion.a
+                                    key={track.id}
+                                    href={track.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    onClick={() => handleLinkClick(track.id)}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: idx * 0.03 }}
+                                    className={`flex items-center gap-4 p-3.5 rounded-md group transition-all relative overflow-hidden ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
+                                >
+                                    <div className="absolute inset-0 bg-current opacity-0 group-hover:opacity-[0.02] transition-opacity" />
+
+                                    <div className="flex items-baseline gap-4 flex-1 min-w-0">
+                                        <span className="text-[10px] font-mono opacity-20 w-4 shrink-0 font-black" style={{ color: contrastColor }}>
+                                            {(idx + 1).toString().padStart(2, '0')}
+                                        </span>
+                                        <div className="flex-1 min-w-0 text-left">
+                                            <h4 className="text-sm font-bold truncate tracking-tight uppercase" style={{ color: contrastColor }}>
+                                                {track.title}
+                                            </h4>
+                                            {track.subtitle && (
+                                                <p className="text-[10px] opacity-40 font-bold tracking-wider truncate uppercase mt-0.5" style={{ color: contrastColor }}>
+                                                    {track.subtitle}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="w-8 h-8 flex items-center justify-center transition-all">
+                                        <Play size={16} fill={contrastColor} className="transition-all opacity-40 group-hover:opacity-100 ml-0.5" style={{ color: contrastColor }} />
+                                    </div>
+                                </motion.a>
+                            ))}
+                        </div>
+
+                        {/* Bottom Pad for Home Indicator */}
+                        <div className="h-4 w-full relative z-10" />
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>
+    );
+};
 
 interface ProfileRendererProps {
     profile: UserProfile;
@@ -854,212 +1099,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
     const textClass = currentTheme.textClass;
 
-    const MusicRichCard: React.FC<{ link: LinkItem, handleLinkClick: (id: string) => void }> = ({ link, handleLinkClick }) => {
-        const musicTitle = link.title || 'Música';
-        const musicArtist = link.subtitle || 'Artista';
-        const isDeezer = link.embedType === 'deezer' || link.url.includes('deezer');
-        const contrastColor = getSmartTextColor();
-        const hasTracks = link.children && link.children.length > 0;
 
-        return (
-            <div
-                className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${baseCardClass} h-[72px] p-0 items-center justify-between mb-1 ${getHighlightClass(link.highlight)}`}
-                style={mainButtonStyle}
-            >
-                <div className="flex h-full items-center px-4 gap-3.5 flex-1 min-w-0">
-                    {/* Album Art */}
-                    <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-sm'} overflow-hidden shadow-sm shrink-0 transition-transform duration-500`}>
-                        <img src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
-                            alt={musicTitle}
-                            className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                    </div>
-
-                    {/* Info Column */}
-                    <div className="flex-1 min-w-0 flex flex-col justify-center h-full text-left" style={{ fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                        {/* Header Label */}
-                        <div className="flex items-center gap-1.5 mb-1 opacity-50">
-                            {isDeezer ? <DeezerIcon size={10} color={getSmartTextColor()} /> : <SiSpotify size={10} color="#1DB954" />}
-                            <span className="text-[7px] uppercase tracking-[0.25em] leading-none font-bold" style={{ color: contrastColor }}>
-                                {isDeezer ? 'Deezer' : 'Spotify'} {hasTracks ? 'Álbum' : ''}
-                            </span>
-                        </div>
-
-                        {/* Song Title (Large & Uppercase like Twitch) */}
-                        <h4 className="text-[14px] font-bold truncate tracking-tight uppercase leading-none mb-1.5" style={{ color: contrastColor }}>
-                            {musicTitle}
-                        </h4>
-
-                        {/* Artist Info Row (Structured like Followers) */}
-                        <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-1 opacity-80">
-                                <Music size={10} style={{ color: contrastColor }} className="opacity-50" />
-                                <span className="text-[10px] font-bold uppercase leading-none" style={{ color: contrastColor }}>
-                                    {musicArtist}
-                                </span>
-                                {(hasTracks || !isDeezer) && (
-                                    <div className="flex items-end gap-0.5 h-2 ml-1 opacity-40">
-                                        <span className="w-0.5 h-full bg-current animate-[music-bar_0.8s_ease-in-out_infinite]" style={{ color: contrastColor }} />
-                                        <span className="w-0.5 h-1/2 bg-current animate-[music-bar_1.1s_ease-in-out_infinite]" style={{ color: contrastColor }} />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="shrink-0 h-full flex items-center pr-4">
-                    {hasTracks ? (
-                        <ChevronUp size={20} style={{ color: contrastColor }} className="opacity-60 group-hover:opacity-100 transition-opacity" />
-                    ) : (
-                        <Play size={18} fill={contrastColor} style={{ color: contrastColor }} className="ml-0.5 opacity-40 group-hover:opacity-100 transition-opacity" />
-                    )}
-                </div>
-
-                {/* Overlay link */}
-                <a
-                    href={hasTracks ? "#" : link.url}
-                    target={hasTracks ? "_self" : "_blank"}
-                    rel="noreferrer"
-                    className="absolute inset-0 z-30 cursor-pointer"
-                    onClick={(e) => {
-                        if (hasTracks) {
-                            e.preventDefault();
-                            setOpenPlaylist(link);
-                        } else {
-                            handleLinkClick(link.id);
-                        }
-                    }}
-                />
-
-                <style>{`
-                    @keyframes music-bar {
-                        0%, 100% { height: 25%; opacity: 0.5; }
-                        50% { height: 100%; opacity: 1; }
-                    }
-                `}</style>
-            </div>
-        );
-    };
-
-    const MusicPlaylistDrawer = () => {
-        const isDeezer = openPlaylist?.embedType === 'deezer' || openPlaylist?.url.includes('deezer');
-        const isDark = isDarkTheme;
-
-        return (
-            <AnimatePresence>
-                {openPlaylist && (
-                    <div className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-none">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setOpenPlaylist(null)}
-                            className="absolute inset-0 bg-black/80 md:bg-black/60 md:backdrop-blur-sm pointer-events-auto"
-                        />
-                        <motion.div
-                            drag="y"
-                            dragConstraints={{ top: 0, bottom: 0 }}
-                            dragElastic={0.4}
-                            onDragEnd={(_, info) => {
-                                if (info.offset.y > 100 || info.velocity.y > 500) {
-                                    setOpenPlaylist(null);
-                                }
-                            }}
-                            initial={{ y: '100%' }}
-                            animate={{ y: 0 }}
-                            exit={{ y: '100%' }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className="relative w-full max-w-lg bg-white rounded-t-[32px] overflow-hidden pointer-events-auto flex flex-col shadow-2xl"
-                            style={{
-                                backgroundColor: isDark ? '#121212' : '#FFFFFF',
-                                color: isDark ? '#FFFFFF' : '#000000',
-                                borderTop: isDark ? '1px solid rgba(255,255,255,0.05)' : 'none',
-                                height: 'auto',
-                                maxHeight: '85%',
-                                willChange: 'transform'
-                            }}
-                        >
-                            {/* Drawer Handle */}
-                            <div className="w-full flex justify-center pt-3 pb-1">
-                                <div className={`w-12 h-1.5 rounded-full ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
-                            </div>
-
-                            {/* Header Section */}
-                            <div className={`px-6 pt-4 pb-6 flex items-center gap-5 border-b ${isDark ? 'border-white/5' : 'border-[#1a1a1a]/5'}`}>
-                                <div className="relative group/cover shrink-0">
-                                    <img src={openPlaylist?.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
-                                        className="w-20 h-20 rounded-md object-cover shadow-lg transition-transform duration-500"
-                                        alt="" loading="lazy" decoding="async" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-1.5 mb-1 opacity-50">
-                                        {isDeezer ? <DeezerIcon size={12} color={isDark ? '#FFFFFF' : '#000000'} /> : <SiSpotify size={12} color="#1DB954" />}
-                                        <span className="text-[8px] uppercase tracking-[0.3em] font-black">
-                                            {isDeezer ? 'Deezer' : 'Spotify'} {openPlaylist?.url.includes('album') ? 'Álbum' : 'Playlist'}
-                                        </span>
-                                    </div>
-                                    <h3 className="text-xl font-black truncate leading-none uppercase tracking-tight mb-1">
-                                        {openPlaylist?.title}
-                                    </h3>
-                                    <p className="text-sm opacity-60 font-medium truncate italic">
-                                        {openPlaylist?.subtitle || 'Várias faixas'}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={() => setOpenPlaylist(null)}
-                                    className={`p-2 rounded-full transform active:scale-95 transition-all ${isDark ? 'hover:bg-white/5' : 'hover:bg-[#ffdf00]/5'}`}
-                                >
-                                    <ChevronDown size={24} />
-                                </button>
-                            </div>
-
-                            {/* Tracks List */}
-                            <div className="overflow-y-auto flex-1 px-4 py-4 space-y-1 overscroll-contain scrollbar-hide">
-                                {openPlaylist.children?.map((track, idx) => (
-                                    <motion.a
-                                        key={track.id}
-                                        href={track.url}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        onClick={() => handleLinkClick(track.id)}
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: idx * 0.03 }}
-                                        className={`flex items-center gap-4 p-3.5 rounded-md group transition-all relative overflow-hidden ${isDark ? 'hover:bg-white/5' : 'hover:bg-[#ffdf00]/5'}`}
-                                    >
-                                        <div className="absolute inset-0 bg-current opacity-0 group-hover:opacity-[0.02] transition-opacity" />
-
-                                        <div className="flex items-baseline gap-4 flex-1 min-w-0">
-                                            <span className="text-[10px] font-mono opacity-20 w-4 shrink-0 font-black">
-                                                {(idx + 1).toString().padStart(2, '0')}
-                                            </span>
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className={`text-sm font-bold truncate tracking-tight uppercase ${isDark ? 'text-white/90' : 'text-black/90'}`}>
-                                                    {track.title}
-                                                </h4>
-                                                {track.subtitle && (
-                                                    <p className="text-[10px] opacity-40 font-bold tracking-wider truncate uppercase mt-0.5">
-                                                        {track.subtitle}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <div className="w-8 h-8 flex items-center justify-center transition-all">
-                                            <Play size={16} fill={isDarkTheme ? "#FFFFFF" : "#000000"} className={`transition-all ${isDarkTheme ? 'text-white' : 'text-black'} opacity-40 group-hover:opacity-100 ml-0.5`} />
-                                        </div>
-                                    </motion.a>
-                                ))}
-                            </div>
-
-                            {/* Bottom Pad for Home Indicator */}
-                            <div className="h-4 w-full" />
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-        );
-    };
 
 
     return (
@@ -1069,6 +1109,24 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         >
             {/* Performance: CSS global inserted ONCE via a memoized tag — avoids re-creating style rules on every render */}
             {profileGlobalStyles}
+            <style>{`
+                img {
+                    transition: opacity 0.5s ease-in-out;
+                    opacity: 0;
+                }
+                img[src] {
+                    opacity: 1;
+                }
+                /* Ensure images without src or during load have a background */
+                .img-placeholder {
+                    background: rgba(0,0,0,0.05);
+                    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: .5; }
+                }
+            `}</style>
             {/* Background Layer - Hidden in Perfil Mode */}
             {profile.headerLayout !== 'compact' && (
                 <BackgroundLayer profile={profile} currentTheme={currentTheme} isStatic={isStatic} />
@@ -1113,7 +1171,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             {/* The Large Image */}
                             <img src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`}
                                 alt={profile.name}
-                                className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                                className="w-full h-full object-cover" 
+                                loading="eager" 
+                                decoding="async"
+                                {...({ fetchpriority: "high" } as any)} 
+                            />
 
                         </div>
 
@@ -1247,6 +1309,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             className="w-full h-full object-cover rounded-full"
                                             loading="eager"
                                             decoding="async"
+                                            {...({ fetchpriority: "high" } as any)}
                                             onError={(e) => {
                                                 e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
                                             }}
@@ -1365,37 +1428,51 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {/* TABS (Links / Shop) - Only if active stores exist */}
                     {stores && stores.some(s => s.isActive !== false) && (
                         <div className="w-full mb-3 px-1 flex justify-center">
-                            <div className={`w-auto min-w-[200px] p-1 rounded-full flex relative ${isDarkTheme ? 'bg-white/5 border border-white/10' : 'bg-black/5 border border-black/5'}`}>
-                                    <button
-                                        onClick={() => setActiveTab('links')}
-                                        className={`flex-1 py-1.5 px-6 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-300 ${activeTab === 'links'
-                                            ? `${buttonClass} z-10 shadow-sm`
-                                            : 'opacity-50 hover:opacity-100'
-                                            }`}
-                                        style={{
-                                            ...(activeTab === 'links' ? mainButtonStyle : mainTextColorStyle),
-                                            boxShadow: activeTab === 'links' ? (mainButtonStyle as any).boxShadow : 'none', 
-                                            borderRadius: '9999px',
-                                            color: activeTab === 'links' ? getSmartTextColor() : (mainTextColorStyle.color || (isDarkTheme ? '#ffffff' : '#0f172a'))
-                                        }}
-                                    >
-                                        Links
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab('shop')}
-                                        className={`flex-1 py-1.5 px-6 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-300 ${activeTab === 'shop'
-                                            ? `${buttonClass} z-10 shadow-sm`
-                                            : 'opacity-50 hover:opacity-100'
-                                            }`}
-                                        style={{
-                                            ...(activeTab === 'shop' ? mainButtonStyle : mainTextColorStyle),
-                                            boxShadow: activeTab === 'shop' ? (mainButtonStyle as any).boxShadow : 'none',
-                                            borderRadius: '9999px',
-                                            color: activeTab === 'shop' ? getSmartTextColor() : (mainTextColorStyle.color || (isDarkTheme ? '#ffffff' : '#0f172a'))
-                                        }}
-                                    >
-                                        Loja
-                                    </button>
+                            <div className={`w-auto min-w-[200px] p-1 rounded-full flex relative transition-colors ${isDarkTheme ? 'bg-white/5 border border-white/10' : 'bg-black/5 border border-black/5'}`}>
+                                    {(() => {
+                                        const cleanTabButtonClass = buttonClass
+                                            .replace(/\b(py-[^ ]+|px-[^ ]+|p-[^ ]+|w-full|flex|items-center|justify-between|justify-center|border-b-\[[^\]]+\]|shadow-[^ ]+|translate-y-[^ ]+)\b/g, '')
+                                            .trim();
+                                        
+                                        return (
+                                            <>
+                                                <button
+                                                    onClick={() => setActiveTab('links')}
+                                                    className={`flex-1 py-1.5 px-6 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 ${activeTab === 'links'
+                                                        ? `${cleanTabButtonClass} z-10 shadow-sm opacity-100`
+                                                        : 'opacity-40 hover:opacity-100'
+                                                        }`}
+                                                    style={{
+                                                        ...(activeTab === 'links' ? mainButtonStyle : mainTextColorStyle),
+                                                        borderBottom: 'none', // Strong override to keep tabs thin
+                                                        transform: 'none',
+                                                        boxShadow: 'none', 
+                                                        borderRadius: '9999px',
+                                                        color: activeTab === 'links' ? getSmartTextColor() : (mainTextColorStyle.color || (isDarkTheme ? '#ffffff' : '#0f172a'))
+                                                    }}
+                                                >
+                                                    Links
+                                                </button>
+                                                <button
+                                                    onClick={() => setActiveTab('shop')}
+                                                    className={`flex-1 py-1.5 px-6 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 ${activeTab === 'shop'
+                                                        ? `${cleanTabButtonClass} z-10 shadow-sm opacity-100`
+                                                        : 'opacity-40 hover:opacity-100'
+                                                        }`}
+                                                    style={{
+                                                        ...(activeTab === 'shop' ? mainButtonStyle : mainTextColorStyle),
+                                                        borderBottom: 'none', // Strong override to keep tabs thin
+                                                        transform: 'none',
+                                                        boxShadow: 'none',
+                                                        borderRadius: '9999px',
+                                                        color: activeTab === 'shop' ? getSmartTextColor() : (mainTextColorStyle.color || (isDarkTheme ? '#ffffff' : '#0f172a'))
+                                                    }}
+                                                >
+                                                    Loja
+                                                </button>
+                                            </>
+                                        );
+                                    })()}
                             </div>
                         </div>
                     )}
@@ -1418,7 +1495,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             style={{ ...mainButtonStyle, width: '100%', borderRadius: borderRadiusValue }}
                                         >
                                             <div className="relative w-16 h-16 shrink-0 rounded-sm overflow-hidden border border-black/5 bg-white">
-                                                <img src={product.image} className="w-full h-full object-cover" />
+                                                <img src={product.image} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                                 {product.discountCode && (
                                                     <div className="absolute top-0 left-0 bg-[#ffdf00] text-black text-[8px] font-black px-2 py-0.5 rounded-br shadow-sm z-10 flex items-center gap-1">
                                                         <TagIcon size={8} strokeWidth={4} />
@@ -1978,7 +2055,17 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             nestedItems.push(
                                                                                 <InteractiveButton key={child.id} className="w-full">
                                                                                     <div className={getHighlightClass(child.highlight)}>
-                                                                                        <MusicRichCard link={child} handleLinkClick={handleLinkClick} />
+                                                                                        <MusicRichCard 
+                                                                                            link={child} 
+                                                                                            handleLinkClick={handleLinkClick}
+                                                                                            baseCardClass={baseCardClass}
+                                                                                            mainButtonStyle={mainButtonStyle}
+                                                                                            effectiveFontFamily={effectiveFontFamily}
+                                                                                            profile={profile}
+                                                                                            getSmartTextColor={getSmartTextColor}
+                                                                                            getHighlightClass={getHighlightClass}
+                                                                                            setOpenPlaylist={setOpenPlaylist}
+                                                                                        />
                                                                                     </div>
                                                                                 </InteractiveButton>
                                                                             );
@@ -2101,7 +2188,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                     if (handlePasswordProtectedLink(child, e)) return;
                                                                                                     handleLinkClick(child.id);
                                                                                                 }}
-                                                                                                className={`block w-full h-[72px] transform group relative py-2.5 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)}`}
+                                                                                                className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)}`}
                                                                                                 style={{
                                                                                                     ...mainButtonStyle,
                                                                                                     fontFamily: profile.fontFamily,
@@ -2142,7 +2229,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                         {child.title}
                                                                                                     </span>
                                                                                                     {child.subtitle && (
-                                                                                                        <span className="text-[10px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor() }}>
+                                                                                                        <span className="text-[10px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-0.5 truncate" style={{ color: getSmartTextColor() }}>
                                                                                                             {child.subtitle}
                                                                                                         </span>
                                                                                                     )}
@@ -2169,7 +2256,17 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 renderedItems.push(
                                                     <InteractiveButton key={link.id} className="w-full">
                                                         <div className={getHighlightClass(link.highlight)}>
-                                                            <MusicRichCard link={link} handleLinkClick={handleLinkClick} />
+                                                            <MusicRichCard 
+                                                                link={link} 
+                                                                handleLinkClick={handleLinkClick}
+                                                                baseCardClass={baseCardClass}
+                                                                mainButtonStyle={mainButtonStyle}
+                                                                effectiveFontFamily={effectiveFontFamily}
+                                                                profile={profile}
+                                                                getSmartTextColor={getSmartTextColor}
+                                                                getHighlightClass={getHighlightClass}
+                                                                setOpenPlaylist={setOpenPlaylist}
+                                                            />
                                                         </div>
                                                     </InteractiveButton>
                                                 );
@@ -2216,7 +2313,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 <div className="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shrink-0 border-r bg-black/[0.03]" style={{ borderColor: `${getSmartTextColor()}0A` }}>
                                                                     <BarChart3 size={22} className="transition-transform duration-300" strokeWidth={1.5} style={{ color: getSmartTextColor() }} />
                                                                 </div>
-                                                                <div className="flex-1 min-w-0 flex flex-col items-start justify-center px-6 py-2 text-left">
+                                                                <div className="flex-1 min-w-0 flex flex-col items-start justify-center px-6 text-left">
                                                                     <span
                                                                         className="uppercase tracking-[0.1em] truncate w-full flex items-center gap-2"
                                                                         style={{
@@ -2273,7 +2370,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     if (handlePasswordProtectedLink(link, e)) return;
                                                                     handleLinkClick(link.id);
                                                                 }}
-                                                                className={`block w-full h-[72px] transform group relative py-3 px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                                 style={{
                                                                     ...mainButtonStyle,
                                                                     fontFamily: profile.fontFamily,
@@ -2315,7 +2412,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         {link.title}
                                                                     </span>
                                                                     {link.subtitle && (
-                                                                        <span className="text-[11px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-1 truncate" style={{ color: getSmartTextColor() }}>
+                                                                        <span className="text-[11px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-0.5 truncate" style={{ color: getSmartTextColor() }}>
                                                                             {(link.url.includes('youtube.com') || link.url.includes('youtu.be')) && !link.url.includes('watch?v=') && !link.url.includes('/shorts/') && !link.url.includes('/live/') && <Youtube size={10} className="shrink-0" />}
                                                                             {link.url.includes('tiktok.com') && <Music size={10} fill="currentColor" className="shrink-0" />}
                                                                             {link.subtitle}
@@ -2490,7 +2587,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             </div>
             {/* Foreground Layer (For themes like Sakura) */}
             {currentTheme.id === 'kawaii-sakura' && profile.headerLayout !== 'banner' && <KawaiiSakuraForeground />}
-            <MusicPlaylistDrawer />
+
             
             {/* 🛍️ Product Detail Modal */}
             <AnimatePresence>
@@ -2628,7 +2725,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 )}
             </AnimatePresence>
             
-            <MusicPlaylistDrawer />
+            <MusicPlaylistDrawerComponent 
+                openPlaylist={openPlaylist}
+                setOpenPlaylist={setOpenPlaylist}
+                isDarkTheme={isDarkTheme}
+                handleLinkClick={handleLinkClick}
+                profile={profile}
+                currentTheme={currentTheme}
+                getSmartTextColor={getSmartTextColor}
+                effectiveFontFamily={effectiveFontFamily}
+                borderRadiusValue={borderRadiusValue}
+                isStatic={isStatic}
+            />
 
             {/* 🔐 Password Link Modal */}
             {lockedLink && (

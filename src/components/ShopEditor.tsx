@@ -54,7 +54,21 @@ export default function ShopEditor({
     const handleFileUpload = async (file: File, target: 'NEW_PRODUCT' | 'NEW_STORE_LOGO' | string) => {
         setUploadingTarget(target);
         try {
-            const res = await apiClient.uploadInternalAsset(file);
+            let fileToUpload = file;
+            
+            // Compress if image (except GIF)
+            if (file.type.startsWith('image/') && !file.type.includes('gif')) {
+                try {
+                    const compressedBase64 = await compressImage(file, 1024, 0.7);
+                    const response = await fetch(compressedBase64);
+                    const blob = await response.blob();
+                    fileToUpload = new File([blob], file.name, { type: 'image/jpeg' });
+                } catch (err) {
+                    console.warn('Compression failed, using original file', err);
+                }
+            }
+
+            const res = await apiClient.uploadInternalAsset(fileToUpload);
             if (res.success && res.file?.url) {
                 const url = res.file.url;
                 if (target === 'NEW_PRODUCT') setNewProduct(prev => ({ ...prev, image: url }));

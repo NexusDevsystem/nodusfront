@@ -16,12 +16,12 @@ const ShareCard: React.FC<ShareCardProps> = ({ profile, cardRef }) => {
         <div 
             ref={cardRef}
             id="share-card-element"
-            className="fixed -left-[9999px] top-0 flex items-center justify-center overflow-visible"
+            className="fixed left-0 top-0 flex items-center justify-center overflow-visible opacity-0 pointer-events-none z-[-1]"
             style={{ 
                 width: '1200px', 
                 height: '630px', 
                 fontFamily: profile.fontFamily || 'Inter, sans-serif',
-                backgroundColor: 'transparent'
+                backgroundColor: '#ffffff'
             }}
         >
             {/* Main Outer Container: The "Card" itself */}

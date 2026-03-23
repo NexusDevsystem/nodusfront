@@ -269,7 +269,7 @@ function BlogPostContent() {
               if (imgMatch) {
                 return (
                   <div key={i} className="my-20 border-2 border-dark rounded-[40px] overflow-hidden shadow-[0_15px_0_0_#000]">
-                    <img src={imgMatch[2]} alt={imgMatch[1]} className="w-full h-auto" />
+                    <img src={imgMatch[2]} alt={imgMatch[1]} className="w-full h-auto" loading="lazy" decoding="async" />
                   </div>
                 );
               }

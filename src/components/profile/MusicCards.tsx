@@ -48,13 +48,13 @@ const MusicRichCard: React.FC<MusicRichCardProps> = ({
                         className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </div>
 
-                {/* Info Column */}
+                {/* Info Column - Balanced Vertical Centering */}
                 <div
-                    className="flex-1 min-w-0 flex flex-col justify-center h-full text-left"
+                    className="flex-1 min-w-0 flex flex-col justify-center text-left"
                     style={{ fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
                 >
                     {/* Header Label */}
-                    <div className="flex items-center gap-1.5 mb-1 opacity-50">
+                    <div className="flex items-center gap-1.5 opacity-50">
                         {isDeezer
                             ? <DeezerIcon size={10} color={getSmartTextColor()} />
                             : <SiSpotify size={10} color="#1DB954" />
@@ -65,7 +65,7 @@ const MusicRichCard: React.FC<MusicRichCardProps> = ({
                     </div>
 
                     {/* Song Title */}
-                    <h4 className="text-[14px] font-bold truncate tracking-tight uppercase leading-none mb-1.5" style={{ color: contrastColor }}>
+                    <h4 className="text-[14px] font-bold truncate tracking-tight uppercase leading-none my-1" style={{ color: contrastColor }}>
                         {musicTitle}
                     </h4>
 

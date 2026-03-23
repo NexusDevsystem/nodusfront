@@ -19,26 +19,29 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                     <p className="text-xs font-normal uppercase tracking-widest text-black/70 mt-1">{t('design.buttonRoundnessDesc')}</p>
                 </div>
 
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-3">
                     {[
                         { id: 'square', name: t('design.square'), icon: <path d="M7 17V7H17" />, rounded: 'rounded-none' },
                         { id: 'round', name: t('design.rounded'), icon: <path d="M7 17V11C7 8.79086 8.79086 7 11 7H17" />, rounded: 'rounded-lg' },
                         { id: 'rounder', name: t('design.veryRounded'), icon: <path d="M7 17V13C7 9.68629 9.68629 7 13 7H17" />, rounded: 'rounded-2xl' },
                         { id: 'full', name: t('design.pill'), icon: <path d="M7 17C7 11.4772 11.4772 7 17 7" />, rounded: 'rounded-full' },
                     ].map((roundness) => (
-                        <div key={roundness.id} className="flex flex-col items-center gap-2">
+                        <div key={roundness.id} className="flex flex-col w-full">
                             <button
                                 onClick={() => updateProfile({ buttonRoundness: roundness.id as any })}
-                                className={`group relative h-10 w-full flex items-center justify-center transition-all border-2 border-[#1a1a1a] cursor-target ${roundness.rounded} ${profile.buttonRoundness === roundness.id
-                                    ? 'bg-[#97cd7a] shadow-[0_2px_0_0_#1a1a1a] -translate-y-[0.5px]'
-                                    : 'bg-white shadow-[0_1px_0_0_#1a1a1a] hover:shadow-none hover:bg-slate-50 text-black/40 hover:text-black'
+                                className={`group relative h-12 sm:h-10 w-full flex items-center justify-start sm:justify-center px-5 sm:px-0 gap-4 sm:gap-0 transition-all border-2 border-[#1a1a1a] cursor-target ${roundness.rounded} ${profile.buttonRoundness === roundness.id
+                                    ? 'bg-[#97cd7a] shadow-[0_3px_0_0_#1a1a1a] sm:shadow-[0_2px_0_0_#1a1a1a] -translate-y-[0.5px]'
+                                    : 'bg-white shadow-[0_2px_0_0_#1a1a1a] sm:shadow-[0_1px_0_0_#1a1a1a] hover:shadow-none hover:bg-slate-50 text-black/40 hover:text-black'
                                     }`}
                             >
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <svg className="shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                     {roundness.icon}
                                 </svg>
+                                <span className={`sm:hidden text-[10px] font-black uppercase tracking-widest ${profile.buttonRoundness === roundness.id ? 'text-black' : 'text-black/40'}`}>
+                                    {roundness.name}
+                                </span>
                             </button>
-                            <span className={`text-[8px] text-center font-medium uppercase tracking-widest mt-1 ${profile.buttonRoundness === roundness.id ? 'text-black' : 'text-black/40'}`}>
+                            <span className={`hidden sm:block text-[8px] text-center font-medium uppercase tracking-widest mt-1.5 ${profile.buttonRoundness === roundness.id ? 'text-black' : 'text-black/40'}`}>
                                 {roundness.name}
                             </span>
                         </div>
