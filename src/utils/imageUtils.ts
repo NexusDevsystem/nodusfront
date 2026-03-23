@@ -102,3 +102,65 @@ export const blobToDataURL = (blob: Blob): Promise<string> => {
         reader.readAsDataURL(blob);
     });
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Supabase Image Optimization
+// Uses Supabase Storage's built-in image transformation API to serve resized
+// WebP images via CDN. Reduces image size by 60-80% vs raw originals.
+// Docs: https://supabase.com/docs/guides/storage/serving/image-transformations
+// ─────────────────────────────────────────────────────────────────────────────
+
+const SUPABASE_STORAGE_DOMAINS = ['supabase.co/storage', 'supabase.in/storage'];
+
+const isSupabaseUrl = (url: string): boolean =>
+    SUPABASE_STORAGE_DOMAINS.some(domain => url?.includes(domain));
+
+export interface OptimizeImageOptions {
+    width?: number;
+    height?: number;
+    quality?: number;
+    format?: 'webp' | 'avif' | 'origin';
+}
+
+/**
+ * Returns an optimized Supabase image URL with WebP + resize.
+ * Falls back gracefully to the original URL for non-Supabase images.
+ */
+export const optimizeImageUrl = (
+    url: string | undefined | null,
+    options: OptimizeImageOptions = {}
+): string => {
+    if (!url) return '';
+    if (!isSupabaseUrl(url)) return url;
+
+    const { width, height, quality = 80, format = 'webp' } = options;
+
+    const params = new URLSearchParams();
+    if (width) params.set('width', String(width));
+    if (height) params.set('height', String(height));
+    params.set('quality', String(quality));
+    params.set('format', format);
+
+    const transformedUrl = url.replace(
+        '/storage/v1/object/public/',
+        '/storage/v1/render/image/public/'
+    );
+
+    return `${transformedUrl}?${params.toString()}`;
+};
+
+/** Ready-to-use presets for common use cases */
+export const imgOptimized = {
+    /** 64×64 px avatar */
+    avatar: (url: string) => optimizeImageUrl(url, { width: 64, height: 64, quality: 85 }),
+    /** 128×128 px avatar */
+    avatarMd: (url: string) => optimizeImageUrl(url, { width: 128, height: 128, quality: 85 }),
+    /** 256×256 px large avatar */
+    avatarLg: (url: string) => optimizeImageUrl(url, { width: 256, height: 256, quality: 85 }),
+    /** 400px card thumbnail */
+    thumb: (url: string) => optimizeImageUrl(url, { width: 400, quality: 80 }),
+    /** 1200px banner / background */
+    banner: (url: string) => optimizeImageUrl(url, { width: 1200, quality: 75 }),
+    /** 600px product image */
+    product: (url: string) => optimizeImageUrl(url, { width: 600, quality: 80 }),
+};

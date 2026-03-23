@@ -58,6 +58,7 @@ import MediaKitModal from './MediaKitModal';
 import InteractiveButton from './animations/InteractiveButton';
 import ElasticButton from './animations/ElasticButton';
 import GlitchButton from './animations/GlitchButton';
+import { imgOptimized } from '../utils/imageUtils';
 
 const MusicRichCard: React.FC<{ 
     link: LinkItem, 
@@ -1169,7 +1170,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             }}
                         >
                             {/* The Large Image */}
-                            <img src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`}
+                            <img src={imgOptimized.avatarLg(profile.avatarUrl) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`}
                                 alt={profile.name}
                                 className="w-full h-full object-cover" 
                                 loading="eager" 
@@ -1271,7 +1272,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <>
                             <div className="absolute top-0 -left-6 w-[calc(100%+3rem)] h-[180px] z-0 overflow-hidden">
                                 {profile.customBackground ? (
-                                    <img src={profile.customBackground}
+                                    <img src={imgOptimized.banner(profile.customBackground)}
                                         alt=""
                                         className="w-full h-full object-cover" loading="eager" decoding="async" />
                                 ) : (

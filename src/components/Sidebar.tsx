@@ -22,6 +22,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import LanguageToggle from './LanguageToggle';
+import { imgOptimized } from '../utils/imageUtils';
 
 interface SidebarProps {
   activeTab: string;
@@ -112,7 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
           <div className="flex items-center group cursor-default">
             <div className="w-9 h-9 rounded-lg border-2 border-[#1a1a1a] overflow-hidden shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-slate-50 transition-all group-hover:-translate-y-[0.5px] group-hover:shadow-[0_3px_0_0_#1a1a1a]">
               <img 
-                src={userProfile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`}
+                src={imgOptimized.avatarMd(userProfile.avatarUrl) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`}
                 alt="Profile"
                 className="w-full h-full object-cover"
                 onError={(e) => {
