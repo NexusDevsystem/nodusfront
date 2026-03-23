@@ -12,36 +12,30 @@ export function Marquee() {
   const ribbon1 = useRef<HTMLDivElement>(null);
   const ribbon2 = useRef<HTMLDivElement>(null);
 
+  // Smaller base set of items
   const items1 = [t.marquee.create, t.marquee.brutal, '★'];
   const items2 = [t.marquee.share, t.marquee.sell, '★'];
 
-  // Duplicate items for enough length
-  const content1 = Array(15).fill(items1).flat();
-  const content2 = Array(15).fill(items2).flat();
+  // Duplicate items twice to ensure it overflows the screen and remains seamless
+  // 10 reps is enough to fill any screen twice
+  const content1 = Array(20).fill(items1).flat();
+  const content2 = Array(20).fill(items2).flat();
 
   useGSAP(() => {
-    // Ribbon 1 (Green) moves LEFT on scroll - Slowed down for readability
+    // Ribbon 1 (Green) moves LEFT infinitely
     gsap.to(ribbon1.current, {
-      x: "-20%",
+      xPercent: -50,
       ease: "none",
-      scrollTrigger: {
-        trigger: container.current,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1,
-      }
+      duration: 60,
+      repeat: -1
     });
 
-    // Ribbon 2 (Pink) moves RIGHT on scroll - Slowed down for readability
+    // Ribbon 2 (Pink) moves RIGHT infinitely
     gsap.to(ribbon2.current, {
-      x: "-15%",
+      xPercent: 0,
       ease: "none",
-      scrollTrigger: {
-        trigger: container.current,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1,
-      }
+      duration: 60,
+      repeat: -1
     });
   }, { scope: container });
 
@@ -50,12 +44,12 @@ export function Marquee() {
       <div className="flex flex-col gap-0">
         {/* Ribbon 1: Green */}
         <div 
-          className="relative h-20 md:h-24 bg-[#97cd7a] border-y-4 border-black flex items-center overflow-hidden rotate-[-2deg] scale-[1.2] shadow-[0_10px_30px_rgba(0,0,0,0.1)]"
+            className="relative h-20 md:h-24 bg-brand border-y-4 border-dark flex items-center overflow-hidden rotate-[-2deg] scale-[1.2] shadow-[0_10px_30px_rgba(0,0,0,0.05)]"
           style={{ willChange: 'transform' }}
         >
           <div ref={ribbon1} className="flex whitespace-nowrap translate-x-0">
             {content1.map((item, i) => (
-              <span key={i} className="inline-flex items-center px-10 font-display font-black text-4xl md:text-6xl uppercase tracking-tighter text-black">
+              <span key={i} className="inline-flex items-center px-10 font-display font-black text-4xl md:text-6xl uppercase tracking-tighter text-dark">
                 {item}
               </span>
             ))}
@@ -64,12 +58,12 @@ export function Marquee() {
 
         {/* Ribbon 2: Pink */}
         <div 
-          className="relative h-20 md:h-24 bg-[#FFA6F6] border-y-4 border-black flex items-center overflow-hidden rotate-[2deg] scale-[1.2] -mt-6 shadow-[0_10px_30px_rgba(0,0,0,0.1)]"
+            className="relative h-20 md:h-24 bg-pink border-y-4 border-dark flex items-center overflow-hidden rotate-[2deg] scale-[1.2] -mt-6 shadow-[0_10px_30px_rgba(0,0,0,0.05)]"
           style={{ willChange: 'transform' }}
         >
-          <div ref={ribbon2} className="flex whitespace-nowrap translate-x-[-35%]">
+          <div ref={ribbon2} className="flex whitespace-nowrap translate-x-[-50%]">
             {content2.map((item, i) => (
-              <span key={i} className="inline-flex items-center px-10 font-display font-black text-4xl md:text-6xl uppercase tracking-tighter text-black">
+              <span key={i} className="inline-flex items-center px-10 font-display font-black text-4xl md:text-6xl uppercase tracking-tighter text-dark">
                 {item}
               </span>
             ))}

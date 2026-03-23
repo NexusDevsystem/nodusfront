@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UserProfile, LinkItem, Product } from '../types';
+import { UserProfile, LinkItem, Product, Store } from '../types';
 import { THEMES, SOCIAL_NETWORKS } from '../constants';
 import {
     Signal,
@@ -30,7 +30,12 @@ import {
     Youtube,
     Presentation,
     BarChart3,
-    Lock
+    Lock,
+    Folder,
+    FolderOpen,
+    ShoppingCart,
+    Tag as TagIcon,
+    X
 } from 'lucide-react';
 import YouTubeEmbed from './YouTubeEmbed';
 import TikTokEmbed from './TikTokEmbed';
@@ -60,14 +65,16 @@ interface ProfileRendererProps {
     profile: UserProfile;
     links: LinkItem[];
     products: Product[];
+    stores?: Store[];
     isPreview?: boolean; // If true, shows mock status bar (9:41, wifi etc)
     isStatic?: boolean; // If true, disables animated backgrounds for performance (e.g. in ThemeSelector)
     onShare?: () => void;
     forcedTab?: 'links' | 'shop';
 }
 
-const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], isPreview = false, isStatic = false, onShare, forcedTab }) => {
-    const { t } = useTranslation();
+const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], stores = [], isPreview = false, isStatic = false, onShare, forcedTab }) => {
+    const { t, i18n } = useTranslation();
+    const isPT = i18n.language?.startsWith('pt');
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
     const [lockedLink, setLockedLink] = React.useState<LinkItem | null>(null);
     const [openMediaKit, setOpenMediaKit] = React.useState<LinkItem | null>(null);
@@ -344,6 +351,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     });
 
     const [openPlaylist, setOpenPlaylist] = useState<LinkItem | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
     // Persist activeTab to localStorage
     React.useEffect(() => {
@@ -364,13 +372,38 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     // @ts-ignore
     const collections = React.useMemo(() => {
         const groups: Record<string, Product[]> = {};
-        products.forEach(p => {
+        const activeStores = stores.filter(s => s.isActive !== false);
+        const activeProducts = products.filter(p => !p.isArchived && p.isActive !== false);
+        
+        // Ensure all explicitly created collections in ACTIVE STORES exist even if empty
+        activeStores.forEach(s => {
+            (s.collections || []).forEach(c => {
+                // If the collection is DISABLED in the store, we don't even create the group if it's empty
+                if ((s.disabledCollections || []).includes(c)) return;
+                if (!groups[c]) groups[c] = [];
+            });
+            
+            // Also add a group specifically for the STORE NAME to allow store-level views
+            if (!groups[s.name]) {
+                groups[s.name] = activeProducts.filter(p => p.storeId === s.id);
+            }
+        });
+
+        activeProducts.forEach(p => {
+            // Find the store this product belongs to
+            const store = stores.find(s => s.id === p.storeId);
+            // If the store is inactive, skip product
+            if (store && store.isActive === false) return;
+            
             const col = p.collection || 'Geral';
+            // If the collection is disabled in the specific store, skip
+            if (store && (store.disabledCollections || []).includes(col)) return;
+
             if (!groups[col]) groups[col] = [];
             groups[col].push(p);
         });
         return groups;
-    }, [products]);
+    }, [products, stores]);
 
     // Validation: If activeCollection disappears (e.g. deleted), reset to main view
     React.useEffect(() => {
@@ -389,8 +422,15 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     React.useEffect(() => {
         if (!isPreview && profile.id && apiClient) {
             try {
-                console.log(`📊 [ProfileRenderer] Tracking page view for profile: ${profile.id} (isPreview=${isPreview})`);
-                apiClient.trackPageView(profile.id);
+                // Determine or generate visitor fingerprint for unique visitor tracking
+                let fp = localStorage.getItem('nodus_blog_fingerprint'); // Reuse blog fingerprint if exists
+                if (!fp) {
+                    fp = Math.random().toString(36).substring(2) + Date.now().toString(36);
+                    localStorage.setItem('nodus_blog_fingerprint', fp);
+                }
+
+                console.log(`📊 [ProfileRenderer] Tracking page view for profile: ${profile.id} (isPreview=${isPreview}, fingerprint=${fp})`);
+                apiClient.trackPageView(profile.id, fp);
             } catch (e) { console.error('❌ [ProfileRenderer] trackPageView error:', e); }
         }
     }, [profile.id, isPreview]);
@@ -683,8 +723,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         : profile.buttonRoundness;
 
     const roundedClass = effectiveRoundness === 'square' ? 'rounded-none' :
-        effectiveRoundness === 'round' ? 'rounded-xl' :
-            effectiveRoundness === 'rounder' ? 'rounded-[24px]' :
+        effectiveRoundness === 'round' ? 'rounded-md' :
+            effectiveRoundness === 'rounder' ? 'rounded-sm' :
                 effectiveRoundness === 'full' ? 'rounded-full' :
                     (currentTheme.buttonClass.match(/rounded-[^\s]+(?=\s|$)/g)?.join(' ') || null);
 
@@ -828,7 +868,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             >
                 <div className="flex h-full items-center px-4 gap-3.5 flex-1 min-w-0">
                     {/* Album Art */}
-                    <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-lg'} overflow-hidden shadow-sm shrink-0 group-hover:scale-105 transition-transform duration-500`}>
+                    <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-sm'} overflow-hidden shadow-sm shrink-0 transition-transform duration-500`}>
                         <img src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
                             alt={musicTitle}
                             className="w-full h-full object-cover" loading="lazy" decoding="async" />
@@ -948,7 +988,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             <div className={`px-6 pt-4 pb-6 flex items-center gap-5 border-b ${isDark ? 'border-white/5' : 'border-[#1a1a1a]/5'}`}>
                                 <div className="relative group/cover shrink-0">
                                     <img src={openPlaylist?.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
-                                        className="w-20 h-20 rounded-xl object-cover shadow-lg group-hover:scale-105 transition-transform duration-500"
+                                        className="w-20 h-20 rounded-md object-cover shadow-lg transition-transform duration-500"
                                         alt="" loading="lazy" decoding="async" />
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -985,7 +1025,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.03 }}
-                                        className={`flex items-center gap-4 p-3.5 rounded-2xl group transition-all relative overflow-hidden ${isDark ? 'hover:bg-white/5' : 'hover:bg-[#ffdf00]/5'}`}
+                                        className={`flex items-center gap-4 p-3.5 rounded-md group transition-all relative overflow-hidden ${isDark ? 'hover:bg-white/5' : 'hover:bg-[#ffdf00]/5'}`}
                                     >
                                         <div className="absolute inset-0 bg-current opacity-0 group-hover:opacity-[0.02] transition-opacity" />
 
@@ -1006,7 +1046,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         </div>
 
                                         <div className="w-8 h-8 flex items-center justify-center transition-all">
-                                            <Play size={16} fill={isDarkTheme ? "#FFFFFF" : "#000000"} className={`transition-all ${isDarkTheme ? 'text-white' : 'text-black'} opacity-40 group-hover:opacity-100 group-hover:scale-110 ml-0.5`} />
+                                            <Play size={16} fill={isDarkTheme ? "#FFFFFF" : "#000000"} className={`transition-all ${isDarkTheme ? 'text-white' : 'text-black'} opacity-40 group-hover:opacity-100 ml-0.5`} />
                                         </div>
                                     </motion.a>
                                 ))}
@@ -1133,7 +1173,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     <InteractiveButton strength={10} tiltStrength={5}>
                         <button
                             onClick={onShare}
-                            className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all"
+                            className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg active:scale-95 transition-all"
                         >
                             <Share size={18} />
                         </button>
@@ -1142,7 +1182,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 {/* Menu / Options Button (Adjusted for Banner/Perfil) */}
                 <div className={`absolute ${(['banner', 'compact'].includes(profile.headerLayout || '')) ? 'top-4' : 'top-[34px]'} left-6 z-30`}>
                     <InteractiveButton strength={10} tiltStrength={5}>
-                        <div className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-lg hover:scale-110 active:scale-90 transition-all overflow-hidden cursor-pointer relative p-[6px]">
+                        <div className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-lg active:scale-90 transition-all overflow-hidden cursor-pointer relative p-[6px]">
                             <video
                                 src="/icons/Anime_mascot_fixed_white_background_delpmaspu_.mp4"
                                 autoPlay
@@ -1322,43 +1362,40 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
 
-                    {/* TABS (Links / Shop) - Only if products exist */}
-                    {products.length > 0 && (
-                        <div className="w-full mb-6 px-1 flex justify-center">
-                            <div className={`w-auto min-w-[180px] p-1 rounded-full flex relative ${isDarkTheme || profile.customBackground || currentTheme.id === 'glass' ? 'bg-white/10' : 'bg-slate-200/60'}`}>
-                                {/* Sliding background could be complex, sticking to simple conditional classes for now */}
-                                <InteractiveButton className="flex-1" strength={10} tiltStrength={5}>
+                    {/* TABS (Links / Shop) - Only if active stores exist */}
+                    {stores && stores.some(s => s.isActive !== false) && (
+                        <div className="w-full mb-3 px-1 flex justify-center">
+                            <div className={`w-auto min-w-[200px] p-1 rounded-full flex relative ${isDarkTheme ? 'bg-white/5 border border-white/10' : 'bg-black/5 border border-black/5'}`}>
                                     <button
                                         onClick={() => setActiveTab('links')}
-                                        className={`w-full py-1.5 rounded-full text-sm transition-all duration-300 ${activeTab === 'links'
-                                            ? 'bg-white text-slate-900 shadow-sm'
-                                            : 'opacity-70 hover:opacity-100'
+                                        className={`flex-1 py-1.5 px-6 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-300 ${activeTab === 'links'
+                                            ? `${buttonClass} z-10 shadow-sm`
+                                            : 'opacity-50 hover:opacity-100'
                                             }`}
                                         style={{
-                                            ...(activeTab === 'links' ? {} : mainTextColorStyle),
-                                            fontWeight: (profile.fontWeight || undefined),
-                                            fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                                            ...(activeTab === 'links' ? mainButtonStyle : mainTextColorStyle),
+                                            boxShadow: activeTab === 'links' ? (mainButtonStyle as any).boxShadow : 'none', 
+                                            borderRadius: '9999px',
+                                            color: activeTab === 'links' ? getSmartTextColor() : (mainTextColorStyle.color || (isDarkTheme ? '#ffffff' : '#0f172a'))
                                         }}
                                     >
                                         Links
                                     </button>
-                                </InteractiveButton>
-                                <InteractiveButton className="flex-1" strength={10} tiltStrength={5}>
                                     <button
                                         onClick={() => setActiveTab('shop')}
-                                        className={`w-full py-1.5 rounded-full text-sm transition-all duration-300 ${activeTab === 'shop'
-                                            ? 'bg-white text-slate-900 shadow-sm'
-                                            : 'opacity-70 hover:opacity-100'
+                                        className={`flex-1 py-1.5 px-6 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-300 ${activeTab === 'shop'
+                                            ? `${buttonClass} z-10 shadow-sm`
+                                            : 'opacity-50 hover:opacity-100'
                                             }`}
                                         style={{
-                                            ...(activeTab === 'shop' ? {} : mainTextColorStyle),
-                                            fontWeight: (profile.fontWeight || undefined),
-                                            fontStyle: profile.fontItalic ? 'italic' : 'normal'
+                                            ...(activeTab === 'shop' ? mainButtonStyle : mainTextColorStyle),
+                                            boxShadow: activeTab === 'shop' ? (mainButtonStyle as any).boxShadow : 'none',
+                                            borderRadius: '9999px',
+                                            color: activeTab === 'shop' ? getSmartTextColor() : (mainTextColorStyle.color || (isDarkTheme ? '#ffffff' : '#0f172a'))
                                         }}
                                     >
                                         Loja
                                     </button>
-                                </InteractiveButton>
                             </div>
                         </div>
                     )}
@@ -1366,7 +1403,63 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                     {/* Main Dynamic Content Area */}
                     <div className="flex flex-col w-full relative">
-                        <AnimatePresence mode="popLayout" initial={false}>
+                        {(() => {
+                            const renderStoreProduct = (product: Product) => {
+                                if (product.isActive === false) return null;
+                                return (
+                                    <InteractiveButton key={product.id} className="w-full">
+                                        <button
+                                            onClick={(e) => { 
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setSelectedProduct(product);
+                                            }}
+                                            className={`group/item flex items-center h-[88px] px-4 gap-4 transition-all duration-300 ${buttonClass} shadow-sm hover:translate-y-[-2px]`}
+                                            style={{ ...mainButtonStyle, width: '100%', borderRadius: borderRadiusValue }}
+                                        >
+                                            <div className="relative w-16 h-16 shrink-0 rounded-sm overflow-hidden border border-black/5 bg-white">
+                                                <img src={product.image} className="w-full h-full object-cover" />
+                                                {product.discountCode && (
+                                                    <div className="absolute top-0 left-0 bg-[#ffdf00] text-black text-[8px] font-black px-2 py-0.5 rounded-br shadow-sm z-10 flex items-center gap-1">
+                                                        <TagIcon size={8} strokeWidth={4} />
+                                                        {product.discountCode}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            
+                                            <div className="flex-1 min-w-0 flex flex-col items-start text-left">
+                                                <h4 className="text-[14px] font-black uppercase tracking-tight truncate w-full" style={{ color: getSmartTextColor() }}>{product.name}</h4>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[12px] font-black opacity-40 uppercase tracking-widest" style={{ color: getSmartTextColor() }}>
+                                                        {(() => {
+                                                            const clean = String(product.price || '').replace(/[^\d,.]/g, '').replace(',', '.');
+                                                            const val = parseFloat(clean);
+                                                            if (isNaN(val)) return '';
+                                                            return new Intl.NumberFormat(isPT ? 'pt-BR' : 'en-US', { 
+                                                                style: 'currency', 
+                                                                currency: isPT ? 'BRL' : 'USD' 
+                                                            }).format(val);
+                                                        })()}
+                                                    </span>
+                                                    {product.discountCode && (
+                                                        <div className="flex items-center gap-1.5 px-2 py-0.5 border border-dashed border-[#97cd7a]/50 text-[#97cd7a] rounded text-[9px] font-black uppercase tracking-wider">
+                                                            <TagIcon size={10} strokeWidth={3} />
+                                                            {product.discountCode}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className={`w-10 h-10 rounded-full ${isDarkTheme ? 'bg-white/10' : 'bg-black/10'} flex items-center justify-center opacity-40 group-hover/item:opacity-100 transition-opacity`}>
+                                                <ShoppingCart size={18} style={{ color: getSmartTextColor() }} />
+                                            </div>
+                                        </button>
+                                    </InteractiveButton>
+                                );
+                            };
+
+                            return (
+                                <AnimatePresence mode="popLayout" initial={false}>
                             {/* SHOP VIEW (Collections or Grid) */}
                             {products.length > 0 && activeTab === 'shop' && (
                                 <motion.div
@@ -1378,146 +1471,158 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     className="w-full space-y-4 flex-1"
                                 >
 
-                                    {/* Collection List View */}
+                                    {/* Consolidated Store Card View with Accordion Expansion */}
                                     {!activeCollection ? (
-                                        <div className="space-y-4">
-                                            <div
-                                                className={`flex items-center gap-2.5 mb-2 text-xs font-normal uppercase tracking-widest opacity-60 px-1`}
-                                                style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                            >
-                                                <ShoppingBag size={14} className="stroke-[2.5]" />
-                                                <span>Categorias</span>
-                                            </div>
+                                        <div className="space-y-6">
+                                            {stores.filter(s => s.isActive !== false).map(store => {
+                                                const storeProducts = products.filter(p => p.storeId === store.id && p.isActive !== false);
+                                                const storeColsList = Array.from(new Set([
+                                                    ...(store.collections || []),
+                                                    ...storeProducts.map(p => p.collection).filter(Boolean) as string[]
+                                                ])).filter(c => !(store.disabledCollections || []).includes(c));
 
-                                            {Object.entries(collections).map(([name, items]) => (
-                                                <InteractiveButton key={name} className="w-full">
-                                                    <button
-                                                        onClick={() => handleCollectionClick(name)}
-                                                        className={`w-full group relative transition-all duration-300 ${cleanClass(baseCardClass, ['bg', 'text']).replace('overflow-hidden', '')}`}
-                                                        style={{
-                                                            ...mainButtonStyle,
-                                                            color: getSmartTextColor(),
-                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
-                                                        }}
-                                                    >
-                                                        <div className={`flex flex-col w-full h-full overflow-hidden ${roundedClass}`}>
-                                                            {/* Preview Images Collage - Refined */}
-                                                            <div className={`flex h-48 w-full gap-1 p-1 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
-                                                                {items.length === 1 ? (
-                                                                    <div className="flex-1 h-full relative overflow-hidden rounded-xl">
-                                                                        <img src={items[0].image} alt={items[0].name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" loading="lazy" decoding="async" />
-                                                                        <div className="absolute inset-0 bg-black/5" />
+                                                const storeCols = storeColsList.map(c => ({
+                                                    name: c,
+                                                    items: storeProducts.filter(p => p.collection === c)
+                                                }));
+                                                
+                                                if (storeProducts.length === 0 && storeCols.length === 0) return null;
+
+                                                return (
+                                                    <div key={store.id} className="space-y-4">
+                                                        <InteractiveButton 
+                                                            className="w-full"
+                                                            onClick={() => {
+                                                                handleCollectionClick(store.name);
+                                                            }}
+                                                        >
+                                                            <div
+                                                                className={`w-full group relative transition-all duration-300 ${cleanClass(baseCardClass, ['bg', 'text']).replace('overflow-hidden', '')}`}
+                                                                style={{
+                                                                    ...mainButtonStyle,
+                                                                    color: getSmartTextColor(),
+                                                                    ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
+                                                                }}
+                                                            >
+                                                                <div className={`flex flex-col w-full h-full overflow-hidden ${roundedClass}`}>
+                                                                    {/* Store Branding Inside Card */}
+                                                                    <div className={`px-4 pt-4 pb-2 flex items-center justify-center gap-2 opacity-60 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
+                                                                        {store.imageUrl ? (
+                                                                            <img src={store.imageUrl} className="w-4 h-4 rounded-sm object-cover" />
+                                                                        ) : (
+                                                                            <ShoppingBag size={14} className="stroke-[2.5]" />
+                                                                        )}
+                                                                        <span className="text-[10px] uppercase font-black tracking-widest" style={{ fontFamily: effectiveFontFamily }}>{store.name}</span>
                                                                     </div>
-                                                                ) : (
-                                                                    <>
-                                                                        {items.slice(0, 3).map((item, i) => (
-                                                                            <div key={item.id} className={`flex-1 h-full relative overflow-hidden ${i === 0 ? 'rounded-l-xl' : i === items.slice(0, 3).length - 1 ? 'rounded-r-xl' : ''}`}>
-                                                                                <img src={item.image} alt={item.name} className="w-full h-full block object-cover transition-transform group-hover:scale-110 duration-700" loading="lazy" decoding="async" />
+
+                                                                    {/* Big Collage of Store Products */}
+                                                                    <div className={`flex h-56 w-full gap-1 p-1 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
+                                                                        {storeProducts.length === 1 ? (
+                                                                            <div className="flex-1 h-full relative overflow-hidden rounded-md">
+                                                                                <img src={storeProducts[0].image} alt={storeProducts[0].name} className="w-full h-full block object-cover transition-transform duration-700" loading="lazy" decoding="async" />
                                                                                 <div className="absolute inset-0 bg-black/5" />
                                                                             </div>
-                                                                        ))}
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                            <div className={`p-4 flex items-center justify-between ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
-                                                                <div className="text-left">
-                                                                    <h3 className="text-sm font-normal" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{name}</h3>
-                                                                    <p className="text-[10px] font-normal uppercase tracking-wider mt-0.5 opacity-60" style={{ color: getSmartTextColor(), fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                        {items.length} {items.length === 1 ? 'Produto' : 'Produtos'}
-                                                                    </p>
+                                                                        ) : storeProducts.length > 0 ? (
+                                                                            <>
+                                                                                <div className="flex-[2] h-full relative overflow-hidden rounded-l-xl">
+                                                                                    <img src={storeProducts[0].image} alt={storeProducts[0].name} className="w-full h-full block object-cover transition-transform duration-700" loading="lazy" decoding="async" />
+                                                                                </div>
+                                                                                <div className="flex-1 flex flex-col gap-1">
+                                                                                    {storeProducts.slice(1, 4).map((item, i) => (
+                                                                                        <div key={item.id} className={`flex-1 relative overflow-hidden ${(i === 1 && storeProducts.length > 2) || (i === 0 && storeProducts.length === 2) ? 'rounded-br-xl' : ''} ${(i === 0 && storeProducts.length > 2) || (i === 0 && storeProducts.length === 2) ? 'rounded-tr-xl' : ''}`}>
+                                                                                             <img src={item.image} alt={item.name} className="w-full h-full block object-cover" loading="lazy" decoding="async" />
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </>
+                                                                        ) : (
+                                                                             <div className="flex-1 h-full bg-black/5 flex items-center justify-center text-black/10 rounded-md">
+                                                                                 <ShoppingBag size={48} />
+                                                                             </div>
+                                                                        )}
+                                                                    </div>
+                                                                    {/* Footer Call to Action */}
+                                                                    <div className={`px-4 py-3 flex items-center justify-between border-t border-black/5 transition-colors group-hover:bg-black/5 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
+                                                                        <span className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60" style={{ fontFamily: effectiveFontFamily, color: getSmartTextColor() }}>
+                                                                            {isPT ? 'PRODUTOS' : 'PRODUCTS'}
+                                                                        </span>
+                                                                        <ChevronRight size={16} className="opacity-40 group-hover:translate-x-1 transition-transform" style={{ color: getSmartTextColor() }} />
+                                                                    </div>
                                                                 </div>
-                                                                <div className={`w-8 h-8 rounded-full ${isDarkTheme ? 'bg-white/10' : 'bg-black/10'} flex items-center justify-center transition-colors`}>
-                                                                    <ChevronRight size={16} />
-                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </button>
-                                                </InteractiveButton>
-                                            ))}
+                                                        </InteractiveButton>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     ) : (
-                                        /* Filtered Product Grid - Refined Storefront */
-                                        <div className="relative">
-                                            <div className="flex items-center justify-between mb-8 px-1">
+                                        /* Dedicated View for Selected Store/Collection */
+                                        <div className="space-y-4">
+                                            {/* Header with Back Button */}
+                                            <div className="flex items-center gap-4 px-2">
+                                                <InteractiveButton strength={15}>
+                                                    <button
+                                                        onClick={() => setActiveCollection(null)}
+                                                        className={`w-10 h-10 flex items-center justify-center transition-all ${buttonClass} shadow-lg`}
+                                                        style={{ 
+                                                            ...mainButtonStyle, 
+                                                            borderRadius: borderRadiusValue,
+                                                            padding: 0 // Ensure it stays a square/circle even if buttonClass has padding
+                                                        }}
+                                                    >
+                                                        <ChevronLeft size={20} style={{ color: getSmartTextColor() }} />
+                                                    </button>
+                                                </InteractiveButton>
                                                 <div className="flex flex-col">
-                                                    <InteractiveButton strength={5} tiltStrength={3}>
-                                                        <button
-                                                            onClick={() => setActiveCollection(null)}
-                                                            className={`flex items-center gap-1.5 text-[10px] font-normal uppercase tracking-widest opacity-50 hover:opacity-100 transition-all mb-1.5`}
-                                                            style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                                                        >
-                                                            <ChevronLeft size={12} strokeWidth={3} />
-                                                            <span>Voltar</span>
-                                                        </button>
-                                                    </InteractiveButton>
-                                                    <h2 className={`text-xl font-medium tracking-tight`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                        {activeCollection}
-                                                    </h2>
-                                                </div>
-                                                <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
-                                                    <ShoppingBag size={20} className="opacity-40" />
+                                                    <h2 className="text-sm font-black uppercase tracking-[0.2em] opacity-40 leading-none mb-1" style={{ color: getSmartTextColor() }}>{isPT ? 'COLEÇÃO' : 'COLLECTION'}</h2>
+                                                    <h3 className="text-xl font-black uppercase tracking-tight leading-none" style={{ color: getSmartTextColor() }}>{activeCollection}</h3>
                                                 </div>
                                             </div>
 
-                                            <div className="grid grid-cols-2 gap-4 pb-12">
-                                                {activeCollection && collections[activeCollection]?.map(product => {
-                                                    const productContent = (
-                                                        <div className="flex flex-col w-full h-full relative">
-                                                            <div className={`relative w-full aspect-[4/5] transform transition-transform group-hover:scale-[1.02] duration-300 ${currentTheme.id.startsWith('brutalist-') ? 'overflow-visible' : ''}`}>
-                                                                <div className={`absolute inset-0 overflow-hidden ${roundedClass} border-none shadow-none`}>
-                                                                    <div
-                                                                        className={`absolute inset-0 z-0 ${buttonClass.replace(/\b(w-full|p[xy]?-\d+|min-h-\d+|items-center|justify-between)\b/g, '').trim()}`}
-                                                                        style={{ ...mainButtonStyle }}
-                                                                    />
-                                                                    <img src={product.image} alt={product.name} className="relative z-10 w-full h-full block object-cover" loading="lazy" decoding="async" />
-                                                                    <div className="absolute inset-0 z-20 bg-black/5" />
+                                            {/* Products Grid with Collection Grouping */}
+                                            <div className="space-y-8">
+                                                {(() => {
+                                                    const storeProducts = (collections[activeCollection] || []).filter(p => !p.isArchived && p.isActive !== false);
+                                                    const uncat = storeProducts.filter(p => !p.collection);
+                                                    const store = stores.find(s => s.name === activeCollection);
 
-                                                                    {/* Badge container with high z-index and clip safety */}
-                                                                    <div className="absolute top-2 left-2 z-10">
-                                                                        {product.discountCode && (
-                                                                            <div className="bg-slate-950/90 text-white text-[9px] font-medium uppercase tracking-tighter px-2 py-1 rounded-lg">
-                                                                                -{product.discountCode}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
+                                                    // Get unique collection names present in these products
+                                                    const productCols = Array.from(new Set(storeProducts.map(p => p.collection).filter(Boolean))) as string[];
 
-                                                                {/* Hover Action Overlay - Also needs to be clipped by the same shape */}
-                                                                <div className={`absolute inset-0 ${roundedClass} bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none`}>
-                                                                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-950 shadow-xl scale-90 group-hover:scale-100 transition-transform">
-                                                                        <Plus size={20} />
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Product Info */}
-                                                            <div className="flex flex-col gap-0.5 mt-2 px-1 text-left">
-                                                                <span className={`text-[13px] font-normal truncate`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                    {product.name}
-                                                                </span>
-                                                                {product.price && (
-                                                                    <span className={`text-[11px] font-medium opacity-70 mt-2`} style={{ ...collectionTextColorStyle, fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                                                                        {product.price}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    );
+                                                    // Also consider empty collections defined in the store, but exclude disabled ones
+                                                    const allColNames = Array.from(new Set([...productCols, ...(store?.collections || [])]))
+                                                        .filter(c => !(store?.disabledCollections || []).includes(c));
 
                                                     return (
-                                                        <InteractiveButton key={product.id} className="w-full flex">
-                                                            <a
-                                                                href={product.url}
-                                                                target="_blank"
-                                                                rel="noreferrer"
-                                                                onClick={() => handleLinkClick(product.id)}
-                                                                className={`flex flex-col group relative transition-all duration-300 w-full`}
-                                                            >
-                                                                {productContent}
-                                                            </a>
-                                                        </InteractiveButton>
+                                                        <>
+                                                            {/* Uncategorized Products First */}
+                                                            {uncat.length > 0 && (
+                                                                <div className="grid grid-cols-1 gap-4">
+                                                                    {uncat.map(product => renderStoreProduct(product))}
+                                                                </div>
+                                                            )}
+
+                                                            {/* Grouped Products by Collection */}
+                                                            {allColNames.map(colName => {
+                                                                const colItems = storeProducts.filter(p => p.collection === colName);
+                                                                if (colItems.length === 0) return null;
+
+                                                                return (
+                                                                    <div key={colName} className="space-y-4">
+                                                                        <div className="px-2 flex items-center gap-3">
+                                                                            <div className="h-[2px] flex-1 bg-black/5" />
+                                                                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30 whitespace-nowrap" style={{ color: getSmartTextColor() }}>{colName}</h4>
+                                                                            <div className="h-[2px] flex-1 bg-black/5" />
+                                                                        </div>
+                                                                        <div className="grid grid-cols-1 gap-4">
+                                                                            {colItems.map(product => renderStoreProduct(product))}
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </>
                                                     );
-                                                })}
+                                                })()}
                                             </div>
                                         </div>
                                     )}
@@ -1584,13 +1689,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             <img
                                                                                 src={iconLink.image}
                                                                                 alt=""
-                                                                                className="w-8 h-8 rounded-lg object-cover"
+                                                                                className="w-8 h-8 rounded-sm object-cover"
                                                                                 loading="lazy"
                                                                                 decoding="async"
                                                                                 onError={(e) => {
                                                                                     e.currentTarget.onerror = null;
                                                                                     e.currentTarget.style.display = 'none';
-                                                                                    e.currentTarget.className = "w-8 h-8 rounded-lg object-contain p-1.5 opacity-30 bg-white/10";
+                                                                                    e.currentTarget.className = "w-8 h-8 rounded-sm object-contain p-1.5 opacity-30 bg-white/10";
                                                                                 }}
                                                                             />
                                                                         ) : (
@@ -1697,7 +1802,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 }));
                                                 renderedItems.push(
                                                     <InteractiveButton key={`instagram-card-${link.id}`} className="w-full mb-4">
-                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                             {link.title && (
                                                                 <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
                                                                     <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
@@ -1712,7 +1817,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushCards();
                                                 renderedItems.push(
                                                     <InteractiveButton key={`instagram-profile-card-${link.id}`} className="w-full mb-4">
-                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                             <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={link.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                         </motion.div>
                                                     </InteractiveButton>
@@ -1722,7 +1827,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushCards();
                                                 renderedItems.push(
                                                     <InteractiveButton key={`youtube-card-${link.id}`} className="w-full mb-4">
-                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                             <YouTubeCard username={youtubeUsername || link.url} title={youtubeTitle || link.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} isLive={youtubeIsLive} channelId={youtubeChannelId} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                         </motion.div>
                                                     </InteractiveButton>
@@ -1732,7 +1837,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushCards();
                                                 renderedItems.push(
                                                     <InteractiveButton key={`twitch-card-${link.id}`} className="w-full mb-4">
-                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                             <TwitchCard username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                         </motion.div>
                                                     </InteractiveButton>
@@ -1742,7 +1847,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushCards();
                                                 renderedItems.push(
                                                     <InteractiveButton key={`kick-card-${link.id}`} className="w-full mb-4">
-                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                             <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
                                                         </motion.div>
                                                     </InteractiveButton>
@@ -1752,7 +1857,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 flushCards();
                                                 renderedItems.push(
                                                     <InteractiveButton key={`agenda-${link.id}`} className="w-full mb-4">
-                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                        <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
                                                             {link.title && (
                                                                 <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
                                                                     <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
@@ -1774,7 +1879,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             } else if (link.type === 'header') {
                                                 flushIcons();
                                                 flushCards();
-                                                renderedItems.push(<motion.div key={`header-${link.id}`} transition={{ duration: 0 }} className="w-full text-center py-2 mb-2 mt-4 opacity-80" style={{ ...mainTextColorStyle, fontWeight: 'bold', fontSize: '1.1em', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{link.title}</motion.div>);
+                                                renderedItems.push(<motion.div key={`header-${link.id}`} transition={{ duration: 0 }} className="w-full text-center py-1 mb-1 mt-1 opacity-80" style={{ ...mainTextColorStyle, fontWeight: 'bold', fontSize: '1.1em', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{link.title}</motion.div>);
                                             } else if (link.type === 'map' || link.title?.toLowerCase() === 'localização') {
                                                 flushIcons();
                                                 flushCards();
@@ -1803,7 +1908,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     const scrollLeft = () => { const el = document.getElementById(scrollContainerId); if (el) el.scrollBy({ left: -250, behavior: 'smooth' }); };
                                                     const scrollRight = () => { const el = document.getElementById(scrollContainerId); if (el) el.scrollBy({ left: 250, behavior: 'smooth' }); };
                                                     renderedItems.push(
-                                                        <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 group/carousel ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                        <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 group/carousel ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'}`}>
                                                             {link.title && (
                                                                 <div className="text-center mb-2 px-4 flex flex-col items-center gap-0.5">
                                                                     <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
@@ -1854,7 +1959,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     );
                                                 } else {
                                                     renderedItems.push(
-                                                        <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 ${renderedItems.length === 0 ? 'mt-6' : 'mt-0'}`}>
+                                                        <motion.div key={link.id} transition={{ duration: 0 }} className={`w-full pt-1 pb-1 ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'}`}>
                                                             {link.title && (
                                                                 <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
                                                                     <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
@@ -1989,7 +2094,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         <EffectWrapper {...effectProps}>
                                                                                             <motion.a
                                                                                                 transition={{ duration: 0.2 }}
-                                                                                                whileHover={{ scale: 1.005 }}
                                                                                                 href={child.isPasswordProtected ? undefined : child.url}
                                                                                                 target={child.isPasswordProtected ? undefined : "_blank"}
                                                                                                 rel="noreferrer"
@@ -2010,7 +2114,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                 {/* Icon/Image Container */}
                                                                                                 <div className="relative shrink-0 z-10">
                                                                                                     {child.image ? (
-                                                                                                        <div className="w-9 h-9 rounded-lg overflow-hidden border border-[#1a1a1a]/5 group-hover:scale-105 transition-transform">
+                                                                                                        <div className="w-9 h-9 rounded-sm overflow-hidden border border-[#1a1a1a]/5 transition-transform">
                                                                                                             <img
                                                                                                                 src={child.image}
                                                                                                                 alt=""
@@ -2025,7 +2129,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                             />
                                                                                                         </div>
                                                                                                     ) : Icon ? (
-                                                                                                        <div className="w-9 h-9 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform">
+                                                                                                        <div className="w-9 h-9 flex items-center justify-center opacity-80 transition-transform">
                                                                                                             <Icon size={20} />
                                                                                                         </div>
                                                                                                     ) : (
@@ -2092,7 +2196,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     <InteractiveButton key={`mediakit-${link.id}`} className="w-full mb-4" glowColor={`${getSmartTextColor()}33`}>
                                                         <motion.div
                                                             transition={{ duration: 0.2 }}
-                                                            whileHover={{ scale: 1.02 }}
                                                         >
                                                             <button
                                                                 onClick={(e) => {
@@ -2111,7 +2214,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 }}
                                                             >
                                                                 <div className="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shrink-0 border-r bg-black/[0.03]" style={{ borderColor: `${getSmartTextColor()}0A` }}>
-                                                                    <BarChart3 size={22} className="group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} style={{ color: getSmartTextColor() }} />
+                                                                    <BarChart3 size={22} className="transition-transform duration-300" strokeWidth={1.5} style={{ color: getSmartTextColor() }} />
                                                                 </div>
                                                                 <div className="flex-1 min-w-0 flex flex-col items-start justify-center px-6 py-2 text-left">
                                                                     <span
@@ -2163,7 +2266,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         <EffectWrapper {...effectProps}>
                                                             <motion.a
                                                                 transition={{ duration: 0.2 }}
-                                                                whileHover={{ scale: 1.005 }}
                                                                 href={link.isPasswordProtected ? undefined : link.url}
                                                                 target={link.isPasswordProtected ? undefined : "_blank"}
                                                                 rel="noreferrer"
@@ -2184,7 +2286,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 {/* Icon/Image Container */}
                                                                 <div className="relative shrink-0 z-10">
                                                                     {link.image ? (
-                                                                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#1a1a1a]/5 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                                                                        <div className="w-10 h-10 rounded-sm overflow-hidden border border-[#1a1a1a]/5 shadow-sm transition-transform duration-300">
                                                                             <img
                                                                                 src={link.image}
                                                                                 alt=""
@@ -2199,7 +2301,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             />
                                                                         </div>
                                                                     ) : Icon ? (
-                                                                        <div className="w-10 h-10 flex items-center justify-center opacity-80 group-hover:scale-110 transition-transform duration-300">
+                                                                        <div className="w-10 h-10 flex items-center justify-center opacity-80 transition-transform duration-300">
                                                                             <Icon size={22} />
                                                                         </div>
                                                                     ) : (
@@ -2254,7 +2356,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             {profile.paymentMethods.filter(pm => pm.isActive !== false).map(method => (
                                                 <InteractiveButton key={method.id} className="w-full">
                                                     <motion.button
-                                                        whileHover={{ scale: 1.02 }}
                                                         whileTap={{ scale: 0.98 }}
                                                         onClick={() => {
                                                             if (method.type === 'paypal') {
@@ -2300,7 +2401,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     )}
                                 </motion.div>
                             )}
-                        </AnimatePresence>
+                                </AnimatePresence>
+                            );
+                        })()}
                     </div>
                     {/* Theme-Integrated Support Button & Newsletter */}
                     <div className="mt-4 flex flex-col gap-4">
@@ -2308,7 +2411,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             <InteractiveButton key="support-button" className="w-full">
                                 <motion.a
                                     transition={{ duration: 0.2 }}
-                                    whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     href={profile.supportType === 'paypal' ? `https://${profile.supportKey}` : '#'}
                                     onClick={(e) => {
@@ -2388,6 +2490,144 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             </div>
             {/* Foreground Layer (For themes like Sakura) */}
             {currentTheme.id === 'kawaii-sakura' && profile.headerLayout !== 'banner' && <KawaiiSakuraForeground />}
+            <MusicPlaylistDrawer />
+            
+            {/* 🛍️ Product Detail Modal */}
+            <AnimatePresence>
+                {selectedProduct && (
+                    <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/60 backdrop-blur-sm">
+                        {/* Overlay to close when clicking outside */}
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0"
+                            onClick={() => setSelectedProduct(null)}
+                        />
+                        
+                        <motion.div
+                            initial={{ y: '100%' }}
+                            animate={{ y: 0 }}
+                            exit={{ y: '100%' }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            className={`relative w-full max-w-xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl pointer-events-auto ${currentTheme.backgroundClass}`}
+                            style={{ 
+                                color: effectiveTextColor || (isDarkTheme ? '#ffffff' : '#0f172a'),
+                                fontFamily: effectiveFontFamily,
+                                backgroundColor: (profile.themeId === 'custom' && profile.customSolidColor) ? profile.customSolidColor : undefined,
+                                border: `1px solid ${isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`,
+                                borderTopLeftRadius: borderRadiusValue === 0 ? '0px' : '12px',
+                                borderTopRightRadius: borderRadiusValue === 0 ? '0px' : '12px'
+                            }}
+                        >
+                            {/* The Theme Background itself (Visualizers/Particles) */}
+                            <BackgroundLayer 
+                                profile={{ ...profile, headerLayout: 'classic' }} 
+                                currentTheme={currentTheme} 
+                                isStatic={isStatic} 
+                            />
+                            
+                            {/* No more generic transparency/blur layers that "wash out" the theme colors */}
+
+                            {/* Handle Bar */}
+                            <div className="w-full flex justify-center py-4 relative z-10">
+                                <div className={`w-12 h-1.5 rounded-full ${isDarkTheme ? 'bg-white/20' : 'bg-black/10'}`} />
+                            </div>
+
+                            {/* Close Button */}
+                            <button 
+                                onClick={() => setSelectedProduct(null)}
+                                className={`absolute top-4 right-6 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 ${isDarkTheme ? 'hover:bg-white/10' : 'hover:bg-black/5'}`}
+                                style={{ color: effectiveTextColor }}
+                            >
+                                <X size={24} strokeWidth={2.5} />
+                            </button>
+
+                            {/* Product Info Content */}
+                            <div className="flex flex-col h-full overflow-y-auto scrollbar-hide pb-10 relative z-10">
+                                {/* Large Image */}
+                                <div className="w-full px-6 flex justify-center">
+                                    <div className="w-full aspect-square overflow-hidden rounded-md relative">
+                                        <img 
+                                            src={selectedProduct.image} 
+                                            alt={selectedProduct.name} 
+                                            className="w-full h-full object-cover" 
+                                        />
+                                        {selectedProduct.discountCode && (
+                                            <div className="absolute top-4 left-4 bg-[#ffdf00] text-black text-[10px] font-black px-3 py-1.5 rounded-md shadow-xl tracking-tight uppercase border-2 border-black">
+                                                {isPT ? 'CUPOM:' : 'COUPON:'} {selectedProduct.discountCode}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Text Details */}
+                                <div className="px-8 py-8 space-y-6">
+                                    <div className="flex flex-col items-center text-center space-y-4">
+                                        <div className="space-y-1">
+                                            <h4 className="text-3xl sm:text-4xl font-black uppercase tracking-tight leading-loose" style={{ fontFamily: effectiveFontFamily }}>
+                                                {selectedProduct.name}
+                                            </h4>
+                                            <div className="flex items-center justify-center gap-3">
+                                                <div className="flex items-baseline gap-1.5 translate-y-[-10px]">
+                                                    <span className="text-sm sm:text-lg font-black opacity-30 uppercase tracking-widest">{isPT ? 'R$' : '$'}</span>
+                                                    <span className="text-5xl sm:text-6xl font-black tracking-tighter">
+                                                        {(() => {
+                                                            const clean = String(selectedProduct.price || '').replace(/[^\d,.]/g, '').replace(',', '.');
+                                                            const val = parseFloat(clean);
+                                                            if (isNaN(val)) return '0,00';
+                                                            return new Intl.NumberFormat(isPT ? 'pt-BR' : 'en-US', { 
+                                                                minimumFractionDigits: 2,
+                                                                maximumFractionDigits: 2
+                                                            }).format(val);
+                                                        })()}
+                                                    </span>
+                                                </div>
+                                                {selectedProduct.discountCode && (
+                                                    <div className="bg-[#97cd7a] text-[#1a3a16] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide shadow-sm">
+                                                        {isPT ? 'DESCONTO ATIVO' : 'DISCOUNT ACTIVE'}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Buying CTA */}
+                                    <div className="mt-4">
+                                        <InteractiveButton strength={15} tiltStrength={0}>
+                                            <a 
+                                                href={selectedProduct.url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                onClick={() => handleLinkClick(selectedProduct.id)}
+                                                className={`w-full py-6 flex items-center justify-center gap-4 transition-all duration-300 transform active:scale-[0.98] ${buttonClass}`}
+                                                style={{ 
+                                                    ...mainButtonStyle, 
+                                                    borderRadius: borderRadiusValue,
+                                                    fontSize: '18px',
+                                                    fontWeight: 900,
+                                                    letterSpacing: '0.05em',
+                                                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)'
+                                                }}
+                                            >
+                                                <div className="flex items-center justify-center gap-4" style={{ color: getSmartTextColor() }}>
+                                                    <ShoppingCart size={24} strokeWidth={2.5} />
+                                                    <span className="uppercase">{isPT ? 'COMPRAR AGORA' : 'BUY NOW'}</span>
+                                                </div>
+                                            </a>
+                                        </InteractiveButton>
+                                    </div>
+
+                                    <p className="text-[10px] text-center opacity-30 font-black uppercase tracking-[0.2em] pt-4">
+                                        {isPT ? 'Vendido por' : 'Sold by'} {activeCollection}
+                                    </p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+            
             <MusicPlaylistDrawer />
 
             {/* 🔐 Password Link Modal */}

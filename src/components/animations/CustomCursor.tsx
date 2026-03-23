@@ -198,7 +198,7 @@ const CustomCursor: React.FC<CustomCursorProps> = ({
       {/* 1. Viewfinder (The Snap Box) - Independent Layer */}
       <div
         ref={viewRef}
-        className="fixed top-0 left-0 pointer-events-none z-[99999] hidden md:block select-none will-change-transform"
+        className="fixed top-0 left-0 pointer-events-none z-[1999999] hidden md:block select-none will-change-transform"
         style={{ width: idleSize, height: idleSize }}
       >
         <div ref={rotationRef} className="w-full h-full relative">
@@ -212,7 +212,7 @@ const CustomCursor: React.FC<CustomCursorProps> = ({
       {/* 2. Precision Crosshair (+) - Follows Mouse 1:1 */}
       <div
         ref={cursorRef}
-        className="fixed top-0 left-0 pointer-events-none z-[100000] hidden md:block select-none will-change-transform"
+        className="fixed top-0 left-0 pointer-events-none z-[2000000] hidden md:block select-none will-change-transform"
       >
         <div ref={crosshairRef} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
           <div className="absolute w-full h-[1.5px] bg-[#ffdf00] drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]" />

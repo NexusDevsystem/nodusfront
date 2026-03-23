@@ -4,10 +4,11 @@ import { Navbar } from '../components/landing/Navbar';
 import { Footer } from '../components/landing/Footer';
 import { useLanguage } from '../components/landing/i18n/LanguageContext';
 import { Calendar, User, Heart, ArrowLeft, FileText, ArrowRight, Share2, Twitter, Send, X, Download, Loader2, Copy, Check, Facebook, Linkedin } from 'lucide-react';
-import { SiWhatsapp, SiX, SiMessenger, SiSnapchat } from 'react-icons/si';
+import { SiWhatsapp, SiX, SiMessenger, SiSnapchat, SiInstagram } from 'react-icons/si';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toPng } from 'html-to-image';
 import BlogShareCard from '../components/BlogShareCard';
+import BlogStoryShareCard from '../components/BlogStoryShareCard';
 import { apiClient } from '../services/apiClient';
 import { BlogPost } from '../types';
 
@@ -46,7 +47,9 @@ function BlogPostContent() {
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const shareCardRef = useRef<HTMLDivElement>(null);
+  const storyCardRef = useRef<HTMLDivElement>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isGeneratingStory, setIsGeneratingStory] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -144,15 +147,43 @@ function BlogPostContent() {
       setIsGeneratingImage(false);
     }
   };
+
+  const generateStoryImage = async () => {
+    if (!storyCardRef.current || !post) return;
+    try {
+      setIsGeneratingStory(true);
+      await new Promise(resolve => setTimeout(resolve, 500)); 
+      
+      const dataUrl = await toPng(storyCardRef.current, {
+        cacheBust: true,
+        width: 1080,
+        height: 1920,
+        pixelRatio: 1,
+        skipFonts: false,
+      });
+      
+      if (dataUrl.length < 100) throw new Error('Renderização vazia');
+      
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `nodus-story-${slug}.png`;
+      link.click();
+    } catch (error) {
+      console.error('Error generating story image:', error);
+    } finally {
+      setIsGeneratingStory(false);
+    }
+  };
+  
+  const shortUrl = post?.id ? `${window.location.origin}/blog/${post.id.substring(0, 8)}` : window.location.href;
+  const shareUrl = shortUrl; // Short URL for humans
+  const botFriendlyShareUrl = slug ? `${window.location.origin}/blog/${slug}` : shortUrl; // Full slug for bots/OG
   
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(shortUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
-  const shareUrl = window.location.href; // Regular URL for humans
-  const botFriendlyShareUrl = slug ? `${window.location.origin}/blog/${slug}` : shareUrl; // Rewritten by Vercel for bots
   
   const shareLinks = [
     { name: 'Copiar', icon: copied ? Check : Copy, onClick: handleCopyLink, color: 'bg-white text-dark' },
@@ -161,6 +192,7 @@ function BlogPostContent() {
     { name: 'Facebook', icon: Facebook, url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(botFriendlyShareUrl)}`, color: 'bg-[#1877F2] text-white' },
     { name: 'Messenger', icon: SiMessenger, url: `https://www.facebook.com/dialog/send?app_id=123456789&link=${encodeURIComponent(botFriendlyShareUrl)}&redirect_uri=${encodeURIComponent(botFriendlyShareUrl)}`, color: 'bg-[#00B2FF] text-white' },
     { name: 'Snapchat', icon: SiSnapchat, url: `https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(botFriendlyShareUrl)}`, color: 'bg-[#FFFC00] text-black' },
+    { name: 'Instagram', icon: SiInstagram, onClick: () => { handleCopyLink(); window.open('https://instagram.com', '_blank'); }, color: 'bg-[#E1306C] text-white' },
     { name: 'LinkedIn', icon: Linkedin, url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(botFriendlyShareUrl)}`, color: 'bg-[#0A66C2] text-white' },
   ];
   
@@ -314,6 +346,7 @@ function BlogPostContent() {
 
       {/* Hidden Card rendering for PNG output */}
       <BlogShareCard post={post} cardRef={shareCardRef} />
+      <BlogStoryShareCard post={post} cardRef={storyCardRef} />
 
       {/* Share Modal */}
       <AnimatePresence>
@@ -339,7 +372,6 @@ function BlogPostContent() {
                 <button 
                   onClick={() => setIsShareModalOpen(false)}
                   className="absolute top-6 right-6 md:top-5 md:right-5 p-2 bg-[#ffdf00] border-[3px] border-[#000000] shadow-[0_4px_0_0_#000000] rounded-xl hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000000] transition-all z-20 active:translate-y-[4px] active:shadow-none"
-                  title={blogT.close || (lang === 'pt' ? 'Fechar' : 'Close')}
                 >
                   <X size={20} strokeWidth={4} className="text-[#000000]" />
                 </button>
@@ -359,18 +391,29 @@ function BlogPostContent() {
                         alt="Preview do Artigo" 
                         className="w-full h-auto object-contain drop-shadow-2xl transition-transform duration-300" 
                       />
-                      <button
-                        onClick={() => {
-                          const link = document.createElement('a');
-                          link.href = previewImage;
-                          link.download = `nodus-blog-${slug}.png`;
-                          link.click();
-                        }}
-                        className="absolute bottom-4 right-4 p-3 bg-[#ffdf00] border-2 border-dark shadow-[0_4px_0_0_#000] rounded-xl hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000] transition-all active:translate-y-[4px] active:shadow-none z-10"
-                        title="Baixar Imagem"
-                      >
-                        <Download size={20} strokeWidth={3} />
-                      </button>
+                      <div className="absolute bottom-4 right-4 flex gap-3">
+                        <button
+                          onClick={generateStoryImage}
+                          disabled={isGeneratingStory}
+                          className="flex items-center gap-2 px-5 py-3 bg-black text-[#ffdf00] border-2 border-dark shadow-[0_4px_0_0_#000] rounded-xl hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000] transition-all active:translate-y-[4px] active:shadow-none z-10 disabled:opacity-50"
+                        >
+                          {isGeneratingStory ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} strokeWidth={3} />}
+                          <span className="font-black uppercase text-[10px] tracking-widest">{lang === 'pt' ? 'Baixar Story' : 'Download Story'}</span>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = previewImage;
+                            link.download = `nodus-blog-${slug}.png`;
+                            link.click();
+                          }}
+                          className="p-3 bg-[#ffdf00] border-2 border-dark shadow-[0_4px_0_0_#000] rounded-xl hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000] transition-all active:translate-y-[4px] active:shadow-none z-10"
+                          title={lang === 'pt' ? 'Baixar Post' : 'Download Post'}
+                        >
+                          <Download size={20} strokeWidth={3} />
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -380,7 +423,7 @@ function BlogPostContent() {
                   <p className="font-bold text-dark/40 uppercase text-xs tracking-widest">{blogT.chooseNetwork || (lang === 'pt' ? 'Escolha sua rede favorita' : 'Choose your favorite network')}</p>
                 </div>
 
-                <div className="grid grid-cols-4 sm:grid-cols-7 gap-4 px-2">
+                <div className="grid grid-cols-4 sm:grid-cols-8 gap-4 px-2">
                   {shareLinks.map((link, idx) => (
                     <div key={idx} className="flex flex-col items-center gap-2">
                       <a

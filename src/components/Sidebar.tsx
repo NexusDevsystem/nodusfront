@@ -1,39 +1,27 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../types';
 import {
-  LayoutGrid,
   Palette,
   ShoppingBag,
   DollarSign,
-  Users,
   BarChart2,
-  Calendar,
-  MessageCircle,
   Link as LinkIcon,
-  Zap,
-  ChevronDown,
-  ChevronRight,
-  Sparkles,
+  Globe,
+  FolderOpen,
   Layers,
-  LogOut,
-  ExternalLink,
   HelpCircle,
   CreditCard,
-  CalendarDays,
-  ReceiptText,
-  User,
-  FolderOpen,
-  ChevronsLeft,
   ShieldAlert,
   X,
-  Share2,
-  Globe
+  User,
+  LogOut,
+  ChevronUp,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'framer-motion';
 import LanguageToggle from './LanguageToggle';
-import Tooltip from './Tooltip';
 
 interface SidebarProps {
   activeTab: string;
@@ -60,9 +48,10 @@ interface MenuGroup {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile, className, onUpgradeClick, onClose }) => {
   const { user, signOut } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const isPT = i18n.language.startsWith('pt');
 
   const MENU_GROUPS: MenuGroup[] = [
     {
@@ -70,8 +59,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
       label: t('sidebar.myNodus'),
       groupIcon: Layers,
       items: [
-        { id: 'links', label: t('sidebar.links'), icon: LinkIcon },
-        { id: 'appearance', label: t('sidebar.design'), icon: Palette },
+        { id: 'links', label: t('sidebar.links'), icon: LinkIcon, disabled: false },
+        { id: 'appearance', label: t('sidebar.design'), icon: Palette, disabled: false },
         { id: 'shop', label: t('sidebar.shop'), icon: ShoppingBag, disabled: false },
         { id: 'earn', label: t('sidebar.monetize'), icon: DollarSign, disabled: false },
       ]
@@ -81,7 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
       label: t('sidebar.connections'),
       groupIcon: Globe,
       items: [
-        { id: 'integrations', label: t('sidebar.integrations'), icon: Globe },
+        { id: 'integrations', label: t('sidebar.integrations'), icon: Globe, disabled: false },
       ]
     },
     {
@@ -89,13 +78,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
       label: t('sidebar.insights'),
       groupIcon: BarChart2,
       items: [
-        { id: 'analytics', label: t('sidebar.analytics'), icon: BarChart2, disabled: false },
+        { id: 'analytics', label: t('sidebar.analytics'), icon: BarChart2, disabled: false }
       ]
     },
     {
       id: 'tools',
       label: t('sidebar.tools'),
-      groupIcon: Sparkles,
+      groupIcon: Settings,
       items: [
         { id: 'files', label: t('sidebar.files'), icon: FolderOpen, disabled: false }
       ]
@@ -109,271 +98,202 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
   }, []);
 
   return (
-    <aside className={`w-full md:w-64 shrink-0 bg-[#ffffff] md:border-r-2 border-[#1a1a1a] h-full flex flex-col select-none overflow-hidden relative ${className || ''}`}>
-      {/* Subtle Grid Background Pattern */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
+    <aside className={`w-full md:w-64 shrink-0 bg-[#ffffff] md:border-r-2 border-[#1a1a1a] h-full flex flex-col select-none relative overflow-hidden ${className || ''}`}>
+      
+      {/* Background Dot Grid - Subtle and responsive opacity */}
+      <div 
+        className={`absolute inset-0 opacity-[0.03] pointer-events-none z-0 ${isMobile ? 'opacity-[0.02]' : ''}`}
+        style={{ backgroundImage: 'radial-gradient(#1a1a1a 2px, transparent 2px)', backgroundSize: '24px 24px' }} 
+      />
 
-      {/* Profile Header - Compact & Brutalist */}
-      <div className="p-5 md:p-4 border-b-2 border-[#1a1a1a] bg-white flex flex-col gap-2 relative z-10">
+      {/* Header Profile Area - Clean and refined - Height forced to 61px for alignment */}
+      <div className="w-full relative z-10 px-8 py-2.5 border-b-2 border-[#1a1a1a] bg-[#ffffff] flex flex-col justify-center h-[61px]">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-12 h-12 md:w-10 md:h-10 border-2 border-[#1a1a1a] overflow-hidden shadow-[0_4px_0_0_#1a1a1a] md:shadow-[0_3px_0_0_#1a1a1a] shrink-0 bg-white rounded-xl">
-              <img src={userProfile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`}
-                alt="Public"
+          <div className="flex items-center group cursor-default">
+            <div className="w-9 h-9 rounded-lg border-2 border-[#1a1a1a] overflow-hidden shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-slate-50 transition-all group-hover:-translate-y-[0.5px] group-hover:shadow-[0_3px_0_0_#1a1a1a]">
+              <img 
+                src={userProfile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`}
+                alt="Profile"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`;
                 }}
               />
             </div>
-            <div className="flex-1 overflow-hidden">
-              <h3 className="text-xs md:text-[10px] font-bold md:font-medium text-black uppercase tracking-widest truncate leading-tight">{userProfile.name}</h3>
-              <div className="flex items-center gap-1 mt-1 md:mt-0.5">
-                <span className="text-[9px] md:text-[8px] font-normal text-black/50 uppercase tracking-tighter truncate leading-none">nodus.my/{userProfile.username || userProfile.name.toLowerCase().replace(/\s/g, '')}</span>
+            <div className="flex flex-col ml-3.5 min-w-0">
+              <h3 className="font-black text-[12px] uppercase tracking-wider text-[#1a1a1a] truncate leading-none">
+                {userProfile.name}
+              </h3>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="text-[#1a1a1a]/40 font-bold text-[9px] uppercase tracking-[0.1em] truncate leading-none">
+                  nodus.my/{userProfile.username || userProfile.name.toLowerCase().replace(/\s/g, '')}
+                </span>
               </div>
             </div>
           </div>
-
-          {/* Close button for mobile */}
-          {onClose && (
-            <Tooltip text={t('common.close')} position="bottom">
+          
+          {onClose && isMobile && (
               <button
                 onClick={onClose}
-                className="md:hidden p-2 text-black hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]/5 transition-colors"
+                className="p-1 px-2 text-[#1a1a1a] hover:opacity-50 transition-all ml-2"
               >
-                <X size={24} strokeWidth={2.5} />
+                <X size={20} strokeWidth={3} />
               </button>
-            </Tooltip>
           )}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col relative z-10 w-full h-full">
+      {/* Main Navigation Area Area */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide relative z-10 w-full pt-4 pb-8">
+        
+        {MENU_GROUPS.map((group, gIdx) => (
+          <div key={group.id} className="mb-8 last:mb-0">
+            <div className="px-6 mb-2 mt-2 flex items-center gap-2.5">
+              <group.groupIcon size={11} strokeWidth={2.5} className="text-[#1a1a1a]/40" />
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1a1a1a]/30">{group.label}</span>
+            </div>
+            
+            <div className="space-y-1.5">
+              {group.items.map(item => {
+                const isActive = activeTab === item.id;
+                const isLocked = (item.id === 'earn') && (!userProfile.planType || userProfile.planType === 'free');
+                const ItemIcon = item.icon;
 
-        <motion.div
-          className="p-5 md:p-4 space-y-8 md:space-y-6 flex-1 w-full"
-          initial="hidden"
-          animate="show"
-          variants={{
-            show: {
-              transition: {
-                staggerChildren: 0.1
-              }
-            }
-          }}
-        >
-          {MENU_GROUPS.map((group) => {
-            const GroupIcon = group.groupIcon;
-
-            return (
-              <motion.div
-                key={group.id}
-                className="space-y-4 md:space-y-3"
-                variants={{
-                  hidden: { opacity: 0, x: -10 },
-                  show: { opacity: 1, x: 0 }
-                }}
-              >
-                <div className="flex items-center gap-2 px-1 mb-1 opacity-40">
-                  <GroupIcon size={isMobile ? 12 : 11} strokeWidth={2} />
-                  <span className="text-[9px] md:text-[8px] font-bold md:font-medium uppercase tracking-[0.25em] text-black">{group.label}</span>
-                </div>
-
-                {/* Group Items */}
-                <div className="space-y-2 md:space-y-1">
-                  {group.items.map((item) => {
-                    const isLocked = (item.id === 'earn' || item.id === 'audience') && (!userProfile.planType || userProfile.planType === 'free');
-                    const ItemIcon = item.icon;
-                    const isActive = activeTab === item.id;
-
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => {
-                          if (isLocked) {
-                            onUpgradeClick?.();
-                          } else if (!item.disabled) {
-                            setActiveTab(item.id);
-                          }
-                        }}
-                        disabled={item.disabled}
-                        className={`
-                        w-full flex items-center justify-between px-4 md:px-3 py-3.5 md:py-2.5 transition-all border-2 group relative
-                        ${isActive
-                            ? 'bg-[#ffdf00] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] md:shadow-[0_3px_0_0_#1a1a1a] -translate-y-[0.5px] text-black rounded-xl'
-                            : 'bg-transparent border-transparent text-black/60 hover:text-black hover:bg-[#97cd7a]/5 rounded-xl'}
-                        ${item.disabled ? 'opacity-30 cursor-not-allowed' : ''}
-                      `}
-                      >
-                        <div className="flex items-center gap-4 md:gap-3 min-w-0">
-                          <div className={`shrink-0 transition-transform ${isActive ? 'text-black' : 'text-black/40 group-hover:text-black'} flex items-center justify-center`}>
-                            <ItemIcon size={isMobile ? 18 : 14} strokeWidth={isMobile ? 2.5 : 2} />
-                          </div>
-                          <span className={`text-[11px] md:text-[9.5px] font-bold md:font-medium uppercase tracking-widest truncate whitespace-nowrap leading-none ${isActive ? 'text-black' : ''}`}>{item.label}</span>
-                        </div>
-
-                        {isLocked ? (
-                          <div className="flex items-center justify-center h-full">
-                            <span className="text-[8px] md:text-[7px] bg-[#1a1a1a] text-white px-2 md:px-1.5 py-1 md:py-0.5 font-bold border border-[#1a1a1a] uppercase tracking-widest leading-none flex items-center justify-center">
-                              VIP
-                            </span>
-                          </div>
-                        ) : isActive && (
-                          <div className="w-2 h-2 md:w-1.5 md:h-1.5 bg-[#1a1a1a] rounded-full" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+                if (isActive) {
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        if (isLocked) onUpgradeClick?.();
+                        else if (!item.disabled) setActiveTab(item.id);
+                      }}
+                      disabled={item.disabled}
+                      className={`mx-5 w-[calc(100%-40px)] flex items-center justify-between px-5 py-3.5 bg-[#fef08a] border-2 border-[#1a1a1a] rounded-xl shadow-[0_4px_0_0_#1a1a1a] active:translate-y-1 active:shadow-none transition-all group ${item.disabled ? 'opacity-30 cursor-not-allowed' : ''}`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <ItemIcon size={18} strokeWidth={2.5} className="text-[#1a1a1a]" />
+                        <span className="text-[12px] font-black uppercase tracking-wider text-[#1a1a1a] !leading-none mt-px">{item.label}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isLocked && <span className="bg-[#1a1a1a] text-[#fef08a] px-2 py-0.5 text-[8px] font-black rounded-sm tracking-widest leading-none">PRO</span>}
+                        <div className="w-1.5 h-1.5 bg-[#1a1a1a] rounded-full" />
+                      </div>
+                    </button>
+                  );
+                } else {
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        if (isLocked) onUpgradeClick?.();
+                        else if (!item.disabled) setActiveTab(item.id);
+                      }}
+                      disabled={item.disabled}
+                      className={`w-full flex items-center justify-between px-7 py-3 bg-transparent border-transparent text-[#1a1a1a]/50 hover:text-[#1a1a1a] transition-all group ${item.disabled ? 'opacity-30 cursor-not-allowed' : ''}`}
+                    >
+                      <div className="flex items-center gap-4 pr-2">
+                        <ItemIcon size={16} strokeWidth={2} className="group-hover:scale-110 transition-transform" />
+                        <span className="text-[11.5px] font-bold uppercase tracking-wider !leading-none mt-px">{item.label}</span>
+                      </div>
+                      {isLocked && <span className="bg-[#1a1a1a]/10 text-[#1a1a1a] px-2 py-0.5 text-[8px] font-black rounded-sm tracking-widest leading-none">PRO</span>}
+                    </button>
+                  );
+                }
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Footer Area */}
-      <div className="p-5 md:p-4 border-t-2 border-[#1a1a1a] bg-white relative z-10 space-y-4 md:space-y-0">
-        <div className="hidden md:flex flex-col gap-1 mb-4">
-          <button
-            onClick={() => setActiveTab('billing')}
-            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'billing' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#97cd7a]/5 rounded-xl'}`}
-          >
-            <CreditCard size={13} strokeWidth={2} />
-            {t('sidebar.upgrade')}
-          </button>
-
-          {userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com' ? (
-            <>
+      {/* Footer Area Area */}
+      <div className="w-full bg-[#ffffff] relative z-20 border-t-2 border-[#1a1a1a] pt-6 pb-6 px-5 flex flex-col gap-3">
+        
+        {/* The "Mobile-style" Hidden Menu */}
+        <AnimatePresence>
+          {isAccountMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 15, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 15, scale: 0.95 }}
+              className="absolute bottom-[calc(100%+8px)] left-4 right-4 bg-white border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#121212] rounded-2xl overflow-hidden z-[100] flex flex-col"
+            >
+              <div className="bg-[#fef08a] py-3 px-5 border-b-2 border-[#1a1a1a]">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1a1a1a]">Menu de Conta</span>
+              </div>
+              
               <button
-                onClick={() => setActiveTab('admin')}
-                className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'admin' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#97cd7a]/5'}`}
+                onClick={() => { setActiveTab('billing'); setIsAccountMenuOpen(false); }}
+                className="w-full flex items-center gap-3.5 px-5 py-4 text-[#1a1a1a] hover:bg-[#1a1a1a]/5 transition-colors border-b-2 border-[#1a1a1a]/5 text-[11px] font-black uppercase tracking-widest"
               >
-                <ShieldAlert size={13} strokeWidth={2} />
-                {t('sidebar.administration')}
+                <CreditCard size={18} strokeWidth={2.5} />
+                <span>{t('sidebar.upgrade')}</span>
               </button>
+
+              {(userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com') && (
+                <>
+                  <button
+                    onClick={() => { setActiveTab('admin'); setIsAccountMenuOpen(false); }}
+                    className="w-full flex items-center gap-3.5 px-5 py-4 text-[#1a1a1a] hover:bg-[#1a1a1a]/5 transition-colors border-b-2 border-[#1a1a1a]/5 text-[11px] font-black uppercase tracking-widest"
+                  >
+                    <ShieldAlert size={18} strokeWidth={2.5} />
+                    {t('sidebar.administration')}
+                  </button>
+                </>
+              )}
+
               <button
-                onClick={() => setActiveTab('blog')}
-                className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'blog' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#97cd7a]/5'}`}
+                onClick={() => { setActiveTab('support'); setIsAccountMenuOpen(false); }}
+                className="w-full flex items-center gap-3.5 px-5 py-4 text-[#1a1a1a] hover:bg-[#1a1a1a]/5 transition-colors border-b-2 border-[#1a1a1a]/5 text-[11px] font-black uppercase tracking-widest"
               >
-                <Layers size={13} strokeWidth={2} />
-                {t('sidebar.blogAdmin')}
+                <HelpCircle size={18} strokeWidth={2.5} />
+                {t('sidebar.support')}
               </button>
-            </>
-          ) : null}
 
-          <button
-            onClick={() => setActiveTab('support')}
-            className={`flex items-center gap-3 text-[9px] font-medium uppercase tracking-widest transition-all py-2 px-3 border-2 group ${activeTab === 'support' ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-[0.5px]' : 'border-transparent text-black/40 hover:text-black hover:bg-[#97cd7a]/5'}`}
-          >
-            <HelpCircle size={13} strokeWidth={2} />
-            {t('sidebar.support')}
-          </button>
-
-          <div className="flex items-center justify-between pt-2 border-t border-[#1a1a1a]/10">
-            <span className="text-[8px] uppercase tracking-widest text-black/30 font-medium">{t('sidebar.language')}</span>
-            <LanguageToggle />
-          </div>
-        </div>
-
-        {/* Account Switcher / User Profile Mini Card */}
-        <div className="relative">
-          <AnimatePresence>
-            {isMobile && isAccountMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute bottom-[calc(100%+8px)] left-0 right-0 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] overflow-hidden z-20 flex flex-col"
-              >
-                <button
-                  onClick={() => { setActiveTab('billing'); setIsAccountMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#97cd7a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
-                >
-                  <CreditCard size={18} strokeWidth={2.5} />
-                  <span>{t('sidebar.upgrade')}</span>
-                </button>
-
-                {(userProfile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com') && (
-                  <>
-                    <button
-                      onClick={() => { setActiveTab('admin'); setIsAccountMenuOpen(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#97cd7a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
-                    >
-                      <ShieldAlert size={18} strokeWidth={2.5} />
-                      {t('sidebar.administration')}
-                    </button>
-                    <button
-                      onClick={() => { setActiveTab('blog'); setIsAccountMenuOpen(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#97cd7a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
-                    >
-                      <Layers size={18} strokeWidth={2.5} />
-                      {t('sidebar.blogAdmin')}
-                    </button>
-                  </>
-                )}
-
-                <button
-                  onClick={() => { setActiveTab('support'); setIsAccountMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-4 text-black hover:bg-[#97cd7a]/5 transition-colors border-b-2 border-[#1a1a1a] text-[11px] font-bold uppercase tracking-widest"
-                >
-                  <HelpCircle size={18} strokeWidth={2.5} />
-                  {t('sidebar.support')}
-                </button>
-
-                <div className="flex items-center justify-between px-4 py-3 border-b-2 border-[#1a1a1a]">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-black/50">{t('sidebar.lang')}</span>
+              <div className="flex items-center justify-between px-5 py-3 border-b-2 border-[#1a1a1a]/5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#1a1a1a]/40">{t('sidebar.lang')}</span>
+                <div className="scale-90">
                   <LanguageToggle />
                 </div>
-
-                <button
-                  onClick={() => signOut()}
-                  className="w-full flex items-center gap-3 px-4 py-4 text-red-600 hover:bg-red-50 transition-colors text-[11px] font-bold uppercase tracking-widest"
-                >
-                  <LogOut size={18} strokeWidth={2.5} />
-                  {t('sidebar.signOut')}
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div
-            onClick={() => isMobile && setIsAccountMenuOpen(!isAccountMenuOpen)}
-            className="p-4 md:p-3 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex items-center justify-between group/user cursor-pointer md:cursor-default rounded-2xl"
-          >
-            <div className="flex items-center gap-3 md:gap-2.5 min-w-0">
-              <div className="w-10 h-10 md:w-8 md:h-8 border-2 md:border border-[#1a1a1a] overflow-hidden bg-slate-50 shrink-0">
-                {user?.picture ? (
-                  <img src={user.picture} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-[#1a1a1a] text-white"><User size={isMobile ? 16 : 14} /></div>
-                )}
               </div>
-              <div className="min-w-0">
-                <div className="text-[10px] md:text-[9px] font-bold md:font-medium uppercase tracking-tight truncate text-black leading-none mb-1 md:mb-0.5">{user?.name || t('sidebar.user')}</div>
-                <div className="text-[8px] md:text-[7px] font-normal uppercase tracking-tighter truncate text-black/40 leading-none">{user?.email || 'email@exemplo.com'}</div>
-              </div>
-            </div>
 
-            {isMobile ? (
-              <motion.div
-                animate={{ rotate: isAccountMenuOpen ? 180 : 0 }}
-                className="p-2 text-black/40"
+              <button
+                onClick={() => signOut()}
+                className="w-full flex items-center gap-3.5 px-5 py-4 text-red-600 hover:bg-red-50 transition-colors text-[11px] font-black uppercase tracking-widest"
               >
-                <ChevronDown size={20} strokeWidth={3} />
-              </motion.div>
-            ) : (
-              <Tooltip text={t('sidebar.signOut')} position="top">
-                <button
-                  onClick={(e) => { e.stopPropagation(); signOut(); }}
-                  className="p-2 md:p-1 text-black/30 hover:text-red-500 transition-colors shrink-0"
-                >
-                  <LogOut size={isMobile ? 16 : 13} strokeWidth={isMobile ? 2.5 : 2} />
-                </button>
-              </Tooltip>
-            )}
+                <LogOut size={18} strokeWidth={2.5} />
+                {t('sidebar.signOut')}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Account Bottom Block (Trigger) Area */}
+        <button
+          onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+          className={`w-full flex items-center justify-between p-2.5 bg-[#ffffff] border-2 border-[#1a1a1a] rounded-lg shadow-[0_3px_0_0_#1a1a1a] hover:-translate-y-[0.5px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-0.5 active:shadow-none transition-all group ${isAccountMenuOpen ? 'translate-y-0.5 shadow-none bg-slate-50' : ''}`}
+        >
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-9 h-9 rounded-lg border-2 border-[#1a1a1a] overflow-hidden bg-slate-50 shrink-0 shadow-[0_1.5px_0_0_#1a1a1a]">
+              {user?.picture ? (
+                <img src={user.picture} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-black/5 text-[#1a1a1a]"><User size={18} /></div>
+              )}
+            </div>
+            <div className="flex flex-col items-start min-w-0 pr-2">
+              <span className="font-black text-[12px] uppercase tracking-wide text-[#1a1a1a] truncate w-full leading-tight text-left">
+                {user?.name || t('sidebar.user')}
+              </span>
+              <span className="font-bold text-[9px] uppercase tracking-[0.1em] text-[#1a1a1a]/40 truncate w-full text-left mt-0.5">
+                {user?.email || 'email@exemplo.com'}
+              </span>
+            </div>
           </div>
-        </div>
+          <div className={`mr-2 transition-transform duration-300 ${isAccountMenuOpen ? 'rotate-180 text-black' : 'text-[#1a1a1a]/30 group-hover:text-black'}`}>
+            <ChevronUp size={18} strokeWidth={3} />
+          </div>
+        </button>
+
       </div>
     </aside>
   );

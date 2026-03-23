@@ -98,6 +98,11 @@
         "language": "Idioma",
         "lang": "Lang"
     },
+    "cookies": {
+        "message": "Usamos cookies e armazenamento local para melhorar sua experiência, manter sua sessão segura e entender como você usa o Nodus.",
+        "accept": "Aceitar todos",
+        "decline": "Recusar"
+    },
     "editor": {
         "preview": "Pré-visualizar",
         "viewProfile": "Ver Perfil",

@@ -19,11 +19,12 @@ const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const BlogPage = lazy(() => import('./pages/BlogPage'));
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage'));
+const CookieBanner = lazy(() => import('./components/CookieBanner'));
 
 export default function App() {
   return (
     <ClickSpark
-      sparkColor='#ffdf00'
+      sparkColor='#fef08a'
       sparkSize={24}
       sparkRadius={50}
       sparkCount={8}
@@ -35,6 +36,7 @@ export default function App() {
           <AuthProvider>
           <BrowserRouter>
             <Suspense fallback={<div className="min-h-screen bg-[#111] flex items-center justify-center"><div className="w-6 h-6 border-2 border-[#97cd7a] border-t-transparent rounded-full animate-spin"></div></div>}>
+              <CookieBanner />
               <Routes>
                 {/* Public routes */}
                 <Route path="/login" element={<LoginPage />} />

@@ -1,20 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { Product, Store } from '../types';
-import { Plus, Trash2, GripVertical, Image as ImageIcon, ExternalLink, DollarSign, Tag, Upload, X, Pencil, FolderPlus, Folder, ChevronDown, ChevronRight, Edit2, ShoppingBag, PlusCircle, AlertCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Trash2, Pencil, GripVertical, Image as ImageIcon, ExternalLink, Tag, Upload, X, FolderPlus, Folder, ChevronDown, ChevronRight, ShoppingBag, PlusCircle, AlertCircle, Store as StoreIcon, Package, LayoutGrid, Info, Loader2, BarChart2, FolderInput, FolderHeart, Archive, RotateCcw, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { compressImage, blobToDataURL } from '../utils/imageUtils';
-import ImageCropperModal from './tools/ImageCropperModal';
 import { apiClient } from '../services/apiClient';
-import Tooltip from './Tooltip';
-
-const fileToDataURL = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(file);
-    });
-};
 
 interface ShopEditorProps {
     products: Product[];
@@ -26,793 +17,1222 @@ interface ShopEditorProps {
     userProfile?: any;
 }
 
-export default function ShopEditor({ 
-    products, 
-    onChange, 
-    stores, 
-    onStoresChange, 
-    pendingCollection, 
-    onPendingCollectionConsumed, 
-    userProfile 
+export default function ShopEditor({
+    products,
+    onChange,
+    stores,
+    onStoresChange,
+    pendingCollection,
+    onPendingCollectionConsumed,
+    userProfile
 }: ShopEditorProps) {
     const { t, i18n } = useTranslation();
     const lang = i18n.language || 'pt';
     const isPT = lang.startsWith('pt');
-    const [selectedStoreId, setSelectedStoreId] = useState<string | null>(() => {
-        return stores.length > 0 ? stores[0].id : null;
-    });
-    
-    // Ensure we have a selection if stores exist
-    React.useEffect(() => {
-        if (!selectedStoreId && stores.length > 0) {
-            setSelectedStoreId(stores[0].id);
-        }
-    }, [stores]);
-
-    const selectedStore = stores.find(s => s.id === selectedStoreId);
-    const storeProducts = products.filter(p => p.storeId === selectedStoreId);
 
     const [isAddingStore, setIsAddingStore] = useState(false);
     const [newStoreName, setNewStoreName] = useState('');
+    const [newStoreLogo, setNewStoreLogo] = useState<string | null>(null);
+    const [expandedStoreId, setExpandedStoreId] = useState<string | null>(null);
 
-    const [isAddingCollection, setIsAddingCollection] = useState(false);
+    const [isAddingCollection, setIsAddingCollection] = useState<string | null>(null);
     const [newCollectionName, setNewCollectionName] = useState('');
     const [expandedCollections, setExpandedCollections] = useState<string[]>([]);
 
-    // Product Editing State
-    const [editingProductId, setEditingProductId] = useState<string | null>(null);
-    const [addingToCollection, setAddingToCollection] = useState<string | null>(null);
+    const [addingToCollection, setAddingToCollection] = useState<{ storeId: string, colName: string } | null>(null);
     const [newProduct, setNewProduct] = useState<Partial<Product>>({});
 
-    // Deletion states
     const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
-    const [deletingCollection, setDeletingCollection] = useState<string | null>(null);
+    const [deletingCollection, setDeletingCollection] = useState<{ storeId: string, name: string } | null>(null);
+    const [deletingStoreId, setDeletingStoreId] = useState<string | null>(null);
+    const [editingProductId, setEditingProductId] = useState<string | null>(null);
+    const [moveModalProductId, setMoveModalProductId] = useState<string | null>(null);
+    const [editingCollection, setEditingCollection] = useState<{ storeId: string, oldName: string, newName: string } | null>(null);
+    const [uploadingTarget, setUploadingTarget] = useState<string | null>(null);
+    const [showArchive, setShowArchive] = useState(false);
 
-    // Cropper State
-    const [cropper, setCropper] = useState<{
-        isOpen: boolean;
-        image: string;
-        targetProductId?: string;
-        isNewProduct?: boolean;
-    }>({
-        isOpen: false,
-        image: ''
-    });
-
-    // Auto-open form for pending collection if provided
-    React.useEffect(() => {
-        if (pendingCollection) {
-            setAddingToCollection(pendingCollection);
-            if (onPendingCollectionConsumed) {
-                onPendingCollectionConsumed();
+    const handleFileUpload = async (file: File, target: 'NEW_PRODUCT' | 'NEW_STORE_LOGO' | string) => {
+        setUploadingTarget(target);
+        try {
+            const res = await apiClient.uploadInternalAsset(file);
+            if (res.success && res.file?.url) {
+                const url = res.file.url;
+                if (target === 'NEW_PRODUCT') setNewProduct(prev => ({ ...prev, image: url }));
+                else if (target === 'NEW_STORE_LOGO') setNewStoreLogo(url);
+                else if (target.startsWith('STORE_LOGO:')) {
+                    const sid = target.split(':')[1];
+                    onStoresChange(stores.map(s => s.id === sid ? { ...s, imageUrl: url } : s));
+                } else {
+                    updateProductField(target, 'image', url);
+                }
             }
+        } catch (error) {
+            console.error('Upload failed:', error);
+        } finally {
+            setUploadingTarget(null);
         }
-    }, [pendingCollection]);
-
-    // Grouping for SELECTED STORE
-    const collections = Array.from(new Set(storeProducts.map(p => p.collection).filter(Boolean) as string[])).sort();
-    const uncategorizedProducts = storeProducts.filter(p => !p.collection);
-
-    const toggleCollection = (name: string) => {
-        setExpandedCollections(prev =>
-            prev.includes(name) ? prev.filter(c => c !== name) : [...prev, name]
-        );
     };
 
     const isFree = !userProfile?.planType || userProfile?.planType === 'free';
     const maxStores = isFree ? 1 : 10;
     const maxCollectionsPerStore = isFree ? 2 : 20;
 
+    const handleToggleStore = (id: string) => {
+        setExpandedStoreId(expandedStoreId === id ? null : id);
+    };
+
+    const toggleCollection = (storeId: string, colName: string) => {
+        const key = `${storeId}:${colName}`;
+        setExpandedCollections(prev =>
+            prev.includes(key) ? prev.filter(c => c !== key) : [...prev, key]
+        );
+    };
+
     const handleAddStore = () => {
         if (!newStoreName.trim()) return;
-        
         if (stores.length >= maxStores) {
             window.dispatchEvent(new CustomEvent('open-billing-modal'));
             return;
         }
-        
         const newStore: Store = {
             id: crypto.randomUUID(),
             name: newStoreName.trim(),
+            imageUrl: newStoreLogo || undefined,
             position: stores.length,
             isActive: true
         };
-
         onStoresChange([...stores, newStore]);
+
         setNewStoreName('');
+        setNewStoreLogo(null);
         setIsAddingStore(false);
-        setSelectedStoreId(newStore.id);
+        setExpandedStoreId(newStore.id);
+    };
+
+    const handleReorderStores = (newStores: Store[]) => {
+        // Update positions based on the new array order
+        const reordered = newStores.map((s, idx) => ({ ...s, position: idx }));
+        onStoresChange(reordered);
     };
 
     const handleDeleteStore = (id: string) => {
         onStoresChange(stores.filter(s => s.id !== id));
-        onChange(products.filter(p => p.storeId !== id)); // Delete items from that store too
-        if (selectedStoreId === id) {
-            setSelectedStoreId(stores.length > 1 ? stores[0].id : null);
-        }
+        // We no longer delete products when a store is deleted.
+        // Instead, we keep them, but remove their storeId so they can be recovered or reassigned later. 
+        onChange(products.map(p => p.storeId === id ? { ...p, storeId: undefined } : p));
+        setDeletingStoreId(null);
+        if (expandedStoreId === id) setExpandedStoreId(null);
     };
 
-    const handleAddCollection = () => {
+    const handleAddCollection = (storeId: string) => {
         if (!newCollectionName.trim()) return;
 
-        if (collections.length >= maxCollectionsPerStore) {
-            window.dispatchEvent(new CustomEvent('open-billing-modal'));
-            return;
-        }
+        const store = stores.find(s => s.id === storeId);
+        if (store) {
+            const trimmedName = newCollectionName.trim();
+            const currentCols = store.collections || [];
+            if (!currentCols.includes(trimmedName)) {
+                const updatedCols = [...currentCols, trimmedName];
+                onStoresChange(stores.map(s => s.id === storeId ? { ...s, collections: updatedCols } : s));
 
-        setAddingToCollection(newCollectionName.trim());
+                // Auto-expand the newly created collection
+                const key = `${storeId}:${trimmedName}`;
+                if (!expandedCollections.includes(key)) {
+                    setExpandedCollections(prev => [...prev, key]);
+                }
+            }
+        }
+        setAddingToCollection(null);
+        setIsAddingCollection(null);
         setNewCollectionName('');
-        setIsAddingCollection(false);
     };
 
-    const handleAddProduct = (collectionName: string) => {
-        if (!newProduct.name || !newProduct.url) return;
+    const handleReorderCollections = (storeId: string, newCols: string[]) => {
+        onStoresChange(stores.map(s => s.id === storeId ? { ...s, collections: newCols } : s));
+    };
 
-        const colProducts = products.filter(p => p.collection === collectionName);
+    const handleAddProduct = (storeId: string, collectionName: string) => {
+        if (!newProduct.name || !newProduct.url) return;
+        const storeProducts = products.filter(p => p.storeId === storeId);
+        const colProducts = storeProducts.filter(p => p.collection === (collectionName === 'uncategorized' ? undefined : collectionName));
         if (isFree && colProducts.length >= 4) {
             window.dispatchEvent(new CustomEvent('open-billing-modal'));
             return;
         }
-
-        const image = newProduct.image || 'https://placehold.co/200x200?text=No+Image';
-
         const product: Product = {
             id: crypto.randomUUID(),
             clientId: crypto.randomUUID(),
             name: newProduct.name as string,
             url: newProduct.url as string,
-            image,
+            image: newProduct.image || 'https://placehold.co/200x200?text=No+Image',
             clicks: 0,
-            collection: collectionName,
+            collection: collectionName === 'uncategorized' ? undefined : collectionName,
             price: newProduct.price,
             discountCode: newProduct.discountCode,
-            storeId: selectedStoreId || undefined
+            storeId,
+            isActive: true,
+            position: colProducts.length
         };
-
         onChange([...products, product]);
         setNewProduct({});
         setAddingToCollection(null);
+        const key = `${storeId}:${collectionName}`;
+        if (!expandedCollections.includes(key)) setExpandedCollections(prev => [...prev, key]);
+    };
 
-        if (!expandedCollections.includes(collectionName)) {
-            setExpandedCollections(prev => [...prev, collectionName]);
+    const handleReorderProducts = (storeId: string, colName: string, reorderedSubset: Product[]) => {
+        const otherProducts = products.filter(p => p.storeId !== storeId || p.collection !== (colName === 'uncategorized' ? undefined : colName));
+        const updatedSubset = reorderedSubset.map((p, idx) => ({ ...p, position: idx }));
+        onChange([...otherProducts, ...updatedSubset]);
+    };
+
+    const handleRenameCollection = (storeId: string, oldName: string, newName: string) => {
+        if (!newName.trim() || oldName === newName) {
+            setEditingCollection(null);
+            return;
         }
-    };
-
-    const handleDeleteProduct = (id: string) => {
-        onChange(products.filter(p => p.id !== id));
-        setDeletingProductId(null);
-    };
-
-    const updateProduct = (id: string, field: keyof Product, value: string) => {
         onChange(products.map(p =>
-            p.id === id ? { ...p, [field]: value } : p
+            (p.storeId === storeId && p.collection === oldName)
+                ? { ...p, collection: newName.trim() }
+                : p
         ));
+
+        // Update expanded collections if needed
+        const oldKey = `${storeId}:${oldName}`;
+        const newKey = `${storeId}:${newName.trim()}`;
+        if (expandedCollections.includes(oldKey)) {
+            setExpandedCollections(prev => prev.map(k => k === oldKey ? newKey : k));
+        }
+
+        setEditingCollection(null);
     };
 
-    const handleDeleteCollection = (name: string) => {
-        onChange(products.filter(p => p.collection !== name));
-        setDeletingCollection(null);
+    function updateProductField(id: string, field: keyof Product, value: any) {
+        onChange(products.map(p => (p.id === id || (p.clientId && p.clientId === id)) ? { ...p, [field]: value } : p));
+    }
+
+    const handleSaveEdit = (editedProduct: Partial<Product>) => {
+        const id = editedProduct.id || (editedProduct as any).clientId;
+        if (!id) return;
+        onChange(products.map(p => (p.id === id || (p.clientId && p.clientId === id)) ? { ...p, ...editedProduct } as Product : p));
+        setEditingProductId(null);
     };
 
     const renderProduct = (product: Product) => (
-        <div key={product.clientId || product.id} className="relative bg-white p-2.5 border border-[#1a1a1a] shadow-[0_1px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none transition-all group flex gap-2.5 items-center overflow-hidden mb-2.5 rounded-xl">
-            <div className="cursor-move text-black hover:text-[#97cd7a] shrink-0">
-                <GripVertical size={18} strokeWidth={3} />
-            </div>
-
-            <div className="relative group/edit shrink-0">
-                <div className="w-10 h-10 border border-[#1a1a1a] bg-white overflow-hidden shadow-[0_1px_0_0_#1a1a1a] rounded-lg">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                </div>
-                <div className="absolute inset-0 bg-[#1a1a1a]/40 flex items-center justify-center opacity-0 group-hover/edit:opacity-100 transition-opacity">
-                    <Upload size={20} className="text-white" strokeWidth={3} />
-                </div>
-                <input
-                    type="file"
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                    accept="image/*"
-                    onChange={async (e) => {
-                        if (e.target.files?.[0]) {
-                            const dataUrl = await fileToDataURL(e.target.files[0]);
-                            setCropper({
-                                isOpen: true,
-                                image: dataUrl,
-                                targetProductId: product.id,
-                                isNewProduct: false
-                            });
-                            e.target.value = '';
-                        }
-                    }}
-                />
-            </div>
-
-            <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                    <label className="text-[8px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.nameLabel')}</label>
-                    <input
-                        type="text"
-                        value={product.name}
-                        onChange={(e) => updateProduct(product.id, 'name', e.target.value)}
-                        className="w-full bg-white border border-[#1a1a1a] py-1 px-2.5 text-[11px] font-medium uppercase tracking-widest text-black focus:bg-[#f1f1f1] outline-none transition-all shadow-[0_1px_0_0_#1a1a1a] rounded-lg"
-                        placeholder={t('shop.productNamePlaceholder')}
-                    />
-                </div>
-                <div className="space-y-1">
-                    <label className="text-[8px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.linkLabel')}</label>
-                    <div className="flex items-center bg-white border border-[#1a1a1a] px-2.5 focus-within:bg-[#f1f1f1] transition-all shadow-[0_1px_0_0_#1a1a1a] rounded-lg">
-                        <ExternalLink size={10} strokeWidth={3} className="text-black mr-2 shrink-0" />
-                        <input
-                            type="text"
-                            value={product.url}
-                            onChange={(e) => updateProduct(product.id, 'url', e.target.value)}
-                            className="w-full bg-transparent py-2 text-xs font-normal uppercase tracking-widest text-black outline-none truncate placeholder:text-black/30 placeholder:uppercase"
-                            placeholder="https://..."
-                        />
-                    </div>
-                </div>
-                <div className="space-y-1">
-                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.priceLabel')}</label>
-                    <div className="flex items-center bg-white border-2 border-[#1a1a1a] px-3 focus-within:bg-[#f1f1f1] transition-all shadow-[0_2px_0_0_#1a1a1a]">
-                        <DollarSign size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
-                        <input
-                            type="text"
-                            value={product.price || ''}
-                            onChange={(e) => updateProduct(product.id, 'price', e.target.value)}
-                            className="w-full bg-transparent py-2 text-xs font-normal uppercase tracking-widest text-black outline-none placeholder:text-black/30 placeholder:uppercase"
-                            placeholder={t('shop.pricePlaceholder')}
-                        />
-                    </div>
-                </div>
-                <div className="space-y-1">
-                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.couponLabel')}</label>
-                    <div className="flex items-center bg-white border-2 border-[#1a1a1a] px-3 focus-within:bg-[#f1f1f1] transition-all shadow-[0_2px_0_0_#1a1a1a]">
-                        <Tag size={14} strokeWidth={3} className="text-black mr-2 shrink-0" />
-                        <input
-                            type="text"
-                            value={product.discountCode || ''}
-                            onChange={(e) => updateProduct(product.id, 'discountCode', e.target.value)}
-                            className="w-full bg-transparent py-2 text-xs font-normal uppercase tracking-widest text-black outline-none placeholder:text-black/30 placeholder:uppercase"
-                            placeholder={t('shop.couponPlaceholder')}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <Tooltip text={t('common.delete')} position="top">
-                <button
-                    onClick={() => setDeletingProductId(product.id)}
-                    className="p-2 bg-white text-black border border-[#1a1a1a] hover:text-white hover:bg-red-500 hover:translate-y-[0.5px] shadow-[0_1px_0_0_#1a1a1a] hover:shadow-none transition-all ml-2 rounded-lg"
-                >
-                    <Trash2 size={16} strokeWidth={3} />
-                </button>
-            </Tooltip>
-
-            {/* Product Deletion Confirm Panel */}
-            <AnimatePresence>
-                {deletingProductId === product.id && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="absolute inset-x-0 bottom-0 z-20 bg-[#97cd7a] border-t-2 border-[#1a1a1a] overflow-hidden"
-                    >
-                        <div className="p-4 flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-2 text-black">
-                                <AlertCircle size={20} strokeWidth={3} />
-                                <span className="text-[10px] font-medium uppercase tracking-[0.2em]">{t('shop.deleteProduct')}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => setDeletingProductId(null)}
-                                    className="px-4 py-2 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#97cd7a] hover:text-white transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
-                                >
-                                    {t('common.cancel')}
-                                </button>
-                                <button
-                                    onClick={() => handleDeleteProduct(product.id)}
-                                    className="px-4 py-2 bg-red-400 border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-red-500 transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
-                                >
-                                    {t('common.confirm')}
-                                </button>
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
+        <ProductItem
+            key={product.clientId || product.id}
+            product={product}
+            isEditing={editingProductId === product.id}
+            setEditingProductId={setEditingProductId}
+            uploadingTarget={uploadingTarget}
+            isPT={isPT}
+            updateProductField={updateProductField}
+            setDeletingProductId={setDeletingProductId}
+            renderAddForm={renderAddForm}
+        />
     );
 
-    const renderAddForm = (collectionName: string) => (
-        <div className="bg-[#f8f8f8] p-6 border-2 border-[#1a1a1a] border-dashed mt-4 animate-fade-in space-y-6 shadow-[0_2px_0_0_#1a1a1a] rounded-2xl">
-            <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-black border-b border-[#1a1a1a]/10 pb-3">
-                <Plus size={18} strokeWidth={3} />
-                <span>{t('shop.addProduct')}</span>
-            </div>
+    const renderAddForm = (storeId: string, collectionName: string, existingProduct?: Product) => {
+        const isEditing = !!existingProduct;
+        const targetProduct = isEditing ? existingProduct : newProduct;
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.productName')}</label>
-                    <input
-                        type="text"
-                        placeholder={t('shop.productNamePlaceholder')}
-                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-medium uppercase tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[0_2px_0_0_#1a1a1a] placeholder:text-black/30 placeholder:font-normal"
-                        value={newProduct.name || ''}
-                        onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
-                    />
-                </div>
-                <div className="space-y-2">
-                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.destinationUrl')}</label>
-                    <input
-                        type="url"
-                        placeholder={t('shop.destinationUrlPlaceholder')}
-                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-normal tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[0_2px_0_0_#1a1a1a] placeholder:text-black/30 placeholder:uppercase"
-                        value={newProduct.url || ''}
-                        onChange={e => setNewProduct({ ...newProduct, url: e.target.value })}
-                    />
-                </div>
-                <div className="space-y-2">
-                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.priceOptional')}</label>
-                    <input
-                        type="text"
-                        placeholder={t('shop.pricePlaceholder')}
-                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-normal tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[0_2px_0_0_#1a1a1a] placeholder:text-black/30"
-                        value={newProduct.price || ''}
-                        onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
-                    />
-                </div>
-                <div className="space-y-2">
-                    <label className="text-[9px] font-medium uppercase tracking-[0.2em] text-black/70 block px-1">{t('shop.couponOptional')}</label>
-                    <input
-                        type="text"
-                        placeholder={t('shop.couponPlaceholder')}
-                        className="w-full px-4 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-normal uppercase tracking-widest outline-none focus:bg-[#f1f1f1] transition shadow-[0_2px_0_0_#1a1a1a] placeholder:text-black/30"
-                        value={newProduct.discountCode || ''}
-                        onChange={e => setNewProduct({ ...newProduct, discountCode: e.target.value })}
-                    />
-                </div>
-            </div>
-
-            <div className="flex items-start gap-4 p-4 bg-white border-4 border-[#1a1a1a] border-dashed">
-                <div className="relative w-24 h-24 border-2 border-[#1a1a1a] bg-white flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:bg-[#ffdf00] transition group shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none">
-                    {newProduct.image ? (
-                        <img src={newProduct.image} className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                    ) : (
-                        <ImageIcon size={32} strokeWidth={3} className="text-black group-hover:text-black transition" />
-                    )}
-                    <input
-                        type="file"
-                        className="absolute inset-0 opacity-0 cursor-pointer"
-                        accept="image/*"
-                        onChange={async (e) => {
-                            if (e.target.files?.[0]) {
-                                const dataUrl = await fileToDataURL(e.target.files[0]);
-                                setCropper({
-                                    isOpen: true,
-                                    image: dataUrl,
-                                    isNewProduct: true
-                                });
-                                e.target.value = '';
-                            }
-                        }}
-                    />
-                </div>
-                <div className="flex-1 space-y-2 py-2">
-                    <p className="text-sm font-medium text-black uppercase tracking-widest">{t('shop.productThumbnail')}</p>
-                    <p className="text-xs font-normal text-black/60 leading-relaxed uppercase tracking-widest max-w-sm">
-                        {t('shop.thumbnailDesc')}
-                    </p>
-                </div>
-            </div>
-
-            <div className="flex justify-end gap-3 pt-4 border-t-2 border-[#1a1a1a]/10">
-                <button
-                    onClick={() => { setAddingToCollection(null); setNewProduct({}); }}
-                    className="px-6 py-2.5 bg-white border-2 border-[#1a1a1a] text-[9px] font-medium uppercase tracking-widest text-black hover:bg-[#97cd7a] hover:text-white transition shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
-                >
-                    Cancelar
-                </button>
-                <button
-                    onClick={() => handleAddProduct(collectionName)}
-                    disabled={!newProduct.name || !newProduct.url}
-                    className="px-6 py-2.5 bg-[#97cd7a] border-2 border-[#1a1a1a] text-black text-[9px] font-medium uppercase tracking-widest hover:bg-[#97cd7a] hover:text-[#97cd7a] disabled:opacity-50 disabled:grayscale transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
-                >
-                    {t('shop.saveProduct')}
-                </button>
-            </div>
-        </div>
-    );
-
-    return (
-        <div className="space-y-6">
-            {/* STORES MANAGEMENT SECTION */}
-            <div className="bg-white p-6 rounded-3xl border-[2.5px] border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] mb-8">
-                <div className="flex items-center justify-between gap-4 mb-6 border-b-2 border-[#1a1a1a] pb-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] rounded-xl flex items-center justify-center">
-                            <ShoppingBag size={20} className="text-[#1a1a1a]" strokeWidth={3} />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-black uppercase tracking-tighter text-[#1a1a1a] leading-none">{t('shop.title')}</h2>
-                            <p className="text-[9px] font-black uppercase tracking-widest text-black/40 mt-1">{stores.length} {isPT ? 'LOJAS ATIVAS' : 'ACTIVE STORES'}</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={() => setIsAddingStore(true)}
-                        className="flex items-center gap-2.5 px-6 py-3 bg-[#97cd7a] text-[#1a1a1a] border-[2.5px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none text-[10px] font-black uppercase tracking-widest transition-all rounded-2xl group"
-                    >
-                        <PlusCircle size={18} strokeWidth={3} className="group-hover:rotate-90 transition-transform" />
-                        <span className="hidden sm:inline">{isPT ? 'NOVA LOJA' : 'NEW STORE'}</span>
-                    </button>
-                </div>
-
-                {/* HORIZONTAL STORE SELECTOR */}
-                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide py-2">
-                    {stores.map(store => (
-                        <button
-                            key={store.id}
-                            onClick={() => setSelectedStoreId(store.id)}
-                            className={`min-w-[140px] px-5 py-4 border-[2.5px] border-[#1a1a1a] rounded-2xl flex flex-col gap-2 transition-all relative ${
-                                selectedStoreId === store.id 
-                                ? "bg-[#ffdf00] shadow-none translate-y-[4px]" 
-                                : "bg-white shadow-[0_4px_0_0_#1a1a1a] opacity-60 hover:opacity-100 hover:translate-y-[1px] hover:shadow-[0_3px_0_0_#1a1a1a]"
-                            }`}
-                        >
-                            <span className="text-[10px] font-black uppercase tracking-tighter truncate w-full text-left">{store.name}</span>
-                            <div className="flex items-center justify-between w-full">
-                                <span className="text-[8px] font-black text-black/40 uppercase">
-                                    {products.filter(p => p.storeId === store.id).length} {isPT ? 'ITENS' : 'ITEMS'}
-                                </span>
-                                {selectedStoreId === store.id && (
-                                    <button 
-                                        onClick={(e) => { e.stopPropagation(); handleDeleteStore(store.id); }}
-                                        className="p-1 hover:text-red-500 transition-colors"
-                                    >
-                                        <Trash2 size={12} strokeWidth={3} />
-                                    </button>
-                                )}
-                            </div>
-                            {selectedStoreId === store.id && (
-                                <div className="absolute -top-2 -right-2 bg-black text-[#ffdf00] py-1 px-2 border-2 border-black rounded-lg text-[7px] font-black uppercase shadow-[0_2px_0_0_#1a1a1a]">
-                                    {isPT ? 'EDITANDO' : 'EDITING'}
+        return (
+            <div className={`space-y-6 sm:space-y-8 relative overflow-hidden`}>
+                <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 relative z-10">
+                    {/* Image Section - Made More Compact */}
+                    <div className="shrink-0 flex sm:flex-col items-center gap-4">
+                        <div className="relative w-28 h-28 sm:w-32 sm:h-32 border-2 border-black bg-black flex items-center justify-center rounded-md overflow-hidden group shadow-[0_4px_0_0_#000] transition-all cursor-pointer">
+                            {targetProduct.image ? (
+                                <img src={targetProduct.image} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                            ) : (
+                                <div className="flex flex-col items-center gap-2 text-white/20">
+                                    <ImageIcon size={24} />
+                                    <span className="text-[8px] font-black uppercase tracking-widest">{isPT ? 'SEM FOTO' : 'NO IMAGE'}</span>
                                 </div>
                             )}
-                        </button>
-                    ))}
-                    {stores.length === 0 && (
-                        <div className="w-full py-8 border-4 border-dashed border-black/10 rounded-2xl flex flex-col items-center justify-center gap-2">
-                            <AlertCircle size={32} className="text-black/10" />
-                            <p className="text-[10px] font-black uppercase tracking-widest text-black/20 italic">{isPT ? 'Nenhuma loja criada' : 'No stores created'}</p>
+                            
+                            {uploadingTarget === (isEditing ? existingProduct.id : 'NEW_PRODUCT') && (
+                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
+                                    <Loader2 className="w-6 h-6 text-[#ffdf00] animate-spin" />
+                                </div>
+                            )}
+
+                            <input
+                                type="file"
+                                className="absolute inset-0 opacity-0 cursor-pointer z-20"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    if (e.target.files?.[0]) {
+                                        handleFileUpload(e.target.files[0], isEditing ? existingProduct.id : 'NEW_PRODUCT');
+                                        e.target.value = '';
+                                    }
+                                }}
+                            />
+                            
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center pointer-events-none">
+                                <Plus size={20} className="text-white opacity-0 group-hover:opacity-100 transition-all scale-50 group-hover:scale-100" />
+                            </div>
                         </div>
-                    )}
+                        <div className="flex flex-col gap-1 sm:text-center">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-black/30">{isPT ? 'IMAGEM' : 'IMAGE'}</span>
+                            <span className="text-[8px] font-bold text-black/20 italic">{isPT ? 'FORMATO 1:1 RECOMENDADO' : '1:1 FORMAT RECOMMENDED'}</span>
+                        </div>
+                    </div>
+
+                    {/* Form Section */}
+                    <div className="flex-1 grid grid-cols-1 gap-4 sm:gap-5">
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-[9px] font-black uppercase tracking-widest text-black/30 px-1">{isPT ? 'Nome do Produto' : 'Product Name'}</label>
+                                <input
+                                    type="text"
+                                    placeholder="EX: TÊNIS ESPORTIVO XYZ"
+                                    className="w-full bg-slate-50 border-2 border-black px-5 sm:px-6 py-3 sm:py-4 text-[11px] sm:text-[12px] font-black uppercase tracking-tight rounded-md sm:rounded-sm outline-none shadow-[0_3px_0_0_#000] transition-all placeholder:text-black/5"
+                                    value={targetProduct.name || ''}
+                                    onChange={e => isEditing
+                                        ? updateProductField(existingProduct.id, 'name', e.target.value)
+                                        : setNewProduct({ ...newProduct, name: e.target.value })
+                                    }
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[9px] font-black uppercase tracking-widest text-black/30 px-1">{isPT ? 'Link de Compra' : 'Product Link'}</label>
+                                <input
+                                    type="text"
+                                    placeholder="https://loja.com/produto"
+                                    className="w-full bg-slate-50 border-2 border-black px-5 sm:px-6 py-3 sm:py-4 text-[9px] sm:text-[10px] font-medium rounded-md sm:rounded-sm outline-none shadow-[0_3px_0_0_#000] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/5 italic"
+                                    value={targetProduct.url || ''}
+                                    onChange={e => isEditing
+                                        ? updateProductField(existingProduct.id, 'url', e.target.value)
+                                        : setNewProduct({ ...newProduct, url: e.target.value })
+                                    }
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <div className="space-y-1.5">
+                                <label className="text-[9px] font-black uppercase tracking-widest text-black/30 px-1">{isPT ? 'Preço (Opcional)' : 'Price (Optional)'}</label>
+                                <div className="relative group/price">
+                                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-[10px] sm:text-[12px] font-black text-black/20 group-focus-within/price:text-black transition-colors">
+                                        {isPT ? 'R$' : '$'}
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="0,00"
+                                        className="w-full bg-slate-50 border-2 border-black pl-12 pr-6 py-3 sm:py-4 text-[11px] sm:text-[12px] font-black rounded-md sm:rounded-sm outline-none shadow-[0_3px_0_0_#000] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/10"
+                                        value={String(targetProduct.price || '').replace(/[^\d,.]/g, '')}
+                                        onChange={e => {
+                                            const val = e.target.value.replace(/[^\d,.]/g, '');
+                                            if (isEditing) {
+                                                updateProductField(existingProduct.id, 'price', val);
+                                            } else {
+                                                setNewProduct({ ...newProduct, price: val });
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[9px] font-black uppercase tracking-widest text-black/30 px-1">{isPT ? 'Cupom de Desconto' : 'Discount Code'}</label>
+                                <div className="relative">
+                                    <Tag size={14} className="absolute left-6 top-1/2 -translate-y-1/2 text-black/20" />
+                                    <input
+                                        type="text"
+                                        placeholder="EX: PROMO10"
+                                        className="w-full bg-slate-50 border-2 border-black pl-12 pr-6 py-3 sm:py-4 text-[11px] sm:text-[12px] font-black uppercase rounded-md sm:rounded-sm outline-none shadow-[0_3px_0_0_#000] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/5"
+                                        value={targetProduct.discountCode || ''}
+                                        onChange={e => isEditing
+                                            ? updateProductField(existingProduct.id, 'discountCode', e.target.value)
+                                            : setNewProduct({ ...newProduct, discountCode: e.target.value })
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* ADD STORE MODAL/PANEL */}
-                <AnimatePresence>
+                {isEditing && (
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-10 mt-10 border-t-2 border-[#1a1a1a] border-dashed gap-4">
+                        <div className="flex items-center gap-2 text-black font-bold uppercase tracking-widest text-[10px] sm:shrink-0">
+                            <BarChart2 size={16} strokeWidth={3} className="text-black/20" />
+                            <span>{existingProduct?.clicks || 0} {isPT ? 'CLICKS NO TOTAL' : 'TOTAL CLICKS'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                            <button
+                                onClick={() => setMoveModalProductId(existingProduct?.id || null)}
+                                className="flex-1 sm:flex-none px-4 sm:px-6 h-10 text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-white border-2 border-[#1a1a1a] text-black hover:bg-[#ffdf00] transition-all shadow-[0_3px_0_0_#1a1a1a] cursor-pointer active:scale-95 active:shadow-none translate-y-0 active:translate-y-[1px]"
+                            >
+                                {isPT ? 'MOVER PARA...' : 'MOVE TO...'}
+                            </button>
+                            <button
+                                onClick={() => updateProductField(existingProduct?.id || '', 'isArchived', !existingProduct?.isArchived)}
+                                className={`flex-1 sm:flex-none px-4 sm:px-6 h-10 border-2 text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer active:scale-95 active:shadow-none translate-y-0 active:translate-y-[1px] flex items-center justify-center gap-2 ${existingProduct?.isArchived ? 'bg-[#ffdf00] border-[#1a1a1a] text-black shadow-[0_3px_0_0_#1a1a1a]' : 'bg-white border-[#1a1a1a] text-black hover:bg-[#ffdf00] shadow-[0_3px_0_0_#1a1a1a]'}`}
+                            >
+                                {existingProduct?.isArchived ? <RefreshCw size={14} strokeWidth={3} className="transition-transform group-hover:rotate-180 duration-500" /> : null}
+                                {existingProduct?.isArchived ? (isPT ? 'RESTAURAR' : 'RESTORE') : (isPT ? 'ARQUIVAR' : 'ARCHIVE')}
+                            </button>
+                            <button
+                                onClick={() => setDeletingProductId(existingProduct?.id || null)}
+                                className="flex-1 sm:flex-none px-4 sm:px-6 h-10 border-2 border-[#1a1a1a] text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-white text-black hover:bg-red-500 hover:text-white transition-all shadow-[0_3px_0_0_#1a1a1a] cursor-pointer active:scale-95 active:shadow-none translate-y-0 active:translate-y-[1px]"
+                            >
+                                {isPT ? 'EXCLUIR' : 'DELETE'}
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                <div className="flex justify-end gap-3 pt-10 sm:pt-14 items-center pb-8 sm:pb-12 px-2">
+                    <button
+                        onClick={() => isEditing ? setEditingProductId(null) : setAddingToCollection(null)}
+                        className="px-6 py-2.5 bg-white border-2 border-black rounded-sm text-[10px] font-black uppercase tracking-widest text-black/40 hover:text-black hover:border-black transition-all shadow-[0_4px_0_0_#000]"
+                    >
+                        {t('common.cancel')}
+                    </button>
+                    <button
+                        onClick={() => isEditing ? setEditingProductId(null) : handleAddProduct(storeId, collectionName)}
+                        className="flex-1 sm:flex-none px-10 py-2.5 bg-[#97cd7a] border-2 border-black rounded-sm text-[10px] font-black uppercase tracking-widest text-black hover:bg-[#86b96c] transition-all shadow-[0_4px_0_0_#1d3d1d] flex items-center justify-center gap-2"
+                    >
+                        {isEditing ? (isPT ? 'SALVAR ALTERAÇÕES' : 'SAVE CHANGES') : (isPT ? 'ADICIONAR PRODUTO' : 'ADD PRODUCT')}
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="space-y-8 pb-24">
+            <div className="bg-white rounded-md border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] sm:shadow-[0_8px_0_0_#1a1a1a] relative overflow-hidden transition-all duration-300">
+                {/* Header Section */}
+                <div className="p-4 sm:p-6 border-b-2 border-[#1a1a1a]">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <h2 className="text-lg sm:text-xl font-black uppercase tracking-tighter text-[#1a1a1a] leading-none mb-1">
+                                {isPT ? 'MINHAS VITRINES' : 'MY SHOWCASES'}
+                            </h2>
+                            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-black/30">
+                                {isPT ? 'GERENCIE SUAS LOJAS E PRODUTOS' : 'MANAGE YOUR STORES AND PRODUCTS'}
+                            </span>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setIsAddingStore(!isAddingStore)}
+                                className={`w-10 h-10 flex items-center justify-center border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] transition-all rounded-md cursor-pointer active:scale-95 active:shadow-none ${isAddingStore ? 'bg-white text-red-500' : 'bg-[#ffdf00] text-black'}`}
+                            >
+                                <PlusCircle size={20} className={isAddingStore ? 'rotate-45' : ''} />
+                            </button>
+                        </div>
+                    </div>
+
                     {isAddingStore && (
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+                            className="mt-8 space-y-6 pt-6 border-t-2 border-[#1a1a1a] border-dashed"
                         >
-                            <div className="bg-[#ffdf00] w-full max-w-md border-[4px] border-[#1a1a1a] shadow-[0_12px_0_0_#1a1a1a] rounded-[32px] overflow-hidden">
-                                <div className="p-8">
-                                    <div className="flex items-center justify-between mb-8">
-                                        <h3 className="text-2xl font-black uppercase tracking-tighter text-[#1a1a1a]">{isPT ? 'CRIAR NOVA LOJA' : 'CREATE NEW STORE'}</h3>
-                                        <button onClick={() => setIsAddingStore(false)} className="p-2 hover:bg-black/10 rounded-full transition-colors">
-                                            <X size={24} strokeWidth={3} />
-                                        </button>
+                            <div className="grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-6">
+                                <div className="flex flex-col items-center gap-3">
+                                    <div className="w-24 h-24 bg-black border-2 border-black rounded-sm overflow-hidden flex items-center justify-center shadow-[0_4px_0_0_#000] relative group">
+                                        {newStoreLogo ? (
+                                            <img src={newStoreLogo} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="bg-white absolute inset-0 flex flex-col items-center justify-center opacity-10">
+                                                <StoreIcon size={32} />
+                                            </div>
+                                        )}
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                            <Upload size={20} className="text-white" />
+                                            <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'NEW_STORE_LOGO')} />
+                                        </div>
+                                        {uploadingTarget === 'NEW_STORE_LOGO' && (
+                                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10 rounded-[22px]">
+                                                <Loader2 size={24} className="text-[#ffdf00] animate-spin" />
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="space-y-6">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1a1a1a] ml-1">{isPT ? 'Nome da Loja' : 'Store Name'}</label>
-                                            <input 
-                                                autoFocus
-                                                type="text" 
-                                                className="w-full bg-white border-[3px] border-[#1a1a1a] rounded-2xl px-6 py-4 text-sm font-black uppercase tracking-widest text-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] outline-none"
-                                                placeholder="MINHA LOJA NODUS"
-                                                value={newStoreName}
-                                                onChange={e => setNewStoreName(e.target.value)}
-                                                onKeyDown={(e) => { if (e.key === 'Enter') handleAddStore() }}
-                                            />
-                                        </div>
-                                        <div className="flex gap-4 pt-4">
-                                            <button 
-                                                onClick={() => setIsAddingStore(false)}
-                                                className="flex-1 px-6 py-4 bg-white border-[3px] border-[#1a1a1a] rounded-2xl shadow-[0_4px_0_0_#1a1a1a] text-[10px] font-black uppercase tracking-widest hover:translate-y-[2px] hover:shadow-none transition-all"
-                                            >
-                                                {t('common.cancel')}
-                                            </button>
-                                            <button 
-                                                onClick={handleAddStore}
-                                                className="flex-1 px-6 py-4 bg-black text-[#ffdf00] border-[3px] border-[#1a1a1a] rounded-2xl shadow-[0_4px_0_0_#1a1a1a] text-[10px] font-black uppercase tracking-widest hover:translate-y-[2px] hover:shadow-none transition-all"
-                                            >
-                                                {isPT ? 'CRIAR' : 'CREATE'}
-                                            </button>
-                                        </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[11px] font-black uppercase tracking-widest text-black/30 px-1">{isPT ? 'Nome da Vitrine' : 'Showcase Name'}</label>
+                                        <input
+                                            type="text" value={newStoreName} onChange={e => setNewStoreName(e.target.value)}
+                                            placeholder={isPT ? 'Ex: Minha Loja Gamer' : 'Ex: My Gamer Store'}
+                                            className="w-full bg-slate-50 border-2 border-black px-6 py-4 text-sm font-black rounded-sm outline-none shadow-[0_4px_0_0_#000] transition-all uppercase placeholder:italic placeholder:text-black/5"
+                                        />
+                                    </div>
+                                    <div className="flex justify-end gap-3 pt-2">
+                                        <button onClick={() => setIsAddingStore(false)} className="px-6 py-3 bg-white border-2 border-black font-black uppercase tracking-widest rounded-md text-[10px] shadow-[0_3px_0_0_#000] transition-all">{t('common.cancel')}</button>
+                                        <button onClick={handleAddStore} className="px-8 py-3 bg-[#97cd7a] border-2 border-black font-black uppercase tracking-widest rounded-md text-[10px] shadow-[0_3px_0_0_#1a1a1a] transition-all">{isPT ? 'CRIAR LOJA' : 'CREATE STORE'}</button>
                                     </div>
                                 </div>
                             </div>
                         </motion.div>
                     )}
-                </AnimatePresence>
+                </div>
+
+                <div className="p-1 sm:p-2 space-y-3">
+                    {stores.length === 0 ? (
+                        <div className="py-20 text-center flex flex-col items-center gap-4">
+                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center border-2 border-dashed border-black/10 text-black/20 text-black/10">
+                                <StoreIcon size={32} />
+                            </div>
+                            <p className="text-xs font-black uppercase tracking-widest text-black/20 italic">
+                                {isPT ? 'Nenhuma vitrine criada' : 'No showcases created'}
+                            </p>
+                        </div>
+                    ) : (
+                        <Reorder.Group 
+                            axis="y" 
+                            values={stores.sort((a, b) => (a.position - b.position))} 
+                            onReorder={handleReorderStores} 
+                            className="space-y-3"
+                            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                        >
+                            {stores.sort((a, b) => (a.position - b.position)).map(store => (
+                                <StoreItem 
+                                    key={store.id}
+                                    store={store}
+                                    products={products}
+                                    stores={stores}
+                                    onStoresChange={onStoresChange}
+                                    onChange={onChange}
+                                    expandedStoreId={expandedStoreId}
+                                    handleToggleStore={handleToggleStore}
+                                    setDeletingStoreId={setDeletingStoreId}
+                                    handleFileUpload={handleFileUpload}
+                                    uploadingTarget={uploadingTarget}
+                                    renderAddForm={renderAddForm}
+                                    renderProduct={renderProduct}
+                                    setIsAddingCollection={setIsAddingCollection}
+                                    isAddingCollection={isAddingCollection}
+                                    newCollectionName={newCollectionName}
+                                    setNewCollectionName={setNewCollectionName}
+                                    handleAddCollection={handleAddCollection}
+                                    addingToCollection={addingToCollection}
+                                    setAddingToCollection={setAddingToCollection}
+                                    setShowArchive={setShowArchive}
+                                    expandedCollections={expandedCollections}
+                                    toggleCollection={toggleCollection}
+                                    editingCollection={editingCollection}
+                                    setEditingCollection={setEditingCollection}
+                                    handleRenameCollection={handleRenameCollection}
+                                    setExpandedCollections={setExpandedCollections}
+                                    isPT={isPT}
+                                    setDeletingCollection={setDeletingCollection}
+                                    handleReorderProducts={handleReorderProducts}
+                                    handleReorderCollections={handleReorderCollections}
+                                />
+                            ))}
+                        </Reorder.Group>
+                    )}
+                </div>
             </div>
 
-            {selectedStore && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="bg-slate-50 border-2 border-dashed border-[#1a1a1a]/20 p-8 rounded-[40px] mb-8 relative overflow-hidden group">
-                        <div className="hidden lg:block absolute -right-10 -top-10 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity duration-700">
-                             <ShoppingBag size={240} />
-                        </div>
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-3 mb-4">
-                                <Folder size={24} className="text-black" strokeWidth={3} />
-                                <h3 className="text-2xl font-black uppercase tracking-tighter text-[#1a1a1a]">
-                                    {isPT ? 'Coleções de' : 'Collections of'} <span className="text-[#97cd7a]">{selectedStore.name}</span>
-                                </h3>
-                            </div>
-                            <p className="text-[10px] font-normal uppercase tracking-widest text-[#1a1a1a]/60 leading-relaxed max-w-sm mb-6">
-                                {isPT ? 'Crie categorias específicas para seus produtos dentro desta loja para facilitar a navegação do cliente.' : 'Create specific categories for your products within this store to make customer navigation easier.'}
-                            </p>
-                            
-                            <Tooltip text={t('shop.newCategory')} position="bottom">
-                                <button
-                                    onClick={() => setIsAddingCollection(true)}
-                                    className="flex items-center gap-2.5 px-6 py-3.5 bg-white text-black border-[2.5px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none text-[10px] font-black uppercase tracking-widest transition-all rounded-2xl"
-                                >
-                                    <FolderPlus size={18} strokeWidth={3} />
-                                    <span>{t('shop.newCategory')}</span>
-                                </button>
-                            </Tooltip>
-                        </div>
-                    </div>
+            {/* Unlinked Products */}
+            {products.some(p => !p.storeId || !stores.some(s => s.id === p.storeId)) && (
+                <div className="bg-slate-100 rounded-[40px] border-2 border-black border-dashed p-10 text-center">
+                    <h4 className="text-xl font-black uppercase tracking-tighter mb-2">{isPT ? 'PRODUTOS DESVINCULADOS' : 'UNLINKED PRODUCTS'}</h4>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-black/30 mb-8 max-w-sm mx-auto">{isPT ? 'Estes itens não pertencem a nenhuma loja. Vincule-os abaixo.' : 'These items do not belong to any store. Link them below.'}</p>
+                    <div className="space-y-3 mb-8">{products.filter(p => !p.storeId || !stores.some(s => s.id === p.storeId)).map(renderProduct)}</div>
+                    {stores.length > 0 && (
+                        <button onClick={() => onChange(products.map(p => (!p.storeId || !stores.some(s => s.id === p.storeId)) ? { ...p, storeId: stores[0].id } : p))} className="px-8 py-4 bg-black text-[#ffdf00] border-2 border-black rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_5px_0_0_rgba(0,0,0,0.1)] transition-all">
+                            {isPT ? 'VINCULAR AO PRIMEIRO' : 'LINK TO FIRST'}
+                        </button>
+                    )}
+                </div>
+            )}
 
-                    {isAddingCollection && (
-                        <div className="animate-fade-in bg-[#ffdf00] p-6 border-[3px] border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] mb-8 rounded-[32px]">
-                            <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-                                <div className="flex items-center gap-4 flex-1 min-w-0">
-                                    <div className="w-10 h-10 bg-white border-2 border-black rounded-xl flex items-center justify-center shadow-[0_2px_0_0_#1a1a1a]">
-                                        <Folder size={18} strokeWidth={3} className="text-black shrink-0" />
-                                    </div>
-                                    <input
-                                        autoFocus
-                                        type="text"
-                                        placeholder={t('shop.categoryPlaceholder')}
-                                        className="flex-1 min-w-0 bg-white border-[2.5px] border-[#1a1a1a] px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest text-black outline-none placeholder:text-black/30 transition-all focus:bg-white focus:shadow-[0_2px_0_0_#1a1a1a]"
-                                        value={newCollectionName}
-                                        onChange={e => setNewCollectionName(e.target.value)}
-                                        onKeyDown={(e) => { if (e.key === 'Enter') handleAddCollection() }}
-                                    />
+                    {/* Modals Section */}
+            {createPortal(
+                <AnimatePresence>
+                    {deletingStoreId && (
+                        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="bg-white border-2 border-black p-10 rounded-md max-w-md w-full shadow-[0_20px_0_0_#000]">
+                                <h4 className="text-3xl font-black uppercase text-center mb-10 tracking-tighter">{isPT ? 'EXCLUIR LOJA?' : 'DELETE STORE?'}</h4>
+                                <div className="flex gap-4">
+                                    <button onClick={() => setDeletingStoreId(null)} className="flex-1 py-4 bg-slate-100 rounded-sm font-black uppercase text-[10px] tracking-widest">{t('common.cancel')}</button>
+                                    <button onClick={() => handleDeleteStore(deletingStoreId!)} className="flex-1 py-4 bg-red-500 border-2 border-black text-white rounded-sm font-black uppercase text-[10px] tracking-widest shadow-[0_5px_0_0_#000] transition-all">{isPT ? 'EXCLUIR' : 'DELETE'}</button>
                                 </div>
-                                <div className="flex items-center gap-3 justify-end sm:justify-start">
-                                    <button
-                                        onClick={handleAddCollection}
-                                        className="flex-1 sm:flex-none whitespace-nowrap bg-black text-[#97cd7a] px-8 py-3.5 border-[2.5px] border-[#1a1a1a] font-black text-[11px] transition-all uppercase tracking-widest shadow-[0_1px_0_0_#1a1a1a] rounded-2xl hover:translate-y-[1px] hover:shadow-none"
-                                    >
-                                        {t('shop.create')}
-                                    </button>
-                                    <button
-                                        onClick={() => setIsAddingCollection(false)}
-                                        className="w-12 h-12 flex items-center justify-center bg-white text-black border-2 border-black rounded-xl hover:text-red-600 transition-all shrink-0 shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none"
-                                    >
-                                        <X size={20} strokeWidth={3} />
-                                    </button>
-                                </div>
-                            </div>
+                            </motion.div>
                         </div>
                     )}
+                </AnimatePresence>,
+                document.body
+            )}
 
-                    <div className="space-y-8 pb-12">
-                        {addingToCollection && !collections.includes(addingToCollection) && (
-                            <div className="bg-white rounded-[32px] border-[2.5px] border-[#1a1a1a] p-8 shadow-[0_4px_0_0_#1a1a1a] relative overflow-hidden">
-                                <div className="absolute top-0 right-0 py-2 px-6 bg-[#97cd7a] border-b-2 border-l-2 border-black text-[8px] font-black uppercase tracking-widest">
-                                    {isPT ? 'NOVA CATEGORIA' : 'NEW CATEGORY'}
+            {createPortal(
+                <AnimatePresence>
+                    {deletingCollection && (
+                        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="bg-white border-2 border-black p-10 rounded-md max-w-sm w-full shadow-[0_15px_0_0_#000]">
+                                <h4 className="text-2xl font-black uppercase text-center mb-8 tracking-tighter">{isPT ? 'EXCLUIR CATEGORIA?' : 'DELETE FOLDER?'}</h4>
+                                <div className="flex gap-4">
+                                    <button onClick={() => setDeletingCollection(null)} className="flex-1 py-3 bg-slate-100 rounded-md font-black uppercase text-[9px] tracking-widest">{t('common.cancel')}</button>
+                                    <button onClick={() => {
+                                        const store = stores.find(s => s.id === deletingCollection!.storeId);
+                                        if (store) {
+                                            const updatedCols = (store.collections || []).filter(c => c !== deletingCollection!.name);
+                                            onStoresChange(stores.map(s => s.id === store.id ? { ...s, collections: updatedCols } : s));
+                                        }
+                                        onChange(products.filter(p => !(p.storeId === deletingCollection!.storeId && p.collection === deletingCollection!.name)));
+                                        setDeletingCollection(null);
+                                    }} className="flex-1 py-3 bg-red-500 text-white border-2 border-black rounded-md font-black uppercase text-[9px] tracking-widest shadow-[0_4px_0_0_#000] transition-all">{isPT ? 'EXCLUIR' : 'DELETE'}</button>
                                 </div>
-                                <div className="flex items-center gap-3 mb-8">
-                                    <div className="w-10 h-10 bg-[#f1f1f1] border-2 border-black rounded-xl flex items-center justify-center">
-                                        <Folder size={18} className="text-black" />
-                                    </div>
-                                    <h3 className="text-xl font-black uppercase tracking-tighter text-[#1a1a1a]">
-                                        {addingToCollection}
-                                    </h3>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
+
+            {createPortal(
+                <AnimatePresence>
+                    {deletingProductId && (
+                        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="bg-white border-2 border-black p-10 rounded-md max-w-sm w-full shadow-[0_15px_0_0_#000]">
+                                <h4 className="text-2xl font-black uppercase text-center mb-4 tracking-tighter">{isPT ? 'EXCLUIR PRODUTO?' : 'DELETE PRODUCT?'}</h4>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-black/30 text-center mb-8">{isPT ? 'ESSA AÇÃO NÃO PODE SER DESFEITA' : 'THIS ACTION CANNOT BE UNDONE'}</p>
+                                <div className="flex gap-4">
+                                    <button onClick={() => setDeletingProductId(null)} className="flex-1 py-4 bg-slate-100 rounded-sm font-black uppercase text-[9px] tracking-widest">{t('common.cancel')}</button>
+                                    <button onClick={() => {
+                                        onChange(products.filter(p => p.id !== deletingProductId));
+                                        setDeletingProductId(null);
+                                    }} className="flex-1 py-4 bg-red-500 text-white border-2 border-black rounded-sm font-black uppercase text-[9px] tracking-widest shadow-[0_4px_0_0_#000] transition-all">{isPT ? 'EXCLUIR' : 'DELETE'}</button>
                                 </div>
-                                {renderAddForm(addingToCollection)}
-                            </div>
-                        )}
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
 
-                        {collections.map(collectionName => {
-                            const colProducts = storeProducts.filter(p => p.collection === collectionName);
-                            const isExpanded = expandedCollections.includes(collectionName);
+            {createPortal(
+                <AnimatePresence>
+                    {moveModalProductId && (
+                        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-8">
+                            <motion.div
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                onClick={() => setMoveModalProductId(null)}
+                                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                className="relative bg-white w-full max-w-sm p-6 rounded-md border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] overflow-hidden"
+                            >
+                                <div className="mb-6 flex items-center justify-between">
+                                    <h3 className="text-xl font-black uppercase tracking-tighter text-black">{isPT ? 'MOVER PARA...' : 'MOVE TO...'}</h3>
+                                    <button onClick={() => setMoveModalProductId(null)} className="p-1.5 bg-white text-black border-2 border-[#1a1a1a] hover:bg-[#ffdf00] transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-sm">
+                                        <X size={18} strokeWidth={4} />
+                                    </button>
+                                </div>
 
-                            return (
-                                <div key={collectionName} className="bg-white border-[2.5px] border-[#1a1a1a] overflow-hidden shadow-[0_4px_0_0_#1a1a1a] rounded-[32px] transition-all">
-                                    <div
-                                        className="flex items-center justify-between p-4 px-6 cursor-pointer hover:bg-slate-50 transition border-b-2 border-transparent"
-                                        onClick={() => toggleCollection(collectionName)}
-                                        style={{ borderBottomColor: isExpanded ? 'black' : 'transparent' }}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-10 h-10 border-2 border-black flex items-center justify-center rounded-xl transition-all duration-300 ${isExpanded ? 'bg-[#ffdf00] rotate-180' : 'bg-white'}`}>
-                                                <ChevronDown size={20} className="text-black" strokeWidth={3} />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <h3 className="font-black text-black text-base uppercase tracking-tight">{collectionName}</h3>
-                                                <span className="text-[9px] font-black text-black/30 uppercase tracking-[0.2em]">{colProducts.length} {t('shop.itemsRegistered')}</span>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
-                                            <button
-                                                onClick={() => {
-                                                    const colProducts = storeProducts.filter(p => p.collection === collectionName);
-                                                    if (isFree && colProducts.length >= 4 && addingToCollection !== collectionName) {
-                                                        window.dispatchEvent(new CustomEvent('open-billing-modal'));
-                                                        return;
-                                                    }
-                                                    setAddingToCollection(collectionName === addingToCollection ? null : collectionName);
-                                                }}
-                                                className="flex items-center gap-2 px-6 py-3 bg-white text-black border-2 border-[#1a1a1a] hover:bg-[#ffdf00] text-[9px] font-black uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-2xl"
-                                            >
-                                                <PlusCircle size={14} strokeWidth={3} /> {t('shop.addItem')}
-                                            </button>
-                                            <button
-                                                onClick={() => setDeletingCollection(collectionName)}
-                                                className="w-11 h-11 flex items-center justify-center bg-white text-black border-2 border-[#1a1a1a] hover:bg-red-500 hover:text-white transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-2xl"
-                                            >
-                                                <Trash2 size={18} strokeWidth={3} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <AnimatePresence>
-                                        {deletingCollection === collectionName && (
-                                            <motion.div
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: 'auto', opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                className="bg-[#97cd7a] border-t-2 border-[#1a1a1a] overflow-hidden"
-                                            >
-                                                <div className="p-6 px-8 flex items-center justify-between gap-6">
-                                                    <div className="flex flex-col">
-                                                        <div className="flex items-center gap-3 text-black">
-                                                            <AlertCircle size={20} strokeWidth={3} />
-                                                            <span className="text-[11px] font-black uppercase tracking-widest">{t('shop.deleteCategory')}</span>
-                                                        </div>
-                                                        <span className="text-[9px] text-black/60 font-medium uppercase tracking-widest mt-1 ml-8">{t('shop.deleteCategoryWarning')}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-4">
-                                                        <button
-                                                            onClick={() => setDeletingCollection(null)}
-                                                            className="px-6 py-3 bg-white border-2 border-[#1a1a1a] text-[10px] font-black uppercase tracking-widest text-[#1a1a1a] hover:bg-slate-100 transition rounded-2xl"
-                                                        >
-                                                            {t('common.cancel')}
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeleteCollection(collectionName)}
-                                                            className="px-6 py-3 bg-red-400 border-2 border-[#1a1a1a] text-[#1a1a1a] text-[10px] font-black uppercase tracking-widest hover:bg-red-500 transition shadow-[0_4px_0_0_#000] rounded-2xl active:translate-y-[1px] active:shadow-none"
-                                                        >
-                                                            {t('common.confirm')}
-                                                        </button>
+                                <div className="space-y-4">
+                                    {(() => {
+                                        const productToMove = products.find(p => p.id === moveModalProductId || (p.clientId && p.clientId === moveModalProductId));
+                                        const productStore = stores.find(s => s.id === productToMove?.storeId);
+                                        const storeProducts = products.filter(p => p.storeId === productStore?.id);
+                                        const productCollections = Array.from(new Set([
+                                            ...(productStore?.collections || []),
+                                            ...storeProducts.map(p => p.collection).filter(Boolean) as string[]
+                                        ]));
+                                        
+                                        return (
+                                            <>
+                                                <button
+                                                    onClick={() => {
+                                                        updateProductField(moveModalProductId!, 'collection', '');
+                                                        setMoveModalProductId(null);
+                                                    }}
+                                                    className="w-full text-left flex items-center gap-4 p-5 bg-white border-2 border-[#1a1a1a] hover:bg-[#ffdf00] transition-all font-black uppercase tracking-widest text-[11px] shadow-[0_4px_0_0_#1a1a1a] group"
+                                                >
+                                                    <Folder size={20} strokeWidth={3} className="text-black transition-transform" />
+                                                    {isPT ? 'MINHA VITRINE (RAIZ)' : 'MY SHOWCASE (ROOT)'}
+                                                </button>
+
+                                                <div className="pt-2">
+                                                    <p className="text-[10px] font-black uppercase text-black/30 mb-4 tracking-[0.2em] px-1">{isPT ? 'MOVER PARA COLEÇÃO' : 'MOVE TO COLLECTION'}</p>
+                                                    <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-hide">
+                                                        {productCollections.length > 0 ? (
+                                                            productCollections.map(c => (
+                                                                <button
+                                                                    key={c}
+                                                                    onClick={() => {
+                                                                        updateProductField(moveModalProductId!, 'collection', c);
+                                                                        setMoveModalProductId(null);
+                                                                    }}
+                                                                    className="w-full text-left flex items-center gap-4 p-5 bg-white border-2 border-[#1a1a1a] hover:bg-[#97cd7a] transition-all font-black uppercase tracking-widest text-[11px] shadow-[0_4px_0_0_#1a1a1a] group"
+                                                                >
+                                                                    <FolderHeart size={20} strokeWidth={3} className="text-black transition-transform" />
+                                                                    {c.toUpperCase()}
+                                                                </button>
+                                                            ))
+                                                        ) : (
+                                                            <div className="p-8 border-2 border-dashed border-[#1a1a1a]/10 flex flex-col items-center justify-center text-center">
+                                                                <span className="text-[9px] font-black uppercase tracking-widest text-black/20">{isPT ? 'NENHUMA COLEÇÃO NESTA LOJA' : 'NO COLLECTIONS IN THIS STORE'}</span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
+                                            </>
+                                        );
+                                    })()}
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
 
-                                    {(isExpanded || addingToCollection === collectionName) && (
-                                        <div className="p-8 bg-slate-50/10">
-                                            <div className="space-y-4">
-                                                {colProducts.map(renderProduct)}
-                                            </div>
+            {/* Archive Modal */}
+            {showArchive && createPortal(
+                <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-8">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        onClick={() => setShowArchive(false)}
+                        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                    />
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        className="relative bg-white w-full max-w-2xl p-6 sm:p-10 rounded-md border-4 border-black shadow-[0_20px_0_0_#000] overflow-hidden flex flex-col max-h-[85vh] z-10"
+                    >
+                        <div className="mb-8 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-[#ffdf00] border-2 border-black rounded-md flex items-center justify-center shadow-[0_4px_0_0_#000]">
+                                    <Archive size={28} strokeWidth={3} />
+                                </div>
+                                <div>
+                                    <h3 className="text-3xl font-black uppercase tracking-tighter text-black">
+                                        {isPT ? 'ARQUIVADOS' : 'ARCHIVED'}
+                                    </h3>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-black/30 mt-1">{isPT ? 'ITENS INATIVOS' : 'INACTIVE ITEMS'}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setShowArchive(false)}
+                                className="w-12 h-12 flex items-center justify-center bg-white text-black border-2 border-black hover:bg-red-400 transition-all shadow-[0_4px_0_0_#000] rounded-md cursor-pointer active:scale-95 active:shadow-none"
+                            >
+                                <X size={24} strokeWidth={4} />
+                            </button>
+                        </div>
 
-                                            {addingToCollection === collectionName && renderAddForm(collectionName)}
-
-                                            {!addingToCollection && colProducts.length === 0 && (
-                                                <div className="text-center py-12 bg-white border-4 border-dashed border-black/5 rounded-[24px]">
-                                                    <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 opacity-50">
-                                                        <Tag size={20} className="text-black" />
-                                                    </div>
-                                                    <p className="text-[10px] text-black/30 font-black uppercase tracking-widest italic">{t('shop.noProductsInCategory')}</p>
+                        <div className="flex-1 overflow-y-auto pr-2 space-y-4 scrollbar-hide min-h-[300px]">
+                            {products.filter(p => p.isArchived).length > 0 ? (
+                                products.filter(p => p.isArchived).map(product => (
+                                    <div key={product.id} className="group flex items-center gap-5 p-5 bg-white border-2 border-black rounded-md shadow-[0_6px_0_0_#000] transition-all cursor-pointer">
+                                        <div className="shrink-0 w-16 h-16 border-2 border-black bg-slate-50 rounded-md overflow-hidden relative shadow-sm">
+                                            {product.image ? (
+                                                <img src={product.image} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="bg-white absolute inset-0 flex items-center justify-center">
+                                                    <ImageIcon size={24} className="text-black/10" />
                                                 </div>
                                             )}
                                         </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-
-                        {uncategorizedProducts.length > 0 && (
-                             <div className="bg-white border-2 border-dashed border-[#1a1a1a] opacity-80 overflow-hidden shadow-[0_4px_0_0_#1a1a1a] rounded-[40px]">
-                                <div
-                                    className="flex items-center justify-between p-6 cursor-pointer hover:bg-[#ffdf00] transition-colors"
-                                    onClick={() => toggleCollection('uncategorized')}
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <ChevronDown size={24} strokeWidth={3} className="text-black" />
-                                        <div className="flex flex-col">
-                                            <h3 className="font-black text-black text-sm uppercase tracking-widest">{t('shop.uncategorized')}</h3>
-                                            <span className="text-[10px] font-normal text-black/70 uppercase tracking-widest">{uncategorizedProducts.length} {t('shop.items')}</span>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="text-lg font-black uppercase tracking-tight text-black truncate">{product.name}</h4>
+                                            <p className="text-[11px] font-bold text-black/30 truncate uppercase tracking-widest">{product.collection || (isPT ? 'SEM CATEGORIA' : 'NO CATEGORY')}</p>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={() => updateProductField(product.id, 'isArchived', false)}
+                                                className="px-4 h-12 flex items-center justify-center gap-2 bg-[#97cd7a] text-black border-2 border-black rounded-md shadow-[0_4px_0_0_#000] transition-all cursor-pointer active:scale-95 active:shadow-none font-black text-[10px] tracking-widest"
+                                            >
+                                                <RotateCcw size={18} strokeWidth={3} />
+                                                {isPT ? 'RESTAURAR' : 'RESTORE'}
+                                            </button>
+                                            <button
+                                                onClick={() => { setDeletingProductId(product.id); setShowArchive(false); }}
+                                                className="w-12 h-12 flex items-center justify-center bg-red-400 text-black border-2 border-black rounded-md shadow-[0_4px_0_0_#000] transition-all cursor-pointer active:scale-95 active:shadow-none"
+                                            >
+                                                <Trash2 size={20} strokeWidth={3} />
+                                            </button>
                                         </div>
                                     </div>
+                                ))
+                            ) : (
+                                <div className="py-24 flex flex-col items-center justify-center text-center">
+                                    <div className="w-24 h-24 bg-slate-50 border-2 border-black border-dashed rounded-full flex items-center justify-center mb-6 opacity-30">
+                                        <Archive size={40} strokeWidth={1} />
+                                    </div>
+                                    <span className="text-xs font-black uppercase tracking-[0.3em] text-black/20">{isPT ? 'NADA POR AQUI' : 'NOTHING HERE'}</span>
                                 </div>
+                            )}
+                        </div>
+                    </motion.div>
+                </div>,
+                document.body
+            )}
+        </div>
+    );
 
-                                {expandedCollections.includes('uncategorized') && (
-                                    <div className="p-8 bg-white border-t-2 border-[#1a1a1a] border-dashed">
-                                        <div className="space-y-4">
-                                            {uncategorizedProducts.map(renderProduct)}
-                                        </div>
+}
+
+interface ProductItemProps {
+    product: Product;
+    isEditing: boolean;
+    setEditingProductId: (id: string | null) => void;
+    uploadingTarget: string | null;
+    isPT: boolean;
+    updateProductField: (id: string, field: keyof Product, value: any) => void;
+    setDeletingProductId: (id: string | null) => void;
+    renderAddForm: (storeId: string, collectionName: string, existingProduct?: Product) => React.ReactNode;
+}
+
+const ProductItem: React.FC<ProductItemProps> = ({
+    product, isEditing, setEditingProductId, uploadingTarget, isPT,
+    updateProductField, setDeletingProductId, renderAddForm
+}) => {
+    const dragControls = useDragControls();
+
+    return (
+        <Reorder.Item
+            value={product}
+            dragListener={false}
+            dragControls={dragControls}
+            layout
+            whileDrag={{ zIndex: 50, borderRadius: '6px' }}
+            className={`group relative select-none border-2 border-[#1a1a1a] rounded-md overflow-hidden mb-3 transition-colors duration-300 ${isEditing ? 'bg-[#fefcbf] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'}`}
+        >
+            <div className="flex items-stretch min-h-[82px]">
+                {/* Drag Handle Area */}
+                <div 
+                    className="w-10 sm:w-12 shrink-0 flex items-center justify-center border-r-[1.5px] border-black/10 group-hover:border-black/30 transition-colors bg-white cursor-grab active:cursor-grabbing touch-none"
+                    onPointerDown={(e) => dragControls.start(e)}
+                >
+                    <GripVertical size={16} className="text-black/15 group-hover:text-black/40" />
+                </div>
+
+                <div className="flex-1 flex flex-col min-w-0">
+                    {/* Main Content Area */}
+                    <div
+                        onClick={() => setEditingProductId(isEditing ? null : product.id)}
+                        className="flex-1 min-w-0 pr-4 py-4 px-3 cursor-pointer"
+                    >
+                        <div className="flex items-center gap-4">
+                            {/* Product Image Thumbnail */}
+                            <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 border-2 border-black bg-black rounded-md overflow-hidden relative shadow-[0_3px_0_0_#000]">
+                                {product.image ? (
+                                    <img src={product.image} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="bg-white absolute inset-0 flex flex-col items-center justify-center">
+                                        <ImageIcon size={20} className="text-black/10" />
+                                    </div>
+                                )}
+
+                                {uploadingTarget === product.id && (
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10 transition-all rounded-[10px]">
+                                        <Loader2 size={18} className="text-[#ffdf00] animate-spin" />
                                     </div>
                                 )}
                             </div>
-                        )}
 
-                        {collections.length === 0 && uncategorizedProducts.length === 0 && !addingToCollection && (
-                             <div className="text-center py-20 px-10 bg-white border-4 border-dashed border-[#1a1a1a]/10 rounded-[48px] relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-20 h-20 bg-[#97cd7a]/10 rounded-br-full" />
-                                <div className="absolute bottom-0 right-0 w-32 h-32 bg-[#ffdf00]/10 rounded-tl-full" />
-                                <div className="relative z-10">
-                                    <div className="w-20 h-20 bg-[#ffdf00] text-black border-[3px] border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] rounded-[32px] flex items-center justify-center mx-auto mb-8 rotate-3">
-                                        <Tag size={32} strokeWidth={3} />
+                            <div className="flex-1 min-w-0 space-y-1.5">
+                                <h4 className="text-[14px] sm:text-[16px] font-black uppercase tracking-tight text-black truncate flex items-center gap-2">
+                                    {product.name}
+                                    <Pencil size={12} className="sm:size-4 opacity-0 group-hover:opacity-30 transition-opacity" />
+                                </h4>
+                                
+                                <div className="flex items-center flex-wrap gap-x-6 gap-y-2 mt-3 sm:mt-4">
+                                    <div className="flex items-center gap-2 group/stat">
+                                        <div className="p-1.5 sm:p-2 bg-black/5 rounded-md text-black/20 group-hover/stat:bg-[#e5414d]/10 group-hover/stat:text-[#e5414d] transition-all">
+                                            <BarChart2 size={12} strokeWidth={3} />
+                                        </div>
+                                        <div className="flex flex-col justify-center">
+                                            <span className="text-[12px] sm:text-[14px] font-black tracking-tight leading-none text-black">{product.clicks || 0}</span>
+                                            <span className="text-[8px] sm:text-[9px] font-black text-black/20 uppercase tracking-widest mt-1">{isPT ? 'CLIQUES' : 'CLICKS'}</span>
+                                        </div>
                                     </div>
-                                    <h3 className="text-[#1a1a1a] font-black text-2xl uppercase tracking-tighter mb-4 italic leading-none">{isPT ? 'Sua Loja está Vazia' : 'Your store is empty'}</h3>
-                                    <p className="text-[#1a1a1a]/40 text-xs font-black uppercase tracking-widest max-w-xs mx-auto leading-relaxed">
-                                        {isPT ? 'Clique no botão acima para começar a adicionar produtos e categorias.' : 'Click the button above to start adding products and categories.'}
-                                    </p>
+
+                                    {product.price && (
+                                        <div className="flex items-center gap-2 group/stat">
+                                            <div className="p-1.5 sm:p-2 bg-black/5 rounded-md text-black/20 group-hover/stat:bg-[#97cd7a]/15 group-hover/stat:text-[#97cd7a] transition-all">
+                                                <Tag size={12} strokeWidth={3} />
+                                            </div>
+                                            <div className="flex flex-col justify-center">
+                                                <span className="text-[12px] sm:text-[14px] font-black tracking-tight leading-none text-black">
+                                                    {(() => {
+                                                        const raw = String(product.price || '');
+                                                        const clean = raw.replace(/[^\d,.]/g, '').replace(',', '.');
+                                                        const val = parseFloat(clean);
+                                                        if (isNaN(val)) return '';
+                                                        return new Intl.NumberFormat(isPT ? 'pt-BR' : 'en-US', { 
+                                                            style: 'currency', 
+                                                            currency: isPT ? 'BRL' : 'USD' 
+                                                        }).format(val);
+                                                    })()}
+                                                </span>
+                                                <span className="text-[8px] sm:text-[9px] font-black text-black/20 uppercase tracking-widest mt-1">{isPT ? 'PREÇO' : 'PRICE'}</span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
-            )}
 
-            {!selectedStore && stores.length > 0 && (
-                <div className="text-center py-32 px-10 bg-white border-[3px] border-[#1a1a1a] rounded-[48px] shadow-[0_8px_0_0_#1a1a1a]">
-                    <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-dashed border-black/10">
-                         <ShoppingBag size={40} className="text-black/10" />
-                    </div>
-                    <h3 className="text-2xl font-black uppercase tracking-tighter text-[#1a1a1a] mb-2">{isPT ? 'SELECIONE UMA LOJA' : 'SELECT A STORE'}</h3>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[#1a1a1a]/30 italic">{isPT ? 'Escolha uma loja acima para começar a gerenciar seus produtos' : 'Choose a store above to start managing your products'}</p>
+                {/* Right Actions Block */}
+                <div className="flex items-center gap-3 shrink-0 pr-2 sm:pr-4" onClick={(e) => e.stopPropagation()}>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked={product.isActive !== false} onChange={() => updateProductField(product.id, 'isActive', product.isActive === false)} className="sr-only peer" />
+                                <div className="w-[42px] h-[22px] border-[2.5px] border-black bg-white rounded-full transition-all duration-300 peer-checked:bg-[#97cd7a] shadow-[0_2px_0_0_#000] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-2 after:border-black after:w-[13px] after:h-[13px] after:rounded-full after:transition-all peer-checked:after:translate-x-[20px]"></div>
+                            </label>
+                    
+                    <button
+                        onClick={(e) => { e.stopPropagation(); setDeletingProductId(product.id); }}
+                        className="p-1 sm:p-2 text-black/10 hover:text-red-500 transition-colors"
+                    >
+                        <Trash2 size={16} />
+                    </button>
                 </div>
-            )}
+            </div>
 
-            {stores.length === 0 && (
-                <div className="text-center py-40 px-10 bg-slate-50 border-[3px] border-dashed border-black/20 rounded-[48px] animate-pulse">
-                     <div className="w-24 h-24 bg-white border-2 border-black/5 rounded-full flex items-center justify-center mx-auto mb-8">
-                         <ShoppingBag size={40} className="text-black/5" />
-                    </div>
-                    <h3 className="text-xl font-black uppercase tracking-tighter text-black/20 mb-4">{isPT ? 'COMECE CRIANDO SUA PRIMEIRA LOJA' : 'START BY CREATING YOUR FIRST STORE'}</h3>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-black/10 italic">{isPT ? 'Clique no botão "Nova Loja" acima' : 'Click the "New Store" button above'}</p>
+            <AnimatePresence>
+                {isEditing && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="border-t-2 border-[#1a1a1a] border-dashed overflow-hidden"
+                    >
+                        <div className="p-2 sm:p-4">
+                            {renderAddForm(product.storeId || '', product.collection || 'uncategorized', product)}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </Reorder.Item>
+    );
+};
+
+interface StoreItemProps {
+    store: Store;
+    products: Product[];
+    stores: Store[];
+    onStoresChange: (stores: Store[]) => void;
+    onChange: (products: Product[]) => void;
+    expandedStoreId: string | null;
+    handleToggleStore: (id: string) => void;
+    setDeletingStoreId: (id: string | null) => void;
+    handleFileUpload: (file: File, target: string) => Promise<void>;
+    uploadingTarget: string | null;
+    renderAddForm: (storeId: string, collectionName: string, existingProduct?: Product) => React.ReactNode;
+    renderProduct: (product: Product) => React.ReactNode;
+    setIsAddingCollection: (id: string | null) => void;
+    isAddingCollection: string | null;
+    newCollectionName: string;
+    setNewCollectionName: (val: string) => void;
+    handleAddCollection: (storeId: string) => void;
+    addingToCollection: { storeId: string, colName: string } | null;
+    setAddingToCollection: (val: { storeId: string, colName: string } | null) => void;
+    setShowArchive: (val: boolean) => void;
+    expandedCollections: string[];
+    toggleCollection: (storeId: string, colName: string) => void;
+    editingCollection: { storeId: string, oldName: string, newName: string } | null;
+    setEditingCollection: (val: { storeId: string, oldName: string, newName: string } | null) => void;
+    handleRenameCollection: (storeId: string, oldName: string, newName: string) => void;
+    setExpandedCollections: React.Dispatch<React.SetStateAction<string[]>>;
+    isPT: boolean;
+    setDeletingCollection: (val: { storeId: string, name: string } | null) => void;
+    handleReorderProducts: (storeId: string, colName: string, reorderedSubset: Product[]) => void;
+    handleReorderCollections: (storeId: string, newCols: string[]) => void;
+}
+const StoreItem: React.FC<StoreItemProps> = ({
+    store, products, stores, onStoresChange, onChange, expandedStoreId, handleToggleStore,
+    setDeletingStoreId, handleFileUpload, uploadingTarget, renderAddForm, renderProduct,
+    setIsAddingCollection, isAddingCollection, newCollectionName, setNewCollectionName,
+    handleAddCollection, addingToCollection, setAddingToCollection, setShowArchive,
+    expandedCollections, toggleCollection, editingCollection, setEditingCollection,
+    handleRenameCollection, setExpandedCollections, isPT, setDeletingCollection,
+    handleReorderProducts, handleReorderCollections
+}) => {
+    const dragControls = useDragControls();
+    const storeProducts = products.filter(p => p.storeId === store.id && !p.isArchived);
+    const storeCols = Array.from(new Set([
+        ...(store.collections || []),
+        ...storeProducts.map(p => p.collection).filter(Boolean) as string[]
+    ]));
+    const uncat = storeProducts.filter(p => !p.collection);
+    const isExpanded = expandedStoreId === store.id;
+
+    return (
+        <Reorder.Item
+            value={store}
+            dragListener={false}
+            dragControls={dragControls}
+            layout
+            whileDrag={{ zIndex: 50, borderRadius: '6px' }}
+            className={`group relative select-none border-2 border-[#1a1a1a] rounded-md overflow-hidden transition-colors duration-300 ${isExpanded ? 'bg-[#fefcbf] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'}`}
+        >
+            <div className="flex items-stretch min-h-[80px]">
+                {/* Drag Handle Area */}
+                <div 
+                    className="w-10 sm:w-12 shrink-0 flex items-center justify-center border-r-[1.5px] border-black/10 group-hover:border-black/30 transition-colors bg-white cursor-grab active:cursor-grabbing touch-none"
+                    onPointerDown={(e) => dragControls.start(e)}
+                >
+                    <GripVertical size={16} className="text-black/15 group-hover:text-black/40" />
                 </div>
-            )}
 
-            <ImageCropperModal
-                isOpen={cropper.isOpen}
-                image={cropper.image}
-                aspectRatio={1}
-                title={t('shop.cropImage') || 'Recortar Imagem do Produto'}
-                onClose={() => setCropper(prev => ({ ...prev, isOpen: false }))}
-                onCropComplete={async (blob) => {
-                    try {
-                        const file = new File([blob], 'product.jpg', { type: 'image/jpeg' });
-                        const uploadRes = await apiClient.uploadInternalAsset(file);
+                <div className="flex-1 flex flex-col justify-center min-w-0">
+                    <div
+                        onClick={() => handleToggleStore(store.id)}
+                        className="flex-1 flex items-center gap-1.5 sm:gap-3 p-4 sm:p-5 cursor-pointer h-full"
+                    >
+                        <div className="text-black/10 shrink-0">
+                            {isExpanded ? <ChevronDown size={14} strokeWidth={3} /> : <ChevronRight size={14} strokeWidth={3} />}
+                        </div>
 
-                        let imageUrl = '';
-                        if (uploadRes.success && uploadRes.file?.url) {
-                            imageUrl = uploadRes.file.url;
-                        } else {
-                            // Fallback to Base64 if upload fails, though less desirable
-                            imageUrl = await blobToDataURL(blob);
-                        }
+                        <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 border-[1.5px] border-black bg-black rounded-md overflow-hidden relative shadow-[0_2px_0_0_#000]">
+                            {store.imageUrl ? (
+                                <img src={store.imageUrl} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="bg-white absolute inset-0 flex flex-col items-center justify-center text-black/10">
+                                    <StoreIcon size={20} />
+                                </div>
+                            )}
+                        </div>
 
-                        if (cropper.isNewProduct) {
-                            setNewProduct({ ...newProduct, image: imageUrl });
-                        } else if (cropper.targetProductId) {
-                            updateProduct(cropper.targetProductId, 'image', imageUrl);
-                        }
-                    } catch (error) {
-                        console.error('Error uploading product image:', error);
-                    }
-                    setCropper(prev => ({ ...prev, isOpen: false }));
-                }}
-            />
-        </div>
+                        <div className="flex-1 min-w-0 pr-2">
+                            <div className="flex flex-col justify-center items-center sm:items-start h-full">
+                                <h4 className="text-[14px] sm:text-[15px] font-black uppercase tracking-tight text-black truncate leading-tight w-full text-center sm:text-left">{store.name}</h4>
+                                <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-3 mt-1 text-[9.5px] sm:text-[10px] font-black text-black/30 uppercase tracking-[0.1em] w-full">
+                                    <span>{storeProducts.length} {isPT ? 'ITENS' : 'ITEMS'}</span>
+                                    <span className="w-1 h-1 bg-black/10 rounded-full" />
+                                    <span>{storeCols.length} {isPT ? 'COLEÇÕES' : 'COLLECTIONS'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 sm:gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked={store.isActive} onChange={() => onStoresChange(stores.map(s => s.id === store.id ? { ...s, isActive: !s.isActive } : s))} className="sr-only peer" />
+                                <div className="w-[42px] h-[22px] border-[2.5px] border-black bg-white rounded-full transition-all duration-300 peer-checked:bg-[#97cd7a] shadow-[0_2px_0_0_#000] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-2 after:border-black after:w-[13px] after:h-[13px] after:rounded-full after:transition-all peer-checked:after:translate-x-[20px]"></div>
+                            </label>
+
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setDeletingStoreId(store.id); }}
+                                className="p-1 sm:p-2 text-black/10 hover:text-red-500 transition-colors"
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <AnimatePresence>
+                {isExpanded && (
+                    <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="border-t-2 border-[#1a1a1a] border-dashed overflow-hidden bg-white px-1 sm:px-2.5 py-6 space-y-8">
+                        <div className="flex items-center gap-4 sm:gap-6 pb-8 border-b-2 border-black/5">
+                            <div className="relative group shrink-0">
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-black border-2 border-black rounded-md overflow-hidden shadow-[0_4px_0_0_#000] relative">
+                                    {store.imageUrl ? <img src={store.imageUrl} className="w-full h-full object-cover" /> : <div className="bg-white w-full h-full flex items-center justify-center text-black/5"><StoreIcon /></div>}
+                                    {uploadingTarget === `STORE_LOGO:${store.id}` && (
+                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10 transition-all rounded-sm">
+                                            <Loader2 size={24} className="text-[#ffdf00] animate-spin" />
+                                        </div>
+                                    )}
+                                    <input
+                                        type="file"
+                                        className="absolute inset-0 opacity-0 cursor-pointer"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            if (e.target.files?.[0]) {
+                                                handleFileUpload(e.target.files[0], `STORE_LOGO:${store.id}`);
+                                                e.target.value = '';
+                                            }
+                                        }}
+                                    />
+                                </div>
+                                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#ffdf00] border-2 border-black rounded-sm flex items-center justify-center shadow-[0_2px_0_0_#000] pointer-events-none group-hover:scale-110 transition-transform">
+                                    <Pencil size={12} strokeWidth={3} />
+                                </div>
+                            </div>
+
+                            <div className="flex-1 space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-black/30 px-1">{isPT ? 'TÍTULO / RÓTULO' : 'TITLE / LABEL'}</label>
+                                <input
+                                    type="text"
+                                    value={store.name}
+                                    placeholder={isPT ? "MINHA VITRINE" : "MY SHOWCASE"}
+                                    onChange={e => onStoresChange(stores.map(s => s.id === store.id ? { ...s, name: e.target.value } : s))}
+                                    className="w-full bg-slate-50 border-2 border-black px-4 py-3 sm:py-4 text-[13px] sm:text-base font-black uppercase rounded-sm outline-none shadow-[0_4px_0_0_#000] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/5"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="flex flex-col gap-4 mb-4 sm:mb-2">
+                                <h5 className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] text-black/40">{isPT ? 'Produtos e Categorias' : 'Products & Categories'}</h5>
+                                <div className="grid grid-cols-2 md:grid-cols-3 xl:flex xl:items-center gap-2 sm:gap-3">
+                                    <button
+                                        onClick={() => setAddingToCollection({ storeId: store.id, colName: 'uncategorized' })}
+                                        className="flex items-center justify-center gap-2 px-3 sm:px-4 h-10 bg-[#ffdf00] border-2 border-black rounded-md text-[8px] sm:text-[9px] font-black uppercase tracking-widest shadow-[0_3px_0_0_#000] transition-all cursor-pointer active:scale-95 active:shadow-none"
+                                    >
+                                        <Plus size={14} strokeWidth={3} /> {isPT ? 'PRODUTO' : 'PRODUCT'}
+                                    </button>
+                                    <button onClick={() => setIsAddingCollection(store.id)} className="flex items-center justify-center gap-2 px-3 sm:px-4 h-10 bg-white border-2 border-black rounded-md text-[8px] sm:text-[9px] font-black uppercase tracking-widest shadow-[0_3px_0_0_#1a1a1a] transition-all cursor-pointer active:scale-95 active:shadow-none">
+                                        <FolderPlus size={14} /> {isPT ? 'COLEÇÃO' : 'COLLECTION'}
+                                    </button>
+                                    <button onClick={() => setShowArchive(true)} className="col-span-2 md:col-span-1 flex items-center justify-center gap-2 px-3 sm:px-4 h-10 bg-white border-2 border-black rounded-md text-[8px] sm:text-[9px] font-black uppercase tracking-widest shadow-[0_3px_0_0_#1a1a1a] transition-all cursor-pointer active:scale-95 active:shadow-none">
+                                        <Archive size={14} /> {isPT ? 'ARQUIVADOS' : 'ARCHIVED'} ({products.filter(p => p.isArchived).length})
+                                    </button>
+                                </div>
+                            </div>
+
+                            <AnimatePresence>
+                                {isAddingCollection === store.id && (
+                                    <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} className="bg-[#ffdf00] p-6 border-2 border-black rounded-md mb-8 flex flex-col sm:flex-row gap-4 shadow-[0_8px_0_0_#1a1a1a]">
+                                        <input
+                                            autoFocus type="text" placeholder={isPT ? "Ex: Lançamentos" : "Ex: New Arrivals"}
+                                            className="flex-1 bg-white border-2 border-black rounded-md px-5 py-3 text-sm font-black uppercase shadow-[0_3px_0_0_#000] outline-none"
+                                            value={newCollectionName} onChange={e => setNewCollectionName(e.target.value)}
+                                            onKeyDown={e => e.key === 'Enter' && handleAddCollection(store.id)}
+                                        />
+                                        <div className="flex gap-2">
+                                            <button onClick={() => handleAddCollection(store.id)} className="flex-1 sm:px-8 py-3 bg-black text-[#97cd7a] border-2 border-black rounded-md text-[10px] font-black uppercase tracking-widest shadow-[0_3px_0_0_rgba(0,0,0,0.2)] transition-all">{isPT ? 'CRIAR' : 'CREATE'}</button>
+                                            <button onClick={() => setIsAddingCollection(null)} className="p-3 bg-white border-2 border-black rounded-md shadow-[0_3px_0_0_#000] transition-all"><X size={20} /></button>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <div className="space-y-4">
+                                {/* Root products (uncategorized) */}
+                                {addingToCollection?.storeId === store.id && addingToCollection?.colName === 'uncategorized' && (
+                                    <div className="bg-slate-50 p-6 rounded-md border-2 border-dashed border-black mb-6">
+                                        {renderAddForm(store.id, 'uncategorized')}
+                                    </div>
+                                )}
+                                
+                                <Reorder.Group 
+                                    axis="y" 
+                                    values={uncat.sort((a, b) => (a.position - b.position))} 
+                                    onReorder={(newUncat) => handleReorderProducts(store.id, 'uncategorized', newUncat)}
+                                    className="space-y-3"
+                                >
+                                    {uncat.sort((a, b) => (a.position - b.position)).map(renderProduct)}
+                                </Reorder.Group>
+
+                                <Reorder.Group 
+                                    axis="y" 
+                                    values={storeCols} 
+                                    onReorder={(newCols) => handleReorderCollections(store.id, newCols)}
+                                    className="space-y-4"
+                                >
+                                    {storeCols.map(colName => {
+                                        const colProducts = storeProducts.filter(p => p.collection === colName);
+                                        const isAddingToCol = addingToCollection?.storeId === store.id && addingToCollection?.colName === colName;
+                                        const colKey = `${store.id}:${colName}`;
+                                        const isColExpanded = expandedCollections.includes(colKey);
+                                        const colDragControls = useDragControls();
+
+                                        return (
+                                            <Reorder.Item 
+                                                key={colName} 
+                                                value={colName}
+                                                dragListener={false}
+                                                dragControls={colDragControls}
+                                                layout
+                                                whileDrag={{ zIndex: 50, borderRadius: '6px' }}
+                                                className={`select-none border-2 border-black rounded-md overflow-hidden shadow-[0_4px_0_0_#000] bg-white transition-colors ${isColExpanded ? 'mb-4' : 'mb-3'}`}
+                                            >
+                                                <div
+                                                    className="flex items-center min-h-[82px] transition-colors cursor-pointer hover:bg-slate-50"
+                                                    onClick={() => toggleCollection(store.id, colName)}
+                                                >
+                                                    <div 
+                                                        className="w-10 sm:w-12 shrink-0 flex items-center justify-center border-r-[1.5px] border-black/10 transition-colors bg-white cursor-grab active:cursor-grabbing touch-none"
+                                                        onPointerDown={(e) => colDragControls.start(e)}
+                                                    >
+                                                        <GripVertical size={16} className="text-black/15 group-hover:text-black/40" />
+                                                    </div>
+
+                                                    <div className="flex-1 flex items-center gap-3 sm:gap-4 py-4 px-3 sm:px-4 overflow-hidden">
+                                                        <div className="text-black/20 shrink-0">
+                                                            {isColExpanded ? <ChevronDown size={16} strokeWidth={3} /> : <ChevronRight size={16} strokeWidth={3} />}
+                                                        </div>
+
+                                                        <div className="hidden sm:flex w-12 h-12 sm:w-14 sm:h-14 border-2 border-black rounded-md bg-white items-center justify-center shadow-[0_3px_0_0_#000] shrink-0">
+                                                            <Folder className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.5} />
+                                                        </div>
+
+                                                        <div className="flex-1 min-w-0 pr-2">
+                                                            {editingCollection?.storeId === store.id && editingCollection?.oldName === colName ? (
+                                                                <input autoFocus type="text" className="bg-white border-2 border-black rounded-md px-2 py-1 text-sm sm:text-base font-black uppercase outline-none shadow-[0_2px_0_0_#000] w-full" value={editingCollection.newName} onChange={e => setEditingCollection({ ...editingCollection, newName: e.target.value })} onBlur={() => handleRenameCollection(store.id, colName, editingCollection.newName)} onKeyDown={e => e.key === 'Enter' && handleRenameCollection(store.id, colName, editingCollection.newName)} onClick={e => e.stopPropagation()} />
+                                                            ) : (
+                                                                <div className="flex items-center gap-2 group/col-title">
+                                                                    <h6 className="text-[14px] sm:text-[16px] font-black uppercase tracking-tight truncate">{colName}</h6>
+                                                                    <button onClick={(e) => { e.stopPropagation(); setEditingCollection({ storeId: store.id, oldName: colName, newName: colName }); }} className="opacity-0 group-hover/col-title:opacity-100 p-1 text-black/20 hover:text-black transition-all"><Pencil size={12} /></button>
+                                                                </div>
+                                                            )}
+                                                            <p className="text-[10px] sm:text-[11px] font-black text-black/30 uppercase tracking-widest mt-1 truncate">
+                                                                {colProducts.length} {colProducts.length === 1 ? (isPT ? 'ITEM CONFIGURADO' : 'ITEM CONFIGURED') : (isPT ? 'ITENS CONFIGURADOS' : 'ITEMS CONFIGURED')}
+                                                            </p>
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2 sm:gap-3 shrink-0" onClick={e => e.stopPropagation()}>
+
+                                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                                <input 
+                                                                    type="checkbox" 
+                                                                    checked={!(store.disabledCollections || []).includes(colName)} 
+                                                                    onChange={() => {
+                                                                        const disabled = store.disabledCollections || [];
+                                                                        const updated = disabled.includes(colName) 
+                                                                            ? disabled.filter(c => c !== colName) 
+                                                                            : [...disabled, colName];
+                                                                        onStoresChange(stores.map(s => s.id === store.id ? { ...s, disabledCollections: updated } : s));
+                                                                    }} 
+                                                                    className="sr-only peer" 
+                                                                />
+                                                                <div className="w-[42px] h-[22px] border-[2.5px] border-black bg-white rounded-full transition-all duration-300 peer-checked:bg-[#97cd7a] shadow-[0_2px_0_0_#000] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-2 after:border-black after:w-[13px] after:h-[13px] after:rounded-full after:transition-all peer-checked:after:translate-x-[20px]"></div>
+                                                            </label>
+                                                            <button onClick={() => setDeletingCollection({ storeId: store.id, name: colName })} className="p-1 sm:p-2 text-black/10 hover:text-red-500 transition-colors">
+                                                                <Trash2 className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px]" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <AnimatePresence>
+                                                    {isColExpanded && (
+                                                        <motion.div
+                                                            initial={{ height: 0, opacity: 0 }}
+                                                            animate={{ height: 'auto', opacity: 1 }}
+                                                            exit={{ height: 0, opacity: 0 }}
+                                                            className="overflow-hidden bg-[#fff9c4]/10 border-t border-black border-dashed"
+                                                        >
+                                                            <div className="p-1 sm:p-2 space-y-3">
+                                                                {isAddingToCol && renderAddForm(store.id, colName)}
+                                                                <Reorder.Group 
+                                                                    axis="y" 
+                                                                    values={colProducts.sort((a, b) => (a.position - b.position))} 
+                                                                    onReorder={(newProds) => handleReorderProducts(store.id, colName, newProds)}
+                                                                    className="space-y-3"
+                                                                >
+                                                                    {colProducts.sort((a, b) => (a.position - b.position)).map(renderProduct)}
+                                                                </Reorder.Group>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </Reorder.Item>
+                                        );
+                                    })}
+                                </Reorder.Group>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </Reorder.Item>
     );
 }
+

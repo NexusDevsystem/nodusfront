@@ -29,25 +29,26 @@ export default function PrivacyPolicyPage() {
 
                     <h3>1. Informações que coletamos</h3>
                     <p>
-                        Coletamos informações pessoais que você nos fornece voluntariamente ao se registrar no Nodus, como seu nome, endereço de e-mail e foto de perfil.
-                        Além disso, quando você utiliza nossos serviços de integração com terceiros (como Google/YouTube), coletamos as informações necessárias para fornecer a funcionalidade solicitada, conforme descrito abaixo.
-                    </p>
-
-                    <h3>2. Uso de Dados do Google (YouTube)</h3>
-                    <p>
-                        O Nodus utiliza serviços de API do YouTube para permitir que você exiba estatísticas do seu canal (como contagem de inscritos) em seu perfil.
-                        Ao conectar sua conta do YouTube, acessamos:
+                        Coletamos informações pessoais que você nos fornece voluntariamente ao se registrar e utilizar o Nodus:
                     </p>
                     <ul>
-                        <li><strong>Informações do Canal:</strong> Título, descrição, ID do canal e contagem de inscritos.</li>
-                        <li><strong>Estatísticas Básicas:</strong> Apenas dados públicos para exibição no seu cartão de perfil.</li>
+                        <li><strong>Dados de Conta:</strong> Nome, e-mail, foto de perfil e senhas criptografadas.</li>
+                        <li><strong>Perfil e Bio:</strong> Informações biográficas, links sociais e personalizações de layout.</li>
+                        <li><strong>Dados de Loja e Catálogo:</strong> Fotos de produtos, descrições, preços e informações de estoque.</li>
+                        <li><strong>Dados de Transações:</strong> Histórico de ordens, chaves Pix fornecidas e e-mails de pagamento (Stripe/PayPal).</li>
+                    </ul>
+
+                    <h3>2. Integrações com Terceiros</h3>
+                    <p>
+                        O Nodus permite a integração com diversas plataformas para enriquecer seu perfil:
+                    </p>
+                    <ul>
+                        <li><strong>Google (YouTube):</strong> Acessamos dados públicos do canal (inscritos, título) via API para exibição de estatísticas.</li>
+                        <li><strong>Instagram:</strong> Quando conectado, acessamos informações básicas de perfil e mídia para integração de feed ou links.</li>
+                        <li><strong>Serviços de Pagamento:</strong> Utilizamos Stripe e PayPal para processamento de cobranças e assinaturas. Seus dados de cartão são processados diretamente por esses provedores; o Nodus não armazena dados sensíveis de pagamento.</li>
                     </ul>
                     <p>
-                        <strong>Não armazenamos</strong> dados sensíveis além dos tokens de acesso necessários para manter a conexão ativa.
-                        O Nodus <strong>não compartilha</strong> seus dados do Google com terceiros, exceto conforme necessário para fornecer o serviço (por exemplo, exibir seus inscritos publicamente no seu perfil Nodus, conforme sua configuração).
-                    </p>
-                    <p>
-                        O uso das informações recebidas das APIs do Google pelo Nodus adere à <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Política de Dados do Usuário dos Serviços de API do Google</a>, incluindo os requisitos de uso limitado.
+                        O uso das informações recebidas de APIs de terceiros adere às respectivas políticas de dados (como a <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Política de Dados do Usuário do Google</a>).
                     </p>
 
                     <h3>3. Como usamos suas informações</h3>
@@ -55,33 +56,42 @@ export default function PrivacyPolicyPage() {
                         Usamos suas informações para:
                     </p>
                     <ul>
-                        <li>Fornecer, operar e manter nosso site;</li>
-                        <li>Melhorar, personalizar e expandir nosso site;</li>
-                        <li>Entender e analisar como você usa nosso site;</li>
-                        <li>Desenvolver novos produtos, serviços, recursos e funcionalidades;</li>
-                        <li>Comunicar com você, diretamente ou através de um dos nossos parceiros, incluindo para atendimento ao cliente, para fornecer atualizações e outras informações relacionadas ao site, e para fins de marketing e promoção;</li>
-                        <li>Enviar-lhe e-mails;</li>
-                        <li>Encontrar e prevenir fraudes.</li>
+                        <li>Fornecer, operar e manter seu perfil público e painel administrativo;</li>
+                        <li>Processar vendas e gerenciar o catálogo da sua loja;</li>
+                        <li>Permitir que compradores entrem em contato com você após uma compra;</li>
+                        <li>Melhorar, personalizar e expandir as funcionalidades da plataforma;</li>
+                        <li>Entender e analisar estatísticas de acesso ao seu perfil;</li>
+                        <li>Garantir a segurança e prevenir fraudes ou abusos.</li>
                     </ul>
 
-                    <h3>4. Segurança</h3>
+                    <h3>4. Compartilhamento de Dados</h3>
                     <p>
-                        Valorizamos sua confiança em nos fornecer suas Informações Pessoais, portanto, estamos nos esforçando para usar meios comercialmente aceitáveis de protegê-las. Mas lembre-se que nenhum método de transmissão pela internet ou método de armazenamento eletrônico é 100% seguro e confiável, e não podemos garantir sua segurança absoluta.
+                        O Nodus <strong>não vende</strong> seus dados pessoais. Compartilhamos informações apenas:
+                    </p>
+                    <ul>
+                        <li><strong>Com Compradores/Vendedores:</strong> Em caso de venda na plataforma, os dados necessários para a entrega (nome, e-mail, endereço se aplicável) são compartilhados entre as partes interessadas.</li>
+                        <li><strong>Com Provedores de Serviço:</strong> Hospedagem, processamento de pagamentos e ferramentas de análise.</li>
+                        <li><strong>Por Requisito Legal:</strong> Quando exigido por lei ou para proteger direitos.</li>
+                    </ul>
+
+                    <h3>5. Segurança</h3>
+                    <p>
+                        Adotamos práticas de segurança de padrão de mercado, incluindo criptografia SSL e armazenamento seguro de senhas (hashing), para proteger suas informações. No entanto, nenhum sistema é 100% impenetrável.
                     </p>
 
-                    <h3>5. Cookies</h3>
+                    <h3>6. Seus Direitos</h3>
                     <p>
-                        O Nodus usa cookies para armazenar informações sobre preferências dos visitantes, para registrar informações específicas do usuário sobre as páginas que o visitante acessa ou visita, e para personalizar ou customizar o conteúdo da nossa página web com base no tipo de navegador dos visitantes ou outras informações que o visitante envia através do seu navegador.
+                        Você pode, a qualquer momento, editar ou excluir suas informações através do painel do Nodus. Caso deseje a exclusão permanente de sua conta e todos os dados associados, entre em contato conosco.
                     </p>
 
-                    <h3>6. Links para Outros Sites</h3>
+                    <h3>7. Cookies</h3>
                     <p>
-                        Nosso Serviço pode conter links para outros sites que não são operados por nós. Se você clicar em um link de terceiros, você será direcionado para o site desse terceiro. Aconselhamos veementemente que reveja a Política de Privacidade de cada site que visita.
+                        Usamos cookies essenciais para manter sua sessão ativa e ferramentas de análise para entender o fluxo de uso da plataforma e otimizar a experiência.
                     </p>
 
-                    <h3>7. Contato</h3>
+                    <h3>8. Contato</h3>
                     <p>
-                        Se você tiver alguma dúvida ou sugestão sobre nossa Política de Privacidade, não hesite em nos contatar em <a href="mailto:contato@noduscc.com.br">contato@noduscc.com.br</a>.
+                        Dúvidas sobre privacidade? <a href="mailto:contato@noduscc.com.br">contato@noduscc.com.br</a>.
                     </p>
                 </div>
             </main>

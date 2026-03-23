@@ -96,7 +96,7 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
                                 </button>
 
                                 <div className="flex items-center gap-4 pt-1">
-                                    <div className="w-20 h-20 bg-white shadow-[0_4px_0_0_#1a1a1a] rounded-2xl shrink-0 overflow-hidden border-2 border-[#1a1a1a]">
+                                    <div className="w-20 h-20 bg-white shadow-[0_4px_0_0_#1a1a1a] rounded-md shrink-0 overflow-hidden border-2 border-[#1a1a1a]">
                                         {profile.avatarUrl ? (
                                             <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
                                         ) : (
@@ -185,7 +185,7 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="p-8 border border-dashed border-slate-100 rounded-3xl text-center flex flex-col items-center justify-center">
+                                    <div className="p-8 border border-dashed border-slate-100 rounded-sm text-center flex flex-col items-center justify-center">
                                         <Users size={32} className="text-slate-100 mb-3" />
                                         <p className="text-sm font-semibold text-slate-300">{t('mediakit.noAudience') || 'Audiência não vinculada'}</p>
                                     </div>
@@ -249,7 +249,7 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
                                             </a>
                                         );
                                     }) : (
-                                        <div className="p-8 border border-dashed border-slate-100 rounded-3xl text-center flex flex-col items-center justify-center">
+                                        <div className="p-8 border border-dashed border-slate-100 rounded-sm text-center flex flex-col items-center justify-center">
                                             <TrendingUp size={32} className="text-slate-100 mb-3" />
                                             <p className="text-sm font-semibold text-slate-300">{t('mediakit.noLinks') || 'Ainda não há dados suficientes'}</p>
                                         </div>
@@ -265,7 +265,7 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
                                 href={mediaKitLink?.url || `mailto:${profile.email || ''}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-full flex items-center justify-center gap-2 py-4 bg-[#609942] text-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-2xl font-bold text-sm hover:translate-y-[1px] hover:shadow-none transition-all"
+                                className="w-full flex items-center justify-center gap-2 py-4 bg-[#609942] text-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-md font-bold text-sm hover:translate-y-[1px] hover:shadow-none transition-all"
                             >
                                 <Mail size={18} />
                                 {mediaKitLink?.subtitle || t('mediakit.contactMe') || 'Entrar em Contato'}

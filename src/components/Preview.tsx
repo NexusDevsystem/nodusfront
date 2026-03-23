@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserProfile, LinkItem, Product } from '../types';
+import { UserProfile, LinkItem, Product, Store } from '../types';
 import { ExternalLink, Globe, Signal, Wifi, Battery } from 'lucide-react';
 import ProfileRenderer from './ProfileRenderer';
 
@@ -7,11 +7,12 @@ interface PreviewProps {
   profile: UserProfile;
   links: LinkItem[];
   products: Product[];
+  stores?: Store[];
   onShare?: () => void;
   forcedTab?: 'links' | 'shop';
 }
 
-const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShare, forcedTab }) => {
+const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], stores = [], onShare, forcedTab }) => {
   return (
     <div className="flex flex-col items-center lg:justify-center w-full h-full lg:overflow-visible select-none lg:px-4">
       {/* Public URL Preview Bar - Hidden on mobile for immersive feel */}
@@ -28,10 +29,10 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShar
       </div>      {/* Frame Container - Full screen on mobile, S24 Ultra mockup on desktop */}
       <div className={`relative origin-center flex items-center justify-center w-full h-full lg:w-[350px] lg:h-[740px] lg:scale-[0.83] xl:scale-100`}>
         {/* Phone Body */}
-        <div className="relative w-full h-full lg:bg-black lg:border-[8px] lg:border-[#1a1a1a] lg:rounded-[24px] lg:shadow-[0_20px_40px_-10px_rgba(26,26,26,0.4)] flex flex-col lg:ring-1 lg:ring-[#2a2a2a] transform z-10">
+        <div className="relative w-full h-full lg:bg-black lg:border-[8px] lg:border-[#1a1a1a] lg:rounded-sm lg:shadow-[0_20px_40px_-10px_rgba(26,26,26,0.4)] flex flex-col lg:ring-1 lg:ring-[#2a2a2a] transform z-10">
 
           {/* Screen Content Wrapper */}
-          <div className="relative w-full h-full lg:rounded-[16px] overflow-hidden bg-white flex flex-col transform">
+          <div className="relative w-full h-full lg:rounded-sm overflow-hidden bg-white flex flex-col transform">
 
             {/* Android Status Bar (Overlay) */}
             <div className="hidden lg:flex w-full absolute top-0 z-[100] h-8 px-4 justify-between items-center text-white pointer-events-none mix-blend-difference">
@@ -54,6 +55,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], onShar
               profile={profile}
               links={links}
               products={products}
+              stores={stores}
               isPreview={true}
               onShare={onShare}
               forcedTab={forcedTab}

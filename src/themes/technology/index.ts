@@ -125,7 +125,7 @@ export const technologyAiTheme: Theme = {
     name: 'AI Gradient',
     backgroundClass: 'bg-[#111]',
     solidColor: '#111111',
-    buttonClass: 'bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-xl text-white border border-white/10 rounded-full hover:scale-105 hover:border-white/30 transition-all duration-300 font-medium shadow-[0_4px_30px_rgba(0,0,0,0.1)]',
+    buttonClass: 'bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-xl text-white border border-white/10 rounded-full hover:border-white/30 transition-all duration-300 font-medium shadow-[0_4px_30px_rgba(0,0,0,0.1)]',
     cardClass: 'bg-black/40 backdrop-blur-3xl border border-white/5 rounded-[32px] text-white',
     textClass: 'text-white font-medium tracking-normal',
     avatarBorder: 'bg-gradient-to-tr from-pink-500 via-purple-500 to-cyan-500 p-[2px] rounded-full',

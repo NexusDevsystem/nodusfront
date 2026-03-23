@@ -77,7 +77,7 @@ export const MapBlock: React.FC<MapBlockProps> = ({
 
     return (
         <motion.div
-            whileHover={{ scale: 1.01 }}
+            whileHover={{ }}
             whileTap={{ scale: 0.99 }}
             className={`relative flex flex-col overflow-hidden group ${themeButtonClass} ${isCard ? 'p-0' : 'h-[72px] p-2.5'}`}
             style={{

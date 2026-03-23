@@ -8,7 +8,7 @@ export const artisticThemes: Theme[] = [
         name: 'Sketchbook',
         backgroundClass: 'bg-[#fdfaf5]', // Creamy paper
         // Button: Dashed border, hand-drawn feel
-        buttonClass: 'bg-transparent text-[#2c2c2c] border-2 border-dashed border-[#2c2c2c] hover:bg-[#2c2c2c]/5 hover:scale-[1.02] transform transition-all duration-300 w-full rounded-md py-4 px-6 flex items-center justify-between font-bold shadow-[0_2px_0_0_rgba(44,44,44,0.2)]',
+        buttonClass: 'bg-transparent text-[#2c2c2c] border-2 border-dashed border-[#2c2c2c] hover:bg-[#2c2c2c]/5 transform transition-all duration-300 w-full rounded-md py-4 px-6 flex items-center justify-between font-bold shadow-[0_2px_0_0_rgba(44,44,44,0.2)]',
         buttonHex: '#2c2c2c',
         textHex: '#2c2c2c',
         textClass: 'text-[#2c2c2c] font-sans font-bold tracking-tight',

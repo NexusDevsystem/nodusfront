@@ -49,32 +49,32 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[100] pointer-events-none overflow-hidden" role="status" aria-live="polite" aria-label="Carregando">
-      <div ref={layer3} className="absolute inset-0 bg-emerald-400" />
-      <div ref={layer2} className="absolute inset-0 bg-emerald-700" />
-      <div ref={layer1} className="absolute inset-0 bg-emerald-950 flex items-center justify-center">
+      <div ref={layer3} className="absolute inset-0 bg-[#a2d2a2]" />
+      <div ref={layer2} className="absolute inset-0 bg-[#5b8c51]" />
+      <div ref={layer1} className="absolute inset-0 bg-[#1a2e1a] flex items-center justify-center">
         <div ref={contentRef} className="flex flex-col items-center gap-8">
           
           <div className="relative flex items-center justify-center w-48 h-48">
-            <svg ref={spinnerRef} className="absolute inset-0 w-full h-full text-emerald-500/30" viewBox="0 0 100 100">
+            <svg ref={spinnerRef} className="absolute inset-0 w-full h-full text-[#a2d2a2]/30" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="20 10" />
               <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="10 20" />
               <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="5 5" />
             </svg>
             <div className="flex items-baseline">
-              <span className="font-display font-black text-7xl text-emerald-50 tracking-tighter">
+              <span className="font-display font-black text-7xl text-[#fdfdf6] tracking-tighter">
                 {progress}
               </span>
-              <span className="text-emerald-500 text-2xl font-bold ml-1">%</span>
+              <span className="text-[#a2d2a2] text-2xl font-bold ml-1">%</span>
             </div>
           </div>
 
           <div className="flex flex-col items-center gap-3">
-            <span className="text-emerald-400 font-mono text-xs tracking-[0.3em] uppercase">
+            <span className="text-[#a2d2a2] font-mono text-xs tracking-[0.3em] uppercase">
               Inicializando Nodus
             </span>
-            <div className="w-40 h-[2px] bg-emerald-900 relative overflow-hidden rounded-none">
+            <div className="w-40 h-[2px] bg-white/10 relative overflow-hidden rounded-none">
               <div 
-                className="absolute top-0 left-0 h-full bg-emerald-400 transition-all duration-75 ease-linear"
+                className="absolute top-0 left-0 h-full bg-[#a2d2a2] transition-all duration-75 ease-linear"
                 style={{ width: `${progress}%` }}
               />
             </div>

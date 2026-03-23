@@ -56,7 +56,7 @@ export const natureCorpTheme: Theme = {
     name: 'Nature Corp',
     backgroundClass: 'bg-[#F5F5DC]', // Bege/Areia
     solidColor: '#F5F5DC',
-    buttonClass: 'bg-[#4A5D23] text-[#F5F5DC] hover:bg-[#3B4A1C] rounded-xl font-medium shadow-md px-6 border-none transition-transform hover:scale-[1.02]',
+    buttonClass: 'bg-[#4A5D23] text-[#F5F5DC] hover:bg-[#3B4A1C] rounded-xl font-medium shadow-md px-6 border-none transition-transform',
     cardClass: 'bg-[#E8E8D0] border border-[#4A5D23]/10 rounded-xl shadow-sm hover:bg-[#E0E0C0] transition-all text-[#2C3815]',
     textClass: 'text-[#2C3815] font-medium tracking-normal',
     avatarBorder: 'border-4 border-[#4A5D23] rounded-full',
@@ -105,7 +105,7 @@ export const globalFinanceTheme: Theme = {
     name: 'Global Finance',
     backgroundClass: 'bg-[#064e3b]', // Forest Green
     solidColor: '#064e3b',
-    buttonClass: 'bg-[#D4AF37] text-[#064e3b] hover:bg-[#E5C079] rounded-sm font-serif font-bold shadow-lg px-8 border border-[#FCD34D] transition-transform hover:scale-105',
+    buttonClass: 'bg-[#D4AF37] text-[#064e3b] hover:bg-[#E5C079] rounded-sm font-serif font-bold shadow-lg px-8 border border-[#FCD34D] transition-transform',
     cardClass: 'bg-[#065f46] border border-[#D4AF37]/20 rounded-sm shadow-md text-[#ecfdf5]',
     textClass: 'text-[#ecfdf5] font-serif tracking-wide',
     avatarBorder: 'border-2 border-[#D4AF37] rounded-full',

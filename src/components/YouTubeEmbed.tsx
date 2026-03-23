@@ -5,7 +5,7 @@ import { FaYoutube } from 'react-icons/fa';
 interface YouTubeEmbedProps {
     url: string;
     title: string;
-    className?: string; // Allow passing extra classes like 'rounded-2xl' etc
+    className?: string; // Allow passing extra classes like 'rounded-md' etc
     themeButtonClass?: string;
     themeButtonStyle?: React.CSSProperties;
 }
@@ -55,7 +55,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
                     (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
                 }}
                 alt={title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-700"
             />
 
             {/* Overlays / Gradients for readability */}
@@ -65,7 +65,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90" />
 
             {/* YouTube Logo (Top Left) - Scaled down even more */}
-            <div className="absolute top-2.5 left-2.5 z-10 transition-transform group-hover:scale-110">
+            <div className="absolute top-2.5 left-2.5 z-10 transition-transform">
                 <div className="w-6 h-6 bg-[#FF0000] rounded-full flex items-center justify-center shadow-lg">
                     <FaYoutube size={12} className="text-white" />
                 </div>
@@ -80,7 +80,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
 
             {/* Custom Play Button - Scaled down even more, NO BACKGROUND */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 opacity-80 drop-shadow-[0_0_15px_rgba(26,26,26,0.4)]">
+                <div className="transition-all duration-300 group-hover:opacity-100 opacity-80 drop-shadow-[0_0_15px_rgba(26,26,26,0.4)]">
                     <Play size={32} fill="white" className="text-white ml-0.5" />
                 </div>
             </div>

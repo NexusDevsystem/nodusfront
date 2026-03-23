@@ -79,7 +79,7 @@ export function Navbar() {
 
   return (
     <header 
-      className={`fixed top-8 left-1/2 z-[100] bg-[#fdfdf6] border-2 border-dark rounded-2xl shadow-[0_8px_0_0_#000] w-[95%] max-w-6xl px-6 sm:px-10 py-2.5 transition-all duration-300 ${
+      className={`fixed top-8 left-1/2 z-[100] bg-[#fdfdf6] border-2 border-dark rounded-2xl shadow-[0_8px_0_0_#121212] w-[95%] max-w-6xl px-6 sm:px-10 py-2.5 transition-all duration-300 ${
         isVisible 
           ? '-translate-x-1/2 translate-y-0 opacity-100' 
           : '-translate-x-1/2 -translate-y-[200%] opacity-0'
@@ -113,7 +113,7 @@ export function Navbar() {
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
-                  className="absolute -top-3 -right-5 bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full border-2 border-dark shadow-[2px_2px_0_0_#000] min-w-[20px] text-center"
+                  className="absolute -top-3 -right-5 bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full border-2 border-dark shadow-[2px_2px_0_0_#121212] min-w-[20px] text-center"
                 >
                   {newPostsCount > 9 ? '9+' : newPostsCount}
                 </motion.span>
@@ -123,23 +123,23 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4 shrink-0">
-          <div className="hidden md:flex bg-white border-2 border-dark rounded-2xl overflow-hidden font-bold shadow-[0_4px_0_0_#000]">
+          <div className="hidden md:flex bg-white border-2 border-dark rounded-2xl overflow-hidden font-bold shadow-[0_4px_0_0_#121212]">
             <button 
               onClick={() => setLang('pt')}
-              className={`px-4 py-1.5 transition-colors ${lang === 'pt' ? 'bg-[#a5e6ab] text-dark' : 'text-dark/40 hover:bg-gray-100'}`}
+              className={`px-4 py-1.5 transition-colors ${lang === 'pt' ? 'bg-[#b4e3b8] text-dark' : 'text-dark/40 hover:bg-gray-100'}`}
             >
               PT
             </button>
             <div className="w-[1.5px] bg-dark"></div>
             <button 
               onClick={() => setLang('en')}
-              className={`px-4 py-1.5 transition-colors ${lang === 'en' ? 'bg-[#a5e6ab] text-dark' : 'text-gray-400 hover:bg-gray-100'}`}
+              className={`px-4 py-1.5 transition-colors ${lang === 'en' ? 'bg-[#b4e3b8] text-dark' : 'text-gray-400 hover:bg-gray-100'}`}
             >
               EN
             </button>
           </div>
           <Link to="/login" className="hidden md:flex">
-            <Button variant="primary" size="sm" className="rounded-2xl px-8 py-2 shadow-[0_4px_0_0_#000] bg-[#a5e6ab] border-2 text-dark font-black tracking-tight hover:translate-y-[1px] hover:shadow-[0_2px_0_0_#000]">
+            <Button variant="primary" size="sm" className="rounded-2xl px-8 py-2 shadow-[0_4px_0_0_#121212] bg-[#b4e3b8] border-2 text-dark font-black tracking-tight hover:translate-y-[1px] hover:shadow-[0_2px_0_0_#121212]">
               {t.nav.create}
             </Button>
           </Link>
@@ -200,28 +200,28 @@ export function Navbar() {
             <Link to="/blog" onClick={() => setIsMenuOpen(false)} className="hover:text-brand transition-colors uppercase text-sm flex items-center justify-center gap-2">
               {t.nav.blog}
               {newPostsCount > 0 && (
-                <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full border-2 border-dark shadow-[2px_2px_0_0_#000]">
+                <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full border-2 border-dark shadow-[2px_2px_0_0_#121212]">
                   {newPostsCount}
                 </span>
               )}
             </Link>
-            <div className="flex justify-center bg-white border-2 border-dark rounded-2xl overflow-hidden font-bold shadow-[0_4px_0_0_#000] mx-auto w-fit">
+            <div className="flex justify-center bg-white border-2 border-dark rounded-2xl overflow-hidden font-bold shadow-[0_4px_0_0_#121212] mx-auto w-fit">
               <button 
                 onClick={() => setLang('pt')}
-                className={`px-5 py-2 text-xs transition-colors ${lang === 'pt' ? 'bg-[#a5e6ab] text-dark' : 'text-dark/40 hover:bg-gray-100'}`}
+                className={`px-5 py-2 text-xs transition-colors ${lang === 'pt' ? 'bg-[#b4e3b8] text-dark' : 'text-dark/40 hover:bg-gray-100'}`}
               >
                 PT
               </button>
               <div className="w-[1.5px] bg-dark"></div>
               <button 
                 onClick={() => setLang('en')}
-                className={`px-5 py-2 text-xs transition-colors ${lang === 'en' ? 'bg-[#a5e6ab] text-dark' : 'text-gray-400 hover:bg-gray-100'}`}
+                className={`px-5 py-2 text-xs transition-colors ${lang === 'en' ? 'bg-[#b4e3b8] text-dark' : 'text-gray-400 hover:bg-gray-100'}`}
               >
                 EN
               </button>
             </div>
             <Link to="/login" onClick={() => setIsMenuOpen(false)} className="px-6">
-              <Button variant="primary" size="sm" className="w-full rounded-2xl py-3 shadow-[0_4px_0_0_#000] bg-[#a5e6ab] border-2 text-dark font-black tracking-tight text-sm">
+              <Button variant="primary" size="sm" className="w-full rounded-2xl py-3 shadow-[0_4px_0_0_#121212] bg-[#b4e3b8] border-2 text-dark font-black tracking-tight text-sm">
                 {t.nav.create}
               </Button>
             </Link>

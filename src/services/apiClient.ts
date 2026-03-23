@@ -333,11 +333,11 @@ class ApiClient {
         return data;
     }
 
-    async trackPageView(profileId: string): Promise<void> {
+    async trackPageView(profileId: string, fingerprint?: string): Promise<void> {
         try {
             await this.request('/api/analytics/track-view', {
                 method: 'POST',
-                body: JSON.stringify({ profileId })
+                body: JSON.stringify({ profileId, fingerprint })
             });
         } catch (e: any) {
             // Silently fail or handle internally
@@ -518,6 +518,13 @@ class ApiClient {
 
     async syncBlogCard(slug: string, imageData: string): Promise<any> {
         return this.request(`/api/files/sync-blog/${slug}`, {
+            method: 'POST',
+            body: JSON.stringify({ image: imageData })
+        });
+    }
+    
+    async syncProfileCard(username: string, imageData: string): Promise<any> {
+        return this.request(`/api/files/sync-profile/${username}`, {
             method: 'POST',
             body: JSON.stringify({ image: imageData })
         });

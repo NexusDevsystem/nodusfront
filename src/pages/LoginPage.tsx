@@ -136,7 +136,7 @@ export default function LoginPage() {
                     ) : (
                         <>
                             {/* Mode Toggle */}
-                            <div className="flex border-2 border-[#1a1a1a] shadow-[0_6px_0_0_rgba(26,26,26,1)] mb-8 rounded-2xl overflow-hidden">
+                            <div className="flex border-2 border-[#1a1a1a] shadow-[0_6px_0_0_rgba(26,26,26,1)] mb-8 rounded-md overflow-hidden">
                                 <button
                                     onClick={() => switchMode('login')}
                                     className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest transition-all ${mode === 'login' ? 'bg-[#ffdf00] text-black' : 'bg-white text-black hover:bg-[#ffdf00]/5'}`}
@@ -163,7 +163,7 @@ export default function LoginPage() {
                                             placeholder={t('login.namePlaceholder')}
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
-                                            className="w-full pl-11 pr-4 py-4 border-2 border-[#1a1a1a] text-sm font-bold placeholder:text-black/30 focus:outline-none focus:border-[#97cd7a] focus:shadow-[0_4px_0_0_rgba(151,205,122,0.5)] transition-all bg-white rounded-2xl"
+                                            className="w-full pl-11 pr-4 py-4 border-2 border-[#1a1a1a] text-sm font-bold placeholder:text-black/30 focus:outline-none focus:border-[#97cd7a] focus:shadow-[0_4px_0_0_rgba(151,205,122,0.5)] transition-all bg-white rounded-md"
                                             required
                                         />
                                     </div>
@@ -178,7 +178,7 @@ export default function LoginPage() {
                                         placeholder={t('login.emailPlaceholder')}
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full pl-11 pr-4 py-4 border-2 border-[#1a1a1a] text-sm font-bold placeholder:text-black/30 focus:outline-none focus:border-[#97cd7a] focus:shadow-[0_4px_0_0_rgba(151,205,122,0.5)] transition-all bg-white rounded-2xl"
+                                        className="w-full pl-11 pr-4 py-4 border-2 border-[#1a1a1a] text-sm font-bold placeholder:text-black/30 focus:outline-none focus:border-[#97cd7a] focus:shadow-[0_4px_0_0_rgba(151,205,122,0.5)] transition-all bg-white rounded-md"
                                         required
                                         autoComplete="email"
                                     />
@@ -193,7 +193,7 @@ export default function LoginPage() {
                                         placeholder={mode === 'register' ? t('login.passwordMinPlaceholder') : t('login.passwordPlaceholder')}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full pl-11 pr-12 py-4 border-2 border-[#1a1a1a] text-sm font-bold placeholder:text-black/30 focus:outline-none focus:border-[#97cd7a] focus:shadow-[0_4px_0_0_rgba(151,205,122,0.5)] transition-all bg-white rounded-2xl"
+                                        className="w-full pl-11 pr-12 py-4 border-2 border-[#1a1a1a] text-sm font-bold placeholder:text-black/30 focus:outline-none focus:border-[#97cd7a] focus:shadow-[0_4px_0_0_rgba(151,205,122,0.5)] transition-all bg-white rounded-md"
                                         required
                                         autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                                     />
@@ -209,7 +209,7 @@ export default function LoginPage() {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full py-4 bg-[#ffdf00] text-black border-2 border-[#1a1a1a] font-black text-sm uppercase tracking-widest shadow-[0_6px_0_0_#1a1a1a] rounded-2xl hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="w-full py-4 bg-[#ffdf00] text-black border-2 border-[#1a1a1a] font-black text-sm uppercase tracking-widest shadow-[0_6px_0_0_#1a1a1a] rounded-md hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {loading ? <Loader2 className="animate-spin" size={18} /> : (mode === 'login' ? t('login.enterAccount') : t('login.createMyAccount'))}
                                 </button>
@@ -238,7 +238,7 @@ export default function LoginPage() {
                             <button
                                 onClick={() => googleLogin()}
                                 disabled={loading}
-                                className="w-full h-14 bg-white border-2 border-[#1a1a1a] flex items-center justify-center gap-3 shadow-[0_6px_0_0_rgba(26,26,26,1)] rounded-2xl hover:translate-y-[2px] hover:shadow-[0_4px_0_0_rgba(26,26,26,1)] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                                className="w-full h-14 bg-white border-2 border-[#1a1a1a] flex items-center justify-center gap-3 shadow-[0_6px_0_0_rgba(26,26,26,1)] rounded-md hover:translate-y-[2px] hover:shadow-[0_4px_0_0_rgba(26,26,26,1)] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                             >
                                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                                     <path fill="#000" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -253,7 +253,7 @@ export default function LoginPage() {
 
                     {/* Error */}
                     {error && (
-                        <div className="mt-5 bg-white border-2 border-[#1a1a1a] text-black p-4 font-bold text-xs text-center shadow-[0_6px_0_0_rgba(26,26,26,1)] rounded-2xl uppercase tracking-widest">
+                        <div className="mt-5 bg-white border-2 border-[#1a1a1a] text-black p-4 font-bold text-xs text-center shadow-[0_6px_0_0_rgba(26,26,26,1)] rounded-md uppercase tracking-widest">
                             {error}
                         </div>
                     )}

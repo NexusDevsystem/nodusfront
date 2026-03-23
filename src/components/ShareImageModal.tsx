@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Download, Copy, Share, Loader2, Check, MessageCircle, Facebook, Linkedin, Twitter, MessageSquare, ExternalLink } from 'lucide-react';
+import { X, Copy, Share, Loader2, Check, Facebook, Linkedin, Download } from 'lucide-react';
 import { UserProfile } from '../types';
 import verifiedBadge from '../assets/verified-badge.png';
-import { SiWhatsapp, SiX, SiMessenger, SiSnapchat } from 'react-icons/si';
+import { SiWhatsapp, SiX, SiMessenger, SiSnapchat, SiInstagram } from 'react-icons/si';
 import BackgroundLayer from './BackgroundLayer';
 import { THEMES } from '../constants';
 
@@ -11,11 +11,13 @@ interface ShareImageModalProps {
     profile: UserProfile;
     onClose: () => void;
     onDownload: () => void;
+    onDownloadStory?: () => void;
     onSyncShareCard?: () => void;
     isGenerating: boolean;
+    isGeneratingStory?: boolean;
 }
 
-export default function ShareImageModal({ profile, onClose, onDownload, onSyncShareCard, isGenerating }: ShareImageModalProps) {
+export default function ShareImageModal({ profile, onClose, onDownload, onDownloadStory, onSyncShareCard, isGenerating, isGeneratingStory }: ShareImageModalProps) {
     const { t } = useTranslation();
     const [copied, setCopied] = useState(false);
     
@@ -51,12 +53,13 @@ export default function ShareImageModal({ profile, onClose, onDownload, onSyncSh
 
     const shareLinks = [
         { name: 'Copiar', icon: copied ? Check : Copy, onClick: handleCopy, color: 'bg-white text-black' },
-        { name: 'WhatsApp', icon: SiWhatsapp, url: `https://wa.me/?text=Confira meu perfil no Nodus: ${shareUrl}`, color: 'bg-[#25D366] text-white' },
-        { name: 'Twitter', icon: SiX, url: `https://twitter.com/intent/tweet?url=${shareUrl}&text=Confira meu perfil no Nodus!`, color: 'bg-black text-white' },
-        { name: 'Facebook', icon: Facebook, url: `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, color: 'bg-[#1877F2] text-white' },
-        { name: 'Messenger', icon: SiMessenger, url: `https://www.facebook.com/dialog/send?app_id=123456789&link=${shareUrl}&redirect_uri=${shareUrl}`, color: 'bg-[#00B2FF] text-white' },
-        { name: 'Snapchat', icon: SiSnapchat, url: `https://www.snapchat.com/scan?attachmentUrl=${shareUrl}`, color: 'bg-[#FFFC00] text-black' },
-        { name: 'LinkedIn', icon: Linkedin, url: `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`, color: 'bg-[#0A66C2] text-white' },
+        { name: 'WhatsApp', icon: SiWhatsapp, url: `https://wa.me/?text=${encodeURIComponent(`Confira meu perfil no Nodus: ${profile.name} - ${profileUrl}`)}`, color: 'bg-[#25D366] text-white' },
+        { name: 'X', icon: SiX, url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(profileUrl)}&text=${encodeURIComponent(`Confira meu perfil no Nodus: ${profile.name}`)}`, color: 'bg-black text-white' },
+        { name: 'Facebook', icon: Facebook, url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}`, color: 'bg-[#1877F2] text-white' },
+        { name: 'Messenger', icon: SiMessenger, url: `https://www.facebook.com/dialog/send?app_id=123456789&link=${encodeURIComponent(profileUrl)}&redirect_uri=${encodeURIComponent(profileUrl)}`, color: 'bg-[#00B2FF] text-white' },
+        { name: 'Snapchat', icon: SiSnapchat, url: `https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(profileUrl)}`, color: 'bg-[#FFFC00] text-black' },
+        { name: 'Instagram', icon: SiInstagram, onClick: () => { handleCopy(); window.open('https://instagram.com', '_blank'); }, color: 'bg-[#E1306C] text-white' },
+        { name: 'LinkedIn', icon: Linkedin, url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(profileUrl)}`, color: 'bg-[#0A66C2] text-white' },
     ];
 
     return (
@@ -70,7 +73,7 @@ export default function ShareImageModal({ profile, onClose, onDownload, onSyncSh
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-black hover:bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] transition-all p-1 hover:translate-y-[2px] hover:shadow-none rounded-lg"
+                        className="text-black hover:bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] transition-all p-1 hover:translate-y-[2px] hover:shadow-none rounded-sm"
                     >
                         <X size={24} strokeWidth={3} />
                     </button>
@@ -78,7 +81,7 @@ export default function ShareImageModal({ profile, onClose, onDownload, onSyncSh
 
                 <div className="flex flex-col">
                     {/* Visual Preview of the Card (Solid Minimalist - Outline Fixed) */}
-                    <div className="relative group mb-10 w-full cursor-pointer" onClick={onDownload}>
+                    <div className="relative group mb-10 w-full">
                         <div 
                             className="w-full aspect-[1200/630] rounded-[2rem] overflow-hidden relative border-4 border-b-[12px] border-[#1a1a1a] flex flex-col items-center justify-center p-4 bg-[#1a1a1a]"
                             style={{ fontFamily: profile.fontFamily || 'Inter, sans-serif' }}
@@ -136,12 +139,34 @@ export default function ShareImageModal({ profile, onClose, onDownload, onSyncSh
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Download Buttons Overlay */}
+                            <div className="absolute bottom-4 right-4 flex gap-3 z-20">
+                                {onDownloadStory && (
+                                    <button
+                                        onClick={onDownloadStory}
+                                        disabled={isGeneratingStory}
+                                        className="flex items-center gap-2 px-4 py-2 bg-black text-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl hover:translate-y-[2px] hover:shadow-none transition-all active:translate-y-[4px] active:shadow-none disabled:opacity-50"
+                                    >
+                                        {isGeneratingStory ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} strokeWidth={3} />}
+                                        <span className="font-black uppercase text-[9px] tracking-widest hidden sm:inline">Baixar Story</span>
+                                    </button>
+                                )}
+                                <button
+                                    onClick={onDownload}
+                                    disabled={isGenerating && !isGeneratingStory}
+                                    className="p-3 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl hover:translate-y-[2px] hover:shadow-none transition-all active:translate-y-[4px] active:shadow-none disabled:opacity-50"
+                                    title="Baixar Cartão"
+                                >
+                                    {isGenerating && !isGeneratingStory ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} strokeWidth={3} />}
+                                </button>
+                            </div>
                         </div>
 
                     </div>
 
                     {/* Social Share Grid */}
-                    <div className="grid grid-cols-4 sm:grid-cols-7 gap-4 mb-10 px-2">
+                    <div className="grid grid-cols-4 sm:grid-cols-8 gap-4 mb-10 px-2">
                         {shareLinks.map((link, idx) => (
                             <div key={idx} className="flex flex-col items-center gap-2">
                                 <a
@@ -178,19 +203,11 @@ export default function ShareImageModal({ profile, onClose, onDownload, onSyncSh
                         <div className="flex flex-col w-full gap-3">
                             <a
                                 href="https://nodus.my/login"
-                                className="w-full py-4 bg-[#ffdf00] text-black border-2 border-[#1a1a1a] font-black uppercase tracking-widest text-xs shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none transition-all flex items-center justify-center gap-2 rounded-xl"
+                                className="w-full py-4 bg-[#ffdf00] text-black border-2 border-[#1a1a1a] font-black uppercase tracking-widest text-xs shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none transition-all flex items-center justify-center gap-2 rounded-md"
                             >
                                 <Share size={16} strokeWidth={2} />
                                 Criar conta gratuitamente
                             </a>
-                            <button
-                                onClick={onDownload}
-                                disabled={isGenerating}
-                                className="w-full py-4 bg-white text-black border-2 border-[#1a1a1a] font-black uppercase tracking-widest text-xs shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-50 rounded-xl"
-                            >
-                                {isGenerating ? <Loader2 className="animate-spin w-4 h-4" /> : <Download size={16} strokeWidth={3} />}
-                                {isGenerating ? 'Trabalhando...' : 'Baixar Cartão PNG'}
-                            </button>
                         </div>
                     </div>
                 </div>

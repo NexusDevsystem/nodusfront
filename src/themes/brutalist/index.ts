@@ -58,7 +58,7 @@ export const brutalistThemes: Theme[] = [
         id: 'brutalist-marker',
         name: 'Marker Sketch',
         backgroundClass: 'bg-white',
-        buttonClass: 'bg-white text-black border-[3px] border-[#1a1a1a] rounded-[15px_5px_22px_4px] hover:scale-[1.02] transform transition-transform duration-200 w-full py-4 px-6 flex items-center justify-between font-bold text-xl',
+        buttonClass: 'bg-white text-black border-[3px] border-[#1a1a1a] rounded-[15px_5px_22px_4px] transform transition-transform duration-200 w-full py-4 px-6 flex items-center justify-between font-bold text-xl',
         buttonHex: '#FFFFFF',
         textHex: '#000000',
         textClass: 'text-black font-bold tracking-tight',

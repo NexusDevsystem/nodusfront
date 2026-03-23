@@ -35,7 +35,7 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}
                 transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
-                className="bg-white border-t-4 border-x-4 md:border-2 border-[#1a1a1a] shadow-none md:shadow-[0_12px_0_0_#1a1a1a] w-full max-w-6xl relative flex flex-col h-[92vh] md:max-h-[90vh] overflow-hidden rounded-t-[32px] md:rounded-[32px] z-10"
+                className="bg-white border-t-4 border-x-4 md:border-2 border-[#1a1a1a] shadow-none md:shadow-[0_12px_0_0_#1a1a1a] w-full max-w-6xl relative flex flex-col h-[92vh] md:max-h-[90vh] overflow-hidden rounded-t-[32px] md:rounded-md z-10"
             >
                 {/* Premium Header - Optimized for Mobile */}
                 <div className="flex items-center justify-between p-5 md:p-10 border-b-2 border-[#1a1a1a] shrink-0 relative overflow-hidden bg-white group rounded-t-[24px] md:rounded-t-[32px]">
@@ -84,7 +84,7 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
 
                     <button
                         onClick={onClose}
-                        className="group relative p-2 md:p-4 text-black hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover:text-[#ffdf00] border-2 border-[#1a1a1a] bg-white transition-all active:scale-95 shadow-[0_3px_0_0_#1a1a1a] md:shadow-[0_4px_0_0_#1a1a1a] z-30 rounded-lg md:rounded-xl"
+                        className="group relative p-2 md:p-4 text-black hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover:text-[#ffdf00] border-2 border-[#1a1a1a] bg-white transition-all active:scale-95 shadow-[0_3px_0_0_#1a1a1a] md:shadow-[0_4px_0_0_#1a1a1a] z-30 rounded-sm md:rounded-md"
                     >
                         <X className="w-5 h-5 md:w-7 md:h-7" strokeWidth={4} />
                     </button>

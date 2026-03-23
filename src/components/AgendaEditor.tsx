@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import Tooltip from './Tooltip';
+
 
 interface AgendaEditorProps {
     link: LinkItem;
@@ -46,8 +46,6 @@ function EventItemRow({ event, updateEvent, setDeletingEventId, deletingEventId,
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
             whileDrag={{
-                scale: 1,
-                boxShadow: "0px 8px 0px 0px rgba(26,26,26,1)",
                 zIndex: 50
             }}
             className="relative bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex flex-col select-none touch-none"

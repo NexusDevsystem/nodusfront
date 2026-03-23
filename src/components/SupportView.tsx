@@ -65,7 +65,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
     };
 
     return (
-        <div className="max-w-5xl mx-auto pb-20 px-6 animate-fade-in">
+        <div className="pb-20 animate-fade-in">
             {/* Header - Brutalist */}
             <div className="border-b-2 border-[#1a1a1a] pb-6 mb-8 pt-8">
                 <h1 className="text-xl font-black text-black uppercase tracking-widest">{t('support.title')}</h1>

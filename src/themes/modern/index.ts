@@ -7,7 +7,7 @@ export const modernThemes: Theme[] = [
         id: 'modern-minimalist',
         name: 'Minimalist',
         backgroundClass: 'bg-white',
-        buttonClass: 'bg-white text-black border border-gray-200 hover:border-gray-400 hover:shadow-md hover:scale-[1.01] transition-all duration-200 w-full rounded-lg py-4 px-6 flex items-center justify-between font-medium',
+        buttonClass: 'bg-white text-black border border-gray-200 hover:border-gray-400 hover:shadow-md transition-all duration-200 w-full rounded-lg py-4 px-6 flex items-center justify-between font-medium',
         buttonHex: '#FFFFFF',
         textHex: '#000000',
         textClass: 'text-black font-sans font-semibold tracking-tight',

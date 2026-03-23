@@ -5,10 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     ShieldAlert, Users, Link as LinkIcon, ShoppingBag, Eye, MousePointerClick, RefreshCw, X, Mail, Calendar,
     ExternalLink, User, Copy, Check, Briefcase, ShieldCheck, Activity, Info, Lock, AlertCircle, TrendingUp,
-    Crown, Clock, Layout, PieChart, BarChart, Settings, Shield, Trash2, Key, ChevronRight, Hash
+    Crown, Clock, Layout, PieChart, BarChart, Settings, Shield, Trash2, Key, ChevronRight, Hash,
+    FileText,
+    Rss
 } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import BrutalistLoader from './BrutalistLoader';
+import BlogAdminView from './BlogAdminView';
+
 const translatePlan = (plan: string, t: any) => {
     const p = plan?.toLowerCase() || 'free';
     if (p === 'free') return t('admin.free');
@@ -64,7 +68,7 @@ export default function AdminView() {
     const [deleteInput, setDeleteInput] = useState('');
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [editPlan, setEditPlan] = useState<{ type: string, expiry: string } | null>(null);
-    const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'manage'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'blog' | 'settings'>('overview');
     const [isUserDetailsLoading, setIsUserDetailsLoading] = useState(false);
 
     useEffect(() => {
@@ -84,7 +88,7 @@ export default function AdminView() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Sync selectedUser part - updated to use the dedicated endpoint for more accurate data
+    // Sync selectedUser part
     useEffect(() => {
         if (!selectedUser) return;
         
@@ -101,7 +105,6 @@ export default function AdminView() {
             }
         };
 
-        // If stats change (global polling), trigger a local sync for the selected user
         syncSelected();
     }, [stats]);
 
@@ -119,7 +122,7 @@ export default function AdminView() {
                 is_verified: !selectedUser.is_verified
             });
             setSelectedUser({ ...selectedUser, is_verified: updated.is_verified });
-            loadStats(true); // Atualiza a lista por baixo
+            loadStats(true);
         } catch (err: any) {
             alert(t('common.error') + ': ' + (err.message || t('common.error')));
         } finally {
@@ -169,9 +172,7 @@ export default function AdminView() {
         setDeleteConfirm(false);
         setDeleteInput('');
         setSelectedUser(u);
-        setActiveTab('overview');
         
-        // Fetch fresh and deep stats for this user immediately
         try {
             setIsUserDetailsLoading(true);
             const fullStats = await apiClient.getAdminUserStats(u.id);
@@ -189,7 +190,6 @@ export default function AdminView() {
             setError(null);
             let data = await apiClient.getAdminStats() as any;
 
-            // Compatibility layer for old API format
             if (data && !data.summary && data.totalUsers !== undefined) {
                 data = {
                     summary: {
@@ -218,11 +218,9 @@ export default function AdminView() {
 
     useEffect(() => {
         loadStats();
-
         const interval = setInterval(() => {
             loadStats(true);
-        }, 8000); // Polling slower to save resources
-
+        }, 8000);
         return () => clearInterval(interval);
     }, []);
 
@@ -241,13 +239,13 @@ export default function AdminView() {
     if (error) {
         return (
             <div className="w-full p-6 text-center">
-                <div className="bg-[#ff3333] border-2 border-[#1a1a1a] p-8 shadow-[0_4px_0_0_#1a1a1a] inline-block rounded-2xl">
+                <div className="bg-[#ff3333] border-2 border-[#1a1a1a] p-8 shadow-[0_4px_0_0_#1a1a1a] inline-block rounded-md">
                     <ShieldAlert size={48} className="mx-auto mb-4 text-black" />
                     <h2 className="text-xl font-black uppercase tracking-widest text-black mb-2">{t('admin.criticalError')}</h2>
                     <p className="text-sm font-bold text-black uppercase">{error}</p>
                     <button
                         onClick={() => loadStats()}
-                        className="mt-6 px-6 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-black uppercase tracking-widest hover:bg-white transition-colors shadow-[0_4px_0_0_#1a1a1a] rounded-xl"
+                        className="mt-6 px-6 py-3 bg-white border-2 border-[#1a1a1a] text-xs font-black uppercase tracking-widest hover:bg-white transition-colors shadow-[0_4px_0_0_#1a1a1a] rounded-md"
                     >
                         {t('admin.reconnect')}
                     </button>
@@ -263,178 +261,230 @@ export default function AdminView() {
         : '0.0';
 
     return (
-        <div className="w-full max-w-full pb-12 px-4 md:px-10 lg:px-12">
-            {/* Header */}
-            <div className="bg-white border-2 border-black p-8 md:p-12 mb-10 shadow-[0_6px_0_0_#000000] relative overflow-hidden rounded-2xl">
-                <div className="absolute -right-20 -top-20 text-[#1a1a1a]/5 pointer-events-none">
-                    <ShieldAlert size={400} />
+        <div className="w-full max-w-full pb-12 pt-6">
+            {/* Nav Tabs */}
+            <div className="flex gap-4 mb-8 overflow-x-auto pt-2 pb-4 scrollbar-hide">
+                <button
+                    onClick={() => setActiveTab('overview')}
+                    className={`px-8 py-4 rounded-xl border-2 border-black font-black uppercase text-[11px] tracking-widest flex items-center gap-3 shrink-0 transition-all ${
+                        activeTab === 'overview' 
+                        ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' 
+                        : 'bg-white hover:bg-[#ffdf00]/10 hover:shadow-[0_4px_0_0_#1a1a1a] hover:-translate-y-0.5'
+                    }`}
+                >
+                    <TrendingUp size={18} strokeWidth={3} />
+                    Overview
+                </button>
+                <button
+                    onClick={() => setActiveTab('blog')}
+                    className={`px-8 py-4 rounded-xl border-2 border-black font-black uppercase text-[11px] tracking-widest flex items-center gap-3 shrink-0 transition-all ${
+                        activeTab === 'blog' 
+                        ? 'bg-[#97cd7a] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' 
+                        : 'bg-white hover:bg-[#97cd7a]/10 hover:shadow-[0_4px_0_0_#1a1a1a] hover:-translate-y-0.5'
+                    }`}
+                >
+                    <Rss size={18} strokeWidth={3} />
+                    Conteúdo do Blog
+                </button>
+                <button
+                    onClick={() => setActiveTab('settings')}
+                    className={`px-8 py-4 rounded-xl border-2 border-black font-black uppercase text-[11px] tracking-widest flex items-center gap-3 shrink-0 transition-all ${
+                        activeTab === 'settings' 
+                        ? 'bg-slate-200 shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' 
+                        : 'bg-white hover:bg-slate-50 hover:shadow-[0_4px_0_0_#1a1a1a] hover:-translate-y-0.5'
+                    }`}
+                >
+                    <Settings size={18} strokeWidth={3} />
+                    Configurações
+                </button>
+            </div>
+
+            {activeTab === 'blog' ? (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <BlogAdminView />
                 </div>
-                <div className="relative z-10">
-                    <div className="flex flex-wrap items-center gap-4 mb-6">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-[#ffdf00] text-[10px] font-black uppercase tracking-[0.2em] border-2 border-black shadow-[0_3px_0_0_rgba(0,0,0,1)] rounded-md">
-                            <span className="w-2 h-2 rounded-full bg-[#ffdf00] animate-pulse"></span>
-                            {t('admin.console')}
+            ) : activeTab === 'settings' ? (
+                <div className="p-12 border-2 border-black bg-white rounded-md shadow-[0_6px_0_0_#000] text-center">
+                    <Settings size={48} className="mx-auto mb-4 opacity-10" />
+                    <h2 className="text-xl font-black uppercase">{t('admin.settings')}</h2>
+                    <p className="text-sm opacity-40 uppercase font-black mt-2">Área em desenvolvimento</p>
+                </div>
+            ) : (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    {/* Header */}
+                    <div className="bg-white border-2 border-black p-8 md:p-12 mb-10 shadow-[0_6px_0_0_#000000] relative overflow-hidden rounded-md">
+                        <div className="absolute -right-20 -top-20 text-[#1a1a1a]/5 pointer-events-none">
+                            <ShieldAlert size={400} />
                         </div>
-                        <div className="px-3 py-1 bg-white border-2 border-black text-black text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_3px_0_0_rgba(0,0,0,1)] rounded-md">
-                            <RefreshCw size={10} strokeWidth={4} className="animate-spin duration-[4000ms]" />
-                            {t('admin.realTimeMonitoring')}
+                        <div className="relative z-10">
+                            <div className="flex flex-wrap items-center gap-4 mb-6">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-[#ffdf00] text-[10px] font-black uppercase tracking-[0.2em] border-2 border-black shadow-[0_3px_0_0_rgba(0,0,0,1)] rounded-md">
+                                    <span className="w-2 h-2 rounded-full bg-[#ffdf00] animate-pulse"></span>
+                                    {t('admin.console')}
+                                </div>
+                                <div className="px-3 py-1 bg-white border-2 border-black text-black text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_3px_0_0_rgba(0,0,0,1)] rounded-md">
+                                    <RefreshCw size={10} strokeWidth={4} className="animate-spin duration-[4000ms]" />
+                                    {t('admin.realTimeMonitoring')}
+                                </div>
+                            </div>
+                            <h1 className="text-4xl md:text-7xl font-black text-black uppercase tracking-tighter leading-[0.8] mb-4">
+                                {t('admin.title').split(' ').map((word, i) => (
+                                    <React.Fragment key={i}>
+                                        {word} {i === 1 && <br className="hidden md:block" />}
+                                    </React.Fragment>
+                                ))}
+                            </h1>
+                            <p className="text-xs md:text-lg font-black text-black uppercase tracking-widest max-w-2xl bg-white border-2 border-black p-2 inline-block shadow-[0_3px_0_0_#000000] rounded-md">
+                                {t('admin.subtitle')}
+                            </p>
                         </div>
                     </div>
-                    <h1 className="text-4xl md:text-7xl font-black text-black uppercase tracking-tighter leading-[0.8] mb-4">
-                        {t('admin.title').split(' ').map((word, i) => (
-                            <React.Fragment key={i}>
-                                {word} {i === 1 && <br className="hidden md:block" />}
-                            </React.Fragment>
-                        ))}
-                    </h1>
-                    <p className="text-xs md:text-lg font-black text-black uppercase tracking-widest max-w-2xl bg-white border-2 border-black p-2 inline-block shadow-[0_3px_0_0_#000000] rounded-md">
-                        {t('admin.subtitle')}
-                    </p>
-                </div>
-            </div>
 
-            {/* Main KPIs Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-                <KPIBox
-                    label={t('admin.totalUsers')}
-                    value={stats.summary?.totalUsers || 0}
-                    color="#e6b3ff"
-                    icon={<Users size={20} />}
-                    sublabel={t('admin.thisWeek', { count: stats.growth?.thisWeek || 0 })}
-                />
-                <KPIBox
-                    label={t('admin.proConversion')}
-                    value={`${conversionRate}%`}
-                    color="#ffdf00"
-                    icon={<ShieldAlert size={20} />}
-                    sublabel={t('admin.activeSubscribers', { count: stats.summary?.proUsers || 0 })}
-                />
-                <KPIBox
-                    label={t('admin.ctr')}
-                    value={`${stats.summary?.globalCTR || '0.00'}%`}
-                    color="#ff66b2"
-                    icon={<MousePointerClick size={20} />}
-                    sublabel={t('admin.globalEfficiency')}
-                />
-                <KPIBox
-                    label={t('admin.globalViews')}
-                    value={stats.summary?.totalViews || 0}
-                    color="#66ccff"
-                    icon={<Eye size={20} />}
-                    sublabel={t('admin.networkReach')}
-                />
-            </div>
+                    {/* Main KPIs Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
+                        <KPIBox
+                            label={t('admin.totalUsers')}
+                            value={stats.summary?.totalUsers || 0}
+                            color="#e6b3ff"
+                            icon={<Users size={20} />}
+                            sublabel={t('admin.thisWeek', { count: stats.growth?.thisWeek || 0 })}
+                        />
+                        <KPIBox
+                            label={t('admin.proConversion')}
+                            value={`${conversionRate}%`}
+                            color="#ffdf00"
+                            icon={<ShieldAlert size={20} />}
+                            sublabel={t('admin.activeSubscribers', { count: stats.summary?.proUsers || 0 })}
+                        />
+                        <KPIBox
+                            label={t('admin.ctr')}
+                            value={`${stats.summary?.globalCTR || '0.00'}%`}
+                            color="#ff66b2"
+                            icon={<MousePointerClick size={20} />}
+                            sublabel={t('admin.globalEfficiency')}
+                        />
+                        <KPIBox
+                            label={t('admin.globalViews')}
+                            value={stats.summary?.totalViews || 0}
+                            color="#66ccff"
+                            icon={<Eye size={20} />}
+                            sublabel={t('admin.networkReach')}
+                        />
+                        <KPIBox
+                            label="Visitantes Únicos"
+                            value={(stats.summary as any)?.uniqueVisitors || 0}
+                            color="#97cd7a"
+                            icon={<Users size={20} />}
+                            sublabel="Total de Pessoas"
+                        />
+                    </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: List of Latest Users */}
-                <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-white border-2 border-black shadow-[0_5px_0_0_#000000] flex flex-col rounded-2xl overflow-hidden">
-                        <div className="p-6 border-b-2 border-black bg-[#fafafa] flex justify-between items-center">
-                            <h2 className="text-sm font-black uppercase tracking-[0.2em] text-black">{t('admin.newExplorers')}</h2>
-                            <div className="text-[10px] font-black bg-[#ffdf00] border-2 border-black text-black px-2 py-0.5 rounded-md shadow-[0_2px_0_0_#000]">{t('admin.featuredRecords')}</div>
-                        </div>
-                        <div className="divide-y-2 divide-black max-h-[600px] overflow-y-auto custom-scrollbar">
-                            {stats.latestUsers?.map((u) => (
-                                <div
-                                    key={u.id}
-                                    onClick={() => openUser(u)}
-                                    className="p-4 flex items-center justify-between hover:bg-[#ffdf00]/10 cursor-pointer transition-all active:translate-y-1 active:translate-x-1 active:shadow-none group"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 border-2 border-black flex items-center justify-center font-black text-lg rounded-lg overflow-hidden shrink-0 bg-white shadow-[0_3px_0_0_#000]`}>
-                                            {u.avatar_url ? (
-                                                <img src={u.avatar_url} className="w-full h-full object-cover" alt={u.username} />
-                                            ) : (
-                                                u.username?.[0]?.toUpperCase() || 'U'
-                                            )}
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center gap-1.5 line-clamp-1">
-                                                <h3 className="text-xs font-black uppercase tracking-tight text-black">{u.name || u.username}</h3>
-                                                {u.is_verified && <img src="/icons/icons8-verificado-48.png" className="w-4 h-4 ml-0.5 object-contain" alt="Verified" loading="lazy" decoding="async" />}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2 space-y-6">
+                            <div className="bg-white border-2 border-black shadow-[0_5px_0_0_#000000] flex flex-col rounded-md overflow-hidden">
+                                <div className="p-6 border-b-2 border-black bg-[#fafafa] flex justify-between items-center">
+                                    <h2 className="text-sm font-black uppercase tracking-[0.2em] text-black">{t('admin.newExplorers')}</h2>
+                                    <div className="text-[10px] font-black bg-[#ffdf00] border-2 border-black text-black px-2 py-0.5 rounded-md shadow-[0_2px_0_0_#000]">{t('admin.featuredRecords')}</div>
+                                </div>
+                                <div className="divide-y-2 divide-black max-h-[600px] overflow-y-auto custom-scrollbar">
+                                    {stats.latestUsers?.map((u) => (
+                                        <div
+                                            key={u.id}
+                                            onClick={() => openUser(u)}
+                                            className="p-4 flex items-center justify-between hover:bg-[#ffdf00]/10 cursor-pointer transition-all active:translate-y-1 active:translate-x-1 active:shadow-none group"
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <div className={`w-10 h-10 border-2 border-black flex items-center justify-center font-black text-lg rounded-sm overflow-hidden shrink-0 bg-white shadow-[0_3px_0_0_#000]`}>
+                                                    {u.avatar_url ? (
+                                                        <img src={u.avatar_url} className="w-full h-full object-cover" alt={u.username} />
+                                                    ) : (
+                                                        u.username?.[0]?.toUpperCase() || 'U'
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <div className="flex items-center gap-1.5 line-clamp-1">
+                                                        <h3 className="text-xs font-black uppercase tracking-tight text-black">{u.name || u.username}</h3>
+                                                        {u.is_verified && <img src="/icons/icons8-verificado-48.png" className="w-4 h-4 ml-0.5 object-contain" alt="Verified" loading="lazy" decoding="async" />}
+                                                    </div>
+                                                    <p className="text-[10px] font-black text-black opacity-40 uppercase line-clamp-1">@{u.username} • {u.email}</p>
+                                                </div>
                                             </div>
-                                            <p className="text-[10px] font-black text-black opacity-40 uppercase line-clamp-1">@{u.username} • {u.email}</p>
+                                            <div className="text-right">
+                                                <div className={`text-[8px] font-black py-0.5 px-2 mb-1 inline-block border-2 border-black rounded-md shadow-[0_2px_0_0_#000] ${u.plan_type !== 'free' ? 'bg-[#ffdf00] text-black' : 'bg-white text-black'}`}>
+                                                    {translatePlan(u.plan_type, t)}
+                                                </div>
+                                                <p className="text-[9px] font-black text-black opacity-30 uppercase">
+                                                    {new Date(u.created_at).toLocaleDateString(t('common.locale', { defaultValue: 'pt-BR' }))}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className={`text-[8px] font-black py-0.5 px-2 mb-1 inline-block border-2 border-black rounded-md shadow-[0_2px_0_0_#000] ${u.plan_type !== 'free' ? 'bg-[#ffdf00] text-black' : 'bg-white text-black'}`}>
-                                            {translatePlan(u.plan_type, t)}
-                                        </div>
-                                        <p className="text-[9px] font-black text-black opacity-30 uppercase">
-                                            {new Date(u.created_at).toLocaleDateString(t('common.locale', { defaultValue: 'pt-BR' }))}
-                                        </p>
-                                    </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                            </div>
 
-                    {/* Platform Assets */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="bg-white border-2 border-black p-8 shadow-[0_4px_0_0_#000] rounded-2xl">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-2">{t('admin.contentInventory')}</h3>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <span className="text-4xl font-black">{stats.summary?.totalLinks || 0}</span>
-                                    <p className="text-[10px] font-black uppercase">{t('admin.activeLinks')}</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div className="bg-white border-2 border-black p-8 shadow-[0_4px_0_0_#000] rounded-md">
+                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-2">{t('admin.contentInventory')}</h3>
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <span className="text-4xl font-black">{stats.summary?.totalLinks || 0}</span>
+                                            <p className="text-[10px] font-black uppercase">{t('admin.activeLinks')}</p>
+                                        </div>
+                                        <div className="h-12 w-[3px] bg-black"></div>
+                                        <div>
+                                            <span className="text-4xl font-black">{stats.summary?.totalProducts || 0}</span>
+                                            <p className="text-[10px] font-black uppercase">{t('admin.products')}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="h-12 w-[3px] bg-black"></div>
-                                <div>
-                                    <span className="text-4xl font-black">{stats.summary?.totalProducts || 0}</span>
-                                    <p className="text-[10px] font-black uppercase">{t('admin.products')}</p>
+                                <div className="bg-white border-2 border-black p-6 shadow-[0_4px_0_0_#ff66b2] rounded-md">
+                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-2">{t('admin.realTimeMonitoring')}</h3>
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <span className="text-4xl font-black">{stats.summary?.totalClicks || 0}</span>
+                                            <p className="text-[10px] font-black uppercase">{t('admin.clicks')}</p>
+                                        </div>
+                                        <div className="h-12 w-[3px] bg-black"></div>
+                                        <div>
+                                            <span className="text-4xl font-black">{stats.summary?.totalViews || 0}</span>
+                                            <p className="text-[10px] font-black uppercase">{t('admin.views')}</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white border-2 border-black p-6 shadow-[0_4px_0_0_#ff66b2] rounded-2xl">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-2">{t('admin.realTimeMonitoring')}</h3>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <span className="text-4xl font-black">{stats.summary?.totalClicks || 0}</span>
-                                    <p className="text-[10px] font-black uppercase">{t('admin.clicks')}</p>
+
+                        <div className="space-y-6">
+                            <div className="bg-[#e6b3ff] border-2 border-[#1a1a1a] p-6 shadow-[0_6px_0_0_#1a1a1a] rounded-md">
+                                <h2 className="text-lg font-black uppercase tracking-tighter mb-6">{t('admin.growth')}</h2>
+                                <div className="space-y-8">
+                                    <GrowthLine label={t('admin.newToday')} value={stats.growth?.today || 0} percentage={((stats.growth?.today || 0) / (stats.summary?.totalUsers || 1) * 100).toFixed(1)} />
+                                    <GrowthLine label={t('admin.last7Days')} value={stats.growth?.thisWeek || 0} percentage={((stats.growth?.thisWeek || 0) / (stats.summary?.totalUsers || 1) * 100).toFixed(1)} />
                                 </div>
-                                <div className="h-12 w-[3px] bg-black"></div>
-                                <div>
-                                    <span className="text-4xl font-black">{stats.summary?.totalViews || 0}</span>
-                                    <p className="text-[10px] font-black uppercase">{t('admin.views')}</p>
+                                <div className="mt-10 pt-6 border-t-2 border-[#1a1a1a]/10">
+                                    <div className="flex justify-between items-end">
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase opacity-40">{t('admin.growthAverage')}</p>
+                                            <h4 className="text-2xl font-black">{t('admin.growthPerDay', { count: Math.ceil((stats.growth?.thisWeek || 0) / 7) })}</h4>
+                                        </div>
+                                        <div className="p-2 bg-[#1a1a1a] text-[#e6b3ff] rounded-md">
+                                            <RefreshCw size={24} strokeWidth={3} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white border-2 border-black p-6 shadow-[0_4px_0_0_#000] rounded-md">
+                                <h2 className="text-xs font-black uppercase tracking-widest mb-4">{t('admin.systemHealth')}</h2>
+                                <div className="space-y-3">
+                                    <StatusIndicator label="API Engine" status="ONLINE" />
+                                    <StatusIndicator label="DB Supabase" status="LATENCY OK" />
+                                    <StatusIndicator label="Stripe Node" status="READY" />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                {/* Right Column: Growth & Charts */}
-                <div className="space-y-6">
-                    <div className="bg-[#e6b3ff] border-2 border-[#1a1a1a] p-6 shadow-[0_6px_0_0_#1a1a1a] rounded-[32px]">
-                        <h2 className="text-lg font-black uppercase tracking-tighter mb-6">{t('admin.growth')}</h2>
-
-                        <div className="space-y-8">
-                            <GrowthLine label={t('admin.newToday')} value={stats.growth?.today || 0} percentage={((stats.growth?.today || 0) / (stats.summary?.totalUsers || 1) * 100).toFixed(1)} />
-                            <GrowthLine label={t('admin.last7Days')} value={stats.growth?.thisWeek || 0} percentage={((stats.growth?.thisWeek || 0) / (stats.summary?.totalUsers || 1) * 100).toFixed(1)} />
-                        </div>
-
-                        <div className="mt-10 pt-6 border-t-2 border-[#1a1a1a]/10">
-                            <div className="flex justify-between items-end">
-                                <div>
-                                    <p className="text-[10px] font-black uppercase opacity-40">{t('admin.growthAverage')}</p>
-                                    <h4 className="text-2xl font-black">{t('admin.growthPerDay', { count: Math.ceil((stats.growth?.thisWeek || 0) / 7) })}</h4>
-                                </div>
-                                <div className="p-2 bg-[#1a1a1a] text-[#e6b3ff] rounded-xl">
-                                    <RefreshCw size={24} strokeWidth={3} />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white border-2 border-black p-6 shadow-[0_4px_0_0_#000] rounded-2xl">
-                        <h2 className="text-xs font-black uppercase tracking-widest mb-4">{t('admin.systemHealth')}</h2>
-                        <div className="space-y-3">
-                            <StatusIndicator label="API Engine" status="ONLINE" />
-                            <StatusIndicator label="DB Supabase" status="LATENCY OK" />
-                            <StatusIndicator label="Stripe Node" status="READY" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+            )}
 
             {/* User Detail Management Engine */}
             {createPortal(
@@ -456,7 +506,7 @@ export default function AdminView() {
                                 className={`
                                     bg-white w-full relative overflow-hidden pointer-events-auto flex flex-col border-2 border-[#1a1a1a] shadow-[0_20px_0_0_rgba(0,0,0,0.1)]
                                     ${isMobile ? 'h-[95vh] rounded-none' : 'max-w-[900px] h-[850px] rounded-[40px]'}
-                                `}                             >
+                                `}>
                                  <div className="flex-1 overflow-y-auto bg-[#fafafa] custom-scrollbar-brutal relative">
                                      <div className="absolute top-0 left-0 w-full h-[8px] bg-[#ffdf00] z-[100]" />
                                      
@@ -464,7 +514,7 @@ export default function AdminView() {
                                      <div className="p-10 md:p-14 pb-8">
                                          <div className="flex flex-col md:flex-row gap-12 items-start md:items-center relative">
                                              <div className="relative group/avatar shrink-0">
-                                                 <div className="w-32 h-32 md:w-44 md:h-44 rounded-[48px] border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] overflow-hidden bg-white shrink-0 relative z-10 transition-all duration-500 group-hover/avatar:-rotate-3 group-hover/avatar:scale-105">
+                                                 <div className="w-32 h-32 md:w-44 md:h-44 rounded-[48px] border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] overflow-hidden bg-white shrink-0 relative z-10 transition-all duration-500">
                                                      {selectedUser.avatar_url ? (
                                                          <img src={selectedUser.avatar_url} className="w-full h-full object-cover" alt={selectedUser.username} />
                                                      ) : (
@@ -474,7 +524,7 @@ export default function AdminView() {
                                                      )}
                                                  </div>
                                                  {selectedUser.is_verified && (
-                                                     <div className="absolute -right-4 -top-4 bg-[#ffdf00] border-[2px] border-[#1a1a1a] p-3 rounded-2xl shadow-[0_4px_0_0_#1a1a1a] z-20 animate-bounce">
+                                                     <div className="absolute -right-4 -top-4 bg-[#ffdf00] border-[2px] border-[#1a1a1a] p-3 rounded-md shadow-[0_4px_0_0_#1a1a1a] z-20 animate-bounce">
                                                          <Check size={24} className="text-black" strokeWidth={5} />
                                                      </div>
                                                  )}
@@ -483,9 +533,9 @@ export default function AdminView() {
                                                  <div className="space-y-2">
                                                      <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none">{selectedUser.name || selectedUser.username}</h2>
                                                      <div className="flex flex-wrap items-center gap-3">
-                                                          <span className="px-5 py-2 bg-white border-2 border-[#1a1a1a] text-black text-[12px] font-black uppercase tracking-[0.25em] rounded-xl shadow-[0_4px_0_0_#1a1a1a]">@{selectedUser.username}</span>
-                                                          <span className="px-5 py-2 bg-black/5 text-black/40 text-[12px] font-black uppercase tracking-wider rounded-xl border border-black/5">{selectedUser.email}</span>
-                                                          <span className="px-5 py-2 bg-white border-2 border-[#1a1a1a] text-black/50 text-[10px] font-black uppercase tracking-widest rounded-xl shadow-[0_4px_0_0_#1a1a1a] flex items-center gap-2">
+                                                          <span className="px-5 py-2 bg-white border-2 border-[#1a1a1a] text-black text-[12px] font-black uppercase tracking-[0.25em] rounded-md shadow-[0_4px_0_0_#1a1a1a]">@{selectedUser.username}</span>
+                                                          <span className="px-5 py-2 bg-black/5 text-black/40 text-[12px] font-black uppercase tracking-wider rounded-md border border-black/5">{selectedUser.email}</span>
+                                                          <span className="px-5 py-2 bg-white border-2 border-[#1a1a1a] text-black/50 text-[10px] font-black uppercase tracking-widest rounded-md shadow-[0_4px_0_0_#1a1a1a] flex items-center gap-2">
                                                               <Calendar size={14} strokeWidth={4} />
                                                               {selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '---'}
                                                           </span>
@@ -494,14 +544,14 @@ export default function AdminView() {
                                                   <div className="flex flex-wrap gap-5 pt-3">
                                                      <button 
                                                          onClick={() => window.open(`/${selectedUser.username}`, '_blank')}
-                                                         className="flex items-center gap-3 px-10 py-5 bg-[#ffdf00] border-[2px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1 active:scale-95 transition-all text-[11px] font-black uppercase tracking-widest rounded-2xl"
+                                                         className="flex items-center gap-3 px-10 py-5 bg-[#ffdf00] border-[2px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1 active:scale-95 transition-all text-[11px] font-black uppercase tracking-widest rounded-md"
                                                      >
                                                          <ExternalLink size={18} strokeWidth={4} />
                                                          Ver Perfil Público
                                                      </button>
                                                      <button 
                                                          onClick={toggleVerification}
-                                                         className={`px-10 py-5 border-[2px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1 transition-all text-[11px] font-black uppercase tracking-widest rounded-2xl ${selectedUser.is_verified ? 'bg-white text-black' : 'bg-[#ffdf00] text-black'}`}
+                                                         className={`px-10 py-5 border-[2px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1 transition-all text-[11px] font-black uppercase tracking-widest rounded-md ${selectedUser.is_verified ? 'bg-white text-black' : 'bg-[#ffdf00] text-black'}`}
                                                      >
                                                          {selectedUser.is_verified ? 'Remover Verificado' : 'Conceder Selo'}
                                                      </button>
@@ -510,17 +560,17 @@ export default function AdminView() {
 
                                              <button 
                                                  onClick={() => setSelectedUser(null)} 
-                                                 className="absolute -top-4 -right-4 w-14 h-14 flex items-center justify-center bg-white border-[2px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:bg-[#ff3333] hover:text-white transition-all rounded-3xl active:scale-90 group"
+                                                 className="absolute -top-4 -right-4 w-14 h-14 flex items-center justify-center bg-white border-[2px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:bg-[#ff3333] hover:text-white transition-all rounded-sm active:scale-90 group"
                                              >
-                                                 <X size={28} strokeWidth={5} className="group-hover:rotate-90 transition-transform duration-300" />
+                                                 <X size={28} strokeWidth={5} className="transition-transform duration-300" />
                                              </button>
                                          </div>
                                      </div>
-                                {/* MODULAR CONTENT AREA */}
-                                     {/* 2. ANALYTICS MATRIX */}
+
+                                     {/* MODULAR CONTENT AREA */}
                                      <div className="px-10 md:px-14 grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-                                         <div className="bg-white border-2 border-black p-10 rounded-2xl shadow-[0_5px_0_0_#66ccff] relative overflow-hidden group">
-                                             <div className="absolute -right-6 -bottom-6 opacity-[0.04] group-hover:scale-125 group-hover:rotate-12 transition-all duration-700 text-[#66ccff]"><Eye size={160} /></div>
+                                         <div className="bg-white border-2 border-black p-10 rounded-md shadow-[0_5px_0_0_#66ccff] relative overflow-hidden group">
+                                              <div className="absolute -right-6 -bottom-6 opacity-[0.04] transition-all duration-700 text-[#66ccff]"><Eye size={160} /></div>
                                              <span className="text-[11px] font-black uppercase tracking-[0.25em] text-black mb-3 block opacity-40">Volume de Alcance</span>
                                              <div className="text-6xl font-black tracking-tighter tabular-nums drop-shadow-sm">{isUserDetailsLoading ? '...' : (selectedUser.views || 0)}</div>
                                              <div className="flex items-center gap-2 mt-4 text-[10px] font-black uppercase text-[#66ccff]">
@@ -528,14 +578,14 @@ export default function AdminView() {
                                                  Visualizações únicas
                                              </div>
                                          </div>
-                                         <div className="bg-white border-2 border-black p-10 rounded-2xl shadow-[0_5px_0_0_#ff66b2] relative overflow-hidden group">
-                                             <div className="absolute -right-6 -bottom-6 opacity-[0.04] group-hover:scale-125 -group-hover:rotate-12 transition-all duration-700 text-[#ff66b2]"><MousePointerClick size={160} /></div>
+                                         <div className="bg-white border-2 border-black p-10 rounded-md shadow-[0_5px_0_0_#ff66b2] relative overflow-hidden group">
+                                              <div className="absolute -right-6 -bottom-6 opacity-[0.04] transition-all duration-700 text-[#ff66b2]"><MousePointerClick size={160} /></div>
                                              <span className="text-[11px] font-black uppercase tracking-[0.25em] text-black mb-3 block opacity-40">Interações Reais</span>
                                              <div className="text-6xl font-black tracking-tighter tabular-nums drop-shadow-sm">{isUserDetailsLoading ? '...' : (selectedUser.clicks?.[0]?.count || 0)}</div>
                                              <div className="text-[10px] font-black uppercase text-[#ff66b2] mt-4">Engajamento Direto</div>
                                          </div>
-                                         <div className="bg-white border-2 border-black p-10 rounded-2xl shadow-[0_5px_0_0_#ffdf00] relative overflow-hidden group">
-                                             <div className="absolute -right-6 -bottom-6 opacity-[0.04] group-hover:scale-125 group-hover:rotate-6 transition-all duration-700 text-[#ffdf00]"><TrendingUp size={160} /></div>
+                                         <div className="bg-white border-2 border-black p-10 rounded-md shadow-[0_5px_0_0_#ffdf00] relative overflow-hidden group">
+                                              <div className="absolute -right-6 -bottom-6 opacity-[0.04] transition-all duration-700 text-[#ffdf00]"><TrendingUp size={160} /></div>
                                              <span className="text-[11px] font-black uppercase tracking-[0.25em] text-black mb-3 block opacity-40">Performance Geral</span>
                                              <div className="text-6xl font-black tracking-tighter tabular-nums drop-shadow-sm">{isUserDetailsLoading ? '...' : `${Math.round(((selectedUser.clicks?.[0]?.count || 0) / (selectedUser.views || 1)) * 100)}%`}</div>
                                              <div className="text-[10px] font-black uppercase text-[#ffdf00] mt-4">Taxa de Conversão</div>
@@ -544,7 +594,6 @@ export default function AdminView() {
 
                                      {/* 3. CORE MANAGEMENT GRID */}
                                      <div className="px-10 md:px-14 grid grid-cols-1 lg:grid-cols-2 gap-12 pb-24">
-                                         {/* Profile Details */}
                                          <div className="space-y-10">
                                              <div className="bg-white border-[2px] border-[#1a1a1a] rounded-[48px] shadow-[0_4px_0_0_#1a1a1a] overflow-hidden">
                                                  <div className="bg-slate-50 border-b-[2px] border-[#1a1a1a] p-8 flex justify-between items-center">
@@ -552,8 +601,8 @@ export default function AdminView() {
                                                      <User size={24} strokeWidth={4} className="opacity-20" />
                                                  </div>
                                                  <div className="p-10 space-y-10">
-                                                     <div className="bg-black/5 p-8 rounded-[32px] border-2 border-dashed border-black/10 relative">
-                                                         <div className="absolute -top-4 left-8 px-4 py-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest rounded-lg">Manifesto Bio</div>
+                                                     <div className="bg-black/5 p-8 rounded-md border-2 border-dashed border-black/10 relative">
+                                                         <div className="absolute -top-4 left-8 px-4 py-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest rounded-sm">Manifesto Bio</div>
                                                          <p className="text-xl font-black uppercase text-black leading-tight">
                                                              "{selectedUser.bio || 'SEM DESCRIÇÃO DEFINIDA'}"
                                                          </p>
@@ -561,22 +610,22 @@ export default function AdminView() {
                                                      <div className="grid grid-cols-2 gap-8">
                                                          <div className="space-y-2">
                                                              <label className="text-[10px] font-black uppercase text-black/30 tracking-widest pl-2">Segmentação</label>
-                                                             <div className="p-5 bg-white border-[3px] border-[#1a1a1a] rounded-2xl text-[13px] font-black uppercase shadow-[0_4px_0_0_#1a1a1a]">{selectedUser.user_category || 'Não Classificado'}</div>
+                                                             <div className="p-5 bg-white border-[3px] border-[#1a1a1a] rounded-md text-[13px] font-black uppercase shadow-[0_4px_0_0_#1a1a1a]">{selectedUser.user_category || 'Não Classificado'}</div>
                                                          </div>
                                                          <div className="space-y-2">
                                                              <label className="text-[10px] font-black uppercase text-black/30 tracking-widest pl-2">Estilo Visual</label>
-                                                             <div className="p-5 bg-[#ffdf00] border-[3px] border-[#1a1a1a] rounded-2xl text-[13px] font-black uppercase shadow-[0_4px_0_0_#1a1a1a]">{selectedUser.theme_id?.replace('theme-', '') || 'Padrão'}</div>
+                                                             <div className="p-5 bg-[#ffdf00] border-[3px] border-[#1a1a1a] rounded-md text-[13px] font-black uppercase shadow-[0_4px_0_0_#1a1a1a]">{selectedUser.theme_id?.replace('theme-', '') || 'Padrão'}</div>
                                                          </div>
                                                      </div>
                                                      <div className="flex flex-col gap-5">
-                                                         <div className="flex items-center justify-between p-6 bg-white border-[2px] border-[#1a1a1a] text-black rounded-[32px] shadow-[0_4px_0_0_#66ccff]">
+                                                         <div className="flex items-center justify-between p-6 bg-white border-[2px] border-[#1a1a1a] text-black rounded-md shadow-[0_4px_0_0_#66ccff]">
                                                               <div className="flex items-center gap-4">
                                                                   <LinkIcon size={24} className="text-[#66ccff]" strokeWidth={4} />
                                                                   <span className="text-xs font-black uppercase tracking-[0.15em]">Inventário de Links</span>
                                                               </div>
                                                               <span className="text-2xl font-black">{selectedUser.links?.[0]?.count || 0}</span>
                                                          </div>
-                                                         <div className="flex items-center justify-between p-6 bg-white border-[2px] border-[#1a1a1a] text-black rounded-[32px] shadow-[0_4px_0_0_#ff66b2]">
+                                                         <div className="flex items-center justify-between p-6 bg-white border-[2px] border-[#1a1a1a] text-black rounded-md shadow-[0_4px_0_0_#ff66b2]">
                                                               <div className="flex items-center gap-4">
                                                                   <ShoppingBag size={24} className="text-[#ff66b2]" strokeWidth={4} />
                                                                   <span className="text-xs font-black uppercase tracking-[0.15em]">Galeria de Produtos</span>
@@ -588,7 +637,6 @@ export default function AdminView() {
                                              </div>
                                          </div>
 
-                                         {/* Plan & Danger Zone */}
                                          <div className="space-y-12">
                                              <div className="bg-white border-[2px] border-[#1a1a1a] rounded-[48px] shadow-[0_8px_0_0_#ffdf00] overflow-hidden">
                                                  <div className="bg-slate-50 border-b-[2px] border-[#1a1a1a] p-8 flex justify-between items-center">
@@ -601,7 +649,7 @@ export default function AdminView() {
                                                          <div className="relative z-10 space-y-2">
                                                              <div className="flex items-center gap-3">
                                                                  <span className="text-4xl font-black uppercase tracking-tighter">{selectedUser.plan_type}</span>
-                                                                 <div className="px-3 py-1 bg-[#ffdf00] text-black border-2 border-[#1a1a1a] text-[9px] font-black rounded-lg uppercase">Ativo</div>
+                                                                 <div className="px-3 py-1 bg-[#ffdf00] text-black border-2 border-[#1a1a1a] text-[9px] font-black rounded-sm uppercase">Ativo</div>
                                                              </div>
                                                              <p className="text-[11px] font-bold uppercase text-black/40">Ciclo Estendido até {selectedUser.subscription_expiry_date ? new Date(selectedUser.subscription_expiry_date).toLocaleDateString() : 'Perpetuidade'}</p>
                                                          </div>
@@ -614,7 +662,7 @@ export default function AdminView() {
                                                                  <button
                                                                      key={type}
                                                                      onClick={() => setEditPlan({ ...editPlan!, type })}
-                                                                     className={`py-5 text-[11px] font-black uppercase border-[2px] border-[#1a1a1a] rounded-24 transition-all rounded-2xl ${editPlan?.type === type ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#ffdf00]/5 active:translate-y-0.5'}`}
+                                                                     className={`py-5 text-[11px] font-black uppercase border-[2px] border-[#1a1a1a] rounded-24 transition-all rounded-md ${editPlan?.type === type ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#ffdf00]/5 active:translate-y-0.5'}`}
                                                                  >
                                                                      {type}
                                                                  </button>
@@ -625,7 +673,7 @@ export default function AdminView() {
                                                      <button 
                                                          onClick={handleUpdatePlan}
                                                          disabled={isUpdating}
-                                                         className="w-full py-6 bg-[#ffdf00] text-black border-[3px] border-[#1a1a1a] text-[13px] font-black uppercase tracking-[0.4em] rounded-[32px] shadow-[0_6px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1.5 transition-all active:scale-95 disabled:opacity-50"
+                                                         className="w-full py-6 bg-[#ffdf00] text-black border-[3px] border-[#1a1a1a] text-[13px] font-black uppercase tracking-[0.4em] rounded-md shadow-[0_6px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1.5 transition-all active:scale-95 disabled:opacity-50"
                                                      >
                                                          {isUpdating ? 'SINCRONIZANDO...' : 'EXECUTAR ATUALIZAÇÃO'}
                                                      </button>
@@ -641,7 +689,7 @@ export default function AdminView() {
                                                  {!deleteConfirm ? (
                                                      <button 
                                                          onClick={() => setDeleteConfirm(true)}
-                                                         className="w-full py-5 bg-white border-[2px] border-[#1a1a1a] text-[#ff3333] font-black uppercase text-xs tracking-[0.2em] transition-all shadow-[0_4px_0_0_#1a1a1a] active:translate-y-1 active:shadow-none hover:bg-red-50 rounded-2xl"
+                                                         className="w-full py-5 bg-white border-[2px] border-[#1a1a1a] text-[#ff3333] font-black uppercase text-xs tracking-[0.2em] transition-all shadow-[0_4px_0_0_#1a1a1a] active:translate-y-1 active:shadow-none hover:bg-red-50 rounded-md"
                                                      >
                                                          Terminar Registro do Usuário
                                                      </button>
@@ -656,17 +704,17 @@ export default function AdminView() {
                                                              value={deleteInput}
                                                              onChange={(e) => setDeleteInput(e.target.value)}
                                                              placeholder="SEGURANÇA"
-                                                             className="w-full bg-slate-50 border-[3px] border-[#1a1a1a] p-5 text-center text-sm font-black rounded-2xl outline-none focus:bg-white transition-colors"
+                                                             className="w-full bg-slate-50 border-[3px] border-[#1a1a1a] p-5 text-center text-sm font-black rounded-md outline-none focus:bg-white transition-colors"
                                                          />
                                                          <div className="flex gap-4">
                                                              <button 
                                                                  onClick={handleDeleteUser} 
                                                                  disabled={deleteInput.trim().toUpperCase() !== 'DELETE'}
-                                                                 className={`flex-1 py-5 border-[3px] border-[#1a1a1a] rounded-[24px] text-[11px] font-black uppercase transition-all rounded-2xl ${deleteInput.trim().toUpperCase() === 'DELETE' ? 'bg-[#ff3333] text-white shadow-[0_6px_0_0_#000]' : 'bg-slate-200 text-black/20'}`}
+                                                                 className={`flex-1 py-5 border-[3px] border-[#1a1a1a] rounded-sm text-[11px] font-black uppercase transition-all rounded-md ${deleteInput.trim().toUpperCase() === 'DELETE' ? 'bg-[#ff3333] text-white shadow-[0_6px_0_0_#000]' : 'bg-slate-200 text-black/20'}`}
                                                              >
                                                                  Expurgar
                                                              </button>
-                                                             <button onClick={() => setDeleteConfirm(false)} className="flex-1 py-5 bg-white border-[3px] border-[#1a1a1a] rounded-[24px] text-[11px] font-black uppercase hover:bg-[#97cd7a] hover:text-white transition-all shadow-[0_6px_0_0_#1a1a1a] rounded-2xl">Abortar</button>
+                                                             <button onClick={() => setDeleteConfirm(false)} className="flex-1 py-5 bg-white border-[3px] border-[#1a1a1a] rounded-sm text-[11px] font-black uppercase hover:bg-[#97cd7a] hover:text-white transition-all shadow-[0_6px_0_0_#1a1a1a] rounded-md">Abortar</button>
                                                          </div>
                                                      </div>
                                                  )}
@@ -685,21 +733,27 @@ export default function AdminView() {
     );
 }
 
-function VisualRow({ label, value, icon, color, onClick }: any) {
+function GrowthLine({ label, value, percentage }: any) {
     return (
-        <div 
-            onClick={onClick}
-            className={`flex items-center justify-between p-4 bg-[#fafafa] border-2 border-[#1a1a1a] rounded-2xl transition-all duration-300 group shadow-[0_4px_0_0_#1a1a1a] ${onClick ? 'cursor-pointer hover:bg-white hover:shadow-none hover:translate-y-1' : ''}`}
-        >
-            <div className="flex items-center gap-4">
-                <div className="p-2.5 rounded-xl border border-black/5 shadow-sm transition-transform group-hover:scale-110" style={{ backgroundColor: color + '20', color: color }}>
-                    {React.cloneElement(icon as any, { size: 16, strokeWidth: 2.5 })}
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30 group-hover:text-black/50 transition-colors">{label}</span>
+        <div className="flex items-center justify-between">
+            <div>
+                <span className="text-[11px] font-black uppercase tracking-widest opacity-40 block mb-1">{label}</span>
+                <span className="text-3xl font-black">{value.toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-3">
-                <span className="text-[11px] font-black uppercase tracking-tight">{value}</span>
-                {onClick && <ExternalLink size={10} className="text-black/20 group-hover:text-[#66ccff] transition-colors" />}
+            <div className={`px-3 py-1.5 border-2 border-[#1a1a1a] rounded-md text-[10px] font-black bg-white shadow-[0_3px_0_0_#1a1a1a]`}>
+                +{percentage}%
+            </div>
+        </div>
+    );
+}
+
+function StatusIndicator({ label, status }: any) {
+    return (
+        <div className="flex items-center justify-between text-[10px] font-black uppercase">
+            <span className="opacity-40">{label}</span>
+            <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#97cd7a] animate-pulse"></span>
+                <span>{status}</span>
             </div>
         </div>
     );
@@ -709,11 +763,11 @@ function KPIBox({ label, value, icon, color, sublabel }: any) {
     const { t } = useTranslation();
     return (
         <div 
-            className="group relative bg-white border-2 border-black p-8 rounded-xl shadow-[0_6px_0_0_#000000] flex flex-col transition-all duration-200 overflow-hidden cursor-default active:translate-y-[2px] active:shadow-none"
+            className="group relative bg-white border-2 border-black p-8 rounded-md shadow-[0_6px_0_0_#000000] flex flex-col transition-all duration-200 overflow-hidden cursor-default active:translate-y-[2px] active:shadow-none"
         >
             <div className="flex justify-between items-start mb-10 relative z-10">
                 <div 
-                    className="w-14 h-14 rounded-lg border-2 border-black flex items-center justify-center transition-all duration-500 group-hover:rotate-1 shadow-[0_3px_0_0_#000000]" 
+                    className="w-14 h-14 rounded-sm border-2 border-black flex items-center justify-center transition-all duration-500 shadow-[0_3px_0_0_#000000]" 
                     style={{ backgroundColor: color }}
                 >
                     {React.cloneElement(icon as any, { size: 28, strokeWidth: 4, className: 'text-black' })}
@@ -742,253 +796,12 @@ function KPIBox({ label, value, icon, color, sublabel }: any) {
                         </span>
                     </div>
                     {sublabel && (
-                        <div className="mt-2 flex items-center gap-1.5 px-3 py-1 bg-black text-white border-2 border-black rounded-lg w-fit">
+                        <div className="mt-2 flex items-center gap-1.5 px-3 py-1 bg-black text-white border-2 border-black rounded-sm w-fit">
                             <Activity size={10} strokeWidth={4} />
                             <span className="text-[10px] font-black uppercase tracking-tight">{sublabel}</span>
                         </div>
                     )}
                 </div>
-            </div>
-        </div>
-    );
-}
-
-function AnalyticsRing({ label, value, color, icon }: any) {
-    const percentage = parseFloat(value) || 0;
-    const radius = 54;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (circumference * Math.max(percentage, percentage > 0 ? 2 : 0) / 100);
-
-    return (
-        <div className="flex flex-col items-center group cursor-default">
-            <div className="w-28 h-28 md:w-32 md:h-32 relative flex items-center justify-center mb-6 transition-all duration-700 group-hover:scale-110">
-                <svg className="absolute inset-0 w-full h-full -rotate-90 filter drop-shadow-[0_0_12px_rgba(255,255,255,0.05)]">
-                    <circle 
-                        cx="50%" cy="50%" r={radius} 
-                        fill="transparent" 
-                        stroke="rgba(255,255,255,0.05)" 
-                        strokeWidth="10" 
-                    />
-                    <motion.circle 
-                        initial={{ strokeDashoffset: circumference }}
-                        animate={{ strokeDashoffset: offset }}
-                        transition={{ duration: 2.5, ease: [0.34, 1.56, 0.64, 1] }}
-                        cx="50%" cy="50%" r={radius} 
-                        fill="transparent" 
-                        stroke={color} 
-                        strokeWidth="12" 
-                        strokeLinecap="round"
-                        strokeDasharray={circumference}
-                        style={{ filter: `drop-shadow(0 0 12px ${color}80)` }}
-                    />
-                </svg>
-                <div className="relative z-10 bg-white/5 backdrop-blur-md rounded-full w-14 h-14 flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors">
-                    <div className="text-white opacity-40 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500">
-                        {React.cloneElement(icon as any, { size: 24, strokeWidth: 2.5 })}
-                    </div>
-                </div>
-            </div>
-            <div className="text-center space-y-2">
-                <span className="block text-[10px] font-black uppercase text-[#1a1a1a]/30 tracking-[0.4em] mb-1 group-hover:text-black transition-colors">{label}</span>
-                <span className="text-4xl font-black text-black tracking-tighter tabular-nums leading-none">{value}</span>
-            </div>
-        </div>
-    );
-}
-
-function TrafficRow({ label, value, progress, color }: any) {
-    return (
-        <div className="group space-y-4">
-            <div className="flex justify-between items-end">
-                <div className="flex items-center gap-3">
-                    <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.1)]" style={{ backgroundColor: color }} />
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black/50">{label}</span>
-                </div>
-                <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-black tabular-nums">{value}</span>
-                    <span className="text-[9px] font-bold text-black/20 uppercase">Yield</span>
-                </div>
-            </div>
-            <div className="h-4 w-full bg-[#fafafa] border border-black/5 rounded-full overflow-hidden p-1 shadow-inner relative group-hover:border-black/5 transition-all">
-                <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 1.5, ease: "circOut" }}
-                    className="h-full rounded-full relative overflow-hidden"
-                    style={{ backgroundColor: color, boxShadow: `0 0 15px ${color}40` }}
-                >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 animate-shimmer" />
-                </motion.div>
-            </div>
-        </div>
-    );
-}
-
-function AssetStat({ label, value, icon, color }: any) {
-    return (
-        <div className="p-8 bg-white border-4 border-black rounded-2xl flex flex-col gap-6 group hover:translate-y-[2px] hover:shadow-none transition-all duration-200 shadow-[0_8px_0_0_#000]">
-            <div className="flex items-center justify-between">
-                <div className="p-4 rounded-xl border-2 border-black shadow-[0_4px_0_0_#000] transition-transform group-hover:rotate-6 group-hover:scale-110" style={{ backgroundColor: color, color: '#000' }}>
-                    {React.cloneElement(icon as any, { size: 28, strokeWidth: 4 })}
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1 bg-white border-2 border-black rounded-md shadow-[0_2px_0_0_#000]"><span className="w-1.5 h-1.5 rounded-full bg-[#3aff30] animate-pulse" /><span className="text-[8px] font-black uppercase text-black/60">Verified</span></div>
-            </div>
-            <div className="space-y-1">
-                <p className="text-[11px] font-black uppercase text-black/40 tracking-[0.2em]">{label}</p>
-                <p className="text-4xl font-black tabular-nums tracking-tighter leading-none text-black">{value.toLocaleString()}</p>
-            </div>
-        </div>
-    );
-}
-
-function ContentTypeBar({ label, percentage, color }: any) {
-    return (
-        <div className="group space-y-4">
-            <div className="flex justify-between items-end px-1">
-                <div className="space-y-1">
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 group-hover:text-white/60 transition-colors">{label}</span>
-                    <div className="h-0.5 w-0 group-hover:w-full bg-white/10 transition-all duration-700" />
-                </div>
-                <span className="text-lg font-black tabular-nums text-white group-hover:text-[#ffdf00] transition-colors">{percentage}%</span>
-            </div>
-            <div className="h-6 w-full bg-white/[0.03] border border-white/5 rounded-2xl overflow-hidden flex p-1.5 shadow-inner">
-                <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${percentage}%` }}
-                    transition={{ duration: 2, ease: "circOut" }}
-                    className="h-full rounded-xl relative group-hover:brightness-110 transition-all"
-                    style={{ backgroundColor: color, boxShadow: `0 0 20px ${color}40` }}
-                >
-                    <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-50" />
-                </motion.div>
-            </div>
-        </div>
-    );
-}
-
-function InfoCard({ label, value, icon, onCopy, isCopied }: any) {
-    const { t } = useTranslation();
-    return (
-        <div className="bg-white border-2 border-black p-4 rounded-xl shadow-[0_4px_0_0_#000] hover:shadow-none hover:translate-y-[1px] transition-all group">
-            <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-black uppercase text-black/40 flex items-center gap-2">
-                    {React.cloneElement(icon as any, { size: 12, strokeWidth: 4 })}
-                    {label}
-                </span>
-                <button
-                    onClick={onCopy}
-                    className="p-1.5 bg-white border-2 border-black rounded-lg hover:bg-[#3aff30] text-black shadow-[0_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all"
-                    title="Copiar para área de transferência"
-                >
-                    {isCopied ? <Check size={12} strokeWidth={4} className="text-black" /> : <Copy size={12} strokeWidth={4} />}
-                </button>
-            </div>
-            <p className="text-sm font-black text-black truncate uppercase tracking-tighter">{value}</p>
-            {isCopied && (
-                <div className="absolute -top-10 right-0 bg-black text-white text-[9px] font-black px-3 py-1.5 rounded-md border-2 border-black shadow-[0_4px_0_0_#000] animate-in zoom-in-50">
-                    {t('common.copied').toUpperCase()}!
-                </div>
-            )}
-        </div>
-    );
-}
-function GrowthLine({ label, value, percentage }: any) {
-    return (
-        <div className="flex items-center justify-between group bg-white border-2 border-black p-4 shadow-[0_4px_0_0_#000] rounded-xl">
-            <div className="space-y-1">
-                <span className="text-[10px] font-black uppercase text-black/40 tracking-widest">{label}</span>
-                <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-black tracking-tighter tabular-nums text-black">{value.toLocaleString()}</span>
-                    <span className="text-[10px] font-black text-black opacity-30 uppercase">Users</span>
-                </div>
-            </div>
-            <div className="text-right">
-                <div className="px-3 py-2 bg-[#ffdf00] border-2 border-black rounded-lg shadow-[0_3px_0_0_#000] group-hover:scale-105 transition-all">
-                    <span className="text-[11px] font-black tabular-nums">+{percentage}%</span>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function StatusIndicator({ label, status }: any) {
-    return (
-        <div className="flex items-center justify-between p-4 bg-white border-2 border-black rounded-lg group transition-all shadow-[0_3px_0_0_#000] active:translate-y-[1px] active:shadow-none">
-            <div className="flex items-center gap-3">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#ffdf00] border border-black animate-pulse shadow-[0_0_8px_#ffdf00]" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-black/60">{label}</span>
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-black bg-[#ffdf00] border border-black px-1.5 rounded-sm">{status}</span>
-        </div>
-    );
-}
-
-function Grid({ size, className, strokeWidth }: any) {
-    return (
-        <svg 
-            width={size} 
-            height={size} 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth={strokeWidth || 2} 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            className={className}
-        >
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-        </svg>
-    );
-}
-
-function BrutalCard({ title, children, color = '#fff', textColor = '#000', className = '' }: any) {
-    return (
-        <div className={`border border-black/10 shadow-xl rounded-[32px] overflow-hidden flex flex-col ${className}`} style={{ backgroundColor: color }}>
-            {title && (
-                <div className="border-b-2 border-black/5 p-4 flex items-center justify-between bg-[#fafafa]">
-                    <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-black/60">{title}</h4>
-                    <div className="flex gap-1.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-black/5" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-black/5" />
-                    </div>
-                </div>
-            )}
-            <div className="p-6 md:p-8 flex-1" style={{ color: textColor }}>
-                {children}
-            </div>
-        </div>
-    );
-}
-
-function BrutalMetric({ label, value, color, icon }: any) {
-    return (
-        <div className="border border-black/10 shadow-xl p-6 flex flex-col gap-2 relative overflow-hidden group rounded-[32px] bg-white hover:translate-y-0.5 transition-all" style={{ backgroundColor: color }}>
-            <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform duration-500">
-                {icon}
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-black/40 relative z-10">{label}</span>
-            <span className="text-4xl font-black tracking-tighter tabular-nums text-black relative z-10">{value}</span>
-        </div>
-    );
-}
-
-function BrutalProgressBar({ label, percentage, color }: any) {
-    return (
-        <div className="space-y-2">
-            <div className="flex justify-between items-end px-1">
-                <span className="text-[11px] font-bold uppercase text-black/50">{label}</span>
-                <span className="text-xl font-black">{percentage}%</span>
-            </div>
-            <div className="h-6 w-full border-2 border-black/5 bg-white p-1 rounded-full overflow-hidden shadow-sm">
-                <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${percentage}%` }}
-                    className="h-full rounded-full transition-all"
-                    style={{ backgroundColor: color }}
-                />
             </div>
         </div>
     );

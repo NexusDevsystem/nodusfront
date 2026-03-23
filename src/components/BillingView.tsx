@@ -351,9 +351,9 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                     animate={{ opacity: 1, x: 0 }}
                     className="w-full lg:w-[340px] shrink-0"
                 >
-                    <div className="bg-white border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] md:shadow-[0_8px_0_0_#1a1a1a] rounded-[24px] md:rounded-[32px] p-6 md:p-8 h-full">
+                    <div className="bg-white border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] md:shadow-[0_8px_0_0_#1a1a1a] rounded-sm md:rounded-md p-6 md:p-8 h-full">
                         <div className="flex items-center gap-3 mb-8">
-                            <div className="w-10 h-10 bg-[#ffdf00] border-2 border-[#1a1a1a] rounded-xl flex items-center justify-center shadow-[0_3px_0_0_#1a1a1a]">
+                            <div className="w-10 h-10 bg-[#ffdf00] border-2 border-[#1a1a1a] rounded-md flex items-center justify-center shadow-[0_3px_0_0_#1a1a1a]">
                                 <BarChart3 size={20} className="text-black" />
                             </div>
                             <h3 className="text-xl font-black uppercase tracking-tighter">Especificações</h3>
@@ -404,7 +404,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                 {/* Right Side: Plans Carousel */}
                 <div className="w-full lg:max-w-xl flex flex-col gap-4 md:gap-6">
                     {/* Unified Carousel Controls */}
-                    <div className="flex items-center justify-between bg-white border-2 border-[#1a1a1a] rounded-xl md:rounded-2xl px-4 md:px-6 py-2.5 md:py-3 shadow-[0_4px_0_0_#1a1a1a]">
+                    <div className="flex items-center justify-between bg-white border-2 border-[#1a1a1a] rounded-md md:rounded-md px-4 md:px-6 py-2.5 md:py-3 shadow-[0_4px_0_0_#1a1a1a]">
                         <div className="flex items-center gap-2">
                             {PLANS.map((_, i) => (
                                 <button
@@ -422,13 +422,13 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                             <div className="flex gap-2">
                                 <button 
                                     onClick={prevPlan}
-                                    className="p-2 border-2 border-[#1a1a1a] bg-white rounded-lg hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover: transition-colors active:scale-95"
+                                    className="p-2 border-2 border-[#1a1a1a] bg-white rounded-sm hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover: transition-colors active:scale-95"
                                 >
                                     <ChevronLeft size={18} strokeWidth={3} />
                                 </button>
                                 <button 
                                     onClick={nextPlan}
-                                    className="p-2 border-2 border-[#1a1a1a] bg-white rounded-lg hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover: transition-colors active:scale-95"
+                                    className="p-2 border-2 border-[#1a1a1a] bg-white rounded-sm hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover: transition-colors active:scale-95"
                                 >
                                     <ChevronRight size={18} strokeWidth={3} />
                                 </button>
@@ -450,18 +450,18 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                                     const plan = PLANS[activeIndex];
                                     return (
                                         <div
-                                            className="relative bg-white p-4 md:p-12 border-2 border-[#1a1a1a] rounded-[32px] md:rounded-[40px] flex flex-col group shadow-[0_8px_0_0_#1a1a1a] md:shadow-[0_12px_0_0_#1a1a1a]"
+                                            className="relative bg-white p-4 md:p-12 border-2 border-[#1a1a1a] rounded-md md:rounded-[40px] flex flex-col group shadow-[0_8px_0_0_#1a1a1a] md:shadow-[0_12px_0_0_#1a1a1a]"
                                         >
                                             {plan.id === 'monthly' && (
                                                 <div className="absolute -top-4 left-10 flex justify-center z-40">
-                                                    <span className="bg-[#97cd7a] text-black border-2 border-[#1a1a1a] px-5 py-2 text-[11px] font-black uppercase tracking-widest shadow-[0_4px_0_0_#1a1a1a] rounded-xl">
+                                                    <span className="bg-[#97cd7a] text-black border-2 border-[#1a1a1a] px-5 py-2 text-[11px] font-black uppercase tracking-widest shadow-[0_4px_0_0_#1a1a1a] rounded-md">
                                                         {t('common.tip')}
                                                     </span>
                                                 </div>
                                             )}
 
                                             {plan.badge && (
-                                                <div className="absolute -top-4 left-10 px-5 py-2 bg-black text-[#ffdf00] text-[11px] font-black uppercase tracking-widest border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex items-center gap-2 z-40 rounded-xl">
+                                                <div className="absolute -top-4 left-10 px-5 py-2 bg-black text-[#ffdf00] text-[11px] font-black uppercase tracking-widest border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex items-center gap-2 z-40 rounded-md">
                                                     <Star size={14} fill="currentColor" />
                                                     {plan.badge}
                                                 </div>
@@ -475,7 +475,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                                                     <div className="flex items-baseline gap-3">
                                                         <span className="text-6xl md:text-7xl font-black text-black tracking-tighter leading-none">{plan.price}</span>
                                                         {plan.period && (
-                                                            <span className="font-black text-sm uppercase tracking-widest text-black/40 bg-black/5 px-3 py-1.5 rounded-xl">{plan.period}</span>
+                                                            <span className="font-black text-sm uppercase tracking-widest text-black/40 bg-black/5 px-3 py-1.5 rounded-md">{plan.period}</span>
                                                         )}
                                                     </div>
                                                     <div className="flex items-center gap-3">
@@ -493,7 +493,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 mb-10 pt-10 border-t-2 border-black/5">
                                                 {plan.features.slice(0, 6).map((feature, idx) => (
                                                     <div key={idx} className="flex items-start gap-4">
-                                                        <div className="mt-0.5 w-6 h-6 bg-[#97cd7a] border-2 border-[#1a1a1a] flex items-center justify-center shrink-0 rounded-lg shadow-[0_2px_0_0_#1a1a1a]">
+                                                        <div className="mt-0.5 w-6 h-6 bg-[#97cd7a] border-2 border-[#1a1a1a] flex items-center justify-center shrink-0 rounded-sm shadow-[0_2px_0_0_#1a1a1a]">
                                                             <Check size={12} strokeWidth={4} className="text-black" />
                                                         </div>
                                                         <span className="text-[11px] leading-tight font-black uppercase tracking-tight text-black/70">

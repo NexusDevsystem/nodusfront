@@ -23,61 +23,53 @@ export default function TermsPage() {
                 <p className="text-slate-500 mb-8">Última atualização: {new Date().toLocaleDateString('pt-BR')}</p>
 
                 <div className="prose prose-slate max-w-none">
-                    <h3>1. Termos</h3>
+                    <h3>1. Termos e Aceitação</h3>
                     <p>
-                        Ao acessar o site <a href="https://noduscc.com.br">Nodus</a>, você concorda em cumprir estes termos de serviço, todas as leis e regulamentos aplicáveis e concorda que é responsável pelo cumprimento de todas as leis locais aplicáveis. Se você não concordar com algum desses termos, está proibido de usar ou acessar este site. Os materiais contidos neste site são protegidos pelas leis de direitos autorais e marcas comerciais aplicáveis.
+                        Ao acessar o site <a href="https://noduscc.com.br">Nodus</a>, você concorda em cumprir estes termos de serviço, todas as leis e regulamentos aplicáveis. O Nodus é uma plataforma que permite a criação de perfis agregadores de links e lojas virtuais.
                     </p>
 
-                    <h3>2. Uso de Licença</h3>
+                    <h3>2. Responsabilidade pelo Conteúdo</h3>
                     <p>
-                        O Nodus é um software as a service (SaaS) proprietário. O acesso concedido é estritamente para o uso da plataforma através de um navegador web.
-                        <strong>Não é concedido nenhum direito de acesso ao código-fonte</strong>, download do software ou propriedade intelectual subjacente.
-                    </p>
-                    <p>
-                        Sob estes termos, você concorda expressamente que <strong>NÃO</strong> pode:
+                        Como usuário, você é o <strong>único responsável</strong> por todo o conteúdo publicado em seu perfil, incluindo:
                     </p>
                     <ul>
-                        <li>Tentar baixar, copiar, modificar, criar obras derivadas, fazer engenharia reversa, descompilar ou tentar extrair o código-fonte do Nodus;</li>
-                        <li>Usar qualquer robô, spider, scraper ou outros meios automatizados para acessar o serviço;</li>
-                        <li>Revender, sublicenciar ou redistribuir o acesso ao serviço sem autorização por escrito;</li>
-                        <li>Usar o serviço para qualquer finalidade ilegal ou não autorizada;</li>
-                        <li>Remover quaisquer direitos autorais ou outras notações de propriedade dos materiais exibidos.</li>
+                        <li>Links externos e redirecionamentos;</li>
+                        <li>Imagens, textos e vídeos utilizados na customização;</li>
+                        <li>Produtos cadastrados em sua loja (físicos ou digitais);</li>
+                        <li>Legalidade dos produtos vendidos e cumprimento de prazos de entrega.</li>
                     </ul>
                     <p>
-                        Esta licença será automaticamente rescindida se você violar alguma dessas restrições e sua conta poderá ser banida permanentemente pelo Nodus a qualquer momento, sem direito a reembolso.
+                        O Nodus reserva-se o direito de remover qualquer conteúdo ou banir contas que promovam atividades ilegais, golpes, discurso de ódio ou venda de produtos proibidos sem aviso prévio.
                     </p>
 
-                    <h3>3. Isenção de responsabilidade</h3>
+                    <h3>3. Transações e Pagamentos</h3>
                     <p>
-                        Os materiais no site da Nodus são fornecidos 'como estão'. Nodus não oferece garantias, expressas ou implícitas, e, por este meio, isenta e nega todas as outras garantias, incluindo, sem limitação, garantias implícitas ou condições de comercialização, adequação a um fim específico ou não violação de propriedade intelectual ou outra violação de direitos.
+                        O Nodus facilita a exposição de produtos, mas as transações financeiras ocorrem através de provedores terceiros (Stripe, PayPal ou transferências diretas via Pix).
                     </p>
+                    <ul>
+                        <li><strong>Disputas:</strong> O Nodus não intervém em disputas comerciais entre compradores e vendedores. Problemas com produtos ou reembolsos devem ser tratados diretamente com o vendedor ou através do processador de pagamentos.</li>
+                        <li><strong>Taxas:</strong> O Nodus pode cobrar taxas de assinatura ou comissão sobre vendas, conforme o plano contratado. Essas taxas são comunicadas de forma transparente no painel administrativo.</li>
+                    </ul>
+
+                    <h3>4. Propriedade Intelectual</h3>
                     <p>
-                        Além disso, o Nodus não garante ou faz qualquer representação relativa à precisão, aos resultados prováveis ou à confiabilidade do uso dos materiais em seu site ou de outra forma relacionado a esses materiais ou em sites vinculados a este site.
+                        O Nodus é um software proprietário. Você mantém os direitos sobre seu conteúdo original, mas concede ao Nodus uma licença mundial para exibir e distribuir esse conteúdo conforme necessário para fornecer o serviço.
+                        <strong>É proibido:</strong> tentar copiar o código-fonte, fazer engenharia reversa ou utilizar a marca Nodus de forma a sugerir parceria oficial sem autorização.
                     </p>
 
-                    <h3>4. Limitações</h3>
+                    <h3>5. Isenção de Responsabilidade</h3>
                     <p>
-                        Em nenhum caso o Nodus ou seus fornecedores serão responsáveis por quaisquer danos (incluindo, sem limitação, danos por perda de dados ou lucro ou devido a interrupção dos negócios) decorrentes do uso ou da incapacidade de usar os materiais em Nodus, mesmo que Nodus ou um representante autorizado da Nodus tenha sido notificado oralmente ou por escrito da possibilidade de tais danos. Como algumas jurisdições não permitem limitações em garantias implícitas, ou limitações de responsabilidade por danos conseqüentes ou incidentais, essas limitações podem não se aplicar a você.
+                        Os materiais no site da Nodus são fornecidos 'como estão'. O Nodus não oferece garantias de que o serviço será ininterrupto ou livre de erros. Não nos responsabilizamos por perdas financeiras decorrentes do uso da plataforma ou de falhas em integrações de terceiros.
                     </p>
 
-                    <h3>5. Precisão dos materiais</h3>
+                    <h3>6. Modificações dos Termos</h3>
                     <p>
-                        Os materiais exibidos no site da Nodus podem incluir erros técnicos, tipográficos ou fotográficos. Nodus não garante que qualquer material em seu site seja preciso, completo ou atual. Nodus pode fazer alterações nos materiais contidos em seu site a qualquer momento, sem aviso prévio. No entanto, Nodus não se compromete a atualizar os materiais.
+                        Podemos revisar estes termos a qualquer momento. O uso continuado da plataforma após alterações significa que você aceita os novos termos.
                     </p>
 
-                    <h3>6. Links</h3>
+                    <h3>7. Lei Aplicável</h3>
                     <p>
-                        O Nodus não analisou todos os sites vinculados ao seu site e não é responsável pelo conteúdo de nenhum site vinculado. A inclusão de qualquer link não implica endosso por Nodus do site. O uso de qualquer site vinculado é por conta e risco do usuário.
-                    </p>
-
-                    <h3>Modificações</h3>
-                    <p>
-                        O Nodus pode revisar estes termos de serviço do site a qualquer momento, sem aviso prévio. Ao usar este site, você concorda em ficar vinculado à versão atual desses termos de serviço.
-                    </p>
-
-                    <h3>Lei aplicável</h3>
-                    <p>
-                        Estes termos e condições são regidos e interpretados de acordo com as leis do Nodus e você se submete irrevogavelmente à jurisdição exclusiva dos tribunais naquele estado ou localidade.
+                        Estes termos são regidos pelas leis brasileiras. Fica eleito o foro da comarca da sede da empresa proprietária do Nodus para dirimir quaisquer questões relativas a estes termos.
                     </p>
                 </div>
             </main>

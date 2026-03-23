@@ -31,7 +31,7 @@ export const TwitchCard: React.FC<TwitchCardProps> = ({
     themeButtonClass = '',
     themeButtonStyle = {},
     themeTextHex = '',
-    buttonRoundness = 'rounded-3xl',
+    buttonRoundness = 'rounded-sm',
     isDark = false,
     fontFamily,
     fontWeight,
@@ -132,13 +132,12 @@ export const TwitchCard: React.FC<TwitchCardProps> = ({
                         transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                         className="w-full aspect-video mt-1 mb-4 px-4 sm:px-5 relative group/embed overflow-hidden"
                     >
-                        <div className="w-full h-full rounded-2xl overflow-hidden bg-black relative border border-white/10 pointer-events-none">
+                        <div className="w-full h-full rounded-md overflow-hidden bg-black relative border border-white/10 pointer-events-none">
                             <iframe
                                 ref={iframeRef}
                                 src={`https://player.twitch.tv/?autoplay=true&muted=true&channel=${username}&parent=${window.location.hostname}&controls=false&playsinline=true`}
                                 height="100%"
                                 width="100%"
-                                title="Twitch Live Stream"
                                 className="select-none"
                                 frameBorder="0"
                                 allow="autoplay; fullscreen; encrypted-media; picture-in-picture;"
@@ -149,10 +148,10 @@ export const TwitchCard: React.FC<TwitchCardProps> = ({
                         {/* Remote Control Overlay */}
                         <div className="absolute inset-x-4 sm:inset-x-5 inset-y-0 z-20 pointer-events-none flex items-end justify-center pb-4">
                             <motion.button 
-                                whileHover={{ scale: 1.1 }}
+                                whileHover={{ }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={toggleMute}
-                                className="pointer-events-auto bg-black/60 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-xs font-bold shadow-2xl hover:bg-black/80 transition-colors uppercase tracking-wider"
+                                className="pointer-events-auto bg-black/60 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-md flex items-center gap-2 text-xs font-bold shadow-2xl hover:bg-black/80 transition-colors uppercase tracking-wider"
                             >
                                 {isMuted ? (
                                     <><span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> DESMUTAR SOM</>

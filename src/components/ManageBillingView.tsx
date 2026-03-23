@@ -126,13 +126,13 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                     
                     {!isFree && profile.stripeCustomerId && (
                         <motion.button
-                            whileHover={{ scale: 1.02, x: 2, y: 2 }}
+                            whileHover={{ x: 2, y: 2 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={handleManageBilling}
                             disabled={loadingPortal}
-                            className="group relative flex items-center justify-center gap-3 text-[12px] font-black uppercase tracking-widest text-white bg-[#1a1a1a] py-4 px-10 border-2 border-[#1a1a1a] rounded-2xl transition-all disabled:opacity-50"
+                            className="group relative flex items-center justify-center gap-3 text-[12px] font-black uppercase tracking-widest text-white bg-[#1a1a1a] py-4 px-10 border-2 border-[#1a1a1a] rounded-md transition-all disabled:opacity-50"
                         >
-                            <div className="absolute inset-0 bg-[#97cd7a] translate-y-1.5 -z-10 group-hover:translate-y-0 transition-transform rounded-2xl" />
+                            <div className="absolute inset-0 bg-[#97cd7a] translate-y-1.5 -z-10 group-hover:translate-y-0 transition-transform rounded-md" />
                             {loadingPortal ? <Loader2 size={16} className="animate-spin text-[#97cd7a]" /> : <ExternalLink size={16} strokeWidth={3} className="text-[#97cd7a]" />}
                             <span className="relative z-10">{t('billing.stripePortal', 'Portal Stripe')}</span>
                         </motion.button>
@@ -146,7 +146,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="group bg-white p-8 border-4 border-[#1a1a1a] shadow-[0_12px_0_0_#1a1a1a] rounded-[32px] relative overflow-hidden flex flex-col justify-between min-h-[200px]"
+                        className="group bg-white p-8 border-4 border-[#1a1a1a] shadow-[0_12px_0_0_#1a1a1a] rounded-md relative overflow-hidden flex flex-col justify-between min-h-[200px]"
                     >
                         <div className="absolute top-0 right-0 w-24 h-24 bg-black/5 -rotate-45 translate-x-12 -translate-y-12 transition-transform group-hover:bg-[#97cd7a]/10" />
                         
@@ -166,7 +166,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                         
                         {!isFree && (
                             <div className="flex items-center gap-3 relative z-10">
-                                <div className="flex items-center gap-2 text-[11px] font-black text-black uppercase tracking-widest bg-[#97cd7a] px-4 py-2 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl">
+                                <div className="flex items-center gap-2 text-[11px] font-black text-black uppercase tracking-widest bg-[#97cd7a] px-4 py-2 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-md">
                                     <CheckCircle2 size={14} strokeWidth={3} />
                                     {t('billing.activeUntil', 'Ativo até')} {profile.subscriptionExpiryDate ? new Date(profile.subscriptionExpiryDate).toLocaleDateString('pt-BR') : '--/--/----'}
                                 </div>
@@ -179,7 +179,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="group bg-white p-8 border-4 border-[#1a1a1a] shadow-[0_12px_0_0_#1a1a1a] rounded-[32px] relative overflow-hidden flex flex-col justify-between min-h-[200px]"
+                        className="group bg-white p-8 border-4 border-[#1a1a1a] shadow-[0_12px_0_0_#1a1a1a] rounded-md relative overflow-hidden flex flex-col justify-between min-h-[200px]"
                     >
                         <div className="absolute top-0 right-0 w-24 h-24 bg-black/5 rotate-45 translate-x-12 -translate-y-12 transition-transform group-hover:bg-[#ffdf00]/10 rounded-full" />
                         
@@ -267,7 +267,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.4 + idx * 0.05 }}
-                                    className="group bg-white p-6 border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] rounded-2xl transition-all hover:bg-zinc-50 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden cursor-pointer"
+                                    className="group bg-white p-6 border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] rounded-md transition-all hover:bg-zinc-50 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden cursor-pointer"
                                     onClick={() => window.open(invoice.hosted_invoice_url, '_blank')}
                                 >
                                     <div className="absolute top-0 left-0 w-1 h-full bg-[#97cd7a] opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -290,7 +290,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
                                                 {t('billing.paid', 'Pago')}
                                             </div>
                                         </div>
-                                        <div className="w-10 h-10 border-2 border-[#1a1a1a] bg-[#1a1a1a] text-white flex items-center justify-center group-hover:bg-[#ffdf00] group-hover:text-black transition-all rotate-0 group-hover:rotate-90 rounded-lg">
+                                        <div className="w-10 h-10 border-2 border-[#1a1a1a] bg-[#1a1a1a] text-white flex items-center justify-center group-hover:bg-[#ffdf00] group-hover:text-black transition-all rotate-0 rounded-sm">
                                             <ChevronRight size={20} strokeWidth={4} />
                                         </div>
                                     </div>

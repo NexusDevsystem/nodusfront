@@ -25,7 +25,7 @@ export const medicineCardioTheme: Theme = {
     name: 'Cardio Pulse',
     backgroundClass: 'bg-rose-50', // Fallback
     solidColor: '#fff1f2',
-    buttonClass: 'bg-[#f43f5e] text-white hover:bg-[#e11d48] rounded-xl font-sans font-bold shadow-[0_4px_14px_0_rgba(244,63,94,0.39)] px-6 transition-all hover:scale-105',
+    buttonClass: 'bg-[#f43f5e] text-white hover:bg-[#e11d48] rounded-xl font-sans font-bold shadow-[0_4px_14px_0_rgba(244,63,94,0.39)] px-6 transition-all',
     cardClass: 'bg-white/90 backdrop-blur-sm border border-rose-100 rounded-xl shadow-sm text-rose-900',
     textClass: 'text-rose-950 font-sans font-medium',
     avatarBorder: 'ring-4 ring-rose-100 ring-offset-2 ring-offset-white rounded-full',

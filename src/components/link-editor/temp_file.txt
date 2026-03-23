@@ -360,6 +360,56 @@ function SortableLinkItem({
         return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-bold text-black border-2 border-black uppercase shadow-[0_2.5px_0_0_#000] leading-none italic">{t('links.linkLabel').toUpperCase()}</span>;
     };
 
+    const DeleteModal = () => (
+        <AnimatePresence>
+            {showDeleteConfirm && createPortal(
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setShowDeleteConfirm(false)}
+                        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                    />
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        className="relative bg-white border-4 border-black p-8 rounded-2xl shadow-[0_12px_0_0_#000] max-w-sm w-full"
+                    >
+                        <div className="flex flex-col items-center text-center gap-6">
+                            <div className="w-16 h-16 bg-red-100 border-2 border-black rounded-2xl flex items-center justify-center shadow-[4px_4px_0_0_#000]">
+                                <Trash2 size={32} className="text-red-600" strokeWidth={3} />
+                            </div>
+                            
+                            <div>
+                                <h3 className="text-xl font-black uppercase tracking-tighter text-black mb-2">Confirmar Exclusão?</h3>
+                                <p className="text-xs font-bold uppercase tracking-widest text-black/50 leading-relaxed">
+                                    Essa ação é permanente. Deseja realmente excluir "{link.title || 'este item'}"?
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col w-full gap-3 pt-2">
+                                <button 
+                                    onClick={() => { removeLink(link.id); setShowDeleteConfirm(false); }}
+                                    className="w-full py-4 bg-red-600 text-white font-black uppercase text-[12px] tracking-widest border-2 border-black shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all"
+                                >
+                                    Sim, Excluir Item
+                                </button>
+                                <button 
+                                    onClick={() => setShowDeleteConfirm(false)}
+                                    className="w-full py-4 bg-white text-black font-black uppercase text-[12px] tracking-widest border-2 border-black hover:bg-slate-50 transition-all"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>,
+                document.body
+            )}
+        </AnimatePresence>
+    );
 
     const ToggleSwitch = () => (
         <label className="relative inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
@@ -386,11 +436,11 @@ function SortableLinkItem({
                 layout
                 onDrag={() => { }}
                 onDragEnd={() => { }}
-                className={`relative border-2 border-black rounded-md ${isExpanded || isCollectionExpanded ? 'bg-white shadow-[0_4px_0_0_#000]' : 'bg-white shadow-[0_4px_0_0_#000] mb-3'} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
-                whileDrag={{ zIndex: 50, borderRadius: '6px' }}
+                className={`relative border-2 border-black rounded-lg ${isExpanded || isCollectionExpanded ? 'bg-white shadow-[0_4px_0_0_#000]' : 'bg-white shadow-[0_4px_0_0_#000] mb-3'} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
+                whileDrag={{ scale: 1.01, boxShadow: '0px 10px 0px 0px rgba(0,0,0,1)', zIndex: 50, borderRadius: '8px' }}
                 style={{ willChange: 'transform' }}
             >
-                <div className={`transition-all duration-300 rounded-[6px] overflow-hidden ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${(isExpanded || isCollectionExpanded) ? 'bg-[#fefcbf]' : 'bg-white'}`}>
+                <div className={`transition-all duration-300 rounded-[10px] overflow-hidden ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${(isExpanded || isCollectionExpanded) ? 'bg-[#fefcbf]' : 'bg-white'}`}>
                     {isCollection ? (
                         /* COLLECTION ITEM */
                         <div className="overflow-hidden">
@@ -413,7 +463,7 @@ function SortableLinkItem({
                                         <div className="shrink-0">
                                             <div className="relative">
                                                 {link.image ? (
-                                                    <div className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} border-2 border-black overflow-hidden shadow-[0_2.5px_0_0_#000] rounded-md`}>
+                                                    <div className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} border-2 border-black overflow-hidden shadow-[0_2.5px_0_0_#000] rounded-lg`}>
                                                         <img
                                                             src={link.image}
                                                             alt="Thumbnail"
@@ -428,7 +478,7 @@ function SortableLinkItem({
                                                 ) : (
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                                                        className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} bg-white border-2 border-black shadow-[0_2.5px_0_0_#000] flex items-center justify-center text-black hover:bg-[#ffdf00] transition-all rounded-md`}
+                                                        className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} bg-white border-2 border-black shadow-[0_2.5px_0_0_#000] flex items-center justify-center text-black hover:bg-[#ffdf00] transition-all rounded-lg`}
                                                     >
                                                         {getThumbnailIcon()}
                                                     </button>
@@ -469,6 +519,8 @@ function SortableLinkItem({
                                 </div>
                             </div>
 
+                                <DeleteModal />
+
                             {/* Expanded Collection Content */}
                             <AnimatePresence>
                                 {isCollectionExpanded && (
@@ -479,7 +531,7 @@ function SortableLinkItem({
                                         transition={{ duration: 0.2 }}
                                         className="overflow-hidden bg-[#fefcbf] border-t border-black"
                                     >
-                                        <div className="px-1.5 md:px-3 py-3 md:py-4 space-y-3 md:space-y-4">
+                                        <div className="p-2 md:p-3 md:pl-5 space-y-3 md:space-y-4">
                                             {/* Collection Basic Info & Layout */}
                                             <div className="flex flex-col md:flex-row gap-6 md:gap-10 pb-6">
                                                 <div className="flex-1 space-y-1">
@@ -496,6 +548,7 @@ function SortableLinkItem({
                                                                 <DeezerIcon size={14} />
                                                                 <span className="px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-black uppercase shadow-[0_2.5px_0_0_#000]">DEEZER</span>
                                                             </div>
+     </div>
                                                         )}
                                                     </div>
                                                     <input
@@ -520,7 +573,7 @@ function SortableLinkItem({
                                                                 <button
                                                                     key={opt.id}
                                                                     onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                    className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black rounded-md transition-all ${isActive ? 'bg-[#ffdf00] shadow-none translate-y-[2px]' : 'bg-white hover:bg-[#f8f8f8] hover:translate-y-[1px] hover:shadow-[0_1.5px_0_0_#000] shadow-[0_2.5px_0_0_#000]'}`}
+                                                                    className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black rounded-xl transition-all ${isActive ? 'bg-[#ffdf00] shadow-none translate-y-[2px]' : 'bg-white hover:bg-[#f8f8f8] hover:translate-y-[1px] hover:shadow-[0_1.5px_0_0_#000] shadow-[0_2.5px_0_0_#000]'}`}
                                                                 >
                                                                     {isActive && (
                                                                         <div className="absolute top-1 right-1 w-4 h-4 bg-black flex items-center justify-center border border-black rounded-md z-10 shadow-[0_1px_0_0_rgba(255,255,255,0.2)]">
@@ -609,7 +662,7 @@ function SortableLinkItem({
                                     {/* Top Row: Title & Toggle */}
                                     <div
                                         onClick={() => toggleLink(link.id)}
-                                        className="flex items-start justify-between p-2 pb-1 md:p-4 md:pb-2 cursor-pointer group"
+                                        className="flex items-start justify-between p-4 pb-2 md:p-6 md:pb-3 cursor-pointer group"
                                     >
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1.5">
@@ -631,7 +684,7 @@ function SortableLinkItem({
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-between px-2 pb-2 md:px-4 md:pb-3">
+                                    <div className="flex items-center justify-between px-4 pb-4 md:px-6 md:pb-5">
                                         <div className="flex items-center gap-4 md:gap-7 text-black/30">
                                             <div className="flex items-center gap-2 text-[10px] md:text-[11px] font-medium uppercase tracking-widest text-black/40">
                                                 <BarChart2 size={iconSize - 4} strokeWidth={2} />
@@ -648,6 +701,8 @@ function SortableLinkItem({
                                     </div>
                                 </div>
                             </div>
+
+                            <DeleteModal />
 
                             {/* Expanded Body */}
                             <AnimatePresence>
@@ -738,7 +793,7 @@ function SortableLinkItem({
                                                                                      <button
                                                                                          key={opt.id}
                                                                                          onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                                         className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black rounded-md transition-all ${isActive ? 'bg-[#ffdf00] shadow-[0_2.5px_0_0_#000] -translate-y-0.5' : 'bg-white hover:bg-[#f8f8f8] shadow-[0_2.5px_0_0_#000]'}`}
+                                                                                         className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black rounded-xl transition-all ${isActive ? 'bg-[#ffdf00] shadow-[0_2.5px_0_0_#000] -translate-y-0.5' : 'bg-white hover:bg-[#f8f8f8] shadow-[0_2.5px_0_0_#000]'}`}
                                                                                      >
                                                                                          {isActive && (
                                                                                              <div className="absolute top-1.5 right-1.5 w-4 h-4 bg-black flex items-center justify-center border-2 border-black rounded-full z-10">
@@ -799,7 +854,7 @@ function SortableLinkItem({
                                                                         <button
                                                                             key={opt.id}
                                                                             onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                            className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-md transition-all ${isActive ? 'bg-[#97cd7a] shadow-[0_6px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-y-0.5 shadow-[0_4px_0_0_#1a1a1a]'}`}
+                                                                            className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-xl transition-all ${isActive ? 'bg-[#97cd7a] shadow-[0_6px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-y-0.5 shadow-[0_4px_0_0_#1a1a1a]'}`}
                                                                         >
                                                                             {isActive && (
                                                                                 <div className="absolute top-1 right-1 w-4 h-4 bg-[#97cd7a] flex items-center justify-center border border-[#1a1a1a] z-10 shadow-[0_1px_0_0_rgba(255,255,255,1)]">
@@ -948,13 +1003,13 @@ function SortableLinkItem({
                                                     {/* 🎬 Section 1: Animations */}
                                                     <div className="space-y-4">
                                                         <div className="flex items-center gap-2">
-                                                            <div className="p-1 px-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-md">
+                                                            <div className="p-1 px-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-lg">
                                                                 <Zap size={10} strokeWidth={3} className="text-black" />
                                                             </div>
                                                             <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em]">{t('links.animations')}</label>
                                                         </div>
 
-                                                        <div className="flex bg-slate-100 p-1.5 rounded-md border-2 border-[#1a1a1a]/5 gap-1.5 overflow-visible">
+                                                        <div className="flex bg-slate-100 p-1.5 rounded-2xl border-2 border-[#1a1a1a]/5 gap-1.5 overflow-visible">
                                                             {[
                                                                 { id: 'soft', label: t('links.categorySoft').includes('links.') ? 'Suave' : t('links.categorySoft') },
                                                                 { id: 'dynamic', label: t('links.categoryDynamic').includes('links.') ? 'Energia' : t('links.categoryDynamic') },
@@ -963,7 +1018,7 @@ function SortableLinkItem({
                                                                 <button
                                                                     key={cat.id}
                                                                     onClick={() => setAnimCategory(cat.id)}
-                                                                    className={`flex-1 py-2 text-[8px] font-bold uppercase tracking-widest transition-all rounded-md border-2 relative ${animCategory === cat.id ? 'bg-[#ffdf00] text-black border-black shadow-[0_2px_0_0_#1a1a1a] z-10' : 'bg-transparent text-black/40 border-transparent hover:text-black z-0'}`}
+                                                                    className={`flex-1 py-2 text-[8px] font-bold uppercase tracking-widest transition-all rounded-xl border-2 relative ${animCategory === cat.id ? 'bg-[#ffdf00] text-black border-black shadow-[0_2px_0_0_#1a1a1a] z-10' : 'bg-transparent text-black/40 border-transparent hover:text-black z-0'}`}
                                                                 >
                                                                     {cat.label}
                                                                 </button>
@@ -1003,7 +1058,7 @@ function SortableLinkItem({
                                                                     <button
                                                                         key={anim.id}
                                                                         onClick={() => updateLink(link.id, 'highlight', anim.id as any)}
-                                                                        className={`flex flex-col items-center justify-center gap-2 px-2 py-3 rounded-md border-2 transition-all duration-200 group relative
+                                                                        className={`flex flex-col items-center justify-center gap-2 px-2 py-3 rounded-2xl border-2 transition-all duration-200 group relative
                                                                             ${isSelected
                                                                                 ? 'bg-[#ffdf00] border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] translate-y-[-1px]'
                                                                                 : 'bg-white border-[#1a1a1a]/10 hover:border-[#1a1a1a] hover:shadow-[0_3px_0_0_#1a1a1a] text-black/40 hover:text-black hover:translate-y-[-1px]'}`}
@@ -1031,7 +1086,7 @@ function SortableLinkItem({
                                                             <div className="flex items-center justify-between">
                                                                 <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('links.schedule')} (PRO)</label>
                                                                 {(!profile.planType || profile.planType === 'free') && (
-                                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-md">
+                                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-lg">
                                                                         <motion.div
                                                                             animate={{ x: ['-200%', '200%'] }}
                                                                             transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
@@ -1041,21 +1096,21 @@ function SortableLinkItem({
                                                                     </span>
                                                                 )}
                                                             </div>
-                                                            <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-md ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
+                                                            <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-3xl ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
                                                                 <div className="grid grid-cols-1 gap-4">
                                                                     <div className="space-y-1.5">
                                                                         <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-black">
                                                                             <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-[#97cd7a]' : 'bg-white'}`}></div>
                                                                             {t('links.scheduleStart')}
                                                                         </div>
-                                                                        <input type="datetime-local" value={link.scheduleStart ? new Date(new Date(link.scheduleStart).getTime() - new Date(link.scheduleStart).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleStart', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md" />
+                                                                        <input type="datetime-local" value={link.scheduleStart ? new Date(new Date(link.scheduleStart).getTime() - new Date(link.scheduleStart).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleStart', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl" />
                                                                     </div>
                                                                     <div className="space-y-1.5">
                                                                         <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-black">
                                                                             <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-white'}`}></div>
                                                                             {t('links.scheduleEnd')}
                                                                         </div>
-                                                                        <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md" />
+                                                                        <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.planType || profile.planType === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl" />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1068,7 +1123,7 @@ function SortableLinkItem({
                                                             <div className="flex items-center justify-between">
                                                                 <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('passwordLink.toggle') || 'Proteger com Senha'} (PRO)</label>
                                                                 {(!profile.planType || profile.planType === 'free') && (
-                                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-md">
+                                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-lg">
                                                                         <motion.div
                                                                             animate={{ x: ['-200%', '200%'] }}
                                                                             transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
@@ -1078,7 +1133,7 @@ function SortableLinkItem({
                                                                     </span>
                                                                 )}
                                                             </div>
-                                                            <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-md ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
+                                                            <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-3xl ${(!profile.planType || profile.planType === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
                                                                 <div className="flex items-center gap-3 mb-4">
                                                                     <button
                                                                         type="button"
@@ -1097,7 +1152,7 @@ function SortableLinkItem({
                                                                         value={(link as any).linkPassword || ''}
                                                                         onChange={e => updateLink(link.id, 'linkPassword' as any, e.target.value)}
                                                                         placeholder={t('passwordLink.placeholder') || 'Digite a senha...'}
-                                                                        className="w-full text-[10px] font-medium uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md"
+                                                                        className="w-full text-[10px] font-medium uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl"
                                                                         autoComplete="new-password"
                                                                     />
                                                                 )}
@@ -1129,57 +1184,6 @@ function SortableLinkItem({
                     )}
                 </div>
             </Reorder.Item>
-
-            {createPortal(
-                <AnimatePresence>
-                    {showDeleteConfirm && (
-                        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                onClick={() => setShowDeleteConfirm(false)}
-                                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-                            />
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                className="relative bg-white border-4 border-black p-8 rounded-md shadow-[0_12px_0_0_#000] max-w-sm w-full"
-                            >
-                                <div className="flex flex-col items-center text-center gap-6">
-                                    <div className="w-16 h-16 bg-red-100 border-2 border-black rounded-md flex items-center justify-center shadow-[4px_4px_0_0_#000]">
-                                        <Trash2 size={32} className="text-red-600" strokeWidth={3} />
-                                    </div>
-                                    
-                                    <div>
-                                        <h3 className="text-xl font-black uppercase tracking-tighter text-black mb-2">Confirmar Exclusão?</h3>
-                                        <p className="text-xs font-bold uppercase tracking-widest text-black/50 leading-relaxed">
-                                            Essa ação é permanente. Deseja realmente excluir "{link.title || 'este item'}"?
-                                        </p>
-                                    </div>
-
-                                    <div className="flex flex-col w-full gap-3 pt-2">
-                                        <button 
-                                            onClick={() => { removeLink(link.id); setShowDeleteConfirm(false); }}
-                                            className="w-full py-4 bg-red-600 text-white font-black uppercase text-[12px] tracking-widest border-2 border-black shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all"
-                                        >
-                                            Sim, Excluir Item
-                                        </button>
-                                        <button 
-                                            onClick={() => setShowDeleteConfirm(false)}
-                                            className="w-full py-4 bg-white text-black font-black uppercase text-[12px] tracking-widest border-2 border-black hover:bg-slate-50 transition-all"
-                                        >
-                                            Cancelar
-                                        </button>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </div>
-                    )}
-                </AnimatePresence>,
-                document.body
-            )}
         </>
     );
 }

@@ -49,7 +49,7 @@ export default function OnboardingQuests({ quests, progress }: OnboardingQuestsP
     return (
         <>
             {/* Sidebar Card */}
-            <div className="mx-5 md:mx-4 mt-6 md:mt-4 bg-white border-2 border-[#1a1a1a] rounded-[24px] p-4 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] relative overflow-hidden group">
+            <div className="mx-5 md:mx-4 mt-6 md:mt-4 bg-white border-2 border-[#1a1a1a] rounded-sm p-4 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] relative overflow-hidden group">
                 <div className="flex flex-col gap-4 relative z-10">
 
                     {/* Progress Circle & Text */}
@@ -104,7 +104,7 @@ export default function OnboardingQuests({ quests, progress }: OnboardingQuestsP
                             initial={{ opacity: 0, y: 20, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                            className="relative bg-white border-2 border-[#1a1a1a] rounded-[32px] shadow-[4px_4px_0px_0px_#1a1a1a] w-full max-w-sm overflow-hidden flex flex-col max-h-[90vh]"
+                            className="relative bg-white border-2 border-[#1a1a1a] rounded-md shadow-[4px_4px_0px_0px_#1a1a1a] w-full max-w-sm overflow-hidden flex flex-col max-h-[90vh]"
                         >
                             {/* Header */}
                             <div className="p-6 pb-4 flex items-center justify-between bg-white shrink-0">

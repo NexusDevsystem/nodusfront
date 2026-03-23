@@ -103,13 +103,33 @@ export default function EditorPage() {
                     }
                     return l;
                 });
-                const productsData = withClientIds(productsDataRaw);
-                const storesData = withClientIds(storesDataRaw || []);
+                let finalProducts = withClientIds(productsDataRaw);
+                let finalStores = withClientIds(storesDataRaw || []);
+
+                const orphanedProducts = finalProducts.filter(p => !p.storeId);
+                
+                if (orphanedProducts.length > 0) {
+                    let defaultStore = finalStores[0];
+                    if (!defaultStore) {
+                        defaultStore = {
+                            id: crypto.randomUUID(),
+                            clientId: crypto.randomUUID(),
+                            name: 'Meus Produtos',
+                            position: 0,
+                            isActive: true
+                        };
+                        finalStores.push(defaultStore);
+                    }
+                    
+                    finalProducts = finalProducts.map(p => 
+                        !p.storeId ? { ...p, storeId: defaultStore.id } : p
+                    );
+                }
 
                 setProfile(profileData);
                 setLinks(linksData);
-                setProducts(productsData);
-                setStores(storesData);
+                setProducts(finalProducts);
+                setStores(finalStores);
 
 
                 // --- AUTOMATIC PAYMENT RECONCILIATION ---
@@ -599,30 +619,31 @@ export default function EditorPage() {
                         </div>
                     </div>
 
-                    {/* Mobile Sidebar (Drawer) */}
+                    {/* Mobile Sidebar (Drawer) - Full height side-drawer */}
                     <AnimatePresence>
                         {isMobileMenuOpen && (
-                            <div className="fixed inset-0 z-[100] md:hidden flex">
+                            <div className="fixed inset-0 z-[100] md:hidden flex overflow-hidden">
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="absolute inset-0 bg-black/80 md:bg-black/60 md:backdrop-blur-sm"
+                                    className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 />
                                 <motion.div
                                     initial={{ x: '-100%' }}
                                     animate={{ x: 0 }}
                                     exit={{ x: '-100%' }}
-                                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                    className="relative w-72 h-full bg-white border-r-4 border-[#1a1a1a] flex flex-col overflow-hidden"
+                                    transition={{ type: 'spring', damping: 28, stiffness: 220, mass: 0.8 }}
+                                    className="relative w-[85%] max-w-[280px] h-full bg-white border-r-2 border-[#1a1a1a] flex flex-col overflow-hidden pointer-events-auto z-10"
                                 >
                                     <Sidebar
                                         activeTab={activeTab}
                                         setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }}
                                         userProfile={profile}
                                         onUpgradeClick={() => { setIsUpgradeOpen(true); setIsMobileMenuOpen(false); }}
-                                        className="flex-1 overflow-y-auto"
+                                        className="flex-1"
+                                        onClose={() => setIsMobileMenuOpen(false)}
                                     />
                                 </motion.div>
                             </div>
@@ -644,7 +665,6 @@ export default function EditorPage() {
                                     <button
                                         onClick={() => setIsSidebarOpen(true)}
                                         className="p-1.5 -ml-1 text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-colors"
-                                        title="Abrir Menu"
                                     >
                                         <ChevronsRight size={20} />
                                     </button>
@@ -675,7 +695,7 @@ export default function EditorPage() {
                                         className="h-9 px-4 flex items-center gap-2 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl hover:translate-y-[1px] hover:shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[3px] active:shadow-none transition-all text-[#1a1a1a] group"
                                         title={t('editor.share')}
                                     >
-                                        <Share size={16} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
+                                        <Share size={16} strokeWidth={2.5} className=" transition-transform" />
                                         <span className="text-[10px] font-black uppercase tracking-widest hidden lg:inline">{t('editor.share')}</span>
                                     </button>
                                     <a
@@ -684,7 +704,7 @@ export default function EditorPage() {
                                         className="h-9 px-4 flex items-center gap-2 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl hover:translate-y-[1px] hover:shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[3px] active:shadow-none transition-all group text-[#1a1a1a]"
                                         title={t('editor.openPublicLink')}
                                     >
-                                        <ExternalLink size={16} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
+                                        <ExternalLink size={16} strokeWidth={2.5} className=" transition-transform" />
                                         <span className="text-[10px] font-black uppercase tracking-widest hidden lg:inline">{t('editor.viewProfile')}</span>
                                     </a>
                                 </div>
@@ -692,7 +712,7 @@ export default function EditorPage() {
 
                             </div>
                         </header>
-                        <div className="w-full py-4 md:py-6 px-4 md:px-6 pb-24">
+                        <div className="w-full py-2 md:py-4 px-4 md:px-10 pb-24">
 
                             {/* Page Title - Brutalist Design */}
                             {activeTab !== 'admin' && activeTab !== 'blog' && activeTab !== 'support' && activeTab !== 'billing' && (
@@ -797,16 +817,12 @@ export default function EditorPage() {
                                     <AdminView />
                                 )}
 
-                                {activeTab === 'blog' && (profile.username === 'nodus' || authProfile?.email === 'jaoomarcos75@gmail.com') && (
-                                    <BlogAdminView />
-                                )}
-
 
 
 
 
                                 {activeTab === 'appearance' && (
-                                    <div className="flex flex-col md:-mt-6 -mx-6 lg:-mx-12 bg-slate-50 relative min-h-[calc(100vh-140px)]">
+                                    <div className="flex flex-col md:-mt-6 bg-slate-50 relative min-h-[calc(100vh-140px)]">
                                         {/* Design Sidebar */}
                                         <div className="shrink-0 z-[50] sticky top-0 bg-white shadow-sm md:shadow-none">
                                             <DesignSidebar
@@ -882,6 +898,7 @@ export default function EditorPage() {
                                     profile={profile}
                                     links={links}
                                     products={products}
+                                    stores={stores}
                                     onShare={() => setIsShareModalOpen(true)}
                                     forcedTab={activeTab === 'shop' ? 'shop' : 'links'}
                                 />

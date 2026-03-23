@@ -115,8 +115,8 @@ export function Hero() {
       <div className="absolute top-16 left-[5%] xl:left-[15%] hidden md:block z-20 pointer-events-none">
         <div className="scribble-float opacity-60">
           <svg width="80" height="80" viewBox="0 0 100 100" fill="none" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20,80 Q40,20 80,20 M60,40 L80,20 L60,10" stroke="#97cd7a" transform="translate(3, 3)" />
-            <path d="M20,80 Q40,20 80,20 M60,40 L80,20 L60,10" stroke="#141414" />
+            <path d="M20,80 Q40,20 80,20 M60,40 L80,20 L60,10" stroke="#a2d2a2" transform="translate(3, 3)" />
+            <path d="M20,80 Q40,20 80,20 M60,40 L80,20 L60,10" stroke="#121212" />
           </svg>
         </div>
       </div>
@@ -124,8 +124,8 @@ export function Hero() {
       <div className="absolute top-24 right-[5%] xl:right-[15%] hidden md:block z-20 pointer-events-none">
         <div className="scribble-float opacity-60">
           <svg width="90" height="90" viewBox="0 0 100 100" fill="none" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10,50 C10,10 50,10 50,50 C50,90 90,90 90,50 C90,10 50,10 50,50" stroke="#FFA6F6" transform="translate(3, 3)" />
-            <path d="M10,50 C10,10 50,10 50,50 C50,90 90,90 90,50 C90,10 50,10 50,50" stroke="#141414" />
+            <path d="M10,50 C10,10 50,10 50,50 C50,90 90,90 90,50 C90,10 50,10 50,50" stroke="#ffc9f0" transform="translate(3, 3)" />
+            <path d="M10,50 C10,10 50,10 50,50 C50,90 90,90 90,50 C90,10 50,10 50,50" stroke="#121212" />
           </svg>
         </div>
       </div>
@@ -133,8 +133,8 @@ export function Hero() {
       <div className="absolute bottom-40 left-[10%] xl:left-[18%] hidden md:block z-20 pointer-events-none">
         <div className="scribble-float opacity-60">
           <svg width="70" height="70" viewBox="0 0 100 100" fill="none" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M50,10 L50,90 M10,50 L90,50 M22,22 L78,78 M22,78 L78,22" stroke="#ffdf00" transform="translate(3, 3)" />
-            <path d="M50,10 L50,90 M10,50 L90,50 M22,22 L78,78 M22,78 L78,22" stroke="#141414" />
+            <path d="M50,10 L50,90 M10,50 L90,50 M22,22 L78,78 M22,78 L78,22" stroke="#fef08a" transform="translate(3, 3)" />
+            <path d="M50,10 L50,90 M10,50 L90,50 M22,22 L78,78 M22,78 L78,22" stroke="#121212" />
           </svg>
         </div>
       </div>
@@ -142,8 +142,8 @@ export function Hero() {
       <div className="absolute bottom-32 right-[10%] xl:right-[20%] hidden md:block z-20 pointer-events-none">
         <div className="scribble-float opacity-60">
           <svg width="100" height="40" viewBox="0 0 100 40" fill="none" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10,20 Q25,5 40,20 T70,20 T90,20" stroke="#97cd7a" transform="translate(3, 3)" />
-            <path d="M10,20 Q25,5 40,20 T70,20 T90,20" stroke="#141414" />
+            <path d="M10,20 Q25,5 40,20 T70,20 T90,20" stroke="#a2d2a2" transform="translate(3, 3)" />
+            <path d="M10,20 Q25,5 40,20 T70,20 T90,20" stroke="#121212" />
           </svg>
         </div>
       </div>
@@ -187,7 +187,7 @@ export function Hero() {
               size="lg" 
               onClick={handleReserve}
               disabled={!isAvailable || isChecking}
-              className="whitespace-nowrap group text-xl px-10 py-4 bg-[#a5e6ab] border-2 border-dark shadow-[0_8px_0_0_#000] rounded-xl text-dark font-black flex items-center justify-center hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#000] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="whitespace-nowrap group text-xl px-10 py-4 bg-[#b4e3b8] border-2 border-dark shadow-[0_8px_0_0_#121212] rounded-xl text-dark font-black flex items-center justify-center hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#121212] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {t.hero.reserve}
               <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />

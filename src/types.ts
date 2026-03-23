@@ -125,6 +125,9 @@ export interface Product {
   clicks?: number;
   collection?: string;
   storeId?: string;
+  isArchived?: boolean;
+  isActive?: boolean;
+  position: number;
 }
 
 export interface Store {
@@ -134,6 +137,8 @@ export interface Store {
   imageUrl?: string;
   position: number;
   isActive: boolean;
+  collections?: string[];
+  disabledCollections?: string[];
 }
 
 export interface FontOption {

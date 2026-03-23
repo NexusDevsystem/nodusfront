@@ -26,7 +26,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
     themeButtonClass = '',
     themeButtonStyle = {},
     themeTextHex = '',
-    buttonRoundness = 'rounded-3xl',
+    buttonRoundness = 'rounded-sm',
     isDark = false,
     variant = 'feed',
     fontFamily,
@@ -225,7 +225,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
 
                     {displayMedia.length === 0 && (
                         <div className={`flex flex-col items-center justify-center h-full p-10 text-center gap-3 ${isDark ? 'bg-zinc-800' : 'bg-slate-50'}`}>
-                            <div className="w-12 h-12 rounded-2xl border-2 border-dashed border-black/10 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-md border-2 border-dashed border-black/10 flex items-center justify-center">
                                 <Instagram size={24} className="opacity-20" />
                             </div>
                             <div className="text-[10px] font-bold uppercase tracking-[0.2em] italic opacity-40">

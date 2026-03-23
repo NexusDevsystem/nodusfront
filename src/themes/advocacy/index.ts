@@ -23,7 +23,7 @@ export const advocacyThemes: Theme[] = [
         name: 'Modern Bubble',
         backgroundClass: 'bg-[#0f172a]',
         // 3D Bubble Button: Royal Blue Gradient + Shine
-        buttonClass: 'bg-gradient-to-b from-blue-600 to-blue-800 text-white shadow-[inset_0px_2px_4px_rgba(255,255,255,0.4),inset_0px_-2px_4px_rgba(0,0,0,0.4),0px_8px_15px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 w-full rounded-full py-4 px-6 flex items-center justify-between font-sans font-bold tracking-wide border-t border-white/20',
+        buttonClass: 'bg-gradient-to-b from-blue-600 to-blue-800 text-white shadow-[inset_0px_2px_4px_rgba(255,255,255,0.4),inset_0px_-2px_4px_rgba(0,0,0,0.4),0px_8px_15px_rgba(0,0,0,0.3)] active:scale-[0.98] transition-all duration-300 w-full rounded-full py-4 px-6 flex items-center justify-between font-sans font-bold tracking-wide border-t border-white/20',
         buttonHex: '#2563eb',
         textHex: '#eff6ff',
         textClass: 'text-blue-50 font-sans font-bold tracking-wide shadow-black drop-shadow-md',

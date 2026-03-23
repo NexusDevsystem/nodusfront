@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
-import { UserProfile, LinkItem, Product } from '../types';
+import { UserProfile, LinkItem, Product, Store } from '../types';
 import ProfileRenderer from '../components/ProfileRenderer';
 import { Loader2 } from 'lucide-react';
 import { THEMES } from '../constants';
@@ -12,7 +12,8 @@ import LightPillar from '../components/LightPillar';
 import ShareImageModal from '../components/ShareImageModal';
 import BackgroundLayer from '../components/BackgroundLayer';
 import ShareCard from '../components/ShareCard';
-import html2canvas from 'html2canvas';
+import StoryShareCard from '../components/StoryShareCard';
+import { toPng } from 'html-to-image';
 
 export default function PublicProfilePage() {
     const { t } = useTranslation();
@@ -22,9 +23,12 @@ export default function PublicProfilePage() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [links, setLinks] = useState<LinkItem[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
+    const [stores, setStores] = useState<Store[]>([]);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const shareCardRef = useRef<HTMLDivElement>(null);
+    const storyCardRef = useRef<HTMLDivElement>(null);
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+    const [isGeneratingStory, setIsGeneratingStory] = useState(false);
 
     useEffect(() => {
         const loadPageData = async () => {
@@ -37,7 +41,8 @@ export default function PublicProfilePage() {
 
                 setProfile(response.profile);
                 setLinks(response.links.filter(l => l.isActive));
-                setProducts(response.products);
+                setProducts(response.products.filter(p => !p.isArchived));
+                setStores(response.stores || []);
 
             } catch (err) {
                 console.error('Failed to load profile:', err);
@@ -57,7 +62,8 @@ export default function PublicProfilePage() {
                 .then(response => {
                     setProfile(response.profile);
                     setLinks(response.links.filter(l => l.isActive));
-                    setProducts(response.products);
+                    setProducts(response.products.filter(p => !p.isArchived));
+                    setStores(response.stores || []);
                 })
                 .catch(err => console.error('Silent refresh failed:', err));
         });
@@ -106,17 +112,11 @@ export default function PublicProfilePage() {
             setIsGeneratingImage(true);
             await new Promise(resolve => setTimeout(resolve, 500));
 
-            const canvas = await html2canvas(shareCardRef.current, {
-                useCORS: true,
-                logging: false,
-                allowTaint: false,
-                // @ts-ignore
-                backgroundColor: null,
+            const dataUrl = await toPng(shareCardRef.current, {
                 width: 1200,
                 height: 630,
+                cacheBust: true,
             });
-            
-            const dataUrl = canvas.toDataURL('image/png', 0.9);
             
             const link = document.createElement('a');
             link.download = `nodus-share-${profile.username || 'profile'}.png`;
@@ -129,43 +129,47 @@ export default function PublicProfilePage() {
         }
     };
 
+    const generateStoryImage = async () => {
+        if (!storyCardRef.current || !profile) return;
+        
+        try {
+            setIsGeneratingStory(true);
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            const dataUrl = await toPng(storyCardRef.current, {
+                width: 1080,
+                height: 1920,
+                cacheBust: true,
+            });
+            
+            const link = document.createElement('a');
+            link.download = `nodus-story-${profile.username || 'profile'}.png`;
+            link.href = dataUrl;
+            link.click();
+        } catch (error) {
+            console.error('Error generating story image:', error);
+        } finally {
+            setIsGeneratingStory(false);
+        }
+    };
+
     const handleShareImage = async () => {
         if (!shareCardRef.current || !profile) return;
         
         try {
             setIsGeneratingImage(true);
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 800));
 
-            const canvas = await html2canvas(shareCardRef.current, {
-                useCORS: true,
-                logging: false,
-                allowTaint: false,
-                // @ts-ignore
-                backgroundColor: null,
+            const dataUrl = await toPng(shareCardRef.current, {
                 width: 1200,
                 height: 630,
+                cacheBust: true,
             });
             
-            const dataUrl = canvas.toDataURL('image/png', 0.8);
-            const res = await fetch(dataUrl);
-            const blob = await res.blob();
-            const file = new File([blob], 'share-card.png', { type: 'image/png' });
-
-            try {
-                apiClient.uploadFile(file, 'og', 'og');
-            } catch (uErr) {
-                console.warn('Silent OG upload failed', uErr);
-            }
-
-            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: `Nodus - ${profile.name}`,
-                    text: `Confira meu perfil no Nodus: https://api.nodus.my/api/social/share/${profile.username}`,
-                });
-            }
+            // Sync with backend for social preview bots
+            await apiClient.syncProfileCard(profile.username || '', dataUrl).catch(e => console.warn('Social card sync failed:', e));
         } catch (error) {
-            console.error('Error sharing image:', error);
+            console.error('Error syncing share image:', error);
         } finally {
             setIsGeneratingImage(false);
         }
@@ -189,6 +193,7 @@ export default function PublicProfilePage() {
                     profile={profile}
                     links={links}
                     products={products}
+                    stores={stores}
                     isPreview={false}
                     onShare={() => setIsShareModalOpen(true)}
                 />
@@ -199,12 +204,15 @@ export default function PublicProfilePage() {
                     profile={profile}
                     onClose={() => setIsShareModalOpen(false)}
                     onDownload={generateShareImage}
+                    onDownloadStory={generateStoryImage}
                     onSyncShareCard={handleShareImage}
-                    isGenerating={isGeneratingImage}
+                    isGenerating={isGeneratingImage || isGeneratingStory}
+                    isGeneratingStory={isGeneratingStory}
                 />
             )}
 
             <ShareCard profile={profile} cardRef={shareCardRef} />
+            <StoryShareCard profile={profile} cardRef={storyCardRef} />
 
             <div className="fixed bottom-8 right-8 hidden xl:block z-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="bg-white p-3 border-4 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] transition-transform hover:-translate-y-1 hover:shadow-[0_12px_0_0_#1a1a1a]">

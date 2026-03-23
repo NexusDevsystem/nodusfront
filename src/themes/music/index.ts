@@ -47,7 +47,7 @@ export const musicThemes: Theme[] = [
         id: 'music-batida-botanica',
         name: 'Botanical Beat',
         backgroundClass: 'bg-[#061c10]',
-        buttonClass: 'bg-[#10b981] text-[#061c10] hover:scale-105 transition-transform w-full rounded-3xl py-4 px-6 flex items-center justify-between font-sans font-black uppercase tracking-tight',
+        buttonClass: 'bg-[#10b981] text-[#061c10] transition-transform w-full rounded-3xl py-4 px-6 flex items-center justify-between font-sans font-black uppercase tracking-tight',
         buttonHex: '#10b981',
         textHex: '#10b981',
         textClass: 'text-[#10b981] font-sans font-bold uppercase tracking-widest text-sm',

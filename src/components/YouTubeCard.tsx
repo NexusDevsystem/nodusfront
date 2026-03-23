@@ -30,7 +30,7 @@ export const YouTubeCard: React.FC<YouTubeCardProps> = ({
     themeButtonClass = '',
     themeButtonStyle = {},
     themeTextHex = '',
-    buttonRoundness = 'rounded-3xl',
+    buttonRoundness = 'rounded-sm',
     isDark = false,
     fontFamily,
     fontWeight,
@@ -132,13 +132,12 @@ export const YouTubeCard: React.FC<YouTubeCardProps> = ({
                         transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                         className="w-full aspect-video mt-1 mb-4 px-4 sm:px-5 relative group/embed overflow-hidden"
                     >
-                        <div className="w-full h-full rounded-2xl overflow-hidden bg-black relative border border-white/10 pointer-events-none">
+                        <div className="w-full h-full rounded-md overflow-hidden bg-black relative border border-white/10 pointer-events-none">
                             <iframe
                                 ref={iframeRef}
                                 width="100%"
                                 height="100%"
                                 src={`https://www.youtube.com/embed/live_stream?autoplay=1&mute=1&channel=${channelId}&modestbranding=1&controls=0&rel=0&iv_load_policy=3&fs=0&playsinline=1&enablejsapi=1`}
-                                title="YouTube Live Stream"
                                 frameBorder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 className="select-none"
@@ -149,10 +148,10 @@ export const YouTubeCard: React.FC<YouTubeCardProps> = ({
                         {/* ALWAYS present overlay to capture mouse moves for InteractiveButton */}
                         <div className="absolute inset-x-4 sm:inset-x-5 inset-y-0 z-20 pointer-events-none flex items-end justify-center pb-4">
                             <motion.button 
-                                whileHover={{ scale: 1.1 }}
+                                whileHover={{ }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={toggleMute}
-                                className="pointer-events-auto bg-black/60 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-xl flex items-center gap-2 text-xs font-bold shadow-2xl hover:bg-black/80 transition-colors uppercase tracking-wider"
+                                className="pointer-events-auto bg-black/60 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-md flex items-center gap-2 text-xs font-bold shadow-2xl hover:bg-black/80 transition-colors uppercase tracking-wider"
                             >
                                 {isMuted ? (
                                     <><span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> DESMUTAR SOM</>

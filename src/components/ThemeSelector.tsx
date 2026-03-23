@@ -57,7 +57,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
                 className="flex flex-col gap-2 group cursor-pointer relative cursor-target"
                 onClick={() => handleThemeSelect(theme.id)}
             >
-                <div className={`relative aspect-[3/4] w-full border-2 transition-all duration-300 rounded-2xl overflow-hidden ${isActive ? 'border-black bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'border-black/10 hover:border-black/30 bg-white'}`}>
+                <div className={`relative aspect-[3/4] w-full border-2 transition-all duration-300 rounded-md overflow-hidden ${isActive ? 'border-black bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'border-black/10 hover:border-black/30 bg-white'}`}>
                     <div className={`absolute inset-0 ${theme.backgroundClass}`} style={{ backgroundColor: theme.solidColor }} />
                     <div className="absolute inset-0 p-4 flex flex-col items-center justify-center gap-4">
                         <div className="flex-1 flex items-center justify-center w-full">
@@ -150,7 +150,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
     };
 
     return (
-        <div className="bg-white border-2 border-black p-6 md:p-8 shadow-[0_4px_0_0_#1a1a1a] rounded-3xl relative overflow-hidden">
+        <div className="bg-white border-2 border-black p-6 md:p-8 shadow-[0_4px_0_0_#1a1a1a] rounded-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#ffdf00] opacity-5 -mr-32 -mt-32 rounded-full blur-[80px] pointer-events-none" />
 
             <div className="flex flex-col gap-12">
@@ -163,7 +163,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
                         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-6">{t('design.chooseThemeDesc')}</p>
                     </div>
 
-                    <div className="flex items-center gap-4 p-3 bg-slate-50 border-2 border-black rounded-2xl shadow-[0_4px_0_0_#1a1a1a]">
+                    <div className="flex items-center gap-4 p-3 bg-slate-50 border-2 border-black rounded-md shadow-[0_4px_0_0_#1a1a1a]">
                         <div className="flex items-center gap-2">
                             <Zap size={16} className={profile.enableBlur ? 'text-black fill-[#ffdf00]' : 'text-black/10'} strokeWidth={3} />
                             <span className="text-[10px] text-black font-black uppercase tracking-widest">{t('design.blurFade')}</span>

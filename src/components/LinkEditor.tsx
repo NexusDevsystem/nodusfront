@@ -6,11 +6,10 @@ import { LinkItem, UserProfile } from '../types';
 import { fetchMusicMetadata } from '../utils/musicUtils';
 import {
   Plus, Link as LinkIcon, Archive, FolderHeart, Zap, Folder,
-  Ban, X, Trash2
+  Ban, X, Trash2, LayoutGrid
 } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import AddLinkModal from './AddLinkModal';
-import Tooltip from './Tooltip';
 import SortableLinkItem from './link-editor/SortableLinkItem';
 import { SOCIAL_NETWORKS } from '../constants';
 
@@ -463,11 +462,11 @@ function LinkEditor({
   };
 
   return (
-    <div className="space-y-6">
-      <div className={`${level === 0 ? 'bg-white border-2 border-[#1a1a1a] p-3 md:p-5 pt-4 md:pt-6 shadow-[0_4px_0_0_#1a1a1a] rounded-2xl' : ''}`}>
-        <div className="space-y-5">
+    <div className="space-y-6 w-full">
+      <div className={`${level === 0 ? 'bg-white md:bg-transparent border-2 md:border-0 border-[#1a1a1a] px-1.5 md:px-0 py-3 md:py-0 shadow-[0_4px_0_0_#1a1a1a] md:shadow-none rounded-md' : ''}`}>
+        <div className="space-y-3">
         {level === 0 ? (
-          <>
+          <div className="px-3 md:px-5">
             <div className="flex flex-col gap-4 mb-4">
               <div className="flex items-center justify-between border-b-2 border-[#1a1a1a] pb-3">
                 <div>
@@ -475,38 +474,34 @@ function LinkEditor({
                   <p className="text-[10px] font-bold text-black/60 mt-0.5 uppercase tracking-widest leading-none">{t('links.myLinksSubtitle')}</p>
                 </div>
                 <div className="flex items-center gap-2 md:gap-2.5">
-                  <Tooltip text={t('links.viewArchive')} position="top">
-                    <button onClick={() => setShowArchive(true)} className="w-10 h-10 flex items-center justify-center border-2 border-[#1a1a1a] bg-white hover:bg-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] transition-all hover:translate-y-[0.5px] hover:shadow-none relative rounded-xl">
+                    <button onClick={() => setShowArchive(true)} className="w-10 h-10 flex items-center justify-center border-2 border-[#1a1a1a] bg-white hover:bg-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] transition-all hover:translate-y-[0.5px] hover:shadow-none relative rounded-md">
                       <Archive size={18} strokeWidth={3} className="text-black" />
                       {archivedLinks.length > 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center border-2 border-[#1a1a1a] bg-[#97cd7a] text-[9px] font-black uppercase text-black shadow-[0_1.5px_0_0_#1a1a1a] rounded-lg">
+                        <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center border-2 border-[#1a1a1a] bg-[#97cd7a] text-[9px] font-black uppercase text-black shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm">
                           {archivedLinks.length}
                         </span>
                       )}
                     </button>
-                  </Tooltip>
-                  <Tooltip text={t('links.addLink')} position="top">
                     <button
                       onClick={() => setIsAddModalOpen(true)}
                       disabled={isLimitReached}
-                      className={`w-10 h-10 flex items-center justify-center border-2 transition-all hover:translate-y-[0.5px] hover:shadow-none rounded-xl ${isLimitReached ? 'border-[#1a1a1a] bg-slate-200 text-black/30 cursor-not-allowed' : 'border-[#1a1a1a] bg-[#ffdf00] text-black shadow-[0_2px_0_0_#1a1a1a]'}`}
+                      className={`w-10 h-10 flex items-center justify-center border-2 transition-all hover:translate-y-[0.5px] hover:shadow-none rounded-md ${isLimitReached ? 'border-[#1a1a1a] bg-slate-200 text-black/30 cursor-not-allowed' : 'border-[#1a1a1a] bg-[#ffdf00] text-black shadow-[0_2px_0_0_#1a1a1a]'}`}
                     >
                       <Plus size={22} className="text-black" strokeWidth={4} />
                     </button>
-                  </Tooltip>
                 </div>
               </div>
             </div>
             {isLimitReached && (
-              <div className="bg-amber-50 border border-amber-100 p-6 rounded-2xl flex items-center gap-6 mb-8">
+              <div className="bg-amber-50 border border-amber-100 p-6 rounded-md flex items-center gap-6 mb-8">
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-amber-900">{t('links.limitReached')}</p>
                   <p className="text-sm text-amber-700 mt-0.5">{t('links.limitReachedDesc')}</p>
                 </div>
-                <button className="text-xs font-bold text-amber-700 bg-white border border-amber-200 px-4 py-2 rounded-xl hover:bg-amber-100 transition-colors shadow-sm">{t('links.seePlans')}</button>
+                <button className="text-xs font-bold text-amber-700 bg-white border border-amber-200 px-4 py-2 rounded-md hover:bg-amber-100 transition-colors shadow-sm">{t('links.seePlans')}</button>
               </div>
             )}
-          </>
+          </div>
         ) : (
           <button
             onClick={() => setIsAddModalOpen(true)}
@@ -514,7 +509,7 @@ function LinkEditor({
               w-full ${level > 0 ? 'py-1.5 text-[10px]' : 'py-2.5 text-xs'} 
               border-2 border-dashed border-[#1a1a1a] bg-white font-black uppercase text-black 
               hover:bg-[#ffdf00] transition-colors flex items-center justify-center gap-2 
-              shadow-[0_3px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none rounded-xl
+              shadow-[0_3px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none rounded-md
             `}
           >
             <Plus size={level > 0 ? 16 : 20} strokeWidth={4} /> {t('links.addLinkInCollection')}
@@ -522,9 +517,9 @@ function LinkEditor({
         )}
       </div>
 
-      <div className="space-y-5">
+      <div className="space-y-3">
         {activeLinks.length === 0 && (
-          <div className="text-center py-10 md:py-14 bg-[#fff9c4] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-2xl">
+          <div className="text-center py-10 md:py-14 bg-[#fff9c4] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-md">
             <div className="w-14 h-14 md:w-16 md:h-16 bg-white border-2 border-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-5 shadow-[0_3px_0_0_#1a1a1a] text-black">
               <Ban size={32} strokeWidth={3} />
             </div>
@@ -533,7 +528,7 @@ function LinkEditor({
           </div>
         )}
 
-        <Reorder.Group axis="y" values={activeLinks} onReorder={handleReorder} className="space-y-5">
+        <Reorder.Group axis="y" values={activeLinks} onReorder={handleReorder} className="space-y-3">
           {activeLinks.map((link) => (
             <SortableLinkItem
               key={link.clientId || link.id}
@@ -561,14 +556,14 @@ function LinkEditor({
 
       {/* Profile Footer Branding Section */}
       {level === 0 && (
-        <div className="bg-white border-2 border-[#1a1a1a] p-4 md:p-5 shadow-[0_4px_0_0_#1a1a1a] rounded-2xl">
+        <div className="bg-white md:bg-transparent border-2 md:border-0 border-[#1a1a1a] p-4 md:p-0 shadow-[0_4px_0_0_#1a1a1a] md:shadow-none rounded-md">
           <div className="flex flex-col gap-5">
             <div>
-              <h2 className="text-xs md:text-sm font-medium text-black uppercase tracking-widest leading-none">Link Footer</h2>
+              <h2 className="text-xs md:text-sm font-black uppercase text-black tracking-widest leading-none">Link Footer</h2>
               <p className="text-[9px] md:text-[10px] text-black font-normal uppercase tracking-wider mt-1 opacity-60 leading-none">Gerencie a exibição da marca Nodus no seu perfil público.</p>
             </div>
 
-            <div className={`p-5 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-2xl flex items-center justify-between transition-all ${profile.planType === 'free' || !profile.planType ? 'bg-slate-50' : 'bg-[#f8fafc]'}`}>
+            <div className={`p-5 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-md flex items-center justify-between transition-all ${profile.planType === 'free' || !profile.planType ? 'bg-slate-50' : 'bg-white'}`}>
               <div className="flex flex-col gap-1">
                 <span className="text-xs font-black uppercase text-black tracking-widest leading-tight">Exibir branding da Nodus</span>
                 {profile.planType === 'free' || !profile.planType ? (
@@ -611,29 +606,29 @@ function LinkEditor({
                 dragConstraints={isMobile ? { top: 0, bottom: 0 } : undefined}
                 dragElastic={isMobile ? 0.05 : 1}
                 onDragEnd={(_, info) => { if (isMobile && (info.offset.y > 100 || info.velocity.y > 500)) setShowArchive(false); }}
-                className={`relative bg-white border-x-2 border-t-2 border-[#1a1a1a] flex flex-col shadow-[0_-8px_30px_rgba(0,0,0,0.1)] overflow-hidden ${isMobile ? 'w-full rounded-t-[40px] h-[96vh] p-8 pb-12' : 'w-full max-w-xl max-h-[85vh] p-6 md:p-10 rounded-2xl border-b-2 shadow-[0_4px_0_0_#1a1a1a]'}`}
+                className={`relative bg-white border-x-2 border-t-2 border-[#1a1a1a] flex flex-col shadow-[0_-8px_30px_rgba(0,0,0,0.1)] overflow-hidden ${isMobile ? 'w-full rounded-t-[40px] h-[96vh] p-8 pb-12' : 'w-full max-w-xl max-h-[85vh] p-6 md:p-10 rounded-md border-b-2 shadow-[0_4px_0_0_#1a1a1a]'}`}
               >
                 <div className="mb-6 flex items-center justify-between shrink-0">
                   <div>
                     <h3 className={`${isMobile ? 'text-2xl' : 'text-xl md:text-2xl'} font-black uppercase tracking-tighter text-black`}>{t('links.archivedItems')}</h3>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-black/70 mt-0.5">{archivedLinks.length} {t('links.linksInArchive')}</p>
                   </div>
-                  <button onClick={() => setShowArchive(false)} className="p-2 bg-white text-black border-2 border-[#1a1a1a] hover:bg-red-500 hover:text-white transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl">
+                  <button onClick={() => setShowArchive(false)} className="p-2 bg-white text-black border-2 border-[#1a1a1a] hover:bg-red-500 hover:text-white transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md">
                     <X size={18} strokeWidth={3} />
                   </button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-hide py-2">
                     {archivedLinks.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center py-20 border-4 border-dashed border-[#1a1a1a] rounded-3xl">
-                        <div className="w-20 h-20 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex items-center justify-center mb-6 rounded-2xl">
+                      <div className="h-full flex flex-col items-center justify-center py-20 border-4 border-dashed border-[#1a1a1a] rounded-sm">
+                        <div className="w-20 h-20 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex items-center justify-center mb-6 rounded-md">
                           <Archive size={32} strokeWidth={3} className="text-black" />
                         </div>
                         <p className="text-sm font-black text-black uppercase tracking-widest leading-none">{t('links.emptyArchive')}</p>
                       </div>
                     ) : (
                       archivedLinks.map((link) => (
-                        <motion.div key={link.id} layout className="flex items-center justify-between p-3 bg-white border-2 border-[#1a1a1a] transition-all hover:bg-[#ffdf00] group/item shadow-[0_2px_0_0_#1a1a1a] mb-4 rounded-xl">
+                        <motion.div key={link.id} layout className="flex items-center justify-between p-3 bg-white border-2 border-[#1a1a1a] transition-all hover:bg-[#ffdf00] group/item shadow-[0_2px_0_0_#1a1a1a] mb-4 rounded-md">
                         <div className="flex items-center gap-5 min-w-0">
                           <div className="min-w-0">
                             <h4 className="text-sm font-black uppercase tracking-widest text-black truncate mb-0.5">{link.title || t('links.untitled')}</h4>
@@ -645,8 +640,8 @@ function LinkEditor({
                           </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <button onClick={() => updateLink(link.id, 'isArchived', false)} className="h-8 px-3 bg-white border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest hover:bg-[#ffdf00] transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-lg">{t('links.restore')}</button>
-                          <button onClick={() => removeLink(link.id)} className="p-2 bg-white border-2 border-[#1a1a1a] text-black hover:text-white hover:bg-red-500 transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-lg"><Trash2 size={16} strokeWidth={3} /></button>
+                          <button onClick={() => updateLink(link.id, 'isArchived', false)} className="h-8 px-3 bg-white border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest hover:bg-[#ffdf00] transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm">{t('links.restore')}</button>
+                          <button onClick={() => removeLink(link.id)} className="p-2 bg-white border-2 border-[#1a1a1a] text-black hover:text-white hover:bg-red-500 transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm"><Trash2 size={16} strokeWidth={3} /></button>
                         </div>
                       </motion.div>
                     ))
@@ -654,7 +649,7 @@ function LinkEditor({
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-[#1a1a1a] border-dashed shrink-0">
-                  <button onClick={() => setShowArchive(false)} className="w-full h-11 bg-[#ffdf00] text-black font-black uppercase tracking-widest text-xs transition-all border-2 border-[#1a1a1a] hover:bg-white shadow-[0_4px_0_0_#1a1a1a] rounded-xl">
+                  <button onClick={() => setShowArchive(false)} className="w-full h-11 bg-[#ffdf00] text-black font-black uppercase tracking-widest text-xs transition-all border-2 border-[#1a1a1a] hover:bg-white shadow-[0_4px_0_0_#1a1a1a] rounded-md">
                     {t('links.backToMyLinks')}
                   </button>
                 </div>
@@ -685,50 +680,74 @@ function LinkEditor({
           )}
 
           {level === 0 && moveModalLinkId && (
-            <div className={`fixed inset-0 z-[9999] flex ${isMobile ? 'items-end' : 'items-center justify-center p-4 md:p-8'}`}>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMoveModalLinkId(null)} className="absolute inset-0 bg-slate-900/80 md:bg-slate-900/60 md:backdrop-blur-sm" />
+            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                exit={{ opacity: 0 }} 
+                onClick={() => setMoveModalLinkId(null)} 
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
+              />
               <motion.div
-                initial={isMobile ? { y: '100%', opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95, y: 20 }}
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={isMobile ? { y: '100%', opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95, y: 20 }}
-                transition={isMobile ? { type: 'spring', damping: 32, stiffness: 320, mass: 0.8 } : { type: 'spring', damping: 25, stiffness: 200 }}
-                drag={isMobile ? 'y' : false}
-                dragConstraints={{ top: 0, bottom: 0 }}
-                dragElastic={{ top: 0, bottom: 0.8 }}
-                onDragEnd={(_, info) => { if (info.offset.y > 100 || info.velocity.y > 500) setMoveModalLinkId(null); }}
-                className={`relative bg-white border-x-2 border-t-2 border-[#1a1a1a] flex flex-col shadow-[0_-8px_30px_rgba(0,0,0,0.1)] overflow-hidden touch-none ${isMobile ? 'w-full rounded-t-[40px] h-[96vh] p-8 pb-12' : 'w-full max-w-sm p-6 rounded-2xl border-b-2 shadow-[0_4px_0_0_#1a1a1a]'}`}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative bg-white border-4 border-black p-8 rounded-md shadow-[0_12px_0_0_#000] max-w-sm w-full"
               >
-                <div className="mb-6 flex items-center justify-between">
-                  <h3 className={`${isMobile ? 'text-2xl' : 'text-lg'} font-black uppercase tracking-tighter text-black`}>{t('links.moveTo')}</h3>
-                  <button onClick={() => setMoveModalLinkId(null)} className="p-1.5 bg-white text-black border-2 border-[#1a1a1a] hover:bg-[#ffdf00] hover:text-[#ffdf00] transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-lg">
-                    <X size={16} strokeWidth={4} />
-                  </button>
-                </div>
-                <div className="space-y-3">
-                  <button
-                    onClick={() => { window.dispatchEvent(new CustomEvent('nodus:move-link', { detail: { sourceId: moveModalLinkId, targetId: 'root' } })); setMoveModalLinkId(null); }}
-                    className="w-full text-left flex items-center gap-4 p-4 bg-white border-2 border-[#1a1a1a] hover:bg-[#ffdf00] transition-all font-black uppercase tracking-widest text-[11px] shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none"
-                  >
-                    <Folder size={18} strokeWidth={3} className="text-black" /> {t('links.myLinksRoot')}
-                  </button>
-                  <div className="pt-2">
-                    <p className="text-[10px] font-black uppercase text-black/40 mb-3 tracking-[0.2em] px-1">{t('links.yourCollections')}</p>
-                    <div className="space-y-3">
-                      {links.filter(l => l.type === 'collection' && l.id !== moveModalLinkId).length > 0 ? (
-                        links.filter(l => l.type === 'collection' && l.id !== moveModalLinkId).map(c => (
-                          <button
-                            key={c.id}
-                            onClick={() => { window.dispatchEvent(new CustomEvent('nodus:move-link', { detail: { sourceId: moveModalLinkId, targetId: c.id } })); setMoveModalLinkId(null); }}
-                            className="w-full text-left flex items-center gap-4 p-4 bg-white border-2 border-[#1a1a1a] hover:bg-[#97cd7a] transition-all font-black uppercase tracking-widest text-[11px] shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none"
-                          >
-                            <FolderHeart size={18} strokeWidth={3} className="text-black" /> {c.title || t('links.collectionUnnamed')}
-                          </button>
-                        ))
-                      ) : (
-                        <div className="p-8 border-2 border-dashed border-[#1a1a1a]/10 flex flex-col items-center justify-center text-center">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-black/20">{t('links.noCollections')}</span>
-                        </div>
-                      )}
+                <div className="flex flex-col gap-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-xl font-black uppercase tracking-tighter text-black">Mover Para</h3>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-black/40 mt-1">Selecione o destino</p>
+                    </div>
+                    <button 
+                      onClick={() => setMoveModalLinkId(null)} 
+                      className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black hover:bg-black hover:text-white transition-all shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none rounded-md"
+                    >
+                      <X size={20} strokeWidth={3} />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                    <button
+                      onClick={() => { window.dispatchEvent(new CustomEvent('nodus:move-link', { detail: { sourceId: moveModalLinkId, targetId: 'root' } })); setMoveModalLinkId(null); }}
+                      className="w-full group flex items-center gap-4 p-4 bg-[#f8f9fa] border-2 border-black hover:bg-[#ffdf00] transition-all rounded-md shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none"
+                    >
+                      <div className="w-12 h-12 bg-white border-2 border-black rounded-md flex items-center justify-center shadow-[2px_2px_0_0_#000] transition-transform group-hover:scale-110">
+                        <LayoutGrid size={24} strokeWidth={3} className="text-black" />
+                      </div>
+                      <div className="text-left">
+                        <span className="block font-black uppercase text-[12px] tracking-widest text-black">Página Principal</span>
+                        <span className="block text-[9px] font-bold uppercase text-black/40 tracking-widest">Raiz do Perfil</span>
+                      </div>
+                    </button>
+
+                    <div className="pt-2">
+                      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-black/50 px-1 mb-3 block">Suas Coleções</label>
+                      <div className="space-y-3">
+                        {links.filter(l => l.type === 'collection' && l.id !== moveModalLinkId).length > 0 ? (
+                          links.filter(l => l.type === 'collection' && l.id !== moveModalLinkId).map(c => (
+                            <button
+                              key={c.id}
+                              onClick={() => { window.dispatchEvent(new CustomEvent('nodus:move-link', { detail: { sourceId: moveModalLinkId, targetId: c.id } })); setMoveModalLinkId(null); }}
+                              className="w-full group flex items-center gap-4 p-4 bg-white border-2 border-black hover:bg-[#97cd7a] transition-all rounded-md shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none"
+                            >
+                              <div className="w-11 h-11 bg-white border-2 border-black rounded-sm flex items-center justify-center shadow-[2px_2px_0_0_#000] group-hover:bg-white/50 transition-colors">
+                                <Folder size={20} strokeWidth={3} className="text-black" />
+                              </div>
+                              <div className="text-left">
+                                <span className="block font-black uppercase text-[11px] tracking-widest text-black truncate max-w-[120px]">{c.title || t('links.collectionUnnamed')}</span>
+                                <span className="block text-[8px] font-bold uppercase text-black/40 tracking-widest">Coleção</span>
+                              </div>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="p-8 border-2 border-dashed border-black/10 rounded-md flex flex-col items-center justify-center text-center bg-slate-50">
+                            <Archive size={24} className="text-black/10 mb-2" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-black/30">Nenhuma coleção encontrada</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

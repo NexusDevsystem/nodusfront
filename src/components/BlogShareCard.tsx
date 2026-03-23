@@ -29,7 +29,7 @@ const BlogShareCard: React.FC<BlogShareCardProps> = ({ post, cardRef }) => {
                     <div className="flex flex-col h-full justify-between">
                         {/* Header: Category */}
                         <div className="flex items-center gap-4">
-                            <span className="bg-[#ffdf00] text-[#1a1a1a] border-4 border-[#1a1a1a] px-5 py-2 font-black uppercase text-xl md:text-2xl tracking-[0.2em] leading-none rounded-xl">
+                            <span className="bg-[#ffdf00] text-[#1a1a1a] border-4 border-[#1a1a1a] px-5 py-2 font-black uppercase text-xl md:text-2xl tracking-[0.2em] leading-none rounded-md">
                                 {post.category || 'Novidades'}
                             </span>
                             <span className="font-black uppercase text-xl text-[#1a1a1a]/30 tracking-widest">
@@ -47,7 +47,7 @@ const BlogShareCard: React.FC<BlogShareCardProps> = ({ post, cardRef }) => {
                         {/* Footer: Author & Branding */}
                         <div className="flex items-center justify-between w-full pt-6 border-t-[6px] border-[#1a1a1a]/10">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white border-4 border-[#1a1a1a] rounded-2xl shrink-0">
+                                <div className="p-3 bg-white border-4 border-[#1a1a1a] rounded-md shrink-0">
                                     <User size={32} className="text-[#1a1a1a]" strokeWidth={3} />
                                 </div>
                                 <div className="flex flex-col">
