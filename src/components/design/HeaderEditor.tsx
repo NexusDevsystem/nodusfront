@@ -35,18 +35,6 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
     const checkTimeout = useRef<NodeJS.Timeout | null>(null);
     const usernameOriginal = profile.username || '';
 
-    // Cropper State
-    const [cropper, setCropper] = useState<{
-        isOpen: boolean;
-        image: string;
-        type: 'avatar' | 'banner';
-        aspectRatio: number;
-    }>({
-        isOpen: false,
-        image: '',
-        type: 'avatar',
-        aspectRatio: 1
-    });
 
     const [isSavingImage, setIsSavingImage] = useState(false);
 
@@ -111,69 +99,56 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            const dataUrl = await fileToDataURL(e.target.files[0]);
-            setCropper({
-                isOpen: true,
-                image: dataUrl,
-                type: 'avatar',
-                aspectRatio: 1
-            });
-            // Reset input so the same file can be selected again
-            e.target.value = '';
+            const file = e.target.files[0];
+            setIsSavingImage(true);
+            try {
+                // Compress if needed (optional but good for perf)
+                const compressedDataUrl = await compressImage(file, 800, 0.8);
+                const response = await fetch(compressedDataUrl);
+                const blob = await response.blob();
+                const uploadFile = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+
+                const uploadRes = await apiClient.uploadInternalAsset(uploadFile);
+                if (uploadRes.success && uploadRes.file?.url) {
+                    const imageUrl = uploadRes.file.url;
+                    if (updateProfile) updateProfile({ avatarUrl: imageUrl });
+                    else onChange({ ...profile, avatarUrl: imageUrl });
+                }
+            } catch (error) {
+                console.error('Error uploading avatar:', error);
+            } finally {
+                setIsSavingImage(false);
+                e.target.value = '';
+            }
         }
     };
 
     const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            const dataUrl = await fileToDataURL(e.target.files[0]);
-            setCropper({
-                isOpen: true,
-                image: dataUrl,
-                type: 'banner',
-                aspectRatio: 3 / 1 // Common banner ratio
-            });
-            // Reset input so the same file can be selected again
-            e.target.value = '';
-        }
-    };
+            const file = e.target.files[0];
+            setIsSavingImage(true);
+            try {
+                // Direct upload for banner too
+                const compressedDataUrl = await compressImage(file, 1200, 0.8);
+                const response = await fetch(compressedDataUrl);
+                const blob = await response.blob();
+                const uploadFile = new File([blob], 'banner.jpg', { type: 'image/jpeg' });
 
-    const handleCropComplete = async (croppedBlob: Blob) => {
-        setIsSavingImage(true);
-        try {
-            // Create a File from the Blob
-            const filename = cropper.type === 'avatar' ? 'avatar.jpg' : 'banner.jpg';
-            const file = new File([croppedBlob], filename, { type: 'image/jpeg' });
-
-            // Upload to server
-            const uploadRes = await apiClient.uploadInternalAsset(file);
-
-            if (uploadRes.success && uploadRes.file?.url) {
-                const imageUrl = uploadRes.file.url;
-                if (cropper.type === 'avatar') {
-                    if (updateProfile) updateProfile({ avatarUrl: imageUrl });
-                    else onChange({ ...profile, avatarUrl: imageUrl });
-                } else {
+                const uploadRes = await apiClient.uploadInternalAsset(uploadFile);
+                if (uploadRes.success && uploadRes.file?.url) {
+                    const imageUrl = uploadRes.file.url;
                     if (updateProfile) updateProfile({ customBackground: imageUrl });
                     else onChange({ ...profile, customBackground: imageUrl });
                 }
-            } else {
-                // Fallback to base64 if upload fails
-                const dataUrl = await blobToDataURL(croppedBlob);
-                if (cropper.type === 'avatar') {
-                    if (updateProfile) updateProfile({ avatarUrl: dataUrl });
-                    else onChange({ ...profile, avatarUrl: dataUrl });
-                } else {
-                    if (updateProfile) updateProfile({ customBackground: dataUrl });
-                    else onChange({ ...profile, customBackground: dataUrl });
-                }
+            } catch (error) {
+                console.error('Error uploading banner:', error);
+            } finally {
+                setIsSavingImage(false);
+                e.target.value = '';
             }
-            setCropper(prev => ({ ...prev, isOpen: false }));
-        } catch (error) {
-            console.error('Error saving cropped image:', error);
-        } finally {
-            setIsSavingImage(false);
         }
     };
+
 
     return (
         <div className="space-y-6 animate-fade-in pb-10">
@@ -667,14 +642,6 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                 onChange={handleBannerUpload}
             />
 
-            <ImageCropperModal
-                isOpen={cropper.isOpen}
-                image={cropper.image}
-                aspectRatio={cropper.aspectRatio}
-                title={cropper.type === 'avatar' ? t('design.cropProfile') || 'Recortar Avatar' : t('design.cropBanner') || 'Recortar Banner'}
-                onClose={() => setCropper(prev => ({ ...prev, isOpen: false }))}
-                onCropComplete={handleCropComplete}
-            />
         </div>
     );
 };

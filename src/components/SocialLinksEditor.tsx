@@ -82,7 +82,70 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
         };
     }, []);
 
-    const socialLinks = links.filter(link => link.layout === 'social' && link.type !== 'collection');
+    const socialLinks = React.useMemo(() => {
+        const foundSocials: LinkItem[] = [];
+        const seenProviders = new Set<string>();
+
+        const processItems = (items: LinkItem[]) => {
+            items.forEach(l => {
+                if (l.isArchived) return;
+
+                // Detect if it's a social network
+                const network = SOCIAL_NETWORKS.find(sn => 
+                    sn.id !== 'custom' && 
+                    (l.url.toLowerCase().includes(sn.id) || (l.title?.toLowerCase() || '').includes(sn.id))
+                );
+
+                if (network || l.layout === 'social') {
+                    const provider = network?.id || l.url;
+                    if (!seenProviders.has(provider)) {
+                        foundSocials.push(l);
+                        seenProviders.add(provider);
+                    }
+                }
+
+                if (l.children && l.children.length > 0) {
+                    processItems(l.children);
+                }
+            });
+        };
+
+        processItems(links);
+
+        // 3. Integrations (Same as ProfileRenderer)
+        const integrations = profile?.integrations || [];
+        integrations.forEach((integration: any) => {
+            const network = SOCIAL_NETWORKS.find(sn => sn.id === integration.provider);
+            const data = integration.profile_data || {};
+            const identifier = data.username || data.channel_id || data.channelId || data.display_name;
+
+            if (network && identifier && !seenProviders.has(network.id)) {
+                let url = '';
+                const cleanId = String(identifier).replace('@', '');
+                if (integration.provider === 'instagram') url = `https://instagram.com/${cleanId}`;
+                else if (integration.provider === 'tiktok') url = `https://tiktok.com/@${cleanId}`;
+                else if (integration.provider === 'twitch') url = `https://twitch.tv/${cleanId}`;
+                else if (integration.provider === 'youtube') url = `https://youtube.com/${cleanId.startsWith('UC') ? 'channel/' : '@'}${cleanId}`;
+                else if (integration.provider === 'kick') url = `https://kick.com/${cleanId}`;
+
+                if (url) {
+                    foundSocials.push({
+                        id: `integration-${integration.provider}`,
+                        title: network.name,
+                        url: url,
+                        isActive: true,
+                        layout: 'social',
+                        type: 'link',
+                        platform: network.id
+                    } as any);
+                    seenProviders.add(network.id);
+                }
+            }
+        });
+
+        return foundSocials;
+    }, [links, profile?.integrations]);
+
     const instagramIntegration = profile?.integrations?.find((i: any) => i.provider === 'instagram');
     const isInstagramConnected = !!instagramIntegration;
 
@@ -105,10 +168,16 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
     };
 
     const toggleSocialLink = (platformId: string) => {
-        const existing = links.find(l => l.layout === 'social' && (l.platform === platformId || (platformId !== 'site' && platformId !== 'custom' && l.url.includes(platformId))));
         const platform = SOCIAL_NETWORKS.find(p => p.id === platformId);
+        if (!platform) return;
 
-        if (existing && platform) {
+        // Try to find an existing link with this platform explicitly or detected
+        const existing = links.find(l => 
+            l.type !== 'collection' && !l.isArchived &&
+            (l.platform === platformId || (platformId !== 'site' && platformId !== 'custom' && l.url.toLowerCase().includes(platformId)))
+        );
+
+        if (existing) {
             setConfiguringPlatform(platformId);
             if (existing.url.startsWith(platform.baseUrl)) {
                 setTempUrl(existing.url.replace(platform.baseUrl, ''));
@@ -135,10 +204,14 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
             finalUrl = `${platform.baseUrl}${cleanUser}`;
         }
 
-        const platformLinks = links.filter(l => l.platform === configuringPlatform);
+        // Try to find if we're updating an existing detected link
+        const existingId = links.find(l => 
+            l.type !== 'collection' && !l.isArchived &&
+            (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.toLowerCase().includes(configuringPlatform)))
+        )?.id;
 
-        if (platformLinks.length > 0) {
-            onChange(links.map(l => l.platform === configuringPlatform ? { ...l, url: finalUrl } : l));
+        if (existingId) {
+            onChange(links.map(l => l.id === existingId ? { ...l, url: finalUrl, platform: configuringPlatform, layout: 'social' } : l));
         } else {
             const now = Date.now();
             const newSocialLink: LinkItem = {
@@ -157,8 +230,6 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
         handleCloseModal();
     };
-
-
 
     const filteredPlatforms = SOCIAL_NETWORKS.filter(p =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -182,83 +253,38 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                         </button>
                 </div>
 
-                {(socialLinks.length > 0 || isInstagramConnected || isTwitchConnected || isYoutubeConnected || isKickConnected) && (
-                    <div className="flex flex-wrap gap-4 md:gap-5 py-1">
-                        {/* Auto-render Instagram if connected but not explicitly added as link */}
-                        {isInstagramConnected && !socialLinks.some(l => l.platform === 'instagram') && (
+                <div className="flex flex-wrap gap-4 md:gap-5 py-1">
+                    {/* Active Links */}
+                    {socialLinks.map(link => {
+                        const network = SOCIAL_NETWORKS.find(n => n.id === link.platform) ||
+                            SOCIAL_NETWORKS.find(n => n.id !== 'custom' && link.url.toLowerCase().includes(n.id)) ||
+                            SOCIAL_NETWORKS.find(n => n.id === 'site' || n.id === 'custom') ||
+                            SOCIAL_NETWORKS[0];
+                        const Icon = network.icon;
+
+                        let dotColor = null;
+                        if (network.id === 'instagram' && isInstagramConnected) dotColor = '#32a800';
+                        if (network.id === 'twitch' && isTwitchConnected) dotColor = '#6441a5';
+                        if (network.id === 'youtube' && isYoutubeConnected) dotColor = '#ff0000';
+                        if (network.id === 'kick' && isKickConnected) dotColor = '#53FC18';
+
+                        return (
                             <button
-                                onClick={() => toggleSocialLink('instagram')}
+                                key={link.id}
+                                onClick={() => toggleSocialLink(network.id)}
                                 className="text-black transition-all active:scale-90 p-0.5 relative"
                             >
-                                <Instagram size={22} className="md:w-6 md:h-6" />
-                                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#32a800] rounded-full border border-white" />
+                                <Icon size={22} className="md:w-6 md:h-6" />
+                                {dotColor && (
+                                    <div
+                                        className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border border-white"
+                                        style={{ backgroundColor: dotColor }}
+                                    />
+                                )}
                             </button>
-                        )}
-
-                        {/* Auto-render Twitch if connected */}
-                        {isTwitchConnected && !socialLinks.some(l => l.platform === 'twitch') && (
-                            <button
-                                onClick={() => toggleSocialLink('twitch')}
-                                className="text-black transition-all active:scale-90 p-0.5 relative"
-                            >
-                                <Twitch size={22} className="md:w-6 md:h-6" />
-                                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#6441a5] rounded-full border border-white" />
-                            </button>
-                        )}
-
-                        {/* Auto-render YouTube if connected */}
-                        {isYoutubeConnected && !socialLinks.some(l => l.platform === 'youtube') && (
-                            <button
-                                onClick={() => toggleSocialLink('youtube')}
-                                className="text-black transition-all active:scale-90 p-0.5 relative"
-                            >
-                                <Youtube size={22} className="md:w-6 md:h-6" />
-                                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ff0000] rounded-full border border-white" />
-                            </button>
-                        )}
-
-                        {/* Auto-render Kick if connected */}
-                        {isKickConnected && !socialLinks.some(l => l.platform === 'kick') && (
-                            <button
-                                onClick={() => toggleSocialLink('kick')}
-                                className="text-black transition-all active:scale-90 p-0.5 relative"
-                            >
-                                <KickIcon size={22} className="md:w-6 md:h-6" />
-                                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#53FC18] rounded-full border border-white" />
-                            </button>
-                        )}
-
-                        {socialLinks.map(link => {
-                            const network = SOCIAL_NETWORKS.find(n => n.id === link.platform) ||
-                                SOCIAL_NETWORKS.find(n => n.id !== 'custom' && link.url.toLowerCase().includes(n.id)) ||
-                                SOCIAL_NETWORKS.find(n => n.id === 'site' || n.id === 'custom') ||
-                                SOCIAL_NETWORKS[0];
-                            const Icon = network.icon;
-
-                            let dotColor = null;
-                            if (network.id === 'instagram' && isInstagramConnected) dotColor = '#32a800';
-                            if (network.id === 'twitch' && isTwitchConnected) dotColor = '#6441a5';
-                            if (network.id === 'youtube' && isYoutubeConnected) dotColor = '#ff0000';
-                            if (network.id === 'kick' && isKickConnected) dotColor = '#53FC18';
-
-                            return (
-                                <button
-                                    key={link.id}
-                                    onClick={() => toggleSocialLink(link.platform!)}
-                                    className="text-black transition-all active:scale-90 p-0.5 relative"
-                                >
-                                    <Icon size={22} className="md:w-6 md:h-6" />
-                                    {dotColor && (
-                                        <div
-                                            className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border border-white"
-                                            style={{ backgroundColor: dotColor }}
-                                        />
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
-                )}
+                        );
+                    })}
+                </div>
             </div>
 
             {mounted && createPortal(

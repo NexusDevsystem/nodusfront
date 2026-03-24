@@ -48,9 +48,6 @@ const InteractiveButton: React.FC<InteractiveButtonProps> = ({
         const distanceX = e.clientX - rect.left;
         const distanceY = e.clientY - rect.top;
 
-        // Set CSS Variables for Glow
-        buttonRef.current.style.setProperty('--x', `${distanceX}px`);
-        buttonRef.current.style.setProperty('--y', `${distanceY}px`);
 
         // Update Magnetic Position
         x.set((e.clientX - centerX) * (strength / 100));
@@ -85,24 +82,7 @@ const InteractiveButton: React.FC<InteractiveButtonProps> = ({
             }}
             className={`relative touch-none cursor-pointer cursor-target ${className}`}
         >
-            {glowColor && (
-                <motion.div
-                    style={{
-                        position: 'absolute',
-                        inset: -20,
-                        background: `radial-gradient(circle 100px at var(--x) var(--y), ${glowColor}, transparent)`,
-                        opacity: 0,
-                        pointerEvents: 'none',
-                        zIndex: 0,
-                        borderRadius: 'inherit'
-                    }}
-                    animate={{
-                        opacity: [0, 0.4, 0],
-                        transition: { duration: 2, repeat: Infinity }
-                    }}
-                    className="group-hover:opacity-100 transition-opacity"
-                />
-            )}
+
             {children}
         </motion.div>
     );

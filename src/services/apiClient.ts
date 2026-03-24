@@ -262,6 +262,13 @@ class ApiClient {
         return this.request(`/api/admin/users/${userId}/stats`);
     }
 
+    async createAdminUser(userData: any): Promise<any> {
+        return this.request('/api/admin/users', {
+            method: 'POST',
+            body: JSON.stringify(userData)
+        });
+    }
+
     // Analytics
     async getAnalytics(days?: number): Promise<any> {
         return this.request(`/api/analytics/summary?days=${days || 14}`);

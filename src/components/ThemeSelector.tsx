@@ -30,13 +30,10 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
         };
 
         if (themeId !== 'custom') {
-            updates.customBackground = null;
-            updates.customSolidColor = null;
-            updates.customSecondaryColor = null;
-            updates.customTextColor = null;
+            // We keep customBackground and secondary colors to preserve user layouts (Profile/Banner modes)
+            // but we reset button-specific overrides to allow the theme's look to take over.
             updates.customButtonColor = null;
             updates.customButtonTextColor = null;
-            updates.customCollectionTextColor = null;
         }
 
         onChange(updates as UserProfile);

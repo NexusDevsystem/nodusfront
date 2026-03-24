@@ -7,7 +7,8 @@ import {
     ExternalLink, User, Copy, Check, Briefcase, ShieldCheck, Activity, Info, Lock, AlertCircle, TrendingUp,
     Crown, Clock, Layout, PieChart, BarChart, Settings, Shield, Trash2, Key, ChevronRight, Hash,
     FileText,
-    Rss
+    Rss,
+    PlusCircle
 } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import BrutalistLoader from './BrutalistLoader';
@@ -70,6 +71,19 @@ export default function AdminView() {
     const [editPlan, setEditPlan] = useState<{ type: string, expiry: string } | null>(null);
     const [activeTab, setActiveTab] = useState<'overview' | 'blog' | 'settings'>('overview');
     const [isUserDetailsLoading, setIsUserDetailsLoading] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+    const [newUserForm, setNewUserForm] = useState({
+        email: '',
+        password: '',
+        username: '',
+        plan_type: 'free'
+    });
+
+    const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification(null), 5000);
+    };
 
     useEffect(() => {
         if (selectedUser) {
@@ -121,10 +135,10 @@ export default function AdminView() {
             const updated = await apiClient.updateAdminUser(selectedUser.id, {
                 is_verified: !selectedUser.is_verified
             });
-            setSelectedUser({ ...selectedUser, is_verified: updated.is_verified });
+            showNotification(updated.is_verified ? 'Selo concedido!' : 'Selo removido.', 'success');
             loadStats(true);
         } catch (err: any) {
-            alert(t('common.error') + ': ' + (err.message || t('common.error')));
+            showNotification(err.message || t('common.error'), 'error');
         } finally {
             setIsUpdating(false);
         }
@@ -147,7 +161,7 @@ export default function AdminView() {
             });
             loadStats(true);
         } catch (err: any) {
-            alert(t('common.error') + ': ' + (err.message || t('common.error')));
+            showNotification(err.message || t('common.error'), 'error');
         } finally {
             setIsUpdating(false);
         }
@@ -162,7 +176,24 @@ export default function AdminView() {
             setDeleteConfirm(false);
             loadStats(true);
         } catch (err: any) {
-            alert(t('common.error') + ': ' + (err.message || t('common.error')));
+            showNotification(err.message || t('common.error'), 'error');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleCreateUser = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (isUpdating) return;
+        try {
+            setIsUpdating(true);
+            await apiClient.createAdminUser(newUserForm);
+            setIsCreateModalOpen(false);
+            setNewUserForm({ email: '', password: '', username: '', plan_type: 'free' });
+            loadStats(true);
+            showNotification('Usuário registrado com sucesso!', 'success');
+        } catch (err: any) {
+            showNotification(err.message || t('common.error'), 'error');
         } finally {
             setIsUpdating(false);
         }
@@ -261,6 +292,7 @@ export default function AdminView() {
         : '0.0';
 
     return (
+        <>
         <div className="w-full max-w-full pb-12 pt-6">
             {/* Nav Tabs */}
             <div className="flex gap-4 mb-8 overflow-x-auto pt-2 pb-4 scrollbar-hide">
@@ -384,7 +416,13 @@ export default function AdminView() {
                             <div className="bg-white border-2 border-black shadow-[0_5px_0_0_#000000] flex flex-col rounded-md overflow-hidden">
                                 <div className="p-6 border-b-2 border-black bg-[#fafafa] flex justify-between items-center">
                                     <h2 className="text-sm font-black uppercase tracking-[0.2em] text-black">{t('admin.newExplorers')}</h2>
-                                    <div className="text-[10px] font-black bg-[#ffdf00] border-2 border-black text-black px-2 py-0.5 rounded-md shadow-[0_2px_0_0_#000]">{t('admin.featuredRecords')}</div>
+                                    <button 
+                                        onClick={() => setIsCreateModalOpen(true)}
+                                        className="text-[10px] font-black bg-[#ffdf00] border-2 border-black text-black px-3 py-1 rounded-md shadow-[0_2px_0_0_#000] hover:translate-y-[1px] hover:shadow-none active:translate-y-[2px] transition-all flex items-center gap-2"
+                                    >
+                                        <PlusCircle size={14} strokeWidth={3} />
+                                        Novo Usuário
+                                    </button>
                                 </div>
                                 <div className="divide-y-2 divide-black max-h-[600px] overflow-y-auto custom-scrollbar">
                                     {stats.latestUsers?.map((u) => (
@@ -486,250 +524,370 @@ export default function AdminView() {
                 </div>
             )}
 
-            {/* User Detail Management Engine */}
-            {createPortal(
-                <AnimatePresence>
-                    {selectedUser && (
-                        <div className={`fixed inset-0 z-[99999] flex overflow-hidden pointer-events-none ${isMobile ? 'items-end' : 'items-center justify-center p-6'}`}>
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                onClick={() => setSelectedUser(null)}
-                                className="fixed inset-0 bg-black/40 backdrop-blur-md cursor-pointer pointer-events-auto"
-                            />
-                            <motion.div
-                                initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.98, y: 30 }}
-                                animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
-                                exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.98, y: 30 }}
-                                transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
-                                className={`
-                                    bg-white w-full relative overflow-hidden pointer-events-auto flex flex-col border-2 border-[#1a1a1a] shadow-[0_20px_0_0_rgba(0,0,0,0.1)]
-                                    ${isMobile ? 'h-[95vh] rounded-none' : 'max-w-[900px] h-[850px] rounded-[40px]'}
-                                `}>
-                                 <div className="flex-1 overflow-y-auto bg-[#fafafa] custom-scrollbar-brutal relative">
-                                     <div className="absolute top-0 left-0 w-full h-[8px] bg-[#ffdf00] z-[100]" />
-                                     
-                                     {/* HERO IDENTITY */}
-                                     <div className="p-10 md:p-14 pb-8">
-                                         <div className="flex flex-col md:flex-row gap-12 items-start md:items-center relative">
-                                             <div className="relative group/avatar shrink-0">
-                                                 <div className="w-32 h-32 md:w-44 md:h-44 rounded-[48px] border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] overflow-hidden bg-white shrink-0 relative z-10 transition-all duration-500">
-                                                     {selectedUser.avatar_url ? (
-                                                         <img src={selectedUser.avatar_url} className="w-full h-full object-cover" alt={selectedUser.username} />
-                                                     ) : (
-                                                         <div className="w-full h-full flex items-center justify-center font-black text-6xl text-black/5 bg-slate-50 uppercase">
-                                                             {selectedUser.username?.[0]}
+        </div>
+        
+        {/* User Detail Management */}
+        {createPortal(
+                <div className="admin-portals-wrapper">
+                    <AnimatePresence>
+                        {selectedUser && (
+                            <div className={`fixed inset-0 z-[99999] flex overflow-hidden pointer-events-none ${isMobile ? 'items-end' : 'items-center justify-center p-6'}`}>
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => setSelectedUser(null)}
+                                    className="fixed inset-0 bg-black/40 backdrop-blur-md cursor-pointer pointer-events-auto"
+                                />
+                                <motion.div
+                                    initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.98, y: 30 }}
+                                    animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                                    exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.98, y: 30 }}
+                                    transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
+                                    className={`
+                                        bg-white w-full relative overflow-hidden pointer-events-auto flex flex-col border-2 border-[#1a1a1a] shadow-[0_20px_0_0_rgba(0,0,0,0.1)]
+                                        ${isMobile ? 'h-[95vh] rounded-none' : 'max-w-[900px] h-[850px] rounded-[40px]'}
+                                    `}>
+                                     <div className="flex-1 overflow-y-auto bg-[#fafafa] custom-scrollbar-brutal relative">
+                                         <div className="absolute top-0 left-0 w-full h-[8px] bg-[#ffdf00] z-[100]" />
+                                         
+                                         {/* HERO IDENTITY */}
+                                         <div className="p-10 md:p-14 pb-8">
+                                             <div className="flex flex-col md:flex-row gap-12 items-start md:items-center relative">
+                                                 <div className="relative group/avatar shrink-0">
+                                                     <div className="w-32 h-32 md:w-44 md:h-44 rounded-[48px] border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] overflow-hidden bg-white shrink-0 relative z-10 transition-all duration-500">
+                                                         {selectedUser.avatar_url ? (
+                                                             <img src={selectedUser.avatar_url} className="w-full h-full object-cover" alt={selectedUser.username} />
+                                                         ) : (
+                                                             <div className="w-full h-full flex items-center justify-center font-black text-6xl text-black/5 bg-slate-50 uppercase">
+                                                                 {selectedUser.username?.[0]}
+                                                             </div>
+                                                         )}
+                                                     </div>
+                                                     {selectedUser.is_verified && (
+                                                         <div className="absolute -right-4 -top-4 bg-[#ffdf00] border-[2px] border-[#1a1a1a] p-3 rounded-md shadow-[0_4px_0_0_#1a1a1a] z-20 animate-bounce">
+                                                             <Check size={24} className="text-black" strokeWidth={5} />
                                                          </div>
                                                      )}
                                                  </div>
-                                                 {selectedUser.is_verified && (
-                                                     <div className="absolute -right-4 -top-4 bg-[#ffdf00] border-[2px] border-[#1a1a1a] p-3 rounded-md shadow-[0_4px_0_0_#1a1a1a] z-20 animate-bounce">
-                                                         <Check size={24} className="text-black" strokeWidth={5} />
-                                                     </div>
-                                                 )}
-                                             </div>
-                                             <div className="flex-1 space-y-5">
-                                                 <div className="space-y-2">
-                                                     <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none">{selectedUser.name || selectedUser.username}</h2>
-                                                     <div className="flex flex-wrap items-center gap-3">
-                                                          <span className="px-5 py-2 bg-white border-2 border-[#1a1a1a] text-black text-[12px] font-black uppercase tracking-[0.25em] rounded-md shadow-[0_4px_0_0_#1a1a1a]">@{selectedUser.username}</span>
-                                                          <span className="px-5 py-2 bg-black/5 text-black/40 text-[12px] font-black uppercase tracking-wider rounded-md border border-black/5">{selectedUser.email}</span>
-                                                          <span className="px-5 py-2 bg-white border-2 border-[#1a1a1a] text-black/50 text-[10px] font-black uppercase tracking-widest rounded-md shadow-[0_4px_0_0_#1a1a1a] flex items-center gap-2">
-                                                              <Calendar size={14} strokeWidth={4} />
-                                                              {selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '---'}
-                                                          </span>
+                                                 <div className="flex-1 space-y-5">
+                                                     <div className="space-y-2">
+                                                         <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-black leading-none">{selectedUser.name || selectedUser.username}</h2>
+                                                         <div className="flex flex-wrap items-center gap-3">
+                                                              <span className="px-5 py-2 bg-white border-2 border-[#1a1a1a] text-black text-[12px] font-black uppercase tracking-[0.25em] rounded-md shadow-[0_4px_0_0_#1a1a1a]">@{selectedUser.username}</span>
+                                                              <span className="px-5 py-2 bg-black/5 text-black/40 text-[12px] font-black uppercase tracking-wider rounded-md border border-black/5">{selectedUser.email}</span>
+                                                              <span className="px-5 py-2 bg-white border-2 border-[#1a1a1a] text-black/50 text-[10px] font-black uppercase tracking-widest rounded-md shadow-[0_4px_0_0_#1a1a1a] flex items-center gap-2">
+                                                                  <Calendar size={14} strokeWidth={4} />
+                                                                  {selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '---'}
+                                                              </span>
+                                                          </div>
                                                       </div>
-                                                  </div>
-                                                  <div className="flex flex-wrap gap-5 pt-3">
-                                                     <button 
-                                                         onClick={() => window.open(`/${selectedUser.username}`, '_blank')}
-                                                         className="flex items-center gap-3 px-10 py-5 bg-[#ffdf00] border-[2px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1 active:scale-95 transition-all text-[11px] font-black uppercase tracking-widest rounded-md"
-                                                     >
-                                                         <ExternalLink size={18} strokeWidth={4} />
-                                                         Ver Perfil Público
-                                                     </button>
-                                                     <button 
-                                                         onClick={toggleVerification}
-                                                         className={`px-10 py-5 border-[2px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1 transition-all text-[11px] font-black uppercase tracking-widest rounded-md ${selectedUser.is_verified ? 'bg-white text-black' : 'bg-[#ffdf00] text-black'}`}
-                                                     >
-                                                         {selectedUser.is_verified ? 'Remover Verificado' : 'Conceder Selo'}
-                                                     </button>
-                                                 </div>
-                                             </div>
-
-                                             <button 
-                                                 onClick={() => setSelectedUser(null)} 
-                                                 className="absolute -top-4 -right-4 w-14 h-14 flex items-center justify-center bg-white border-[2px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:bg-[#ff3333] hover:text-white transition-all rounded-sm active:scale-90 group"
-                                             >
-                                                 <X size={28} strokeWidth={5} className="transition-transform duration-300" />
-                                             </button>
-                                         </div>
-                                     </div>
-
-                                     {/* MODULAR CONTENT AREA */}
-                                     <div className="px-10 md:px-14 grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-                                         <div className="bg-white border-2 border-black p-10 rounded-md shadow-[0_5px_0_0_#66ccff] relative overflow-hidden group">
-                                              <div className="absolute -right-6 -bottom-6 opacity-[0.04] transition-all duration-700 text-[#66ccff]"><Eye size={160} /></div>
-                                             <span className="text-[11px] font-black uppercase tracking-[0.25em] text-black mb-3 block opacity-40">Volume de Alcance</span>
-                                             <div className="text-6xl font-black tracking-tighter tabular-nums drop-shadow-sm">{isUserDetailsLoading ? '...' : (selectedUser.views || 0)}</div>
-                                             <div className="flex items-center gap-2 mt-4 text-[10px] font-black uppercase text-[#66ccff]">
-                                                 <div className="w-1.5 h-1.5 rounded-full bg-[#66ccff] animate-ping" />
-                                                 Visualizações únicas
-                                             </div>
-                                         </div>
-                                         <div className="bg-white border-2 border-black p-10 rounded-md shadow-[0_5px_0_0_#ff66b2] relative overflow-hidden group">
-                                              <div className="absolute -right-6 -bottom-6 opacity-[0.04] transition-all duration-700 text-[#ff66b2]"><MousePointerClick size={160} /></div>
-                                             <span className="text-[11px] font-black uppercase tracking-[0.25em] text-black mb-3 block opacity-40">Interações Reais</span>
-                                             <div className="text-6xl font-black tracking-tighter tabular-nums drop-shadow-sm">{isUserDetailsLoading ? '...' : (selectedUser.clicks?.[0]?.count || 0)}</div>
-                                             <div className="text-[10px] font-black uppercase text-[#ff66b2] mt-4">Engajamento Direto</div>
-                                         </div>
-                                         <div className="bg-white border-2 border-black p-10 rounded-md shadow-[0_5px_0_0_#ffdf00] relative overflow-hidden group">
-                                              <div className="absolute -right-6 -bottom-6 opacity-[0.04] transition-all duration-700 text-[#ffdf00]"><TrendingUp size={160} /></div>
-                                             <span className="text-[11px] font-black uppercase tracking-[0.25em] text-black mb-3 block opacity-40">Performance Geral</span>
-                                             <div className="text-6xl font-black tracking-tighter tabular-nums drop-shadow-sm">{isUserDetailsLoading ? '...' : `${Math.round(((selectedUser.clicks?.[0]?.count || 0) / (selectedUser.views || 1)) * 100)}%`}</div>
-                                             <div className="text-[10px] font-black uppercase text-[#ffdf00] mt-4">Taxa de Conversão</div>
-                                         </div>
-                                     </div>
-
-                                     {/* 3. CORE MANAGEMENT GRID */}
-                                     <div className="px-10 md:px-14 grid grid-cols-1 lg:grid-cols-2 gap-12 pb-24">
-                                         <div className="space-y-10">
-                                             <div className="bg-white border-[2px] border-[#1a1a1a] rounded-[48px] shadow-[0_4px_0_0_#1a1a1a] overflow-hidden">
-                                                 <div className="bg-slate-50 border-b-[2px] border-[#1a1a1a] p-8 flex justify-between items-center">
-                                                     <h3 className="text-sm font-black uppercase tracking-[0.25em]">Identidade e Conteúdo</h3>
-                                                     <User size={24} strokeWidth={4} className="opacity-20" />
-                                                 </div>
-                                                 <div className="p-10 space-y-10">
-                                                     <div className="bg-black/5 p-8 rounded-md border-2 border-dashed border-black/10 relative">
-                                                         <div className="absolute -top-4 left-8 px-4 py-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest rounded-sm">Manifesto Bio</div>
-                                                         <p className="text-xl font-black uppercase text-black leading-tight">
-                                                             "{selectedUser.bio || 'SEM DESCRIÇÃO DEFINIDA'}"
-                                                         </p>
-                                                     </div>
-                                                     <div className="grid grid-cols-2 gap-8">
-                                                         <div className="space-y-2">
-                                                             <label className="text-[10px] font-black uppercase text-black/30 tracking-widest pl-2">Segmentação</label>
-                                                             <div className="p-5 bg-white border-[3px] border-[#1a1a1a] rounded-md text-[13px] font-black uppercase shadow-[0_4px_0_0_#1a1a1a]">{selectedUser.user_category || 'Não Classificado'}</div>
-                                                         </div>
-                                                         <div className="space-y-2">
-                                                             <label className="text-[10px] font-black uppercase text-black/30 tracking-widest pl-2">Estilo Visual</label>
-                                                             <div className="p-5 bg-[#ffdf00] border-[3px] border-[#1a1a1a] rounded-md text-[13px] font-black uppercase shadow-[0_4px_0_0_#1a1a1a]">{selectedUser.theme_id?.replace('theme-', '') || 'Padrão'}</div>
-                                                         </div>
-                                                     </div>
-                                                     <div className="flex flex-col gap-5">
-                                                         <div className="flex items-center justify-between p-6 bg-white border-[2px] border-[#1a1a1a] text-black rounded-md shadow-[0_4px_0_0_#66ccff]">
-                                                              <div className="flex items-center gap-4">
-                                                                  <LinkIcon size={24} className="text-[#66ccff]" strokeWidth={4} />
-                                                                  <span className="text-xs font-black uppercase tracking-[0.15em]">Inventário de Links</span>
-                                                              </div>
-                                                              <span className="text-2xl font-black">{selectedUser.links?.[0]?.count || 0}</span>
-                                                         </div>
-                                                         <div className="flex items-center justify-between p-6 bg-white border-[2px] border-[#1a1a1a] text-black rounded-md shadow-[0_4px_0_0_#ff66b2]">
-                                                              <div className="flex items-center gap-4">
-                                                                  <ShoppingBag size={24} className="text-[#ff66b2]" strokeWidth={4} />
-                                                                  <span className="text-xs font-black uppercase tracking-[0.15em]">Galeria de Produtos</span>
-                                                              </div>
-                                                              <span className="text-2xl font-black">{selectedUser.products?.[0]?.count || 0}</span>
-                                                         </div>
+                                                      <div className="flex flex-wrap gap-5 pt-3">
+                                                         <button 
+                                                             onClick={() => window.open(`/${selectedUser.username}`, '_blank')}
+                                                             className="flex items-center gap-3 px-10 py-5 bg-[#ffdf00] border-[2px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1 active:scale-95 transition-all text-[11px] font-black uppercase tracking-widest rounded-md"
+                                                         >
+                                                             <ExternalLink size={18} strokeWidth={4} />
+                                                             Ver Perfil Público
+                                                         </button>
+                                                         <button 
+                                                             onClick={toggleVerification}
+                                                             className={`px-10 py-5 border-[2px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1 transition-all text-[11px] font-black uppercase tracking-widest rounded-md ${selectedUser.is_verified ? 'bg-white text-black' : 'bg-[#ffdf00] text-black'}`}
+                                                         >
+                                                             {selectedUser.is_verified ? 'Remover Verificado' : 'Conceder Selo'}
+                                                         </button>
                                                      </div>
                                                  </div>
+    
+                                                 <button 
+                                                     onClick={() => setSelectedUser(null)} 
+                                                     className="absolute -top-4 -right-4 w-14 h-14 flex items-center justify-center bg-white border-[2px] border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:bg-[#ff3333] hover:text-white transition-all rounded-sm active:scale-90 group"
+                                                 >
+                                                     <X size={28} strokeWidth={5} className="transition-transform duration-300" />
+                                                 </button>
                                              </div>
                                          </div>
-
-                                         <div className="space-y-12">
-                                             <div className="bg-white border-[2px] border-[#1a1a1a] rounded-[48px] shadow-[0_8px_0_0_#ffdf00] overflow-hidden">
-                                                 <div className="bg-slate-50 border-b-[2px] border-[#1a1a1a] p-8 flex justify-between items-center">
-                                                     <h3 className="text-sm font-black uppercase tracking-[0.25em]">Nível de Assinatura</h3>
-                                                     <Crown size={24} strokeWidth={4} className="text-[#ffdf00]" />
+    
+                                         {/* MODULAR CONTENT AREA */}
+                                         <div className="px-10 md:px-14 grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                                             <div className="bg-white border-2 border-black p-10 rounded-md shadow-[0_5px_0_0_#66ccff] relative overflow-hidden group">
+                                                  <div className="absolute -right-6 -bottom-6 opacity-[0.04] transition-all duration-700 text-[#66ccff]"><Eye size={160} /></div>
+                                                 <span className="text-[11px] font-black uppercase tracking-[0.25em] text-black mb-3 block opacity-40">Volume de Alcance</span>
+                                                 <div className="text-6xl font-black tracking-tighter tabular-nums drop-shadow-sm">{isUserDetailsLoading ? '...' : (selectedUser.views || 0)}</div>
+                                                 <div className="flex items-center gap-2 mt-4 text-[10px] font-black uppercase text-[#66ccff]">
+                                                     <div className="w-1.5 h-1.5 rounded-full bg-[#66ccff] animate-ping" />
+                                                     Visualizações únicas
                                                  </div>
-                                                 <div className="p-10 space-y-10">
-                                                     <div className="flex items-center justify-between p-8 bg-slate-50 border-[2px] border-[#1a1a1a] rounded-[40px] relative overflow-hidden group">
-                                                         <div className="absolute top-0 right-0 w-32 h-full bg-[#ffdf00]/10 -skew-x-[30deg] translate-x-12" />
-                                                         <div className="relative z-10 space-y-2">
-                                                             <div className="flex items-center gap-3">
-                                                                 <span className="text-4xl font-black uppercase tracking-tighter">{selectedUser.plan_type}</span>
-                                                                 <div className="px-3 py-1 bg-[#ffdf00] text-black border-2 border-[#1a1a1a] text-[9px] font-black rounded-sm uppercase">Ativo</div>
+                                             </div>
+                                             <div className="bg-white border-2 border-black p-10 rounded-md shadow-[0_5px_0_0_#ff66b2] relative overflow-hidden group">
+                                                  <div className="absolute -right-6 -bottom-6 opacity-[0.04] transition-all duration-700 text-[#ff66b2]"><MousePointerClick size={160} /></div>
+                                                 <span className="text-[11px] font-black uppercase tracking-[0.25em] text-black mb-3 block opacity-40">Interações Reais</span>
+                                                 <div className="text-6xl font-black tracking-tighter tabular-nums drop-shadow-sm">{isUserDetailsLoading ? '...' : (selectedUser.clicks?.[0]?.count || 0)}</div>
+                                                 <div className="text-[10px] font-black uppercase text-[#ff66b2] mt-4">Engajamento Direto</div>
+                                             </div>
+                                             <div className="bg-white border-2 border-black p-10 rounded-md shadow-[0_5px_0_0_#ffdf00] relative overflow-hidden group">
+                                                  <div className="absolute -right-6 -bottom-6 opacity-[0.04] transition-all duration-700 text-[#ffdf00]"><TrendingUp size={160} /></div>
+                                                 <span className="text-[11px] font-black uppercase tracking-[0.25em] text-black mb-3 block opacity-40">Performance Geral</span>
+                                                 <div className="text-6xl font-black tracking-tighter tabular-nums drop-shadow-sm">{isUserDetailsLoading ? '...' : `${Math.round(((selectedUser.clicks?.[0]?.count || 0) / (selectedUser.views || 1)) * 100)}%`}</div>
+                                                 <div className="text-[10px] font-black uppercase text-[#ffdf00] mt-4">Taxa de Conversão</div>
+                                             </div>
+                                         </div>
+    
+                                         {/* 3. CORE MANAGEMENT GRID */}
+                                         <div className="px-10 md:px-14 grid grid-cols-1 lg:grid-cols-2 gap-12 pb-24">
+                                             <div className="space-y-10">
+                                                 <div className="bg-white border-[2px] border-[#1a1a1a] rounded-[48px] shadow-[0_4px_0_0_#1a1a1a] overflow-hidden">
+                                                     <div className="bg-slate-50 border-b-[2px] border-[#1a1a1a] p-8 flex justify-between items-center">
+                                                         <h3 className="text-sm font-black uppercase tracking-[0.25em]">Identidade e Conteúdo</h3>
+                                                         <User size={24} strokeWidth={4} className="opacity-20" />
+                                                     </div>
+                                                     <div className="p-10 space-y-10">
+                                                         <div className="bg-black/5 p-8 rounded-md border-2 border-dashed border-black/10 relative">
+                                                             <div className="absolute -top-4 left-8 px-4 py-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest rounded-sm">Manifesto Bio</div>
+                                                             <p className="text-xl font-black uppercase text-black leading-tight">
+                                                                 "{selectedUser.bio || 'SEM DESCRIÇÃO DEFINIDA'}"
+                                                             </p>
+                                                         </div>
+                                                         <div className="grid grid-cols-2 gap-8">
+                                                             <div className="space-y-2">
+                                                                 <label className="text-[10px] font-black uppercase text-black/30 tracking-widest pl-2">Segmentação</label>
+                                                                 <div className="p-5 bg-white border-[3px] border-[#1a1a1a] rounded-md text-[13px] font-black uppercase shadow-[0_4px_0_0_#1a1a1a]">{selectedUser.user_category || 'Não Classificado'}</div>
                                                              </div>
-                                                             <p className="text-[11px] font-bold uppercase text-black/40">Ciclo Estendido até {selectedUser.subscription_expiry_date ? new Date(selectedUser.subscription_expiry_date).toLocaleDateString() : 'Perpetuidade'}</p>
+                                                             <div className="space-y-2">
+                                                                 <label className="text-[10px] font-black uppercase text-black/30 tracking-widest pl-2">Estilo Visual</label>
+                                                                 <div className="p-5 bg-[#ffdf00] border-[3px] border-[#1a1a1a] rounded-md text-[13px] font-black uppercase shadow-[0_4px_0_0_#1a1a1a]">{selectedUser.theme_id?.replace('theme-', '') || 'Padrão'}</div>
+                                                             </div>
+                                                         </div>
+                                                         <div className="flex flex-col gap-5">
+                                                             <div className="flex items-center justify-between p-6 bg-white border-[2px] border-[#1a1a1a] text-black rounded-md shadow-[0_4px_0_0_#66ccff]">
+                                                                  <div className="flex items-center gap-4">
+                                                                      <LinkIcon size={24} className="text-[#66ccff]" strokeWidth={4} />
+                                                                      <span className="text-xs font-black uppercase tracking-[0.15em]">Inventário de Links</span>
+                                                                  </div>
+                                                                  <span className="text-2xl font-black">{selectedUser.links?.[0]?.count || 0}</span>
+                                                             </div>
+                                                             <div className="flex items-center justify-between p-6 bg-white border-[2px] border-[#1a1a1a] text-black rounded-md shadow-[0_4px_0_0_#ff66b2]">
+                                                                  <div className="flex items-center gap-4">
+                                                                      <ShoppingBag size={24} className="text-[#ff66b2]" strokeWidth={4} />
+                                                                      <span className="text-xs font-black uppercase tracking-[0.15em]">Galeria de Produtos</span>
+                                                                  </div>
+                                                                  <span className="text-2xl font-black">{selectedUser.products?.[0]?.count || 0}</span>
+                                                             </div>
                                                          </div>
                                                      </div>
-
-                                                     <div className="space-y-5">
-                                                         <label className="text-[11px] font-black uppercase tracking-widest text-black/30 pl-2">Upgrade/Downgrade Instantâneo</label>
-                                                         <div className="grid grid-cols-3 gap-4">
-                                                             {['free', 'monthly', 'annual'].map((type) => (
-                                                                 <button
-                                                                     key={type}
-                                                                     onClick={() => setEditPlan({ ...editPlan!, type })}
-                                                                     className={`py-5 text-[11px] font-black uppercase border-[2px] border-[#1a1a1a] rounded-24 transition-all rounded-md ${editPlan?.type === type ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#ffdf00]/5 active:translate-y-0.5'}`}
-                                                                 >
-                                                                     {type}
-                                                                 </button>
-                                                             ))}
-                                                         </div>
-                                                     </div>
-
-                                                     <button 
-                                                         onClick={handleUpdatePlan}
-                                                         disabled={isUpdating}
-                                                         className="w-full py-6 bg-[#ffdf00] text-black border-[3px] border-[#1a1a1a] text-[13px] font-black uppercase tracking-[0.4em] rounded-md shadow-[0_6px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1.5 transition-all active:scale-95 disabled:opacity-50"
-                                                     >
-                                                         {isUpdating ? 'SINCRONIZANDO...' : 'EXECUTAR ATUALIZAÇÃO'}
-                                                     </button>
                                                  </div>
                                              </div>
-
-                                             <div className="bg-[#fff1f1] border-[4px] border-[#1a1a1a] p-10 rounded-[48px] shadow-[0_16px_0_0_#ff3333] space-y-8">
-                                                 <div className="flex items-center gap-4 text-[#ff3333]">
-                                                     <ShieldAlert size={32} strokeWidth={4} />
-                                                     <h3 className="text-xl font-black uppercase tracking-tighter">Protocolo de Exclusão</h3>
-                                                 </div>
-                                                 
-                                                 {!deleteConfirm ? (
-                                                     <button 
-                                                         onClick={() => setDeleteConfirm(true)}
-                                                         className="w-full py-5 bg-white border-[2px] border-[#1a1a1a] text-[#ff3333] font-black uppercase text-xs tracking-[0.2em] transition-all shadow-[0_4px_0_0_#1a1a1a] active:translate-y-1 active:shadow-none hover:bg-red-50 rounded-md"
-                                                     >
-                                                         Terminar Registro do Usuário
-                                                     </button>
-                                                 ) : (
-                                                     <div className="bg-white border-[3px] border-[#1a1a1a] p-8 rounded-[40px] space-y-6 shadow-[0_6px_0_0_rgba(255,51,51,0.2)]">
-                                                         <div className="text-center space-y-2">
-                                                             <p className="text-[12px] font-black uppercase text-[#ff3333] tracking-widest">Confirmação de Purga Requerida</p>
-                                                             <p className="text-[10px] font-bold uppercase opacity-30 tracking-tight">Digite 'DELETE' para confirmar a ação irreversível</p>
-                                                         </div>
-                                                         <input
-                                                             type="text"
-                                                             value={deleteInput}
-                                                             onChange={(e) => setDeleteInput(e.target.value)}
-                                                             placeholder="SEGURANÇA"
-                                                             className="w-full bg-slate-50 border-[3px] border-[#1a1a1a] p-5 text-center text-sm font-black rounded-md outline-none focus:bg-white transition-colors"
-                                                         />
-                                                         <div className="flex gap-4">
-                                                             <button 
-                                                                 onClick={handleDeleteUser} 
-                                                                 disabled={deleteInput.trim().toUpperCase() !== 'DELETE'}
-                                                                 className={`flex-1 py-5 border-[3px] border-[#1a1a1a] rounded-sm text-[11px] font-black uppercase transition-all rounded-md ${deleteInput.trim().toUpperCase() === 'DELETE' ? 'bg-[#ff3333] text-white shadow-[0_6px_0_0_#000]' : 'bg-slate-200 text-black/20'}`}
-                                                             >
-                                                                 Expurgar
-                                                             </button>
-                                                             <button onClick={() => setDeleteConfirm(false)} className="flex-1 py-5 bg-white border-[3px] border-[#1a1a1a] rounded-sm text-[11px] font-black uppercase hover:bg-[#97cd7a] hover:text-white transition-all shadow-[0_6px_0_0_#1a1a1a] rounded-md">Abortar</button>
-                                                         </div>
+    
+                                             <div className="space-y-12">
+                                                 <div className="bg-white border-[2px] border-[#1a1a1a] rounded-[48px] shadow-[0_8px_0_0_#ffdf00] overflow-hidden">
+                                                     <div className="bg-slate-50 border-b-[2px] border-[#1a1a1a] p-8 flex justify-between items-center">
+                                                         <h3 className="text-sm font-black uppercase tracking-[0.25em]">Nível de Assinatura</h3>
+                                                         <Crown size={24} strokeWidth={4} className="text-[#ffdf00]" />
                                                      </div>
-                                                 )}
+                                                     <div className="p-10 space-y-10">
+                                                         <div className="flex items-center justify-between p-8 bg-slate-50 border-[2px] border-[#1a1a1a] rounded-[40px] relative overflow-hidden group">
+                                                             <div className="absolute top-0 right-0 w-32 h-full bg-[#ffdf00]/10 -skew-x-[30deg] translate-x-12" />
+                                                             <div className="relative z-10 space-y-2">
+                                                                 <div className="flex items-center gap-3">
+                                                                     <span className="text-4xl font-black uppercase tracking-tighter">{selectedUser.plan_type}</span>
+                                                                     <div className="px-3 py-1 bg-[#ffdf00] text-black border-2 border-[#1a1a1a] text-[9px] font-black rounded-sm uppercase">Ativo</div>
+                                                                 </div>
+                                                                 <p className="text-[11px] font-bold uppercase text-black/40">Ciclo Estendido até {selectedUser.subscription_expiry_date ? new Date(selectedUser.subscription_expiry_date).toLocaleDateString() : 'Perpetuidade'}</p>
+                                                             </div>
+                                                         </div>
+    
+                                                         <div className="space-y-5">
+                                                             <label className="text-[11px] font-black uppercase tracking-widest text-black/30 pl-2">Upgrade/Downgrade Instantâneo</label>
+                                                             <div className="grid grid-cols-3 gap-4">
+                                                                 {['free', 'monthly', 'annual'].map((type) => (
+                                                                     <button
+                                                                         key={type}
+                                                                         onClick={() => setEditPlan({ ...editPlan!, type })}
+                                                                         className={`py-5 text-[11px] font-black uppercase border-[2px] border-[#1a1a1a] rounded-24 transition-all rounded-md ${editPlan?.type === type ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#ffdf00]/5 active:translate-y-0.5'}`}
+                                                                     >
+                                                                         {type}
+                                                                     </button>
+                                                                 ))}
+                                                             </div>
+                                                         </div>
+    
+                                                         <button 
+                                                             onClick={handleUpdatePlan}
+                                                             disabled={isUpdating}
+                                                             className="w-full py-6 bg-[#ffdf00] text-black border-[3px] border-[#1a1a1a] text-[13px] font-black uppercase tracking-[0.4em] rounded-md shadow-[0_6px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1.5 transition-all active:scale-95 disabled:opacity-50"
+                                                         >
+                                                             {isUpdating ? 'SINCRONIZANDO...' : 'EXECUTAR ATUALIZAÇÃO'}
+                                                         </button>
+                                                     </div>
+                                                 </div>
+    
+                                                 <div className="bg-[#fff1f1] border-[4px] border-[#1a1a1a] p-10 rounded-[48px] shadow-[0_16px_0_0_#ff3333] space-y-8">
+                                                     <div className="flex items-center gap-4 text-[#ff3333]">
+                                                         <ShieldAlert size={32} strokeWidth={4} />
+                                                         <h3 className="text-xl font-black uppercase tracking-tighter">Protocolo de Exclusão</h3>
+                                                     </div>
+                                                     
+                                                     {!deleteConfirm ? (
+                                                         <button 
+                                                             onClick={() => setDeleteConfirm(true)}
+                                                             className="w-full py-5 bg-white border-[2px] border-[#1a1a1a] text-[#ff3333] font-black uppercase text-xs tracking-[0.2em] transition-all shadow-[0_4px_0_0_#1a1a1a] active:translate-y-1 active:shadow-none hover:bg-red-50 rounded-md"
+                                                         >
+                                                             Terminar Registro do Usuário
+                                                         </button>
+                                                     ) : (
+                                                         <div className="bg-white border-[3px] border-[#1a1a1a] p-8 rounded-[40px] space-y-6 shadow-[0_6px_0_0_rgba(255,51,51,0.2)]">
+                                                             <div className="text-center space-y-2">
+                                                                 <p className="text-[12px] font-black uppercase text-[#ff3333] tracking-widest">Confirmação de Purga Requerida</p>
+                                                                 <p className="text-[10px] font-bold uppercase opacity-30 tracking-tight">Digite 'DELETE' para confirmar a ação irreversível</p>
+                                                             </div>
+                                                             <input
+                                                                 type="text"
+                                                                 value={deleteInput}
+                                                                 onChange={(e) => setDeleteInput(e.target.value)}
+                                                                 placeholder="SEGURANÇA"
+                                                                 className="w-full bg-slate-50 border-[3px] border-[#1a1a1a] p-5 text-center text-sm font-black rounded-md outline-none focus:bg-white transition-colors"
+                                                             />
+                                                             <div className="flex gap-4">
+                                                                 <button 
+                                                                     onClick={handleDeleteUser} 
+                                                                     disabled={deleteInput.trim().toUpperCase() !== 'DELETE'}
+                                                                     className={`flex-1 py-5 border-[3px] border-[#1a1a1a] rounded-sm text-[11px] font-black uppercase transition-all rounded-md ${deleteInput.trim().toUpperCase() === 'DELETE' ? 'bg-[#ff3333] text-white shadow-[0_6px_0_0_#000]' : 'bg-slate-200 text-black/20'}`}
+                                                                 >
+                                                                     Expurgar
+                                                                 </button>
+                                                                 <button onClick={() => setDeleteConfirm(false)} className="flex-1 py-5 bg-white border-[3px] border-[#1a1a1a] rounded-sm text-[11px] font-black uppercase hover:bg-[#97cd7a] hover:text-white transition-all shadow-[0_6px_0_0_#1a1a1a] rounded-md">Abortar</button>
+                                                             </div>
+                                                         </div>
+                                                     )}
+                                                 </div>
                                              </div>
                                          </div>
                                      </div>
-                                 </div>
+                                </motion.div>
+                            </div>
+                        )}
+                    </AnimatePresence>
 
+                    {/* Create User Modal */}
+                    <AnimatePresence>
+                        {isCreateModalOpen && (
+                            <div className="fixed inset-0 z-[99999] flex items-center justify-center p-6">
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => setIsCreateModalOpen(false)}
+                                    className="fixed inset-0 bg-black/40 backdrop-blur-md cursor-pointer"
+                                />
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                    className="bg-white w-full max-w-lg p-10 border-4 border-black shadow-[0_12px_0_0_#000] rounded-xl relative overflow-hidden"
+                                >
+                                    <div className="absolute top-0 left-0 w-full h-[8px] bg-[#97cd7a]" />
+                                    
+                                    <div className="flex justify-between items-center mb-8">
+                                        <h2 className="text-3xl font-black uppercase tracking-tighter">Novo Usuário</h2>
+                                        <button 
+                                            onClick={() => setIsCreateModalOpen(false)}
+                                            className="w-10 h-10 flex items-center justify-center border-2 border-black hover:bg-black hover:text-white transition-all rounded-sm shadow-[0_2px_0_0_#000]"
+                                        >
+                                            <X size={24} strokeWidth={4} />
+                                        </button>
+                                    </div>
+
+                                    <form onSubmit={handleCreateUser} className="space-y-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase text-black/40 tracking-widest pl-1">Email</label>
+                                            <input 
+                                                type="email" 
+                                                required
+                                                value={newUserForm.email}
+                                                onChange={(e) => setNewUserForm({...newUserForm, email: e.target.value})}
+                                                className="w-full bg-[#f8f8f8] border-2 border-black p-4 text-sm font-black rounded-md outline-none focus:bg-white transition-colors"
+                                                placeholder="E-MAIL@EXEMPLO.COM"
+                                            />
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase text-black/40 tracking-widest pl-1">Senha</label>
+                                            <input 
+                                                type="text" 
+                                                required
+                                                value={newUserForm.password}
+                                                onChange={(e) => setNewUserForm({...newUserForm, password: e.target.value})}
+                                                className="w-full bg-[#f8f8f8] border-2 border-black p-4 text-sm font-black rounded-md outline-none focus:bg-white transition-colors"
+                                                placeholder="S3NH4_S3GUR4"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase text-black/40 tracking-widest pl-1">Username</label>
+                                            <input 
+                                                type="text" 
+                                                required
+                                                value={newUserForm.username}
+                                                onChange={(e) => setNewUserForm({...newUserForm, username: e.target.value})}
+                                                className="w-full bg-[#f8f8f8] border-2 border-black p-4 text-sm font-black rounded-md outline-none focus:bg-white transition-colors"
+                                                placeholder="NODUS_USER"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase text-black/40 tracking-widest pl-1">Plano Inicial</label>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {['free', 'monthly', 'yearly'].map(plan => (
+                                                    <button
+                                                        key={plan}
+                                                        type="button"
+                                                        onClick={() => setNewUserForm({...newUserForm, plan_type: plan})}
+                                                        className={`py-3 border-2 border-black text-[10px] font-black uppercase rounded-md transition-all ${newUserForm.plan_type === plan ? 'bg-[#ffdf00] shadow-[0_3px_0_0_#000] -translate-y-0.5' : 'bg-white hover:bg-slate-50'}`}
+                                                    >
+                                                        {plan}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <button 
+                                            type="submit" 
+                                            disabled={isUpdating}
+                                            className="w-full py-6 bg-[#97cd7a] text-black border-4 border-black text-[13px] font-black uppercase tracking-[0.4em] rounded-md shadow-[0_6px_0_0_#000] hover:shadow-none hover:translate-y-1.5 transition-all active:scale-95 disabled:opacity-50 mt-4"
+                                        >
+                                            {isUpdating ? 'PROCESSANDO...' : 'CRIAR REGISTRO'}
+                                        </button>
+                                    </form>
+                                </motion.div>
+                            </div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Custom Notification Toast */}
+                    <AnimatePresence>
+                        {notification && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 50, scale: 0.9 }}
+                                className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100000] pointer-events-none"
+                            >
+                                <div className={`
+                                    min-w-[320px] p-6 border-4 border-black rounded-md flex items-center gap-4 shadow-[0_8px_0_0_#000]
+                                    ${notification.type === 'success' ? 'bg-[#97cd7a]' : 'bg-[#ff3333] text-white'}
+                                `}>
+                                    <div className="bg-white/20 p-2 rounded-sm">
+                                        {notification.type === 'success' ? <Check size={20} strokeWidth={4} /> : <ShieldAlert size={20} strokeWidth={4} />}
+                                    </div>
+                                    <span className="text-sm font-black uppercase tracking-widest">{notification.message}</span>
+                                </div>
                             </motion.div>
-                        </div>
-                    )}
-                </AnimatePresence>,
+                        )}
+                    </AnimatePresence>
+                </div>,
                 document.body
             )}
-        </div>
+        </>
     );
 }
 

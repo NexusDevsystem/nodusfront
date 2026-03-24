@@ -97,8 +97,8 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                                     value={profile.customSolidColor || '#ffffff'}
                                     onChange={(e) => {
                                         const val = e.target.value;
-                                        if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: val, customBackground: null });
-                                        else onChange({ ...profile, themeId: 'custom', customSolidColor: val, customBackground: null });
+                                        if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: val });
+                                        else onChange({ ...profile, themeId: 'custom', customSolidColor: val });
                                     }}
                                     className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0"
                                 />
@@ -111,8 +111,8 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                                         value={profile.customSolidColor || ''}
                                         onChange={(e) => {
                                             const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
-                                            if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: val, customBackground: null });
-                                            else onChange({ ...profile, themeId: 'custom', customSolidColor: val, customBackground: null });
+                                            if (updateProfile) updateProfile({ themeId: 'custom', customSolidColor: val });
+                                            else onChange({ ...profile, themeId: 'custom', customSolidColor: val });
                                         }}
                                         placeholder="#FFFFFF"
                                         className="w-full h-8 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-black shadow-[0_2px_0_0_#1a1a1a] tracking-widest placeholder:text-black/20 rounded-md"

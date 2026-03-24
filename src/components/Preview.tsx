@@ -51,7 +51,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], stores
 
             {/* Screen Content */}
             <ProfileRenderer
-              key={profile.id || 'preview'}
+              key={`${profile.id || 'preview'}-${profile.headerLayout}-${profile.customBackground || 'no-bg'}`}
               profile={profile}
               links={links}
               products={products}
