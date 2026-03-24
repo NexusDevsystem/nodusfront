@@ -265,4 +265,4 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
     );
 };
 
-export default BackgroundLayer;
+export default React.memo(BackgroundLayer);

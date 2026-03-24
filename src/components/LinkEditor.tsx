@@ -160,29 +160,7 @@ function LinkEditor({
   const isLimitReached = (profile.planType === 'free' || !profile.planType) && links.length >= 5;
 
   const activeLinks = useMemo(() => {
-    let manual = links.filter(l => !l.isArchived);
-
-    // If we're at the top level, we MUST filter out links that are already inside collections
-    // to prevent them from appearing duplicated in the main list.
-    if (level === 0) {
-      const allChildIds = new Set<string>();
-      const collectChildren = (items: LinkItem[]) => {
-        items.forEach(item => {
-          if (item.children && item.children.length > 0) {
-            item.children.forEach(child => {
-              allChildIds.add(child.id);
-              if (child.children) collectChildren(child.children);
-            });
-          }
-        });
-      };
-      collectChildren(links);
-
-      // Filter out root links that are already children of a collection 
-      // AND we no longer filter out 'social' layout because the user wants to see all links in the main list.
-      manual = manual.filter(l => !allChildIds.has(l.id));
-    }
-
+    const manual = links.filter(l => !l.isArchived);
     const result = [...manual];
 
     if (level === 0) {
@@ -246,15 +224,7 @@ function LinkEditor({
   }, [links, profile.integrations, level]);
 
   const archivedLinks = useMemo(() => {
-    const found: LinkItem[] = [];
-    const traverse = (items: LinkItem[]) => {
-      items.forEach(item => {
-        if (item.isArchived) found.push(item);
-        if (item.children) traverse(item.children);
-      });
-    };
-    traverse(links);
-    return found;
+    return links.filter(l => l.isArchived);
   }, [links]);
 
   const isAnyExpanded = Object.values(expandedLinks).some(Boolean) || Object.values(expandedCollections).some(Boolean);
@@ -427,15 +397,15 @@ function LinkEditor({
     onChange(prev => [newMediaKit, ...(prev as LinkItem[])]);
   };
 
-  const updateLink = (id: string, field: keyof LinkItem, value: any) => {
+  const updateLink = React.useCallback((id: string, field: keyof LinkItem, value: any) => {
     onChange((prev: LinkItem[]) => prev.map(link => {
       if (link.id !== id) return link;
       const newValue = typeof value === 'function' ? value(link[field] || []) : value;
       return { ...link, [field]: newValue };
     }));
-  };
+  }, [onChange]);
 
-  const updateLinkFields = (id: string, updates: Partial<LinkItem>) => {
+  const updateLinkFields = React.useCallback((id: string, updates: Partial<LinkItem>) => {
     onChange((prev: LinkItem[]) => prev.map(link => {
       if (link.id !== id) return link;
       const resolvedUpdates = { ...updates };
@@ -447,18 +417,17 @@ function LinkEditor({
       });
       return { ...link, ...resolvedUpdates };
     }));
-  };
+  }, [onChange]);
 
-  const removeLink = (id: string) => {
+  const removeLink = React.useCallback((id: string) => {
     onChange((prev: LinkItem[]) => (prev as LinkItem[]).filter(link => link.id !== id));
-  };
+  }, [onChange]);
 
   const handleReorder = (newActiveLinks: LinkItem[]) => {
     if ((window as any).__nodusIsDraggingIntoCollection) return;
     
-    // Do not persist virtual integration buttons into the actual state
-    const realLinks = newActiveLinks.filter(l => !l.id.startsWith('btn-integration-'));
-    onChange([...realLinks, ...archivedLinks]);
+    // Persist all links including integration ones to the actual state
+    onChange([...newActiveLinks, ...archivedLinks]);
   };
 
   return (

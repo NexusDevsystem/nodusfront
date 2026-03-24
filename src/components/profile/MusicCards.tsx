@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LinkItem } from '../../types';
-import { ChevronDown, ChevronUp, Music, Play } from 'lucide-react';
+import { LinkItem, UserProfile } from '../../types';
+import { ChevronUp, Music, Play, ChevronDown } from 'lucide-react';
 import { SiSpotify } from 'react-icons/si';
-import DeezerIcon from '../icons/DeezerIcon';
+import BackgroundLayer from '../BackgroundLayer';
 
 interface MusicRichCardProps {
     link: LinkItem;
@@ -11,12 +11,13 @@ interface MusicRichCardProps {
     baseCardClass: string;
     mainButtonStyle: React.CSSProperties;
     effectiveFontFamily: string;
-    profile: { fontWeight?: number | string; fontItalic?: boolean; buttonRoundness?: string };
+    profile: UserProfile;
     getSmartTextColor: () => string | undefined;
+    getHighlightClass: (highlight?: string) => string;
     setOpenPlaylist: (link: LinkItem | null) => void;
 }
 
-const MusicRichCard: React.FC<MusicRichCardProps> = ({
+export const MusicRichCard: React.FC<MusicRichCardProps> = ({
     link,
     handleLinkClick,
     baseCardClass,
@@ -24,7 +25,8 @@ const MusicRichCard: React.FC<MusicRichCardProps> = ({
     effectiveFontFamily,
     profile,
     getSmartTextColor,
-    setOpenPlaylist,
+    getHighlightClass,
+    setOpenPlaylist
 }) => {
     const musicTitle = link.title || 'Música';
     const musicArtist = link.subtitle || 'Artista';
@@ -34,42 +36,33 @@ const MusicRichCard: React.FC<MusicRichCardProps> = ({
 
     return (
         <div
-            className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${baseCardClass} h-[80px] p-0 items-center justify-between mb-1`}
+            className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${baseCardClass} h-[72px] p-0 items-center justify-between mb-1 ${getHighlightClass(link.highlight)}`}
             style={mainButtonStyle}
         >
             <div className="flex h-full items-center px-4 gap-3.5 flex-1 min-w-0">
                 {/* Album Art */}
-                <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-lg'} overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] shrink-0 group-hover:scale-105 transition-transform duration-500`}>
-                    <img src={link.image || (isDeezer
-                            ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg'
-                            : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b'
-                        )}
+                <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-sm'} overflow-hidden shadow-sm shrink-0 transition-transform duration-500`}>
+                    <img src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
                         alt={musicTitle}
                         className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </div>
 
-                {/* Info Column - Balanced Vertical Centering */}
-                <div
-                    className="flex-1 min-w-0 flex flex-col justify-center text-left"
-                    style={{ fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
-                >
+                {/* Info Column */}
+                <div className="flex-1 min-w-0 flex flex-col justify-center h-full text-left" style={{ fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                     {/* Header Label */}
-                    <div className="flex items-center gap-1.5 opacity-50">
-                        {isDeezer
-                            ? <DeezerIcon size={10} color={getSmartTextColor()} />
-                            : <SiSpotify size={10} color="#1DB954" />
-                        }
+                    <div className="flex items-center gap-1.5 mb-1 opacity-50">
+                        {isDeezer ? <Music size={10} color={getSmartTextColor()} /> : <SiSpotify size={10} color="#1DB954" />}
                         <span className="text-[7px] uppercase tracking-[0.25em] leading-none font-bold" style={{ color: contrastColor }}>
                             {isDeezer ? 'Deezer' : 'Spotify'} {hasTracks ? 'Álbum' : ''}
                         </span>
                     </div>
 
                     {/* Song Title */}
-                    <h4 className="text-[14px] font-bold truncate tracking-tight uppercase leading-none my-1" style={{ color: contrastColor }}>
+                    <h4 className="text-[14px] font-bold truncate tracking-tight uppercase leading-none mb-1.5" style={{ color: contrastColor }}>
                         {musicTitle}
                     </h4>
 
-                    {/* Artist Row */}
+                    {/* Artist Info Row */}
                     <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1 opacity-80">
                             <Music size={10} style={{ color: contrastColor }} className="opacity-50" />
@@ -97,8 +90,8 @@ const MusicRichCard: React.FC<MusicRichCardProps> = ({
 
             {/* Overlay link */}
             <a
-                href={hasTracks ? '#' : link.url}
-                target={hasTracks ? '_self' : '_blank'}
+                href={hasTracks ? "#" : link.url}
+                target={hasTracks ? "_self" : "_blank"}
                 rel="noreferrer"
                 className="absolute inset-0 z-30 cursor-pointer"
                 onClick={(e) => {
@@ -112,11 +105,11 @@ const MusicRichCard: React.FC<MusicRichCardProps> = ({
             />
 
             <style>{`
-        @keyframes music-bar {
-          0%, 100% { height: 25%; opacity: 0.5; }
-          50% { height: 100%; opacity: 1; }
-        }
-      `}</style>
+                @keyframes music-bar {
+                    0%, 100% { height: 25%; opacity: 0.5; }
+                    50% { height: 100%; opacity: 1; }
+                }
+            `}</style>
         </div>
     );
 };
@@ -126,6 +119,12 @@ interface MusicPlaylistDrawerProps {
     setOpenPlaylist: (link: LinkItem | null) => void;
     isDarkTheme: boolean;
     handleLinkClick: (id: string) => void;
+    profile: UserProfile;
+    currentTheme: any;
+    getSmartTextColor: () => string | undefined;
+    effectiveFontFamily: string;
+    borderRadiusValue: any;
+    isStatic: boolean;
 }
 
 export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
@@ -133,8 +132,16 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
     setOpenPlaylist,
     isDarkTheme,
     handleLinkClick,
+    profile,
+    currentTheme,
+    getSmartTextColor,
+    effectiveFontFamily,
+    borderRadiusValue,
+    isStatic
 }) => {
     const isDeezer = openPlaylist?.embedType === 'deezer' || openPlaylist?.url.includes('deezer');
+    const isDark = isDarkTheme;
+    const contrastColor = getSmartTextColor() || (isDark ? '#FFFFFF' : '#000000');
 
     return (
         <AnimatePresence>
@@ -148,69 +155,60 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                         className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto"
                     />
                     <motion.div
-                        drag="y"
-                        dragConstraints={{ top: 0, bottom: 0 }}
-                        dragElastic={0.4}
-                        onDragEnd={(_, info) => {
-                            if (info.offset.y > 100 || info.velocity.y > 500) {
-                                setOpenPlaylist(null);
-                            }
-                        }}
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
-                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className={`relative w-full max-w-lg bg-white border-t-2 border-x-2 border-[#1a1a1a] rounded-t-[2.5rem] overflow-hidden pointer-events-auto flex flex-col shadow-[0_-4px_0_0_#1a1a1a]`}
+                        transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
+                        className={`relative w-full max-w-lg overflow-hidden flex flex-col shadow-2xl pointer-events-auto ${currentTheme.backgroundClass}`}
                         style={{
-                            backgroundColor: isDarkTheme ? '#121212' : '#FFFFFF',
-                            color: isDarkTheme ? '#FFFFFF' : '#000000',
-                            borderTop: isDarkTheme ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                            backgroundColor: (profile.themeId === 'custom' && profile.customSolidColor) ? profile.customSolidColor : undefined,
+                            color: contrastColor,
+                            fontFamily: effectiveFontFamily,
+                            borderTopLeftRadius: borderRadiusValue === 0 ? '0px' : '32px',
+                            borderTopRightRadius: borderRadiusValue === 0 ? '0px' : '32px',
+                            border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`,
                             height: 'auto',
-                            maxHeight: '85%'
+                            maxHeight: '90%',
+                            willChange: 'transform'
                         }}
                     >
-                        {/* Drawer Handle */}
-                        <div className="w-full flex justify-center pt-3 pb-1">
-                            <div className={`w-12 h-1.5 rounded-full ${isDarkTheme ? 'bg-white/10' : 'bg-black/10'}`} />
-                        </div>
+                        <BackgroundLayer
+                            profile={{ ...profile, headerLayout: 'classic' }}
+                            currentTheme={currentTheme}
+                            isStatic={isStatic}
+                        />
 
                         {/* Header Section */}
-                        <div className={`px-6 pt-4 pb-6 flex items-center gap-5 border-b ${isDarkTheme ? 'border-white/5' : 'border-[#1a1a1a]/5'}`}>
+                        <div className={`px-6 pt-6 pb-6 flex items-center gap-5 border-b relative z-10 ${isDark ? 'border-white/5' : 'border-black/5'}`}>
                             <div className="relative group/cover shrink-0">
-                                <img src={openPlaylist?.image || (isDeezer
-                                        ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg'
-                                        : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b'
-                                    )}
-                                    className="w-20 h-20 rounded-xl object-cover border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] group-hover:scale-105 transition-transform duration-500"
+                                <img src={openPlaylist?.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
+                                    className="w-16 h-16 rounded-lg object-cover shadow-lg transition-transform duration-500"
                                     alt="" loading="lazy" decoding="async" />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5 mb-1 opacity-50">
-                                    {isDeezer
-                                        ? <DeezerIcon size={12} color={isDarkTheme ? '#FFFFFF' : '#000000'} />
-                                        : <SiSpotify size={12} color="#1DB954" />
-                                    }
+                                    {isDeezer ? <Music size={12} color={contrastColor} /> : <SiSpotify size={12} color="#1DB954" />}
                                     <span className="text-[8px] uppercase tracking-[0.3em] font-black">
-                                        {isDeezer ? 'Deezer' : 'Spotify'}{openPlaylist?.url.includes('album') ? ' Álbum' : ' Playlist'}
+                                        {isDeezer ? 'Deezer' : 'Spotify'} {openPlaylist?.url.includes('album') ? 'Álbum' : 'Playlist'}
                                     </span>
                                 </div>
                                 <h3 className="text-xl font-black truncate leading-none uppercase tracking-tight mb-1">
                                     {openPlaylist?.title}
                                 </h3>
-                                <p className="text-sm opacity-60 font-medium truncate italic">
+                                <p className="text-sm opacity-60 font-medium truncate italic" style={{ color: contrastColor }}>
                                     {openPlaylist?.subtitle || 'Várias faixas'}
                                 </p>
                             </div>
                             <button
                                 onClick={() => setOpenPlaylist(null)}
-                                className={`p-2 rounded-full transform active:scale-95 transition-all ${isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-[#ffdf00]/5'}`}
+                                className={`p-2 rounded-full transform active:scale-95 transition-all ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
                             >
                                 <ChevronDown size={24} />
                             </button>
                         </div>
 
                         {/* Tracks List */}
-                        <div className="overflow-y-auto flex-1 px-4 py-4 space-y-1 overscroll-contain scrollbar-hide">
+                        <div className="overflow-y-auto flex-1 px-4 py-4 space-y-1 relative z-10 overscroll-contain scrollbar-hide">
                             {openPlaylist.children?.map((track, idx) => (
                                 <motion.a
                                     key={track.id}
@@ -221,19 +219,18 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: idx * 0.03 }}
-                                    className={`flex items-center gap-4 p-3.5 rounded-2xl group transition-all relative overflow-hidden ${isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-[#ffdf00]/5'}`}
+                                    className={`flex items-center gap-4 p-3.5 rounded-xl group transition-all relative overflow-hidden ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
                                 >
-                                    <div className="absolute inset-0 bg-current opacity-0 group-hover:opacity-[0.02] transition-opacity" />
                                     <div className="flex items-baseline gap-4 flex-1 min-w-0">
-                                        <span className="text-[10px] font-mono opacity-20 w-4 shrink-0 font-black">
+                                        <span className="text-[10px] font-mono opacity-20 w-4 shrink-0 font-black" style={{ color: contrastColor }}>
                                             {(idx + 1).toString().padStart(2, '0')}
                                         </span>
                                         <div className="flex-1 min-w-0">
-                                            <h4 className={`text-sm font-bold truncate tracking-tight uppercase ${isDarkTheme ? 'text-white/90' : 'text-black/90'}`}>
+                                            <h4 className="text-sm font-bold truncate tracking-tight uppercase" style={{ color: contrastColor }}>
                                                 {track.title}
                                             </h4>
                                             {track.subtitle && (
-                                                <p className="text-[10px] opacity-40 font-bold tracking-wider truncate uppercase mt-0.5">
+                                                <p className="text-[10px] opacity-40 font-bold tracking-wider truncate uppercase mt-0.5" style={{ color: contrastColor }}>
                                                     {track.subtitle}
                                                 </p>
                                             )}
@@ -242,21 +239,18 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                                     <div className="w-8 h-8 flex items-center justify-center transition-all">
                                         <Play
                                             size={16}
-                                            fill={isDarkTheme ? '#FFFFFF' : '#000000'}
-                                            className={`transition-all ${isDarkTheme ? 'text-white' : 'text-black'} opacity-40 group-hover:opacity-100 group-hover:scale-110 ml-0.5`}
+                                            fill={contrastColor}
+                                            className="transition-all opacity-40 group-hover:opacity-100 group-hover:scale-110 ml-0.5"
+                                            style={{ color: contrastColor }}
                                         />
                                     </div>
                                 </motion.a>
                             ))}
                         </div>
-
-                        {/* Bottom Pad for Home Indicator */}
-                        <div className="h-4 w-full" />
+                        <div className="h-6 w-full shrink-0" />
                     </motion.div>
                 </div>
             )}
         </AnimatePresence>
     );
 };
-
-export default MusicRichCard;

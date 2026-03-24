@@ -47,10 +47,16 @@ export default function EditorPage() {
         themeId: 'brutalist-bauhaus',
         fontFamily: "'Inter', sans-serif"
     });
+    const deferredProfile = React.useDeferredValue(profile);
 
     const [links, setLinks] = useState<LinkItem[]>([]);
+    const deferredLinks = React.useDeferredValue(links);
+
     const [products, setProducts] = useState<Product[]>([]);
+    const deferredProducts = React.useDeferredValue(products);
+
     const [stores, setStores] = useState<Store[]>([]);
+    const deferredStores = React.useDeferredValue(stores);
 
     const updateProfile = (updates: Partial<UserProfile>) => {
         setProfile(prev => ({ ...prev, ...updates }));
@@ -895,10 +901,10 @@ export default function EditorPage() {
                                w-full min-h-full lg:py-12 transform transition-transform duration-300 origin-center flex items-center justify-center relative z-10
             `}>
                                 <Preview
-                                    profile={profile}
-                                    links={links}
-                                    products={products}
-                                    stores={stores}
+                                    profile={deferredProfile}
+                                    links={deferredLinks}
+                                    products={deferredProducts}
+                                    stores={deferredStores}
                                     onShare={() => setIsShareModalOpen(true)}
                                     forcedTab={activeTab === 'shop' ? 'shop' : 'links'}
                                 />

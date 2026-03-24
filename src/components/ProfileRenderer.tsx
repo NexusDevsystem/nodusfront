@@ -58,254 +58,16 @@ import MediaKitModal from './MediaKitModal';
 import InteractiveButton from './animations/InteractiveButton';
 import ElasticButton from './animations/ElasticButton';
 import GlitchButton from './animations/GlitchButton';
+import { MusicRichCard, MusicPlaylistDrawer } from './profile/MusicCards';
+import ProductDrawer from './profile/ProductDrawer';
 import { imgOptimized } from '../utils/imageUtils';
 
-const MusicRichCard: React.FC<{
-    link: LinkItem,
-    handleLinkClick: (id: string) => void,
-    baseCardClass: string,
-    mainButtonStyle: React.CSSProperties,
-    effectiveFontFamily: string,
-    profile: any,
-    getSmartTextColor: () => string | undefined,
-    getHighlightClass: (highlight?: string) => string,
-    setOpenPlaylist: (link: LinkItem | null) => void
-}> = ({
-    link,
-    handleLinkClick,
-    baseCardClass,
-    mainButtonStyle,
-    effectiveFontFamily,
-    profile,
-    getSmartTextColor,
-    getHighlightClass,
-    setOpenPlaylist
-}) => {
-        const musicTitle = link.title || 'Música';
-        const musicArtist = link.subtitle || 'Artista';
-        const isDeezer = link.embedType === 'deezer' || link.url.includes('deezer');
-        const contrastColor = getSmartTextColor();
-        const hasTracks = link.children && link.children.length > 0;
 
-        return (
-            <div
-                className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${baseCardClass} h-[72px] p-0 items-center justify-between mb-1 ${getHighlightClass(link.highlight)}`}
-                style={mainButtonStyle}
-            >
-                <div className="flex h-full items-center px-4 gap-3.5 flex-1 min-w-0">
-                    {/* Album Art */}
-                    <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-sm'} overflow-hidden shadow-sm shrink-0 transition-transform duration-500`}>
-                        <img src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
-                            alt={musicTitle}
-                            className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                    </div>
+// MusicRichCard externalized
 
-                    {/* Info Column */}
-                    <div className="flex-1 min-w-0 flex flex-col justify-center h-full text-left" style={{ fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                        {/* Header Label */}
-                        <div className="flex items-center gap-1.5 mb-1 opacity-50">
-                            {isDeezer ? <Music size={10} color={getSmartTextColor()} /> : <SiSpotify size={10} color="#1DB954" />}
-                            <span className="text-[7px] uppercase tracking-[0.25em] leading-none font-bold" style={{ color: contrastColor }}>
-                                {isDeezer ? 'Deezer' : 'Spotify'} {hasTracks ? 'Álbum' : ''}
-                            </span>
-                        </div>
 
-                        {/* Song Title (Large & Uppercase like Twitch) */}
-                        <h4 className="text-[14px] font-bold truncate tracking-tight uppercase leading-none mb-1.5" style={{ color: contrastColor }}>
-                            {musicTitle}
-                        </h4>
+// Music components externalized
 
-                        {/* Artist Info Row (Structured like Followers) */}
-                        <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-1 opacity-80">
-                                <Music size={10} style={{ color: contrastColor }} className="opacity-50" />
-                                <span className="text-[10px] font-bold uppercase leading-none" style={{ color: contrastColor }}>
-                                    {musicArtist}
-                                </span>
-                                {(hasTracks || !isDeezer) && (
-                                    <div className="flex items-end gap-0.5 h-2 ml-1 opacity-40">
-                                        <span className="w-0.5 h-full bg-current animate-[music-bar_0.8s_ease-in-out_infinite]" style={{ color: contrastColor }} />
-                                        <span className="w-0.5 h-1/2 bg-current animate-[music-bar_1.1s_ease-in-out_infinite]" style={{ color: contrastColor }} />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="shrink-0 h-full flex items-center pr-4">
-                    {hasTracks ? (
-                        <ChevronUp size={20} style={{ color: contrastColor }} className="opacity-60 group-hover:opacity-100 transition-opacity" />
-                    ) : (
-                        <Play size={18} fill={contrastColor} style={{ color: contrastColor }} className="ml-0.5 opacity-40 group-hover:opacity-100 transition-opacity" />
-                    )}
-                </div>
-
-                {/* Overlay link */}
-                <a
-                    href={hasTracks ? "#" : link.url}
-                    target={hasTracks ? "_self" : "_blank"}
-                    rel="noreferrer"
-                    className="absolute inset-0 z-30 cursor-pointer"
-                    onClick={(e) => {
-                        if (hasTracks) {
-                            e.preventDefault();
-                            setOpenPlaylist(link);
-                        } else {
-                            handleLinkClick(link.id);
-                        }
-                    }}
-                />
-
-                <style>{`
-                @keyframes music-bar {
-                    0%, 100% { height: 25%; opacity: 0.5; }
-                    50% { height: 100%; opacity: 1; }
-                }
-            `}</style>
-            </div>
-        );
-    };
-
-const MusicPlaylistDrawerComponent: React.FC<{
-    openPlaylist: LinkItem | null,
-    setOpenPlaylist: (link: LinkItem | null) => void,
-    isDarkTheme: boolean,
-    handleLinkClick: (id: string) => void,
-    profile: any,
-    currentTheme: any,
-    getSmartTextColor: () => string | undefined,
-    effectiveFontFamily: string,
-    borderRadiusValue: any,
-    isStatic: boolean
-}> = ({
-    openPlaylist,
-    setOpenPlaylist,
-    isDarkTheme,
-    handleLinkClick,
-    profile,
-    currentTheme,
-    getSmartTextColor,
-    effectiveFontFamily,
-    borderRadiusValue,
-    isStatic
-}) => {
-        const isDeezer = openPlaylist?.embedType === 'deezer' || openPlaylist?.url.includes('deezer');
-        const isDark = isDarkTheme;
-        const contrastColor = getSmartTextColor() || (isDark ? '#FFFFFF' : '#000000');
-
-        return (
-            <AnimatePresence>
-                {openPlaylist && (
-                    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm pointer-events-none">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setOpenPlaylist(null)}
-                            className="absolute inset-0 pointer-events-auto"
-                        />
-                        <motion.div
-                            initial={{ y: '100%' }}
-                            animate={{ y: 0 }}
-                            exit={{ y: '100%' }}
-                            transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
-                            className={`relative w-full max-w-lg overflow-hidden flex flex-col shadow-2xl pointer-events-auto ${currentTheme.backgroundClass}`}
-                            style={{
-                                backgroundColor: (profile.themeId === 'custom' && profile.customSolidColor) ? profile.customSolidColor : undefined,
-                                color: contrastColor,
-                                fontFamily: effectiveFontFamily,
-                                borderTopLeftRadius: borderRadiusValue === 0 ? '0px' : '32px',
-                                borderTopRightRadius: borderRadiusValue === 0 ? '0px' : '32px',
-                                border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`,
-                                height: 'auto',
-                                maxHeight: '90%',
-                                willChange: 'transform'
-                            }}
-                        >
-                            {/* The Theme Background itself (Visualizers/Particles) */}
-                            <BackgroundLayer
-                                profile={{ ...profile, headerLayout: 'classic' }}
-                                currentTheme={currentTheme}
-                                isStatic={isStatic}
-                            />
-
-                            {/* Header Section */}
-                            <div className={`px-6 pt-6 pb-6 flex items-center gap-5 border-b relative z-10 ${isDark ? 'border-white/5' : 'border-black/5'}`}>
-                                <div className="relative group/cover shrink-0">
-                                    <img src={openPlaylist?.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
-                                        className="w-16 h-16 rounded-lg object-cover shadow-lg transition-transform duration-500"
-                                        alt="" loading="lazy" decoding="async" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-1.5 mb-1 opacity-50">
-                                        {isDeezer ? <Music size={12} color={contrastColor} /> : <SiSpotify size={12} color="#1DB954" />}
-                                        <span className="text-[8px] uppercase tracking-[0.3em] font-black">
-                                            {isDeezer ? 'Deezer' : 'Spotify'} {openPlaylist?.url.includes('album') ? 'Álbum' : 'Playlist'}
-                                        </span>
-                                    </div>
-                                    <h3 className="text-xl font-black truncate leading-none uppercase tracking-tight mb-1">
-                                        {openPlaylist?.title}
-                                    </h3>
-                                    <p className="text-sm opacity-60 font-medium truncate italic" style={{ color: contrastColor }}>
-                                        {openPlaylist?.subtitle || 'Várias faixas'}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={() => setOpenPlaylist(null)}
-                                    className={`p-2.5 rounded-full transform active:scale-90 transition-all ${isDark ? 'bg-white/5 hover:bg-white/10' : 'bg-black/5 hover:bg-black/10'}`}
-                                >
-                                    <X size={20} style={{ color: contrastColor }} />
-                                </button>
-                            </div>
-
-                            {/* Tracks List */}
-                            <div className="overflow-y-auto flex-1 px-4 py-4 space-y-1 overscroll-contain scrollbar-hide relative z-10">
-                                {openPlaylist.children?.map((track, idx) => (
-                                    <motion.a
-                                        key={track.id}
-                                        href={track.url}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        onClick={() => handleLinkClick(track.id)}
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: idx * 0.03 }}
-                                        className={`flex items-center gap-4 p-3.5 rounded-md group transition-all relative overflow-hidden ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
-                                    >
-                                        <div className="absolute inset-0 bg-current opacity-0 group-hover:opacity-[0.02] transition-opacity" />
-
-                                        <div className="flex items-baseline gap-4 flex-1 min-w-0">
-                                            <span className="text-[10px] font-mono opacity-20 w-4 shrink-0 font-black" style={{ color: contrastColor }}>
-                                                {(idx + 1).toString().padStart(2, '0')}
-                                            </span>
-                                            <div className="flex-1 min-w-0 text-left">
-                                                <h4 className="text-sm font-bold truncate tracking-tight uppercase" style={{ color: contrastColor }}>
-                                                    {track.title}
-                                                </h4>
-                                                {track.subtitle && (
-                                                    <p className="text-[10px] opacity-40 font-bold tracking-wider truncate uppercase mt-0.5" style={{ color: contrastColor }}>
-                                                        {track.subtitle}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <div className="w-8 h-8 flex items-center justify-center transition-all">
-                                            <Play size={16} fill={contrastColor} className="transition-all opacity-40 group-hover:opacity-100 ml-0.5" style={{ color: contrastColor }} />
-                                        </div>
-                                    </motion.a>
-                                ))}
-                            </div>
-
-                            {/* Bottom Pad for Home Indicator */}
-                            <div className="h-4 w-full relative z-10" />
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-        );
-    };
 
 interface ProfileRendererProps {
     profile: UserProfile;
@@ -711,16 +473,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         };
 
         processItems(links);
-
+        
         const integrations = profile.integrations || [];
         const result = [...foundSocials];
 
         integrations.forEach(integration => {
             const network = SOCIAL_NETWORKS.find(sn => sn.id === integration.provider);
+            if (!network || seenProviders.has(network.id)) return;
+
             const data = integration.profile_data || {};
             const identifier = data.username || data.channel_id || data.channelId || data.display_name;
             
-            if (network && identifier) {
+            if (identifier) {
                 let url = '';
                 const cleanId = String(identifier).replace('@', '');
                 
@@ -730,16 +494,17 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 else if (integration.provider === 'youtube') url = `https://youtube.com/${cleanId.startsWith('UC') ? 'channel/' : '@'}${cleanId}`;
                 else if (integration.provider === 'kick') url = `https://kick.com/${cleanId}`;
 
-                // Add to result if not already added via integrations loop
-                if (url && !result.some(r => r.id === `integration-${integration.provider}`)) {
+                if (url) {
                     result.push({
                         id: `integration-${integration.provider}`,
                         title: network.name,
                         url: url,
                         isActive: true,
                         layout: 'social',
-                        type: 'link'
+                        type: 'link',
+                        platform: network.id
                     } as any);
+                    seenProviders.add(network.id);
                 }
             }
         });
@@ -777,7 +542,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
         const hasLinkDeep = (list: LinkItem[], provider: string): boolean => {
             return list.some(l => {
-                if (isPlatformMatch(l, provider) && l.type === 'social') return true;
+                if (isPlatformMatch(l, provider)) return true;
                 if (l.children && l.children.length > 0) return hasLinkDeep(l.children, provider);
                 return false;
             });
@@ -1078,7 +843,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const isButtonLight = buttonHex ? getLuminance(buttonHex) > 0.6 : false;
 
     // Universal Helper for Button/Card Text Contrast
-    const getSmartTextColor = () => {
+    const getSmartTextColor = React.useCallback(() => {
         // 0. Priority: User custom button text color
         if (profile.customButtonTextColor) return profile.customButtonTextColor;
 
@@ -1093,7 +858,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
         // 4. Default to undefined to let Tailwind/Inheritance handle it
         return undefined;
-    };
+    }, [profile.customButtonTextColor, isButtonLight, isDarkTheme, profile.customBackground]);
+
+    const smartTextColor = React.useMemo(() => getSmartTextColor(), [getSmartTextColor]);
+
 
     const mainTextColorStyle = effectiveTextColor ? { color: effectiveTextColor } : {};
 
@@ -2626,144 +2394,25 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             {currentTheme.id === 'kawaii-sakura' && profile.headerLayout !== 'banner' && <KawaiiSakuraForeground />}
 
 
-            {/* 🛍️ Product Detail Modal */}
-            <AnimatePresence>
-                {selectedProduct && (
-                    <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/60 backdrop-blur-sm">
-                        {/* Overlay to close when clicking outside */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0"
-                            onClick={() => setSelectedProduct(null)}
-                        />
+            {/* 🛍️ Product Detail Drawer */}
+            <ProductDrawer
+                selectedProduct={selectedProduct}
+                setSelectedProduct={setSelectedProduct}
+                isPT={isPT}
+                profile={profile}
+                currentTheme={currentTheme}
+                effectiveFontFamily={effectiveFontFamily}
+                getSmartTextColor={getSmartTextColor}
+                buttonClass={buttonClass}
+                mainButtonStyle={mainButtonStyle}
+                borderRadiusValue={borderRadiusValue}
+                isStatic={isStatic}
+                handleLinkClick={handleLinkClick}
+                activeCollection={activeCollection}
+            />
 
-                        <motion.div
-                            initial={{ y: '100%' }}
-                            animate={{ y: 0 }}
-                            exit={{ y: '100%' }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className={`relative w-full max-w-xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl pointer-events-auto ${currentTheme.backgroundClass}`}
-                            style={{
-                                color: effectiveTextColor || (isDarkTheme ? '#ffffff' : '#0f172a'),
-                                fontFamily: effectiveFontFamily,
-                                backgroundColor: (profile.themeId === 'custom' && profile.customSolidColor) ? profile.customSolidColor : undefined,
-                                border: `1px solid ${isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`,
-                                borderTopLeftRadius: borderRadiusValue === 0 ? '0px' : '12px',
-                                borderTopRightRadius: borderRadiusValue === 0 ? '0px' : '12px'
-                            }}
-                        >
-                            {/* The Theme Background itself (Visualizers/Particles) */}
-                            <BackgroundLayer
-                                profile={{ ...profile, headerLayout: 'classic' }}
-                                currentTheme={currentTheme}
-                                isStatic={isStatic}
-                            />
-
-                            {/* No more generic transparency/blur layers that "wash out" the theme colors */}
-
-                            {/* Handle Bar */}
-                            <div className="w-full flex justify-center py-4 relative z-10">
-                                <div className={`w-12 h-1.5 rounded-full ${isDarkTheme ? 'bg-white/20' : 'bg-black/10'}`} />
-                            </div>
-
-                            {/* Close Button */}
-                            <button
-                                onClick={() => setSelectedProduct(null)}
-                                className={`absolute top-4 right-6 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 ${isDarkTheme ? 'hover:bg-white/10' : 'hover:bg-black/5'}`}
-                                style={{ color: effectiveTextColor }}
-                            >
-                                <X size={24} strokeWidth={2.5} />
-                            </button>
-
-                            {/* Product Info Content */}
-                            <div className="flex flex-col h-full overflow-y-auto scrollbar-hide pb-10 relative z-10">
-                                {/* Large Image */}
-                                <div className="w-full px-6 flex justify-center">
-                                    <div className="w-full aspect-square overflow-hidden rounded-md relative">
-                                        <img
-                                            src={selectedProduct.image}
-                                            alt={selectedProduct.name}
-                                            className="w-full h-full object-cover"
-                                        />
-                                        {selectedProduct.discountCode && (
-                                            <div className="absolute top-4 left-4 bg-[#ffdf00] text-black text-[10px] px-3 py-1.5 rounded-md shadow-xl tracking-tight uppercase border-2 border-black" 
-                                                style={{ fontWeight: profile.fontWeight || '900' }}>
-                                                {isPT ? 'CUPOM:' : 'COUPON:'} {selectedProduct.discountCode}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Text Details */}
-                                <div className="px-8 py-8 space-y-6">
-                                    <div className="flex flex-col items-center text-center space-y-4">
-                                        <div className="space-y-1">
-                                            <h4 className="text-3xl sm:text-4xl uppercase tracking-tight leading-loose" style={{ fontFamily: effectiveFontFamily, fontWeight: profile.fontWeight || '900' }}>
-                                                {selectedProduct.name}
-                                            </h4>
-                                            <div className="flex items-center justify-center gap-3">
-                                                <div className="flex items-baseline gap-1.5 translate-y-[-10px]">
-                                                    <span className="text-sm sm:text-lg opacity-30 uppercase tracking-widest" style={{ fontWeight: profile.fontWeight || '900' }}>{isPT ? 'R$' : '$'}</span>
-                                                    <span className="text-5xl sm:text-6xl font-black tracking-tighter">
-                                                        {(() => {
-                                                            const clean = String(selectedProduct.price || '').replace(/[^\d,.]/g, '').replace(',', '.');
-                                                            const val = parseFloat(clean);
-                                                            if (isNaN(val)) return '0,00';
-                                                            return new Intl.NumberFormat(isPT ? 'pt-BR' : 'en-US', {
-                                                                minimumFractionDigits: 2,
-                                                                maximumFractionDigits: 2
-                                                            }).format(val);
-                                                        })()}
-                                                    </span>
-                                                </div>
-                                                {selectedProduct.discountCode && (
-                                                    <div className="bg-[#97cd7a] text-[#1a3a16] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide shadow-sm">
-                                                        {isPT ? 'DESCONTO ATIVO' : 'DISCOUNT ACTIVE'}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Buying CTA */}
-                                    <div className="mt-4">
-                                        <InteractiveButton strength={15} tiltStrength={0}>
-                                            <a
-                                                href={selectedProduct.url}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                onClick={() => handleLinkClick(selectedProduct.id)}
-                                                className={`w-full py-6 flex items-center justify-center gap-4 transition-all duration-300 transform active:scale-[0.98] ${buttonClass}`}
-                                                style={{
-                                                    ...mainButtonStyle,
-                                                    borderRadius: borderRadiusValue,
-                                                    fontSize: '18px',
-                                                    fontWeight: 900,
-                                                    letterSpacing: '0.05em',
-                                                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)'
-                                                }}
-                                            >
-                                                <div className="flex items-center justify-center gap-4" style={{ color: getSmartTextColor() }}>
-                                                    <ShoppingCart size={24} strokeWidth={2.5} />
-                                                    <span className="uppercase">{isPT ? 'COMPRAR AGORA' : 'BUY NOW'}</span>
-                                                </div>
-                                            </a>
-                                        </InteractiveButton>
-                                    </div>
-
-                                    <p className="text-[10px] text-center opacity-30 font-black uppercase tracking-[0.2em] pt-4">
-                                        {isPT ? 'Vendido por' : 'Sold by'} {activeCollection}
-                                    </p>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-
-            <MusicPlaylistDrawerComponent
+            {/* 🎵 Music Playlist Drawer */}
+            <MusicPlaylistDrawer
                 openPlaylist={openPlaylist}
                 setOpenPlaylist={setOpenPlaylist}
                 isDarkTheme={isDarkTheme}
@@ -2775,6 +2424,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 borderRadiusValue={borderRadiusValue}
                 isStatic={isStatic}
             />
+
 
             {/* 🔐 Password Link Modal */}
             {lockedLink && (

@@ -1184,4 +1184,4 @@ function SortableLinkItem({
     );
 }
 
-export default SortableLinkItem;
+export default React.memo(SortableLinkItem);

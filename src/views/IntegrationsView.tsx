@@ -101,10 +101,12 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                         {isConnected && profileData && (
                             <div className="flex items-center gap-2 p-1.5 pr-3 bg-slate-50 border border-[#1a1a1a]/10 shrink-0 rounded-md">
                                 <div className="w-8 h-8 rounded-full border border-[#1a1a1a] overflow-hidden bg-white shrink-0">
-                                    <img src={profileData.avatar_url || profileData.picture}
+                                    <img src={profileData.avatar_url || profileData.picture || profileData.profile_picture_url || profileData.profile_pic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`}
                                         alt=""
                                         className="w-full h-full object-cover"
-                                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                        onError={(e) => { 
+                                            e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
+                                        }}
                                     />
                                 </div>
                                 <div className="min-w-0">
