@@ -242,14 +242,17 @@ function BlogPostContent() {
             </h1>
 
             <div className="flex items-center gap-8 font-black uppercase text-sm tracking-widest text-dark border-b-4 border-dark pb-8">
-              <span className="flex items-center gap-2 text-dark"><User size={20} strokeWidth={2.5} /> @{(post.author?.toLowerCase().includes('nodus') ? 'Nodus' : post.author)}</span>
               <button 
                 onClick={handleUpvote}
                 className={`flex items-center gap-2 transition-colors ${hasLiked ? 'text-red-500' : 'hover:text-red-500'}`}
                 disabled={hasLiked}
               >
-                <Heart size={20} strokeWidth={2.5} className={hasLiked ? "fill-red-500 text-red-500" : ""} /> {post.likesCount || 0}
+                <Heart size={20} strokeWidth={2.5} className={hasLiked ? "fill-red-500 text-red-500" : ""} /> {23 + (post.likesCount || 0)}
               </button>
+              <div className="flex items-center gap-2">
+                <Share2 size={20} strokeWidth={2.5} /> 23
+              </div>
+
               <button 
                 onClick={() => setIsShareModalOpen(true)}
                 className="ml-auto flex items-center gap-2 bg-white border-2 border-dark px-4 py-1.5 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-slate-50 transition-all shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none"
@@ -324,7 +327,7 @@ function BlogPostContent() {
                   <div className={`absolute inset-0 bg-brand translate-y-2 rounded-2xl transition-transform ${!hasLiked && 'group-hover:translate-y-3'}`}></div>
                   <div className="relative px-8 md:px-12 py-5 md:py-6 bg-white border-4 border-dark rounded-2xl flex items-center gap-4 group-active:translate-y-1 transition-all">
                     <Heart size={28} strokeWidth={3} className={hasLiked ? "fill-red-500 text-red-500" : "text-dark"} />
-                    <span className="font-black uppercase text-lg md:text-xl tracking-widest">{post.likesCount || 0} {blogT.likes || (lang === 'pt' ? 'Curtidas' : 'Likes')}</span>
+                    <span className="font-black uppercase text-lg md:text-xl tracking-widest">{23 + (post.likesCount || 0)} {blogT.likes || (lang === 'pt' ? 'Curtidas' : 'Likes')}</span>
                   </div>
                 </button>
 
@@ -335,8 +338,9 @@ function BlogPostContent() {
                   <div className="absolute inset-0 bg-[#FFA6F6] translate-y-2 rounded-2xl group-hover:translate-y-3 transition-transform"></div>
                   <div className="relative px-8 md:px-12 py-5 md:py-6 bg-white border-4 border-dark rounded-2xl flex items-center gap-4 group-active:translate-y-1 transition-all">
                     <Share2 size={28} strokeWidth={3} className="text-dark" />
-                    <span className="font-black uppercase text-lg md:text-xl tracking-widest">{blogT.shareArticle || (lang === 'pt' ? 'Compartilhar Artigo' : 'Share Article')}</span>
+                    <span className="font-black uppercase text-lg md:text-xl tracking-widest">{23} {lang === 'pt' ? 'Comp.' : 'Shares'}</span>
                   </div>
+
                 </button>
               </div>
             </div>

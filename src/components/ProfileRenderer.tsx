@@ -1086,9 +1086,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             {/* Avatar */}
                             {profile.avatarUrl && (
                                 <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? '-mt-12 mb-4 z-20' : 'mb-4'}`}>
-                                    <div className={`rounded-full overflow-hidden shadow-xl ${profile.headerLayout === 'compact'
-                                        ? 'w-24 h-24 border-0'
-                                        : `border-4 ${currentTheme.avatarBorder} ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
+                                    <div className={`overflow-hidden shadow-xl ${profile.headerLayout === 'compact'
+                                        ? 'w-24 h-24 rounded-full border-0'
+                                        : `${currentTheme.avatarBorder} ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
                                             profile.avatarSize === 'lg' ? 'w-32 h-32' :
                                                 'w-24 h-24'
                                         }`
@@ -1096,7 +1096,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         <img
                                             src={profile.avatarUrl}
                                             alt={profile.name}
-                                            className="w-full h-full object-cover rounded-full"
+                                            className={`w-full h-full object-cover ${currentTheme.avatarBorder.includes('rounded-none') ? 'rounded-none' : 'rounded-full'}`}
                                             loading="eager"
                                             decoding="async"
                                             {...({ fetchpriority: "high" } as any)}
@@ -1190,26 +1190,24 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {/* TABS (Links / Shop) - Only if active stores exist */}
                     {stores && stores.some(s => s.isActive !== false) && (
                         <div className="w-full mb-3 px-1 flex justify-center">
-                            <div className={`w-auto min-w-[200px] p-1 rounded-full flex relative transition-colors ${isDarkTheme ? 'bg-white/5 border border-white/10' : 'bg-black/5 border border-black/5'}`}>
+                            <div className={`w-auto min-w-[200px] p-2 ${roundedClass || 'rounded-full'} flex relative transition-colors ${isDarkTheme ? 'bg-white/5 border border-white/10' : 'bg-black/5 border border-black/5'}`}>
                                 {(() => {
                                     const cleanTabButtonClass = buttonClass
-                                        .replace(/\b(py-[^ ]+|px-[^ ]+|p-[^ ]+|w-full|flex|items-center|justify-between|justify-center|border-b-\[[^\]]+\]|shadow-[^ ]+|translate-y-[^ ]+)\b/g, '')
+                                        .replace(/\b(py-[^ ]+|px-[^ ]+|p-[^ ]+|w-full|flex|items-center|justify-between|justify-center|shadow-[^ ]+|translate-y-[^ ]+)\b/g, '')
                                         .trim();
 
                                     return (
                                         <>
                                             <button
                                                 onClick={() => setActiveTab('links')}
-                                                className={`flex-1 py-1.5 px-6 rounded-full text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === 'links'
+                                                className={`flex-1 py-1 px-6 ${roundedClass || 'rounded-full'} text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === 'links'
                                                     ? `${cleanTabButtonClass} z-10 shadow-sm opacity-100`
                                                     : 'opacity-40 hover:opacity-100'
                                                     }`}
                                                 style={{
                                                     ...(activeTab === 'links' ? mainButtonStyle : mainTextColorStyle),
-                                                    borderBottom: 'none', // Strong override to keep tabs thin
                                                     transform: 'none',
                                                     boxShadow: 'none',
-                                                    borderRadius: '9999px',
                                                     fontWeight: profile.fontWeight || '900',
                                                     color: activeTab === 'links' ? getSmartTextColor() : (mainTextColorStyle.color || (isDarkTheme ? '#ffffff' : '#0f172a'))
                                                 }}
@@ -1218,16 +1216,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             </button>
                                             <button
                                                 onClick={() => setActiveTab('shop')}
-                                                className={`flex-1 py-1.5 px-6 rounded-full text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === 'shop'
+                                                className={`flex-1 py-1 px-6 ${roundedClass || 'rounded-full'} text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === 'shop'
                                                     ? `${cleanTabButtonClass} z-10 shadow-sm opacity-100`
                                                     : 'opacity-40 hover:opacity-100'
                                                     }`}
                                                 style={{
                                                     ...(activeTab === 'shop' ? mainButtonStyle : mainTextColorStyle),
-                                                    borderBottom: 'none', // Strong override to keep tabs thin
                                                     transform: 'none',
                                                     boxShadow: 'none',
-                                                    borderRadius: '9999px',
                                                     fontWeight: profile.fontWeight || '900',
                                                     color: activeTab === 'shop' ? getSmartTextColor() : (mainTextColorStyle.color || (isDarkTheme ? '#ffffff' : '#0f172a'))
                                                 }}

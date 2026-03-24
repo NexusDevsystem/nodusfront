@@ -76,5 +76,5 @@ export const artisticThemes: Theme[] = [
         fontFamily: "'Archivo Black', sans-serif",
         category: 'creative',
         isPro: true
-    }
+    },
 ];

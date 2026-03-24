@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/landing/Navbar';
 import { Footer } from '../components/landing/Footer';
 import { LanguageProvider, useLanguage } from '../components/landing/i18n/LanguageContext';
-import { Calendar, User, ArrowRight, Search, Heart, MessageSquare } from 'lucide-react';
+import { Calendar, User, ArrowRight, Search, Heart, Share2 } from 'lucide-react';
+
 import { motion } from 'framer-motion';
 import { apiClient } from '../services/apiClient';
 import { BlogPost } from '../types';
@@ -155,11 +156,12 @@ function BlogContent() {
                   onClick={(e) => { e.stopPropagation(); handleUpvote(featuredPost.id); }}
                   className="flex items-center gap-2 font-black text-xs uppercase bg-white border-2 border-dark px-3 py-1 hover:bg-brand transition-colors"
                 >
-                  <Heart size={14} className={featuredPost.likesCount ? "text-red-500 fill-red-500" : ""} /> {featuredPost.likesCount || 0}
+                  <Heart size={14} className={(featuredPost.likesCount || 0) > 0 ? "text-red-500 fill-red-500" : ""} /> {23 + (featuredPost.likesCount || 0)}
                 </button>
-                <div className="flex items-center gap-2 font-black text-xs uppercase bg-white border-2 border-dark px-3 py-1 opacity-50 cursor-not-allowed">
-                  <MessageSquare size={14} /> 0
+                <div className="flex items-center gap-2 font-black text-xs uppercase bg-white border-2 border-dark px-3 py-1">
+                  <Share2 size={14} /> 23
                 </div>
+
               </div>
               <h2 className="font-display font-black text-4xl md:text-5xl uppercase leading-none tracking-tighter group-hover:text-brand transition-colors">
                 {featuredPost.title}
@@ -217,11 +219,12 @@ function BlogContent() {
                         onClick={(e) => { e.stopPropagation(); handleUpvote(post.id); }}
                         className="flex items-center gap-1.5 font-black text-[10px] uppercase bg-slate-50 border border-dark/10 px-2 py-1 rounded hover:bg-brand hover:border-dark transition-all"
                       >
-                        <Heart size={10} className={post.likesCount ? "text-red-500 fill-red-500" : ""} /> {post.likesCount || 0}
+                        <Heart size={10} className={(post.likesCount || 0) > 0 ? "text-red-500 fill-red-500" : ""} /> {23 + (post.likesCount || 0)}
                       </button>
-                      <div className="flex items-center gap-1.5 font-black text-[10px] uppercase bg-slate-50 border border-dark/10 px-2 py-1 rounded opacity-50">
-                        <MessageSquare size={10} /> 0
+                      <div className="flex items-center gap-1.5 font-black text-[10px] uppercase bg-slate-50 border border-dark/10 px-2 py-1 rounded">
+                        <Share2 size={10} /> 23
                       </div>
+
                     </div>
                   </div>
                   <h4 className="font-display font-black text-2xl md:text-3xl uppercase leading-tight group-hover:text-brand transition-colors tracking-tight">

@@ -61,8 +61,7 @@ const TikTokEmbed: React.FC<TikTokEmbedProps> = ({
                     {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
                 </button>
 
-                {/* Aesthetic Gradient Overlay (Bottom) */}
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                {/* Gradient Overlay Removed as per user request */}
 
                 <div className="absolute bottom-4 left-4 right-16 z-10 pointer-events-none">
                     <p className="text-white text-xs font-medium line-clamp-2 drop-shadow-md">

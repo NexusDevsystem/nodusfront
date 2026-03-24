@@ -58,11 +58,8 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
                 className="w-full h-full object-cover transition-transform duration-700"
             />
 
-            {/* Overlays / Gradients for readability */}
+            {/* Overlays / Gradients for readability removed as per user request */}
             <div className="absolute inset-0 bg-black/5 group-hover:bg-[#ffdf00]/15 transition-colors duration-300" />
-
-            {/* Bottom Gradient for title */}
-            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90" />
 
             {/* YouTube Logo (Top Left) - Scaled down even more */}
             <div className="absolute top-2.5 left-2.5 z-10 transition-transform">

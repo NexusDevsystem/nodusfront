@@ -20,6 +20,12 @@ export default function BlogAdminView() {
   const [editingPost, setEditingPost] = useState<Partial<BlogPost> | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isUploadingBlock, setIsUploadingBlock] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+
+
 
   useEffect(() => {
     fetchPosts();
@@ -107,52 +113,68 @@ export default function BlogAdminView() {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-5xl bg-white border-2 border-black rounded-[40px] overflow-hidden flex flex-col max-h-[90vh] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)]"
+                className="relative w-full max-w-5xl bg-white border-4 border-black rounded-[40px] overflow-hidden flex flex-col max-h-[92vh] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)]"
               >
                 {/* Header: Criar publicação */}
-                <div className="flex items-center justify-between px-8 py-6 border-b border-slate-100 bg-white shrink-0">
-                  <h3 className="text-xl font-bold text-slate-900 tracking-tight">
-                    {editingPost.id ? (lang === 'pt' ? 'Editar publicação' : 'Edit Post') : (lang === 'pt' ? 'Criar publicação' : 'Create Post')}
-                  </h3>
-                  <div className="flex items-center gap-6 text-slate-400">
-                    <button className="hover:text-black transition-colors"><Maximize2 size={20} /></button>
-                    <button onClick={handleCancel} className="hover:text-black transition-colors"><X size={26} /></button>
+                <div className="flex items-center justify-between px-10 py-7 border-b-4 border-black bg-white shrink-0 z-20">
+                  <div className="flex items-center gap-4">
+                    <div className="w-3 h-8 bg-[#ffdf00] border-2 border-black" />
+                    <h3 className="text-2xl font-black uppercase tracking-tighter text-black">
+                      {editingPost.id ? (lang === 'pt' ? 'EDITAR POST' : 'EDIT POST') : (lang === 'pt' ? 'NOVA PUBLICAÇÃO' : 'NEW PUBLICATION')}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <button 
+                      onClick={handleCancel} 
+                      className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black shadow-[0_4px_0_0_#000] hover:translate-y-[2px] hover:shadow-none transition-all rounded-md group"
+                    >
+                      <X size={24} strokeWidth={3} className="text-black group-hover:scale-110 transition-transform" />
+                    </button>
                   </div>
                 </div>
 
                 {/* Scrollable Content Area */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col p-10 space-y-8 bg-white">
-                  {/* Cover Image Section - Refined Brutalist Style */}
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">Foto de Destaque (Capa)</label>
-                    <div className="relative group/cover w-full h-80 bg-slate-50 border-2 border-black border-dashed rounded-[40px] overflow-hidden flex items-center justify-center transition-all hover:bg-slate-100/50 hover:border-solid group">
-                      {editingPost.imageUrl ? (
+                <div className="flex-1 overflow-y-auto custom-scrollbar-brutal bg-[#fafafa] flex flex-col">
+                  {/* HERO AREA: Cover Image */}
+                  <div className="p-8 md:p-12 pb-0">
+                    <div className="relative group/cover w-full h-[400px] bg-white border-4 border-black rounded-[40px] overflow-hidden flex items-center justify-center transition-all shadow-[0_12px_0_0_rgba(0,0,0,0.05)] hover:shadow-[0_12px_0_0_rgba(255,223,0,0.2)]">
+                      {isUploadingCover ? (
+                        <div className="flex flex-col items-center gap-4">
+                          <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+                          <span className="font-black uppercase tracking-widest text-xs">Carregando Mídia...</span>
+                        </div>
+                      ) : editingPost.imageUrl ? (
                         <>
                           <img src={editingPost.imageUrl} alt="Cover" className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/cover:opacity-100 transition-all flex items-center justify-center gap-6">
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/cover:opacity-100 transition-all flex items-center justify-center gap-6 backdrop-blur-[2px]">
                             <button 
                               onClick={() => document.getElementById('cover-upload')?.click()}
-                              className="p-5 bg-white border-2 border-black rounded-md shadow-[0_8px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_6px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all"
+                              className="px-8 py-4 bg-white border-4 border-black rounded-xl font-black uppercase text-xs tracking-widest shadow-[0_8px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_6px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-3"
                             >
-                              <ImageIcon size={28} />
+                              <ImageIcon size={20} strokeWidth={3} />
+                              Trocar Capa
                             </button>
                             <button 
                               onClick={() => setEditingPost({ ...editingPost, imageUrl: '' })}
-                              className="p-5 bg-white border-2 border-black rounded-md shadow-[0_8px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_6px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all text-red-500"
+                              className="px-8 py-4 bg-white border-4 border-black rounded-xl font-black uppercase text-xs tracking-widest shadow-[0_8px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_6px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all text-red-500 flex items-center gap-3"
                             >
-                              <Trash2 size={28} />
+                              <Trash2 size={20} strokeWidth={3} />
+                              Remover
                             </button>
                           </div>
                         </>
                       ) : (
                         <button 
                           onClick={() => document.getElementById('cover-upload')?.click()}
-                          className="flex flex-col items-center gap-4 text-slate-300 hover:text-black transition-all"
+                          className="flex flex-col items-center gap-5 text-black hover:scale-105 transition-all duration-500"
                         >
-                          <div className="p-8 bg-white border-2 border-slate-100 rounded-md shadow-sm group-hover:border-black group-hover:shadow-[0_12px_0_0_#000] transition-all">
-                            <ImageIcon size={48} strokeWidth={1.5} />
+                          <div className="w-24 h-24 bg-[#ffdf00] border-4 border-black rounded-[32px] flex items-center justify-center shadow-[0_8px_0_0_#000]">
+                            <ImageIcon size={40} strokeWidth={2.5} />
                           </div>
-                          <span className="font-black uppercase tracking-[0.2em] text-[10px]">Upload Imagem de Capa</span>
+                          <div className="text-center">
+                            <span className="font-black uppercase tracking-[0.2em] text-xs block mb-1">Upload Capa Principal</span>
+                            <span className="text-[10px] font-bold uppercase opacity-30 tracking-widest">Formatos: JPG, PNG, WEBP</span>
+                          </div>
                         </button>
                       )}
                       <input 
@@ -164,145 +186,206 @@ export default function BlogAdminView() {
                           const file = e.target.files?.[0];
                           if (file) {
                             try {
+                              setIsUploadingCover(true);
+                              setUploadError(null);
                               const res = await apiClient.uploadFile(file);
                               if (res.file?.url) {
                                 setEditingPost({ ...editingPost, imageUrl: res.file.url });
                               }
                             } catch (err) {
                               console.error('Upload failed:', err);
-                              alert('Erro ao carregar imagem');
+                              setUploadError('Erro ao carregar imagem de capa');
+                            } finally {
+                              setIsUploadingCover(false);
                             }
                           }
                         }}
                       />
+
                     </div>
                   </div>
 
-                  {/* Title Input */}
-                  <input
-                    type="text"
-                    placeholder="Título (opcional)"
-                    value={editingPost.title || ''}
-                    onChange={e => setEditingPost({ ...editingPost, title: e.target.value })}
-                    className="text-5xl font-black text-slate-900 placeholder:text-slate-200 outline-none w-full bg-transparent tracking-tighter"
-                  />
+                  {/* EDITORIAL FLOW */}
+                  <div className="p-8 md:p-24 pt-12 max-w-4xl mx-auto w-full space-y-12">
+                    {/* Title Input */}
+                    <div className="space-y-4">
+                      <label className="text-[11px] font-black uppercase tracking-[0.2em] text-black/20 ml-1">Título da Publicação</label>
+                      <textarea
+                        placeholder="Insira um título impactante..."
+                        value={editingPost.title || ''}
+                        onChange={e => setEditingPost({ ...editingPost, title: e.target.value })}
+                        rows={2}
+                        className="text-4xl md:text-6xl font-black text-black placeholder:text-black/5 outline-none w-full bg-transparent tracking-tighter leading-[0.9] resize-none"
+                        style={{ height: 'auto' }}
+                        ref={(el) => {
+                          if (el) {
+                            el.style.height = 'auto';
+                            el.style.height = el.scrollHeight + 'px';
+                          }
+                        }}
+                      />
+                      <div className="w-20 h-2 bg-black rounded-full" />
+                    </div>
 
-                  {/* Body Content - Block Based Editor */}
-                  <div className="space-y-6">
-                    {(() => {
-                      const content = editingPost.content || '';
-                      // Split by images, videos and file attachments
-                      const parts = content.split(/(!\[.*?\]\(.*?\)|\[video\]\(.*?\)|\[📎 .*?\]\(.*?\))/g);
-                      
-                      return parts.map((part, index) => {
-                        const imageMatch = part.match(/!\[(.*?)\]\((.*?)\)/);
-                        const videoMatch = part.match(/\[video\]\((.*?)\)/);
-                        const fileMatch = part.match(/\[📎 (.*?)\]\((.*?)\)/);
+                    {/* Body Content - Block Based Editor */}
+                    <div className="space-y-10 min-h-[400px] relative">
+                      {uploadError && (
+                        <div className="bg-red-50 border-4 border-red-500 p-6 rounded-[20px] flex items-center justify-between text-red-700 animate-in fade-in slide-in-from-top-4 duration-300">
+                           <div className="flex items-center gap-4">
+                             <ShieldAlert size={28} />
+                             <div>
+                               <span className="font-black uppercase text-xs tracking-widest block">Erro de Upload</span>
+                               <p className="text-sm font-bold opacity-60 leading-tight">{uploadError}</p>
+                             </div>
+                           </div>
+                           <button onClick={() => setUploadError(null)} className="p-2 hover:bg-red-100 rounded-md transition-all">
+                             <X size={20} />
+                           </button>
+                        </div>
+                      )}
+
+                      {isUploadingBlock && (
+                        <div className="p-10 border-4 border-black border-dashed rounded-[40px] flex flex-col items-center justify-center gap-5 bg-white shadow-xl animate-pulse">
+                          <div className="w-12 h-12 border-4 border-black border-t-[#ffdf00] rounded-full animate-spin"></div>
+                          <span className="font-black uppercase text-xs tracking-[0.2em]">Processando Arquivo...</span>
+                        </div>
+                      )}
+
+                      {(() => {
+
+                        const content = editingPost.content || '';
+                        const parts = content.split(/(!\[.*?\]\(.*?\)|\[video\]\(.*?\)|\[📎 .*?\]\(.*?\))/g);
                         
-                        if (imageMatch) {
-                          const [full, alt, url] = imageMatch;
-                          return (
-                            <div key={index} className="relative group/img-block my-10">
-                              <img src={url} alt={alt} className="w-full rounded-[40px] border-2 border-black shadow-[0_15px_0_0_#000]" />
-                              <button
-                                onClick={() => {
-                                  const newParts = [...parts];
-                                  newParts.splice(index, 1);
-                                  setEditingPost({ ...editingPost, content: newParts.join('') });
-                                }}
-                                className="absolute top-6 right-6 p-4 bg-red-500 text-white border-2 border-black rounded-md opacity-0 group-hover/img-block:opacity-100 transition-all shadow-[0_6px_0_0_#000] hover:translate-y-[2px]"
-                              >
-                                <Trash2 size={24} />
-                              </button>
-                            </div>
-                          );
-                        }
-
-                        if (videoMatch) {
-                          const [full, url] = videoMatch;
-                          return (
-                            <div key={index} className="relative group/vid-block my-10">
-                              <div className="w-full aspect-video rounded-[40px] border-2 border-black overflow-hidden shadow-[0_15px_0_0_#000] bg-black">
-                                <video src={url} controls className="w-full h-full" />
-                              </div>
-                              <button
-                                onClick={() => {
-                                  const newParts = [...parts];
-                                  newParts.splice(index, 1);
-                                  setEditingPost({ ...editingPost, content: newParts.join('') });
-                                }}
-                                className="absolute top-6 right-6 p-4 bg-red-500 text-white border-2 border-black rounded-md opacity-0 group-hover/vid-block:opacity-100 transition-all shadow-[0_6px_0_0_#000] hover:translate-y-[2px] z-10"
-                              >
-                                <Trash2 size={24} />
-                              </button>
-                            </div>
-                          );
-                        }
-
-                        if (fileMatch) {
-                          const [full, name, url] = fileMatch;
-                          return (
-                            <div key={index} className="relative group/file-block my-6 p-8 bg-slate-50 border-2 border-black rounded-md flex items-center justify-between shadow-[0_8px_0_0_#000]">
-                              <div className="flex items-center gap-4">
-                                <div className="p-4 bg-white border-2 border-black rounded-md shadow-[0_4px_0_0_#000]">
-                                  <FileText size={32} />
+                        return parts.map((part, index) => {
+                          const imageMatch = part.match(/!\[(.*?)\]\((.*?)\)/);
+                          const videoMatch = part.match(/\[video\]\((.*?)\)/);
+                          const fileMatch = part.match(/\[📎 (.*?)\]\((.*?)\)/);
+                          
+                          if (imageMatch) {
+                            const [full, alt, url] = imageMatch;
+                            return (
+                              <div key={index} className="relative group/img-block my-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                <div className="border-4 border-black rounded-[40px] overflow-hidden shadow-[0_20px_0_0_rgba(0,0,0,0.05)]">
+                                  <img src={url} alt={alt} className="w-full" />
                                 </div>
-                                <div>
-                                  <span className="font-black text-slate-900 block">{name}</span>
-                                  <span className="text-[10px] font-black uppercase text-slate-400">Arquivo Anexado</span>
-                                </div>
+                                <button
+                                  onClick={() => {
+                                    const newParts = [...parts];
+                                    newParts.splice(index, 1);
+                                    setEditingPost({ ...editingPost, content: newParts.join('') });
+                                  }}
+                                  className="absolute -top-4 -right-4 w-12 h-12 bg-white border-2 border-black rounded-md flex items-center justify-center text-red-500 opacity-0 group-hover/img-block:opacity-100 transition-all shadow-[0_4px_0_0_#000] hover:translate-y-[2px]"
+                                >
+                                  <Trash2 size={20} strokeWidth={3} />
+                                </button>
                               </div>
-                              <button
-                                onClick={() => {
-                                  const newParts = [...parts];
-                                  newParts.splice(index, 1);
-                                  setEditingPost({ ...editingPost, content: newParts.join('') });
-                                }}
-                                className="p-4 text-red-500 hover:bg-white border-2 border-transparent hover:border-black rounded-md transition-all"
-                              >
-                                <Trash2 size={24} />
-                              </button>
-                            </div>
+                            );
+                          }
+
+                          if (videoMatch) {
+                            const [full, url] = videoMatch;
+                            return (
+                              <div key={index} className="relative group/vid-block my-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                <div className="w-full aspect-video rounded-[40px] border-4 border-black overflow-hidden shadow-[0_20px_0_0_rgba(0,0,0,0.05)] bg-black">
+                                  <video src={url} controls className="w-full h-full" />
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    const newParts = [...parts];
+                                    newParts.splice(index, 1);
+                                    setEditingPost({ ...editingPost, content: newParts.join('') });
+                                  }}
+                                  className="absolute -top-4 -right-4 w-12 h-12 bg-white border-2 border-black rounded-md flex items-center justify-center text-red-500 opacity-0 group-hover/vid-block:opacity-100 transition-all shadow-[0_4px_0_0_#000] hover:translate-y-[2px] z-10"
+                                >
+                                  <Trash2 size={20} strokeWidth={3} />
+                                </button>
+                              </div>
+                            );
+                          }
+
+                          if (fileMatch) {
+                            const [full, name, url] = fileMatch;
+                            return (
+                              <div key={index} className="relative group/file-block my-8 p-10 bg-white border-4 border-black rounded-[32px] flex items-center justify-between shadow-[0_12px_0_0_rgba(0,0,0,0.05)] hover:shadow-[0_12px_0_0_#97cd7a] transition-all">
+                                <div className="flex items-center gap-6">
+                                  <div className="w-16 h-16 bg-[#fafafa] border-2 border-black rounded-xl flex items-center justify-center shadow-[0_4px_0_0_#000]">
+                                    <FileText size={32} />
+                                  </div>
+                                  <div>
+                                    <span className="font-black text-xl text-black block leading-none mb-1">{name}</span>
+                                    <span className="text-[10px] font-black uppercase text-black/30 tracking-widest">Arquivo Seguro</span>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    const newParts = [...parts];
+                                    newParts.splice(index, 1);
+                                    setEditingPost({ ...editingPost, content: newParts.join('') });
+                                  }}
+                                  className="w-12 h-12 flex items-center justify-center text-red-500 hover:bg-red-50 border-2 border-black rounded-md shadow-[0_4px_0_0_#000] hover:translate-y-[1px] transition-all"
+                                >
+                                  <Trash2 size={20} strokeWidth={3} />
+                                </button>
+                              </div>
+                            );
+                          }
+
+                          if (!part.trim() && index > 0 && index < parts.length - 1) return null;
+
+                          return (
+                            <textarea
+                              key={index}
+                              placeholder="Expanda sua ideia aqui..."
+                              value={part}
+                              onChange={(e) => {
+                                const newParts = [...parts];
+                                newParts[index] = e.target.value;
+                                setEditingPost({ ...editingPost, content: newParts.join('') });
+                              }}
+                              className="w-full text-xl md:text-2xl font-bold text-black/70 placeholder:text-black/5 outline-none bg-transparent resize-none leading-relaxed overflow-hidden py-2"
+                              style={{ height: 'auto', minHeight: '60px' }}
+                              ref={(el) => {
+                                if (el) {
+                                  el.style.height = 'auto';
+                                  el.style.height = el.scrollHeight + 'px';
+                                }
+                              }}
+                            />
                           );
-                        }
-
-                        if (!part.trim() && index > 0 && index < parts.length - 1) return null;
-
-                        return (
-                          <textarea
-                            key={index}
-                            placeholder="Comece a escrever aqui..."
-                            value={part}
-                            onChange={(e) => {
-                              const newParts = [...parts];
-                              newParts[index] = e.target.value;
-                              setEditingPost({ ...editingPost, content: newParts.join('') });
-                            }}
-                            className="w-full text-2xl font-bold text-slate-700 placeholder:text-slate-100 outline-none bg-transparent resize-none leading-relaxed overflow-hidden py-4"
-                            style={{ height: 'auto', minHeight: '60px' }}
-                            ref={(el) => {
-                              if (el) {
-                                el.style.height = 'auto';
-                                el.style.height = el.scrollHeight + 'px';
-                              }
-                            }}
-                          />
-                        );
-                      });
-                    })()}
+                        });
+                      })()}
+                    </div>
                   </div>
                 </div>
 
-                {/* Footer Toolbar */}
-                <div className="border-t border-slate-100 p-8 flex flex-col sm:flex-row items-center justify-between bg-white gap-6 shrink-0">
-                  <div className="flex items-center gap-6 text-slate-600">
-                    <button 
-                      onClick={() => document.getElementById('unified-upload')?.click()}
-                      className="p-5 bg-[#97cd7a] border-2 border-black rounded-md shadow-[0_8px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_6px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-4 group text-black"
-                    >
-                      <PlusCircle size={32} className="transition-transform duration-500 text-black" />
-                      <span className="font-black uppercase text-xs tracking-widest pr-4 text-black">Adicionar Arquivo</span>
-                    </button>
+                {/* Footer Toolbar - Refined Tool Belt */}
+                <div className="border-t-4 border-black p-8 px-10 flex flex-col lg:flex-row items-center justify-between bg-white gap-8 shrink-0 relative z-30">
+                  <div className="flex flex-wrap items-center gap-6 w-full lg:w-auto">
+                    {/* Media Tools */}
+                    <div className="flex items-center gap-3 bg-[#fafafa] p-2 border-2 border-black rounded-xl">
+                      <button 
+                        onClick={() => document.getElementById('unified-upload')?.click()}
+                        className="px-6 py-3 bg-[#97cd7a] border-2 border-black rounded-lg shadow-[0_4px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-3 text-black font-black uppercase text-[10px] tracking-widest"
+                      >
+                        <PlusCircle size={20} strokeWidth={3} />
+                        Arquivo
+                      </button>
+                      <button 
+                        onClick={() => setEditingPost({ ...editingPost, content: (editingPost.content || '') + '\n\n# ' })}
+                        className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black rounded-lg shadow-[0_4px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000] transition-all text-black" 
+                        title="Adicionar Título (H1)"
+                      >
+                        <Hash size={20} strokeWidth={3} />
+                      </button>
+                      <button 
+                        onClick={() => setEditingPost({ ...editingPost, content: (editingPost.content || '') + '\n\n- ' })}
+                        className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black rounded-lg shadow-[0_4px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000] transition-all text-black" 
+                        title="Lista de Marcadores"
+                      >
+                        <Layers size={20} strokeWidth={3} />
+                      </button>
+                    </div>
+                    
                     <input 
                       id="unified-upload"
                       type="file"
@@ -311,6 +394,8 @@ export default function BlogAdminView() {
                         const file = e.target.files?.[0];
                         if (file) {
                           try {
+                            setIsUploadingBlock(true);
+                            setUploadError(null);
                             const res = await apiClient.uploadFile(file);
                             if (res.file?.url) {
                               let tag = '';
@@ -323,60 +408,97 @@ export default function BlogAdminView() {
                               }
                               setEditingPost({ ...editingPost, content: (editingPost.content || '') + tag });
                             }
-                          } catch (err) { console.error(err); }
+                          } catch (err) { 
+                            console.error(err); 
+                            setUploadError(`Falha ao carregar ${file.type.includes('video') ? 'o vídeo' : 'o arquivo'}. Tente novamente.`);
+                          } finally {
+                            setIsUploadingBlock(false);
+                          }
                         }
                       }}
                     />
-                    
-                    <div className="h-10 w-[2px] bg-black/10 mx-4" />
-                    
-                    <button 
-                      onClick={() => setEditingPost({ ...editingPost, content: (editingPost.content || '') + '\n\n# ' })}
-                      className="text-black hover:text-black transition-colors p-3 hover:bg-slate-50 rounded-md border-2 border-transparent hover:border-black" title="Adicionar Título"
-                    >
-                      <Hash size={28} />
-                    </button>
-                  </div>
 
-                  <div className="flex items-center gap-8 w-full sm:w-auto">
-                    <div className="hidden lg:flex items-center gap-3 text-xs text-black font-black uppercase tracking-widest whitespace-nowrap">
-                      Publicando em: 
-                      <div className="relative group/cat">
-                        <select 
-                          value={editingPost.category || 'Novidades'}
-                          onChange={(e) => setEditingPost({ ...editingPost, category: e.target.value })}
+
+                    <div className="hidden h-10 w-[2px] bg-black/10 mx-2 lg:block" />
+
+                    {/* Category Selection */}
+                    <div className="flex items-center gap-4">
+                      <span className="text-[10px] font-black uppercase text-black/30 tracking-[0.2em] whitespace-nowrap">Canal de Publicação</span>
+                      
+                      <div className="relative">
+                        <motion.button
+                          onClick={() => setIsCategoryOpen(!isCategoryOpen)}
                           className={`
-                            pl-4 pr-10 py-3 rounded-md border-2 border-black font-black uppercase tracking-tighter cursor-pointer appearance-none transition-all
-                            shadow-[0_4px_0_0_#000] hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#000] active:translate-y-[2px] active:shadow-none
-                            ${(editingPost.category === 'Atualização') ? 'bg-brand' : 
-                              (editingPost.category === 'Novidades') ? 'bg-[#ffdf00]' : 'bg-slate-100'}
+                            w-52 px-5 py-3.5 rounded-xl border-2 border-black font-black uppercase text-[11px] tracking-widest transition-all flex items-center justify-between
+                            shadow-[0_4px_0_0_#000] hover:translate-y-[-1px] hover:shadow-[0_5px_0_0_#000] active:translate-y-[2px] active:shadow-none
+                            ${(editingPost.category === 'Atualização') ? 'bg-[#ff66b2]' : 
+                              (editingPost.category === 'Novidades') ? 'bg-[#ffdf00]' : 'bg-[#e6b3ff]'}
                             text-black outline-none
                           `}
                         >
-                          <option value="Atualização">{blogT.categories.design}</option>
-                          <option value="Novidades">{blogT.categories.updates}</option>
-                          <option value="Cultura">{blogT.categories.culture}</option>
-                          <option value="Off Topic">{blogT.categories.mastery}</option>
-                        </select>
-                        <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-black stroke-[3]" />
+                          <span className="truncate">{editingPost.category === 'Atualização' ? blogT.categories.design : editingPost.category === 'Novidades' ? blogT.categories.updates : editingPost.category === 'Cultura' ? blogT.categories.culture : blogT.categories.mastery}</span>
+                          <motion.div
+                            animate={{ rotate: isCategoryOpen ? 180 : 0 }}
+                            transition={{ type: 'spring', damping: 20 }}
+                          >
+                            <ChevronDown size={18} strokeWidth={4} />
+                          </motion.div>
+                        </motion.button>
+
+                        <AnimatePresence>
+                          {isCategoryOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                              className="absolute bottom-full mb-3 left-0 w-full bg-white border-2 border-black rounded-xl overflow-hidden shadow-[0_8px_0_0_#000] z-50"
+                            >
+                              {[
+                                { id: 'Atualização', label: blogT.categories.design, color: '#ff66b2' },
+                                { id: 'Novidades', label: blogT.categories.updates, color: '#ffdf00' },
+                                { id: 'Cultura', label: blogT.categories.culture, color: '#e6b3ff' },
+                                { id: 'Off Topic', label: blogT.categories.mastery, color: '#97cd7a' }
+                              ].map(cat => (
+                                <button
+                                  key={cat.id}
+                                  onClick={() => {
+                                    setEditingPost({ ...editingPost, category: cat.id });
+                                    setIsCategoryOpen(false);
+                                  }}
+                                  className="w-full flex items-center justify-between px-5 py-4 hover:bg-[#fafafa] transition-colors border-b border-black/5 last:border-0"
+                                >
+                                  <span className="font-black uppercase text-[10px] tracking-widest text-black/70">{cat.label}</span>
+                                  <div className="w-3 h-3 rounded-full border border-black shadow-[0_1px_0_0_#000]" style={{ backgroundColor: cat.color }} />
+                                </button>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </div>
 
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-5 w-full lg:w-auto">
                     <button
                       onClick={handleSave}
                       disabled={isSaving || !editingPost.title || !editingPost.content}
-                      className={`px-12 py-4 rounded-full font-black uppercase tracking-[0.1em] transition-all text-sm w-full sm:w-auto
+                      className={`
+                        flex-1 lg:flex-none px-16 py-5 rounded-[20px] border-4 border-black font-extrabold uppercase tracking-[0.2em] transition-all text-xs
                         ${(editingPost.title && editingPost.content) 
-                          ? 'bg-[#1a1a1a] text-white hover:bg-black shadow-xl active:scale-95' 
-                          : 'bg-slate-50 text-slate-300 cursor-not-allowed border-2 border-slate-100'}`}
+                          ? 'bg-black text-[#ffdf00] shadow-[0_8px_0_0_#ffdf00] hover:-translate-y-1 hover:shadow-[0_12px_0_0_#ffdf00] active:translate-y-1 active:shadow-none' 
+                          : 'bg-white text-black/10 shadow-[0_4px_0_0_rgba(0,0,0,0.05)] cursor-not-allowed'}
+                      `}
                     >
-                      {isSaving ? 'PUBLICANDO...' : 'PUBLICAR'}
+                      {isSaving ? 'PROCESSANDO...' : (editingPost.id ? 'SALVAR ALTERAÇÕES' : 'PUBLICAR AGORA')}
                     </button>
                   </div>
                 </div>
               </motion.div>
             </div>
           )}
+
         </AnimatePresence>,
         document.body
       )}
