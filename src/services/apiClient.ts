@@ -288,11 +288,11 @@ class ApiClient {
         return data;
     }
 
-    async registerWithEmail(email: string, password: string, name: string): Promise<{ token: string; user: any }> {
+    async registerWithEmail(email: string, password: string, name: string, username: string): Promise<{ token: string; user: any }> {
         const response = await fetch(`${API_URL}/api/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, name })
+            body: JSON.stringify({ email, password, name, username })
         });
         const data = await response.json();
         if (!response.ok) {

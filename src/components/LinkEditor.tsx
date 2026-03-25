@@ -205,18 +205,20 @@ function LinkEditor({
           else if (provider === 'twitch') url = `https://twitch.tv/${username}`;
           else if (provider === 'kick') url = `https://kick.com/${username}`;
 
-          if (url) {
-            result.unshift({
-              id: `btn-integration-${provider}`,
-              title: provider === 'instagram' ? 'Instagram' : (provider === 'youtube' ? 'YouTube' : (provider === 'twitch' ? 'Twitch Live' : 'Kick Live')),
-              url,
-              isActive: true,
-              clicks: 0,
-              layout: 'classic',
-              type: 'link',
-              platform: provider
-            } as any);
-          }
+            const exists = manual.some(l => l.platform === provider || (l.url && l.url.includes(url)));
+            if (url && !exists) {
+              result.unshift({
+                id: `btn-integration-${provider}`,
+                title: provider === 'instagram' ? 'Instagram' : (provider === 'youtube' ? 'YouTube' : (provider === 'twitch' ? 'Twitch Live' : 'Kick Live')),
+                url,
+                isActive: true,
+                clicks: 0,
+                layout: 'classic',
+                type: 'link',
+                platform: provider,
+                clientId: `integration-${provider}`
+              } as any);
+            }
         }
       });
     }

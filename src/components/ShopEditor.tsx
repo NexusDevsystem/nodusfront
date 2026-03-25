@@ -496,49 +496,54 @@ export default function ShopEditor({
                             </p>
                         </div>
                     ) : (
-                        <Reorder.Group 
-                            axis="y" 
-                            values={stores.sort((a, b) => (a.position - b.position))} 
-                            onReorder={handleReorderStores} 
-                            className="space-y-3"
-                            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-                        >
-                            {stores.sort((a, b) => (a.position - b.position)).map(store => (
-                                <StoreItem 
-                                    key={store.id}
-                                    store={store}
-                                    products={products}
-                                    stores={stores}
-                                    onStoresChange={onStoresChange}
-                                    onChange={onChange}
-                                    expandedStoreId={expandedStoreId}
-                                    handleToggleStore={handleToggleStore}
-                                    setDeletingStoreId={setDeletingStoreId}
-                                    handleFileUpload={handleFileUpload}
-                                    uploadingTarget={uploadingTarget}
-                                    renderAddForm={renderAddForm}
-                                    renderProduct={renderProduct}
-                                    setIsAddingCollection={setIsAddingCollection}
-                                    isAddingCollection={isAddingCollection}
-                                    newCollectionName={newCollectionName}
-                                    setNewCollectionName={setNewCollectionName}
-                                    handleAddCollection={handleAddCollection}
-                                    addingToCollection={addingToCollection}
-                                    setAddingToCollection={setAddingToCollection}
-                                    setShowArchive={setShowArchive}
-                                    expandedCollections={expandedCollections}
-                                    toggleCollection={toggleCollection}
-                                    editingCollection={editingCollection}
-                                    setEditingCollection={setEditingCollection}
-                                    handleRenameCollection={handleRenameCollection}
-                                    setExpandedCollections={setExpandedCollections}
-                                    isPT={isPT}
-                                    setDeletingCollection={setDeletingCollection}
-                                    handleReorderProducts={handleReorderProducts}
-                                    handleReorderCollections={handleReorderCollections}
-                                />
-                            ))}
-                        </Reorder.Group>
+                        (() => {
+                            const sortedStores = [...stores].sort((a, b) => (a.position || 0) - (b.position || 0));
+                            return (
+                                <Reorder.Group 
+                                    axis="y" 
+                                    values={sortedStores} 
+                                    onReorder={handleReorderStores} 
+                                    className="space-y-3"
+                                    transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                                >
+                                    {sortedStores.map(store => (
+                                        <StoreItem 
+                                            key={store.id}
+                                            store={store}
+                                            products={products}
+                                            stores={stores}
+                                            onStoresChange={onStoresChange}
+                                            onChange={onChange}
+                                            expandedStoreId={expandedStoreId}
+                                            handleToggleStore={handleToggleStore}
+                                            setDeletingStoreId={setDeletingStoreId}
+                                            handleFileUpload={handleFileUpload}
+                                            uploadingTarget={uploadingTarget}
+                                            renderAddForm={renderAddForm}
+                                            renderProduct={renderProduct}
+                                            setIsAddingCollection={setIsAddingCollection}
+                                            isAddingCollection={isAddingCollection}
+                                            newCollectionName={newCollectionName}
+                                            setNewCollectionName={setNewCollectionName}
+                                            handleAddCollection={handleAddCollection}
+                                            addingToCollection={addingToCollection}
+                                            setAddingToCollection={setAddingToCollection}
+                                            setShowArchive={setShowArchive}
+                                            expandedCollections={expandedCollections}
+                                            toggleCollection={toggleCollection}
+                                            editingCollection={editingCollection}
+                                            setEditingCollection={setEditingCollection}
+                                            handleRenameCollection={handleRenameCollection}
+                                            setExpandedCollections={setExpandedCollections}
+                                            isPT={isPT}
+                                            setDeletingCollection={setDeletingCollection}
+                                            handleReorderProducts={handleReorderProducts}
+                                            handleReorderCollections={handleReorderCollections}
+                                        />
+                                    ))}
+                                </Reorder.Group>
+                            );
+                        })()
                     )}
                 </div>
             </div>
@@ -967,7 +972,9 @@ const StoreItem: React.FC<StoreItemProps> = ({
     handleReorderProducts, handleReorderCollections
 }) => {
     const dragControls = useDragControls();
-    const storeProducts = products.filter(p => p.storeId === store.id && !p.isArchived);
+    const storeProducts = products
+        .filter(p => p.storeId === store.id && !p.isArchived)
+        .sort((a, b) => (a.position || 0) - (b.position || 0));
     const storeCols = Array.from(new Set([
         ...(store.collections || []),
         ...storeProducts.map(p => p.collection).filter(Boolean) as string[]
@@ -1127,11 +1134,11 @@ const StoreItem: React.FC<StoreItemProps> = ({
                                 
                                 <Reorder.Group 
                                     axis="y" 
-                                    values={uncat.sort((a, b) => (a.position - b.position))} 
+                                    values={uncat} 
                                     onReorder={(newUncat) => handleReorderProducts(store.id, 'uncategorized', newUncat)}
                                     className="space-y-3"
                                 >
-                                    {uncat.sort((a, b) => (a.position - b.position)).map(renderProduct)}
+                                    {uncat.map(renderProduct)}
                                 </Reorder.Group>
 
                                 <Reorder.Group 
@@ -1227,11 +1234,11 @@ const StoreItem: React.FC<StoreItemProps> = ({
                                                                 {isAddingToCol && renderAddForm(store.id, colName)}
                                                                 <Reorder.Group 
                                                                     axis="y" 
-                                                                    values={colProducts.sort((a, b) => (a.position - b.position))} 
+                                                                    values={colProducts} 
                                                                     onReorder={(newProds) => handleReorderProducts(store.id, colName, newProds)}
                                                                     className="space-y-3"
                                                                 >
-                                                                    {colProducts.sort((a, b) => (a.position - b.position)).map(renderProduct)}
+                                                                    {colProducts.map(renderProduct)}
                                                                 </Reorder.Group>
                                                             </div>
                                                         </motion.div>

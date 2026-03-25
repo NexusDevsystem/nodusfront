@@ -66,16 +66,18 @@ export default function OnboardingPage() {
     const [userCategory, setUserCategory] = useState<'creator' | 'personal' | 'business' | null>(null);
     const [referralSource, setReferralSource] = useState('');
     
-    // Load reserved username from landing page
+    // Load reserved username or current user's username
     useEffect(() => {
-        const reserved = localStorage.getItem('nodus_reserved_username');
-        if (reserved) {
-            setUsername(reserved);
-            // We keep it in storage until they actually finish or if we want to clear it now
-            // user said "quando for pra onboarding, o nome ja estara escolhido"
-            // so if they refresh, it should still be there.
+        if (user?.username && !user.username.startsWith('user_')) {
+            setUsername(user.username);
+            setAvailable(true); // It's their own, so it's "available" for them to keep
+        } else {
+            const reserved = localStorage.getItem('nodus_reserved_username');
+            if (reserved) {
+                setUsername(reserved);
+            }
         }
-    }, []);
+    }, [user]);
 
     const [loading, setLoading] = useState(false);
     const [checking, setChecking] = useState(false);

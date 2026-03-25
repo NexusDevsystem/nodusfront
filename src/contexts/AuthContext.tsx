@@ -8,7 +8,7 @@ interface AuthContextType {
     onboardingCompleted: boolean;
     signInWithProfile: (googleUser: any, token: string) => Promise<{ error: any }>;
     signInWithEmail: (email: string, password: string) => Promise<{ error: any }>;
-    registerWithEmail: (email: string, password: string, name: string) => Promise<{ error: any }>;
+    registerWithEmail: (email: string, password: string, name: string, username: string) => Promise<{ error: any }>;
     signOut: () => void;
     setProfile: React.Dispatch<React.SetStateAction<any | null>>;
     token: string | null;
@@ -244,7 +244,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             safeSetItem('nodus_access_token', jwtToken);
             setToken(jwtToken);
 
-            const userObj = { id: userData.id, email: userData.email, name: userData.name, picture: null };
+            const userObj = { id: userData.id, email: userData.email, name: userData.name, username: userData.username, picture: null };
             setUser(userObj);
             safeSetItem('nodus_user', JSON.stringify(userObj));
 
@@ -263,15 +263,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const registerWithEmail = async (email: string, password: string, name: string) => {
+    const registerWithEmail = async (email: string, password: string, name: string, username: string) => {
         try {
             setLoading(true);
-            const { token: jwtToken, user: userData } = await apiClient.registerWithEmail(email, password, name);
+            const { token: jwtToken, user: userData } = await apiClient.registerWithEmail(email, password, name, username);
 
             safeSetItem('nodus_access_token', jwtToken);
             setToken(jwtToken);
 
-            const userObj = { id: userData.id, email: userData.email, name: userData.name, picture: null };
+            const userObj = { id: userData.id, email: userData.email, name: userData.name, username: userData.username, picture: null };
             setUser(userObj);
             safeSetItem('nodus_user', JSON.stringify(userObj));
             setProfile(null); // New users need onboarding
