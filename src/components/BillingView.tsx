@@ -171,6 +171,11 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
     const handleSelectPlan = async (planId: string) => {
         if (planId === 'free' || planId === currentPlan) return;
 
+        // 🔥 CORREÇÃO PARA MOBILE: Abrir janela em branco imediatamente para preservar o contexto do gesto
+        // Isso evita que o navegador mobile bloqueie o popup após a chamada assíncrona da API.
+        const newWindow = window.open('about:blank', '_blank');
+        checkoutTab.current = newWindow;
+
         setIsCheckingOut(planId);
         try {
             const response = await apiClient.createCheckoutSession(
@@ -178,11 +183,16 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
             );
             const url = response.url;
 
-            if (url) {
-                checkoutTab.current = window.open(url, '_blank');
+            if (url && newWindow) {
+                // Atualiza a janela que já abrimos com o link real do checkout
+                newWindow.location.assign(url);
                 setStatus('pending');
+            } else if (newWindow) {
+                newWindow.close();
             }
         } catch (error: any) {
+            // Se falhar (incluindo o erro de rede), fechamos a janela em branco
+            if (newWindow) newWindow.close();
             console.error('Checkout error:', error);
             alert(error.message || t('billing.checkoutError'));
         } finally {

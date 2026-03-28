@@ -364,7 +364,7 @@ class ApiClient {
 
     // Billing
     async createCheckoutSession(planId: string): Promise<{ url: string }> {
-        return this.request('/api/billing/checkout', {
+        return this.request('/api/billing/p', {
             method: 'POST',
             body: JSON.stringify({ planId })
         });
