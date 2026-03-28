@@ -432,9 +432,9 @@ export default function AdminView() {
                                             className="p-4 flex items-center justify-between hover:bg-[#ffdf00]/10 cursor-pointer transition-all active:translate-y-1 active:translate-x-1 active:shadow-none group"
                                         >
                                             <div className="flex items-center gap-4">
-                                                <div className={`w-10 h-10 border-2 border-black flex items-center justify-center font-black text-lg rounded-sm overflow-hidden shrink-0 bg-white shadow-[0_3px_0_0_#000]`}>
+                                                <div className={`w-10 h-10 border-2 border-black flex items-center justify-center font-black text-lg rounded-full overflow-hidden shrink-0 bg-white shadow-[0_3px_0_0_#000]`}>
                                                     {u.avatar_url ? (
-                                                        <img src={u.avatar_url} className="w-full h-full object-cover" alt={u.username} />
+                                                        <img src={u.avatar_url} className="w-full h-full object-cover rounded-full" alt={u.username} />
                                                     ) : (
                                                         u.username?.[0]?.toUpperCase() || 'U'
                                                     )}
@@ -555,11 +555,11 @@ export default function AdminView() {
                                          <div className="p-10 md:p-14 pb-8">
                                              <div className="flex flex-col md:flex-row gap-12 items-start md:items-center relative">
                                                  <div className="relative group/avatar shrink-0">
-                                                     <div className="w-32 h-32 md:w-44 md:h-44 rounded-[48px] border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] overflow-hidden bg-white shrink-0 relative z-10 transition-all duration-500">
+                                                     <div className="w-32 h-32 md:w-44 md:h-44 rounded-full border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] overflow-hidden bg-white shrink-0 relative z-10 transition-all duration-500">
                                                          {selectedUser.avatar_url ? (
-                                                             <img src={selectedUser.avatar_url} className="w-full h-full object-cover" alt={selectedUser.username} />
+                                                             <img src={selectedUser.avatar_url} className="w-full h-full object-cover rounded-full" alt={selectedUser.username} />
                                                          ) : (
-                                                             <div className="w-full h-full flex items-center justify-center font-black text-6xl text-black/5 bg-slate-50 uppercase">
+                                                             <div className="w-full h-full flex items-center justify-center font-black text-6xl text-black/5 bg-slate-50 uppercase rounded-full">
                                                                  {selectedUser.username?.[0]}
                                                              </div>
                                                          )}
@@ -635,75 +635,91 @@ export default function AdminView() {
     
                                          {/* 3. CORE MANAGEMENT GRID */}
                                          <div className="px-10 md:px-14 grid grid-cols-1 lg:grid-cols-2 gap-12 pb-24">
-                                             <div className="space-y-10">
-                                                 <div className="bg-white border-[2px] border-[#1a1a1a] rounded-[48px] shadow-[0_4px_0_0_#1a1a1a] overflow-hidden">
-                                                     <div className="bg-slate-50 border-b-[2px] border-[#1a1a1a] p-8 flex justify-between items-center">
-                                                         <h3 className="text-sm font-black uppercase tracking-[0.25em]">Identidade e Conteúdo</h3>
-                                                         <User size={24} strokeWidth={4} className="opacity-20" />
+                                             {/* LEFT COLUMN: IDENTITY & CONTENT */}
+                                             <div className="space-y-8">
+                                                 <div className="bg-white border-[2px] border-[#1a1a1a] rounded-[40px] shadow-[0_8px_0_0_#1a1a1a] overflow-hidden">
+                                                     <div className="bg-slate-50 border-b-[2px] border-[#1a1a1a] p-6 flex justify-between items-center">
+                                                         <h3 className="text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                                                            <User size={18} strokeWidth={4} />
+                                                            Identidade e Conteúdo
+                                                         </h3>
                                                      </div>
-                                                     <div className="p-10 space-y-10">
-                                                         <div className="bg-black/5 p-8 rounded-md border-2 border-dashed border-black/10 relative">
-                                                             <div className="absolute -top-4 left-8 px-4 py-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest rounded-sm">Manifesto Bio</div>
-                                                             <p className="text-xl font-black uppercase text-black leading-tight">
+                                                     <div className="p-8 space-y-8">
+                                                         {/* Bio Section */}
+                                                         <div className="bg-black/5 p-6 rounded-2xl border-2 border-dashed border-black/10 relative">
+                                                             <div className="absolute -top-3 left-6 px-3 py-1 bg-[#ffdf00] border-2 border-[#1a1a1a] text-black text-[9px] font-black uppercase tracking-widest rounded-sm">Manifesto Bio</div>
+                                                             <p className="text-lg font-black uppercase text-black leading-tight">
                                                                  "{selectedUser.bio || 'SEM DESCRIÇÃO DEFINIDA'}"
                                                              </p>
                                                          </div>
-                                                         <div className="grid grid-cols-2 gap-8">
-                                                             <div className="space-y-2">
-                                                                 <label className="text-[10px] font-black uppercase text-black/30 tracking-widest pl-2">Segmentação</label>
-                                                                 <div className="p-5 bg-white border-[3px] border-[#1a1a1a] rounded-md text-[13px] font-black uppercase shadow-[0_4px_0_0_#1a1a1a]">{selectedUser.user_category || 'Não Classificado'}</div>
+
+                                                         {/* Triple Info Row */}
+                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                             <div className="p-4 bg-white border-2 border-black rounded-xl shadow-[0_3px_0_0_#000] space-y-1">
+                                                                 <label className="text-[9px] font-black uppercase text-black/30 tracking-widest block">Segmentação</label>
+                                                                 <div className="text-[11px] font-black uppercase truncate">{selectedUser.user_category || 'N/A'}</div>
                                                              </div>
-                                                             <div className="space-y-2">
-                                                                 <label className="text-[10px] font-black uppercase text-black/30 tracking-widest pl-2">Estilo Visual</label>
-                                                                 <div className="p-5 bg-[#ffdf00] border-[3px] border-[#1a1a1a] rounded-md text-[13px] font-black uppercase shadow-[0_4px_0_0_#1a1a1a]">{selectedUser.theme_id?.replace('theme-', '') || 'Padrão'}</div>
+                                                             <div className="p-4 bg-[#ffdf00] border-2 border-black rounded-xl shadow-[0_3px_0_0_#000] space-y-1">
+                                                                 <label className="text-[9px] font-black uppercase text-black/30 tracking-widest block">Tema</label>
+                                                                 <div className="text-[11px] font-black uppercase truncate">{selectedUser.theme_id?.replace('theme-', '') || 'Padrão'}</div>
+                                                             </div>
+                                                             <div className="p-4 bg-white border-2 border-black rounded-xl shadow-[0_3px_0_0_#000] space-y-1">
+                                                                 <label className="text-[9px] font-black uppercase text-black/30 tracking-widest block">Indicação</label>
+                                                                 <div className="text-[11px] font-black uppercase truncate">{selectedUser.referral_source || 'Direto'}</div>
                                                              </div>
                                                          </div>
-                                                         <div className="flex flex-col gap-5">
-                                                             <div className="flex items-center justify-between p-6 bg-white border-[2px] border-[#1a1a1a] text-black rounded-md shadow-[0_4px_0_0_#66ccff]">
-                                                                  <div className="flex items-center gap-4">
-                                                                      <LinkIcon size={24} className="text-[#66ccff]" strokeWidth={4} />
-                                                                      <span className="text-xs font-black uppercase tracking-[0.15em]">Inventário de Links</span>
-                                                                  </div>
-                                                                  <span className="text-2xl font-black">{selectedUser.links?.[0]?.count || 0}</span>
+
+                                                         {/* Inventory Stats */}
+                                                         <div className="grid grid-cols-2 gap-4">
+                                                             <div className="flex flex-col p-6 bg-white border-2 border-[#1a1a1a] text-black rounded-2xl shadow-[0_4px_0_0_#66ccff] hover:translate-y-[-2px] transition-transform">
+                                                                 <LinkIcon size={20} className="text-[#66ccff] mb-3" strokeWidth={4} />
+                                                                 <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Links Ativos</span>
+                                                                 <span className="text-3xl font-black">{selectedUser.links?.[0]?.count || 0}</span>
                                                              </div>
-                                                             <div className="flex items-center justify-between p-6 bg-white border-[2px] border-[#1a1a1a] text-black rounded-md shadow-[0_4px_0_0_#ff66b2]">
-                                                                  <div className="flex items-center gap-4">
-                                                                      <ShoppingBag size={24} className="text-[#ff66b2]" strokeWidth={4} />
-                                                                      <span className="text-xs font-black uppercase tracking-[0.15em]">Galeria de Produtos</span>
-                                                                  </div>
-                                                                  <span className="text-2xl font-black">{selectedUser.products?.[0]?.count || 0}</span>
+                                                             <div className="flex flex-col p-6 bg-white border-2 border-[#1a1a1a] text-black rounded-2xl shadow-[0_4px_0_0_#ff66b2] hover:translate-y-[-2px] transition-transform">
+                                                                 <ShoppingBag size={20} className="text-[#ff66b2] mb-3" strokeWidth={4} />
+                                                                 <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Produtos</span>
+                                                                 <span className="text-3xl font-black">{selectedUser.products?.[0]?.count || 0}</span>
                                                              </div>
                                                          </div>
                                                      </div>
                                                  </div>
                                              </div>
     
-                                             <div className="space-y-12">
-                                                 <div className="bg-white border-[2px] border-[#1a1a1a] rounded-[48px] shadow-[0_8px_0_0_#ffdf00] overflow-hidden">
-                                                     <div className="bg-slate-50 border-b-[2px] border-[#1a1a1a] p-8 flex justify-between items-center">
-                                                         <h3 className="text-sm font-black uppercase tracking-[0.25em]">Nível de Assinatura</h3>
-                                                         <Crown size={24} strokeWidth={4} className="text-[#ffdf00]" />
+                                             {/* RIGHT COLUMN: SUBSCRIPTION & ACTIONS */}
+                                             <div className="space-y-10">
+                                                 <div className="bg-white border-[2px] border-[#1a1a1a] rounded-[40px] shadow-[0_8px_0_0_#ffdf00] overflow-hidden">
+                                                     <div className="bg-slate-50 border-b-[2px] border-[#1a1a1a] p-6 flex justify-between items-center">
+                                                         <h3 className="text-xs font-black uppercase tracking-[0.25em] flex items-center gap-2">
+                                                            <Crown size={18} strokeWidth={4} className="text-[#ffdf00]" />
+                                                            Nível de Assinatura
+                                                         </h3>
                                                      </div>
-                                                     <div className="p-10 space-y-10">
-                                                         <div className="flex items-center justify-between p-8 bg-slate-50 border-[2px] border-[#1a1a1a] rounded-[40px] relative overflow-hidden group">
-                                                             <div className="absolute top-0 right-0 w-32 h-full bg-[#ffdf00]/10 -skew-x-[30deg] translate-x-12" />
-                                                             <div className="relative z-10 space-y-2">
-                                                                 <div className="flex items-center gap-3">
+                                                     <div className="p-8 space-y-8">
+                                                         {/* Current Plan Display */}
+                                                         <div className="p-8 bg-slate-50 border-2 border-[#1a1a1a] rounded-[32px] relative overflow-hidden flex items-center justify-between">
+                                                             <div className="absolute top-0 right-0 w-32 h-full bg-[#ffdf00]/5 -skew-x-[30deg] translate-x-12" />
+                                                             <div className="relative z-10">
+                                                                 <div className="flex items-center gap-3 mb-1">
                                                                      <span className="text-4xl font-black uppercase tracking-tighter">{selectedUser.plan_type}</span>
-                                                                     <div className="px-3 py-1 bg-[#ffdf00] text-black border-2 border-[#1a1a1a] text-[9px] font-black rounded-sm uppercase">Ativo</div>
+                                                                     <div className="px-3 py-1 bg-[#ffdf00] text-black border-2 border-[#1a1a1a] text-[9px] font-black rounded-md uppercase">Ativo</div>
                                                                  </div>
-                                                                 <p className="text-[11px] font-bold uppercase text-black/40">Ciclo Estendido até {selectedUser.subscription_expiry_date ? new Date(selectedUser.subscription_expiry_date).toLocaleDateString() : 'Perpetuidade'}</p>
+                                                                 <p className="text-[10px] font-bold uppercase text-black/30">Expira em: {selectedUser.subscription_expiry_date ? new Date(selectedUser.subscription_expiry_date).toLocaleDateString() : 'Perpetuidade'}</p>
+                                                             </div>
+                                                             <div className="hidden md:block">
+                                                                 <PieChart size={48} className="text-black/5" />
                                                              </div>
                                                          </div>
     
-                                                         <div className="space-y-5">
-                                                             <label className="text-[11px] font-black uppercase tracking-widest text-black/30 pl-2">Upgrade/Downgrade Instantâneo</label>
-                                                             <div className="grid grid-cols-3 gap-4">
+                                                         {/* Upgrade Controls */}
+                                                         <div className="space-y-4">
+                                                             <label className="text-[10px] font-black uppercase tracking-widest text-black/30 pl-2">Alterar Plano Rapidamente</label>
+                                                             <div className="grid grid-cols-3 gap-3">
                                                                  {['free', 'monthly', 'annual'].map((type) => (
                                                                      <button
                                                                          key={type}
                                                                          onClick={() => setEditPlan({ ...editPlan!, type })}
-                                                                         className={`py-5 text-[11px] font-black uppercase border-[2px] border-[#1a1a1a] rounded-24 transition-all rounded-md ${editPlan?.type === type ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#ffdf00]/5 active:translate-y-0.5'}`}
+                                                                         className={`py-4 text-[10px] font-black uppercase border-2 border-[#1a1a1a] rounded-xl transition-all ${editPlan?.type === type ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-slate-50'}`}
                                                                      >
                                                                          {type}
                                                                      </button>
@@ -714,13 +730,13 @@ export default function AdminView() {
                                                          <button 
                                                              onClick={handleUpdatePlan}
                                                              disabled={isUpdating}
-                                                             className="w-full py-6 bg-[#ffdf00] text-black border-[3px] border-[#1a1a1a] text-[13px] font-black uppercase tracking-[0.4em] rounded-md shadow-[0_6px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1.5 transition-all active:scale-95 disabled:opacity-50"
+                                                             className="w-full py-5 bg-[#ffdf00] text-black border-2 border-[#1a1a1a] text-[12px] font-black uppercase tracking-[0.3em] rounded-xl shadow-[0_5px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-1 active:scale-95 transition-all disabled:opacity-50"
                                                          >
-                                                             {isUpdating ? 'SINCRONIZANDO...' : 'EXECUTAR ATUALIZAÇÃO'}
+                                                             {isUpdating ? 'ATUALIZANDO...' : 'EXECUTAR ATUALIZAÇÃO'}
                                                          </button>
                                                      </div>
                                                  </div>
-    
+
                                                  <div className="bg-[#fff1f1] border-[4px] border-[#1a1a1a] p-10 rounded-[48px] shadow-[0_16px_0_0_#ff3333] space-y-8">
                                                      <div className="flex items-center gap-4 text-[#ff3333]">
                                                          <ShieldAlert size={32} strokeWidth={4} />

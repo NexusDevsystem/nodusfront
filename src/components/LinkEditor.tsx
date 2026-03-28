@@ -157,7 +157,7 @@ function LinkEditor({
     if (nextColls) setExpandedCollections(nextColls);
   }, [links, level, expandedLinks, expandedCollections, setExpandedLinks, setExpandedCollections]);
 
-  const isLimitReached = (profile.planType === 'free' || !profile.planType) && links.length >= 5;
+  const isLimitReached = (profile.plan_type === 'free' || !profile.plan_type) && links.length >= 5;
 
   const activeLinks = useMemo(() => {
     const manual = links.filter(l => !l.isArchived);
@@ -439,7 +439,7 @@ function LinkEditor({
         {level === 0 ? (
           <div className="px-3 md:px-5">
             <div className="flex flex-col gap-4 mb-4">
-              <div className="flex items-center justify-between border-b-2 border-[#1a1a1a] pb-3">
+              <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-base md:text-lg font-black uppercase text-black tracking-tight">{t('links.myLinks')}</h2>
                   <p className="text-[10px] font-bold text-black/60 mt-0.5 uppercase tracking-widest leading-none">{t('links.myLinksSubtitle')}</p>
@@ -534,10 +534,10 @@ function LinkEditor({
               <p className="text-[9px] md:text-[10px] text-black font-normal uppercase tracking-wider mt-1 opacity-60 leading-none">Gerencie a exibição da marca Nodus no seu perfil público.</p>
             </div>
 
-            <div className={`p-5 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-md flex items-center justify-between transition-all ${profile.planType === 'free' || !profile.planType ? 'bg-slate-50' : 'bg-white'}`}>
+            <div className={`p-5 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-md flex items-center justify-between transition-all ${profile.plan_type === 'free' || !profile.plan_type ? 'bg-slate-50' : 'bg-white'}`}>
               <div className="flex flex-col gap-1">
                 <span className="text-xs font-black uppercase text-black tracking-widest leading-tight">Exibir branding da Nodus</span>
-                {profile.planType === 'free' || !profile.planType ? (
+                {profile.plan_type === 'free' || !profile.plan_type ? (
                   <div className="flex items-center gap-1.5 text-[9px] font-bold text-[#e11d48] uppercase tracking-wider mt-1">
                     <Zap size={12} fill="currentColor" />
                     Ativo obrigatoriamente (Plano Free)
@@ -549,11 +549,11 @@ function LinkEditor({
 
               <button
                 onClick={() => {
-                  if (profile.planType === 'free' || !profile.planType) return;
+                  if (profile.plan_type === 'free' || !profile.plan_type) return;
                   if (setProfile) setProfile(prev => ({ ...prev, hideBranding: !prev.hideBranding }));
                 }}
-                disabled={profile.planType === 'free' || !profile.planType}
-                className={`w-12 h-6 border-2 border-[#1a1a1a] relative transition-all shadow-[0_3px_0_0_#1a1a1a] rounded-full active:shadow-none active:translate-y-[0.5px] ${!profile.hideBranding ? 'bg-[#97cd7a]' : 'bg-white'} ${profile.planType === 'free' || !profile.planType ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={profile.plan_type === 'free' || !profile.plan_type}
+                className={`w-12 h-6 border-2 border-[#1a1a1a] relative transition-all shadow-[0_3px_0_0_#1a1a1a] rounded-full active:shadow-none active:translate-y-[0.5px] ${!profile.hideBranding ? 'bg-[#97cd7a]' : 'bg-white'} ${profile.plan_type === 'free' || !profile.plan_type ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <div className={`absolute top-[3px] w-4 h-4 border-2 border-[#1a1a1a] bg-white rounded-full transition-all ${!profile.hideBranding ? 'left-[24px]' : 'left-[4px]'}`} />
               </button>
@@ -646,7 +646,7 @@ function LinkEditor({
               onAddAgenda={addAgenda}
               onAddMap={addMap}
               onAddMediaKit={addMediaKit}
-              planType={profile.planType}
+              plan_type={profile.plan_type}
             />
           )}
 

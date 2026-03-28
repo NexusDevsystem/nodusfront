@@ -23,7 +23,7 @@ interface AddLinkModalProps {
     onAddAgenda: () => void;
     onAddMap: () => void;
     onAddMediaKit: () => void;
-    planType?: 'free' | 'monthly' | 'annual';
+    plan_type?: 'free' | 'monthly' | 'annual';
 }
 
 
@@ -66,9 +66,9 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     onAddAgenda,
     onAddMap,
     onAddMediaKit,
-    planType = 'free'
+    plan_type = 'free'
 }) => {
-    const isPro = planType === 'monthly' || planType === 'annual';
+    const isPro = plan_type === 'monthly' || plan_type === 'annual';
     const { t } = useTranslation();
     const [url, setUrl] = useState('');
 

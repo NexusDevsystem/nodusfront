@@ -188,7 +188,7 @@ export default function BlogAdminView() {
                             try {
                               setIsUploadingCover(true);
                               setUploadError(null);
-                              const res = await apiClient.uploadFile(file);
+                              const res = await apiClient.uploadFile(file, 'blog');
                               if (res.file?.url) {
                                 setEditingPost({ ...editingPost, imageUrl: res.file.url });
                               }
@@ -396,7 +396,7 @@ export default function BlogAdminView() {
                           try {
                             setIsUploadingBlock(true);
                             setUploadError(null);
-                            const res = await apiClient.uploadFile(file);
+                            const res = await apiClient.uploadFile(file, 'blog');
                             if (res.file?.url) {
                               let tag = '';
                               if (file.type.startsWith('image/')) {

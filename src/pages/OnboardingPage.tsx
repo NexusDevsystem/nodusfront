@@ -9,7 +9,6 @@ import ProfileRenderer from '../components/ProfileRenderer';
 import { compressImage } from '../utils/imageUtils';
 import { UserProfile, LinkItem } from '../types';
 import { useTranslation } from 'react-i18next';
-import ImageCropperModal from '../components/tools/ImageCropperModal';
 
 const fileToDataURL = (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -97,15 +96,6 @@ export default function OnboardingPage() {
     const [tempSocialUrl, setTempSocialUrl] = useState('');
     const [socialSearchTerm, setSocialSearchTerm] = useState('');
 
-    // Cropper State
-    const [cropper, setCropper] = useState<{
-        isOpen: boolean;
-        image: string;
-    }>({
-        isOpen: false,
-        image: ''
-    });
-
     const navigate = useNavigate();
     const avatarInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -144,26 +134,15 @@ export default function OnboardingPage() {
 
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            const dataUrl = await fileToDataURL(e.target.files[0]);
-            setCropper({
-                isOpen: true,
-                image: dataUrl
-            });
-            // Reset input so the same file can be selected again
+            try {
+                const compressed = await compressImage(e.target.files[0], 400, 0.7);
+                setAvatarUrl(compressed);
+            } catch (err) {
+                console.error('Error uploading avatar:', err);
+                const dataUrl = await fileToDataURL(e.target.files[0]);
+                setAvatarUrl(dataUrl);
+            }
             e.target.value = '';
-        }
-    };
-
-    const handleCropComplete = async (croppedBlob: Blob) => {
-        try {
-            const reader = new FileReader();
-            reader.readAsDataURL(croppedBlob);
-            reader.onloadend = () => {
-                setAvatarUrl(reader.result as string);
-                setCropper(prev => ({ ...prev, isOpen: false }));
-            };
-        } catch (error) {
-            console.error('Error saving cropped image:', error);
         }
     };
 
@@ -235,7 +214,8 @@ export default function OnboardingPage() {
                 name: name || username,
                 bio: bio,
                 avatarUrl: avatarUrl,
-                headerLayout: headerLayout
+                headerLayout: headerLayout,
+                onboardingCompleted: true
             });
 
             // 2. Process and Save links (AutoComplete Logic)
@@ -993,14 +973,6 @@ export default function OnboardingPage() {
                     </div>
                 )}
             </AnimatePresence>
-            <ImageCropperModal
-                isOpen={cropper.isOpen}
-                image={cropper.image}
-                aspectRatio={1}
-                title={t('design.cropProfile') || 'Recortar Avatar'}
-                onClose={() => setCropper(prev => ({ ...prev, isOpen: false }))}
-                onCropComplete={handleCropComplete}
-            />
         </div>
     );
 }

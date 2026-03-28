@@ -89,7 +89,7 @@
         "analytics": "Estatísticas",
         "tools": "Ferramentas",
         "files": "Arquivos",
-        "upgrade": "Upgrade & Planos",
+        "upgrade": "Faturamento",
         "administration": "Administração",
         "blogAdmin": "Administrar Blog",
         "support": "Suporte",
@@ -652,7 +652,7 @@
         "button": "Fazer Upgrade"
     },
     "billing": {
-        "title": "Planos & Upgrade",
+        "title": "Faturamento",
         "upgradeTitle": "Upgrade para Premium",
         "upgradeSubtitle": "Desbloqueie todo o potencial da sua marca.",
         "free": "Grátis",
@@ -669,6 +669,10 @@
         "processingPayment": "Estaremos processando sua transação com a Stripe. O sistema atualizará sozinho em instantes...",
         "backToPlans": "Voltar para os planos",
         "securePayment": "Pagamento 100% seguro via Stripe",
+        "payWithPix": "Pagar com PIX / Cartão BR",
+        "brazilOnly": "Opção exclusiva para o Brasil (AbacatePay)",
+        "awaitingAbacate": "Processando seu PIX...",
+
         "plans": {
             "free": {
                 "name": "Gratuito",
@@ -783,6 +787,7 @@
         "topIcons": "Ícones no topo",
         "noSocials": "Nenhuma rede",
         "mainButtons": "Botões principais",
+        "myLinks": "Meus Links",
         "linkTitlePlaceholder": "Título do Link",
         "noButtons": "Nenhum botão configurado",
         "enterStudio": "Entrar no Studio",

@@ -35,7 +35,7 @@ export default function PrivacyPolicyPage() {
                         <li><strong>Dados de Conta:</strong> Nome, e-mail, foto de perfil e senhas criptografadas.</li>
                         <li><strong>Perfil e Bio:</strong> Informações biográficas, links sociais e personalizações de layout.</li>
                         <li><strong>Dados de Loja e Catálogo:</strong> Fotos de produtos, descrições, preços e informações de estoque.</li>
-                        <li><strong>Dados de Transações:</strong> Histórico de ordens, chaves Pix fornecidas e e-mails de pagamento (Stripe/PayPal).</li>
+                        <li><strong>Dados de Transações:</strong> Histórico de ordens, chaves Pix fornecidas e e-mails de pagamento (AbacatePay/PayPal).</li>
                     </ul>
 
                     <h3>2. Integrações com Terceiros</h3>
@@ -45,7 +45,7 @@ export default function PrivacyPolicyPage() {
                     <ul>
                         <li><strong>Google (YouTube):</strong> Acessamos dados públicos do canal (inscritos, título) via API para exibição de estatísticas.</li>
                         <li><strong>Instagram:</strong> Quando conectado, acessamos informações básicas de perfil e mídia para integração de feed ou links.</li>
-                        <li><strong>Serviços de Pagamento:</strong> Utilizamos Stripe e PayPal para processamento de cobranças e assinaturas. Seus dados de cartão são processados diretamente por esses provedores; o Nodus não armazena dados sensíveis de pagamento.</li>
+                        <li><strong>Serviços de Pagamento:</strong> Utilizamos AbacatePay e PayPal para processamento de cobranças e assinaturas. Seus dados de cartão são processados diretamente por esses provedores; o Nodus não armazena dados sensíveis de pagamento.</li>
                     </ul>
                     <p>
                         O uso das informações recebidas de APIs de terceiros adere às respectivas políticas de dados (como a <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Política de Dados do Usuário do Google</a>).

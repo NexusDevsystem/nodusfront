@@ -14,31 +14,21 @@ interface BillingModalProps {
 const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose }) => {
     const { t } = useTranslation();
     return (
-        <div className="fixed inset-0 z-[500] flex items-end md:items-center justify-center p-0 md:p-4 overflow-hidden">
-            {/* Animated Backdrop Blur */}
-            <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={onClose}
-                className="absolute inset-0 bg-[#0a0a0a]/80 backdrop-blur-md md:backdrop-blur-xl"
-            >
-                {/* Animated Backdrop Elements */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#97cd7a]/20 blur-[120px] rounded-full animate-pulse capitalize" />
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#ffdf00]/10 blur-[120px] rounded-full animate-pulse-slow" />
-                </div>
-            </motion.div>
+        <div className="fixed inset-0 z-[500] bg-white overflow-hidden flex flex-col">
+            {/* Background elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#97cd7a]/15 blur-[120px] rounded-full animate-pulse-slow" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#ffdf00]/10 blur-[120px] rounded-full animate-pulse-slow" />
+            </div>
 
             <motion.div 
-                initial={{ y: '100%' }}
-                animate={{ y: 0 }}
-                exit={{ y: '100%' }}
-                transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
-                className="bg-white border-t-4 border-x-4 md:border-2 border-[#1a1a1a] shadow-none md:shadow-[0_12px_0_0_#1a1a1a] w-full max-w-6xl relative flex flex-col h-[92vh] md:max-h-[90vh] overflow-hidden rounded-t-[32px] md:rounded-md z-10"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="w-full h-full relative flex flex-col overflow-hidden z-10"
             >
-                {/* Premium Header - Optimized for Mobile */}
-                <div className="flex items-center justify-between p-5 md:p-10 border-b-2 border-[#1a1a1a] shrink-0 relative overflow-hidden bg-white group rounded-t-[24px] md:rounded-t-[32px]">
+                {/* Premium Header - Optimized for Full Page - COMPACT */}
+                <div className="flex items-center justify-between p-4 md:px-10 md:py-6 border-b-2 border-[#1a1a1a] shrink-0 relative overflow-hidden bg-white group">
                     {/* Light Leak / Shine Effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-[2000ms] pointer-events-none" />
                     
@@ -58,18 +48,13 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
                             <span className="text-[8px] md:text-[9px] font-bold text-black/40 uppercase tracking-widest hidden sm:block">Premium Pass</span>
                         </motion.div>
                         
-                        <motion.h2 
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.3 }}
-                            className="text-2xl md:text-5xl font-black text-black uppercase tracking-tighter leading-none mb-1 md:mb-3"
-                        >
+                                <h2 className="text-xl md:text-3xl font-black text-black uppercase tracking-tighter leading-none mb-1 md:mb-1.5">
                             {t('billing.upgradeTitle').split(' ').map((word, i) => (
                                 <span key={i} className={i % 2 === 0 ? 'inline mr-2 md:mr-4' : 'inline text-transparent stroke-black stroke-1 md:stroke-2 webkit-text-stroke mr-2 md:mr-4'}>
                                     {word}
                                 </span>
                             ))}
-                        </motion.h2>
+                                </h2>
                         
                         <motion.p 
                             initial={{ y: 10, opacity: 0 }}
@@ -84,9 +69,9 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
 
                     <button
                         onClick={onClose}
-                        className="group relative p-2 md:p-4 text-black hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover:text-[#ffdf00] border-2 border-[#1a1a1a] bg-white transition-all active:scale-95 shadow-[0_3px_0_0_#1a1a1a] md:shadow-[0_4px_0_0_#1a1a1a] z-30 rounded-sm md:rounded-md"
+                        className="group relative p-2 md:p-3 text-black hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover:text-[#ffdf00] border-2 border-[#1a1a1a] bg-white transition-all active:scale-95 shadow-[0_3px_0_0_#1a1a1a] md:shadow-[0_4px_0_0_#1a1a1a] z-30 rounded-xl"
                     >
-                        <X className="w-5 h-5 md:w-7 md:h-7" strokeWidth={4} />
+                        <X className="w-5 h-5 md:w-6 md:h-6" strokeWidth={4} />
                     </button>
                 </div>
 
@@ -95,7 +80,7 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
                     {/* Subtle grid pattern background */}
                     <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
                     
-                    <div className="max-w-7xl mx-auto relative z-10">
+                    <div className="max-w-7xl mx-auto relative z-10 pb-10">
                         <BillingView profile={profile} onChange={onChange} />
                     </div>
                 </div>

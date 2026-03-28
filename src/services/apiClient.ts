@@ -370,12 +370,20 @@ class ApiClient {
         });
     }
 
-    async createPortalSession(): Promise<{ url: string }> {
-        return this.request('/api/billing/portal', {
+
+
+
+    async cancelSubscription(): Promise<any> {
+        return this.request('/api/billing/cancel', {
             method: 'POST'
         });
     }
 
+    async reactivateSubscription(): Promise<any> {
+        return this.request('/api/billing/reactivate', {
+            method: 'POST'
+        });
+    }
     async getInvoices(): Promise<any> {
         return this.request('/api/billing/invoices');
     }
@@ -392,9 +400,14 @@ class ApiClient {
         });
     }
 
-    async getStripeConfig(): Promise<{ publishableKey: string; env: string }> {
+    async getBillingConfig(): Promise<{ gateway: string; env: string }> {
         return this.request('/api/billing/config');
     }
+
+    async getStripeConfig(): Promise<any> {
+        return this.getBillingConfig();
+    }
+
 
     async getTikTokAuthUrl(userId: string, origin?: string): Promise<{ url: string }> {
         return this.request(`/api/integrations/tiktok/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);

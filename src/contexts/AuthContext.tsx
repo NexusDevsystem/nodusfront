@@ -283,10 +283,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    // An existing user is considered to have completed onboarding if:
-    // 1. The field is explicitly true, OR
-    // 2. They already have a username set (meaning they onboarded before this field was added to the DB)
-    const hasCompletedOnboarding = !!(profile?.username);
+    // An existing user is considered to have completed onboarding if the field is explicitly true
+    const hasCompletedOnboarding = !!(profile?.onboardingCompleted);
 
     return (
         <AuthContext.Provider value={{

@@ -50,7 +50,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
 
     // Handle File Upload
     const handleFileUpload = async (file: File) => {
-        const isFree = !userProfile?.planType || userProfile.planType === 'free';
+        const isFree = !userProfile?.plan_type || userProfile.plan_type === 'free';
         if (isFree && files.length >= 2) {
             window.dispatchEvent(new CustomEvent('open-billing-modal'));
             return;
@@ -325,7 +325,7 @@ const FileManager: React.FC<FileManagerProps> = ({ userProfile }) => {
                             <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-60">{t('files.storageTitle')}</span>
                                 <div className="flex gap-1">
                                     {[1, 2, 3, 4, 5, 6, 7, 8].map(i => {
-                                        const isFree = !userProfile?.planType || userProfile.planType === 'free';
+                                        const isFree = !userProfile?.plan_type || userProfile.plan_type === 'free';
                                         const limit = isFree ? 2 : 8;
                                         const isFilled = i <= files.length;
                                         const isAvailable = i <= limit;

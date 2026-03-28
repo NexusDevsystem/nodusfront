@@ -56,7 +56,7 @@ export default function AnalyticsView({ userProfile }: AnalyticsViewProps) {
         }
     };
 
-    const isPro = userProfile.planType === 'monthly' || userProfile.planType === 'annual';
+    const isPro = userProfile.plan_type === 'monthly' || userProfile.plan_type === 'annual';
 
     const handleRangeChange = (range: DateRange) => {
         if ((range === '14d' || range === '30d' || range === '1y' || range === 'all') && !isPro) {

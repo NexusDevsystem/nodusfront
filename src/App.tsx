@@ -12,6 +12,7 @@ import CustomCursor from './components/animations/CustomCursor';
 const EditorPage = lazy(() => import('./pages/EditorPage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const PublicProfilePage = lazy(() => import('./pages/PublicProfilePage'));
+// Dynamic imports for optimized loading
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const OnboardingPage = lazy(() => import('./pages/OnboardingPage'));
 const CheckoutSuccessPage = lazy(() => import('./pages/CheckoutSuccessPage'));

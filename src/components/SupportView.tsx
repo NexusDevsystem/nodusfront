@@ -123,24 +123,24 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                             </div>
 
                             <div
-                                className={`p-3 border border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] transition-all ${!userProfile?.planType || userProfile.planType === 'free' ? 'bg-slate-50 opacity-100 cursor-pointer group' : 'bg-white'}`}
+                                className={`p-3 border border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] transition-all ${!userProfile?.plan_type || userProfile.plan_type === 'free' ? 'bg-slate-50 opacity-100 cursor-pointer group' : 'bg-white'}`}
                                 onClick={() => {
-                                    if (!userProfile?.planType || userProfile.planType === 'free') {
+                                    if (!userProfile?.plan_type || userProfile.plan_type === 'free') {
                                         window.dispatchEvent(new CustomEvent('open-billing-modal'));
                                     }
                                 }}
                             >
                                 <div className="flex justify-between items-start mb-1">
                                     <p className="text-[8px] font-black text-black/40 uppercase tracking-widest">WhatsApp</p>
-                                    {(!userProfile?.planType || userProfile.planType === 'free') && (
+                                    {(!userProfile?.plan_type || userProfile.plan_type === 'free') && (
                                         <div className="flex items-center gap-1 bg-[#1a1a1a] px-1.5 py-0.5 -mt-1 -mr-1">
                                             <Lock size={8} className="text-[#97cd7a]" strokeWidth={3} />
                                             <span className="text-[7px] font-black text-[#97cd7a] uppercase tracking-tighter">PREMIUM</span>
                                         </div>
                                     )}
                                 </div>
-                                <div className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${!userProfile?.planType || userProfile.planType === 'free' ? 'text-black/30' : 'text-black hover:text-[#32a800] cursor-pointer'}`}>
-                                    {!userProfile?.planType || userProfile.planType === 'free' ? (
+                                <div className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${!userProfile?.plan_type || userProfile.plan_type === 'free' ? 'text-black/30' : 'text-black hover:text-[#32a800] cursor-pointer'}`}>
+                                    {!userProfile?.plan_type || userProfile.plan_type === 'free' ? (
                                         <>{t('support.prioritySupport')}</>
                                     ) : (
                                         <a href="https://wa.me/559180519442" target="_blank" rel="noreferrer" className="flex items-center gap-1">

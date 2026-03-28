@@ -87,7 +87,7 @@ export default function ShopEditor({
         }
     };
 
-    const isFree = !userProfile?.planType || userProfile?.planType === 'free';
+    const isFree = !userProfile?.plan_type || userProfile?.plan_type === 'free';
     const maxStores = isFree ? 1 : 10;
     const maxCollectionsPerStore = isFree ? 2 : 20;
 
@@ -131,9 +131,9 @@ export default function ShopEditor({
 
     const handleDeleteStore = (id: string) => {
         onStoresChange(stores.filter(s => s.id !== id));
-        // We no longer delete products when a store is deleted.
-        // Instead, we keep them, but remove their storeId so they can be recovered or reassigned later. 
-        onChange(products.map(p => p.storeId === id ? { ...p, storeId: undefined } : p));
+        // Delete all products that belonged to this store to avoid orphans
+        // and prevent the store from being automatically recreated on next reload.
+        onChange(products.filter(p => p.storeId !== id));
         setDeletingStoreId(null);
         if (expandedStoreId === id) setExpandedStoreId(null);
     };
@@ -232,7 +232,7 @@ export default function ShopEditor({
         setEditingProductId(null);
     };
 
-    const renderProduct = (product: Product) => (
+    const renderProduct = (product: Product, sortable = true) => (
         <ProductItem
             key={product.clientId || product.id}
             product={product}
@@ -243,6 +243,7 @@ export default function ShopEditor({
             updateProductField={updateProductField}
             setDeletingProductId={setDeletingProductId}
             renderAddForm={renderAddForm}
+            sortable={sortable}
         />
     );
 
@@ -548,19 +549,6 @@ export default function ShopEditor({
                 </div>
             </div>
 
-            {/* Unlinked Products */}
-            {products.some(p => !p.storeId || !stores.some(s => s.id === p.storeId)) && (
-                <div className="bg-slate-100 rounded-[40px] border-2 border-black border-dashed p-10 text-center">
-                    <h4 className="text-xl font-black uppercase tracking-tighter mb-2">{isPT ? 'PRODUTOS DESVINCULADOS' : 'UNLINKED PRODUCTS'}</h4>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-black/30 mb-8 max-w-sm mx-auto">{isPT ? 'Estes itens não pertencem a nenhuma loja. Vincule-os abaixo.' : 'These items do not belong to any store. Link them below.'}</p>
-                    <div className="space-y-3 mb-8">{products.filter(p => !p.storeId || !stores.some(s => s.id === p.storeId)).map(renderProduct)}</div>
-                    {stores.length > 0 && (
-                        <button onClick={() => onChange(products.map(p => (!p.storeId || !stores.some(s => s.id === p.storeId)) ? { ...p, storeId: stores[0].id } : p))} className="px-8 py-4 bg-black text-[#ffdf00] border-2 border-black rounded-sm text-[10px] font-black uppercase tracking-widest shadow-[0_5px_0_0_rgba(0,0,0,0.1)] transition-all">
-                            {isPT ? 'VINCULAR AO PRIMEIRO' : 'LINK TO FIRST'}
-                        </button>
-                    )}
-                </div>
-            )}
 
                     {/* Modals Section */}
             {createPortal(
@@ -801,23 +789,26 @@ interface ProductItemProps {
     updateProductField: (id: string, field: keyof Product, value: any) => void;
     setDeletingProductId: (id: string | null) => void;
     renderAddForm: (storeId: string, collectionName: string, existingProduct?: Product) => React.ReactNode;
+    sortable?: boolean;
 }
 
 const ProductItem: React.FC<ProductItemProps> = ({
     product, isEditing, setEditingProductId, uploadingTarget, isPT,
-    updateProductField, setDeletingProductId, renderAddForm
+    updateProductField, setDeletingProductId, renderAddForm, sortable = true
 }) => {
     const dragControls = useDragControls();
 
-    return (
-        <Reorder.Item
-            value={product}
-            dragListener={false}
-            dragControls={dragControls}
-            layout
-            whileDrag={{ zIndex: 50, borderRadius: '6px' }}
-            className={`group relative select-none border-2 border-[#1a1a1a] rounded-md overflow-hidden mb-3 transition-colors duration-300 ${isEditing ? 'bg-[#fefcbf] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'}`}
-        >
+    const containerProps = {
+        value: product,
+        dragListener: false,
+        dragControls: dragControls,
+        layout: true as const,
+        whileDrag: { zIndex: 50, borderRadius: '6px' },
+        className: `group relative select-none border-2 border-[#1a1a1a] rounded-md overflow-hidden mb-3 transition-colors duration-300 ${isEditing ? 'bg-[#fefcbf] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'}`
+    };
+
+    const content = (
+        <>
             <div className="flex items-stretch min-h-[82px]">
                 {/* Drag Handle Area */}
                 <div 
@@ -926,7 +917,17 @@ const ProductItem: React.FC<ProductItemProps> = ({
                     </motion.div>
                 )}
             </AnimatePresence>
+        </>
+    );
+
+    return sortable ? (
+        <Reorder.Item {...containerProps}>
+            {content}
         </Reorder.Item>
+    ) : (
+        <motion.div {...containerProps}>
+            {content}
+        </motion.div>
     );
 };
 

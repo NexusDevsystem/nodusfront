@@ -41,7 +41,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
 
     const renderThemeCard = (theme: typeof THEMES[0]) => {
         const isSelected = profile.themeId === theme.id && !profile.customBackground;
-        const isLocked = theme.isPro && (!profile.planType || profile.planType === 'free');
+        const isLocked = theme.isPro && (!profile.plan_type || profile.plan_type === 'free');
         const isActive = isSelected;
         const buttonVisuals = theme.buttonClass.replace(/\b(w-full|flex|items-center|justify-between|py-\d+|px-\d+|gap-\d+)\b/g, '').trim();
 

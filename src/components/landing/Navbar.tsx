@@ -205,20 +205,22 @@ export function Navbar() {
                 </span>
               )}
             </Link>
-            <div className="flex justify-center bg-white border-2 border-dark rounded-2xl overflow-hidden font-bold shadow-[0_4px_0_0_#121212] mx-auto w-fit">
-              <button 
-                onClick={() => setLang('pt')}
-                className={`px-5 py-2 text-xs transition-colors ${lang === 'pt' ? 'bg-[#b4e3b8] text-dark' : 'text-dark/40 hover:bg-gray-100'}`}
-              >
-                PT
-              </button>
-              <div className="w-[1.5px] bg-dark"></div>
-              <button 
-                onClick={() => setLang('en')}
-                className={`px-5 py-2 text-xs transition-colors ${lang === 'en' ? 'bg-[#b4e3b8] text-dark' : 'text-gray-400 hover:bg-gray-100'}`}
-              >
-                EN
-              </button>
+            <div className="flex justify-center mx-auto mb-2">
+              <div className="flex bg-white border-2 border-dark rounded-full overflow-hidden font-black shadow-[0_4px_0_0_#121212] min-w-[140px]">
+                <button 
+                  onClick={() => setLang('pt')}
+                  className={`flex-1 px-6 py-3 text-[11px] tracking-widest transition-all ${lang === 'pt' ? 'bg-[#b4e3b8] text-dark' : 'text-dark/40 hover:bg-gray-100'}`}
+                >
+                  PT
+                </button>
+                <div className="w-[2px] bg-dark"></div>
+                <button 
+                  onClick={() => setLang('en')}
+                  className={`flex-1 px-6 py-3 text-[11px] tracking-widest transition-all ${lang === 'en' ? 'bg-[#b4e3b8] text-dark' : 'text-dark/40 hover:bg-gray-100'}`}
+                >
+                  EN
+                </button>
+              </div>
             </div>
             <Link to="/login" onClick={() => setIsMenuOpen(false)} className="px-6">
               <Button variant="primary" size="sm" className="w-full rounded-2xl py-3 shadow-[0_4px_0_0_#121212] bg-[#b4e3b8] border-2 text-dark font-black tracking-tight text-sm">

@@ -5,13 +5,13 @@ export default function CheckoutSuccessPage() {
     useEffect(() => {
         // 1. Notify the opener window to refresh
         if (window.opener) {
-            window.opener.postMessage('stripe-payment-success', '*');
+            window.opener.postMessage('abacatepay-payment-success', '*');
         }
 
         // 2. Auto-close after a few seconds
         const timer = setTimeout(() => {
             window.close();
-        }, 3000);
+        }, 5000); // 5 seconds to feel more premium and let them see the success
 
         return () => clearTimeout(timer);
     }, []);

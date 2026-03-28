@@ -248,7 +248,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {FONTS.map((font) => {
                         const isSelected = profile.fontFamily === font.family;
-                        const isProForFree = font.isPro && (!profile.planType || profile.planType === 'free');
+                        const isProForFree = font.isPro && (!profile.plan_type || profile.plan_type === 'free');
 
                         return (
                             <button

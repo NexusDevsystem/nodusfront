@@ -10,7 +10,7 @@ import { apiClient } from '../services/apiClient';
 
 type AuthMode = 'login' | 'register' | 'reset';
 
-export default function LoginPage() {
+function LoginPage() {
     const location = useLocation();
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
@@ -365,3 +365,5 @@ export default function LoginPage() {
         </div>
     );
 }
+
+export default React.memo(LoginPage);

@@ -44,7 +44,7 @@ export default function TermsPage() {
 
                     <h3>3. Transações e Pagamentos</h3>
                     <p>
-                        O Nodus facilita a exposição de produtos, mas as transações financeiras ocorrem através de provedores terceiros (Stripe, PayPal ou transferências diretas via Pix).
+                        O Nodus facilita a exposição de produtos, mas as transações financeiras ocorrem através de provedores terceiros (AbacatePay, PayPal ou transferências diretas via Pix).
                     </p>
                     <ul>
                         <li><strong>Disputas:</strong> O Nodus não intervém em disputas comerciais entre compradores e vendedores. Problemas com produtos ou reembolsos devem ser tratados diretamente com o vendedor ou através do processador de pagamentos.</li>
@@ -57,17 +57,27 @@ export default function TermsPage() {
                         <strong>É proibido:</strong> tentar copiar o código-fonte, fazer engenharia reversa ou utilizar a marca Nodus de forma a sugerir parceria oficial sem autorização.
                     </p>
 
-                    <h3>5. Isenção de Responsabilidade</h3>
+                    <h3>6. Assinaturas, Renovação e Cancelamento</h3>
+                    <p>
+                        O site <a href="https://nodus.my">Nodus.my</a> opera com um modelo de assinatura recorrente manual processada exclusivamente via PIX.
+                    </p>
+                    <ul>
+                        <li><strong>Faturamento:</strong> Não há cobrança automática. Cabe ao usuário realizar o pagamento do código PIX gerado pelo sistema para renovar seu acesso PRO. O sistema oferece uma carência de até 3 (três) dias após o vencimento para a regularização do pagamento antes do downgrade automático.</li>
+                        <li><strong>Cancelamento Voluntário:</strong> O usuário pode interromper a renovação futura a qualquer momento através do painel. Neste caso, o acesso aos recursos PRO permanece ativo até as 23:59 do último dia do ciclo já pago. Não há estorno ou reembolso proporcional por dias não utilizados em cancelamentos voluntários.</li>
+                        <li><strong>Direito de Arrependimento (CDC):</strong> Exclusivamente para a primeira contratação do serviço, o usuário pode solicitar o reembolso integral em até 7 (sete) dias corridos após o pagamento, conforme o Art. 49 do Código de Defesa do Consumidor. Caso o reembolso seja processado, o downgrade para o plano Free e a perda do acesso aos recursos PRO ocorrem de forma imediata.</li>
+                    </ul>
+
+                    <h3>6. Isenção de Responsabilidade</h3>
                     <p>
                         Os materiais no site da Nodus são fornecidos 'como estão'. O Nodus não oferece garantias de que o serviço será ininterrupto ou livre de erros. Não nos responsabilizamos por perdas financeiras decorrentes do uso da plataforma ou de falhas em integrações de terceiros.
                     </p>
 
-                    <h3>6. Modificações dos Termos</h3>
+                    <h3>7. Modificações dos Termos</h3>
                     <p>
                         Podemos revisar estes termos a qualquer momento. O uso continuado da plataforma após alterações significa que você aceita os novos termos.
                     </p>
 
-                    <h3>7. Lei Aplicável</h3>
+                    <h3>8. Lei Aplicável</h3>
                     <p>
                         Estes termos são regidos pelas leis brasileiras. Fica eleito o foro da comarca da sede da empresa proprietária do Nodus para dirimir quaisquer questões relativas a estes termos.
                     </p>

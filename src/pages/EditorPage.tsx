@@ -140,9 +140,9 @@ export default function EditorPage() {
 
                 // --- AUTOMATIC PAYMENT RECONCILIATION ---
                 // Trigger silently in background
-                if (profileData.planType === 'free' || !profileData.planType) {
+                if (profileData.plan_type === 'free' || !profileData.plan_type) {
                     apiClient.autoReconcile().then(reconciledProfile => {
-                        if (reconciledProfile.planType && reconciledProfile.planType !== 'free') {
+                        if (reconciledProfile.plan_type && reconciledProfile.plan_type !== 'free') {
                             setProfile(prev => ({ ...prev, ...reconciledProfile }));
                         }
                     }).catch(() => { /* Silent fail */ });
@@ -220,7 +220,7 @@ export default function EditorPage() {
         }
 
         // --- PRO PREVIEW CHECK ---
-        const isFree = !profile.planType || profile.planType === 'free';
+        const isFree = !profile.plan_type || profile.plan_type === 'free';
         if (isFree && hasProFeatures(profile)) {
             setIsPreviewMode(true);
             return;
@@ -382,13 +382,14 @@ export default function EditorPage() {
                     return updatedProducts;
                 });
             } catch (error) {
+                console.error('❌ Failed to auto-save products:', error);
                 // Silently handle product auto-save failure
             } finally {
                 setIsSavingProducts(false);
             }
         };
 
-        const timeoutId = setTimeout(saveProducts, 2500);
+        const timeoutId = setTimeout(saveProducts, 1000); // Shortened from 2500ms
         return () => clearTimeout(timeoutId);
     }, [products, hasLoadedOnce]);
 
@@ -435,13 +436,14 @@ export default function EditorPage() {
                     return updatedStores;
                 });
             } catch (error) {
+                console.error('❌ Failed to auto-save stores:', error);
                 // Silently handle store auto-save failure
             } finally {
                 setIsSavingStores(false);
             }
         };
 
-        const timeoutId = setTimeout(saveStores, 2000);
+        const timeoutId = setTimeout(saveStores, 1000); // Shortened from 2000ms
         return () => clearTimeout(timeoutId);
     }, [stores, hasLoadedOnce]);
 
@@ -535,7 +537,7 @@ export default function EditorPage() {
         <div className="h-screen w-full bg-white font-sans text-black selection:bg-black selection:text-[#ffdf00] flex flex-col overflow-hidden">
             {/* Quests Checklist moved to Sidebar component */}
             {/* Top Banner for Free Users */}
-            {(!profile.planType || profile.planType === 'free') && (
+            {(!profile.plan_type || profile.plan_type === 'free') && (
                 <UpgradeBanner onUpgradeClick={() => setIsUpgradeOpen(true)} />
             )}
 
@@ -575,7 +577,7 @@ export default function EditorPage() {
                         userProfile={profile}
                         onUpgradeClick={() => setIsUpgradeOpen(true)}
                         onClose={() => setIsSidebarOpen(false)}
-                        className={`hidden md:flex h-full ${(!profile.planType || profile.planType === 'free') ? 'rounded-tl-[24px] md:rounded-tl-[32px]' : ''
+                        className={`hidden md:flex h-full ${(!profile.plan_type || profile.plan_type === 'free') ? 'rounded-tl-[24px] md:rounded-tl-[32px]' : ''
                             }`}
                     />
                 )}
@@ -804,7 +806,7 @@ export default function EditorPage() {
                                 )}
 
                                 {activeTab === 'billing' && (
-                                    <ManageBillingView profile={profile} />
+                                    <ManageBillingView profile={profile} onChange={setProfile} links={links} />
                                 )}
 
                                 {activeTab === 'support' && (
@@ -889,11 +891,11 @@ export default function EditorPage() {
            --------------------------------------------------
         */}
                     <div className={`
-            ${activeTab !== 'admin' ? 'lg:flex' : 'hidden'} flex-col items-center justify-center 
-            lg:border-l-4 lg:border-[#1a1a1a] lg:bg-white 
-            w-full lg:w-[350px] xl:w-[450px] shrink-0
-            ${!showMobilePreview ? 'hidden' : 'flex-1 h-full flex flex-col z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0 bg-white md:bg-transparent'}
-        `}>
+                        ${activeTab !== 'admin' && activeTab !== 'billing' ? 'lg:flex' : 'hidden'} flex-col items-center justify-center 
+                        lg:border-l-4 lg:border-[#1a1a1a] lg:bg-white 
+                        w-full lg:w-[350px] xl:w-[450px] shrink-0
+                        ${!showMobilePreview ? 'hidden' : 'flex-1 h-full flex flex-col z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0 bg-white md:bg-transparent'}
+                    `}>
 
                         <div className="relative w-full h-full lg:flex items-center justify-center overflow-y-auto bg-white lg:bg-[#f8f9fa]">
                             {/* Scale container to fit phone nicely on different laptop screens - Only on Desktop */}

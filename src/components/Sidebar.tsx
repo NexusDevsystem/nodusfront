@@ -111,7 +111,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
       <div className="w-full relative z-10 px-8 py-2.5 border-b-2 border-[#1a1a1a] bg-[#ffffff] flex flex-col justify-center h-[61px]">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center group cursor-default">
-            <div className="w-9 h-9 rounded-lg border-2 border-[#1a1a1a] overflow-hidden shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-slate-50 transition-all group-hover:-translate-y-[0.5px] group-hover:shadow-[0_3px_0_0_#1a1a1a]">
+            <div className="w-9 h-9 rounded-full border-2 border-[#1a1a1a] overflow-hidden shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-slate-50 transition-all group-hover:-translate-y-[0.5px] group-hover:shadow-[0_3px_0_0_#1a1a1a]">
               <img 
                 src={imgOptimized.avatarMd(userProfile.avatarUrl) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile.name}`}
                 alt="Profile"
@@ -157,7 +157,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
             <div className="space-y-1.5">
               {group.items.map(item => {
                 const isActive = activeTab === item.id;
-                const isLocked = (item.id === 'earn') && (!userProfile.planType || userProfile.planType === 'free');
+                const isLocked = (item.id === 'earn') && (!userProfile.plan_type || userProfile.plan_type === 'free');
                 const ItemIcon = item.icon;
 
                 if (isActive) {
@@ -274,7 +274,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
           className={`w-full flex items-center justify-between p-2.5 bg-[#ffffff] border-2 border-[#1a1a1a] rounded-lg shadow-[0_3px_0_0_#1a1a1a] hover:-translate-y-[0.5px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-0.5 active:shadow-none transition-all group ${isAccountMenuOpen ? 'translate-y-0.5 shadow-none bg-slate-50' : ''}`}
         >
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-9 h-9 rounded-lg border-2 border-[#1a1a1a] overflow-hidden bg-slate-50 shrink-0 shadow-[0_1.5px_0_0_#1a1a1a]">
+            <div className="w-9 h-9 rounded-full border-2 border-[#1a1a1a] overflow-hidden bg-slate-50 shrink-0 shadow-[0_1.5px_0_0_#1a1a1a]">
               {user?.picture ? (
                 <img src={user.picture} alt="" className="w-full h-full object-cover" />
               ) : (

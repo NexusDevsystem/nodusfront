@@ -210,11 +210,11 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                     <div className="flex flex-col items-center sm:flex-row gap-5">
                         <div className="relative shrink-0">
-                            <div className="w-20 h-20 border border-[#1a1a1a] bg-white shadow-[0_3px_0_0_#1a1a1a] rounded-md overflow-hidden">
+                            <div className="w-20 h-20 border border-[#1a1a1a] bg-white shadow-[0_3px_0_0_#1a1a1a] rounded-full overflow-hidden">
                                 {profile.avatarUrl ? (
                                     <img src={profile.avatarUrl}
                                         alt="Avatar"
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover rounded-full"
                                         onError={(e) => {
                                             e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
                                         }}

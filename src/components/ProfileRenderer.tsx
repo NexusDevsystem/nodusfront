@@ -62,6 +62,75 @@ import { MusicRichCard, MusicPlaylistDrawer } from './profile/MusicCards';
 import ProductDrawer from './profile/ProductDrawer';
 import { imgOptimized } from '../utils/imageUtils';
 
+/**
+ * LinkCountdown helper component for scheduled links
+ */
+const LinkCountdown: React.FC<{ 
+    targetDate: string; 
+    onZero: () => void;
+    title: string;
+    style?: React.CSSProperties;
+    fontFamily?: string;
+}> = ({ targetDate, onZero, title, style, fontFamily }) => {
+    const [timeLeft, setTimeLeft] = React.useState<{ d: number, h: number, m: number, s: number } | null>(null);
+
+    React.useEffect(() => {
+        const calculate = () => {
+            const now = new Date().getTime();
+            const dest = new Date(targetDate).getTime();
+            const diff = dest - now;
+
+            if (diff <= 0) {
+                onZero();
+                return null;
+            }
+
+            return {
+                d: Math.floor(diff / (1000 * 60 * 60 * 24)),
+                h: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                m: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+                s: Math.floor((diff % (1000 * 60)) / 1000)
+            };
+        };
+
+        const timer = setInterval(() => {
+            const val = calculate();
+            if (val) setTimeLeft(val);
+            else {
+                clearInterval(timer);
+                setTimeLeft(null);
+            }
+        }, 1000);
+
+        const initial = calculate();
+        if (initial) setTimeLeft(initial);
+
+        return () => clearInterval(timer);
+    }, [targetDate]);
+
+    if (!timeLeft) return null;
+
+    return (
+        <div className="flex flex-col items-center justify-center p-2 w-full" style={{ ...style, fontFamily }}>
+            <span className="text-[10px] uppercase tracking-[0.2em] opacity-40 mb-2 font-black text-center w-full truncate px-4">{title}</span>
+            <div className="flex gap-3 justify-center">
+                {[
+                    { val: timeLeft.d, label: 'D' },
+                    { val: timeLeft.h, label: 'H' },
+                    { val: timeLeft.m, label: 'M' },
+                    { val: timeLeft.s, label: 'S' }
+                ].map((item, i) => (
+                    <div key={i} className="flex flex-col items-center min-w-[32px]">
+                        <span className="text-2xl font-black tabular-nums leading-none">{String(item.val).padStart(2, '0')}</span>
+                        <span className="text-[8px] font-bold opacity-30 mt-1">{item.label}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+
 
 // MusicRichCard externalized
 
@@ -304,25 +373,32 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             }
         `}</style>
     ), []); // Empty deps — these never change
-
-
-    // Update current time every 10 seconds to refresh scheduled items visibility
+    // Update current time every second to refresh scheduled items visibility (especially for countdowns)
     React.useEffect(() => {
-        if (isPreview) return; // No need to tick in preview
         const timer = setInterval(() => {
             setCurrentTime(new Date());
-        }, 10000);
+        }, 1000); // 1s for the countdown to tick
         return () => clearInterval(timer);
-    }, [isPreview]);
+    }, []);
 
     const isScheduled = (link: LinkItem) => {
-        if (isPreview) return true; // Show all in preview/admin
-        const now = currentTime;
-        const start = link.scheduleStart ? new Date(link.scheduleStart) : null;
-        const end = link.scheduleEnd ? new Date(link.scheduleEnd) : null;
+        if (isPreview) return true;
+        const now = currentTime.getTime();
 
-        if (start && now < start) return false;
-        if (end && now > end) return false;
+        // End time is absolute
+        if (link.scheduleEnd) {
+            const end = new Date(link.scheduleEnd).getTime();
+            if (now > end) return false;
+        }
+
+        if (link.scheduleStart) {
+            const start = new Date(link.scheduleStart).getTime();
+            if (now < start) {
+                // If before start, only show if countdown is requested
+                return !!link.showCountdown;
+            }
+        }
+
         return true;
     };
 
@@ -936,8 +1012,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <div
                             className="absolute inset-0"
                             style={{
-                                maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
-                                WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
+                                maskImage: 'radial-gradient(170% 100% at 50% 0%, black 0%, black 75%, transparent 100%)',
+                                WebkitMaskImage: 'radial-gradient(170% 100% at 50% 0%, black 0%, black 75%, transparent 100%)'
                             }}
                         >
                             {/* The single full-space Banner Image - Raw source for reliability */}
@@ -1086,9 +1162,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             {/* Avatar */}
                             {profile.avatarUrl && (
                                 <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? '-mt-12 mb-4 z-20' : 'mb-4'}`}>
-                                    <div className={`overflow-hidden shadow-xl ${profile.headerLayout === 'compact'
-                                        ? 'w-24 h-24 rounded-full border-0'
-                                        : `${currentTheme.avatarBorder} ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
+                                    <div className={`overflow-hidden shadow-xl rounded-full ${profile.headerLayout === 'compact'
+                                        ? 'w-24 h-24 border-0'
+                                        : `${currentTheme.avatarBorder.replace(/\brounded-[^\s]+\b/g, '')} ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
                                             profile.avatarSize === 'lg' ? 'w-32 h-32' :
                                                 'w-24 h-24'
                                         }`
@@ -1096,7 +1172,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         <img
                                             src={profile.avatarUrl}
                                             alt={profile.name}
-                                            className={`w-full h-full object-cover ${currentTheme.avatarBorder.includes('rounded-none') ? 'rounded-none' : 'rounded-full'}`}
+                                            className={`w-full h-full object-cover rounded-full`}
                                             loading="eager"
                                             decoding="async"
                                             {...({ fetchpriority: "high" } as any)}
@@ -1650,6 +1726,35 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 };
 
                                                 buttonLinks.forEach(link => {
+                                                    // Countdown Mode: Scheduled for future + showCountdown enabled
+                                                    const isCountdownMode = link.showCountdown && link.scheduleStart && (new Date(link.scheduleStart).getTime() > Date.now());
+
+                                                    if (isCountdownMode) {
+                                                        flushIcons();
+                                                        flushCards();
+                                                        renderedItems.push(
+                                                            <div key={`countdown-${link.id}`} className="w-full">
+                                                                <InteractiveButton className="w-full">
+                                                                    <div 
+                                                                        className={`w-full ${buttonClass} flex flex-col items-center justify-center overflow-hidden transition-all duration-300`}
+                                                                        style={{ ...mainButtonStyle, borderRadius: borderRadiusValue, minHeight: '100px' }}
+                                                                    >
+                                                                        <LinkCountdown 
+                                                                            targetDate={link.scheduleStart!} 
+                                                                            title={link.title}
+                                                                            onZero={() => {
+                                                                                setCurrentTime(new Date());
+                                                                            }}
+                                                                            fontFamily={effectiveFontFamily}
+                                                                            style={{ color: getSmartTextColor() }}
+                                                                        />
+                                                                    </div>
+                                                                </InteractiveButton>
+                                                            </div>
+                                                        );
+                                                        return;
+                                                    }
+
                                                     // 1. Specialized Integrated Components (Instagram, YouTube, Twitch)
                                                     if (instagramIntegration && link.type === 'collection' && (link.platform === 'instagram' || link.title === 'Posts do Instagram')) {
                                                         flushIcons();
@@ -2342,7 +2447,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             </InteractiveButton>
                         )}
 
-                        {(profile.planType === 'free' || !profile.planType || !profile.hideBranding) && (
+                        {(profile.plan_type === 'free' || !profile.plan_type || !profile.hideBranding) && (
                             <div className="mt-2 mb-2 flex flex-col items-center w-full px-4 text-center gap-1 relative z-30">
                                 <div className="flex flex-col items-center gap-0.5">
                                     <span style={{

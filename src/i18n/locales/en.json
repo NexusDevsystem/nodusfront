@@ -89,7 +89,7 @@
         "analytics": "Analytics",
         "tools": "Tools",
         "files": "Files",
-        "upgrade": "Upgrade & Plans",
+        "upgrade": "Billing",
         "administration": "Administration",
         "blogAdmin": "Blog Admin",
         "support": "Support",
@@ -642,7 +642,7 @@
         "button": "Upgrade Now"
     },
     "billing": {
-        "title": "Plans & Upgrade",
+        "title": "Billing",
         "upgradeTitle": "Upgrade to Premium",
         "upgradeSubtitle": "Unlock your brand's full potential.",
         "free": "Free",
@@ -773,6 +773,7 @@
         "topIcons": "Top icons",
         "noSocials": "No networks",
         "mainButtons": "Main buttons",
+        "myLinks": "My Links",
         "linkTitlePlaceholder": "Link Title",
         "noButtons": "No buttons configured",
         "enterStudio": "Enter Studio",

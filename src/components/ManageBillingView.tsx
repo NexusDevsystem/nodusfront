@@ -1,312 +1,462 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile } from '../types';
-import { Receipt, ShieldCheck, ExternalLink, Loader2, ChevronRight, Download, Eye, X, CheckCircle2, Crown, Wallet } from 'lucide-react';
+import { 
+    Receipt, 
+    ChevronRight, 
+    Download, 
+    Loader2, 
+    History,
+    Crown,
+    Zap,
+    CreditCard as CardIcon,
+    BadgeCheck,
+    Calendar,
+    Mail,
+    User,
+    Check,
+    ArrowUpRight,
+    CircleDashed,
+    Shield,
+    MapPin,
+    FileText,
+    PencilLine,
+    Plus,
+    XCircle,
+    AlertCircle,
+    Clock,
+    TrendingUp,
+    Settings
+} from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti';
-import { useSearchParams } from 'react-router-dom';
+import BillingView from './BillingView';
 
 interface ManageBillingViewProps {
     profile: UserProfile;
+    links: any[];
+    onChange: (profile: UserProfile) => void;
 }
 
-interface Invoice {
-    id: string;
-    amount_paid: number;
-    currency: string;
-    status: string;
-    created: number;
-    invoice_pdf: string;
-    number: string;
-    hosted_invoice_url: string;
-}
-
-const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile }) => {
+const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile, links, onChange }) => {
     const { t } = useTranslation();
-    const [loadingPortal, setLoadingPortal] = useState(false);
-    const [loadingInvoices, setLoadingInvoices] = useState(true);
-    const [invoices, setInvoices] = useState<Invoice[]>([]);
-    const [searchParams] = useSearchParams();
+    const [showPlans, setShowPlans] = useState(false);
+    const [loadingInvoices, setLoadingInvoices] = useState(false);
+    const [confirmCancel, setConfirmCancel] = useState(false);
+    const [isCanceling, setIsCanceling] = useState(false);
+    const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
 
-    useEffect(() => {
-        if (searchParams.get('success') === 'true') {
-            const duration = 5 * 1000;
-            const animationEnd = Date.now() + duration;
-            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-            const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
-            const interval: any = setInterval(function() {
-                const timeLeft = animationEnd - Date.now();
-
-                if (timeLeft <= 0) {
-                    return clearInterval(interval);
-                }
-
-                const particleCount = 50 * (timeLeft / duration);
-                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
-            }, 250);
-        }
-    }, [searchParams]);
-
-    useEffect(() => {
-        const fetchInvoices = async () => {
-            if (!profile.stripeCustomerId) {
-                setLoadingInvoices(false);
-                return;
-            }
-            try {
-                const data = await apiClient.getInvoices();
-                setInvoices(data.data || []);
-            } catch (err) {
-                console.error('Error fetching invoices:', err);
-            } finally {
-                setLoadingInvoices(false);
-            }
-        };
-        fetchInvoices();
-    }, [profile.stripeCustomerId]);
-
-    const handleManageBilling = async () => {
-        setLoadingPortal(true);
-        try {
-            const { url } = await apiClient.createPortalSession();
-            if (url) {
-                window.open(url, '_blank');
-            }
-        } catch (err: any) {
-            console.error('Portal Error:', err);
-        } finally {
-            setLoadingPortal(false);
-        }
-    };
+    const isFree = !profile.plan_type || profile.plan_type === 'free';
 
     const formatDate = (timestamp: number) => {
         return new Date(timestamp * 1000).toLocaleDateString('pt-BR', {
             day: '2-digit',
-            month: 'long',
+            month: '2-digit',
             year: 'numeric'
         });
     };
 
-    const formatCurrency = (amount: number, currency: string) => {
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: currency.toUpperCase()
-        }).format(amount / 100);
+    const handleCancelSubscription = async () => {
+        setIsCanceling(true);
+        try {
+            await apiClient.cancelSubscription();
+            const updatedProfile = { 
+                ...profile, 
+                subscriptionStatus: 'canceled' as any,
+                subscription_status: 'canceled' as any
+            };
+            onChange(updatedProfile);
+            setConfirmCancel(false);
+        } catch (err: any) {
+            console.error('Cancel Error:', err);
+        } finally {
+            setIsCanceling(false);
+        }
     };
 
-    const isFree = !profile.planType || profile.planType === 'free';
+    const handleReactivateSubscription = async () => {
+        setIsCanceling(true);
+        try {
+            await apiClient.reactivateSubscription();
+            const updatedProfile = { 
+                ...profile, 
+                subscriptionStatus: 'active' as any,
+                subscription_status: 'active' as any
+            };
+            onChange(updatedProfile);
+        } catch (err: any) {
+            console.error('Reactivate Error:', err);
+        } finally {
+            setIsCanceling(false);
+        }
+    };
+
+    const internalReceipt = !isFree ? {
+        id: `NODUS-REC-${(profile.id || 'XXXX').slice(0, 8).toUpperCase()}`,
+        name: profile.name,
+        email: profile.email,
+        taxId: profile.taxId || 'Não informado',
+        plan: profile.plan_type === 'annual' ? 'Nodus Pro - Anual' : 'Nodus Pro - Mensal',
+        price: profile.plan_type === 'annual' ? 'R$ 399,00' : 'R$ 29,90',
+        date: profile.subscriptionExpiryDate 
+            ? formatDate(new Date(profile.subscriptionExpiryDate).getTime() / 1000 - (profile.plan_type === 'annual' ? 365 : 30) * 86400) 
+            : formatDate(Date.now() / 1000),
+        status: 'PAGO VIA PIX',
+        gatewayId: (profile.abacateCustomerId || 'ext_nodus_001').slice(0, 12)
+    } : null;
+
+    if (showPlans) {
+        return (
+            <div className="animate-fade-in relative z-10 pt-10 px-4 md:px-14">
+                <button 
+                    onClick={() => setShowPlans(false)}
+                    className="mb-10 flex items-center gap-3 text-xs font-black text-black bg-white border-2 border-black rounded-2xl shadow-[0_4px_0_0_#1a1a1a] px-6 py-3 hover:-translate-y-0.5 active:translate-y-0 transition-all uppercase tracking-widest"
+                >
+                    <ChevronRight className="rotate-180 w-5 h-5 shadow-none" strokeWidth={3} />
+                    VOLTAR AO PAINEL
+                </button>
+                <BillingView profile={profile} onChange={(p) => { 
+                    onChange(p); 
+                    setShowPlans(false); 
+                }} />
+            </div>
+        );
+    }
 
     return (
-        <div className="relative min-h-screen pb-20 overflow-hidden">
-            {/* Background Decoration */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-5">
-                <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-            </div>
-
-            <div className="relative z-10 max-w-5xl mx-auto space-y-12 animate-fade-in px-8 md:px-12 pt-10">
-            {/* Minimal Header */}
-                <motion.div 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b-4 border-[#1a1a1a] pb-8 w-full block"
-                >
-                    <div className="relative ml-4 md:ml-6">
-                        <div className="absolute -left-7 top-1/2 -translate-y-1/2 w-2.5 h-10 bg-[#ffdf00] border-2 border-[#1a1a1a]" />
-                        <h2 className="text-4xl font-black text-black uppercase tracking-tighter leading-none italic">
-                            {t('billing.billing', 'Faturamento')}
-                        </h2>
-                        <p className="text-[10px] text-black/40 font-black uppercase tracking-[0.3em] mt-3 ml-1">
-                            {t('billing.manageBilling', 'Gestão de assinatura e pagamentos')}
-                        </p>
-                    </div>
-                    
-                    {!isFree && profile.stripeCustomerId && (
-                        <motion.button
-                            whileHover={{ x: 2, y: 2 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={handleManageBilling}
-                            disabled={loadingPortal}
-                            className="group relative flex items-center justify-center gap-3 text-[12px] font-black uppercase tracking-widest text-white bg-[#1a1a1a] py-4 px-10 border-2 border-[#1a1a1a] rounded-md transition-all disabled:opacity-50"
+        <div className="relative min-h-screen w-full bg-[#fdfdfd] text-[#1a1a1a] p-4 md:p-14 animate-fade-in font-sans pb-32">
+            <AnimatePresence>
+                {selectedReceipt && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[9999] bg-[#fdfdfd] flex items-center justify-center p-0 md:p-8 overflow-y-auto"
+                    >
+                        <motion.div 
+                            initial={{ y: 50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 50, opacity: 0 }}
+                            className="bg-white md:border-4 border-black w-full max-w-4xl min-h-full md:min-h-0 md:shadow-[40px_40px_0_0_#000000] p-8 md:p-20 relative overflow-hidden"
+                            onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="absolute inset-0 bg-[#97cd7a] translate-y-1.5 -z-10 group-hover:translate-y-0 transition-transform rounded-md" />
-                            {loadingPortal ? <Loader2 size={16} className="animate-spin text-[#97cd7a]" /> : <ExternalLink size={16} strokeWidth={3} className="text-[#97cd7a]" />}
-                            <span className="relative z-10">{t('billing.stripePortal', 'Portal Stripe')}</span>
-                        </motion.button>
-                    )}
-                </motion.div>
-
-            {/* Status Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
-                    {/* Plan Card */}
-                    <motion.div 
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="group bg-white p-8 border-4 border-[#1a1a1a] shadow-[0_12px_0_0_#1a1a1a] rounded-md relative overflow-hidden flex flex-col justify-between min-h-[200px]"
-                    >
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-black/5 -rotate-45 translate-x-12 -translate-y-12 transition-transform group-hover:bg-[#97cd7a]/10" />
-                        
-                        <div className="flex items-start justify-between relative z-10">
-                            <div>
-                                <p className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-3">{t('billing.currentSubscription', 'Assinatura Atual')}</p>
-                                <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-none mb-6">
-                                    {isFree ? 'Nodus Free' : `Nodus Premium ${profile.planType === 'monthly' ? t('billing.monthly', 'Mensal') : t('billing.yearly', 'Anual')}`}
-                                </h3>
-                            </div>
-                            <div className="flex items-center justify-center">
-                                <div className={`w-14 h-14 rounded-full border-2 border-[#1a1a1a] flex items-center justify-center shadow-[0_3px_0_0_#1a1a1a] ${isFree ? 'bg-slate-50 text-black/10' : 'bg-[#97cd7a] text-black'}`}>
-                                    <Crown size={28} strokeWidth={3} className={!isFree ? 'fill-black/20' : ''} />
-                                </div>
-                            </div>
-                        </div>
-                        
-                        {!isFree && (
-                            <div className="flex items-center gap-3 relative z-10">
-                                <div className="flex items-center gap-2 text-[11px] font-black text-black uppercase tracking-widest bg-[#97cd7a] px-4 py-2 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-md">
-                                    <CheckCircle2 size={14} strokeWidth={3} />
-                                    {t('billing.activeUntil', 'Ativo até')} {profile.subscriptionExpiryDate ? new Date(profile.subscriptionExpiryDate).toLocaleDateString('pt-BR') : '--/--/----'}
-                                </div>
-                            </div>
-                        )}
-                    </motion.div>
-
-                    {/* Method Card */}
-                    <motion.div 
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="group bg-white p-8 border-4 border-[#1a1a1a] shadow-[0_12px_0_0_#1a1a1a] rounded-md relative overflow-hidden flex flex-col justify-between min-h-[200px]"
-                    >
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-black/5 rotate-45 translate-x-12 -translate-y-12 transition-transform group-hover:bg-[#ffdf00]/10 rounded-full" />
-                        
-                        <div className="flex items-start justify-between relative z-10">
-                            <div>
-                                <p className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-3">{t('billing.billingMethod', 'Método de Cobrança')}</p>
-                                <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-none mb-6">
-                                    {isFree ? t('billing.manualInvoices', 'Faturas Manuais') : (profile.stripeCustomerId ? t('billing.creditCard', 'Cartão de Crédito') : t('billing.internal', 'Interno'))}
-                                </h3>
-                            </div>
-                            <div className="w-14 h-14 rounded-full border-2 border-[#1a1a1a] flex items-center justify-center text-black bg-white shadow-[0_3px_0_0_#1a1a1a]">
-                                <Wallet size={28} strokeWidth={3} />
-                            </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-3 opacity-60 relative z-10">
-                            <ShieldCheck size={16} className="text-[#97cd7a]" strokeWidth={3} />
-                            <p className="text-[10px] text-black font-black uppercase tracking-widest leading-tight">
-                                {profile.stripeCustomerId
-                                    ? t('billing.stripeSecurity', 'Segurança via infraestrutura Stripe')
-                                    : t('billing.manualManagement', 'Assinatura gerenciada manualmente')}
-                            </p>
-                        </div>
-                    </motion.div>
-                </div>
-
-                {/* Invoices Section */}
-                <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="space-y-6 w-full"
-                >
-                    <div className="flex items-center gap-4 border-b-2 border-black/10 pb-4">
-                        <div className="w-8 h-8 bg-black border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#97cd7a] flex items-center justify-center text-white">
-                            <Receipt size={16} strokeWidth={3} />
-                        </div>
-                        <h3 className="text-sm font-black text-black uppercase tracking-[0.2em]">{t('billing.receiptHistory', 'Histórico de Recibos')}</h3>
-                    </div>
-
-                    {loadingInvoices ? (
-                        <div className="relative overflow-hidden bg-white border-4 border-[#1a1a1a] p-12 shadow-[0_8px_0_0_#1a1a1a]">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-black/5">
-                                <motion.div 
-                                    className="h-full bg-[#97cd7a]"
-                                    animate={{ x: ['-100%', '100%'] }}
-                                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                                />
-                            </div>
-                            <div className="flex flex-col items-center">
-                                <div className="relative mb-6">
-                                    <Loader2 size={48} className="text-[#97cd7a] animate-spin" strokeWidth={3} />
-                                    <motion.div 
-                                        className="absolute inset-0 border-4 border-[#ffdf00] -m-1"
-                                        animate={{ opacity: [1, 0, 1] }}
-                                        transition={{ duration: 0.5, repeat: Infinity }}
-                                    />
-                                </div>
-                                <p className="text-[13px] text-black font-black uppercase tracking-[0.4em] mb-2">
-                                    {t('billing.syncingInvoices', 'Sincronizando')}
-                                </p>
-                                <div className="flex gap-1">
-                                    {[...Array(3)].map((_, i) => (
-                                        <motion.div 
-                                            key={i}
-                                            className="w-1.5 h-1.5 bg-black"
-                                            animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
-                                            transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.2 }}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                            {/* Scanning bar effect */}
-                            <motion.div 
-                                className="absolute inset-0 bg-gradient-to-b from-transparent via-[#97cd7a]/10 to-transparent h-20 -translate-y-full"
-                                animate={{ translateY: ['0%', '500%'] }}
-                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                            />
-                        </div>
-                    ) : invoices.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-4">
-                            {invoices.map((invoice, idx) => (
-                                <motion.div
-                                    key={invoice.id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.4 + idx * 0.05 }}
-                                    className="group bg-white p-6 border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] rounded-md transition-all hover:bg-zinc-50 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden cursor-pointer"
-                                    onClick={() => window.open(invoice.hosted_invoice_url, '_blank')}
-                                >
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-[#97cd7a] opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    
-                                    <div className="flex items-center gap-6 relative z-10">
-                                        <div className="w-14 h-14 flex items-center justify-center text-black/10 group-hover:text-[#97cd7a] transition-all">
-                                            <Download size={28} strokeWidth={2.5} />
-                                        </div>
-                                        <div>
-                                            <h4 className="text-[13px] font-black text-black uppercase tracking-[0.1em] mb-1">{invoice.number || t('billing.receiptFallback', 'Recibo Nodus')}</h4>
-                                            <p className="text-[10px] text-black/40 font-black uppercase tracking-widest">{formatDate(invoice.created)}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center justify-between sm:justify-end gap-10 relative z-10 sm:border-t-0 border-t border-black/5 pt-4 sm:pt-0">
-                                        <div className="text-left sm:text-right">
-                                            <p className="text-2xl font-black text-black tracking-tight leading-none mb-1">{formatCurrency(invoice.amount_paid, invoice.currency)}</p>
-                                            <div className="flex items-center gap-2 sm:justify-end text-[10px] font-black uppercase tracking-widest text-[#97cd7a]">
-                                                <div className="w-2 h-2 rounded-full bg-[#97cd7a] animate-pulse" />
-                                                {t('billing.paid', 'Pago')}
+                            <div className="absolute top-0 right-0 w-96 h-96 bg-[#97cd7a]/5 -rotate-45 translate-x-48 -translate-y-48 pointer-events-none border-b-2 border-black/5" />
+                            
+                            <div className="space-y-16">
+                                <div className="flex flex-col md:flex-row justify-between items-start gap-8">
+                                    <div className="space-y-6">
+                                        <div className="flex items-center gap-5 text-black">
+                                            <div className="w-16 h-16 bg-black flex items-center justify-center text-[#ffdf00] font-black italic text-3xl rounded-2xl shadow-[6px_6px_0_0_#97cd7a]">N</div>
+                                            <div>
+                                                <h2 className="text-4xl font-black uppercase tracking-tighter italic leading-none">Nodus Comprovante</h2>
+                                                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-black/20 mt-3">Documento de Operação Autêntica</p>
                                             </div>
                                         </div>
-                                        <div className="w-10 h-10 border-2 border-[#1a1a1a] bg-[#1a1a1a] text-white flex items-center justify-center group-hover:bg-[#ffdf00] group-hover:text-black transition-all rotate-0 rounded-sm">
-                                            <ChevronRight size={20} strokeWidth={4} />
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <button 
+                                            onClick={() => window.print()}
+                                            className="h-16 px-10 bg-[#ffdf00] border-2 border-black font-black text-[11px] uppercase tracking-[0.2em] shadow-[6px_6px_0_0_#000000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-black"
+                                        >
+                                            GERAR PDF / IMPRIMIR
+                                        </button>
+                                        <button 
+                                            onClick={() => setSelectedReceipt(null)}
+                                            className="w-16 h-16 bg-white border-2 border-black rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all transform hover:rotate-90 group text-black"
+                                        >
+                                            <XCircle size={28} className="group-hover:scale-110 transition-transform" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 border-y-4 border-black py-16">
+                                    <div className="space-y-3">
+                                        <p className="text-[10px] font-black text-black/20 uppercase tracking-[0.3em] italic">Transação ID</p>
+                                        <p className="text-lg font-black uppercase tracking-tight italic">{selectedReceipt.id}</p>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <p className="text-[10px] font-black text-black/20 uppercase tracking-[0.3em] italic">Data da Emissão</p>
+                                        <p className="text-lg font-black uppercase tracking-tight italic">{selectedReceipt.date}</p>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <p className="text-[10px] font-black text-black/20 uppercase tracking-[0.3em] italic">Método Verificado</p>
+                                        <div className="inline-flex items-center gap-3 bg-[#97cd7a] px-5 py-2 border-2 border-black shadow-[4px_4px_0_0_#000000]">
+                                            <span className="text-[11px] font-black uppercase tracking-widest italic text-black">PIX INSTANTÂNEO</span>
                                         </div>
                                     </div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="bg-white p-10 border-2 border-[#1a1a1a] border-dashed text-center">
-                            <div className="w-12 h-12 bg-slate-50 border border-[#1a1a1a] flex items-center justify-center mx-auto mb-4 text-black/10 shadow-[0_2px_0_0_#1a1a1a]">
-                                <Receipt size={24} strokeWidth={3} />
+                                </div>
+
+                                <div className="space-y-16">
+                                    <div className="space-y-8">
+                                        <p className="text-sm font-black uppercase tracking-[0.4em] italic text-black/40">Resumo do Faturamento</p>
+                                        <div className="bg-zinc-50 border-2 border-black p-10 space-y-8 shadow-[12px_12px_0_0_#000000]">
+                                            <div className="flex justify-between items-center pb-8 border-b-2 border-black/5 text-black">
+                                                <div className="space-y-2">
+                                                    <p className="font-black italic uppercase text-2xl tracking-tighter">{selectedReceipt.plan}</p>
+                                                    <p className="text-[10px] font-bold text-black/30 uppercase tracking-[0.3em]">Acesso ilimitado às ferramentas Pro</p>
+                                                </div>
+                                                <p className="text-4xl font-black italic">{selectedReceipt.price}</p>
+                                            </div>
+                                            <div className="flex justify-between items-center text-xs font-black uppercase tracking-[0.3em] italic text-black">
+                                                <span>Total da Transação</span>
+                                                <span className="text-lg">{selectedReceipt.price}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-20 pt-10">
+                                        <div className="space-y-6">
+                                            <p className="text-sm font-black uppercase tracking-[0.4em] italic border-b-2 border-black/10 pb-4 text-black/40">Dados do Pagador</p>
+                                            <div className="space-y-4">
+                                                <p className="text-2xl font-black italic uppercase leading-none tracking-tighter text-black">{selectedReceipt.name}</p>
+                                                <div className="space-y-2">
+                                                    <p className="text-[11px] font-bold text-black/40 uppercase tracking-[0.2em]">E-mail: {selectedReceipt.email}</p>
+                                                    <p className="text-[11px] font-bold text-black/40 uppercase tracking-[0.2em]">Documento: {selectedReceipt.taxId}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-6">
+                                            <p className="text-sm font-black uppercase tracking-[0.4em] italic border-b-2 border-black/10 pb-4 text-black/40">Segurança da Rede</p>
+                                            <div className="flex items-center gap-8">
+                                                <div className="w-20 h-20 bg-white border-4 border-[#97cd7a] flex items-center justify-center rounded-[2.5rem] animate-pulse shadow-[6px_6px_0_0_#97cd7a]">
+                                                    <Shield size={40} className="text-[#97cd7a]" strokeWidth={3} />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <p className="text-2xl font-black italic text-[#97cd7a] uppercase leading-none">{selectedReceipt.status}</p>
+                                                    <p className="text-[10px] font-bold text-black/20 uppercase tracking-widest leading-relaxed">Assinado digitalmente via <br/> Nodus Transaction Protocol v2.0</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="pt-24 border-t-2 border-black/5 text-center space-y-6">
+                                    <p className="text-[10px] font-bold text-black/20 uppercase tracking-[0.8em] italic">ORIGINAL - DOCUMENTO NÃO EDITÁVEL</p>
+                                    <div className="flex justify-center items-center gap-6 text-black/10 opacity-50">
+                                        <Zap size={16} />
+                                        <div className="w-48 h-[1px] bg-black/20" />
+                                        <Shield size={16} />
+                                        <div className="w-48 h-[1px] bg-black/20" />
+                                        <Zap size={16} />
+                                    </div>
+                                </div>
                             </div>
-                            <h4 className="text-black font-black uppercase tracking-widest text-xs mb-1">{t('billing.noReceipts', 'Sem recibos')}</h4>
-                            <p className="text-black font-bold uppercase tracking-widest text-[8px] opacity-40 max-w-[200px] mx-auto">{t('billing.receiptsAppearAuto', 'Seus recibos aparecerão aqui automaticamente.')}</p>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <div className="max-w-6xl mx-auto relative z-10 space-y-12">
+                <header className="space-y-8">
+                    <div className="flex items-center gap-3 uppercase text-[10px] font-black tracking-[0.4em] text-black/20 italic">
+                        <Settings size={12} strokeWidth={4} />
+                        Gerenciamento de Assinatura
+                    </div>
+                    
+                    <div className="bg-white border-4 border-black rounded-3xl shadow-[0_12px_0_0_#1a1a1a] p-8 md:p-12 relative overflow-hidden flex flex-col lg:flex-row gap-12 justify-between">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-[#ffdf00]/5 -rotate-45 translate-x-32 -translate-y-32 pointer-events-none" />
+                        
+                        <div className="space-y-8 relative z-10 flex-1">
+                            <div className="space-y-2">
+                                <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter italic leading-none text-black">
+                                    {isFree ? 'Nodus Free' : `Nodus Pro ${profile.plan_type === 'annual' ? 'Anual' : 'Mensal'}`}
+                                </h1>
+                                <p className="text-sm font-bold text-black/40 uppercase tracking-widest leading-loose">
+                                    {isFree ? 'Explore a plataforma sem limites de tempo.' : `Ciclo de faturamento ${profile.plan_type === 'annual' ? 'anual' : 'mensal'}.`}
+                                </p>
+                            </div>
+
+                            {!isFree && (
+                                <div className="flex flex-wrap items-center gap-8 pt-4 border-t-2 border-black/5">
+                                    <div className="space-y-1 text-black">
+                                        <p className="text-[10px] font-black text-black/20 uppercase tracking-[0.2em]">
+                                            {profile.subscriptionStatus === 'canceled' ? 'Acesso Expira em' : 'Próxima Renovação'}
+                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <Calendar size={18} strokeWidth={3} />
+                                            <span className="text-xl font-black uppercase tracking-tighter italic">
+                                                {profile.subscriptionExpiryDate ? formatDate(new Date(profile.subscriptionExpiryDate).getTime() / 1000) : '--/--/----'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="h-10 w-[2px] bg-black/5 hidden md:block" />
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-black text-black/20 uppercase tracking-[0.2em]">Valor da Cobrança</p>
+                                        <div className="flex items-center gap-2 text-[#97cd7a]">
+                                            <span className="text-xl font-black uppercase tracking-tighter italic">
+                                                {profile.plan_type === 'annual' ? 'R$ 399,00' : 'R$ 29,90'} / {profile.plan_type === 'annual' ? 'ano' : 'mês'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </motion.div>
+
+                        <div className="w-full lg:w-80 flex flex-col justify-center items-center lg:items-end gap-6 relative z-10">
+                            {isFree ? (
+                                <button 
+                                    onClick={() => setShowPlans(true)}
+                                    className="w-full h-20 bg-[#ffdf00] border-4 border-black rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-[0_8px_0_0_#1a1a1a] hover:-translate-y-1 active:translate-y-0 active:shadow-none transition-all flex items-center justify-center gap-4 text-black"
+                                >
+                                    <Crown size={20} strokeWidth={3} />
+                                    CONHECER PLANOS PRO
+                                </button>
+                            ) : (
+                                <div className="w-full space-y-4">
+                                    {profile.subscriptionStatus === 'canceled' ? (
+                                        <button 
+                                            onClick={handleReactivateSubscription}
+                                            disabled={isCanceling}
+                                            className="w-full h-20 bg-[#97cd7a] text-black border-4 border-black rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-[0_8px_0_0_#1a1a1a] hover:-translate-y-1 transition-all flex items-center justify-center gap-4"
+                                        >
+                                            {isCanceling ? <Loader2 size={18} className="animate-spin text-black" /> : < History size={18} strokeWidth={3} />}
+                                            REATIVAR RENOVAÇÃO
+                                        </button>
+                                    ) : !confirmCancel ? (
+                                        <button 
+                                            onClick={() => setConfirmCancel(true)}
+                                            className="w-full h-20 bg-[#ef4444] text-white border-4 border-black rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-[0_8px_0_0_#1a1a1a] hover:-translate-y-1 hover:shadow-[0_12px_0_0_#1a1a1a] transition-all flex items-center justify-center gap-4"
+                                        >
+                                            <XCircle size={18} strokeWidth={3} />
+                                            CANCELAR RENOVAÇÃO
+                                        </button>
+                                    ) : (
+                                        <div className="w-full bg-white border-4 border-black rounded-2xl p-6 shadow-[0_8px_0_0_#1a1a1a] space-y-6">
+                                            <p className="text-[10px] font-black text-black uppercase tracking-widest text-center leading-relaxed italic">
+                                                CANCELAR RENOVAÇÃO? VOCÊ CONTINUARÁ COM ACESSO PRO ATÉ {profile.subscriptionExpiryDate ? formatDate(new Date(profile.subscriptionExpiryDate).getTime() / 1000) : 'O FIM DO CICLO'}. 
+                                            </p>
+                                            <div className="flex gap-3">
+                                                <button onClick={handleCancelSubscription} className="flex-1 py-3 bg-[#ef4444] text-white border-2 border-black font-black text-[9px] uppercase tracking-widest hover:brightness-110">
+                                                    {isCanceling ? <Loader2 size={16} className="animate-spin mx-auto text-white" /> : 'CONFIRMAR'}
+                                                </button>
+                                                <button onClick={() => setConfirmCancel(false)} className="flex-1 py-3 bg-white border-2 border-black font-black text-[9px] uppercase tracking-widest hover:bg-zinc-50 text-black">
+                                                    VOLTAR
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </header>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 text-black">
+                    <section className="space-y-8">
+                        <div className="flex items-center gap-4 group">
+                             <div className="w-10 h-10 bg-white border-2 border-black rounded-2xl shadow-[0_3px_0_0_#1a1a1a] flex items-center justify-center transition-all group-hover:bg-[#ffdf00]">
+                                <BadgeCheck size={20} strokeWidth={3} />
+                             </div>
+                             <h2 className="text-xl font-black uppercase tracking-tighter italic">Confirmação de Ativação</h2>
+                        </div>
+                        
+                        <div className="bg-white border-2 border-black rounded-2xl shadow-[0_8px_0_0_#1a1a1a] p-8 min-h-[220px]">
+                            {isFree ? (
+                                <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
+                                     <Shield size={32} strokeWidth={3} className="text-black/10" />
+                                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30">Nenhum plano Pro ativo</p>
+                                     <button onClick={() => setShowPlans(true)} className="text-[10px] font-black text-black underline underline-offset-4">
+                                         ATIVAR PRIMEIRA ASSINATURA
+                                     </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-10">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-6">
+                                            <div className="w-16 h-10 bg-[#97cd7a] border-2 border-black rounded shadow-[2px_2px_0_0_#1a1a1a] flex items-center justify-center text-black font-black text-[10px] italic">PIX</div>
+                                            <div>
+                                                <p className="text-sm font-black uppercase tracking-widest italic">ASSINATURA VIA PIX</p>
+                                                <p className="text-[10px] font-bold text-black/30 uppercase tracking-widest">CONFIRMAÇÃO DIGITAL NODUS</p>
+                                            </div>
+                                        </div>
+                                        <span className="px-2 py-0.5 border border-black text-[8px] font-black uppercase tracking-widest bg-[#97cd7a]/20 text-[#97cd7a]">ATIVO</span>
+                                    </div>
+                                    <div className="px-4 py-4 bg-[#f0f9eb] border-2 border-black rounded-2xl flex items-center gap-4">
+                                        <Shield size={20} className="text-[#97cd7a]" strokeWidth={3} />
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-widest italic">Acesso Pro verificado</p>
+                                            <p className="text-[8px] font-bold text-black/40 uppercase tracking-[0.2em]">Pagamento via Pix confirmado no faturamento.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </section>
+
+                    <section className="space-y-8">
+                        <div className="flex items-center gap-4 group">
+                             <div className="w-10 h-10 bg-white border-2 border-black rounded-xl shadow-[0_3px_0_0_#1a1a1a] flex items-center justify-center transition-all group-hover:bg-[#ffdf00]">
+                                <FileText size={20} strokeWidth={3} />
+                             </div>
+                             <h2 className="text-xl font-black uppercase tracking-tighter italic">Dados Legais</h2>
+                        </div>
+                        <div className="bg-white border-2 border-black rounded-2xl shadow-[0_8px_0_0_#1a1a1a] p-10 min-h-[220px] flex flex-col justify-between">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12 whitespace-nowrap overflow-hidden">
+                                <div className="space-y-1 overflow-hidden">
+                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-black/20 italic">Nome</p>
+                                    <p className="text-xs font-black uppercase tracking-tight italic truncate">{profile.name}</p>
+                                </div>
+                                <div className="space-y-1 overflow-hidden">
+                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-black/20 italic">E-mail</p>
+                                    <p className="text-xs font-black uppercase tracking-tight italic lowercase truncate">{profile.email}</p>
+                                </div>
+                            </div>
+                            <button className="mt-12 py-4 border-2 border-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all text-black hover:text-white">EDITAR DADOS</button>
+                        </div>
+                    </section>
+                </div>
+
+                <section className="space-y-10 pt-10 text-black">
+                    <div className="flex items-center justify-between border-b-4 border-black pb-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-black flex items-center justify-center text-[#ffdf00] shadow-[3px_3px_0_0_#97cd7a]">
+                                <History size={24} strokeWidth={3} />
+                            </div>
+                            <h2 className="text-2xl font-black uppercase tracking-tighter italic">Extrato de Pagamentos</h2>
+                        </div>
+                        <span className="text-[10px] font-black text-black/20 uppercase tracking-widest">Plano {profile.plan_type === 'annual' ? 'Anual' : 'Mensal'}</span>
+                    </div>
+                    <div className="bg-white border-2 border-black rounded-2xl shadow-[0_16px_0_0_#1a1a1a] overflow-hidden">
+                        {!isFree ? (
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-zinc-50 border-b-2 border-black">
+                                    <tr>
+                                        <th className="px-10 py-5 text-[10px] font-black uppercase tracking-widest italic text-black/40">Data</th>
+                                        <th className="px-10 py-5 text-[10px] font-black uppercase tracking-widest italic text-black/40">Código</th>
+                                        <th className="px-10 py-5 text-[10px] font-black uppercase tracking-widest italic text-black/40">Gateway</th>
+                                        <th className="px-10 py-5 text-[10px] font-black uppercase tracking-widest italic text-black/40">Valor</th>
+                                        <th className="text-right px-10">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="hover:bg-[#ffdf00]/5 transition-colors group">
+                                        <td className="px-10 py-8 text-sm font-black italic">{internalReceipt?.date}</td>
+                                        <td className="px-10 py-8 text-[11px] font-bold text-black/40 tracking-wider">{internalReceipt?.id}</td>
+                                        <td className="px-10 py-8">
+                                            <div className="inline-flex items-center gap-2 bg-[#97cd7a] border-2 border-black px-3 py-1 shadow-[2px_2px_0_0_#1a1a1a]">
+                                                <span className="text-[9px] font-black uppercase tracking-widest text-black">PIX Confirmado</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-10 py-8 text-lg font-black italic">{internalReceipt?.price}</td>
+                                        <td className="px-10 py-8 text-right">
+                                            <button 
+                                                onClick={() => setSelectedReceipt(internalReceipt)}
+                                                className="w-12 h-12 bg-white border-2 border-black rounded-2xl flex items-center justify-center hover:bg-black hover:text-[#ffdf00] transition-all shadow-[4px_4px_0_0_#1a1a1a] active:translate-y-1 active:shadow-none ml-auto text-black"
+                                            >
+                                                <FileText size={20} strokeWidth={4} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        ) : (
+                            <div className="p-32 text-center space-y-4">
+                                <Receipt size={48} className="mx-auto text-black/10" />
+                                <p className="text-[12px] font-black uppercase tracking-[0.4em] text-black/20 italic">Plano Free ativo.</p>
+                            </div>
+                        )}
+                    </div>
+                </section>
             </div>
         </div>
     );

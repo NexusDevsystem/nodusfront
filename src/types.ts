@@ -13,6 +13,7 @@ export interface EventItem {
   description?: string;
   scheduleStart?: string | null;
   scheduleEnd?: string | null;
+  showCountdown?: boolean;
 }
 
 export interface LinkItem {
@@ -36,6 +37,7 @@ export interface LinkItem {
   platform?: string;
   scheduleStart?: string | null;
   scheduleEnd?: string | null;
+  showCountdown?: boolean;
   isPasswordProtected?: boolean;
   linkPassword?: string; // only in memory during editing, never persisted as plaintext
   currency?: 'BRL' | 'USD' | string;
@@ -67,10 +69,12 @@ export interface UserProfile {
   customBackground?: string | null;
   customSolidColor?: string | null;
   authProvider?: string;
-  planType?: 'free' | 'monthly' | 'annual';
+  plan_type?: 'free' | 'monthly' | 'annual';
   subscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid';
   subscriptionExpiryDate?: string | null;
-  stripeCustomerId?: string | null;
+  abacateCustomerId?: string | null;
+  taxId?: string | null;
+  cellphone?: string | null;
   seoTitle?: string;
   seoDescription?: string;
   supportType?: 'pix' | 'paypal'; // Deprecated/Legacy
@@ -94,6 +98,7 @@ export interface UserProfile {
   bannerBlurColor?: string | null;
   cardBackgroundColor?: string | null;
   hideBranding?: boolean;
+  onboardingCompleted?: boolean;
 }
 
 export interface Theme {
