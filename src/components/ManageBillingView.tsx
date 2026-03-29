@@ -124,14 +124,14 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile, links, o
     }
 
     return (
-        <div className="relative min-h-screen w-full bg-[#fdfdfd] text-[#1a1a1a] p-4 md:p-14 animate-fade-in font-sans pb-32">
+        <div className="relative min-h-screen w-full bg-[#fdfcf0] text-[#1a1a1a] p-4 md:p-14 animate-fade-in font-sans pb-32">
             <AnimatePresence>
                 {selectedReceipt && (
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[9999] bg-[#fdfdfd] flex items-center justify-center p-0 md:p-8 overflow-y-auto"
+                        className="fixed inset-0 z-[9999] bg-[#fdfcf0] flex items-center justify-center p-0 md:p-8 overflow-y-auto"
                     >
                         <motion.div 
                             initial={{ y: 50, opacity: 0 }}
@@ -189,7 +189,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile, links, o
                                 <div className="space-y-16">
                                     <div className="space-y-8">
                                         <p className="text-sm font-black uppercase tracking-[0.4em] italic text-black/40">Resumo do Faturamento</p>
-                                        <div className="bg-zinc-50 border-2 border-black p-10 space-y-8 shadow-[12px_12px_0_0_#000000]">
+                                        <div className="bg-[#fdfcf0] border-2 border-black p-10 space-y-8 shadow-[12px_12px_0_0_#000000]">
                                             <div className="flex justify-between items-center pb-8 border-b-2 border-black/5 text-black">
                                                 <div className="space-y-2">
                                                     <p className="font-black italic uppercase text-2xl tracking-tighter">{selectedReceipt.plan}</p>

@@ -100,7 +100,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                             }}
                                             className={`flex-1 py-2 text-[10px] font-medium transition-all cursor-target ${idx !== 0 ? 'border-l border-[#1a1a1a]' : ''} ${(profile.fontWeight || '400') === w.val
                                                 ? 'bg-[#1a1a1a] text-[#97cd7a]'
-                                                : 'bg-white text-black hover:bg-[#97cd7a] hover:text-white'
+                                                : 'bg-[#fdfcf0] text-black hover:bg-[#97cd7a] hover:text-white'
                                                 }`}
                                         >
                                             {w.label}

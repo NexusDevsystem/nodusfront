@@ -147,7 +147,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
     };
 
     return (
-        <div className="bg-white border-2 border-black p-6 md:p-8 shadow-[0_4px_0_0_#1a1a1a] rounded-sm relative overflow-hidden">
+        <div className="bg-[#fdfcf0] border-2 border-black p-6 md:p-8 shadow-[0_4px_0_0_#1a1a1a] rounded-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#ffdf00] opacity-5 -mr-32 -mt-32 rounded-full blur-[80px] pointer-events-none" />
 
             <div className="flex flex-col gap-12">
@@ -160,7 +160,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
                         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-6">{t('design.chooseThemeDesc')}</p>
                     </div>
 
-                    <div className="flex items-center gap-4 p-3 bg-slate-50 border-2 border-black rounded-md shadow-[0_4px_0_0_#1a1a1a]">
+                    <div className="flex items-center gap-4 p-3 bg-[#fdfcf0] border-2 border-black rounded-md shadow-[0_4px_0_0_#1a1a1a]">
                         <div className="flex items-center gap-2">
                             <Zap size={16} className={profile.enableBlur ? 'text-black fill-[#ffdf00]' : 'text-black/10'} strokeWidth={3} />
                             <span className="text-[10px] text-black font-black uppercase tracking-widest">{t('design.blurFade')}</span>

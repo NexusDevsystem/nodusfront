@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { SiSpotify, SiTiktok, SiPaypal, SiWhatsapp, SiDiscord, SiThreads } from 'react-icons/si';
 import { SOCIAL_NETWORKS } from '../constants';
+import { LinkItem, UserProfile } from '../types';
+import MonetizationView from './MonetizationView';
 
 interface AddLinkModalProps {
     isOpen: boolean;
@@ -17,13 +19,15 @@ interface AddLinkModalProps {
     onAddLink: (url?: string) => void;
     onAddCollection: (name: string, url?: string, layout?: 'list' | 'carousel') => void;
     onAddProduct: (collectionName: string) => void;
-    onAddIncentive: (type: 'pix' | 'paypal', key: string) => void;
     onAddSocial: (platform: string) => void;
     onAddHeader: () => void;
     onAddAgenda: () => void;
     onAddMap: () => void;
     onAddMediaKit: () => void;
+    onAddIncentives: () => void;
     plan_type?: 'free' | 'monthly' | 'annual';
+    profile: UserProfile;
+    onProfileChange: (profile: UserProfile) => void;
 }
 
 
@@ -60,13 +64,15 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     onAddLink,
     onAddCollection,
     onAddProduct,
-    onAddIncentive,
     onAddSocial,
     onAddHeader,
     onAddAgenda,
     onAddMap,
     onAddMediaKit,
-    plan_type = 'free'
+    onAddIncentives,
+    plan_type = 'free',
+    profile,
+    onProfileChange
 }) => {
     const isPro = plan_type === 'monthly' || plan_type === 'annual';
     const { t } = useTranslation();
@@ -79,9 +85,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     const [showCollectionStep, setShowCollectionStep] = useState(false);
     const [collectionName, setCollectionName] = useState('');
     const [collectionLayout, setCollectionLayout] = useState<'list' | 'carousel'>('list');
-    const [showIncentiveStep, setShowIncentiveStep] = useState(false);
-    const [incentiveType, setIncentiveType] = useState<'pix' | 'paypal'>('pix');
-    const [incentiveKey, setIncentiveKey] = useState('');
+    const [showMonetizationStep, setShowMonetizationStep] = useState(false);
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -313,6 +317,26 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
             );
         }
 
+        if (showMonetizationStep) {
+            return (
+                <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-400">
+                    <div className="flex items-center gap-4 mb-2">
+                        <button
+                            onClick={() => setShowMonetizationStep(false)}
+                            className="p-2 text-black hover:bg-[#ffdf00] hover:text-black border-2 border-black transition-all rounded-sm shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-0.5"
+                        >
+                            <ChevronRight size={16} strokeWidth={3} className="rotate-180" />
+                        </button>
+                        <h4 className="text-lg font-black text-black uppercase tracking-tighter">{t('monetization.title')}</h4>
+                    </div>
+
+                    <div className="bg-slate-50 p-1 rounded-md border-2 border-black">
+                        <MonetizationView profile={profile} onChange={onProfileChange} />
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Section: Essentials */}
@@ -329,6 +353,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             { id: 'product', icon: <ShoppingBag size={isMobile ? 20 : 24} strokeWidth={3} />, label: isMobile ? t('links.productLabel') : t('links.newProduct'), desc: t('links.productDescShort'), color: 'bg-white', accent: 'bg-cyan-400', action: () => { setShowShopCollectionStep(true); } },
                             { id: 'agenda', icon: <Calendar size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('agenda.title') || 'Agenda', desc: t('agenda.descShort') || 'Liste seus eventos e shows', color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddAgenda(); onClose(); } },
                             { id: 'map', icon: <Store size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.mapLabel') || 'Endereço', desc: t('links.mapDesc') || 'Destaque a localização do seu negócio', color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { onAddMap(); onClose(); } },
+                            { id: 'incentive', icon: isPro ? <DollarSign size={isMobile ? 20 : 24} strokeWidth={3} /> : <Lock size={isMobile ? 20 : 24} strokeWidth={3} className="text-black/30" />, label: t('links.incentives') + (isPro ? '' : ' (PRO)'), desc: t('links.receiveSupportDirectly'), color: 'bg-white', accent: isPro ? 'bg-[#97cd7a]' : 'bg-slate-100', action: isPro ? () => { onAddIncentives(); onClose(); } : () => { } },
                             { id: 'mediakit', icon: isPro ? <BarChart3 size={isMobile ? 20 : 24} strokeWidth={3} /> : <Lock size={isMobile ? 20 : 24} strokeWidth={3} className="text-black/30" />, label: t('mediakit.title') || 'Mídia Kit (PRO)', desc: t('mediakit.descShort') || 'Mostre seus números p/ marcas', color: 'bg-white', accent: isPro ? 'bg-[#97cd7a]' : 'bg-slate-100', action: isPro ? () => { onAddMediaKit(); onClose(); } : () => { /* Bloqueado */ } },
                         ].map((item) => (
                             <button
@@ -390,36 +415,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     </div>
                 </div>
 
-                {/* Section: Monetization */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-6 bg-cyan-400 border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
-                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.commerce')}</h4>
-                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[
-                            { id: 'product', icon: <ShoppingBag size={24} strokeWidth={2.5} />, title: t('links.productStore'), desc: t('links.physicalOrDigital'), accent: 'bg-cyan-400', action: () => setShowShopCollectionStep(true) },
-                            { id: 'incentive', icon: <DollarSign size={24} strokeWidth={2.5} />, title: t('links.incentives'), desc: t('links.receiveSupportDirectly'), accent: 'bg-[#97cd7a]', action: () => setShowIncentiveStep(true) },
-                            { id: 'affiliate', icon: <Store size={24} strokeWidth={2.5} />, title: t('links.affiliateLink'), desc: t('links.affiliateDesc'), accent: 'bg-[#ffdf00]', action: () => { } },
-                            { id: 'subscription', icon: <Lock size={24} strokeWidth={2.5} />, title: t('links.subscription') || 'Assinatura', desc: t('links.subscriptionDesc') || 'Conteúdo exclusivo p/ assinantes', accent: 'bg-indigo-400', action: () => { } },
-                        ].map((item, idx) => (
-                            <button
-                                key={idx}
-                                onClick={item.action}
-                                className="group flex items-center gap-5 p-5 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_5px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[5px] rounded-md text-left"
-                            >
-                                <div className={`w-12 h-12 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[0_4px_0_0_#1a1a1a] rounded-md  transition-transform`}>
-                                    {item.icon}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="text-[11px] font-black text-black uppercase tracking-widest leading-none mb-1.5">{item.title}</div>
-                                    <div className="text-[9px] text-black/40 font-bold uppercase tracking-widest leading-tight">{item.desc}</div>
-                                </div>
-                            </button>
-                        ))}
-                    </div>
-                </div>
+
 
                 {/* Section: Media & Integrations */}
                 <div className="space-y-6">
@@ -612,7 +608,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         <div className="max-w-4xl mx-auto w-full pb-10">
                             <AnimatePresence mode="wait">
                                 <motion.div
-                                    key={showCollectionStep ? 'collection' : showShopCollectionStep ? 'shop' : showIncentiveStep ? 'incentive' : 'main'}
+                                    key={showCollectionStep ? 'collection' : showShopCollectionStep ? 'shop' : showMonetizationStep ? 'monetization' : 'main'}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}

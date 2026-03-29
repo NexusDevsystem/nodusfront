@@ -63,7 +63,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
         { id: 'links', label: t('sidebar.links'), icon: LinkIcon, disabled: false },
         { id: 'appearance', label: t('sidebar.design'), icon: Palette, disabled: false },
         { id: 'shop', label: t('sidebar.shop'), icon: ShoppingBag, disabled: false },
-        { id: 'earn', label: t('sidebar.monetize'), icon: DollarSign, disabled: false },
       ]
     },
     {
@@ -99,16 +98,12 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
   }, []);
 
   return (
-    <aside className={`w-full md:w-64 shrink-0 bg-[#ffffff] md:border-r-2 border-[#1a1a1a] h-full flex flex-col select-none relative overflow-hidden ${className || ''}`}>
+    <aside className={`w-full md:w-64 shrink-0 bg-transparent md:border-r-2 border-[#1a1a1a] h-full flex flex-col select-none relative overflow-hidden ${className || ''}`}>
       
-      {/* Background Dot Grid - Subtle and responsive opacity */}
-      <div 
-        className={`absolute inset-0 opacity-[0.03] pointer-events-none z-0 ${isMobile ? 'opacity-[0.02]' : ''}`}
-        style={{ backgroundImage: 'radial-gradient(#1a1a1a 2px, transparent 2px)', backgroundSize: '24px 24px' }} 
-      />
+      {/* Global background and dots will show through here */}
 
       {/* Header Profile Area - Clean and refined - Height forced to 61px for alignment */}
-      <div className="w-full relative z-10 px-8 py-2.5 border-b-2 border-[#1a1a1a] bg-[#ffffff] flex flex-col justify-center h-[61px]">
+      <div className="w-full relative z-10 px-8 py-2.5 border-b-2 border-[#1a1a1a] bg-transparent flex flex-col justify-center h-[61px]">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center group cursor-default">
             <div className="w-9 h-9 rounded-full border-2 border-[#1a1a1a] overflow-hidden shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-slate-50 transition-all group-hover:-translate-y-[0.5px] group-hover:shadow-[0_3px_0_0_#1a1a1a]">
@@ -207,7 +202,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
       </div>
 
       {/* Footer Area Area */}
-      <div className="w-full bg-[#ffffff] relative z-20 border-t-2 border-[#1a1a1a] pt-6 pb-6 px-5 flex flex-col gap-3">
+      <div className="w-full bg-transparent relative z-20 border-t-2 border-[#1a1a1a] pt-6 pb-6 px-5 flex flex-col gap-3">
         
         {/* The "Mobile-style" Hidden Menu */}
         <AnimatePresence>
@@ -271,7 +266,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
         {/* Account Bottom Block (Trigger) Area */}
         <button
           onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
-          className={`w-full flex items-center justify-between p-2.5 bg-[#ffffff] border-2 border-[#1a1a1a] rounded-lg shadow-[0_3px_0_0_#1a1a1a] hover:-translate-y-[0.5px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-0.5 active:shadow-none transition-all group ${isAccountMenuOpen ? 'translate-y-0.5 shadow-none bg-slate-50' : ''}`}
+          className={`w-full flex items-center justify-between p-2.5 bg-[#fdfcf0] border-2 border-[#1a1a1a] rounded-lg shadow-[0_3px_0_0_#1a1a1a] hover:-translate-y-[0.5px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-0.5 active:shadow-none transition-all group ${isAccountMenuOpen ? 'translate-y-0.5 shadow-none bg-f8f8f8' : ''}`}
         >
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="w-9 h-9 rounded-full border-2 border-[#1a1a1a] overflow-hidden bg-slate-50 shrink-0 shadow-[0_1.5px_0_0_#1a1a1a]">

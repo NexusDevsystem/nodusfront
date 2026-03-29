@@ -35,7 +35,8 @@ import {
     FolderOpen,
     ShoppingCart,
     Tag as TagIcon,
-    X
+    X,
+    DollarSign
 } from 'lucide-react';
 import YouTubeEmbed from './YouTubeEmbed';
 import TikTokEmbed from './TikTokEmbed';
@@ -155,7 +156,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
     const [lockedLink, setLockedLink] = React.useState<LinkItem | null>(null);
     const [openMediaKit, setOpenMediaKit] = React.useState<LinkItem | null>(null);
+    const [expandedIncentive, setExpandedIncentive] = useState<string | null>(null);
     const [currentTime, setCurrentTime] = useState(new Date());
+    const portalTargetRef = React.useRef<HTMLDivElement>(null);
 
     // CSS keyframes memoized — inserted ONCE, never recreated on re-render
     const profileGlobalStyles = React.useMemo(() => (
@@ -952,6 +955,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
     return (
         <div
+            ref={portalTargetRef}
             className={`relative w-full ${isPreview ? 'h-full flex-1' : 'min-h-[100dvh]'} flex flex-col isolate`}
             style={{ fontFamily: profile.fontFamily }}
         >
@@ -1839,10 +1843,118 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         fontFamily={profile.fontFamily}
                                                                         fontWeight={profile.fontWeight || undefined}
                                                                         fontItalic={profile.fontItalic}
+                                                                        isPreview={isPreview}
+                                                                        portalTarget={portalTargetRef.current}
                                                                     />
                                                                 </motion.div>
                                                             </InteractiveButton>
                                                         );
+                                                    } else if (link.type === 'incentives' && (profile.plan_type === 'monthly' || profile.plan_type === 'annual')) {
+                                                        flushIcons();
+                                                        flushCards();
+                                                        const activeMethods = profile.paymentMethods?.filter(pm => pm.isActive !== false) || [];
+                                                        if (activeMethods.length > 0) {
+                                                            const isExpanded = expandedIncentive === link.id;
+                                                            renderedItems.push(
+                                                                <div key={`incentive-wrapper-${link.id}`} className="flex flex-col gap-2 w-full">
+                                                                    <InteractiveButton className="w-full" glowColor={`${getSmartTextColor()}33`}>
+                                                                        <motion.button
+                                                                            whileTap={{ scale: 0.98 }}
+                                                                            onClick={() => {
+                                                                                if (activeMethods.length === 1) {
+                                                                                    const method = activeMethods[0];
+                                                                                    if (method.type === 'paypal') {
+                                                                                        window.open(method.key.startsWith('http') ? method.key : `https://${method.key}`, '_blank');
+                                                                                    } else {
+                                                                                        navigator.clipboard.writeText(method.key);
+                                                                                        alert('Chave Pix copiada!');
+                                                                                    }
+                                                                                } else {
+                                                                                    setExpandedIncentive(isExpanded ? null : link.id);
+                                                                                }
+                                                                            }}
+                                                                            className={`relative w-full h-[72px] transition-all duration-300 group flex items-center ${buttonClass} cursor-pointer`}
+                                                                            style={{
+                                                                                ...mainButtonStyle,
+                                                                                color: getSmartTextColor(),
+                                                                                borderRadius: borderRadiusValue,
+                                                                                ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art' || currentTheme.id === 'technology-holo' || currentTheme.id === 'technology-neural') ? { overflow: 'visible' } : { overflow: 'hidden' })
+                                                                            }}
+                                                                        >
+                                                                            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                            <div className="relative z-10 flex items-center gap-3 w-full px-6">
+                                                                                <div className="w-9 h-9 flex items-center justify-center shrink-0">
+                                                                                    {activeMethods[0].type === 'pix' ? (
+                                                                                        <img src="/icons/pix-svgrepo-com.svg" className="w-7 h-7 opacity-90" style={{ filter: getSmartTextColor() === '#ffffff' ? 'invert(1) brightness(2)' : 'none' }} alt="Pix" />
+                                                                                    ) : (
+                                                                                        <SiPaypal size={24} className="opacity-90" />
+                                                                                    )}
+                                                                                </div>
+                                                                                <span className="font-bold text-[15px] uppercase tracking-tight flex-1 text-center">
+                                                                                    {link.title || 'Incentivos'}
+                                                                                </span>
+                                                                                <div className="w-9 shrink-0 flex items-center justify-center opacity-40">
+                                                                                    {activeMethods.length > 1 && (
+                                                                                        <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
+                                                                                            <ChevronDown size={20} strokeWidth={3} />
+                                                                                        </motion.div>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        </motion.button>
+                                                                    </InteractiveButton>
+
+                                                                    <AnimatePresence>
+                                                                        {isExpanded && activeMethods.length > 1 && (
+                                                                            <motion.div
+                                                                                initial={{ height: 0, opacity: 0 }}
+                                                                                animate={{ height: 'auto', opacity: 1 }}
+                                                                                exit={{ height: 0, opacity: 0 }}
+                                                                                className="overflow-hidden flex flex-col gap-2 pt-1"
+                                                                            >
+                                                                                {activeMethods.map(method => (
+                                                                                    <InteractiveButton key={method.id} className="w-full">
+                                                                                        <motion.button
+                                                                                            whileTap={{ scale: 0.98 }}
+                                                                                            onClick={() => {
+                                                                                                if (method.type === 'paypal') {
+                                                                                                    window.open(method.key.startsWith('http') ? method.key : `https://${method.key}`, '_blank');
+                                                                                                } else {
+                                                                                                    navigator.clipboard.writeText(method.key);
+                                                                                                    alert('Chave Pix copiada!');
+                                                                                                }
+                                                                                            }}
+                                                                                            className={`relative w-full h-[64px] transition-all duration-300 group flex items-center ${buttonClass} cursor-pointer opacity-90 hover:opacity-100`}
+                                                                                            style={{
+                                                                                                ...mainButtonStyle,
+                                                                                                backgroundColor: `${mainButtonStyle?.backgroundColor || '#ffffff'}ee`,
+                                                                                                color: getSmartTextColor(),
+                                                                                                borderRadius: borderRadiusValue,
+                                                                                                borderWidth: '1px',
+                                                                                                boxShadow: 'none'
+                                                                                            }}
+                                                                                        >
+                                                                                            <div className="relative z-10 flex items-center gap-3 w-full px-6">
+                                                                                                <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                                                                                                    {method.type === 'pix' ? (
+                                                                                                        <img src="/icons/pix-svgrepo-com.svg" className="w-6 h-6 opacity-80" style={{ filter: getSmartTextColor() === '#ffffff' ? 'invert(1) brightness(2)' : 'none' }} alt="Pix" />
+                                                                                                    ) : (
+                                                                                                        <SiPaypal size={20} className="opacity-80" />
+                                                                                                    )}
+                                                                                                </div>
+                                                                                                <span className="font-bold text-[13px] uppercase tracking-tight flex-1 text-center pr-8">
+                                                                                                    {method.label || (method.type === 'pix' ? 'Copiar Chave Pix' : 'Abrir PayPal')}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        </motion.button>
+                                                                                    </InteractiveButton>
+                                                                                ))}
+                                                                            </motion.div>
+                                                                        )}
+                                                                    </AnimatePresence>
+                                                                </div>
+                                                            );
+                                                        }
                                                     } else if (link.type === 'header') {
                                                         flushIcons();
                                                         flushCards();
@@ -2353,49 +2465,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
 
-                                            {/* Payment Methods (Monetization) - Always Last */}
-                                            {profile.paymentMethods && profile.paymentMethods.length > 0 && (
-                                                <div className="flex flex-col gap-3 w-full mb-2">
-                                                    {profile.paymentMethods.filter(pm => pm.isActive !== false).map(method => (
-                                                        <InteractiveButton key={method.id} className="w-full">
-                                                            <motion.button
-                                                                whileTap={{ scale: 0.98 }}
-                                                                onClick={() => {
-                                                                    if (method.type === 'paypal') {
-                                                                        window.open(method.key.startsWith('http') ? method.key : `https://${method.key}`, '_blank');
-                                                                    } else {
-                                                                        navigator.clipboard.writeText(method.key);
-                                                                        alert('Chave Pix copiada!');
-                                                                    }
-                                                                }}
-                                                                className={`relative w-full h-[72px] transition-all duration-300 group ${buttonClass.replace('justify-between', 'justify-center')} flex items-center justify-center cursor-pointer`}
-                                                                style={{
-                                                                    ...mainButtonStyle,
-                                                                    color: getSmartTextColor(),
-                                                                    borderRadius: borderRadiusValue,
-                                                                    ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art' || currentTheme.id === 'technology-holo' || currentTheme.id === 'technology-neural') ? { overflow: 'visible' } : { overflow: 'hidden' })
-                                                                }}
-                                                            >
-                                                                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                                                                <div className="relative z-10 flex items-center justify-center gap-3 w-full px-6">
-                                                                    <div className="w-8 h-8 flex items-center justify-center shrink-0">
-                                                                        {method.type === 'pix' ? (
-                                                                            <img src="/icons/pix-svgrepo-com.svg" className="w-6 h-6 opacity-90" style={{ filter: getSmartTextColor() === '#ffffff' ? 'invert(1) brightness(2)' : 'none' }} alt="Pix" />
-                                                                        ) : (
-                                                                            <SiPaypal size={22} className="opacity-90" />
-                                                                        )}
-                                                                    </div>
-                                                                    <span className="font-bold text-[15px] uppercase tracking-tight flex-1 text-center">
-                                                                        {method.label || (method.type === 'pix' ? 'Fazer um Pix' : 'Pagar com PayPal')}
-                                                                    </span>
-                                                                    <div className="w-8 shrink-0" /> {/* Spacer to balance the layout */}
-                                                                </div>
-                                                            </motion.button>
-                                                        </InteractiveButton>
-                                                    ))}
-                                                </div>
-                                            )}
 
                                             {activeLinks.length === 0 && (
                                                 <div className="flex flex-col items-center justify-center py-10 opacity-50 space-y-2 flex-1">

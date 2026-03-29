@@ -91,8 +91,8 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                 if (l.isArchived) return;
 
                 // Detect if it's a social network
-                const network = SOCIAL_NETWORKS.find(sn => 
-                    sn.id !== 'custom' && 
+                const network = SOCIAL_NETWORKS.find(sn =>
+                    sn.id !== 'custom' &&
                     (l.url.toLowerCase().includes(sn.id) || (l.title?.toLowerCase() || '').includes(sn.id))
                 );
 
@@ -172,7 +172,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
         if (!platform) return;
 
         // Try to find an existing link with this platform explicitly or detected
-        const existing = links.find(l => 
+        const existing = links.find(l =>
             l.type !== 'collection' && !l.isArchived &&
             (l.platform === platformId || (platformId !== 'site' && platformId !== 'custom' && l.url.toLowerCase().includes(platformId)))
         );
@@ -205,7 +205,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
         }
 
         // Try to find if we're updating an existing detected link
-        const existingId = links.find(l => 
+        const existingId = links.find(l =>
             l.type !== 'collection' && !l.isArchived &&
             (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.toLowerCase().includes(configuringPlatform)))
         )?.id;
@@ -238,19 +238,19 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
     const activeConfigPlatform = SOCIAL_NETWORKS.find(p => p.id === configuringPlatform);
 
     return (
-        <div className="bg-white border-2 border-[#1a1a1a] mb-4 group transition-all overflow-hidden shadow-[0_6px_0_0_#1a1a1a] rounded-md">
+        <div className="bg-[#fdfcf0] border-2 border-[#97cd7a] mb-4 group transition-all overflow-hidden shadow-[0_6px_0_0_#76a45f] rounded-md">
             <div className="p-4 md:p-5">
                 <div className="flex items-center justify-between gap-4 mb-4">
                     <div>
                         <h3 className="text-xs md:text-sm font-medium text-black uppercase tracking-widest leading-none">{t('social.title')}</h3>
                         <p className="text-[9px] md:text-[10px] text-black font-normal uppercase tracking-wider mt-1 opacity-60 leading-none">{t('social.subtitle')}</p>
                     </div>
-                         <button
-                             onClick={handleOpenModal}
-                             className="w-10 h-10 md:w-11 md:h-11 flex items-center justify-center text-black bg-white border-2 border-[#1a1a1a] hover:bg-[#ffdf00] transition-all shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none shrink-0 rounded-md"
-                         >
-                            <Plus size={22} strokeWidth={4} />
-                        </button>
+                    <button
+                        onClick={handleOpenModal}
+                        className="w-10 h-10 md:w-11 md:h-11 flex items-center justify-center text-black bg-[#fdfcf0] border-2 border-[#1a1a1a] hover:bg-[#ffdf00] transition-all shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none shrink-0 rounded-md"
+                    >
+                        <Plus size={22} strokeWidth={4} />
+                    </button>
                 </div>
 
                 <div className="flex flex-wrap gap-4 md:gap-5 py-1">
@@ -298,12 +298,12 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                 className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
                                 onClick={handleCloseModal}
                             />
-                                <div
-                                    className={`
+                            <div
+                                className={`
                                         relative bg-white flex flex-col overflow-hidden border-2 border-[#1a1a1a]
                                         ${isMobile ? 'w-full h-[92vh] rounded-t-3xl shadow-none translate-y-1' : 'w-full max-w-sm max-h-[70vh] shadow-[0_8px_0_0_#1a1a1a] rounded-[2rem]'}
                                     `}
-                                >
+                            >
 
                                 <div className="p-4 flex items-center justify-between shrink-0 relative border-b-2 border-[#1a1a1a]">
                                     <button
@@ -339,7 +339,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                     value={searchTerm}
                                                     onChange={(e) => setSearchTerm(e.target.value)}
                                                     placeholder={t('common.searchPlaceholder')}
-                                                     className="w-full bg-white border-2 border-[#1a1a1a] py-2 pl-9 pr-4 text-[10px] font-medium uppercase tracking-widest text-black outline-none focus:bg-[#ffdf00] placeholder:text-black/30 transition-colors shadow-[0_4px_0_0_#1a1a1a] rounded-md"
+                                                    className="w-full bg-white border-2 border-[#1a1a1a] py-2 pl-9 pr-4 text-[10px] font-medium uppercase tracking-widest text-black outline-none focus:bg-[#ffdf00] placeholder:text-black/30 transition-colors shadow-[0_4px_0_0_#1a1a1a] rounded-md"
                                                 />
                                             </div>
                                         </div>
@@ -360,10 +360,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                     const Icon = platform.icon;
 
                                                     return (
-                                                         <div
+                                                        <div
                                                             key={platform.id}
                                                             onClick={() => toggleSocialLink(platform.id)}
-                                                             className={`
+                                                            className={`
                                                                 relative flex flex-col items-center justify-center p-5 group cursor-pointer transition-all rounded-md
                                                                 ${isSelected ? 'bg-[#97cd7a] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none hover:bg-[#ffdf00]'}
                                                             `}
@@ -433,7 +433,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 ? t('social.linkInputPlaceholder')
                                                                 : t('social.userInputPlaceholder')}
                                                             onKeyDown={(e) => e.key === 'Enter' && confirmPlatform()}
-                                                             className="w-full bg-white border-2 border-[#1a1a1a] px-4 py-3 text-black text-[10px] font-medium uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/30 shadow-[0_4px_0_0_#1a1a1a] transition-colors rounded-md"
+                                                            className="w-full bg-white border-2 border-[#1a1a1a] px-4 py-3 text-black text-[10px] font-medium uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/30 shadow-[0_4px_0_0_#1a1a1a] transition-colors rounded-md"
                                                         />
                                                         <p className="text-[8px] font-normal text-black uppercase tracking-widest px-1 opacity-50 italic">
                                                             {t('social.userHint', { username: activeConfigPlatform?.placeholder || 'USUARIO' })}
@@ -442,7 +442,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                 )}
 
                                             {/* YouTube Rich Profile Card */}
-                                             {configuringPlatform === 'youtube' && isYoutubeConnected && (
+                                            {configuringPlatform === 'youtube' && isYoutubeConnected && (
                                                 <div className="bg-white p-6 border-2 border-[#1a1a1a] flex flex-col items-center text-center shadow-[0_6px_0_0_#1a1a1a] rounded-md animate-in fade-in slide-in-from-bottom-2 duration-500">
                                                     <div className="relative mb-4">
                                                         <div className="w-20 h-20 overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] bg-white rounded-md">
@@ -656,13 +656,13 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             : 'bg-white text-red-600 shadow-[0_4px_0_0_rgba(0,0,0,0.15)] hover:bg-[#fff0f0] rounded-md'
                                                             }`}
                                                     >
-                                                     {isConnectingKick ? (
-                                                         <Loader2 size={14} className="animate-spin" />
-                                                     ) : (
-                                                         <Trash2 size={14} strokeWidth={3} />
-                                                     )}
-                                                     {showDisconnectConfirm ? t('common.cancel') : t('social.disconnectKick')}
-                                                 </button>
+                                                        {isConnectingKick ? (
+                                                            <Loader2 size={14} className="animate-spin" />
+                                                        ) : (
+                                                            <Trash2 size={14} strokeWidth={3} />
+                                                        )}
+                                                        {showDisconnectConfirm ? t('common.cancel') : t('social.disconnectKick')}
+                                                    </button>
 
                                                     <AnimatePresence>
                                                         {showDisconnectConfirm && (
@@ -762,14 +762,14 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             : 'bg-white text-red-600 shadow-[0_4px_0_0_rgba(0,0,0,0.15)] hover:bg-[#fff0f0] rounded-md'
                                                             }`}
                                                     >
-                                                     {isConnectingTwitch ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} strokeWidth={3} />}
-                                                     {showDisconnectConfirm ? t('common.cancel') : t('social.disconnectTwitch')}
-                                                 </button>
+                                                        {isConnectingTwitch ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} strokeWidth={3} />}
+                                                        {showDisconnectConfirm ? t('common.cancel') : t('social.disconnectTwitch')}
+                                                    </button>
 
                                                     {showDisconnectConfirm && (
                                                         <div className="mt-4 w-full">
                                                             <button
-                                                                 onClick={async () => {
+                                                                onClick={async () => {
                                                                     try {
                                                                         setIsConnectingTwitch(true);
                                                                         await apiClient.disconnectIntegration('twitch');
@@ -810,7 +810,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             }
                                                         }}
                                                         disabled={isConnectingYoutube}
-                                                         className={`w-full bg-white hover:bg-[#ffdf00] border-2 border-[#1a1a1a] transition-all py-4 px-6 flex items-center justify-between group/yt shadow-[0_4px_0_0_rgba(26,26,26,1)] hover:translate-y-[2px] hover:shadow-none rounded-md ${isConnectingYoutube ? 'opacity-70 cursor-wait' : ''}`}
+                                                        className={`w-full bg-white hover:bg-[#ffdf00] border-2 border-[#1a1a1a] transition-all py-4 px-6 flex items-center justify-between group/yt shadow-[0_4px_0_0_rgba(26,26,26,1)] hover:translate-y-[2px] hover:shadow-none rounded-md ${isConnectingYoutube ? 'opacity-70 cursor-wait' : ''}`}
                                                     >
                                                         <div className="flex items-center gap-3">
                                                             {isConnectingYoutube ? (
@@ -1013,7 +1013,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                         </div>
                                     </div>
                                 )}
-                                </div>
+                            </div>
                         </div>
                     )}
                 </AnimatePresence>,

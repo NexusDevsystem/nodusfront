@@ -80,7 +80,7 @@ const InteractiveButton: React.FC<InteractiveButtonProps> = ({
                 perspective: 1000,
                 transformStyle: 'preserve-3d',
             }}
-            className={`relative touch-none cursor-pointer cursor-target ${className}`}
+            className={`relative cursor-pointer cursor-target ${className}`}
         >
 
             {children}

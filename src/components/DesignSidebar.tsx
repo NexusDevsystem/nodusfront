@@ -19,7 +19,7 @@ const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveS
     ];
 
     return (
-        <div className="w-full bg-white/90 backdrop-blur-lg sticky top-0 z-[50] py-3 md:py-5 border-b-2 border-black/5">
+        <div className="w-full bg-[#fdfcf0]/90 backdrop-blur-lg sticky top-0 z-[50] py-3 md:py-5 border-b-2 border-black/5">
             <div className="max-w-7xl mx-auto px-4 md:px-8">
                 <div className="flex items-center gap-1.5 md:gap-3 overflow-x-auto scrollbar-hide py-2">
                     {DESIGN_MENU_ITEMS.map((item) => {

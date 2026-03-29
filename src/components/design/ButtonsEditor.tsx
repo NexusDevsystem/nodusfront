@@ -86,7 +86,7 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-[#f8f8f8] border border-[#1a1a1a] p-5 flex flex-col items-center text-center gap-3 shadow-[0_2px_0_0_#1a1a1a]">
+                    <div className="bg-[#fdfcf0] border border-[#1a1a1a] p-5 flex flex-col items-center text-center gap-3 shadow-[0_2px_0_0_#1a1a1a]">
                         <div className="w-10 h-10 bg-white border border-[#1a1a1a] text-[#97cd7a] flex items-center justify-center shadow-[0_1px_0_0_#1a1a1a]">
                             <Zap size={20} className="fill-[#97cd7a]" />
                         </div>

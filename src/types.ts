@@ -24,7 +24,7 @@ export interface LinkItem {
   icon?: string;
   isActive: boolean;
   layout: 'classic' | 'social' | 'card' | 'icon' | 'carousel' | 'stacked' | 'list';
-  type?: 'link' | 'collection' | 'social' | 'header' | 'agenda' | 'map' | 'mediakit';
+  type?: 'link' | 'collection' | 'social' | 'header' | 'agenda' | 'map' | 'mediakit' | 'incentives';
   children?: LinkItem[];
   events?: EventItem[];
   subtitle?: string;

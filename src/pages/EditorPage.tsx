@@ -113,7 +113,7 @@ export default function EditorPage() {
                 let finalStores = withClientIds(storesDataRaw || []);
 
                 const orphanedProducts = finalProducts.filter(p => !p.storeId);
-                
+
                 if (orphanedProducts.length > 0) {
                     let defaultStore = finalStores[0];
                     if (!defaultStore) {
@@ -126,8 +126,8 @@ export default function EditorPage() {
                         };
                         finalStores.push(defaultStore);
                     }
-                    
-                    finalProducts = finalProducts.map(p => 
+
+                    finalProducts = finalProducts.map(p =>
                         !p.storeId ? { ...p, storeId: defaultStore.id } : p
                     );
                 }
@@ -456,22 +456,6 @@ export default function EditorPage() {
         setActiveTab('shop');
     };
 
-    const handleAddIncentive = (type: 'pix' | 'paypal', key: string) => {
-        const newMethod: PaymentMethod = {
-            id: Date.now().toString(),
-            type,
-            key,
-            label: type === 'pix' ? 'Meu Pix Principal' : 'Meu PayPal',
-            isActive: true
-        };
-
-        setProfile(prev => ({
-            ...prev,
-            paymentMethods: [newMethod, ...(prev.paymentMethods || [])]
-        }));
-        setActiveTab('earn');
-    };
-
     React.useEffect(() => {
         const handleOpenBilling = () => setIsUpgradeOpen(true);
         window.addEventListener('open-billing-modal', handleOpenBilling);
@@ -534,14 +518,14 @@ export default function EditorPage() {
     const shareUrl = `https://www.nodus.my/${profile.username || profile.name.toLowerCase().replace(/\s/g, '')}`;
 
     return (
-        <div className="h-screen w-full bg-white font-sans text-black selection:bg-black selection:text-[#ffdf00] flex flex-col overflow-hidden">
+        <div className="h-screen w-full bg-transparent font-sans text-black selection:bg-black selection:text-[#ffdf00] flex flex-col overflow-hidden">
             {/* Quests Checklist moved to Sidebar component */}
             {/* Top Banner for Free Users */}
             {(!profile.plan_type || profile.plan_type === 'free') && (
                 <UpgradeBanner onUpgradeClick={() => setIsUpgradeOpen(true)} />
             )}
 
-            <div className={`flex-1 flex overflow-hidden relative bg-white`}>
+            <div className={`flex-1 flex overflow-hidden relative bg-transparent`}>
                 {/* Loading Overlay - Brutalist Version */}
                 {isLoading && (
                     <BrutalistLoader
@@ -586,7 +570,7 @@ export default function EditorPage() {
                 <main className="flex-1 flex flex-col md:flex-row min-w-0 h-full relative transition-all duration-300">
 
                     {/* Mobile Header */}
-                    <div className={`md:hidden bg-white border-b-2 border-[#1a1a1a] px-4 py-4 flex items-center justify-between shrink-0 z-[60] shadow-sm relative`}>
+                    <div className={`md:hidden bg-transparent border-b-2 border-[#1a1a1a] px-4 py-4 flex items-center justify-between shrink-0 z-[60] shadow-sm relative`}>
                         <div className="flex items-center gap-3">
                             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                                 <Menu size={24} className="text-black" />
@@ -643,7 +627,7 @@ export default function EditorPage() {
                                     animate={{ x: 0 }}
                                     exit={{ x: '-100%' }}
                                     transition={{ type: 'spring', damping: 28, stiffness: 220, mass: 0.8 }}
-                                    className="relative w-[85%] max-w-[280px] h-full bg-white border-r-2 border-[#1a1a1a] flex flex-col overflow-hidden pointer-events-auto z-10"
+                                    className="relative w-[85%] max-w-[280px] h-full bg-[#fdfcf0] border-r-2 border-[#1a1a1a] flex flex-col overflow-hidden pointer-events-auto z-10"
                                 >
                                     <Sidebar
                                         activeTab={activeTab}
@@ -667,7 +651,7 @@ export default function EditorPage() {
                     <div className={`flex-1 h-full overflow-y-auto scrollbar-hide ${showMobilePreview ? 'hidden lg:block' : 'block'}`}>
 
                         {/* Desktop Header (Sticky) */}
-                        <header className={`hidden md:flex items-center justify-between px-8 py-3 bg-white border-b-2 border-[#1a1a1a] sticky top-0 z-20`}>
+                        <header className="hidden md:flex sticky top-0 z-30 items-center justify-between px-8 py-3 bg-[#fdfcf0] border-b-2 border-[#1a1a1a]">
                             <div className="flex items-center gap-2">
                                 {!isSidebarOpen && (
                                     <button
@@ -680,18 +664,19 @@ export default function EditorPage() {
                                 {/* Breadcrumb or Title */}
                                 <h1 className="text-base font-medium uppercase tracking-widest text-black">Editor</h1>
                             </div>
-                            <div className="flex items-center gap-4">                                {isPreviewMode ? (
-                                    <div className="flex items-center gap-2 h-9 px-4 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl shrink-0">
+                            <div className="flex items-center gap-4">
+                                {isPreviewMode ? (
+                                    <div className="hidden md:flex items-center gap-2 h-9 px-4 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl shrink-0">
                                         <Eye size={14} className="text-[#1a1a1a]" strokeWidth={3} />
                                         <span className="text-[10px] font-black uppercase tracking-widest text-[#1a1a1a]">Modo Preview</span>
                                     </div>
                                 ) : (isSaving || visualSavingProfile) ? (
-                                    <div className="flex items-center gap-2 h-9 px-4 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl shrink-0 transition-all">
+                                    <div className="hidden md:flex items-center gap-2 h-9 px-4 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl shrink-0 transition-all">
                                         <Loader2 size={14} className="animate-spin text-[#1a1a1a]" strokeWidth={3} />
                                         <span className="text-[10px] font-black uppercase tracking-widest text-[#1a1a1a]">{t('editor.syncing')}</span>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 h-9 px-4 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl shrink-0 transition-all">
+                                    <div className="hidden md:flex items-center gap-2 h-9 px-4 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl shrink-0 transition-all">
                                         <div className="w-2.5 h-2.5 bg-[#97cd7a] border-2 border-[#1a1a1a]" />
                                         <span className="text-[10px] font-black uppercase tracking-widest text-[#1a1a1a]">{t('editor.synced')}</span>
                                     </div>
@@ -727,7 +712,7 @@ export default function EditorPage() {
                                 <motion.div
                                     initial={{ opacity: 0, y: -20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b-4 border-[#1a1a1a] pb-8 w-full mb-12 px-2 md:px-6"
+                                    className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 w-full mb-12 px-2 md:px-6"
                                 >
                                     <div className="relative ml-4 md:ml-6">
                                         <div className="absolute -left-7 top-1/2 -translate-y-1/2 w-2.5 h-10 bg-[#ffdf00] border-2 border-[#1a1a1a]" />
@@ -747,7 +732,6 @@ export default function EditorPage() {
                                             {activeTab === 'appearance' && t('editor.tabDesc.appearance')}
                                             {activeTab === 'shop' && t('editor.tabDesc.shop')}
                                             {activeTab === 'analytics' && t('editor.tabDesc.analytics')}
-                                            {activeTab === 'earn' && t('editor.tabDesc.earn')}
                                             {activeTab === 'files' && t('editor.tabDesc.files')}
                                             {activeTab === 'integrations' && t('editor.tabDesc.integrations')}
                                             {activeTab === 'blog' && t('editor.tabDesc.blog')}
@@ -772,7 +756,6 @@ export default function EditorPage() {
                                             profile={profile}
                                             setActiveTab={setActiveTab}
                                             onAddProduct={addProductToShop}
-                                            onAddIncentive={handleAddIncentive}
                                             expandedLinks={expandedLinks}
                                             setExpandedLinks={setExpandedLinks}
                                             expandedCollections={expandedCollections}
@@ -800,11 +783,6 @@ export default function EditorPage() {
                                     <AnalyticsView userProfile={profile} />
                                 )}
 
-
-                                {activeTab === 'earn' && (
-                                    <MonetizationView profile={profile} onChange={setProfile} />
-                                )}
-
                                 {activeTab === 'billing' && (
                                     <ManageBillingView profile={profile} onChange={setProfile} links={links} />
                                 )}
@@ -830,9 +808,9 @@ export default function EditorPage() {
 
 
                                 {activeTab === 'appearance' && (
-                                    <div className="flex flex-col md:-mt-6 bg-slate-50 relative min-h-[calc(100vh-140px)]">
+                                    <div className="flex flex-col md:-mt-6 bg-transparent relative min-h-[calc(100vh-140px)]">
                                         {/* Design Sidebar */}
-                                        <div className="shrink-0 z-[50] sticky top-0 bg-white shadow-sm md:shadow-none">
+                                        <div className="shrink-0 z-[50] sticky top-0 bg-transparent shadow-sm md:shadow-none">
                                             <DesignSidebar
                                                 activeSection={activeDesignSection}
                                                 setActiveSection={setActiveDesignSection}
@@ -873,7 +851,7 @@ export default function EditorPage() {
                                 )}
 
                                 {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'integrations' && activeTab !== 'admin' && (
-                                    <div className="bg-white p-12 rounded-[20px] border border-dashed border-slate-300 text-center">
+                                    <div className="bg-transparent p-12 rounded-[20px] border border-dashed border-[#1a1a1a]/20 text-center">
                                         <div className="text-4xl mb-4 text-slate-300 flex justify-center"><Construction size={48} /></div>
                                         <h3 className="text-lg font-medium text-slate-700">{t('editor.inDevelopment')}</h3>
                                         <p className="text-slate-500 mt-2">{t('editor.inDevelopmentDesc')}</p>
@@ -892,12 +870,12 @@ export default function EditorPage() {
         */}
                     <div className={`
                         ${activeTab !== 'admin' && activeTab !== 'billing' ? 'lg:flex' : 'hidden'} flex-col items-center justify-center 
-                        lg:border-l-4 lg:border-[#1a1a1a] lg:bg-white 
+                        lg:border-l-4 lg:border-[#1a1a1a] lg:bg-transparent 
                         w-full lg:w-[350px] xl:w-[450px] shrink-0
-                        ${!showMobilePreview ? 'hidden' : 'flex-1 h-full flex flex-col z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0 bg-white md:bg-transparent'}
+                        ${!showMobilePreview ? 'hidden' : 'flex-1 h-full flex flex-col z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0 bg-transparent'}
                     `}>
 
-                        <div className="relative w-full h-full lg:flex items-center justify-center overflow-y-auto bg-white lg:bg-[#f8f9fa]">
+                        <div className="relative w-full h-full lg:flex items-center justify-center overflow-y-auto bg-transparent">
                             {/* Scale container to fit phone nicely on different laptop screens - Only on Desktop */}
                             <div className={`
                                w-full min-h-full lg:py-12 transform transition-transform duration-300 origin-center flex items-center justify-center relative z-10

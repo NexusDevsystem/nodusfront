@@ -39,7 +39,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                     </div>
 
                     <div className="flex flex-col gap-4">
-                        <div className="relative group overflow-hidden border border-[#1a1a1a] w-full h-24 bg-[#f8f8f8] shadow-[0_2px_0_0_#1a1a1a] rounded-md">
+                        <div className="relative group overflow-hidden border border-[#1a1a1a] w-full h-24 bg-[#fdfcf0] shadow-[0_2px_0_0_#1a1a1a] rounded-md">
                             {profile.customBackground ? (
                                 <>
                                     <img src={profile.customBackground} alt="Custom Background" className="w-full h-full object-cover" loading="lazy" decoding="async" />
@@ -132,7 +132,7 @@ const WallpaperEditor: React.FC<WallpaperEditorProps> = ({ profile, onChange, up
                             </div>
                         </div>
 
-                        <div className="p-2.5 bg-[#f8f8f8] border border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-lg">
+                        <div className="p-2.5 bg-[#fdfcf0] border border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-lg">
                             <p className="text-[8px] font-normal text-black/60 uppercase tracking-[0.15em] leading-tight">
                                 <Zap size={10} className="inline-block mr-1 text-black" fill="currentColor" />
                                 {t('design.colorRemovesBackground')}

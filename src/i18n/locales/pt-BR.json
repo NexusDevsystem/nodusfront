@@ -488,7 +488,9 @@
         "addFirstLink": "Adicione seu primeiro link para começar",
         "myLinksRoot": "Meus Links (Raiz)",
         "yourCollections": "Suas Coleções",
-        "clicksLabel": "Cliques"
+        "clicksLabel": "Cliques",
+        "subscription": "Assinatura (PRO)",
+        "subscriptionDesc": "Conteúdo exclusivo p/ assinantes"
     },
     "landing": {
         "headline": "O link na bio que seus seguidores merecem.",

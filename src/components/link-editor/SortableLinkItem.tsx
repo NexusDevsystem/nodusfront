@@ -10,6 +10,7 @@ import { SiSpotify } from 'react-icons/si';
 import { apiClient } from '../../services/apiClient';
 import AgendaEditor from '../AgendaEditor';
 import MapEditor from '../MapEditor';
+import MonetizationView from '../MonetizationView';
 import { SOCIAL_NETWORKS } from '../../constants';
 import DeezerIcon from '../icons/DeezerIcon';
 import {
@@ -44,6 +45,7 @@ export interface SortableLinkItemProps {
     setExpandedCollections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
     isAnyExpanded: boolean;
     isMobile: boolean;
+    setProfile?: React.Dispatch<React.SetStateAction<UserProfile>>;
 }
 
 function SortableLinkItem({
@@ -63,6 +65,7 @@ function SortableLinkItem({
     setExpandedCollections,
     isAnyExpanded,
     isMobile,
+    setProfile,
 }: SortableLinkItemProps) {
     const { t, i18n } = useTranslation();
     const isPT = i18n.language?.startsWith('pt');
@@ -305,6 +308,9 @@ function SortableLinkItem({
         if (link.type === 'mediakit') {
             return <BarChart3 size={iconSize} strokeWidth={3} />;
         }
+        if (link.type === 'incentives') {
+            return <DollarSign size={iconSize} strokeWidth={3} />;
+        }
         const network = SOCIAL_NETWORKS.find(n => n.id === link.platform) ||
             SOCIAL_NETWORKS.find(n => link.url?.toLowerCase().includes(n.id)) ||
             SOCIAL_NETWORKS.find(n => link.title?.toLowerCase().includes(n.id));
@@ -357,6 +363,11 @@ function SortableLinkItem({
                 {t('mediakit.title')?.toUpperCase() || 'MÍDIA KIT'}
             </span>
         );
+        if (link.type === 'incentives') return (
+            <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#ffdf00] text-[9px] md:text-[10px] font-bold text-black border-2 border-black uppercase shadow-[0_2.5px_0_0_#000] leading-none italic">
+                {t('links.incentives')?.toUpperCase() || 'MONETIZAÇÃO'}
+            </span>
+        );
         if (link.layout === 'social' || (link.platform && !['custom', 'site', 'telefone', 'email'].includes(link.platform))) return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-white text-[9px] md:text-[10px] font-bold text-black border-2 border-black uppercase shadow-[0_2.5px_0_0_#000] leading-none italic">{t('links.mergedTag').toUpperCase()}</span>;
         return <span className="shrink-0 px-1.5 py-0.5 md:px-2 md:py-1 bg-[#97cd7a] text-[9px] md:text-[10px] font-bold text-black border-2 border-black uppercase shadow-[0_2.5px_0_0_#000] leading-none italic">{t('links.linkLabel').toUpperCase()}</span>;
     };
@@ -387,79 +398,67 @@ function SortableLinkItem({
                 layout
                 onDrag={() => { }}
                 onDragEnd={() => { }}
-                className={`relative border-2 border-black rounded-md ${isExpanded || isCollectionExpanded ? 'bg-white shadow-[0_4px_0_0_#000]' : 'bg-white shadow-[0_4px_0_0_#000] mb-3'} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
+                className={`relative border-2 ${isCollection ? 'border-[#fef08a] shadow-[0_4px_0_0_#d9c84a] bg-[#fef08a]' : 'border-[#97cd7a] shadow-[0_4px_0_0_#76a45f] bg-[#97cd7a]'} rounded-md ${(!isExpanded && !isCollectionExpanded) ? 'mb-3' : ''} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
                 whileDrag={{ zIndex: 50, borderRadius: '6px' }}
                 style={{ willChange: 'transform' }}
             >
-                <div className={`transition-all duration-300 rounded-[6px] overflow-hidden ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${(isExpanded || isCollectionExpanded) ? 'bg-[#fefcbf]' : 'bg-white'}`}>
+                <div className={`transition-all duration-300 rounded-[6px] overflow-hidden ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${isCollection ? 'bg-[#fef08a]' : 'bg-[#97cd7a]'}`}>
                     {isCollection ? (
                         /* COLLECTION ITEM */
                         <div className="overflow-hidden">
-                            <div className={`flex border-b border-black items-stretch ${itemSize}`}>
+                            <div className={`flex border-b ${isCollection ? 'border-[#fef08a]' : 'border-black'} items-stretch ${itemSize}`}>
                                 <div
-                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black ${isCollectionExpanded ? 'bg-[#fefcbf]' : 'hover:bg-[#ffdf00] hover:text-black'} touch-none border-r-2 border-black transition-colors rounded-l-lg`}
+                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black ${isCollectionExpanded ? 'bg-black/10' : 'bg-[#fef08a]'} touch-none border-r-2 ${isCollection ? 'border-[#fef08a]' : 'border-black'} transition-colors`}
                                     onPointerDown={(e) => dragControls.start(e)}
                                 >
                                     <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="5" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="19" r="1" /></svg>
                                 </div>
-                                <div
-                                    onClick={() => toggleCollection(link.id)}
-                                    className={`flex-1 ${level > 0 ? 'py-2.5 md:py-3.5' : 'py-3.5 md:py-5'} pr-4 md:pr-6 flex items-center gap-3 md:gap-5 overflow-hidden ${isCollectionExpanded ? 'bg-transparent' : 'bg-white hover:bg-slate-50'} transition-colors duration-200 cursor-pointer`}
-                                >
-                                    <div className="text-black p-0.5 transition-colors shrink-0">
-                                        {isCollectionExpanded ? <ChevronDown size={iconSize} strokeWidth={2.5} /> : <ChevronRight size={iconSize} strokeWidth={2.5} />}
-                                    </div>
-
-                                    {!isMobile && (
-                                        <div className="shrink-0">
-                                            <div className="relative">
-                                                {link.image ? (
-                                                    <div className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} border-2 border-black overflow-hidden shadow-[0_2.5px_0_0_#000] rounded-md`}>
-                                                        <img
-                                                            src={link.image}
-                                                            alt="Thumbnail"
-                                                            className="w-full h-full object-cover"
-                                                            loading="lazy"
-                                                            decoding="async"
-                                                            onError={(e) => {
-                                                                e.currentTarget.style.display = 'none';
-                                                            }}
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                                                        className={`${level > 0 ? 'w-10 h-10' : 'w-12 h-12'} bg-white border-2 border-black shadow-[0_2.5px_0_0_#000] flex items-center justify-center text-black hover:bg-[#ffdf00] transition-all rounded-md`}
-                                                    >
-                                                        {getThumbnailIcon()}
-                                                    </button>
+                                <div className="flex-1 flex flex-col min-w-0 bg-[#fdfcf0]">
+                                    {/* Top Row: Title & Toggle */}
+                                    <div
+                                        onClick={() => toggleCollection(link.id)}
+                                        className="flex items-start justify-between p-2 pb-1 md:p-4 md:pb-2 cursor-pointer group"
+                                    >
+                                        <div className="flex-1 flex flex-col min-w-0 space-y-0.5">
+                                            <div className="flex items-center gap-2 overflow-hidden">
+                                                <div className="flex-1 font-bold text-black uppercase tracking-[0.1em] text-sm md:text-base truncate leading-tight">
+                                                    {link.title || t('links.collectionUnnamed')}
+                                                </div>
+                                                <div className="shrink-0 flex items-center gap-1.5 px-2 py-0.5 bg-black text-[#fef08a] border-2 border-black text-[8px] font-black uppercase tracking-widest shadow-[0_2px_0_0_#000] italic">
+                                                    <FolderHeart size={10} strokeWidth={3} />
+                                                    {isPT ? 'Coleção' : 'Collection'}
+                                                </div>
+                                                {(link.embedType === 'spotify' || link.platform === 'spotify' || link.url?.toLowerCase().includes('spotify.com')) && (
+                                                    <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border-2 border-black uppercase flex items-center gap-1 shadow-[0_2.5px_0_0_#000]">SPOTIFY</span>
+                                                )}
+                                                {(link.embedType === 'deezer' || link.platform === 'deezer' || link.url?.toLowerCase().includes('deezer.com')) && (
+                                                    <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-black uppercase flex items-center gap-1 shadow-[0_2.5px_0_0_#000]">DEEZER</span>
+                                                )}
+                                                {(link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
+                                                    <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border-2 border-black uppercase flex items-center gap-1 shadow-[0_2.5px_0_0_#000]">KICK</span>
                                                 )}
                                             </div>
-                                        </div>
-                                    )}
-
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1 overflow-hidden">
-                                            <div className="font-bold text-black uppercase tracking-[0.1em] p-0 text-sm md:text-base truncate leading-tight">
-                                                {link.title || t('links.collectionUnnamed')}
+                                            <div className="text-[10px] md:text-[11px] font-medium text-black/40 uppercase tracking-widest truncate">
+                                                {link.children?.length || 0} {(link.children?.length === 1) ? t('links.itemConfigured') : t('links.itemsConfigured')}
                                             </div>
-                                            {(link.embedType === 'spotify' || link.platform === 'spotify' || link.url?.toLowerCase().includes('spotify.com')) && (
-                                                <span className="shrink-0 px-1.5 py-0.5 bg-[#1DB954] text-[8px] font-medium text-white border-2 border-black uppercase flex items-center gap-1 shadow-[0_2.5px_0_0_#000]">SPOTIFY</span>
-                                            )}
-                                            {(link.embedType === 'deezer' || link.platform === 'deezer' || link.url?.toLowerCase().includes('deezer.com')) && (
-                                                <span className="shrink-0 px-1.5 py-0.5 bg-black text-[8px] font-medium text-white border-2 border-black uppercase flex items-center gap-1 shadow-[0_2.5px_0_0_#000]">DEEZER</span>
-                                            )}
-                                            {(link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
-                                                <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border-2 border-black uppercase flex items-center gap-1 shadow-[0_2.5px_0_0_#000]">KICK</span>
-                                            )}
                                         </div>
-                                        <div className="text-[10px] md:text-[11px] text-black/70 font-semibold uppercase tracking-[0.15em] truncate leading-tight">
-                                            {link.children?.length || 0} {(link.children?.length === 1) ? t('links.itemConfigured') : t('links.itemsConfigured')}
+
+                                        <div className="flex items-center gap-3 md:gap-4 shrink-0 pl-4">
+                                            <div className="text-black/30 group-hover:text-black transition-colors shrink-0">
+                                                {isCollectionExpanded ? <ChevronDown size={iconSize} strokeWidth={2.5} /> : <ChevronRight size={iconSize} strokeWidth={2.5} />}
+                                            </div>
+                                            <ToggleSwitch />
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-1.5 md:gap-4 shrink-0">
-                                        <ToggleSwitch />
+                                    <div className="flex items-center justify-between px-2 pb-2 md:px-4 md:pb-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className="text-[10px] md:text-[11px] font-bold text-black/40 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                                                <BarChart2 size={12} strokeWidth={2.5} />
+                                                {link.clicks || 0} CLICKS
+                                            </div>
+                                        </div>
+
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(!showDeleteConfirm); }}
                                             className={`p-1.5 transition-all ${showDeleteConfirm ? 'text-red-500' : 'text-black/30 hover:text-red-500'}`}
@@ -478,7 +477,7 @@ function SortableLinkItem({
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
                                         transition={{ duration: 0.2 }}
-                                        className="overflow-hidden bg-[#fefcbf] border-t border-black"
+                                        className="overflow-hidden bg-[#fdfcf0] border-t border-[#fef08a]"
                                     >
                                         <div className="px-1.5 md:px-3 py-3 md:py-4 space-y-3 md:space-y-4">
                                             {/* Collection Basic Info & Layout */}
@@ -560,7 +559,7 @@ function SortableLinkItem({
                                             </div>
 
                                             {/* Collection Footer Actions */}
-                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 mt-6 border-t border-black border-dashed gap-4">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 mt-6 border-t border-[#fef08a] border-dashed gap-4">
                                                 <div className="flex items-center gap-2 text-black font-bold uppercase tracking-widest text-[10px] sm:shrink-0">
                                                     <BarChart2 size={14} strokeWidth={2} />
                                                     <span>{link.clicks || 0} {t('analytics.totalClicks').toUpperCase()}</span>
@@ -586,6 +585,7 @@ function SortableLinkItem({
                                                         setExpandedLinks={setExpandedLinks}
                                                         expandedCollections={expandedCollections}
                                                         setExpandedCollections={setExpandedCollections}
+                                                        setProfile={setProfile}
                                                     />
                                                 </React.Suspense>
                                             </div>
@@ -597,16 +597,16 @@ function SortableLinkItem({
                     ) : (
                         /* STANDARD LINK ITEM */
                         <div className="flex flex-col">
-                            <div className={`flex items-stretch ${isExpanded ? 'bg-transparent' : 'bg-white'}`}>
+                            <div className="flex items-stretch bg-transparent">
                                 {/* Drag Handle - Full Height */}
                                 <div
-                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black border-r-2 border-black touch-none transition-colors hover:bg-[#ffdf00]`}
+                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black border-r-2 border-[#97cd7a] bg-[#97cd7a] touch-none transition-colors`}
                                     onPointerDown={(e) => dragControls.start(e)}
                                 >
                                     <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="5" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="19" r="1" /></svg>
                                 </div>
 
-                                <div className="flex-1 flex flex-col min-w-0">
+                                <div className="flex-1 flex flex-col min-w-0 bg-[#fdfcf0]">
                                     {/* Top Row: Title & Toggle */}
                                     <div
                                         onClick={() => toggleLink(link.id)}
@@ -616,6 +616,18 @@ function SortableLinkItem({
                                             <div className="flex items-center gap-2 mb-1.5">
                                                 <h3 className="font-bold text-sm md:text-base text-black uppercase tracking-tight truncate flex items-center gap-2">
                                                     {link.title || (link.type === 'header' ? t('links.headerItem') : t('links.untitled'))}
+                                                    {link.type === 'incentives' && (
+                                                        <div className="shrink-0 flex items-center gap-1 px-1.5 py-0.5 bg-black text-[#ffdf00] border border-black text-[7px] font-black uppercase tracking-widest shadow-[0_1.5px_0_0_#000] italic ml-1">
+                                                            <Zap size={8} strokeWidth={4} />
+                                                            {isPT ? 'MONETIZAÇÃO' : 'MONETIZATION'}
+                                                        </div>
+                                                    )}
+                                                    {link.type === 'agenda' && (
+                                                        <div className="shrink-0 flex items-center gap-1 px-1.5 py-0.5 bg-black text-[#97cd7a] border border-black text-[7px] font-black uppercase tracking-widest shadow-[0_1.5px_0_0_#000] italic ml-1">
+                                                            <CalendarIcon size={8} strokeWidth={4} />
+                                                            {isPT ? 'AGENDA' : 'AGENDA'}
+                                                        </div>
+                                                    )}
                                                     <Pencil size={12} className="opacity-0 group-hover:opacity-30 transition-opacity" />
                                                 </h3>
                                             </div>
@@ -658,7 +670,7 @@ function SortableLinkItem({
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
                                         transition={{ duration: 0.2 }}
-                                        className="overflow-hidden bg-[#fefcbf] border-t border-black border-dashed"
+                                        className="overflow-hidden bg-[#fdfcf0] border-t border-[#97cd7a] border-dashed"
                                     >
                                         <div className={`${level > 0 ? 'p-3' : 'px-4 md:px-6 pb-6 pt-5'}`}>
                                             {link.type === 'agenda' ? (
@@ -670,6 +682,23 @@ function SortableLinkItem({
                                                         </div>
                                                     </div>
                                                     <AgendaEditor link={link} onEventsChange={(events) => updateLink(link.id, 'events', events)} />
+                                                </div>
+                                            ) : link.type === 'incentives' ? (
+                                                <div className="mb-6">
+                                                    <div className="space-y-4 mb-8">
+                                                        <div className="space-y-1">
+                                                            <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.titleLabel')}</label>
+                                                            <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border-2 border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 shadow-[0_2.5px_0_0_#000]" placeholder={t('links.incentives') || 'Monetização'} />
+                                                        </div>
+                                                        <div className="mt-8 border-t-2 border-black/5 pt-6">
+                                                            <MonetizationView 
+                                                                profile={profile} 
+                                                                onChange={(newProfile) => {
+                                                                    if (setProfile) setProfile(newProfile);
+                                                                }} 
+                                                            />
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             ) : (
                                                 <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 pb-6">
@@ -691,7 +720,8 @@ function SortableLinkItem({
                                                                                 decoding="async"
                                                                             />
                                                                             <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                                                <button onClick={() => fileInputRef.current?.click()} className="p-1.5 bg-white text-black hover:bg-[#ffdf00] border-2 border-black shadow-[0_2.5px_0_0_#000] transition-colors">
+                                                                                <button onClick={() => fileInputRef.current?.click()} className="p-1.5 bg-[#fdfcf0] 
+ border-2 border-black shadow-[0_2.5px_0_0_#000] transition-colors">
                                                                                     {isUploadingImage ? <Loader2 size={14} className="animate-spin" /> : <Pencil size={14} strokeWidth={2} />}
                                                                                 </button>
                                                                                 <button onClick={() => updateLink(link.id, 'image', undefined)} className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border-2 border-black shadow-[0_2.5px_0_0_#000] transition-colors"><Trash2 size={14} strokeWidth={2} /></button>

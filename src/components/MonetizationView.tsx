@@ -72,24 +72,23 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
     return (
         <div className="space-y-6 animate-fade-in pb-20">
 
-            {/* Header Content - Action Card */}
-            <div className="bg-[#ffdf00] border-2 border-[#1a1a1a] p-5 md:p-8 shadow-[0_4px_0_0_#1a1a1a] rounded-md">
-                <div className="flex items-center justify-between gap-4">
-                    <div>
-                        <h2 className="text-xl md:text-2xl font-[900] text-black uppercase tracking-tighter leading-none mb-2">{t('monetization.title')}</h2>
-                        <div className="h-1.5 w-12 bg-black"></div>
+            {/* Action Bar with Label and Add Button */}
+            <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-[#ffdf00] border-2 border-black flex items-center justify-center shadow-[0_2px_0_0_#000] rounded-sm transform rotate-[-2deg]">
+                        <DollarSign size={18} strokeWidth={3} className="text-black" />
                     </div>
-                    <button
-                        onClick={handleAddMethod}
-                        className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center bg-white border-2 border-[#1a1a1a] text-black shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none transition-all shrink-0 rounded-md"
-                        title="Adicionar Novo"
-                    >
-                        <Plus size={24} strokeWidth={4} />
-                    </button>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/50">
+                        {t('monetization.title') || 'CONFIGURAÇÕES DA CAIXINHA'}
+                    </span>
                 </div>
-                <p className="mt-4 text-[9px] md:text-[10px] font-black text-black/60 uppercase tracking-widest leading-tight max-w-xl">
-                    {t('monetization.subtitle').toUpperCase()}
-                </p>
+                <button
+                    onClick={handleAddMethod}
+                    className="w-11 h-11 flex items-center justify-center bg-[#ffdf00] border-2 border-[#1a1a1a] text-black shadow-[3.5px_3.5px_0_0_#1a1a1a] hover:translate-y-[1.5px] hover:shadow-none transition-all shrink-0 rounded-md group"
+                    title="Adicionar Novo"
+                >
+                    <Plus size={22} strokeWidth={4} className="group-hover:scale-110 transition-transform" />
+                </button>
             </div>
 
             {/* Methods List */}
@@ -191,16 +190,6 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
 
                                                     {/* Details */}
                                                     <div className="space-y-6">
-                                                        <div>
-                                                            <label className="text-[10px] font-[900] text-black uppercase tracking-widest block mb-2">{t('monetization.customName')}</label>
-                                                            <input
-                                                                type="text"
-                                                                value={method.label}
-                                                                onChange={(e) => handleUpdateMethod(method.id, { label: e.target.value })}
-                                                                placeholder={t('monetization.customNamePlaceholder')}
-                                                                className="w-full bg-white border-2 border-[#1a1a1a] p-3 text-xs font-bold uppercase tracking-widest outline-none focus:bg-[#ffdf00] shadow-[0_4px_0_0_rgba(26,26,26,0.1)] transition-all rounded-md"
-                                                            />
-                                                        </div>
                                                         <div>
                                                             <label className="text-[10px] font-[900] text-black uppercase tracking-widest block mb-2">
                                                                 {method.type === 'pix' ? t('monetization.pixKey') : t('monetization.paypalEmail')}

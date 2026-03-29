@@ -400,7 +400,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
             {/* Detailed Table Comparison */}
             <div className="max-w-7xl mx-auto w-full px-4 mt-8">
                 <div className="bg-white border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] rounded-[32px] overflow-hidden">
-                    <div className="p-6 md:p-8 border-b-2 border-[#1a1a1a] bg-slate-50 flex items-center gap-4">
+                    <div className="p-6 md:p-8 border-b-2 border-[#1a1a1a] bg-[#fdfcf0] flex items-center gap-4">
                         <div className="w-12 h-12 bg-[#ffdf00] border-2 border-[#1a1a1a] rounded-xl flex items-center justify-center shadow-[0_4px_0_0_#1a1a1a]">
                             <BarChart3 size={24} className="text-black" />
                         </div>
@@ -412,7 +412,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-slate-50/50">
+                                <tr className="bg-[#fdfcf0]">
                                     <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-black/40 border-b-2 border-r-2 border-[#1a1a1a]/5">Recursos</th>
                                     <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-black/40 border-b-2 border-r-2 border-[#1a1a1a]/5 text-center">Free</th>
                                     <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-[#97cd7a] border-b-2 border-r-2 border-[#1a1a1a]/5 text-center bg-[#97cd7a]/5">Pro Mensal</th>

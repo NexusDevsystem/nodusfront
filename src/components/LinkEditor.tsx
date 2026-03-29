@@ -25,7 +25,6 @@ interface LinkEditorProps {
   setActiveTab?: (tab: string) => void;
   onAddProduct?: (collectionName: string) => void;
   onAddCollection?: (name: string, url?: string, layout?: 'list' | 'grid' | 'carousel') => void;
-  onAddIncentive?: (type: 'pix' | 'paypal', key: string) => void;
   setProfile?: React.Dispatch<React.SetStateAction<UserProfile>>;
 }
 
@@ -37,7 +36,6 @@ function LinkEditor({
   setActiveTab,
   onAddProduct,
   onAddCollection: externalAddCollection,
-  onAddIncentive,
   setProfile,
   expandedLinks: externalExpandedLinks,
   setExpandedLinks: externalSetExpandedLinks,
@@ -179,10 +177,10 @@ function LinkEditor({
           const url = l.url?.toLowerCase() || '';
           const title = l.title?.toLowerCase() || '';
           const platform = l.platform || '';
-          
+
           if (platform === provider) return true;
           if (title.includes(provider)) return true;
-          
+
           const matchPatterns = patterns[provider] || [provider];
           if (matchPatterns.some(p => url.includes(p))) return true;
 
@@ -205,20 +203,20 @@ function LinkEditor({
           else if (provider === 'twitch') url = `https://twitch.tv/${username}`;
           else if (provider === 'kick') url = `https://kick.com/${username}`;
 
-            const exists = manual.some(l => l.platform === provider || (l.url && l.url.includes(url)));
-            if (url && !exists) {
-              result.unshift({
-                id: `btn-integration-${provider}`,
-                title: provider === 'instagram' ? 'Instagram' : (provider === 'youtube' ? 'YouTube' : (provider === 'twitch' ? 'Twitch Live' : 'Kick Live')),
-                url,
-                isActive: true,
-                clicks: 0,
-                layout: 'classic',
-                type: 'link',
-                platform: provider,
-                clientId: `integration-${provider}`
-              } as any);
-            }
+          const exists = manual.some(l => l.platform === provider || (l.url && l.url.includes(url)));
+          if (url && !exists) {
+            result.unshift({
+              id: `btn-integration-${provider}`,
+              title: provider === 'instagram' ? 'Instagram' : (provider === 'youtube' ? 'YouTube' : (provider === 'twitch' ? 'Twitch Live' : 'Kick Live')),
+              url,
+              isActive: true,
+              clicks: 0,
+              layout: 'classic',
+              type: 'link',
+              platform: provider,
+              clientId: `integration-${provider}`
+            } as any);
+          }
         }
       });
     }
@@ -399,6 +397,14 @@ function LinkEditor({
     onChange(prev => [newMediaKit, ...(prev as LinkItem[])]);
   };
 
+  const addIncentives = () => {
+    const title = t('links.incentives') || 'Incentivos';
+    const newIncentives: LinkItem = { id: Date.now().toString(), clientId: crypto.randomUUID(), title: title, url: '', isActive: true, clicks: 0, layout: 'classic', type: 'incentives' };
+    setExpandedLinks(prev => { const next = { ...prev }; activeLinks.forEach(l => { if (l.type !== 'collection') next[l.id] = false; }); next[newIncentives.id] = true; return next; });
+    setExpandedCollections(prev => { const next = { ...prev }; activeLinks.forEach(l => { if (l.type === 'collection') next[l.id] = false; }); return next; });
+    onChange(prev => [newIncentives, ...(prev as LinkItem[])]);
+  };
+
   const updateLink = React.useCallback((id: string, field: keyof LinkItem, value: any) => {
     onChange((prev: LinkItem[]) => prev.map(link => {
       if (link.id !== id) return link;
@@ -427,7 +433,7 @@ function LinkEditor({
 
   const handleReorder = (newActiveLinks: LinkItem[]) => {
     if ((window as any).__nodusIsDraggingIntoCollection) return;
-    
+
     // Persist all links including integration ones to the actual state
     onChange([...newActiveLinks, ...archivedLinks]);
   };
@@ -436,15 +442,15 @@ function LinkEditor({
     <div className="space-y-6 w-full">
       <div className={`${level === 0 ? 'bg-transparent md:bg-transparent border-0 md:border-0 px-0 md:px-0 py-0 md:py-0 shadow-none md:shadow-none rounded-md' : ''}`}>
         <div className="space-y-3">
-        {level === 0 ? (
-          <div className="px-3 md:px-5">
-            <div className="flex flex-col gap-4 mb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-base md:text-lg font-black uppercase text-black tracking-tight">{t('links.myLinks')}</h2>
-                  <p className="text-[10px] font-bold text-black/60 mt-0.5 uppercase tracking-widest leading-none">{t('links.myLinksSubtitle')}</p>
-                </div>
-                <div className="flex items-center gap-2 md:gap-2.5">
+          {level === 0 ? (
+            <div className="px-3 md:px-5">
+              <div className="flex flex-col gap-4 mb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-base md:text-lg font-black uppercase text-black tracking-tight">{t('links.myLinks')}</h2>
+                    <p className="text-[10px] font-bold text-black/60 mt-0.5 uppercase tracking-widest leading-none">{t('links.myLinksSubtitle')}</p>
+                  </div>
+                  <div className="flex items-center gap-2 md:gap-2.5">
                     <button onClick={() => setShowArchive(true)} className="w-10 h-10 flex items-center justify-center border-2 border-[#1a1a1a] bg-white hover:bg-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] transition-all hover:translate-y-[0.5px] hover:shadow-none relative rounded-md">
                       <Archive size={18} strokeWidth={3} className="text-black" />
                       {archivedLinks.length > 0 && (
@@ -460,69 +466,70 @@ function LinkEditor({
                     >
                       <Plus size={22} className="text-black" strokeWidth={4} />
                     </button>
+                  </div>
                 </div>
               </div>
+              {isLimitReached && (
+                <div className="bg-amber-50 border border-amber-100 p-6 rounded-md flex items-center gap-6 mb-8">
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-amber-900">{t('links.limitReached')}</p>
+                    <p className="text-sm text-amber-700 mt-0.5">{t('links.limitReachedDesc')}</p>
+                  </div>
+                  <button className="text-xs font-bold text-amber-700 bg-white border border-amber-200 px-4 py-2 rounded-md hover:bg-amber-100 transition-colors shadow-sm">{t('links.seePlans')}</button>
+                </div>
+              )}
             </div>
-            {isLimitReached && (
-              <div className="bg-amber-50 border border-amber-100 p-6 rounded-md flex items-center gap-6 mb-8">
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-amber-900">{t('links.limitReached')}</p>
-                  <p className="text-sm text-amber-700 mt-0.5">{t('links.limitReachedDesc')}</p>
-                </div>
-                <button className="text-xs font-bold text-amber-700 bg-white border border-amber-200 px-4 py-2 rounded-md hover:bg-amber-100 transition-colors shadow-sm">{t('links.seePlans')}</button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className={`
+          ) : (
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className={`
               w-full ${level > 0 ? 'py-1.5 text-[10px]' : 'py-2.5 text-xs'} 
               border-2 border-dashed border-[#1a1a1a] bg-white font-black uppercase text-black 
               hover:bg-[#ffdf00] transition-colors flex items-center justify-center gap-2 
               shadow-[0_3px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none rounded-md
             `}
-          >
-            <Plus size={level > 0 ? 16 : 20} strokeWidth={4} /> {t('links.addLinkInCollection')}
-          </button>
-        )}
-      </div>
+            >
+              <Plus size={level > 0 ? 16 : 20} strokeWidth={4} /> {t('links.addLinkInCollection')}
+            </button>
+          )}
+        </div>
 
-      <div className="space-y-3">
-        {activeLinks.length === 0 && (
-          <div className="text-center py-10 md:py-14 bg-[#fff9c4] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-md">
-            <div className="w-14 h-14 md:w-16 md:h-16 bg-white border-2 border-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-5 shadow-[0_3px_0_0_#1a1a1a] text-black">
-              <Ban size={32} strokeWidth={3} />
+        <div className="space-y-3">
+          {activeLinks.length === 0 && (
+            <div className="text-center py-10 md:py-14 bg-[#fff9c4] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-md">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-white border-2 border-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-5 shadow-[0_3px_0_0_#1a1a1a] text-black">
+                <Ban size={32} strokeWidth={3} />
+              </div>
+              <p className="text-lg md:text-xl font-black uppercase tracking-widest text-black">{t('links.emptyList')}</p>
+              <p className="text-xs md:text-sm text-black/70 font-bold uppercase tracking-wider mt-2">{t('links.addFirstLink')}</p>
             </div>
-            <p className="text-lg md:text-xl font-black uppercase tracking-widest text-black">{t('links.emptyList')}</p>
-            <p className="text-xs md:text-sm text-black/70 font-bold uppercase tracking-wider mt-2">{t('links.addFirstLink')}</p>
-          </div>
-        )}
+          )}
 
-        <Reorder.Group axis="y" values={activeLinks} onReorder={handleReorder} className="space-y-3">
-          {activeLinks.map((link) => (
-            <SortableLinkItem
-              key={link.clientId || link.id}
-              link={link}
-              updateLink={updateLink}
-              updateLinkFields={updateLinkFields}
-              removeLink={removeLink}
-              toggleLink={toggleLink}
-              isExpanded={!!expandedLinks[link.id]}
-              toggleCollection={toggleCollection}
-              isCollectionExpanded={!!expandedCollections[link.id]}
-              profile={profile}
-              level={level}
-              expandedLinks={expandedLinks}
-              setExpandedLinks={setExpandedLinks}
-              expandedCollections={expandedCollections}
-              setExpandedCollections={setExpandedCollections}
-              isAnyExpanded={isAnyExpanded}
-              isMobile={isMobile}
-            />
-          ))}
-        </Reorder.Group>
-      </div>
+          <Reorder.Group axis="y" values={activeLinks} onReorder={handleReorder} className="space-y-3">
+            {activeLinks.map((link) => (
+              <SortableLinkItem
+                key={link.clientId || link.id}
+                link={link}
+                updateLink={updateLink}
+                updateLinkFields={updateLinkFields}
+                removeLink={removeLink}
+                toggleLink={toggleLink}
+                isExpanded={!!expandedLinks[link.id]}
+                toggleCollection={toggleCollection}
+                isCollectionExpanded={!!expandedCollections[link.id]}
+                profile={profile}
+                level={level}
+                expandedLinks={expandedLinks}
+                setExpandedLinks={setExpandedLinks}
+                expandedCollections={expandedCollections}
+                setExpandedCollections={setExpandedCollections}
+                isAnyExpanded={isAnyExpanded}
+                isMobile={isMobile}
+                setProfile={setProfile}
+              />
+            ))}
+          </Reorder.Group>
+        </div>
       </div>
 
       {/* Profile Footer Branding Section */}
@@ -534,7 +541,7 @@ function LinkEditor({
               <p className="text-[9px] md:text-[10px] text-black font-normal uppercase tracking-wider mt-1 opacity-60 leading-none">Gerencie a exibição da marca Nodus no seu perfil público.</p>
             </div>
 
-            <div className={`p-5 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-md flex items-center justify-between transition-all ${profile.plan_type === 'free' || !profile.plan_type ? 'bg-slate-50' : 'bg-white'}`}>
+            <div className={`p-5 border-2 border-[#97cd7a] shadow-[0_4px_0_0_#76a45f] rounded-md flex items-center justify-between transition-all bg-[#fdfcf0]`}>
               <div className="flex flex-col gap-1">
                 <span className="text-xs font-black uppercase text-black tracking-widest leading-tight">Exibir branding da Nodus</span>
                 {profile.plan_type === 'free' || !profile.plan_type ? (
@@ -590,22 +597,22 @@ function LinkEditor({
                 </div>
 
                 <div className="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-hide py-2">
-                    {archivedLinks.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center py-20 border-4 border-dashed border-[#1a1a1a] rounded-sm">
-                        <div className="w-20 h-20 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex items-center justify-center mb-6 rounded-md">
-                          <Archive size={32} strokeWidth={3} className="text-black" />
-                        </div>
-                        <p className="text-sm font-black text-black uppercase tracking-widest leading-none">{t('links.emptyArchive')}</p>
+                  {archivedLinks.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center py-20 border-4 border-dashed border-[#1a1a1a] rounded-sm">
+                      <div className="w-20 h-20 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex items-center justify-center mb-6 rounded-md">
+                        <Archive size={32} strokeWidth={3} className="text-black" />
                       </div>
-                    ) : (
-                      archivedLinks.map((link) => (
-                        <motion.div key={link.id} layout className="flex items-center justify-between p-3 bg-white border-2 border-[#1a1a1a] transition-all hover:bg-[#ffdf00] group/item shadow-[0_2px_0_0_#1a1a1a] mb-4 rounded-md">
+                      <p className="text-sm font-black text-black uppercase tracking-widest leading-none">{t('links.emptyArchive')}</p>
+                    </div>
+                  ) : (
+                    archivedLinks.map((link) => (
+                      <motion.div key={link.id} layout className="flex items-center justify-between p-3 bg-white border-2 border-[#1a1a1a] transition-all hover:bg-[#ffdf00] group/item shadow-[0_2px_0_0_#1a1a1a] mb-4 rounded-md">
                         <div className="flex items-center gap-5 min-w-0">
                           <div className="min-w-0">
                             <h4 className="text-sm font-black uppercase tracking-widest text-black truncate mb-0.5">{link.title || t('links.untitled')}</h4>
                             <p className="text-xs text-black/70 font-bold uppercase tracking-widest truncate">
-                              {link.type === 'collection' 
-                                ? `${link.children?.length || 0} ${link.children?.length === 1 ? t('links.itemConfigured') : t('links.itemsConfigured')}` 
+                              {link.type === 'collection'
+                                ? `${link.children?.length || 0} ${link.children?.length === 1 ? t('links.itemConfigured') : t('links.itemsConfigured')}`
                                 : (link.url || t('links.noUrl'))}
                             </p>
                           </div>
@@ -640,24 +647,26 @@ function LinkEditor({
               onAddLink={addLink}
               onAddCollection={addCollection}
               onAddProduct={addProduct}
-              onAddIncentive={onAddIncentive || (() => { })}
               onAddSocial={addSocialLink}
               onAddHeader={addHeader}
               onAddAgenda={addAgenda}
               onAddMap={addMap}
               onAddMediaKit={addMediaKit}
+              onAddIncentives={addIncentives}
               plan_type={profile.plan_type}
+              profile={profile}
+              onProfileChange={setProfile || (() => { })}
             />
           )}
 
           {level === 0 && moveModalLinkId && (
             <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-              <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }} 
-                onClick={() => setMoveModalLinkId(null)} 
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMoveModalLinkId(null)}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
               />
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -671,8 +680,8 @@ function LinkEditor({
                       <h3 className="text-xl font-black uppercase tracking-tighter text-black">Mover Para</h3>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-black/40 mt-1">Selecione o destino</p>
                     </div>
-                    <button 
-                      onClick={() => setMoveModalLinkId(null)} 
+                    <button
+                      onClick={() => setMoveModalLinkId(null)}
                       className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black hover:bg-black hover:text-white transition-all shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none rounded-md"
                     >
                       <X size={20} strokeWidth={3} />

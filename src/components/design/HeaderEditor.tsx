@@ -160,7 +160,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                         <h3 className="text-sm font-black uppercase tracking-[0.2em]">{t('design.profileLayout')}</h3>
                     </div>
 
-                    <div className="flex bg-[#fcfcfc] p-1.5 border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-md">
+                    <div className="flex bg-[#fdfcf0] p-1.5 border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-md">
                         {[
                             { id: 'classic', label: t('design.classic'), icon: <Layout className="w-4 h-4" /> },
                             { id: 'compact', label: t('design.profile'), icon: <User className="w-4 h-4" /> },
@@ -186,7 +186,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="mt-6 p-4 bg-[#f8f8f8] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] flex gap-4 items-start rounded-md"
+                            className="mt-6 p-4 bg-[#fdfcf0] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] flex gap-4 items-start rounded-md"
                         >
                             <div className="p-2 bg-[#1a1a1a] text-[#97cd7a] border-2 border-[#1a1a1a] shrink-0 rounded-lg">
                                 <Info size={16} strokeWidth={3} />

@@ -16,7 +16,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], stores
   return (
     <div className="flex flex-col items-center lg:justify-center w-full h-full lg:overflow-visible select-none lg:px-4">
       {/* Public URL Preview Bar - Hidden on mobile for immersive feel */}
-      <div className="hidden lg:flex mb-6 items-center gap-2 px-3 py-2 bg-white border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] text-black text-[9px] font-black uppercase tracking-widest">
+      <div className="hidden lg:flex mb-6 items-center gap-2 px-3 py-2 bg-[#fdfcf0] border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] text-black text-[9px] font-black uppercase tracking-widest">
         <Globe size={12} strokeWidth={3} className="text-black/40" />
         <span className="opacity-70">nodus.my/</span>
         <span className="text-black">{profile.username || profile.name.toLowerCase().replace(/\s+/g, '')}</span>
@@ -32,7 +32,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], stores
         <div className="relative w-full h-full lg:bg-black lg:border-[8px] lg:border-[#1a1a1a] lg:rounded-sm lg:shadow-[0_20px_40px_-10px_rgba(26,26,26,0.4)] flex flex-col lg:ring-1 lg:ring-[#2a2a2a] transform z-10">
 
           {/* Screen Content Wrapper */}
-          <div className="relative w-full h-full lg:rounded-sm overflow-hidden bg-white flex flex-col transform">
+          <div className="relative w-full h-full lg:rounded-sm overflow-hidden bg-[#fdfcf0] flex flex-col transform">
 
             {/* Android Status Bar (Overlay) */}
             <div className="hidden lg:flex w-full absolute top-0 z-[100] h-8 px-4 justify-between items-center text-white pointer-events-none mix-blend-difference">

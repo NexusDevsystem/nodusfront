@@ -14,7 +14,7 @@ interface BillingModalProps {
 const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose }) => {
     const { t } = useTranslation();
     return (
-        <div className="fixed inset-0 z-[500] bg-white overflow-hidden flex flex-col">
+        <div className="fixed inset-0 z-[500] bg-[#fdfcf0] overflow-hidden flex flex-col">
             {/* Background elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#97cd7a]/15 blur-[120px] rounded-full animate-pulse-slow" />
@@ -28,7 +28,7 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
                 className="w-full h-full relative flex flex-col overflow-hidden z-10"
             >
                 {/* Premium Header - Optimized for Full Page - COMPACT */}
-                <div className="flex items-center justify-between p-4 md:px-10 md:py-6 border-b-2 border-[#1a1a1a] shrink-0 relative overflow-hidden bg-white group">
+                <div className="flex items-center justify-between p-4 md:px-10 md:py-6 border-b-2 border-[#1a1a1a] shrink-0 relative overflow-hidden bg-[#fdfcf0] group">
                     {/* Light Leak / Shine Effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-[2000ms] pointer-events-none" />
                     
@@ -76,7 +76,7 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
                 </div>
 
                 {/* Content Area - Optimized for Mobile */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-10 bg-[#f8f8f8] relative">
+                <div className="flex-1 overflow-y-auto p-4 md:p-10 bg-[#fdfcf0] relative">
                     {/* Subtle grid pattern background */}
                     <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
                     

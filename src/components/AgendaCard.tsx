@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { EventItem } from '../types';
 import { ExternalLink, MapPin, Clock, X, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion, AnimatePresence, useDragControls } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 interface AgendaCardProps {
@@ -13,6 +14,8 @@ interface AgendaCardProps {
     fontFamily?: string;
     fontWeight?: string | number;
     fontItalic?: boolean;
+    isPreview?: boolean;
+    portalTarget?: HTMLElement | null;
 }
 
 const ScrollingTitle: React.FC<{ title: string; themeTextHex: string }> = ({ title, themeTextHex }) => {
@@ -84,7 +87,9 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
     isDark = false,
     fontFamily,
     fontWeight,
-    fontItalic
+    fontItalic,
+    isPreview = false,
+    portalTarget = null
 }) => {
     const { t, i18n } = useTranslation();
     const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
@@ -92,7 +97,6 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
     const [showLeftArrow, setShowLeftArrow] = useState(false);
     const [showRightArrow, setShowRightArrow] = useState(false);
     const [isHovering, setIsHovering] = useState(false);
-    const dragControls = useDragControls();
     const [currentTime, setCurrentTime] = useState(new Date());
 
     // Update current time every 10 seconds to refresh scheduled events visibility
@@ -224,7 +228,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.1 }}
                                 onClick={() => setSelectedEvent(event)}
-                                className={`relative group flex shrink-0 transition-all duration-300 overflow-hidden cursor-pointer snap-center ${themeButtonClass} h-[90px] p-0`}
+                                className={`relative group flex shrink-0 transition-all duration-300 overflow-hidden cursor-pointer snap-center ${themeButtonClass} h-[90px] p-0 active:scale-[0.98]`}
                                 style={{
                                     ...themeButtonStyle,
                                     width: isMultiColumn ? '250px' : '100%',
@@ -234,7 +238,10 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                             >
                                 {/* Date Box */}
                                 <div className="w-[85px] h-[85px] p-2 shrink-0 flex items-center justify-center my-auto">
-                                    <div className="w-full h-full border-2 border-[#1a1a1a] rounded-md flex flex-col items-center justify-center bg-[#1a1a1a]/5 backdrop-blur-sm shadow-[0_2px_0_0_#1a1a1a]">
+                                    <div 
+                                        className="w-full h-full border-2 rounded-md flex flex-col items-center justify-center bg-black/5 backdrop-blur-sm"
+                                        style={{ borderColor: `${themeTextHex}20` }}
+                                    >
                                         <span className="text-[10px] font-bold tracking-tighter opacity-70 leading-none mb-[-1px]" style={{ color: themeTextHex }}>{month}</span>
                                         <span className="text-[32px] font-black leading-none my-[-4px]" style={{ color: themeTextHex }}>{day}</span>
                                         <span className="text-[10px] font-bold tracking-widest opacity-30 leading-none mt-[-1px]" style={{ color: themeTextHex }}>{year}</span>
@@ -266,71 +273,68 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
             </div>
 
             {/* Bottom Sheet Modal */}
-            <AnimatePresence>
-                {selectedEvent && (
-                    <>
-                        <div className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-none">
+            {typeof document !== 'undefined' && createPortal(
+                <AnimatePresence>
+                    {selectedEvent && (
+                        <motion.div 
+                            key="agenda-modal-overlay"
+                            // No initial/animate here to avoid conflict with children, 
+                            // but its presence keeps children alive for exit
+                            className={`${isPreview ? 'absolute' : 'fixed'} inset-0 z-[10000] flex items-end justify-center pointer-events-none`}
+                        >
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
+                                transition={{ duration: 0.25, ease: "linear" }}
                                 onClick={() => setSelectedEvent(null)}
-                                className="absolute inset-0 bg-[#1a1a1a]/60 backdrop-blur-sm pointer-events-auto"
+                                className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto"
                             />
                             <motion.div
-                                drag="y"
-                                dragControls={dragControls}
-                                dragListener={false}
-                                dragConstraints={{ top: 0, bottom: 0 }}
-                                dragElastic={{ top: 0, bottom: 0.5 }}
-                                onDragEnd={(e, info) => {
-                                    if (info.offset.y > 100 || info.velocity.y > 500) {
-                                        setSelectedEvent(null);
-                                    }
+                                initial={{ y: "100%", scale: 0.96 }}
+                                animate={{ y: 0, scale: 1 }}
+                                exit={{ y: "100%", scale: 0.96 }}
+                                transition={{ duration: 0.3, ease: "easeOut" }}
+                                className={`relative w-full max-w-lg border-t-2 border-x-2 rounded-t-[32px] overflow-hidden flex flex-col max-h-[92vh] pb-safe pointer-events-auto shadow-2xl ${themeButtonClass}`}
+                                style={{ 
+                                    fontFamily,
+                                    ...themeButtonStyle,
+                                    borderColor: `${themeTextHex}20`
                                 }}
-                                initial={{ y: "100%" }}
-                                animate={{ y: 0 }}
-                                exit={{ y: "100%" }}
-                                transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                                className="relative w-full max-w-lg bg-white border-t-2 border-x-2 border-[#1a1a1a] rounded-t-[32px] overflow-hidden flex flex-col max-h-[90vh] pb-safe pointer-events-auto shadow-[0_-8px_0_0_#1a1a1a]"
-                                style={{ fontFamily }}
                             >
-                                {/* Drag Handle Container (Header) */}
+                                {/* Modal Header */}
                                 <div
-                                    className="flex flex-col items-start px-8 pt-8 pb-4 relative z-10 w-full shrink-0 bg-white cursor-grab active:cursor-grabbing"
-                                    onPointerDown={(e) => dragControls.start(e)}
-                                    style={{ touchAction: "none" }}
+                                    className="flex flex-col items-start px-8 pt-8 pb-4 relative z-10 w-full shrink-0"
                                 >
-                                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1.5 bg-[#1a1a1a]/20 rounded-full md:hidden" />
-
                                     <button
                                         onClick={() => setSelectedEvent(null)}
-                                        className="absolute right-6 top-6 w-8 h-8 rounded-full bg-[#1a1a1a]/5 flex items-center justify-center text-black/40 hover:bg-[#97cd7a]/10 hover:text-black active:scale-95 transition-all hidden md:flex cursor-pointer pointer-events-auto"
+                                        className="absolute right-6 top-6 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 cursor-pointer pointer-events-auto bg-black/5 hover:bg-black/10"
+                                        style={{ color: themeTextHex }}
                                     >
-                                        <X size={18} strokeWidth={2.5} />
+                                        <X size={22} strokeWidth={3} />
                                     </button>
 
-                                    <div className="w-full text-left pointer-events-none pr-8">
-                                        <span className="block mb-2 text-[10px] font-bold text-black/40 uppercase tracking-[0.2em]">
+                                    <div className="w-full text-left pr-8">
+                                        <span className="block mb-2 text-[10px] font-bold uppercase tracking-[0.2em] opacity-40" style={{ color: themeTextHex }}>
                                             {t('agenda.titleLabel').toUpperCase()}
                                         </span>
-                                        <h2 className="text-[28px] font-black text-black leading-[1.1] tracking-[-0.02em]">
+                                        <h2 className="text-[28px] font-black leading-[1.1] tracking-[-0.02em]" style={{ color: themeTextHex }}>
                                             {selectedEvent.title}
                                         </h2>
                                     </div>
                                 </div>
 
                                 {/* List Content */}
-                                <div className="flex-1 overflow-y-auto px-8 custom-scrollbar space-y-0 w-full bg-white">
+                                <div className="flex-1 overflow-y-auto px-8 custom-scrollbar space-y-0 w-full mb-4">
                                     <div className="flex flex-col">
                                         {/* Item: Data */}
-                                        <div className="flex items-start gap-4 py-5 border-b-2 border-[#1a1a1a]/10">
+                                        <div className="flex items-start gap-4 py-5 border-b border-black/5" style={{ borderColor: `${themeTextHex}0A` }}>
                                             <div className="w-10 h-10 flex items-center justify-center shrink-0">
-                                                <Calendar size={22} className="text-black" strokeWidth={2.5} />
+                                                <Calendar size={22} style={{ color: themeTextHex }} strokeWidth={2.5} />
                                             </div>
                                             <div className="flex-1 min-w-0 pt-0.5">
-                                                <span className="block text-[10px] font-bold text-black/40 uppercase tracking-widest mb-1">{t('agenda.dateLabel')}</span>
-                                                <span className="text-black font-semibold text-[16px] truncate block leading-none">{formatDate(selectedEvent.date).fullDate}</span>
+                                                <span className="block text-[10px] font-bold uppercase tracking-widest mb-1 opacity-40" style={{ color: themeTextHex }}>{t('agenda.dateLabel')}</span>
+                                                <span className="font-bold text-[16px] truncate block leading-none" style={{ color: themeTextHex }}>{formatDate(selectedEvent.date).fullDate}</span>
                                             </div>
                                         </div>
 
@@ -340,29 +344,30 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedEvent.location)}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="flex items-start gap-4 py-5 border-b-2 border-[#1a1a1a]/10 hover:bg-[#97cd7a]/5 transition-colors cursor-pointer group"
+                                                className="flex items-start gap-4 py-5 border-b border-black/5 hover:bg-black/5 transition-colors cursor-pointer group"
+                                                style={{ borderColor: `${themeTextHex}0A` }}
                                             >
-                                                <div className="w-10 h-10 flex items-center justify-center shrink-0 group-hover:bg-[#97cd7a]/5 transition-colors">
-                                                    <MapPin size={22} className="text-black" strokeWidth={2.5} />
+                                                <div className="w-10 h-10 flex items-center justify-center shrink-0">
+                                                    <MapPin size={22} style={{ color: themeTextHex }} strokeWidth={2.5} />
                                                 </div>
                                                 <div className="flex-1 min-w-0 pt-0.5">
-                                                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-black/40 uppercase tracking-widest mb-1">
+                                                    <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest mb-1 opacity-40" style={{ color: themeTextHex }}>
                                                         {t('agenda.locationLabel')} <ExternalLink size={10} className="opacity-0 group-hover:opacity-100 transition-opacity translate-y-[1px]" />
                                                     </span>
-                                                    <span className="text-black font-semibold text-[16px] truncate block leading-none">{selectedEvent.location}</span>
+                                                    <span className="font-bold text-[16px] truncate block leading-none" style={{ color: themeTextHex }}>{selectedEvent.location}</span>
                                                 </div>
                                             </a>
                                         )}
 
                                         {/* Item: Horário */}
                                         {selectedEvent.time && (
-                                            <div className="flex items-start gap-4 py-5 border-b-2 border-[#1a1a1a]/10">
+                                            <div className="flex items-start gap-4 py-5 border-b border-black/5" style={{ borderColor: `${themeTextHex}0A` }}>
                                                 <div className="w-10 h-10 flex items-center justify-center shrink-0">
-                                                    <Clock size={22} className="text-black" strokeWidth={2.5} />
+                                                    <Clock size={22} style={{ color: themeTextHex }} strokeWidth={2.5} />
                                                 </div>
                                                 <div className="flex-1 min-w-0 pt-0.5">
-                                                    <span className="block text-[10px] font-bold text-black/40 uppercase tracking-widest mb-1">{t('agenda.timeLabel')}</span>
-                                                    <span className="text-black font-semibold text-[16px] truncate block leading-none">{selectedEvent.time}</span>
+                                                    <span className="block text-[10px] font-bold uppercase tracking-widest mb-1 opacity-40" style={{ color: themeTextHex }}>{t('agenda.timeLabel')}</span>
+                                                    <span className="font-bold text-[16px] truncate block leading-none" style={{ color: themeTextHex }}>{selectedEvent.time}</span>
                                                 </div>
                                             </div>
                                         )}
@@ -370,10 +375,10 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                         {/* Divider & Description */}
                                         {selectedEvent.description && (
                                             <div className="py-6">
-                                                <span className="block text-[10px] font-bold text-black/40 uppercase tracking-widest mb-3">
+                                                <span className="block text-[10px] font-bold uppercase tracking-widest mb-3 opacity-40" style={{ color: themeTextHex }}>
                                                     {t('common.details', 'DETAILS')}
                                                 </span>
-                                                <p className="text-black/70 leading-relaxed text-[15px] font-medium">
+                                                <p className="leading-relaxed text-[15px] font-medium opacity-80" style={{ color: themeTextHex }}>
                                                     {selectedEvent.description}
                                                 </p>
                                             </div>
@@ -382,13 +387,17 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                 </div>
 
                                 {/* Footer Button */}
-                                <div className="px-6 py-6 border-t border-[#1a1a1a]/5 shrink-0 bg-white">
+                                <div className="px-6 py-6 border-t shrink-0 mb-safe" style={{ borderColor: `${themeTextHex}0A` }}>
                                     {selectedEvent.url && (
                                         <a
                                             href={selectedEvent.url}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="flex w-full h-14 items-center justify-center gap-2 bg-[#1a1a1a] text-white border-2 border-[#1a1a1a] rounded-[16px] font-bold uppercase tracking-[0.05em] text-[15px] active:scale-[0.98] transition-transform shadow-[0_4px_0_0_#1a1a1a]"
+                                            className="flex w-full h-14 items-center justify-center gap-2 rounded-[18px] font-bold uppercase tracking-[0.05em] text-[15px] active:scale-[0.98] transition-transform shadow-lg"
+                                            style={{ 
+                                                backgroundColor: themeTextHex, 
+                                                color: themeButtonStyle.backgroundColor || '#fff',
+                                            }}
                                         >
                                             {selectedEvent.status === 'Sold Out' ? t('agenda.statusSoldOut').toUpperCase() :
                                                 selectedEvent.status === 'Free' ? t('agenda.statusFree').toUpperCase() :
@@ -398,10 +407,11 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                     )}
                                 </div>
                             </motion.div>
-                        </div>
-                    </>
-                )}
-            </AnimatePresence >
+                        </motion.div>
+                    )}
+                </AnimatePresence>,
+                portalTarget || document.body
+            )}
         </>
     );
 };

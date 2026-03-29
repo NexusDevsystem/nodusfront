@@ -483,7 +483,9 @@
         "addFirstLink": "Add your first link to get started",
         "myLinksRoot": "My Links (Root)",
         "yourCollections": "Your Collections",
-        "clicksLabel": "Clicks"
+        "clicksLabel": "Clicks",
+        "subscription": "Subscription (PRO)",
+        "subscriptionDesc": "Exclusive content for subscribers"
     },
     "landing": {
         "headline": "The link in bio your followers deserve.",
