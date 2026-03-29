@@ -1071,99 +1071,121 @@ function SortableLinkItem({
                                                         </div>
                                                     </div>
 
-                                                    {/* 📅 Section 2: Scheduling (PRO) */}
-                                                    {link.type !== 'agenda' && link.type !== 'mediakit' && (
-                                                        <div className="space-y-4">
-                                                            <div className="flex items-center justify-between">
-                                                                <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('links.schedule')} (PRO)</label>
-                                                                {(!profile.plan_type || profile.plan_type === 'free') && (
-                                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-md">
-                                                                        <motion.div
-                                                                            animate={{ x: ['-200%', '200%'] }}
-                                                                            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                                                                            className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 z-0"
-                                                                        />
-                                                                        <span className="relative z-10">{t('links.locked')}</span>
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-md ${(!profile.plan_type || profile.plan_type === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
-                                                                <div className="grid grid-cols-1 gap-4">
-                                                                    <div className="space-y-1.5">
-                                                                        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-black">
-                                                                            <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-[#97cd7a]' : 'bg-white'}`}></div>
-                                                                            {t('links.scheduleStart')}
-                                                                        </div>
-                                                                        <input type="datetime-local" value={link.scheduleStart ? new Date(new Date(link.scheduleStart).getTime() - new Date(link.scheduleStart).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleStart', date); }} disabled={!profile.plan_type || profile.plan_type === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md" />
-                                                                        {link.scheduleStart && new Date(link.scheduleStart) > new Date() && (
-                                                                            <div className="flex items-center gap-2 mt-1 px-1">
-                                                                                <input 
-                                                                                    type="checkbox" 
-                                                                                    id={`showCountdown-${link.id}`} 
-                                                                                    checked={link.showCountdown || false}
-                                                                                    onChange={(e) => updateLink(link.id, 'showCountdown', e.target.checked)}
-                                                                                    className="w-3.5 h-3.5 rounded border-[#1a1a1a] text-[#ffdf00] focus:ring-[#ffdf00]"
-                                                                                />
-                                                                                <label htmlFor={`showCountdown-${link.id}`} className="text-[9px] font-black uppercase tracking-widest text-black/50 cursor-pointer hover:text-black transition-colors">
-                                                                                    {isPT ? 'Mostrar Contagem Regressiva' : 'Show Countdown'}
-                                                                                </label>
+                                                    {/* 📅 Column 2: Scheduling (PRO) */}
+                                                    <div className="space-y-10">
+                                                        {link.type !== 'agenda' && link.type !== 'mediakit' && (
+                                                            <div className="space-y-4">
+                                                                <div className="flex items-center justify-between">
+                                                                    <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('links.schedule')} (PRO)</label>
+                                                                    {(!profile.plan_type || profile.plan_type === 'free') && (
+                                                                        <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-md">
+                                                                            <motion.div
+                                                                                animate={{ x: ['-200%', '200%'] }}
+                                                                                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                                                                                className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 z-0"
+                                                                            />
+                                                                            <span className="relative z-10">{t('links.locked')}</span>
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-md ${(!profile.plan_type || profile.plan_type === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
+                                                                    <div className="grid grid-cols-1 gap-4">
+                                                                        <div className="space-y-1.5">
+                                                                            <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-black">
+                                                                                <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-[#97cd7a]' : 'bg-white'}`}></div>
+                                                                                {t('links.scheduleStart')}
                                                                             </div>
-                                                                         )}
-                                                                    </div>
-                                                                    <div className="space-y-1.5">
-                                                                        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-black">
-                                                                            <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-white'}`}></div>
-                                                                            {t('links.scheduleEnd')}
+                                                                            <input type="datetime-local" value={link.scheduleStart ? new Date(new Date(link.scheduleStart).getTime() - new Date(link.scheduleStart).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleStart', date); }} disabled={!profile.plan_type || profile.plan_type === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md" />
                                                                         </div>
-                                                                        <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.plan_type || profile.plan_type === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md" />
+                                                                        <div className="space-y-1.5">
+                                                                            <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-black">
+                                                                                <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-white'}`}></div>
+                                                                                {t('links.scheduleEnd')}
+                                                                            </div>
+                                                                            <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.plan_type || profile.plan_type === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md" />
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    )}
+                                                        )}
+                                                    </div>
 
-                                                    {/* 🔐 Section 3: Password Protection (PRO) */}
-                                                    {link.type !== 'agenda' && link.type !== 'mediakit' && (
-                                                        <div className="space-y-4">
-                                                            <div className="flex items-center justify-between">
-                                                                <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('passwordLink.toggle') || 'Proteger com Senha'} (PRO)</label>
-                                                                {(!profile.plan_type || profile.plan_type === 'free') && (
-                                                                    <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-md">
-                                                                        <motion.div
-                                                                            animate={{ x: ['-200%', '200%'] }}
-                                                                            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                                                                            className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 z-0"
-                                                                        />
-                                                                        <span className="relative z-10">{t('links.locked')}</span>
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-md ${(!profile.plan_type || profile.plan_type === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
-                                                                <div className="flex items-center gap-3 mb-4">
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => updateLink(link.id, 'isPasswordProtected', !link.isPasswordProtected)}
-                                                                        className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-colors shadow-[0_1.5px_0_0_#1a1a1a] rounded-full ${link.isPasswordProtected ? 'bg-[#97cd7a]' : 'bg-white'}`}
-                                                                    >
-                                                                        <div className={`absolute top-[1.5px] w-3 h-3 transition-all rounded-full ${link.isPasswordProtected ? 'left-[22px] bg-white' : 'left-[2px] bg-[#1a1a1a]/20'}`} />
-                                                                    </button>
-                                                                    <span className="text-[9px] font-bold uppercase tracking-widest text-black/70">
-                                                                        {link.isPasswordProtected ? (t('passwordLink.enabled') || 'Ativado') : (t('passwordLink.disabled') || 'Desativado')}
-                                                                    </span>
+                                                    {/* 🔐 Column 3: Pro Features (Password & Countdown) */}
+                                                    <div className="space-y-10">
+                                                        {link.type !== 'agenda' && link.type !== 'mediakit' && (
+                                                            <div className="space-y-4">
+                                                                <div className="flex items-center justify-between">
+                                                                    <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('passwordLink.toggle') || 'Proteger com Senha'} (PRO)</label>
+                                                                    {(!profile.plan_type || profile.plan_type === 'free') && (
+                                                                        <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-md">
+                                                                            <motion.div
+                                                                                animate={{ x: ['-200%', '200%'] }}
+                                                                                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                                                                                className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 z-0"
+                                                                            />
+                                                                            <span className="relative z-10">{t('links.locked')}</span>
+                                                                        </span>
+                                                                    )}
                                                                 </div>
-                                                                {link.isPasswordProtected && (
-                                                                    <input
-                                                                        type="password"
-                                                                        value={(link as any).linkPassword || ''}
-                                                                        onChange={e => updateLink(link.id, 'linkPassword' as any, e.target.value)}
-                                                                        placeholder={t('passwordLink.placeholder') || 'Digite a senha...'}
-                                                                        className="w-full text-[10px] font-medium uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md"
-                                                                        autoComplete="new-password"
-                                                                    />
-                                                                )}
+                                                                <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-md ${(!profile.plan_type || profile.plan_type === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
+                                                                    <div className="flex items-center gap-3 mb-4">
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => updateLink(link.id, 'isPasswordProtected', !link.isPasswordProtected)}
+                                                                            className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-colors shadow-[0_1.5px_0_0_#1a1a1a] rounded-full ${link.isPasswordProtected ? 'bg-[#97cd7a]' : 'bg-white'}`}
+                                                                        >
+                                                                            <div className={`absolute top-[1.5px] w-3 h-3 transition-all rounded-full ${link.isPasswordProtected ? 'left-[22px] bg-white' : 'left-[2px] bg-[#1a1a1a]/20'}`} />
+                                                                        </button>
+                                                                        <span className="text-[9px] font-bold uppercase tracking-widest text-black/70">
+                                                                            {link.isPasswordProtected ? (t('passwordLink.enabled') || 'Ativado') : (t('passwordLink.disabled') || 'Desativado')}
+                                                                        </span>
+                                                                    </div>
+                                                                    {link.isPasswordProtected && (
+                                                                        <input
+                                                                            type="password"
+                                                                            value={(link as any).linkPassword || ''}
+                                                                            onChange={e => updateLink(link.id, 'linkPassword' as any, e.target.value)}
+                                                                            placeholder={t('passwordLink.placeholder') || 'Digite a senha...'}
+                                                                            className="w-full text-[10px] font-medium uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md"
+                                                                            autoComplete="new-password"
+                                                                        />
+                                                                    )}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    )}
+                                                        )}
+
+                                                        {link.type !== 'agenda' && link.type !== 'mediakit' && (
+                                                            <div className="space-y-4">
+                                                                <div className="flex items-center justify-between">
+                                                                    <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">Contagem Regressiva (PRO)</label>
+                                                                    {(!profile.plan_type || profile.plan_type === 'free') && (
+                                                                        <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-md">
+                                                                            <motion.div
+                                                                                animate={{ x: ['-200%', '200%'] }}
+                                                                                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                                                                                className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 z-0"
+                                                                            />
+                                                                            <span className="relative z-10">{t('links.locked')}</span>
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-md ${(!profile.plan_type || profile.plan_type === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
+                                                                    <div className="flex items-center gap-3">
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => updateLink(link.id, 'showCountdown', !link.showCountdown)}
+                                                                            className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-colors shadow-[0_1.5px_0_0_#1a1a1a] rounded-full ${link.showCountdown ? 'bg-[#97cd7a]' : 'bg-white'}`}
+                                                                        >
+                                                                            <div className={`absolute top-[1.5px] w-3 h-3 transition-all rounded-full ${link.showCountdown ? 'left-[22px] bg-white' : 'left-[2px] bg-[#1a1a1a]/20'}`} />
+                                                                        </button>
+                                                                        <span className="text-[9px] font-bold uppercase tracking-widest text-black/70">
+                                                                            {link.showCountdown ? 'Ativado' : 'Desativado'}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             )}
 

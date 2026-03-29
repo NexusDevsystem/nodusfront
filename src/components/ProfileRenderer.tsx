@@ -83,7 +83,7 @@ const LinkCountdown: React.FC<{
 
             if (diff <= 0) {
                 onZero();
-                return null;
+                return { d: 0, h: 0, m: 0, s: 0 };
             }
 
             return {
@@ -592,6 +592,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
     // Button links - no longer filtering out 'social' layout to support dual-state
     const buttonLinks = React.useMemo(() => {
+        // DEBUG: Track showCountdown for each active link
+        activeLinks.forEach(l => {
+            if (l.scheduleStart) {
+                console.log(`🔗 Link: ${l.title} | showCountdown: ${l.showCountdown} | scheduleStart: ${l.scheduleStart}`);
+            }
+        });
+
         const manual = activeLinks;
         const integrations = profile.integrations || [];
         const result = [...manual];
@@ -1105,36 +1112,63 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
 
-                <div className={`absolute ${(['banner', 'compact'].includes(profile.headerLayout || '')) ? 'top-4' : 'top-[34px]'} right-6 z-30`}>
+                <div className="absolute top-4 right-6 z-30">
                     <InteractiveButton strength={10} tiltStrength={5}>
                         <button
                             onClick={onShare}
-                            className="w-10 h-10 flex items-center justify-center bg-white text-slate-900 rounded-full shadow-lg active:scale-95 transition-all"
+                            className="w-10 h-10 flex items-center justify-center bg-white/50 text-slate-900 rounded-full shadow-md border border-white/20 active:scale-95 transition-all"
                         >
                             <Share size={18} />
                         </button>
                     </InteractiveButton>
                 </div>
-                {/* Menu / Options Button (Adjusted for Banner/Perfil) */}
-                <div className={`absolute ${(['banner', 'compact'].includes(profile.headerLayout || '')) ? 'top-4' : 'top-[34px]'} left-6 z-30`}>
-                    <InteractiveButton strength={10} tiltStrength={5}>
-                        <div className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-lg active:scale-90 transition-all overflow-hidden cursor-pointer relative p-[6px]">
-                            <video
-                                src="/icons/Anime_mascot_fixed_white_background_delpmaspu_.mp4"
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                className="w-full h-full object-cover rounded-full"
-                            />
+                {/* Menu / Options Button (Adjusted for Banner/Perfil) - Now an expanding "Crie seu Nodus" CTA with Auto-Expansion */}
+                {(() => {
+                    const [isAutoExpanded, setIsAutoExpanded] = React.useState(false);
+                    React.useEffect(() => {
+                        // Expand after a short delay to grab attention and STAY expanded
+                        const expandTimer = setTimeout(() => setIsAutoExpanded(true), 1500);
+                        return () => clearTimeout(expandTimer);
+                    }, []);
+
+                    return (
+                        <div className="absolute top-4 left-6 z-[60] pointer-events-auto">
+                            <motion.a 
+                                href="https://www.nodus.my/login"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                animate={{ width: isAutoExpanded ? 200 : 40 }}
+                                whileHover={{ width: 200 }}
+                                whileTap={{ scale: 0.95 }}
+                                transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                                className="h-10 flex items-center bg-white/50 rounded-full shadow-md overflow-hidden cursor-pointer group whitespace-nowrap border border-white/20 pointer-events-auto z-[50] cursor-target relative isolate"
+                                style={{ display: 'flex', position: 'relative' }}
+                            >
+                                <div className="w-10 h-10 flex items-center justify-center shrink-0 p-[6px]">
+                                    <video
+                                        src="/icons/Anime_mascot_fixed_white_background_delpmaspu_.mp4"
+                                        autoPlay
+                                        loop
+                                        muted
+                                        playsInline
+                                        className="w-full h-full object-cover rounded-full mix-blend-multiply"
+                                    />
+                                </div>
+                                <motion.span 
+                                    animate={{ opacity: isAutoExpanded ? 1 : 0 }}
+                                    className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-900 pr-6 group-hover:opacity-100 transition-opacity duration-300 flex-1 text-center"
+                                >
+                                    {isPT ? 'Crie seu nodus' : 'Create your nodus'}
+                                </motion.span>
+                            </motion.a>
                         </div>
-                    </InteractiveButton>
-                </div>
+                    );
+                })()}
 
 
 
                 <div
-                    className={`px-6 ${profile.headerLayout === 'banner' ? 'pt-12 pb-2' : (profile.headerLayout === 'compact' ? 'pt-0 pb-12' : (isPreview ? 'pt-12 pb-0' : 'pt-16 pb-0'))} flex flex-col relative`}
+                    className={`px-6 ${profile.headerLayout === 'banner' ? 'pt-12 pb-2' : (profile.headerLayout === 'compact' ? 'pt-0 pb-12' : (isPreview ? 'pt-16 pb-0' : 'pt-[72px] pb-0'))} flex flex-col relative`}
                     style={profile.headerLayout === 'banner' ? {
                         minHeight: '250px'
                     } : {}}
@@ -1480,7 +1514,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         <InteractiveButton strength={15}>
                                                             <button
                                                                 onClick={() => setActiveCollection(null)}
-                                                                className={`w-10 h-10 flex items-center justify-center transition-all ${buttonClass} shadow-lg`}
+                                                                className={`w-10 h-10 flex items-center justify-center transition-all bg-white/50 rounded-full shadow-md border border-white/20`}
                                                                 style={{
                                                                     ...mainButtonStyle,
                                                                     borderRadius: borderRadiusValue,
@@ -1731,9 +1765,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                 buttonLinks.forEach(link => {
                                                     // Countdown Mode: Scheduled for future + showCountdown enabled
-                                                    const isCountdownMode = link.showCountdown && link.scheduleStart && (new Date(link.scheduleStart).getTime() > Date.now());
+                                                    const isCountdownActive = link.showCountdown && link.scheduleStart && new Date(link.scheduleStart) > currentTime;
 
-                                                    if (isCountdownMode) {
+                                                    if (isCountdownActive) {
                                                         flushIcons();
                                                         flushCards();
                                                         renderedItems.push(
