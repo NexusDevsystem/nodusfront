@@ -77,7 +77,8 @@ export default function AdminView() {
         email: '',
         password: '',
         username: '',
-        plan_type: 'free'
+        plan_type: 'free',
+        subscription_expiry_date: ''
     });
 
     const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
@@ -189,7 +190,7 @@ export default function AdminView() {
             setIsUpdating(true);
             await apiClient.createAdminUser(newUserForm);
             setIsCreateModalOpen(false);
-            setNewUserForm({ email: '', password: '', username: '', plan_type: 'free' });
+            setNewUserForm({ email: '', password: '', username: '', plan_type: 'free', subscription_expiry_date: '' });
             loadStats(true);
             showNotification('Usuário registrado com sucesso!', 'success');
         } catch (err: any) {
@@ -848,9 +849,7 @@ export default function AdminView() {
                                                 className="w-full bg-[#f8f8f8] border-2 border-black p-4 text-sm font-black rounded-md outline-none focus:bg-white transition-colors"
                                                 placeholder="NODUS_USER"
                                             />
-                                        </div>
-
-                                        <div className="space-y-2">
+                                                     <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase text-black/40 tracking-widest pl-1">Plano Inicial</label>
                                             <div className="grid grid-cols-3 gap-3">
                                                 {['free', 'monthly', 'yearly'].map(plan => (
@@ -865,6 +864,18 @@ export default function AdminView() {
                                                 ))}
                                             </div>
                                         </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase text-black/40 tracking-widest pl-1">Expiração do Plano (Opcional)</label>
+                                            <input 
+                                                type="date" 
+                                                value={newUserForm.subscription_expiry_date}
+                                                onChange={(e) => setNewUserForm({...newUserForm, subscription_expiry_date: e.target.value})}
+                                                className="w-full bg-[#f8f8f8] border-2 border-black p-4 text-sm font-black rounded-md outline-none focus:bg-white transition-colors uppercase"
+                                            />
+                                            <p className="text-[9px] font-bold text-black/30 uppercase pl-1">Deixe vazio para plano vitalício/padrão</p>
+                                        </div>
+                             </div>
 
                                         <button 
                                             type="submit" 
