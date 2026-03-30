@@ -103,7 +103,19 @@ export default function PublicProfilePage() {
     }
 
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
-    const themeBgColor = profile.headerLayout === 'banner' ? (profile.bannerBlurColor || '#000000') : (profile.customSolidColor || currentTheme.solidColor || currentTheme.buttonHex || '#000000');
+    const isProfileMode = profile.headerLayout === 'compact';
+    
+    // Helper to darken a color for the background
+    const getDarkenedThemeColor = () => {
+        const base = profile.customSecondaryColor || profile.customSolidColor || currentTheme.solidColor || currentTheme.buttonHex || '#111827';
+        return base;
+    };
+
+    const themeBgColor = profile.headerLayout === 'banner' 
+        ? (profile.bannerBlurColor || '#000000') 
+        : isProfileMode 
+            ? getDarkenedThemeColor() 
+            : (profile.customSolidColor || currentTheme.solidColor || currentTheme.buttonHex || '#000000');
 
     const generateShareImage = async () => {
         if (!shareCardRef.current || !profile) return;
@@ -181,13 +193,17 @@ export default function PublicProfilePage() {
                 <div className="absolute inset-0">
                     <BackgroundLayer profile={profile} currentTheme={currentTheme} />
                 </div>
-                <div className="absolute inset-0 z-40 bg-black/10 transition-colors duration-1000"></div>
+                {/* Dynamic Overlay for Profile Mode - Matches layout color but darker/desaturated */}
+                <div 
+                    className={`absolute inset-0 z-40 transition-colors duration-1000 ${isProfileMode ? 'backdrop-blur-3xl' : 'bg-black/10'}`}
+                    style={isProfileMode ? { backgroundColor: themeBgColor, opacity: 0.85, filter: 'brightness(0.3) saturate(0.8)' } : {}}
+                ></div>
                 <div className="absolute inset-0 z-50 opacity-20 pointer-events-none mix-blend-soft-light"></div>
             </div>
 
             <div
                 className="w-full h-auto min-h-screen relative z-10 overflow-hidden md:max-w-[500px] md:shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.5)] md:rounded-t-[3rem]"
-                style={{ backgroundColor: profile.headerLayout === 'banner' ? (profile.bannerBlurColor || '#000000') : (profile.customSolidColor || currentTheme.solidColor || '#000') }}
+                style={{ backgroundColor: isProfileMode ? themeBgColor : (profile.headerLayout === 'banner' ? (profile.bannerBlurColor || '#000000') : (profile.customSolidColor || currentTheme.solidColor || '#000')) }}
             >
                 <ProfileRenderer
                     profile={profile}

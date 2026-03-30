@@ -66,8 +66,8 @@ import { imgOptimized } from '../utils/imageUtils';
 /**
  * LinkCountdown helper component for scheduled links
  */
-const LinkCountdown: React.FC<{ 
-    targetDate: string; 
+const LinkCountdown: React.FC<{
+    targetDate: string;
     onZero: () => void;
     title: string;
     style?: React.CSSProperties;
@@ -532,8 +532,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 if (!l.isActive || l.isArchived || !isScheduled(l)) return;
 
                 // Detect if it's a social network to show it at the top too
-                const network = SOCIAL_NETWORKS.find(sn => 
-                    sn.id !== 'custom' && 
+                const network = SOCIAL_NETWORKS.find(sn =>
+                    sn.id !== 'custom' &&
                     (l.url.toLowerCase().includes(sn.id) || (l.title?.toLowerCase() || '').includes(sn.id))
                 );
 
@@ -552,7 +552,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         };
 
         processItems(links);
-        
+
         const integrations = profile.integrations || [];
         const result = [...foundSocials];
 
@@ -562,11 +562,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
             const data = integration.profile_data || {};
             const identifier = data.username || data.channel_id || data.channelId || data.display_name;
-            
+
             if (identifier) {
                 let url = '';
                 const cleanId = String(identifier).replace('@', '');
-                
+
                 if (integration.provider === 'instagram') url = `https://instagram.com/${cleanId}`;
                 else if (integration.provider === 'tiktok') url = `https://tiktok.com/@${cleanId}`;
                 else if (integration.provider === 'twitch') url = `https://twitch.tv/${cleanId}`;
@@ -1037,7 +1037,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             />
 
                             {/* Noise/Grain Overlay for "Premium" look */}
-                            <div 
+                            <div
                                 className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none"
                                 style={{
                                     backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
@@ -1047,14 +1047,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                         {/* Content Overlaid at Bottom (Fixed Visibility) */}
                         <div className="absolute bottom-0 left-0 w-full px-8 pt-6 pb-0 z-[100] flex flex-col items-center text-center">
-                            
+
                             {/* 1. Name */}
                             <h3
                                 className="text-[2.2em] mb-0 tracking-tight flex items-center gap-2 drop-shadow-xl"
-                                style={{ 
-                                    fontFamily: effectiveFontFamily, 
+                                style={{
+                                    fontFamily: effectiveFontFamily,
                                     color: '#FFFFFF',
-                                    fontWeight: profile.fontWeight || '500' 
+                                    fontWeight: profile.fontWeight || '500'
                                 }}
                             >
                                 {profile.name}
@@ -1068,8 +1068,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             {profile.bio && (
                                 <p
                                     className="text-white max-w-[340px] leading-relaxed drop-shadow-lg mb-1 opacity-90"
-                                    style={{ 
-                                        fontSize: profile.bioFontSize ? `${profile.bioFontSize}px` : undefined, 
+                                    style={{
+                                        fontSize: profile.bioFontSize ? `${profile.bioFontSize}px` : undefined,
                                         color: '#FFFFFF',
                                         fontWeight: profile.fontWeight || '400'
                                     }}
@@ -1084,9 +1084,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     {socialLinks.map(link => {
                                         const lowerUrl = (link.url || '').toLowerCase();
                                         const lowerTitle = (link.title || '').toLowerCase();
-                                        const network = SOCIAL_NETWORKS.find(n => 
-                                            lowerTitle.includes(n.id) || 
-                                            lowerUrl.includes(n.id) || 
+                                        const network = SOCIAL_NETWORKS.find(n =>
+                                            lowerTitle.includes(n.id) ||
+                                            lowerUrl.includes(n.id) ||
                                             (n.id === 'twitter' && lowerUrl.includes('x.com'))
                                         ) || SOCIAL_NETWORKS[0];
                                         const Icon = network.icon || Globe;
@@ -1133,7 +1133,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                     return (
                         <div className="absolute top-4 left-6 z-[60] pointer-events-auto">
-                            <motion.a 
+                            <motion.a
                                 href="https://www.nodus.my/login"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -1154,7 +1154,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         className="w-full h-full object-cover rounded-full mix-blend-multiply"
                                     />
                                 </div>
-                                <motion.span 
+                                <motion.span
                                     animate={{ opacity: isAutoExpanded ? 1 : 0 }}
                                     className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-900 pr-6 group-hover:opacity-100 transition-opacity duration-300 flex-1 text-center"
                                 >
@@ -1168,7 +1168,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
                 <div
-                    className={`px-6 ${profile.headerLayout === 'banner' ? 'pt-12 pb-2' : (profile.headerLayout === 'compact' ? 'pt-0 pb-12' : (isPreview ? 'pt-16 pb-0' : 'pt-[72px] pb-0'))} flex flex-col relative`}
+                    className={`px-6 flex flex-col relative flex-1 ${profile.headerLayout === 'banner' ? 'pt-12 pb-2' : (profile.headerLayout === 'compact' ? 'pt-0 pb-4' : (isPreview ? 'pt-16 pb-0' : 'pt-[72px] pb-0'))}`}
                     style={profile.headerLayout === 'banner' ? {
                         minHeight: '250px'
                     } : {}}
@@ -1177,17 +1177,26 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {/* Compact/Social Header Banner - Full Width & Clean */}
                     {profile.headerLayout === 'compact' && (
                         <>
-                            <div className="absolute top-0 -left-6 w-[calc(100%+3rem)] h-[180px] z-[15] overflow-hidden bg-black">
+                            <div
+                                className="absolute top-0 -left-6 w-[calc(100%+3rem)] h-[230px] z-[15] overflow-hidden"
+                                style={{
+                                    background: headerContentBg !== 'transparent' ? headerContentBg : (isDarkTheme ? '#0f172a' : '#ffffff')
+                                }}
+                            >
                                 {profile.customBackground ? (
                                     <img src={profile.customBackground} alt="" className="w-full h-full object-cover" loading="eager" decoding="async" />
                                 ) : (
                                     <div className="w-full h-full opacity-10" style={{ background: currentTheme.buttonHex || '#000' }} />
                                 )}
                             </div>
-                            {/* Full-length Intelligent Backdrop for Social Layout */}
+                            {/* Curved Intelligent Backdrop for Social Layout */}
                             <div
-                                className={`absolute top-[165px] -left-6 w-[calc(100%+3rem)] bottom-0 rounded-t-[48px] z-[16] shadow-[0_-15px_40px_rgba(26,26,26,0.1)] overflow-hidden`}
-                                style={{ background: headerContentBg }}
+                                className="absolute top-[198px] left-0 w-full bottom-0 z-[16] overflow-hidden"
+                                style={{
+                                    background: headerContentBg !== 'transparent' ? headerContentBg : (isDarkTheme ? '#0f172a' : '#ffffff'),
+                                    borderRadius: '100% 100% 0 0 / 50px 50px 0 0',
+                                    transform: 'scaleX(1.15)'
+                                }}
                             />
                         </>
                     )}
@@ -1195,18 +1204,23 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {/* Profile Section - Shared for other layouts */}
                     {profile.headerLayout !== 'banner' && (
                         <motion.div
-                            className={`w-full mb-1 flex flex-col items-center text-center relative z-[30] ${profile.headerLayout === 'compact' ? 'mt-[175px] pt-0 pb-1 px-4' : ''}`}
+                            className={`w-full mb-1 flex flex-col items-center text-center relative z-[30] ${profile.headerLayout === 'compact' ? 'mt-[198px] pt-0 pb-1 px-4' : ''}`}
                         >
                             {/* Avatar */}
                             {profile.avatarUrl && (
-                                <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? '-mt-12 mb-4 z-20' : 'mb-4'}`}>
-                                    <div className={`overflow-hidden shadow-xl rounded-full ${profile.headerLayout === 'compact'
-                                        ? 'w-24 h-24 border-0'
-                                        : `${currentTheme.avatarBorder.replace(/\brounded-[^\s]+\b/g, '')} ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
+                                <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? '-mt-[56px] mb-4 z-20' : 'mb-4'}`}>
+                                    <div className={`overflow-hidden rounded-full ${profile.headerLayout === 'compact'
+                                        ? 'w-[110px] h-[110px] border-[6px]'
+                                        : `shadow-xl ${currentTheme.avatarBorder.replace(/\brounded-[^\s]+\b/g, '')} ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
                                             profile.avatarSize === 'lg' ? 'w-32 h-32' :
                                                 'w-24 h-24'
                                         }`
-                                        }`}>
+                                        }`}
+                                        style={profile.headerLayout === 'compact' ? {
+                                            borderColor: headerContentBg !== 'transparent' ? headerContentBg : (isDarkTheme ? '#0f172a' : '#ffffff'),
+                                            backgroundColor: headerContentBg !== 'transparent' ? headerContentBg : (isDarkTheme ? '#0f172a' : '#ffffff')
+                                        } : undefined}
+                                    >
                                         <img
                                             src={profile.avatarUrl}
                                             alt={profile.name}
@@ -1773,12 +1787,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         renderedItems.push(
                                                             <div key={`countdown-${link.id}`} className="w-full">
                                                                 <InteractiveButton className="w-full">
-                                                                    <div 
+                                                                    <div
                                                                         className={`w-full ${buttonClass} flex flex-col items-center justify-center overflow-hidden transition-all duration-300`}
                                                                         style={{ ...mainButtonStyle, borderRadius: borderRadiusValue, minHeight: '100px' }}
                                                                     >
-                                                                        <LinkCountdown 
-                                                                            targetDate={link.scheduleStart!} 
+                                                                        <LinkCountdown
+                                                                            targetDate={link.scheduleStart!}
                                                                             title={link.title}
                                                                             onZero={() => {
                                                                                 setCurrentTime(new Date());
@@ -2551,7 +2565,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         )}
 
                         {(profile.plan_type === 'free' || !profile.plan_type || !profile.hideBranding) && (
-                            <div className="mt-2 mb-2 flex flex-col items-center w-full px-4 text-center gap-1 relative z-30">
+                            <div className="mt-auto mb-2 flex flex-col items-center w-full px-4 text-center gap-1 relative z-30 shrink-0">
                                 <div className="flex flex-col items-center gap-0.5">
                                     <span style={{
                                         color: effectiveCollectionTextColor || '#111827',
