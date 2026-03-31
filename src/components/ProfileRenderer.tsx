@@ -2526,7 +2526,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         })()}
                     </div>
                     {/* Theme-Integrated Support Button & Newsletter */}
-                    <div className="mt-4 flex flex-col gap-4">
+                    <div className="mt-4 flex flex-col gap-4 pb-12">
                         {profile.supportKey && (
                             <InteractiveButton key="support-button" className="w-full">
                                 <motion.a
@@ -2564,8 +2564,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             </InteractiveButton>
                         )}
 
-                        {(profile.plan_type === 'free' || !profile.plan_type || !profile.hideBranding) && (
-                            <div className="mt-auto mb-2 flex flex-col items-center w-full px-4 text-center gap-1 relative z-30 shrink-0">
+                        <div className="mt-auto mb-2 flex flex-col items-center w-full px-4 text-center gap-1 relative z-30 shrink-0">
+                            {(profile.plan_type === 'free' || !profile.plan_type || !profile.hideBranding) && (
                                 <div className="flex flex-col items-center gap-0.5">
                                     <span style={{
                                         color: effectiveCollectionTextColor || '#111827',
@@ -2598,13 +2598,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         </span>
                                     </a>
                                 </div>
+                            )}
 
-                                <div className="flex items-center gap-2">
-                                    <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: effectiveCollectionTextColor || '#111827', opacity: 0.4, fontSize: '8px', textTransform: 'uppercase', textDecoration: 'none', letterSpacing: '0.15em', fontWeight: 300 }}>Termos</a>
-                                    <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: effectiveCollectionTextColor || '#111827', opacity: 0.4, fontSize: '8px', textTransform: 'uppercase', textDecoration: 'none', letterSpacing: '0.15em', fontWeight: 300 }}>Privacidade</a>
-                                </div>
+                            <div className="flex items-center gap-2">
+                                <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: effectiveCollectionTextColor || '#111827', opacity: 0.4, fontSize: '8px', textTransform: 'uppercase', textDecoration: 'none', letterSpacing: '0.15em', fontWeight: 300 }}>Termos</a>
+                                <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: effectiveCollectionTextColor || '#111827', opacity: 0.4, fontSize: '8px', textTransform: 'uppercase', textDecoration: 'none', letterSpacing: '0.15em', fontWeight: 300 }}>Privacidade</a>
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
             </div>
