@@ -957,6 +957,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
     const textClass = currentTheme.textClass;
 
+    const themeClipPath = React.useMemo(() => {
+        // Find Tailwind arbitrary clip-path utility: [clip-path:polygon(...)]
+        const match = currentTheme.buttonClass.match(/\[clip-path:(.*?)\]/);
+        if (!match) return undefined;
+        // Replace underscores with spaces for valid CSS property value
+        return match[1].replace(/_/g, ' ');
+    }, [currentTheme.buttonClass]);
+
 
 
 
@@ -1023,10 +1031,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <div
                             className="absolute inset-0"
                             style={{
-                                maskImage: 'radial-gradient(170% 100% at 50% 0%, black 0%, black 75%, transparent 100%)',
-                                WebkitMaskImage: 'radial-gradient(170% 100% at 50% 0%, black 0%, black 75%, transparent 100%)'
+                                maskImage: 'radial-gradient(170% 100% at 50% 0%, black 0%, black 25%, transparent 100%)',
+                                WebkitMaskImage: 'radial-gradient(170% 100% at 50% 0%, black 0%, black 25%, transparent 100%)'
                             }}
                         >
+
                             {/* The single full-space Banner Image - Raw source for reliability */}
                             <img src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`}
                                 alt={profile.name}
@@ -1048,20 +1057,37 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         {/* Content Overlaid at Bottom (Fixed Visibility) */}
                         <div className="absolute bottom-0 left-0 w-full px-8 pt-6 pb-0 z-[100] flex flex-col items-center text-center">
 
-                            {/* 1. Name */}
-                            <h3
-                                className="text-[2.2em] mb-0 tracking-tight flex items-center gap-2 drop-shadow-xl"
-                                style={{
-                                    fontFamily: effectiveFontFamily,
-                                    color: '#FFFFFF',
-                                    fontWeight: profile.fontWeight || '500'
-                                }}
-                            >
-                                {profile.name}
-                                {profile.isVerified && (
-                                    <img src={verifiedBadge} alt="Verified" className="w-[0.85em] h-[0.85em] shrink-0" loading="lazy" decoding="async" />
+                            {/* 1. Name or Logo */}
+                            <div className="flex items-center gap-2 mb-0 drop-shadow-xl justify-center w-full text-center">
+                                {profile.headerStyle === 'logo' && profile.logoUrl ? (
+                                    <div className="flex items-center justify-center relative">
+                                        <img
+                                            src={profile.logoUrl}
+                                            alt={profile.name}
+                                            loading="eager"
+                                            decoding="async"
+                                            className={`${isPreview ? 'h-16 md:h-[84px] min-h-12' : 'min-h-16 h-20 md:h-[110px]'} w-auto max-w-[90vw] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]`}
+                                        />
+                                        {profile.isVerified && (
+                                            <img src={verifiedBadge} alt="Verified" className={`${isPreview ? 'w-[1em] h-[1em]' : 'w-[1.1em] h-[1.1em]'} shrink-0 drop-shadow-sm ml-0.5 mb-2 z-10`} loading="lazy" decoding="async" />
+                                        )}
+                                    </div>
+                                ) : (
+                                    <h3
+                                        className="text-[2.2em] mb-0 tracking-tight flex items-center gap-2"
+                                        style={{
+                                            fontFamily: effectiveFontFamily,
+                                            color: '#FFFFFF',
+                                            fontWeight: profile.fontWeight || '500'
+                                        }}
+                                    >
+                                        {profile.name}
+                                        {profile.isVerified && (
+                                            <img src={verifiedBadge} alt="Verified" className="w-[0.85em] h-[0.85em] shrink-0" loading="lazy" decoding="async" />
+                                        )}
+                                    </h3>
                                 )}
-                            </h3>
+                            </div>
 
 
                             {/* 3. Bio Text (Moved up and Bold) */}
@@ -1372,7 +1398,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             const renderStoreProduct = (product: Product) => {
                                 if (product.isActive === false) return null;
                                 return (
-                                    <InteractiveButton key={product.id} className="w-full">
+                                    <InteractiveButton key={product.id} className="w-full" clipPath={themeClipPath}>
                                         <button
                                             onClick={(e) => {
                                                 e.preventDefault();
@@ -1380,7 +1406,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 setSelectedProduct(product);
                                             }}
                                             className={`group/item flex items-center h-[88px] px-4 gap-4 transition-all duration-300 ${buttonClass} shadow-sm hover:translate-y-[-2px]`}
-                                            style={{ ...mainButtonStyle, width: '100%', borderRadius: borderRadiusValue }}
+                                            style={{ ...mainButtonStyle, clipPath: themeClipPath, width: '100%', borderRadius: borderRadiusValue }}
                                         >
                                             <div className="relative w-16 h-16 shrink-0 rounded-sm overflow-hidden border border-black/5 bg-white">
                                                 <img src={product.image} className="w-full h-full object-cover" loading="lazy" decoding="async" />
@@ -1464,7 +1490,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                     <div
                                                                         className={`w-full group relative transition-all duration-300 ${cleanClass(baseCardClass, ['bg', 'text']).replace('overflow-hidden', '')}`}
                                                                         style={{
-                                                                            ...mainButtonStyle,
+                                                                            ...mainButtonStyle, clipPath: themeClipPath,
                                                                             color: getSmartTextColor(),
                                                                             ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
                                                                         }}
@@ -1530,7 +1556,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 onClick={() => setActiveCollection(null)}
                                                                 className={`w-10 h-10 flex items-center justify-center transition-all bg-white/50 rounded-full shadow-md border border-white/20`}
                                                                 style={{
-                                                                    ...mainButtonStyle,
+                                                                    ...mainButtonStyle, clipPath: themeClipPath,
                                                                     borderRadius: borderRadiusValue,
                                                                     padding: 0 // Ensure it stays a square/circle even if buttonClass has padding
                                                                 }}
@@ -1645,7 +1671,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             // AQUI: Aplicamos buttonClass (limpa) para que o ícone social tenha o mesmo "feel" do botão (hover, shadow)
                                                                             // Removemos classes de layout/padding do botão para que não quebre o ícone
                                                                             className={`relative group flex items-center justify-center w-[72px] h-[72px] transition-all duration-300 ${buttonClass.replace(/\b(block|w-full|min-h-\[.*?\]|px-\d+(\.\d+)?|py-\d+(\.\d+)?|justify-between|text-center)\b/g, '').trim()} ${getHighlightClass(iconLink.highlight)} cursor-pointer`}
-                                                                            style={{ ...mainButtonStyle, borderRadius: borderRadiusValue }} // Força o estilo do botão (cor e redondura)
+                                                                            style={{ ...mainButtonStyle, clipPath: themeClipPath, borderRadius: borderRadiusValue, overflow: themeClipPath ? 'hidden' : 'visible' }} // Força o estilo do botão (cor e redondura)
                                                                         >
                                                                             <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${currentTheme.id.includes('dark') ? 'bg-white' : 'bg-[#1a1a1a]'}`}></div>
 
@@ -1789,7 +1815,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 <InteractiveButton className="w-full">
                                                                     <div
                                                                         className={`w-full ${buttonClass} flex flex-col items-center justify-center overflow-hidden transition-all duration-300`}
-                                                                        style={{ ...mainButtonStyle, borderRadius: borderRadiusValue, minHeight: '100px' }}
+                                                                        style={{ ...mainButtonStyle, clipPath: themeClipPath, borderRadius: borderRadiusValue, minHeight: '100px' }}
                                                                     >
                                                                         <LinkCountdown
                                                                             targetDate={link.scheduleStart!}
@@ -1905,7 +1931,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             const isExpanded = expandedIncentive === link.id;
                                                             renderedItems.push(
                                                                 <div key={`incentive-wrapper-${link.id}`} className="flex flex-col gap-2 w-full">
-                                                                    <InteractiveButton className="w-full" glowColor={`${getSmartTextColor()}33`}>
+                                                                    <InteractiveButton className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
                                                                         <motion.button
                                                                             whileTap={{ scale: 0.98 }}
                                                                             onClick={() => {
@@ -1923,10 +1949,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             }}
                                                                             className={`relative w-full h-[72px] transition-all duration-300 group flex items-center ${buttonClass} cursor-pointer`}
                                                                             style={{
-                                                                                ...mainButtonStyle,
+                                                                                ...mainButtonStyle, clipPath: themeClipPath,
                                                                                 color: getSmartTextColor(),
                                                                                 borderRadius: borderRadiusValue,
-                                                                                ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art' || currentTheme.id === 'technology-holo' || currentTheme.id === 'technology-neural') ? { overflow: 'visible' } : { overflow: 'hidden' })
+                                                                                ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
                                                                             }}
                                                                         >
                                                                             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -1974,7 +2000,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             }}
                                                                                             className={`relative w-full h-[64px] transition-all duration-300 group flex items-center ${buttonClass} cursor-pointer opacity-90 hover:opacity-100`}
                                                                                             style={{
-                                                                                                ...mainButtonStyle,
+                                                                                                ...mainButtonStyle, clipPath: themeClipPath,
                                                                                                 backgroundColor: `${mainButtonStyle?.backgroundColor || '#ffffff'}ee`,
                                                                                                 color: getSmartTextColor(),
                                                                                                 borderRadius: borderRadiusValue,
@@ -2224,10 +2250,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         const isVideo = (child.url.includes('youtube.com') || child.url.includes('youtu.be') || child.url.includes('tiktok.com'));
 
                                                                                         const EffectWrapper = isHighlighted ? GlitchButton : isVideo ? ElasticButton : React.Fragment;
-                                                                                        const effectProps = (isHighlighted || isVideo) ? { className: "w-full" } : {};
+                                                                                        const effectProps = (isHighlighted || isVideo) ? { className: "w-full", clipPath: themeClipPath } : {};
 
                                                                                         nestedItems.push(
-                                                                                            <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`}>
+                                                                                            <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
                                                                                                 <EffectWrapper {...effectProps}>
                                                                                                     <motion.a
                                                                                                         transition={{ duration: 0.2 }}
@@ -2240,11 +2266,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                         }}
                                                                                                         className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)}`}
                                                                                                         style={{
-                                                                                                            ...mainButtonStyle,
+                                                                                                            ...mainButtonStyle, clipPath: themeClipPath,
                                                                                                             fontFamily: profile.fontFamily,
                                                                                                             fontWeight: (profile.fontWeight || undefined),
                                                                                                             fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                                                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art' || currentTheme.id === 'technology-holo' || currentTheme.id === 'technology-neural') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
                                                                                                             borderRadius: borderRadiusValue
                                                                                                         }}
                                                                                                     >
@@ -2360,7 +2386,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         }}
                                                                         className={`w-full h-[72px] transform group relative flex items-center p-0 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                                         style={{
-                                                                            ...mainButtonStyle,
+                                                                            ...mainButtonStyle, clipPath: themeClipPath,
                                                                             borderRadius: borderRadiusValue,
                                                                             fontFamily: profile.fontFamily,
                                                                             fontWeight: (profile.fontWeight || undefined),
@@ -2418,10 +2444,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         const isVideo = (link.url.includes('youtube.com') || link.url.includes('youtu.be') || link.url.includes('tiktok.com'));
 
                                                         const EffectWrapper = isHighlighted ? GlitchButton : isVideo ? ElasticButton : React.Fragment;
-                                                        const effectProps = (isHighlighted || isVideo) ? { className: "w-full" } : {};
+                                                        const effectProps = (isHighlighted || isVideo) ? { className: "w-full", clipPath: themeClipPath } : {};
 
                                                         renderedItems.push(
-                                                            <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`}>
+                                                            <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
                                                                 <EffectWrapper {...effectProps}>
                                                                     <motion.a
                                                                         transition={{ duration: 0.2 }}
@@ -2434,11 +2460,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         }}
                                                                         className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                                         style={{
-                                                                            ...mainButtonStyle,
+                                                                            ...mainButtonStyle, clipPath: themeClipPath,
                                                                             fontFamily: profile.fontFamily,
                                                                             fontWeight: (profile.fontWeight || undefined),
                                                                             fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art' || currentTheme.id === 'technology-holo' || currentTheme.id === 'technology-neural') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
                                                                             borderRadius: borderRadiusValue
                                                                         }}
                                                                     >
@@ -2528,7 +2554,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {/* Theme-Integrated Support Button & Newsletter */}
                     <div className="mt-4 flex flex-col gap-4 pb-12">
                         {profile.supportKey && (
-                            <InteractiveButton key="support-button" className="w-full">
+                            <InteractiveButton key="support-button" className="w-full" clipPath={themeClipPath}>
                                 <motion.a
                                     transition={{ duration: 0.2 }}
                                     whileTap={{ scale: 0.98 }}
@@ -2542,13 +2568,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     }}
                                     className={`block w-full h-[72px] text-center text-base transition-all duration-300 transform group relative py-2.5 px-6 flex items-center justify-between ${buttonClass} cursor-pointer`}
                                     style={{
-                                        ...mainButtonStyle,
+                                        ...mainButtonStyle, clipPath: themeClipPath,
                                         color: getSmartTextColor(),
                                         borderRadius: borderRadiusValue,
                                         fontFamily: profile.fontFamily,
                                         fontWeight: (profile.fontWeight || undefined),
                                         fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                        ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art' || currentTheme.id === 'technology-holo' || currentTheme.id === 'technology-neural') ? { overflow: 'visible' } : { overflow: 'hidden' })
+                                        ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
                                     }}
                                 >
                                     <div className="relative z-10 w-full flex items-center justify-between">

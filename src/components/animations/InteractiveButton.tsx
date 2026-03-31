@@ -9,6 +9,7 @@ interface InteractiveButtonProps {
     strength?: number; // Strength of the magnetic pull
     tiltStrength?: number; // Strength of the tilt effect
     glowColor?: string; // Color for the hover glow effect
+    clipPath?: string; // HEX or polygon clip-path
 }
 
 const InteractiveButton: React.FC<InteractiveButtonProps> = ({
@@ -18,7 +19,8 @@ const InteractiveButton: React.FC<InteractiveButtonProps> = ({
     onClick,
     strength = 6,
     tiltStrength = 4,
-    glowColor
+    glowColor,
+    clipPath
 }) => {
     const buttonRef = useRef<HTMLDivElement>(null);
     
@@ -79,6 +81,8 @@ const InteractiveButton: React.FC<InteractiveButtonProps> = ({
                 rotateY: springRotateY,
                 perspective: 1000,
                 transformStyle: 'preserve-3d',
+                clipPath,
+                overflow: clipPath ? 'hidden' : 'visible'
             }}
             className={`relative cursor-pointer cursor-target ${className}`}
         >

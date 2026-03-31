@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QRCodeCanvas } from 'qrcode.react';
-import { X, Download, Copy, Share, Loader2 } from 'lucide-react';
+import { X, Download, Copy, Share, Loader2, ExternalLink } from 'lucide-react';
 
 interface QRCodeModalProps {
     url: string;
@@ -98,6 +98,15 @@ export default function QRCodeModal({ url, profileName, onClose, onGenerateShare
                     </div>
 
                     <div className="w-full flex flex-col gap-3">
+                        <a
+                            href={fullUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#ffdf00] border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] font-black uppercase tracking-widest text-[10px] hover:shadow-none hover:translate-y-[2px] transition-all"
+                        >
+                            <ExternalLink size={16} strokeWidth={3} /> Acessar Perfil Público
+                        </a>
+
                         <button
                             onClick={handleDownload}
                             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] font-black uppercase tracking-widest text-[10px] hover:shadow-none hover:translate-y-[2px] transition-all"

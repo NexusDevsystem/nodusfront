@@ -6,13 +6,15 @@ interface ElasticButtonProps {
     className?: string;
     style?: React.CSSProperties;
     onClick?: (e: React.MouseEvent) => void;
+    clipPath?: string;
 }
 
 const ElasticButton: React.FC<ElasticButtonProps> = ({
     children,
     className = '',
     style = {},
-    onClick
+    onClick,
+    clipPath
 }) => {
     return (
         <motion.div
@@ -25,14 +27,15 @@ const ElasticButton: React.FC<ElasticButtonProps> = ({
                 transition: { type: "spring", stiffness: 400, damping: 10 }
             }}
             onClick={onClick}
-            style={style}
+            style={{ ...style, clipPath }}
             className={`relative cursor-pointer transition-shadow ${className}`}
         >
             {children}
             
             {/* Subtle jelly effect overlay */}
             <motion.div
-                className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 rounded-[inherit] pointer-events-none"
+                className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 pointer-events-none"
+                style={{ clipPath }}
                 initial={false}
                 animate={{
                     scale: [1, 1.05, 1],

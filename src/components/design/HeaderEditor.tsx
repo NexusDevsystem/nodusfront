@@ -32,6 +32,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
     const avatarInputRef = useRef<HTMLInputElement>(null);
     const bannerInputRef = useRef<HTMLInputElement>(null);
+    const logoInputRef = useRef<HTMLInputElement>(null);
     const checkTimeout = useRef<NodeJS.Timeout | null>(null);
     const usernameOriginal = profile.username || '';
 
@@ -142,6 +143,32 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                 }
             } catch (error) {
                 console.error('Error uploading banner:', error);
+            } finally {
+                setIsSavingImage(false);
+                e.target.value = '';
+            }
+        }
+    };
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setIsSavingImage(true);
+            try {
+                // Compress logo preserving transparency (format png)
+                const compressedDataUrl = await compressImage(file, 800, 1, 'image/png');
+                const response = await fetch(compressedDataUrl);
+                const blob = await response.blob();
+                const uploadFile = new File([blob], 'logo.png', { type: 'image/png' });
+
+                const uploadRes = await apiClient.uploadInternalAsset(uploadFile);
+                if (uploadRes.success && uploadRes.file?.url) {
+                    const imageUrl = uploadRes.file.url;
+                    if (updateProfile) updateProfile({ logoUrl: imageUrl });
+                    else onChange({ ...profile, logoUrl: imageUrl });
+                }
+            } catch (error) {
+                console.error('Error uploading logo:', error);
             } finally {
                 setIsSavingImage(false);
                 e.target.value = '';
@@ -592,19 +619,86 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                             )}
                         </div>
 
-                        {/* Display Name */}
-                        <div className="space-y-2">
-                            <label className="block text-[10px] font-black text-[#1a1a1a] uppercase tracking-[0.2em] px-1">{t('design.displayName')}</label>
-                            <input
-                                type="text"
-                                value={profile.name}
-                                onChange={(e) => {
-                                    if (updateProfile) updateProfile({ name: e.target.value });
-                                    else onChange({ ...profile, name: e.target.value });
-                                }}
-                                placeholder={t('design.displayNamePlaceholder')}
-                                className="w-full h-12 px-4 border-2 border-[#1a1a1a] bg-white focus:bg-[#fcfcfc] outline-none transition-all text-sm font-medium tracking-wide text-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] focus:shadow-none focus:translate-y-[2px] rounded-md"
-                            />
+                        {/* Display Name / Logo */}
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <label className="block text-[10px] font-black text-[#1a1a1a] uppercase tracking-[0.2em] px-1">{t('design.displayName')}</label>
+                                <div className="flex bg-[#fdfcf0] p-1 border-2 border-[#1a1a1a] rounded-md gap-1">
+                                    <button 
+                                        onClick={() => {
+                                            if (updateProfile) updateProfile({ headerStyle: 'text' });
+                                            else onChange({ ...profile, headerStyle: 'text' });
+                                        }} 
+                                        className={`text-[8px] font-black uppercase px-2 py-1 rounded-sm transition-all ${profile.headerStyle !== 'logo' ? 'bg-[#1a1a1a] text-[#97cd7a] shadow-[0_2px_0_0_rgba(0,0,0,0.2)]' : 'text-[#1a1a1a]/60 hover:text-[#1a1a1a]'}`}
+                                    >
+                                        Texto
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            if (updateProfile) updateProfile({ headerStyle: 'logo' });
+                                            else onChange({ ...profile, headerStyle: 'logo' });
+                                        }} 
+                                        className={`text-[8px] font-black uppercase px-2 py-1 rounded-sm transition-all ${profile.headerStyle === 'logo' ? 'bg-[#1a1a1a] text-[#97cd7a] shadow-[0_2px_0_0_rgba(0,0,0,0.2)]' : 'text-[#1a1a1a]/60 hover:text-[#1a1a1a]'}`}
+                                    >
+                                        Imagem
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {profile.headerStyle === 'logo' ? (
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex items-center gap-2 p-2.5 bg-[#fdfcf0] border-2 border-[#1a1a1a] rounded-md shadow-[0_3px_0_0_#1a1a1a]">
+                                        <AlertCircle size={14} strokeWidth={3} className="text-[#1a1a1a] shrink-0" />
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-[#1a1a1a]">
+                                            Tamanho recomendado: 995x276 pixels
+                                        </span>
+                                    </div>
+                                    <div className="w-full h-16 border-2 border-[#1a1a1a] bg-white shadow-[0_4px_0_0_#1a1a1a] flex items-center justify-center overflow-hidden rounded-md relative group">
+                                        {profile.logoUrl ? (
+                                            <div className="w-full h-full p-2 relative bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZWVlIi8+CjxyZWN0IHg9IjQiIHk9IjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNlZWUiLz4KPC9zdmc+')]">
+                                                <img src={profile.logoUrl} alt="Logo" className="w-full h-full object-contain" />
+                                            </div>
+                                        ) : (
+                                            <div className="text-[10px] uppercase font-black tracking-widest text-[#1a1a1a]/30">
+                                                Sem Imagem
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button 
+                                            onClick={() => logoInputRef.current?.click()}
+                                            className="flex-1 py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#86b86c] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-md"
+                                        >
+                                            <Upload size={14} strokeWidth={3} /> {profile.logoUrl ? t('common.change') : t('design.chooseImage')}
+                                        </button>
+                                        {profile.logoUrl && (
+                                            <button
+                                                onClick={() => {
+                                                    if (updateProfile) updateProfile({ logoUrl: '' });
+                                                    else onChange({ ...profile, logoUrl: '' });
+                                                }}
+                                                className="px-3 py-2 bg-white border-2 border-[#1a1a1a] text-[#1a1a1a] hover:text-white hover:bg-red-400 transition-all shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-md"
+                                            >
+                                                <Trash2 size={16} strokeWidth={3} />
+                                            </button>
+                                        )}
+                                    </div>
+                                    <p className="text-[8px] font-bold text-[#1a1a1a]/40 uppercase tracking-widest leading-relaxed">
+                                        Recomendado: PNG Transparente com formato horizontal.
+                                    </p>
+                                </div>
+                            ) : (
+                                <input
+                                    type="text"
+                                    value={profile.name}
+                                    onChange={(e) => {
+                                        if (updateProfile) updateProfile({ name: e.target.value });
+                                        else onChange({ ...profile, name: e.target.value });
+                                    }}
+                                    placeholder={t('design.displayNamePlaceholder')}
+                                    className="w-full h-12 px-4 border-2 border-[#1a1a1a] bg-white focus:bg-[#fcfcfc] outline-none transition-all text-sm font-medium tracking-wide text-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] focus:shadow-none focus:translate-y-[2px] rounded-md"
+                                />
+                            )}
                         </div>
 
                         {/* Bio / Description */}
@@ -640,6 +734,14 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                 accept="image/*"
                 className="hidden"
                 onChange={handleBannerUpload}
+            />
+            <input
+                ref={logoInputRef}
+                id="logo-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleLogoUpload}
             />
 
         </div>

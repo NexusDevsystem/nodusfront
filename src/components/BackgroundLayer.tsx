@@ -79,11 +79,17 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
                         }
                     ></div>
 
-                    {/* 3. Bottom fade */}
+                    {/* 3. Global Top/Bottom shadow overlay for visibility and depth */}
                     <div
                         className="absolute inset-0 z-20"
                         style={{
-                            background: `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, transparent 35%, ${fadeColor}cc 85%)`
+                            background: `linear-gradient(to bottom, 
+                                rgba(0,0,0,0.7) 0%, 
+                                rgba(0,0,0,0.35) 15%, 
+                                rgba(0,0,0,0.1) 35%, 
+                                transparent 55%, 
+                                transparent 75%, 
+                                ${fadeColor}cc 95%)`
                         }}
                     ></div>
                 </div>

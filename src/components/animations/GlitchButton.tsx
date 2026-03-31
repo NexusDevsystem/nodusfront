@@ -6,18 +6,20 @@ interface GlitchButtonProps {
     className?: string;
     style?: React.CSSProperties;
     onClick?: (e: React.MouseEvent) => void;
+    clipPath?: string;
 }
 
 const GlitchButton: React.FC<GlitchButtonProps> = ({
     children,
     className = '',
     style = {},
-    onClick
+    onClick,
+    clipPath
 }) => {
     return (
         <motion.div
             onClick={onClick}
-            style={style}
+            style={{ ...style, clipPath }}
             className={`relative group cursor-pointer overflow-hidden ${className}`}
             whileHover="hover"
         >
