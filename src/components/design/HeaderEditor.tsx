@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { UserProfile } from '../../types';
-import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle, Loader2, Check } from 'lucide-react';
+import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle, Loader2, Check, Lock } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
 import { compressImage } from '../../utils/imageUtils';
 import { THEMES } from '../../constants';
@@ -635,11 +635,17 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                     </button>
                                     <button 
                                         onClick={() => {
+                                            const isFree = !profile.plan_type || profile.plan_type === 'free';
+                                            if (isFree) {
+                                                window.dispatchEvent(new CustomEvent('open-billing-modal'));
+                                                return;
+                                            }
                                             if (updateProfile) updateProfile({ headerStyle: 'logo' });
                                             else onChange({ ...profile, headerStyle: 'logo' });
                                         }} 
-                                        className={`text-[8px] font-black uppercase px-2 py-1 rounded-sm transition-all ${profile.headerStyle === 'logo' ? 'bg-[#1a1a1a] text-[#97cd7a] shadow-[0_2px_0_0_rgba(0,0,0,0.2)]' : 'text-[#1a1a1a]/60 hover:text-[#1a1a1a]'}`}
+                                        className={`text-[8px] font-black uppercase px-2 py-1 rounded-sm transition-all flex items-center gap-1.5 ${profile.headerStyle === 'logo' ? 'bg-[#1a1a1a] text-[#97cd7a] shadow-[0_2px_0_0_rgba(0,0,0,0.2)]' : 'text-[#1a1a1a]/60 hover:text-[#1a1a1a]'}`}
                                     >
+                                        {(!profile.plan_type || profile.plan_type === 'free') && <Lock size={10} strokeWidth={3} className="text-[#1a1a1a]/40" />}
                                         Imagem
                                     </button>
                                 </div>

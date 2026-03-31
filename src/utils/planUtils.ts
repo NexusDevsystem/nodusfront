@@ -29,7 +29,10 @@ export const hasProFeatures = (profile: UserProfile): boolean => {
     // 2. Check Font
     if (isProFont(profile.fontFamily)) return true;
 
-    // 3. Check for custom color overrides that typically belong to the "Custom" (PRO) theme logic
+    // 3. Check for Header Style (Logo)
+    if (profile.headerStyle === 'logo') return true;
+
+    // 4. Check for custom color overrides that typically belong to the "Custom" (PRO) theme logic
     // Even if themeId is not 'custom', if these are set, they might be remnants or PRO-level tweaks
     if (profile.customButtonColor || profile.customTextColor || profile.customCollectionTextColor || profile.customButtonTextColor) {
         return true;
