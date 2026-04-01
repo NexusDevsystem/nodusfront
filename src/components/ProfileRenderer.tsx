@@ -848,6 +848,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     // Unified Styling Logic: Preserving Theme "Soul" while allowing Edits
     const overrideTypes: ('rounded' | 'bg' | 'text' | 'border' | 'shadow')[] = [];
     if (roundedClass) overrideTypes.push('rounded');
+    if (profile.buttonShadow) overrideTypes.push('border', 'shadow');
     if (isCustomTheme && profile.customButtonColor) overrideTypes.push('bg');
     if (isCustomTheme && profile.customButtonTextColor) overrideTypes.push('text');
 
@@ -857,6 +858,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     let buttonClass = cleanClass(currentTheme.buttonClass, overrideTypes);
 
     if (roundedClass) buttonClass += ` ${roundedClass}`;
+    if (profile.buttonShadow) {
+        // Strip out conflicting transforms so the brutalist click effect works cleanly
+        buttonClass = buttonClass.replace(/\b(hover:-translate-y-\d+|hover:translate-y-\d+|active:scale-\d+)\b/g, '').trim();
+        buttonClass += ' border-2 border-[#1a1a1a] shadow-[4px_4px_0_0_#1a1a1a] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_0_#1a1a1a] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none';
+    }
 
     // 2. Button Color Logic - Custom colors ONLY apply to 'custom' theme
     const buttonHex = (isCustomTheme && profile.customButtonColor) ? profile.customButtonColor : currentTheme.buttonHex;
@@ -1708,12 +1714,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         renderedItems.push(
                                                             <div key={`card-grid-${group[0].id}`} className="flex flex-col gap-4 w-full">
                                                                 {group.map((cardLink) => {
-                                                                    // Resolve the effective button background color explicitly
-                                                                    const cardBgColor = (isCustomTheme && profile.customButtonColor)
-                                                                        ? profile.customButtonColor
-                                                                        : (buttonHex || currentTheme.buttonHex || '#ffffff');
+                                                                    // Resolve the effective button background color explicitly using theme button styles
                                                                     const smartText = getSmartTextColor();
                                                                     const separatorColor = smartText ? `${smartText}25` : (isDarkTheme ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)');
+
+                                                                    // Image and Footer radii need slight shrinking if parent border exists, we'll just adapt based on parent radius
+                                                                    const innerRadius = borderRadiusValue ? `max(0px, calc(${borderRadiusValue}px - 2px))` : undefined;
 
                                                                     return (
                                                                         <InteractiveButton key={cardLink.id} className="w-full">
@@ -1729,14 +1735,20 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     handleLinkClick(cardLink.id);
                                                                                 }}
                                                                                 style={{
-                                                                                    backgroundColor: cardBgColor,
+                                                                                    ...mainButtonStyle,
                                                                                     borderRadius: borderRadiusValue,
-                                                                                    overflow: 'hidden',
+                                                                                    ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
                                                                                 }}
-                                                                                className={`group relative transition-all duration-300 w-full flex flex-col ${cleanClass(baseCardClass, ['bg'])} ${getHighlightClass(cardLink.highlight)} cursor-pointer`}
+                                                                                className={`group relative transition-all duration-300 w-full flex flex-col ${baseCardClass} ${getHighlightClass(cardLink.highlight)} cursor-pointer`}
                                                                             >
                                                                                 {/* Image Area */}
-                                                                                <div className="relative overflow-hidden h-44 md:h-52 w-full flex-shrink-0">
+                                                                                <div 
+                                                                                    className="relative overflow-hidden h-44 md:h-52 w-full flex-shrink-0"
+                                                                                    style={{
+                                                                                        borderTopLeftRadius: innerRadius,
+                                                                                        borderTopRightRadius: innerRadius,
+                                                                                    }}
+                                                                                >
                                                                                     {cardLink.image ? (
                                                                                         <img
                                                                                             src={cardLink.image}
@@ -1756,12 +1768,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     )}
                                                                                 </div>
 
-                                                                                {/* Footer — same bg as button, correct text color */}
+                                                                                {/* Footer — inherits card bg and text style completely */}
                                                                                 <div
                                                                                     className="p-3.5 flex flex-col justify-center items-center text-center w-full flex-shrink-0"
                                                                                     style={{
                                                                                         borderTop: `1px solid ${separatorColor}`,
                                                                                         minHeight: '56px',
+                                                                                        borderBottomLeftRadius: innerRadius,
+                                                                                        borderBottomRightRadius: innerRadius,
                                                                                     }}
                                                                                 >
                                                                                     {isMusicLink(cardLink) && (

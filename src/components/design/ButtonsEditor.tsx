@@ -47,6 +47,22 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                         </div>
                     ))}
                 </div>
+
+                <div className="mt-8 flex items-center justify-between p-4 border-2 border-[#1a1a1a] bg-[#fdfcf0] shadow-[0_2px_0_0_#1a1a1a]">
+                    <div className="flex flex-col px-1">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-[#1a1a1a]">Sombra</span>
+                        <span className="text-[9px] font-normal uppercase tracking-widest text-black/60 mt-1 w-full max-w-[220px] leading-tight">Aplica as sombras sólidas e espessas aos botões do seu perfil.</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer cursor-target shrink-0 pr-1">
+                        <input
+                            type="checkbox"
+                            checked={!!profile.buttonShadow}
+                            onChange={(e) => updateProfile({ buttonShadow: e.target.checked })}
+                            className="sr-only peer"
+                        />
+                        <div className="w-12 h-6 bg-white peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-[#1a1a1a] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#97cd7a] border-2 border-[#1a1a1a] shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"></div>
+                    </label>
+                </div>
             </section>
 
             <section className="space-y-4 pt-6 mt-6 border-t-2 border-[#1a1a1a] border-dashed">

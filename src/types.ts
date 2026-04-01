@@ -93,6 +93,7 @@ export interface UserProfile {
   customCollectionTextColor?: string | null;
   customButtonTextColor?: string | null;
   customButtonColor?: string | null;
+  buttonShadow?: boolean;
   integrations?: any[];
   usernameUpdatedAt?: string | null;
   bannerBlurColor?: string | null;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserProfile } from '../../types';
-import { FONTS } from '../../constants';
+import { FONTS, THEMES } from '../../constants';
 import { Type, Zap, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -13,6 +13,30 @@ interface TypographyEditorProps {
 
 const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, updateProfile }) => {
     const { t } = useTranslation();
+    const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
+    const isDarkTheme = currentTheme.id.includes('dark') || currentTheme.id.includes('black');
+
+    // Replicate luminance and smart text color logic from ProfileRenderer
+    const buttonHex = (profile.themeId === 'custom' && profile.customButtonColor) ? profile.customButtonColor : currentTheme.buttonHex;
+    const isButtonLight = (() => {
+        if (!buttonHex) return false;
+        const hex = buttonHex.replace('#', '');
+        if (hex.length < 6) return false;
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        // Simple relative luminance like getLuminance
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return luminance > 0.6;
+    })();
+
+    const defaultButtonTextColor = (() => {
+        if (!isButtonLight && isDarkTheme) return '#ffffff';
+        if (isButtonLight) return '#0f172a';
+        if (profile.customBackground || isDarkTheme) return '#ffffff';
+        return '#000000';
+    })();
+
     return (
         <div className="space-y-5 animate-fade-in pb-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
@@ -151,7 +175,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                 <div className="relative w-10 h-10 overflow-hidden border border-[#1a1a1a] shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-white rounded-md">
                                     <input
                                         type="color"
-                                        value={profile.customTextColor || '#000000'}
+                                        value={profile.customTextColor || currentTheme.textHex || (isDarkTheme ? '#ffffff' : '#0f172a')}
                                         onChange={(e) => {
                                             const val = e.target.value;
                                             if (updateProfile) updateProfile({ customTextColor: val });
@@ -168,7 +192,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                         if (updateProfile) updateProfile({ customTextColor: val });
                                         else onChange({ ...profile, customTextColor: val });
                                     }}
-                                    placeholder="#000000"
+                                    placeholder={currentTheme.textHex || (isDarkTheme ? "#FFFFFF" : "#0F172A")}
                                     className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium uppercase text-black shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-md"
                                 />
                             </div>
@@ -181,7 +205,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                 <div className="relative w-10 h-10 overflow-hidden border border-[#1a1a1a] shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-white rounded-md">
                                     <input
                                         type="color"
-                                        value={profile.customCollectionTextColor || profile.customTextColor || '#000000'}
+                                        value={profile.customCollectionTextColor || profile.customTextColor || currentTheme.textHex || (isDarkTheme ? '#ffffff' : '#0f172a')}
                                         onChange={(e) => {
                                             const val = e.target.value;
                                             if (updateProfile) updateProfile({ customCollectionTextColor: val });
@@ -211,7 +235,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                 <div className="relative w-10 h-10 overflow-hidden border border-[#1a1a1a] shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-white rounded-md">
                                     <input
                                         type="color"
-                                        value={profile.customButtonTextColor || '#ffffff'}
+                                        value={profile.customButtonTextColor || defaultButtonTextColor}
                                         onChange={(e) => {
                                             const val = e.target.value;
                                             if (updateProfile) updateProfile({ customButtonTextColor: val });
@@ -228,7 +252,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
                                         if (updateProfile) updateProfile({ customButtonTextColor: val });
                                         else onChange({ ...profile, customButtonTextColor: val });
                                     }}
-                                    placeholder="#FFFFFF"
+                                    placeholder={defaultButtonTextColor}
                                     className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[11px] font-medium uppercase text-black shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-md"
                                 />
                             </div>
