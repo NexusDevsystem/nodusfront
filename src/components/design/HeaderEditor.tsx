@@ -190,8 +190,8 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                     <div className="flex bg-[#fdfcf0] p-1.5 border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-md">
                         {[
                             { id: 'classic', label: t('design.classic'), icon: <Layout className="w-4 h-4" /> },
-                            { id: 'compact', label: t('design.profile'), icon: <User className="w-4 h-4" /> },
-                            { id: 'banner', label: t('design.banner'), icon: <ImageIcon className="w-4 h-4" /> },
+                            { id: 'compact', label: t('design.banner'), icon: <ImageIcon className="w-4 h-4" /> },
+                            { id: 'banner', label: t('design.profile'), icon: <User className="w-4 h-4" /> },
                         ].map((option) => (
                             <button
                                 key={option.id}
