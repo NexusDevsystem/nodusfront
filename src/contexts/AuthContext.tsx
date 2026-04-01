@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { apiClient } from '../services/apiClient';
+import { apiClient, API_URL } from '../services/apiClient';
 
 interface AuthContextType {
     user: any | null;
@@ -241,6 +241,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(true);
             const { token: jwtToken, user: userData } = await apiClient.loginWithEmail(email, password);
 
+            // Save token to localStorage BEFORE fetching profile so apiClient picks it up
             safeSetItem('nodus_access_token', jwtToken);
             setToken(jwtToken);
 
@@ -248,12 +249,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(userObj);
             safeSetItem('nodus_user', JSON.stringify(userObj));
 
+            // Fetch profile using explicit token to avoid any race condition with localStorage reads.
+            // Retry once with a small delay in case of a cold-start 401 from the backend.
+            const fetchProfileWithToken = async (attempt = 0): Promise<any> => {
+                const res = await fetch(`${API_URL}/api/profile/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${jwtToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    cache: 'no-store'
+                });
+                if (res.status === 401 && attempt < 2) {
+                    await new Promise(r => setTimeout(r, 800));
+                    return fetchProfileWithToken(attempt + 1);
+                }
+                if (res.status === 404) return null;
+                if (!res.ok) throw new Error(`Erro ${res.status} ao carregar perfil`);
+                return res.json();
+            };
+
             try {
-                const profileData = await apiClient.getMyProfile();
+                const profileData = await fetchProfileWithToken();
                 setProfile(profileData);
             } catch (err: any) {
-                if (err.message?.includes('404')) setProfile(null);
-                else { setLoading(false); return { error: err }; }
+                // Non-critical: profile fetch failed but login succeeded — let EditorPage handle it
+                setProfile(null);
             }
             setLoading(false);
             return { error: null };

@@ -14,7 +14,10 @@ function LoginPage() {
     const location = useLocation();
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(location.state?.error || '');
+    const rawError: string = location.state?.error || '';
+    const TOKEN_ERRORS = ['no authorization token', 'token', 'unauthorized', 'jwt', 'bearer'];
+    const isTokenError = TOKEN_ERRORS.some(k => rawError.toLowerCase().includes(k));
+    const [error, setError] = useState(isTokenError ? '' : rawError);
     const [mode, setMode] = useState<AuthMode>('login');
     const [showPassword, setShowPassword] = useState(false);
 
@@ -31,42 +34,11 @@ function LoginPage() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('');
-    const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
-    const [isChecking, setIsChecking] = useState(false);
+
 
     const { signInWithProfile, signInWithEmail, registerWithEmail } = useAuth();
     const navigate = useNavigate();
 
-    // Check for reserved username
-    React.useEffect(() => {
-        const reserved = localStorage.getItem('nodus_reserved_username');
-        if (reserved && mode === 'register') {
-            setUsername(reserved);
-        }
-    }, [mode]);
-
-    // Check username availability
-    React.useEffect(() => {
-        if (!username || username.length < 3) {
-            setIsAvailable(null);
-            return;
-        }
-
-        const timer = setTimeout(async () => {
-            setIsChecking(true);
-            try {
-                const { available } = await apiClient.checkUsername(username.toLowerCase());
-                setIsAvailable(available);
-            } catch (err) {
-                setIsAvailable(false);
-            } finally {
-                setIsChecking(false);
-            }
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, [username]);
 
     // Google login
     const googleLogin = useGoogleLogin({
@@ -107,12 +79,9 @@ function LoginPage() {
                     setLoading(false);
                     return;
                 }
-                if (!username.trim() || !isAvailable) {
-                    setError('Username inválido ou já em uso.');
-                    setLoading(false);
-                    return;
-                }
-                const { error: authError } = await registerWithEmail(email, password, name, username);
+                // Generate a temporary username — the real one is set during onboarding
+                const tempUsername = 'user_' + Math.random().toString(36).slice(2, 10);
+                const { error: authError } = await registerWithEmail(email, password, name, tempUsername);
                 if (authError) throw authError;
             }
             navigate('/admin');
@@ -128,8 +97,6 @@ function LoginPage() {
         setEmail('');
         setPassword('');
         setName('');
-        setUsername('');
-        setIsAvailable(null);
     };
 
     return (
@@ -195,44 +162,19 @@ function LoginPage() {
                             {/* Email/Password Form */}
                             <form onSubmit={handleEmailSubmit} className="space-y-4 mb-3">
                                 {mode === 'register' && (
-                                    <>
-                                        <div className="relative">
-                                            <div className={`absolute left-4 top-1/2 -translate-y-1/2 ${isAvailable === true ? 'text-[#97cd7a]' : isAvailable === false ? 'text-red-500' : 'text-black/40'}`}>
-                                                <AtSign size={16} strokeWidth={3} />
-                                            </div>
-                                            <input
-                                                type="text"
-                                                placeholder="username"
-                                                value={username}
-                                                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, ''))}
-                                                className={`w-full pl-11 pr-12 py-4 border-2 text-sm font-bold placeholder:text-black/30 focus:outline-none transition-all bg-white rounded-md ${
-                                                    isAvailable === true ? 'border-[#97cd7a] shadow-[0_4px_0_0_rgba(151,205,122,0.5)]' : 
-                                                    isAvailable === false ? 'border-red-500' : 
-                                                    'border-[#1a1a1a] focus:border-[#97cd7a] focus:shadow-[0_4px_0_0_rgba(151,205,122,0.5)]'
-                                                }`}
-                                                required
-                                            />
-                                            <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                                                {isChecking && <Loader2 className="animate-spin text-black/20" size={16} />}
-                                                {!isChecking && isAvailable === true && <Check className="text-[#97cd7a]" size={16} strokeWidth={4} />}
-                                                {!isChecking && isAvailable === false && <X className="text-red-500" size={16} strokeWidth={4} />}
-                                            </div>
+                                    <div className="relative">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40">
+                                            <User size={16} strokeWidth={3} />
                                         </div>
-
-                                        <div className="relative">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40">
-                                                <User size={16} strokeWidth={3} />
-                                            </div>
-                                            <input
-                                                type="text"
-                                                placeholder={t('login.namePlaceholder')}
-                                                value={name}
-                                                onChange={(e) => setName(e.target.value)}
-                                                className="w-full pl-11 pr-4 py-4 border-2 border-[#1a1a1a] text-sm font-bold placeholder:text-black/30 focus:outline-none focus:border-[#97cd7a] focus:shadow-[0_4px_0_0_rgba(151,205,122,0.5)] transition-all bg-white rounded-md"
-                                                required
-                                            />
-                                        </div>
-                                    </>
+                                        <input
+                                            type="text"
+                                            placeholder={t('login.namePlaceholder')}
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            className="w-full pl-11 pr-4 py-4 border-2 border-[#1a1a1a] text-sm font-bold placeholder:text-black/30 focus:outline-none focus:border-[#97cd7a] focus:shadow-[0_4px_0_0_rgba(151,205,122,0.5)] transition-all bg-white rounded-md"
+                                            required
+                                        />
+                                    </div>
                                 )}
 
                                 <div className="relative">

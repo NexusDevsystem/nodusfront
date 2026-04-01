@@ -705,18 +705,20 @@ export default function EditorPage() {
 
                             </div>
                         </header>
-                        <div className="w-full py-2 md:py-4 px-4 md:px-10 pb-24">
+                        <div className="w-full py-2 md:py-4 px-1 pb-24">
 
                             {/* Page Title - Brutalist Design */}
                             {activeTab !== 'admin' && activeTab !== 'blog' && activeTab !== 'support' && activeTab !== 'billing' && (
                                 <motion.div
                                     initial={{ opacity: 0, y: -20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 w-full mb-12 px-2 md:px-6"
+                                    className="flex flex-col items-center justify-center text-center pt-8 md:pt-12 pb-6 w-full mb-6 px-4"
                                 >
-                                    <div className="relative ml-4 md:ml-6">
-                                        <div className="absolute -left-7 top-1/2 -translate-y-1/2 w-2.5 h-10 bg-[#ffdf00] border-2 border-[#1a1a1a]" />
-                                        <h1 className="text-4xl font-black text-black uppercase tracking-tighter leading-none italic">
+                                    <div className="relative flex flex-col items-center">
+                                        {/* Decorative Brutalist Bar - Compacted */}
+                                        <div className="w-12 h-2 bg-[#ffdf00] border-2 border-[#1a1a1a] mb-4" />
+                                        
+                                        <h1 className="text-3xl md:text-5xl font-black text-black uppercase tracking-tighter leading-none italic">
                                             {activeTab === 'links' && t('editor.tabs.links')}
                                             {activeTab === 'appearance' && t('editor.tabs.appearance')}
                                             {activeTab === 'shop' && t('editor.tabs.shop')}
@@ -727,7 +729,7 @@ export default function EditorPage() {
                                             {activeTab === 'blog' && t('editor.tabs.blog')}
                                             {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'earn' && activeTab !== 'files' && activeTab !== 'integrations' && activeTab !== 'blog' && activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                                         </h1>
-                                        <p className="text-[10px] text-black/40 font-black uppercase tracking-[0.3em] mt-3 ml-1">
+                                        <p className="text-[10px] md:text-xs text-black/50 font-black uppercase tracking-[0.3em] mt-3 max-w-xl leading-relaxed">
                                             {activeTab === 'links' && t('editor.tabDesc.links')}
                                             {activeTab === 'appearance' && t('editor.tabDesc.appearance')}
                                             {activeTab === 'shop' && t('editor.tabDesc.shop')}
@@ -809,16 +811,16 @@ export default function EditorPage() {
 
                                 {activeTab === 'appearance' && (
                                     <div className="flex flex-col md:-mt-6 bg-transparent relative min-h-[calc(100vh-140px)]">
-                                        {/* Design Sidebar */}
-                                        <div className="shrink-0 z-[50] sticky top-0 bg-transparent shadow-sm md:shadow-none">
+                                        {/* Design Sidebar - Static Flow */}
+                                        <div className="shrink-0 z-[50] relative bg-transparent">
                                             <DesignSidebar
                                                 activeSection={activeDesignSection}
                                                 setActiveSection={setActiveDesignSection}
                                             />
                                         </div>
 
-                                        {/* Design Content Area */}
-                                        <div className="flex-1 p-4 md:p-8 pb-32 md:pb-8">
+                                        {/* Design Content Area - Wider Layout */}
+                                        <div className="flex-1 px-1 md:px-2 pb-32 md:pb-8 w-full">
                                             <h2 className="text-2xl font-normal text-slate-800 mb-6 hidden md:block">
                                                 {activeDesignSection === 'header' && t('design.header')}
                                                 {activeDesignSection === 'theme' && t('design.themes')}
