@@ -61,37 +61,7 @@ export const modernThemes: Theme[] = [
         category: 'kawaii',
         isPro: true
     },
-    // 5. Dark Elegant (Gold/White Text)
-    {
-        id: 'modern-dark-elegant',
-        name: 'Dark Elegant',
-        backgroundClass: 'bg-[#121212]',
-        // "Selected" look: Gold background with black text
-        buttonClass: 'bg-[#D4AF37] text-black border-2 border-[#D4AF37] hover:bg-[#B8860B] transition-all duration-300 w-full rounded-sm py-4 px-6 flex items-center justify-between shadow-[0_0_30px_rgba(212,175,55,0.25)] font-serif font-black tracking-widest uppercase',
-        buttonHex: '#D4AF37',
-        textHex: '#F5F5F5',
-        textClass: 'text-white font-serif tracking-[0.2em] uppercase font-bold drop-shadow-sm',
-        avatarBorder: 'rounded-full border-2 border-[#D4AF37] p-2 shadow-2xl',
-        fontFamily: "'Playfair Display', serif",
-        category: 'creative',
-        isPro: true
-    },
-    // 6. Industrial (High Contrast E-Ink)
-    {
-        id: 'modern-industrial',
-        name: 'Industrial',
-        backgroundClass: 'bg-[#262626]',
-        // "Selected" look: solid white with black text
-        buttonClass: 'bg-white text-black border-4 border-white hover:bg-gray-200 transition-colors duration-150 w-full rounded-none py-4 px-6 flex items-center justify-between font-mono uppercase font-black tracking-tighter',
-        buttonHex: '#ffffff',
-        textHex: '#ffffff',
-        textClass: 'text-white font-mono tracking-tighter uppercase font-black',
-        avatarBorder: 'rounded-full border-4 border-white grayscale',
-        fontFamily: "'Roboto Mono', monospace",
-        category: 'creative',
-        isPro: true
-    },
-    // 7. Retro-Futurist
+    // 5. Retro-Futurist
     {
         id: 'modern-retro',
         name: 'Retro Futurist',
@@ -133,18 +103,49 @@ export const modernThemes: Theme[] = [
         category: 'creative',
         isPro: true
     },
-    // 10. Royal Gold
+    // 11. Velvet Night (Free, Unique Ring Effect)
     {
-        id: 'modern-royal-gold',
-        name: 'Royal Gold',
-        backgroundClass: 'bg-[#2A0A10]',
-        buttonClass: 'bg-gradient-to-b from-[#FFD700] to-[#B8860B] text-[#2A0A10] border-2 border-[#FFD700] hover:brightness-110 transition-all duration-300 w-full rounded-sm py-4 px-6 flex items-center justify-between shadow-lg font-serif font-bold',
-        buttonHex: '#FFD700',
-        textHex: '#FFD700',
-        textClass: 'text-[#FFD700] font-serif uppercase tracking-widest',
-        avatarBorder: 'rounded-full border-[3px] border-[#FFD700] shadow-[0_0_15px_#FFD700]',
-        fontFamily: "'Cinzel', serif",
-        category: 'creative',
-        isPro: true
+        id: 'modern-velvet-night',
+        name: 'Velvet Night',
+        backgroundClass: 'bg-[#1a0a2e]',
+        solidColor: '#1a0a2e',
+        buttonClass: 'bg-[#2d1b4e] text-white border border-[#7c3aed]/60 ring-2 ring-[#7c3aed]/20 ring-offset-2 ring-offset-[#1a0a2e] rounded-2xl hover:border-[#a78bfa] hover:ring-[#7c3aed]/50 hover:shadow-[0_0_24px_rgba(124,58,237,0.35)] hover:-translate-y-0.5 transition-all duration-300 w-full py-4 px-6 flex items-center justify-between font-medium',
+        buttonHex: '#2d1b4e',
+        textHex: '#e9d5ff',
+        textClass: 'text-[#e9d5ff] font-sans font-medium tracking-wide',
+        avatarBorder: 'rounded-2xl border-2 border-[#7c3aed]/60 ring-2 ring-[#7c3aed]/30 ring-offset-2 ring-offset-[#1a0a2e]',
+        fontFamily: "'DM Sans', sans-serif",
+        category: 'modern',
+        isPro: false
+    },
+    // 15. Paper Memo (Free, Asymmetric Editorial)
+    {
+        id: 'modern-paper-memo',
+        name: 'Paper Memo',
+        backgroundClass: 'bg-[#FAFAF7]',
+        solidColor: '#FAFAF7',
+        buttonClass: 'bg-white text-[#1a1a1a] border border-[#e5e5e5] border-l-[6px] border-l-[#1a1a1a] rounded-r-xl rounded-l-none shadow-sm hover:border-l-[#ea580c] hover:shadow-md hover:translate-x-0.5 transition-all duration-300 w-full py-4 px-6 flex items-center justify-between font-semibold text-left',
+        buttonHex: '#ffffff',
+        textHex: '#1a1a1a',
+        textClass: 'text-[#1a1a1a] font-serif font-semibold tracking-tight',
+        avatarBorder: 'rounded-xl border-l-[5px] border-l-[#1a1a1a] border border-[#e5e5e5]',
+        fontFamily: "'Lora', serif",
+        category: 'modern',
+        isPro: false
+    },
+    // 16. Aqua Depth (Free, Underwater Glass)
+    {
+        id: 'modern-aqua-depth',
+        name: 'Aqua Depth',
+        backgroundClass: 'bg-gradient-to-b from-[#0f3460] to-[#0a1628]',
+        solidColor: '#0f3460',
+        buttonClass: 'bg-white/8 backdrop-blur-md text-white border-0 border-b-[3px] border-[#22d3ee] hover:bg-white/15 hover:border-b-[4px] hover:border-[#67e8f9] rounded-none transition-all duration-400 w-full py-4 px-6 flex items-center justify-between font-light tracking-[0.12em]',
+        buttonHex: '#0f3460',
+        textHex: '#e0f7fa',
+        textClass: 'text-[#e0f7fa] font-sans font-light tracking-widest',
+        avatarBorder: 'rounded-full border-2 border-[#22d3ee]/50 ring-4 ring-[#22d3ee]/10',
+        fontFamily: "'Inter', sans-serif",
+        category: 'modern',
+        isPro: false
     }
 ];

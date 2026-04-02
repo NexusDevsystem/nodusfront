@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import './index.css';
 
 // Silence all console output for a cleaner production experience
 if (import.meta.env.PROD || true) { // Force true as per user request

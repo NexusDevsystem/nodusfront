@@ -28,6 +28,7 @@ interface AddLinkModalProps {
     plan_type?: 'free' | 'monthly' | 'annual';
     profile: UserProfile;
     onProfileChange: (profile: UserProfile) => void;
+    initialView?: 'all' | 'social' | 'links';
 }
 
 
@@ -72,7 +73,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     onAddIncentives,
     plan_type = 'free',
     profile,
-    onProfileChange
+    onProfileChange,
+    initialView = 'all'
 }) => {
     const isPro = plan_type === 'monthly' || plan_type === 'annual';
     const { t } = useTranslation();
@@ -340,48 +342,50 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
         return (
             <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Section: Essentials */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-6 bg-[#ffdf00] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
-                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.suggested')}</h4>
-                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-                        {[
-                            { id: 'link', icon: <LinkIcon size={isMobile ? 20 : 24} strokeWidth={3} />, label: isMobile ? t('links.linkLabel') : t('links.externalLink'), desc: t('links.insertAnyUrl'), color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
-                            { id: 'collection', icon: <Layout size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { setShowCollectionStep(true); } },
-                            { id: 'product', icon: <ShoppingBag size={isMobile ? 20 : 24} strokeWidth={3} />, label: isMobile ? t('links.productLabel') : t('links.newProduct'), desc: t('links.productDescShort'), color: 'bg-white', accent: 'bg-cyan-400', action: () => { setShowShopCollectionStep(true); } },
-                            { id: 'agenda', icon: <Calendar size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('agenda.title') || 'Agenda', desc: t('agenda.descShort') || 'Liste seus eventos e shows', color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddAgenda(); onClose(); } },
-                            { id: 'map', icon: <Store size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.mapLabel') || 'Endereço', desc: t('links.mapDesc') || 'Destaque a localização do seu negócio', color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { onAddMap(); onClose(); } },
-                            { id: 'incentive', icon: isPro ? <DollarSign size={isMobile ? 20 : 24} strokeWidth={3} /> : <Lock size={isMobile ? 20 : 24} strokeWidth={3} className="text-black/30" />, label: t('links.incentives') + (isPro ? '' : ' (PRO)'), desc: t('links.receiveSupportDirectly'), color: 'bg-white', accent: isPro ? 'bg-[#97cd7a]' : 'bg-slate-100', action: isPro ? () => { onAddIncentives(); onClose(); } : () => { } },
-                            { id: 'mediakit', icon: isPro ? <BarChart3 size={isMobile ? 20 : 24} strokeWidth={3} /> : <Lock size={isMobile ? 20 : 24} strokeWidth={3} className="text-black/30" />, label: t('mediakit.title') || 'Mídia Kit (PRO)', desc: t('mediakit.descShort') || 'Mostre seus números p/ marcas', color: 'bg-white', accent: isPro ? 'bg-[#97cd7a]' : 'bg-slate-100', action: isPro ? () => { onAddMediaKit(); onClose(); } : () => { /* Bloqueado */ } },
-                        ].map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={item.action}
-                                className={`
-                                    group relative flex flex-col items-start p-4 md:p-5 border-2 border-black text-left transition-all duration-300
-                                    ${item.color} rounded-md md:rounded-md shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] overflow-hidden
-                                `}
-                            >
-                                <div className={`
-                                    mb-3 md:mb-4 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center border-2 border-black ${item.accent} 
-                                    shadow-[0_3px_0_0_#1a1a1a] rounded-sm md:rounded-md transition-transform
-                                `}>
-                                    <div className="text-black transition-transform">
-                                        {item.icon}
+                {initialView !== 'social' && (
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-1.5 h-6 bg-[#ffdf00] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
+                            <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.suggested')}</h4>
+                            <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                            {[
+                                { id: 'link', icon: <LinkIcon size={isMobile ? 20 : 24} strokeWidth={3} />, label: isMobile ? t('links.linkLabel') : t('links.externalLink'), desc: t('links.insertAnyUrl'), color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
+                                { id: 'collection', icon: <Layout size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { setShowCollectionStep(true); } },
+                                { id: 'product', icon: <ShoppingBag size={isMobile ? 20 : 24} strokeWidth={3} />, label: isMobile ? t('links.productLabel') : t('links.newProduct'), desc: t('links.productDescShort'), color: 'bg-white', accent: 'bg-cyan-400', action: () => { setShowShopCollectionStep(true); } },
+                                { id: 'agenda', icon: <Calendar size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('agenda.title') || 'Agenda', desc: t('agenda.descShort') || 'Liste seus eventos e shows', color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddAgenda(); onClose(); } },
+                                { id: 'map', icon: <Store size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.mapLabel') || 'Endereço', desc: t('links.mapDesc') || 'Destaque a localização do seu negócio', color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { onAddMap(); onClose(); } },
+                                { id: 'incentive', icon: isPro ? <DollarSign size={isMobile ? 20 : 24} strokeWidth={3} /> : <Lock size={isMobile ? 20 : 24} strokeWidth={3} className="text-black/30" />, label: t('links.incentives') + (isPro ? '' : ' (PRO)'), desc: t('links.receiveSupportDirectly'), color: 'bg-white', accent: isPro ? 'bg-[#97cd7a]' : 'bg-slate-100', action: isPro ? () => { onAddIncentives(); onClose(); } : () => { } },
+                                { id: 'mediakit', icon: isPro ? <BarChart3 size={isMobile ? 20 : 24} strokeWidth={3} /> : <Lock size={isMobile ? 20 : 24} strokeWidth={3} className="text-black/30" />, label: t('mediakit.title') || 'Mídia Kit (PRO)', desc: t('mediakit.descShort') || 'Mostre seus números p/ marcas', color: 'bg-white', accent: isPro ? 'bg-[#97cd7a]' : 'bg-slate-100', action: isPro ? () => { onAddMediaKit(); onClose(); } : () => { /* Bloqueado */ } },
+                            ].map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={item.action}
+                                    className={`
+                                        group relative flex flex-col items-start p-4 md:p-5 border-2 border-black text-left transition-all duration-300
+                                        ${item.color} rounded-md md:rounded-md shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] overflow-hidden
+                                    `}
+                                >
+                                    <div className={`
+                                        mb-3 md:mb-4 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center border-2 border-black ${item.accent} 
+                                        shadow-[0_3px_0_0_#1a1a1a] rounded-sm md:rounded-md transition-transform
+                                    `}>
+                                        <div className="text-black transition-transform">
+                                            {item.icon}
+                                        </div>
                                     </div>
-                                </div>
-                                <h5 className="text-[10px] md:text-[11px] font-black text-black uppercase tracking-wider mb-1 leading-none">{item.label}</h5>
-                                {!isMobile && <p className="text-[9px] font-bold text-black/40 uppercase tracking-widest leading-none truncate w-full">{item.desc}</p>}
+                                    <h5 className="text-[10px] md:text-[11px] font-black text-black uppercase tracking-wider mb-1 leading-none">{item.label}</h5>
+                                    {!isMobile && <p className="text-[9px] font-bold text-black/40 uppercase tracking-widest leading-none truncate w-full">{item.desc}</p>}
 
-                                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-20 transition-opacity">
-                                    <Plus size={12} strokeWidth={4} />
-                                </div>
-                            </button>
-                        ))}
+                                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-20 transition-opacity">
+                                        <Plus size={12} strokeWidth={4} />
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Section: Popular Links */}
                 <div className="space-y-6">
@@ -418,103 +422,107 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
 
 
                 {/* Section: Media & Integrations */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-6 bg-red-400 border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
-                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.media')}</h4>
-                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                {initialView !== 'social' && (
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-1.5 h-6 bg-red-400 border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
+                            <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.media')}</h4>
+                            <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                                { id: 'youtube', icon: <Youtube size={24} strokeWidth={2.5} />, title: 'YouTube', desc: t('links.videosOrShorts'), accent: 'bg-red-400' },
+                                { id: 'spotify', icon: <SiSpotify size={22} />, title: 'Spotify', desc: t('links.musicOrPlaylists'), accent: 'bg-green-400' },
+                                { id: 'tiktok', icon: <SiTiktok size={22} />, title: 'TikTok', desc: t('links.viralVideos'), accent: 'bg-white' },
+                                { id: 'twitch', icon: <TwitchIcon size={24} strokeWidth={2.5} />, title: 'Twitch', desc: t('links.yourLiveStream'), accent: 'bg-purple-400' },
+                                { id: 'soundcloud', icon: <Share2 size={24} strokeWidth={2.5} />, title: 'SoundCloud', desc: 'Sua música e podcasts', accent: 'bg-orange-400' },
+                                { id: 'vimeo', icon: <Video size={24} strokeWidth={2.5} />, title: 'Vimeo', desc: 'Vídeos em alta qualidade', accent: 'bg-sky-400' },
+                            ].map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => { onAddLink(); onClose(); }}
+                                    className="group flex items-center gap-5 p-5 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_5px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[5px] rounded-md text-left"
+                                >
+                                    <div className={`w-12 h-12 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[0_3px_0_0_#1a1a1a] rounded-md  transition-transform`}>
+                                        {item.icon}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-[11px] font-black text-black uppercase tracking-widest leading-none mb-1.5">{item.title}</div>
+                                        <div className="text-[9px] text-black/40 font-bold uppercase tracking-widest leading-none truncate">{item.desc}</div>
+                                    </div>
+                                    <Plus size={16} strokeWidth={4} className="text-black/10 transition-all px-1" />
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[
-                            { id: 'youtube', icon: <Youtube size={24} strokeWidth={2.5} />, title: 'YouTube', desc: t('links.videosOrShorts'), accent: 'bg-red-400' },
-                            { id: 'spotify', icon: <SiSpotify size={22} />, title: 'Spotify', desc: t('links.musicOrPlaylists'), accent: 'bg-green-400' },
-                            { id: 'tiktok', icon: <SiTiktok size={22} />, title: 'TikTok', desc: t('links.viralVideos'), accent: 'bg-white' },
-                            { id: 'twitch', icon: <TwitchIcon size={24} strokeWidth={2.5} />, title: 'Twitch', desc: t('links.yourLiveStream'), accent: 'bg-purple-400' },
-                            { id: 'soundcloud', icon: <Share2 size={24} strokeWidth={2.5} />, title: 'SoundCloud', desc: 'Sua música e podcasts', accent: 'bg-orange-400' },
-                            { id: 'vimeo', icon: <Video size={24} strokeWidth={2.5} />, title: 'Vimeo', desc: 'Vídeos em alta qualidade', accent: 'bg-sky-400' },
-                        ].map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => { onAddLink(); onClose(); }}
-                                className="group flex items-center gap-5 p-5 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_5px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[5px] rounded-md text-left"
-                            >
-                                <div className={`w-12 h-12 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[0_3px_0_0_#1a1a1a] rounded-md  transition-transform`}>
-                                    {item.icon}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="text-[11px] font-black text-black uppercase tracking-widest leading-none mb-1.5">{item.title}</div>
-                                    <div className="text-[9px] text-black/40 font-bold uppercase tracking-widest leading-none truncate">{item.desc}</div>
-                                </div>
-                                <Plus size={16} strokeWidth={4} className="text-black/10 transition-all px-1" />
-                            </button>
-                        ))}
-                    </div>
-                </div>
+                )}
 
                 {/* Section: Contact */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-6 bg-[#ffdf00] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
-                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.contact')}</h4>
-                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                {initialView !== 'links' && (
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-1.5 h-6 bg-[#ffdf00] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
+                            <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.contact')}</h4>
+                            <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                                { id: 'whatsapp', icon: <SiWhatsapp size={24} />, title: 'WhatsApp', desc: 'Conversa direta e rápida', accent: 'bg-green-400', action: () => onAddSocial('whatsapp') },
+                                { id: 'email', icon: <Share2 size={24} strokeWidth={2.5} />, title: 'E-mail', desc: 'Contato profissional oficial', accent: 'bg-[#ffdf00]', action: () => onAddSocial('email') },
+                                { id: 'phone', icon: <Phone size={24} strokeWidth={2.5} />, title: 'Telefone', desc: 'Chamada direta via voz', accent: 'bg-cyan-400', action: () => onAddSocial('phone') },
+                                { id: 'location', icon: <Store size={24} strokeWidth={2.5} />, title: 'Localização', desc: 'Endereço físico no mapa', accent: 'bg-indigo-400', action: () => onAddMap() },
+                            ].map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => { item.action(); onClose(); }}
+                                    className="group flex items-center gap-4 p-4 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] rounded-md text-left"
+                                >
+                                    <div className={`w-11 h-11 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[0_3px_0_0_#1a1a1a] rounded-md  transition-transform`}>
+                                        {item.icon}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-[11px] font-black text-black uppercase tracking-widest leading-none mb-1.5">{item.title}</div>
+                                        <div className="text-[9px] text-black/40 font-bold uppercase tracking-widest leading-none truncate">{item.desc}</div>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[
-                            { id: 'whatsapp', icon: <SiWhatsapp size={24} />, title: 'WhatsApp', desc: 'Conversa direta e rápida', accent: 'bg-green-400', action: () => onAddSocial('whatsapp') },
-                            { id: 'email', icon: <Share2 size={24} strokeWidth={2.5} />, title: 'E-mail', desc: 'Contato profissional oficial', accent: 'bg-[#ffdf00]', action: () => onAddSocial('email') },
-                            { id: 'phone', icon: <Phone size={24} strokeWidth={2.5} />, title: 'Telefone', desc: 'Chamada direta via voz', accent: 'bg-cyan-400', action: () => onAddSocial('phone') },
-                            { id: 'location', icon: <Store size={24} strokeWidth={2.5} />, title: 'Localização', desc: 'Endereço físico no mapa', accent: 'bg-indigo-400', action: () => onAddMap() },
-                        ].map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => { item.action(); onClose(); }}
-                                className="group flex items-center gap-4 p-4 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] rounded-md text-left"
-                            >
-                                <div className={`w-11 h-11 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[0_3px_0_0_#1a1a1a] rounded-md  transition-transform`}>
-                                    {item.icon}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="text-[11px] font-black text-black uppercase tracking-widest leading-none mb-1.5">{item.title}</div>
-                                    <div className="text-[9px] text-black/40 font-bold uppercase tracking-widest leading-none truncate">{item.desc}</div>
-                                </div>
-                            </button>
-                        ))}
-                    </div>
-                </div>
+                )}
 
                 {/* Section: Social Profiles */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-6 bg-indigo-400 border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
-                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.social')}</h4>
-                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                {initialView !== 'links' && (
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-1.5 h-6 bg-indigo-400 border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
+                            <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.social')}</h4>
+                            <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {[
+                                { id: 'instagram', icon: <Instagram size={22} strokeWidth={3} />, title: 'Instagram', accent: 'bg-[#ffdf00]' },
+                                { id: 'tiktok', icon: <SiTiktok size={20} />, title: 'TikTok', accent: 'bg-white' },
+                                { id: 'twitter', icon: <Hash size={22} strokeWidth={3} />, title: 'X (Twitter)', accent: 'bg-slate-100' },
+                                { id: 'linkedin', icon: <Share2 size={22} strokeWidth={3} />, title: 'LinkedIn', accent: 'bg-blue-100' },
+                                { id: 'facebook', icon: <FacebookIcon size={22} />, title: 'Facebook', accent: 'bg-cyan-50' },
+                                { id: 'youtube', icon: <Youtube size={22} strokeWidth={3} />, title: 'YouTube', accent: 'bg-red-50' },
+                                { id: 'threads', icon: <SiThreads size={22} />, title: 'Threads', accent: 'bg-slate-50' },
+                                { id: 'discord', icon: <SiDiscord size={22} />, title: 'Discord', accent: 'bg-indigo-100' },
+                            ].map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => { onAddSocial(item.id); onClose(); }}
+                                    className="group flex flex-col items-center justify-center gap-3 p-6 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] rounded-md"
+                                >
+                                    <div className={`w-12 h-12 flex items-center justify-center border-2 border-black ${item.accent} shadow-[0_3px_0_0_#1a1a1a] rounded-md  transition-transform`}>
+                                        {item.icon}
+                                    </div>
+                                    <span className="text-[9px] font-black text-black uppercase tracking-widest leading-none">{item.title}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {[
-                            { id: 'instagram', icon: <Instagram size={22} strokeWidth={3} />, title: 'Instagram', accent: 'bg-[#ffdf00]' },
-                            { id: 'tiktok', icon: <SiTiktok size={20} />, title: 'TikTok', accent: 'bg-white' },
-                            { id: 'twitter', icon: <Hash size={22} strokeWidth={3} />, title: 'X (Twitter)', accent: 'bg-slate-100' },
-                            { id: 'linkedin', icon: <Share2 size={22} strokeWidth={3} />, title: 'LinkedIn', accent: 'bg-blue-100' },
-                            { id: 'facebook', icon: <FacebookIcon size={22} />, title: 'Facebook', accent: 'bg-cyan-50' },
-                            { id: 'youtube', icon: <Youtube size={22} strokeWidth={3} />, title: 'YouTube', accent: 'bg-red-50' },
-                            { id: 'threads', icon: <SiThreads size={22} />, title: 'Threads', accent: 'bg-slate-50' },
-                            { id: 'discord', icon: <SiDiscord size={22} />, title: 'Discord', accent: 'bg-indigo-100' },
-                        ].map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => { onAddSocial(item.id); onClose(); }}
-                                className="group flex flex-col items-center justify-center gap-3 p-6 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] rounded-md"
-                            >
-                                <div className={`w-12 h-12 flex items-center justify-center border-2 border-black ${item.accent} shadow-[0_3px_0_0_#1a1a1a] rounded-md  transition-transform`}>
-                                    {item.icon}
-                                </div>
-                                <span className="text-[9px] font-black text-black uppercase tracking-widest leading-none">{item.title}</span>
-                            </button>
-                        ))}
-                    </div>
-
-
-                </div>
+                )}
             </div>
         );
     };

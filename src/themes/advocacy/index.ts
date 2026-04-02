@@ -32,21 +32,6 @@ export const advocacyThemes: Theme[] = [
         category: 'advocacy',
         isPro: true
     },
-    // 3. Verdict (Authoritative Emerald)
-    {
-        id: 'advocacy-verdict',
-        name: 'Verdict',
-        backgroundClass: 'bg-[#022c22]',
-        // Deep Green Soft Bevel
-        buttonClass: 'bg-[#065f46] text-[#ecfdf5] shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_6px_rgba(0,0,0,0.3)] hover:brightness-110 hover:-translate-y-0.5 transition-all duration-300 w-full rounded-xl py-4 px-6 flex items-center justify-between font-serif tracking-tight',
-        buttonHex: '#059669',
-        textHex: '#ecfdf5',
-        textClass: 'text-emerald-50 font-serif font-medium',
-        avatarBorder: 'rounded-[1.5rem] border-2 border-[#10b981]/50 shadow-lg',
-        fontFamily: "'Playfair Display', serif",
-        category: 'advocacy',
-        isPro: true
-    },
     // 4. Equity (Kept as requested)
     {
         id: 'advocacy-equity',

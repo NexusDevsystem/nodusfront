@@ -42,19 +42,6 @@ export const brutalistThemes: Theme[] = [
         isPro: true
     },
     {
-        id: 'brutalist-schematic',
-        name: 'Schematic Block',
-        backgroundClass: 'bg-[#f0f0f0]',
-        buttonClass: 'bg-white text-black border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a,0_8px_0_0_#888,0_12px_0_0_#ccc] hover:translate-y-[-2px] transition-all duration-200 w-full rounded-none py-4 px-6 flex items-center justify-between font-mono uppercase font-bold',
-        buttonHex: '#FFFFFF',
-        textHex: '#000000',
-        textClass: 'text-black font-mono uppercase font-black tracking-widest',
-        avatarBorder: 'rounded-none border-2 border-[#1a1a1a] p-2 bg-white shadow-[8px_8px_0_0_rgba(0,0,0,0.1)]',
-        fontFamily: "'Space Mono', monospace",
-        category: 'creative',
-        isPro: true
-    },
-    {
         id: 'brutalist-marker',
         name: 'Marker Sketch',
         backgroundClass: 'bg-white',

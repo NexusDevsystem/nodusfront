@@ -49,7 +49,8 @@
         "large": "Grande",
         "tip": "Dica",
         "locale": "pt-BR",
-        "notProvided": "Não informado"
+        "notProvided": "Não informado",
+        "required": "Obrigatório"
     },
     "login": {
         "back": "Voltar",
@@ -222,7 +223,8 @@
             "kawaii": "Kawaii & Fofo",
             "animated": "Exclusivo Nodus",
             "social": "Estilo Social",
-            "creative": "Criativo & Animado"
+            "creative": "Criativo & Animado",
+            "modern": "Estilo Moderno"
         },
         "format": "Formato",
         "buttonRoundnessDesc": "Ajuste o arredondamento dos cantos dos seus botões",
@@ -685,7 +687,7 @@
                 "features": {
                     "0": "LINKS ILIMITADOS",
                     "1": "NEWSLETTER WIDGET",
-                    "2": "TEMAS BÁSICOS ANIMADOS",
+                    "2": "LAYOUT CLÁSSICO",
                     "3": "ANALYTICS BÁSICO (7 DIAS)",
                     "4": "SUPORTE VIA EMAIL"
                 }
@@ -700,12 +702,12 @@
                 "button": "ASSINAR MENSAL",
                 "features": {
                     "0": "TODOS OS RECURSOS DO GRATUITO",
-                    "1": "TEMAS PRO & EXCLUSIVIDADE",
-                    "2": "DESIGN PERSONALIZADO (CORES/BLUR)",
-                    "3": "ANALYTICS PRO ILIMITADO",
-                    "4": "LOJA COM PRODUTOS ILIMITADOS",
-                    "5": "REMOVER MARCA NODUS",
-                    "6": "SUPORTE PRIORITÁRIO"
+                    "1": "LAYOUTS BANNER & PERFIL",
+                    "2": "TEMAS PRO & EXCLUSIVIDADE",
+                    "3": "DESIGN PERSONALIZADO (CORES/BLUR)",
+                    "4": "ANALYTICS PRO ILIMITADO",
+                    "5": "LOJA COM PRODUTOS ILIMITADOS",
+                    "6": "REMOVER MARCA NODUS"
                 }
             },
             "annual": {
@@ -765,9 +767,9 @@
         "step1Desc": "Você poderá alterá-lo depois se precisar.",
         "step2Desc": "Isso nos ajuda a personalizar sua experiência.",
         "step3Desc": "Por onde nos conheceu?",
-        "step4Desc": "Adicione uma foto e uma biografia.",
+        "step4Desc": "A foto de perfil é obrigatória para continuar.",
         "step5Desc": "Onde seus seguidores te encontram?",
-        "step6Desc": "Escolha o layout inicial do seu perfil.",
+        "step6Desc": "Escolha a identidade visual do seu perfil.",
         "reserveUsername": "Reserve seu nome de usuário",
         "usernameAvailable": "Link disponível!",
         "usernameUnavailable": "Indisponível :(",

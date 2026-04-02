@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { UserProfile } from '../../types';
-import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle, Loader2, Check, Lock } from 'lucide-react';
+import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle, Loader2, Check, Lock, Zap } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
 import { compressImage } from '../../utils/imageUtils';
 import { THEMES } from '../../constants';
@@ -91,6 +91,8 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
 
     const handleLayoutChange = (layoutId: string) => {
+        // Update the profile locally to allow "Live Preview"
+        // This follows the same pattern as themes/fonts: preview anywhere, but only saves for PRO plan.
         if (updateProfile) {
             updateProfile({ headerLayout: layoutId as any });
         } else {
@@ -190,22 +192,32 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                     <div className="flex bg-[#fdfcf0] p-1.5 border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-md">
                         {[
                             { id: 'classic', label: t('design.classic'), icon: <Layout className="w-4 h-4" /> },
-                            { id: 'compact', label: t('design.banner'), icon: <ImageIcon className="w-4 h-4" /> },
-                            { id: 'banner', label: t('design.profile'), icon: <User className="w-4 h-4" /> },
-                        ].map((option) => (
-                            <button
-                                key={option.id}
-                                onClick={() => handleLayoutChange(option.id)}
-                                className={`flex flex-col items-center justify-center gap-2 p-4 border-2 transition-all flex-1 rounded-lg cursor-target
-                                    ${(profile.headerLayout || 'classic') === option.id
-                                        ? `border-[#1a1a1a] bg-white text-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] -translate-y-[1px]`
-                                        : 'border-transparent bg-transparent text-[#1a1a1a]/20 hover:text-[#1a1a1a] hover:border-[#1a1a1a]/5'
-                                    }`}
-                            >
-                                {option.icon}
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em]">{option.label}</span>
-                            </button>
-                        ))}
+                            { id: 'compact', label: t('design.banner'), icon: <ImageIcon className="w-4 h-4" />, premium: true },
+                            { id: 'banner', label: t('design.profile'), icon: <User className="w-4 h-4" />, premium: true },
+                        ].map((option) => {
+                            const isFree = !profile.plan_type || profile.plan_type === 'free';
+                            const isLocked = option.premium && isFree;
+
+                            return (
+                                <button
+                                    key={option.id}
+                                    onClick={() => handleLayoutChange(option.id)}
+                                    className={`flex flex-col items-center justify-center gap-2 p-4 border-2 transition-all flex-1 rounded-lg cursor-target relative overflow-hidden
+                                        ${(profile.headerLayout || 'classic') === option.id
+                                            ? `border-[#1a1a1a] bg-white text-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] -translate-y-[1px]`
+                                            : 'border-transparent bg-transparent text-[#1a1a1a]/20 hover:text-[#1a1a1a] hover:border-[#1a1a1a]/5'
+                                        }`}
+                                >
+                                    {option.premium && (
+                                        <div className="absolute top-1.5 right-1.5">
+                                            <Zap size={14} strokeWidth={2} className="text-[#ffdf00]" fill="#ffdf00" />
+                                        </div>
+                                    )}
+                                    {option.icon}
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">{option.label}</span>
+                                </button>
+                            );
+                        })}
                     </div>
 
                     {/* Compatibility Warning */}

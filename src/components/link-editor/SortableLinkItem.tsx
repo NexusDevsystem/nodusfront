@@ -46,6 +46,7 @@ export interface SortableLinkItemProps {
     isAnyExpanded: boolean;
     isMobile: boolean;
     setProfile?: React.Dispatch<React.SetStateAction<UserProfile>>;
+    isOnboarding?: boolean;
 }
 
 function SortableLinkItem({
@@ -66,6 +67,7 @@ function SortableLinkItem({
     isAnyExpanded,
     isMobile,
     setProfile,
+    isOnboarding
 }: SortableLinkItemProps) {
     const { t, i18n } = useTranslation();
     const isPT = i18n.language?.startsWith('pt');
@@ -972,8 +974,8 @@ function SortableLinkItem({
                                                 </div>
                                             )}
 
-                                            {/* 🛠️ Organized Settings Grid (Animations & PRO Features) */}
-                                            {link.type !== 'header' && (
+                                            {/* 🛠️ Organized Settings Grid (Animations & PRO Features) - HIDDEN ON ONBOARDING */}
+                                            {link.type !== 'header' && !isOnboarding && (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-10 pt-8 mt-8 border-t border-[#1a1a1a] border-dashed items-start">
 
                                                     {/* 🎬 Section 1: Animations */}
@@ -1189,20 +1191,23 @@ function SortableLinkItem({
                                                 </div>
                                             )}
 
-                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 mt-4 border-t border-[#1a1a1a] border-dashed gap-4">
-                                                <div className="flex items-center gap-2 text-black font-bold uppercase tracking-widest text-[10px] sm:shrink-0">
-                                                    <BarChart2 size={14} strokeWidth={2} />
-                                                    <span>{link.clicks || 0} {t('analytics.totalClicks').toUpperCase()}</span>
+                                            {/* Footer Actions Row - HIDDEN ON ONBOARDING */}
+                                            {!isOnboarding && (
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 mt-4 border-t border-[#1a1a1a] border-dashed gap-4">
+                                                    <div className="flex items-center gap-2 text-black font-bold uppercase tracking-widest text-[10px] sm:shrink-0">
+                                                        <BarChart2 size={14} strokeWidth={2} />
+                                                        <span>{link.clicks || 0} {t('analytics.totalClicks').toUpperCase()}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                                                        <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] text-black hover:bg-[#ffdf00] transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none">{t('links.moveTo')}</button>
+                                                        <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all gap-1.5 flex items-center justify-center ${link.isArchived ? 'bg-[#ffdf00] border-[#1a1a1a] text-black shadow-[0_2px_0_0_#1a1a1a] font-black' : 'bg-white border-[#1a1a1a] text-black hover:bg-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none'}`}>
+                                                            {link.isArchived ? <RefreshCw size={14} strokeWidth={3} className="transition-transform group-hover:rotate-180 duration-500" /> : null}
+                                                            {link.isArchived ? (t('links.restore') || 'RESTAURAR') : (t('links.archive') || 'ARQUIVAR')}
+                                                        </button>
+                                                        <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-[#1a1a1a] text-white' : 'bg-white border border-[#1a1a1a] text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                                                    <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] text-black hover:bg-[#ffdf00] transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none">{t('links.moveTo')}</button>
-                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all gap-1.5 flex items-center justify-center ${link.isArchived ? 'bg-[#ffdf00] border-[#1a1a1a] text-black shadow-[0_2px_0_0_#1a1a1a] font-black' : 'bg-white border-[#1a1a1a] text-black hover:bg-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none'}`}>
-                                                        {link.isArchived ? <RefreshCw size={14} strokeWidth={3} className="transition-transform group-hover:rotate-180 duration-500" /> : null}
-                                                        {link.isArchived ? (t('links.restore') || 'RESTAURAR') : (t('links.archive') || 'ARQUIVAR')}
-                                                    </button>
-                                                    <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-[#1a1a1a] text-white' : 'bg-white border border-[#1a1a1a] text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
-                                                </div>
-                                            </div>
+                                            )}
                                         </div>
                                     </motion.div>
                                 )}

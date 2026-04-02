@@ -314,6 +314,8 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
 
     const SPECIFICATIONS = [
         { label: 'Links Ilimitados', free: true, monthly: true, annual: true },
+        { label: 'Layouts de Perfil', free: 'Clássico', monthly: 'Banner / Perfil', annual: 'Banner / Perfil' },
+        { label: 'Animações nos Links', free: 'Básicas', monthly: 'Avançadas', annual: 'Avançadas' },
         { label: 'Biblioteca de Temas', free: '8 temas', monthly: 'Ilimitado', annual: 'Ilimitado' },
         { label: 'Fontes e Tipografia', free: '10 opções', monthly: 'Ilimitado', annual: 'Ilimitado' },
         { label: 'Personalização de Cores', free: false, monthly: true, annual: true },

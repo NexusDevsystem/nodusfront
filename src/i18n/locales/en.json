@@ -49,7 +49,8 @@
         "large": "Large",
         "tip": "Tip",
         "locale": "en-US",
-        "notProvided": "Not provided"
+        "notProvided": "Not provided",
+        "required": "Required"
     },
     "login": {
         "back": "Back",
@@ -217,7 +218,8 @@
             "kawaii": "Kawaii & Cute",
             "animated": "Nodus Exclusive",
             "social": "Social Style",
-            "creative": "Creative & Animated"
+            "creative": "Creative & Animated",
+            "modern": "Modern Style"
         },
         "format": "Format",
         "buttonRoundnessDesc": "Adjust the corner rounding of your buttons",
@@ -751,7 +753,7 @@
         "step1Desc": "You can change it later if you need.",
         "step2Desc": "This helps us personalize your experience.",
         "step3Desc": "How did you hear about us?",
-        "step4Desc": "Add a photo and a bio.",
+        "step4Desc": "Profile photo is mandatory to continue.",
         "step5Desc": "Where can your followers find you?",
         "step6Desc": "Choose your initial profile layout.",
         "reserveUsername": "Reserve your username",

@@ -16,20 +16,6 @@ export const musicThemes: Theme[] = [
         isPro: true
     },
     {
-        id: 'music-fita-analogica',
-        name: 'Analogue Tape',
-        backgroundClass: 'bg-[#121212]',
-        buttonClass: 'bg-[#262626] text-white border-2 border-white/20 hover:bg-black hover:border-white transition-all w-full rounded-lg py-4 px-6 flex items-center justify-between font-mono font-bold uppercase tracking-widest italic',
-        buttonHex: '#ffffff',
-        textHex: '#ffffff',
-        textClass: 'text-white/80 font-mono tracking-[0.4em] uppercase text-xs font-light',
-        avatarBorder: 'rounded-full border border-white/10 p-4 bg-neutral-900',
-        fontFamily: "'Courier New', monospace",
-        category: 'music',
-        buttonRoundness: 'round',
-        isPro: false
-    },
-    {
         id: 'music-sopro-de-ouro',
         name: 'Golden Breath',
         backgroundClass: 'bg-black',
@@ -95,20 +81,6 @@ export const musicThemes: Theme[] = [
         textClass: 'text-[#44403c] font-sans lowercase font-light text-2xl tracking-[0.2em]',
         avatarBorder: 'rounded-full border border-[#44403c]/10 p-8',
         fontFamily: "'Lexend', sans-serif",
-        category: 'music',
-        buttonRoundness: 'full',
-        isPro: true
-    },
-    {
-        id: 'music-harpa-cosmica',
-        name: 'Cosmic Harp',
-        backgroundClass: 'bg-[#020617]',
-        buttonClass: 'bg-transparent text-cyan-400 border border-cyan-400/50 hover:bg-cyan-400/10 hover:border-cyan-400 transition-all w-full rounded-full py-4 px-6 flex items-center justify-between font-light tracking-[0.6em] uppercase text-[10px]',
-        buttonHex: '#22d3ee',
-        textHex: '#ffffff',
-        textClass: 'text-white font-thin tracking-[1em] uppercase text-xs opacity-60 italic',
-        avatarBorder: 'rounded-full border-t border-cyan-400 p-4 ring-1 ring-cyan-400/20',
-        fontFamily: "'Montserrat', sans-serif",
         category: 'music',
         buttonRoundness: 'full',
         isPro: true

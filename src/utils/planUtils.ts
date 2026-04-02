@@ -38,5 +38,10 @@ export const hasProFeatures = (profile: UserProfile): boolean => {
         return true;
     }
 
+    // 5. Check for Header Layout (PRO layouts)
+    if (profile.headerLayout === 'compact' || profile.headerLayout === 'banner') {
+        return true;
+    }
+
     return false;
 };

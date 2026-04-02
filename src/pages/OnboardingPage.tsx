@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../services/apiClient';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Check, AlertCircle, Globe, Link as LinkIcon, X, ArrowLeft, Camera, UserCircle, Layout, User, Plus, Trash2, ChevronLeft, Search, Image as ImageIcon, Pencil } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, Check, AlertCircle, Globe, Link as LinkIcon, X, ArrowLeft, Camera, UserCircle, Layout, User, Plus, Trash2, ChevronLeft, Search, Image as ImageIcon, Pencil, Zap } from 'lucide-react';
+import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { SiWhatsapp, SiInstagram, SiTiktok, SiYoutube, SiSpotify, SiThreads, SiFacebook, SiX, SiSoundcloud, SiSnapchat, SiPinterest } from 'react-icons/si';
 import ProfileRenderer from '../components/ProfileRenderer';
 import { compressImage } from '../utils/imageUtils';
-import { UserProfile, LinkItem } from '../types';
+import { UserProfile, LinkItem, EventItem } from '../types';
 import { useTranslation } from 'react-i18next';
+import AddLinkModal from '../components/AddLinkModal';
+import SortableLinkItem from '../components/link-editor/SortableLinkItem';
+import { SOCIAL_NETWORKS, THEMES } from '../constants';
 
 const fileToDataURL = (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -45,26 +48,13 @@ export default function OnboardingPage() {
     const { user, setProfile } = useAuth();
     const { t } = useTranslation();
 
-    const SOCIAL_PLATFORMS = [
-        { id: 'instagram', icon: SiInstagram, label: 'Instagram', color: 'text-pink-600', placeholder: 'seu.perfil', baseUrl: 'https://instagram.com/', handlePrefix: '@' },
-        { id: 'whatsapp', icon: SiWhatsapp, label: 'WhatsApp', color: 'text-green-500', placeholder: '5511999999999', baseUrl: 'https://wa.me/', handlePrefix: '' },
-        { id: 'tiktok', icon: SiTiktok, label: 'TikTok', color: 'text-black', placeholder: 'seu.perfil', baseUrl: 'https://tiktok.com/@', handlePrefix: '@' },
-        { id: 'youtube', icon: SiYoutube, label: 'YouTube', color: 'text-red-500', placeholder: 'seu.canal', baseUrl: 'https://youtube.com/@', handlePrefix: '@' },
-        { id: 'website', icon: Globe, label: t('onboarding.personalWebsite'), color: 'text-slate-800', placeholder: 'seusite.com', baseUrl: '', handlePrefix: '' },
-        { id: 'spotify', icon: SiSpotify, label: 'Spotify', color: 'text-green-500', placeholder: t('onboarding.spotifyPlaceholder'), baseUrl: '', handlePrefix: '' },
-        { id: 'threads', icon: SiThreads, label: 'Threads', color: 'text-black', placeholder: 'seu.perfil', baseUrl: 'https://threads.net/@', handlePrefix: '@' },
-        { id: 'facebook', icon: SiFacebook, label: 'Facebook', color: 'text-blue-600', placeholder: 'seu.perfil', baseUrl: 'https://facebook.com/', handlePrefix: '' },
-        { id: 'x', icon: SiX, label: 'X', color: 'text-black', placeholder: 'seu.perfil', baseUrl: 'https://x.com/', handlePrefix: '@' },
-        { id: 'soundcloud', icon: SiSoundcloud, label: 'SoundCloud', color: 'text-orange-500', placeholder: 'seu.perfil', baseUrl: 'https://soundcloud.com/', handlePrefix: '' },
-        { id: 'snapchat', icon: SiSnapchat, label: 'Snapchat', color: 'text-yellow-400', placeholder: 'seu.perfil', baseUrl: 'https://snapchat.com/add/', handlePrefix: '' },
-        { id: 'pinterest', icon: SiPinterest, label: 'Pinterest', color: 'text-red-600', placeholder: 'seu.perfil', baseUrl: 'https://pinterest.com/', handlePrefix: '' },
-    ];
+
 
     const [step, setStep] = useState(1);
     const [username, setUsername] = useState('');
     const [userCategory, setUserCategory] = useState<'creator' | 'personal' | 'business' | null>(null);
     const [referralSource, setReferralSource] = useState('');
-    
+
     // Load reserved username or current user's username
     useEffect(() => {
         if (user?.username && !user.username.startsWith('user_')) {
@@ -88,13 +78,13 @@ export default function OnboardingPage() {
     const [bio, setBio] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
     const [headerLayout, setHeaderLayout] = useState<'classic' | 'compact' | 'banner'>('classic');
-    const [quickLinks, setQuickLinks] = useState<{ id: string, title: string, url: string, provider?: string, layout: 'social' | 'classic', type: 'social' | 'link' }[]>([]);
+    const [themeId, setThemeId] = useState('brutalist-bauhaus');
+    const [quickLinks, setQuickLinks] = useState<LinkItem[]>([]);
 
-    // New Modal States
-    const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
-    const [configuringSocialPlatform, setConfiguringSocialPlatform] = useState<string | null>(null);
-    const [tempSocialUrl, setTempSocialUrl] = useState('');
-    const [socialSearchTerm, setSocialSearchTerm] = useState('');
+    const [isAddLinkModalOpen, setIsAddLinkModalOpen] = useState(false);
+    const [modalView, setModalView] = useState<'all' | 'social' | 'links'>('all');
+    const [expandedLinks, setExpandedLinks] = useState<Record<string, boolean>>({});
+    const [expandedCollections, setExpandedCollections] = useState<Record<string, boolean>>({});
 
     const navigate = useNavigate();
     const avatarInputRef = React.useRef<HTMLInputElement>(null);
@@ -146,56 +136,62 @@ export default function OnboardingPage() {
         }
     };
 
-    const handleAddSocialClick = (platformId: string) => {
-        setConfiguringSocialPlatform(platformId);
-        setTempSocialUrl('');
-        setSocialSearchTerm('');
-        setIsSocialModalOpen(true);
+    const handleAddLink = (url?: string) => {
+        const newLink: any = {
+            id: `temp-${Date.now()}`,
+            title: url ? (t('links.newLink') || 'Novo Link') : t('onboarding.linkTitlePlaceholder'),
+            url: url || '',
+            layout: 'classic',
+            type: 'link',
+            isActive: true,
+            clicks: 0
+        };
+        setQuickLinks([...quickLinks, newLink]);
     };
 
-    const confirmSocialPlatform = () => {
-        if (!configuringSocialPlatform) return;
-        const platform = SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform);
-        if (!platform) return;
-
-        const existingIndex = quickLinks.findIndex(l => l.provider === configuringSocialPlatform && l.layout === 'social');
-
-        if (existingIndex >= 0) {
-            const newLinks = [...quickLinks];
-            newLinks[existingIndex].url = tempSocialUrl;
-            setQuickLinks(newLinks);
-        } else {
-            setQuickLinks([...quickLinks, {
-                id: `temp-${Date.now()}`,
-                title: platform.label,
-                url: tempSocialUrl,
-                provider: configuringSocialPlatform,
-                layout: 'social',
-                type: 'social'
-            }]);
-        }
-
-        setIsSocialModalOpen(false);
-        setConfiguringSocialPlatform(null);
-        setTempSocialUrl('');
+    const handleAddSocial = (platform: string) => {
+        const platformInfo = SOCIAL_NETWORKS.find(p => p.id === platform);
+        const newLink: any = {
+            id: `temp-${Date.now()}`,
+            title: platformInfo?.name || platform,
+            url: platformInfo?.baseUrl || '',
+            layout: 'classic',
+            type: 'social',
+            platform: platform,
+            isActive: true,
+            clicks: 0
+        };
+        setQuickLinks([...quickLinks, newLink]);
     };
 
-    const removeQuickLink = (id: string) => {
+    const handleAddCollection = (name: string, url?: string, layout?: 'list' | 'carousel') => {
+        const newLink: any = {
+            id: `temp-${Date.now()}`,
+            title: name,
+            url: url || '',
+            layout: layout || 'list',
+            type: 'collection',
+            isActive: true,
+            clicks: 0,
+            children: []
+        };
+        setQuickLinks([...quickLinks, newLink]);
+    };
+
+    const updateLink = (id: string, field: string, value: any) => {
+        setQuickLinks(quickLinks.map(l => l.id === id ? { ...l, [field]: value } : l));
+    };
+
+    const updateLinkFields = (id: string, updates: Partial<LinkItem>) => {
+        setQuickLinks(quickLinks.map(l => l.id === id ? { ...l, ...updates } : l));
+    };
+
+    const removeLink = (id: string) => {
         setQuickLinks(quickLinks.filter(l => l.id !== id));
     };
 
-    const handleAddGeneralLink = () => {
-        setQuickLinks([...quickLinks, {
-            id: `temp-${Date.now()}`,
-            title: t('onboarding.linkTitlePlaceholder'),
-            url: '',
-            layout: 'classic',
-            type: 'link'
-        }]);
-    };
-
-    const updateGeneralLink = (id: string, field: 'title' | 'url', value: string) => {
-        setQuickLinks(quickLinks.map(l => l.id === id ? { ...l, [field]: value } : l));
+    const toggleLink = (id: string) => {
+        setQuickLinks(quickLinks.map(l => l.id === id ? { ...l, isActive: !l.isActive } : l));
     };
 
     const handleFinalize = async (e: React.FormEvent) => {
@@ -215,6 +211,7 @@ export default function OnboardingPage() {
                 bio: bio,
                 avatarUrl: avatarUrl,
                 headerLayout: headerLayout,
+                themeId: themeId,
                 onboardingCompleted: true
             });
 
@@ -227,7 +224,7 @@ export default function OnboardingPage() {
                         let finalUrl = link.url;
 
                         if (link.type === 'social') {
-                            const platform = SOCIAL_PLATFORMS.find(p => p.id === link.provider);
+                            const platform = SOCIAL_NETWORKS.find(p => p.id === link.platform);
                             if (platform && platform.baseUrl && !link.url.startsWith('http')) {
                                 const cleanHandle = link.url.replace(/^@/, '');
                                 finalUrl = `${platform.baseUrl}${cleanHandle}`;
@@ -247,7 +244,7 @@ export default function OnboardingPage() {
                             isActive: true,
                             layout: link.layout,
                             type: link.type,
-                            platform: link.provider,
+                            platform: link.platform,
                             clicks: 0
                         };
                     });
@@ -277,7 +274,7 @@ export default function OnboardingPage() {
         name: name || username || t('onboarding.yourName'),
         bio: bio || t('onboarding.bioPlaceholder'),
         avatarUrl: avatarUrl || '',
-        themeId: 'brutalist-yellow',
+        themeId: themeId,
         fontFamily: "'Inter', sans-serif",
         headerLayout: headerLayout,
         buttonRoundness: 'square',
@@ -293,7 +290,7 @@ export default function OnboardingPage() {
         isActive: true,
         layout: link.layout,
         type: link.type,
-        platform: link.provider
+        platform: link.platform
     }));
 
     return (
@@ -316,7 +313,7 @@ export default function OnboardingPage() {
                     <div className="font-black text-2xl tracking-tighter uppercase">NODUS</div>
                 </div>
 
-                <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+                <div className={`flex-1 flex flex-col justify-center ${(step === 5 || step === 6) ? 'max-w-xl lg:max-w-2xl' : 'max-w-md'} mx-auto w-full transition-all duration-500`}>
                     <div className="mb-12">
                         {step === 1 && (
                             <h1 className="text-6xl lg:text-7xl font-black uppercase leading-[0.9] mb-6">
@@ -530,6 +527,15 @@ export default function OnboardingPage() {
                                             <Camera size={24} className="text-white" />
                                         </div>
                                     </div>
+                                    {!avatarUrl && (
+                                        <motion.div
+                                            initial={{ scale: 0, rotate: -15 }}
+                                            animate={{ scale: 1, rotate: -5 }}
+                                            className="absolute -top-2 -right-4 bg-[#ef4444] text-white text-[10px] font-black uppercase px-3 py-1 border-2 border-[#1a1a1a] shadow-[3px_3px_0_0_#1a1a1a] rounded-lg z-20"
+                                        >
+                                            {t('common.required', 'Obrigatório')}
+                                        </motion.div>
+                                    )}
                                     <input type="file" ref={avatarInputRef} className="hidden" accept="image/*" onChange={handleAvatarUpload} />
                                 </div>
                             </div>
@@ -558,10 +564,10 @@ export default function OnboardingPage() {
 
                             <button
                                 onClick={() => setStep(5)}
-                                disabled={!name}
+                                disabled={!name || !avatarUrl}
                                 className={`
                                     w-full h-16 border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-4 rounded-2xl
-                                    ${name
+                                    ${name && avatarUrl
                                         ? 'bg-[#ffdf00] text-black shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[3px] hover:shadow-[0_3px_0_0_#1a1a1a] active:translate-y-[6px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
@@ -575,102 +581,116 @@ export default function OnboardingPage() {
                     {step === 5 && (
                         <div className="space-y-8">
                             <p className="font-bold text-slate-500 text-sm">{t('onboarding.addSocialsAndLinks')}</p>
-
-                            {/* Redes Sociais */}
-                            <div className="bg-white border-2 border-[#1a1a1a] p-5 shadow-[0_4px_0_0_#1a1a1a] rounded-3xl">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div>
-                                        <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.socialNetworks')}</h3>
-                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('onboarding.topIcons')}</p>
+                            <div className="bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-3xl overflow-hidden flex flex-col">
+                                <div className="p-5 pb-4">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.socialNetworks')}</h3>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('onboarding.topIconsDesc')}</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => { setModalView('social'); setIsAddLinkModalOpen(true); }}
+                                            className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#ffdf00] transition-colors shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none rounded-xl"
+                                        >
+                                            <Plus size={20} />
+                                        </button>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => { setConfiguringSocialPlatform(null); setSocialSearchTerm(''); setIsSocialModalOpen(true); }}
-                                        className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#ffdf00] transition-colors shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none rounded-xl"
-                                    >
-                                        <Plus size={20} />
-                                    </button>
                                 </div>
 
-                                {quickLinks.filter(l => l.layout === 'social').length > 0 ? (
-                                    <div className="flex flex-wrap gap-3">
-                                        {quickLinks.filter(l => l.layout === 'social').map(link => {
-                                            const platform = SOCIAL_PLATFORMS.find(p => p.id === link.provider);
-                                            const Icon = platform?.icon || LinkIcon;
-                                            return (
-                                                <button
-                                                    key={link.id}
-                                                    type="button"
-                                                    onClick={() => handleAddSocialClick(link.provider!)}
-                                                    className={`w-12 h-12 flex items-center justify-center border-2 border-[#1a1a1a] rounded-xl bg-slate-50 transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none ${platform?.color}`}
-                                                >
-                                                    <Icon size={24} />
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                ) : (
-                                    <div className="py-6 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400">
-                                        <Globe size={24} className="mb-2 opacity-50" />
-                                        <span className="text-xs font-bold uppercase tracking-widest">{t('onboarding.noSocials')}</span>
-                                    </div>
-                                )}
+                                <div className="px-5 pb-5 w-full">
+                                    {quickLinks.filter(l => l.type === 'social').length > 0 ? (
+                                        <div className="flex flex-wrap gap-4 w-full">
+                                            {quickLinks.filter(l => l.type === 'social').map(link => {
+                                                const platformInfo = SOCIAL_NETWORKS.find(p => p.id === link.platform);
+                                                const Icon = platformInfo?.icon || LinkIcon;
+                                                return (
+                                                    <button
+                                                        key={link.id}
+                                                        type="button"
+                                                        onClick={() => { setModalView('social'); setIsAddLinkModalOpen(true); }}
+                                                        className="w-14 h-14 flex items-center justify-center border-2 border-[#1a1a1a] rounded-xl bg-slate-50 transition-all shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none"
+                                                    >
+                                                        <Icon size={28} />
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <div className="w-full py-6 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 rounded-xl">
+                                            <Globe size={24} className="mb-2 opacity-50" />
+                                            <span className="text-xs font-bold uppercase tracking-widest">{t('onboarding.noSocials')}</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* Meus Links */}
-                            <div className="bg-white border-2 border-[#1a1a1a] p-5 shadow-[0_4px_0_0_#1a1a1a] rounded-3xl">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div>
-                                        <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.myLinks')}</h3>
-                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('onboarding.mainButtonsDesc')}</p>
+                            <div className="bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-3xl overflow-hidden flex flex-col">
+                                <div className="p-5 pb-4">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.myLinks')}</h3>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('onboarding.mainButtonsDesc')}</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => { setModalView('links'); setIsAddLinkModalOpen(true); }}
+                                            className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#97cd7a] transition-colors shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none rounded-xl"
+                                        >
+                                            <Plus size={20} />
+                                        </button>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={handleAddGeneralLink}
-                                        className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#97cd7a] transition-colors shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none rounded-xl"
-                                    >
-                                        <Plus size={20} />
-                                    </button>
                                 </div>
 
-                                <div className="space-y-3">
-                                    {quickLinks.filter(l => l.layout === 'classic').length > 0 ? (
-                                        quickLinks.filter(l => l.layout === 'classic').map(link => (
-                                            <div key={link.id} className="border-2 border-[#1a1a1a] bg-white p-3 shadow-[0_2px_0_0_#1a1a1a] rounded-2xl relative group">
-                                                <div className="flex items-start gap-3">
-                                                    <div className="w-10 h-10 border-2 border-[#1a1a1a] bg-slate-50 flex items-center justify-center shrink-0 text-slate-400">
-                                                        <LinkIcon size={18} />
-                                                    </div>
-                                                    <div className="flex-1 min-w-0 space-y-2">
-                                                        <input
-                                                            type="text"
-                                                            value={link.title}
-                                                            onChange={(e) => updateGeneralLink(link.id, 'title', e.target.value)}
-                                                            className="w-full text-sm font-bold border-none p-0 focus:ring-0 placeholder:text-slate-300"
-                                                            placeholder={t('onboarding.linkTitlePlaceholder')}
-                                                        />
-                                                        <input
-                                                            type="text"
-                                                            value={link.url}
-                                                            onChange={(e) => updateGeneralLink(link.id, 'url', e.target.value)}
-                                                            className="w-full text-xs font-medium text-slate-600 border-none p-0 focus:ring-0 placeholder:text-slate-300"
-                                                            placeholder="https://example.com"
-                                                        />
-                                                    </div>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeQuickLink(link.id)}
-                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
+                                <div className="w-full flex-1">
+                                    {quickLinks.filter(l => l.type !== 'social').length > 0 ? (
+                                        <Reorder.Group
+                                            axis="y"
+                                            values={quickLinks.filter(l => l.type !== 'social')}
+                                            onReorder={(newOrdered: any[]) => {
+                                                const socials = quickLinks.filter(l => l.type === 'social');
+                                                setQuickLinks([...socials, ...newOrdered]);
+                                            }}
+                                            className="w-full"
+                                        >
+                                            {quickLinks.filter(l => l.type !== 'social').map(link => (
+                                                <div key={link.id} className="w-full px-5 pb-3">
+                                                    <SortableLinkItem
+                                                        link={link}
+                                                        updateLink={updateLink}
+                                                        updateLinkFields={updateLinkFields}
+                                                        removeLink={removeLink}
+                                                        toggleLink={(id) => setExpandedLinks(prev => ({ ...prev, [id]: !prev[id] }))}
+                                                        isExpanded={expandedLinks[link.id]}
+                                                        toggleCollection={(id) => setExpandedCollections(prev => ({ ...prev, [id]: !prev[id] }))}
+                                                        isCollectionExpanded={expandedCollections[link.id]}
+                                                        profile={{
+                                                            name: name,
+                                                            bio: bio,
+                                                            avatarUrl: avatarUrl,
+                                                            fontFamily: 'Inter',
+                                                            headerLayout: headerLayout,
+                                                            themeId: themeId,
+                                                            plan_type: user?.plan_type || 'free'
+                                                        }}
+                                                        level={0}
+                                                        expandedLinks={expandedLinks}
+                                                        setExpandedLinks={setExpandedLinks}
+                                                        expandedCollections={expandedCollections}
+                                                        setExpandedCollections={setExpandedCollections}
+                                                        isAnyExpanded={Object.values(expandedLinks).some(v => v)}
+                                                        isMobile={window.innerWidth < 768}
+                                                        isOnboarding={true}
+                                                    />
                                                 </div>
-                                            </div>
-                                        ))
+                                            ))}
+                                        </Reorder.Group>
                                     ) : (
-                                        <div className="py-8 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400">
-                                            <LinkIcon size={24} className="mb-2 opacity-50" />
-                                            <span className="text-xs font-bold uppercase tracking-widest">{t('onboarding.noButtons')}</span>
+                                        <div className="px-5 pb-5 w-full">
+                                            <div className="w-full py-10 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 rounded-xl">
+                                                <LinkIcon size={24} className="mb-2 opacity-50" />
+                                                <span className="text-xs font-bold uppercase tracking-widest">{t('onboarding.noLinks')}</span>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -687,31 +707,50 @@ export default function OnboardingPage() {
                     )}
 
                     {step === 6 && (
-                        <form onSubmit={handleFinalize} className="space-y-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-                                {[
-                                    { id: 'classic', label: t('onboarding.classic'), icon: UserCircle },
-                                    { id: 'compact', label: t('onboarding.profile'), icon: User },
-                                    { id: 'banner', label: t('onboarding.banner'), icon: Layout }
-                                ].map((layout) => {
-                                    const Icon = layout.icon;
-                                    return (
-                                        <button
-                                            key={layout.id}
-                                            type="button"
-                                            onClick={() => setHeaderLayout(layout.id as any)}
-                                            className={`
-                                                p-4 border-2 flex flex-col items-center gap-2 transition-all duration-200 relative group rounded-2xl
-                                                ${headerLayout === layout.id
-                                                    ? 'border-[#1a1a1a] bg-[#97cd7a] translate-y-[4px] shadow-none'
-                                                    : 'border-[#1a1a1a] bg-white shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a]'}
-                                            `}
-                                        >
-                                            <Icon size={24} className={headerLayout === layout.id ? 'text-black' : 'text-slate-500 group-hover:text-black'} />
-                                            <span className={`text-[10px] font-black uppercase tracking-wider ${headerLayout === layout.id ? 'text-black' : 'text-slate-500 group-hover:text-black'}`}>{layout.label}</span>
-                                        </button>
-                                    );
-                                })}
+                        <form onSubmit={handleFinalize} className="space-y-6">
+                            <div className="max-h-[520px] overflow-y-auto scrollbar-hide [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pb-6 p-1">
+                                    {THEMES.filter(t => !t.isPro && t.id !== 'custom').map((theme) => {
+                                        const isSelected = themeId === theme.id;
+                                        // Simple cleaner for button classes to show in preview
+                                        const buttonVisuals = theme.buttonClass.replace(/\b(w-full|flex|items-center|justify-between|py-\d+|px-\d+|gap-\d+|active:.*|hover:.*|transition-.*|duration-.*)\b/g, '').trim();
+                                        
+                                        return (
+                                            <div
+                                                key={theme.id}
+                                                onClick={() => setThemeId(theme.id)}
+                                                className="flex flex-col gap-2 group cursor-pointer relative"
+                                            >
+                                                <div className={`relative aspect-[3/4] w-full border-2 transition-all duration-300 rounded-xl overflow-hidden ${isSelected ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_6px_0_0_#1a1a1a] -translate-y-1' : 'border-[#1a1a1a]/10 hover:border-[#1a1a1a]/30 bg-white shadow-[0_2px_0_0_#1a1a1a]/5'}`}>
+                                                    {/* Background Preview */}
+                                                    <div className={`absolute inset-0 ${theme.backgroundClass}`} style={{ backgroundColor: theme.solidColor }} />
+                                                    
+                                                    {/* Content Preview */}
+                                                    <div className="absolute inset-0 p-4 flex flex-col items-center justify-center gap-4">
+                                                        <div className="flex-1 flex items-center justify-center w-full">
+                                                            <div className={`${theme.textClass} text-4xl font-black opacity-90`} style={{ fontFamily: theme.fontFamily }}>Aa</div>
+                                                        </div>
+                                                        <div className="w-full h-10 flex items-center justify-center">
+                                                            <div className={`h-8 w-20 ${buttonVisuals} flex items-center justify-center shadow-sm pointer-events-none`}>
+                                                                <div className="w-8 h-1.5 bg-current opacity-20 rounded-full" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Selection Badge */}
+                                                    {isSelected && (
+                                                        <div className="absolute top-2 right-2 w-7 h-7 bg-[#97cd7a] text-black border-2 border-[#1a1a1a] flex items-center justify-center shadow-[0_3px_0_0_#1a1a1a] z-10 rounded-lg">
+                                                            <Check size={16} strokeWidth={4} />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <span className={`text-[10px] font-black text-center truncate px-1 transition-colors uppercase tracking-[0.2em] mt-1 ${isSelected ? 'text-black' : 'text-black/40 group-hover:text-black'}`}>
+                                                    {theme.name}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
 
                             <button
@@ -811,11 +850,11 @@ export default function OnboardingPage() {
                         </div>
                     </>
                 ) : (
-                    <div className="w-full max-w-[360px] h-[720px] bg-white rounded-[3rem] border-8 border-slate-800 overflow-hidden shadow-2xl relative animate-fade-in">
+                    <div className="w-full max-w-[360px] h-[720px] bg-slate-900 rounded-[3rem] border-8 border-slate-800 shadow-2xl relative animate-fade-in">
                         {/* Notch */}
                         <div className="absolute top-0 inset-x-0 h-6 bg-slate-800 rounded-b-xl w-32 mx-auto z-50"></div>
                         {/* Preview Profile */}
-                        <div className="w-full h-full overflow-y-auto no-scrollbar pointer-events-none pb-20">
+                        <div className="w-full h-full overflow-y-auto no-scrollbar pointer-events-none rounded-[2.2rem] bg-inherit">
                             <ProfileRenderer
                                 profile={previewProfile}
                                 links={previewLinks}
@@ -829,148 +868,41 @@ export default function OnboardingPage() {
 
             {/* Social Links Modal */}
             <AnimatePresence>
-                {isSocialModalOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-end lg:items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/60 md:bg-black/40 md:backdrop-blur-sm"
-                            onClick={() => { setIsSocialModalOpen(false); setConfiguringSocialPlatform(null); }}
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-md bg-white border-4 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] flex flex-col max-h-[85vh] overflow-hidden rounded-[32px]"
-                        >
-                            <div className="p-5 border-b-2 border-[#1a1a1a] flex items-center justify-between bg-[#ffdf00] shrink-0">
-                                {configuringSocialPlatform ? (
-                                    <button onClick={() => setConfiguringSocialPlatform(null)} className="p-1 hover:bg-[#ffdf00] hover:text-white border-2 border-transparent hover:border-[#1a1a1a] transition-colors">
-                                        <ChevronLeft size={24} />
-                                    </button>
-                                ) : <div className="w-8" />}
-                                <h3 className="font-black text-lg uppercase tracking-tight">
-                                    {configuringSocialPlatform ? `${t('onboarding.configure')} ${SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.label}` : t('onboarding.addSocialNetwork')}
-                                </h3>
-                                <button onClick={() => { setIsSocialModalOpen(false); setConfiguringSocialPlatform(null); }} className="p-1 hover:bg-[#ffdf00] hover:text-white border-2 border-transparent hover:border-[#1a1a1a] transition-colors">
-                                    <X size={24} />
-                                </button>
-                            </div>
-
-                            {!configuringSocialPlatform ? (
-                                <div className="flex flex-col flex-1 min-h-0 bg-white">
-                                    <div className="p-5 border-b-2 border-[#1a1a1a] shrink-0 bg-[#ffdf00]/20">
-                                        <div className="relative">
-                                            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                            <input
-                                                autoFocus
-                                                type="text"
-                                                value={socialSearchTerm}
-                                                onChange={(e) => setSocialSearchTerm(e.target.value)}
-                                                placeholder={t('onboarding.searchPlatformPlaceholder')}
-                                                className="w-full bg-white border-2 border-[#1a1a1a] py-3 pl-12 pr-4 text-sm font-bold shadow-[0_2px_0_0_#1a1a1a] rounded-xl focus:outline-none focus:translate-y-[2px] focus:shadow-none transition-all placeholder:font-normal"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 overflow-y-auto p-5 space-y-3">
-                                        {SOCIAL_PLATFORMS.filter(p => p.label.toLowerCase().includes(socialSearchTerm.toLowerCase())).map(platform => {
-                                            const isSelected = quickLinks.some(l => l.provider === platform.id && l.layout === 'social');
-                                            const Icon = platform.icon;
-                                            return (
-                                                <div
-                                                    key={platform.id}
-                                                    onClick={() => {
-                                                        if (!isSelected) {
-                                                            setConfiguringSocialPlatform(platform.id);
-                                                            setTempSocialUrl('');
-                                                        } else {
-                                                            const existing = quickLinks.find(l => l.provider === platform.id && l.layout === 'social');
-                                                            if (existing) {
-                                                                setConfiguringSocialPlatform(platform.id);
-                                                                setTempSocialUrl(existing.url);
-                                                            }
-                                                        }
-                                                    }}
-                                                    className={`
-                                                        w-full flex items-center justify-between p-4 border-2 transition-all cursor-pointer group
-                                                        ${isSelected
-                                                            ? 'border-[#1a1a1a] bg-[#97cd7a]/20 shadow-none translate-y-[2px] rounded-xl'
-                                                            : 'border-[#1a1a1a] bg-white shadow-[0_2px_0_0_#1a1a1a] rounded-xl hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] hover:bg-slate-50'}
-                                                    `}
-                                                >
-                                                    <div className="flex items-center gap-4">
-                                                        <Icon size={24} className={platform.color} />
-                                                        <span className="font-bold text-sm uppercase tracking-wider">{platform.label}</span>
-                                                    </div>
-                                                    {isSelected ? (
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="w-2 h-2 rounded-full bg-[#97cd7a]" />
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setQuickLinks(quickLinks.filter(l => !(l.provider === platform.id && l.layout === 'social')));
-                                                                }}
-                                                                className="p-2 border-2 border-transparent hover:border-[#1a1a1a] hover:bg-[#ffdf00] hover:text-white transition-colors text-slate-400 group-hover:text-white"
-                                                            >
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="w-8 h-8 border-2 border-[#1a1a1a] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <Plus size={16} />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )
-                                        })}
-                                        {SOCIAL_PLATFORMS.filter(p => p.label.toLowerCase().includes(socialSearchTerm.toLowerCase())).length === 0 && (
-                                            <div className="py-10 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">
-                                                {t('onboarding.noPlatformFound')}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="p-8 bg-white flex flex-col items-center">
-                                    <div className={`w-24 h-24 flex items-center justify-center border-4 border-[#1a1a1a] bg-slate-50 shadow-[0_4px_0_0_#1a1a1a] rounded-2xl mb-8 ${SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.color}`}>
-                                        {SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.icon({ size: 48 })}
-                                    </div>
-
-                                    <div className="w-full space-y-3 mb-10">
-                                        <label className="text-xs font-black uppercase tracking-widest text-black">{t('onboarding.enterHandle')}</label>
-                                        <div className="flex items-stretch border-2 border-[#1a1a1a] bg-white shadow-[0_4px_0_0_#1a1a1a] rounded-xl focus-within:translate-y-[2px] focus-within:shadow-[0_2px_0_0_#1a1a1a] transition-all overflow-hidden">
-                                            {SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.baseUrl && (
-                                                <div className="px-4 border-r-2 border-[#1a1a1a] py-4 bg-slate-50 text-sm font-bold text-slate-500 whitespace-nowrap flex items-center">
-                                                    {SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.baseUrl?.replace('https://', '')}
-                                                </div>
-                                            )}
-                                            <input
-                                                autoFocus
-                                                type="text"
-                                                value={tempSocialUrl}
-                                                onChange={(e) => setTempSocialUrl(e.target.value)}
-                                                onKeyDown={(e) => e.key === 'Enter' && confirmSocialPlatform()}
-                                                placeholder={SOCIAL_PLATFORMS.find(p => p.id === configuringSocialPlatform)?.placeholder}
-                                                className="w-full py-4 px-4 font-bold text-base border-none focus:outline-none focus:ring-0 placeholder:font-normal placeholder:text-slate-300"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        onClick={confirmSocialPlatform}
-                                        disabled={!tempSocialUrl}
-                                        className={`
-                                            w-full h-16 border-2 border-[#1a1a1a] font-black uppercase tracking-wider text-lg transition-all flex items-center justify-center gap-3 rounded-2xl
-                                            ${tempSocialUrl ? 'bg-[#97cd7a] text-black shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[3px] hover:shadow-[0_3px_0_0_#1a1a1a] active:shadow-none active:translate-y-[6px]' : 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 shadow-none'}
-                                        `}
-                                    >
-                                        <Check size={24} strokeWidth={3} /> {t('onboarding.saveLink')}
-                                    </button>
-                                </div>
-                            )}
-                        </motion.div>
-                    </div>
+                {isAddLinkModalOpen && (
+                    <AddLinkModal
+                        isOpen={isAddLinkModalOpen}
+                        onClose={() => setIsAddLinkModalOpen(false)}
+                        onAddLink={handleAddLink}
+                        onAddSocial={handleAddSocial}
+                        onAddCollection={handleAddCollection}
+                        onAddProduct={(col) => handleAddCollection(col, '', 'carousel')} // Product is simplified here
+                        onAddHeader={() => {
+                            handleAddLink(); // Mock as link for onboarding
+                        }}
+                        onAddAgenda={() => {
+                            handleAddLink();
+                        }}
+                        onAddMap={() => {
+                            handleAddLink();
+                        }}
+                        onAddMediaKit={() => {
+                            handleAddLink();
+                        }}
+                        onAddIncentives={() => {
+                            handleAddLink();
+                        }}
+                        plan_type={user?.plan_type || 'free'}
+                        profile={{
+                            name: name,
+                            bio: bio,
+                            avatarUrl: avatarUrl,
+                            themeId: 'velvet-night',
+                            fontFamily: 'Inter',
+                            headerLayout: headerLayout,
+                            plan_type: user?.plan_type || 'free'
+                        } as any}
+                        onProfileChange={() => { }}
+                    />
                 )}
             </AnimatePresence>
         </div>

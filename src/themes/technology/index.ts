@@ -17,23 +17,6 @@ export const technologyNeuralTheme: Theme = {
     fontFamily: "'Share Tech Mono', monospace"
 };
 
-// 2. Brutalist Tech (Hard 3D Shadow + Outline)
-export const technologyBrutalistTheme: Theme = {
-    id: 'technology-brutalist',
-    name: 'Brutalist Tech',
-    backgroundClass: 'bg-[#f0f0f0]',
-    solidColor: '#f0f0f0',
-    buttonClass: 'bg-white text-black border-2 border-[#1a1a1a] rounded-none shadow-[0_6px_0_0_rgba(26,26,26,1)] hover:shadow-[0_2px_0_0_rgba(26,26,26,1)] hover:translate-y-[4px] transition-all font-bold uppercase tracking-wider px-6',
-    cardClass: 'bg-white border-2 border-[#1a1a1a] rounded-none shadow-[0_10px_0_0_rgba(26,26,26,1)] text-black',
-    textClass: 'text-black font-bold uppercase tracking-tighter',
-    avatarBorder: 'border-4 border-[#1a1a1a] rounded-none',
-    isPro: true,
-    buttonHex: '#ffffff',
-    textHex: '#000000',
-    category: 'technology',
-    fontFamily: "'Space Grotesk', sans-serif"
-};
-
 // 3. Cyberpunk Corporate (Skewed/Parallelogram)
 export const technologyCyberpunkTheme: Theme = {
     id: 'technology-cyberpunk',
@@ -136,23 +119,6 @@ export const technologyAiTheme: Theme = {
     fontFamily: "'Satoshi', sans-serif"
 };
 
-// 9. Dark Corporate Premium (Underline / Minimal)
-export const technologyDarkTheme: Theme = {
-    id: 'technology-dark',
-    name: 'Dark Premium',
-    backgroundClass: 'bg-[#0a0a0a]',
-    solidColor: '#0a0a0a',
-    buttonClass: 'bg-transparent text-gray-300 border-b border-gray-700 hover:border-white hover:text-white rounded-none hover:pl-4 transition-all duration-300 font-light tracking-widest text-left px-0 py-4 h-auto',
-    cardClass: 'bg-[#0a0a0a] border border-[#262626] rounded-none text-gray-400',
-    textClass: 'text-gray-200 font-light tracking-wide',
-    avatarBorder: 'border border-[#333] rounded-full grayscale opacity-80',
-    isPro: true,
-    buttonHex: '#0a0a0a',
-    textHex: '#e5e5e5',
-    category: 'technology',
-    fontFamily: "'Inter', sans-serif"
-};
-
 // 10. Startup Launch (3D Push Button)
 export const technologyStartupTheme: Theme = {
     id: 'technology-startup',
@@ -172,13 +138,11 @@ export const technologyStartupTheme: Theme = {
 
 export const technologyThemes = [
     technologyNeuralTheme,
-    technologyBrutalistTheme,
     technologyCyberpunkTheme,
     technologySaasTheme,
     technologyTerminalTheme,
     technologyHoloTheme,
     technologyMatrixTheme,
     technologyAiTheme,
-    technologyDarkTheme,
     technologyStartupTheme
 ];

@@ -855,7 +855,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const isProfileMode = profile.headerLayout === 'compact';
 
     // 1. Button Class - Start with theme base and apply surgical overrides
-    let buttonClass = cleanClass(currentTheme.buttonClass, overrideTypes);
+    let buttonClass = cleanClass(currentTheme.buttonClass, overrideTypes) + ' noise-bg';
 
     if (roundedClass) buttonClass += ` ${roundedClass}`;
     if (profile.buttonShadow) {
@@ -1638,9 +1638,6 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         >
                                             {(() => {
                                                 const renderedItems: React.ReactNode[] = [];
-
-                                                // We no longer inject here at the top.
-                                                // It will be rendered at its position in the loop below.
 
                                                 const themeButtonHex = currentTheme.buttonHex || ((isDarkTheme || currentTheme.id === 'glass') ? '#ffffff' : '#ffffff');
                                                 const cardAccentColor = themeButtonHex;
@@ -2548,6 +2545,81 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                 flushIcons();
                                                 flushCards();
+
+                                                if (profile.showStoreShortcutOnLinks && products.length > 0) {
+                                                    const smartText = getSmartTextColor();
+                                                    const firstStore = stores[0];
+                                                    const storeName = firstStore ? firstStore.name : (isPT ? 'VITRINE' : 'STORE');
+                                                    const activeProducts = products.filter(p => p.isActive !== false && !p.isArchived);
+
+                                                    renderedItems.push(
+                                                        <div key="store-shortcut-wrapper" className="w-full mb-3 flex justify-center">
+                                                            <InteractiveButton key="store-shortcut" className="w-full max-w-full" clipPath={themeClipPath}>
+                                                                <div
+                                                                    onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        setActiveTab('shop');
+                                                                    }}
+                                                                    className={`w-full group cursor-pointer relative transition-all duration-300 ${cleanClass(baseCardClass, ['bg', 'text']).replace('overflow-hidden', '')} hover:translate-y-[-2px]`}
+                                                                    style={{
+                                                                        ...mainButtonStyle, clipPath: themeClipPath,
+                                                                        color: smartText,
+                                                                        ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' })
+                                                                    }}
+                                                                >
+                                                                    <div className={`flex flex-col w-full h-full overflow-hidden ${roundedClass}`}>
+                                                                        {/* Store Branding Inside Card */}
+                                                                        <div className={`px-4 pt-4 pb-2 flex items-center justify-center gap-2 opacity-60 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
+                                                                            {firstStore?.imageUrl ? (
+                                                                                <img src={firstStore.imageUrl} className="w-4 h-4 rounded-sm object-cover" />
+                                                                            ) : (
+                                                                                <ShoppingBag size={14} className="stroke-[2.5]" />
+                                                                            )}
+                                                                            <span className="text-[10px] uppercase tracking-widest" style={{ fontFamily: effectiveFontFamily, fontWeight: profile.fontWeight || '900' }}>
+                                                                                {storeName}
+                                                                            </span>
+                                                                        </div>
+
+                                                                        {/* Big Collage of Store Products */}
+                                                                        <div className={`flex h-56 w-full gap-1 p-1 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
+                                                                            {activeProducts.length === 1 ? (
+                                                                                <div className="flex-1 h-full relative overflow-hidden rounded-md">
+                                                                                    <img src={activeProducts[0].image} alt={activeProducts[0].name} className="w-full h-full block object-cover transition-transform duration-700" loading="lazy" decoding="async" />
+                                                                                    <div className="absolute inset-0 bg-black/5" />
+                                                                                </div>
+                                                                            ) : activeProducts.length > 0 ? (
+                                                                                <>
+                                                                                    <div className="flex-[2] h-full relative overflow-hidden rounded-l-xl">
+                                                                                        <img src={activeProducts[0].image} alt={activeProducts[0].name} className="w-full h-full block object-cover transition-transform duration-700" loading="lazy" decoding="async" />
+                                                                                    </div>
+                                                                                    <div className="flex-1 flex flex-col gap-1">
+                                                                                        {activeProducts.slice(1, 4).map((item, i) => (
+                                                                                            <div key={item.id} className={`flex-1 relative overflow-hidden ${(i === 1 && activeProducts.length > 2) || (i === 0 && activeProducts.length === 2) ? 'rounded-br-xl' : ''} ${(i === 0 && activeProducts.length > 2) || (i === 0 && activeProducts.length === 2) ? 'rounded-tr-xl' : ''}`}>
+                                                                                                <img src={item.image} alt={item.name} className="w-full h-full block object-cover" loading="lazy" decoding="async" />
+                                                                                            </div>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                </>
+                                                                            ) : (
+                                                                                <div className="flex-1 h-full bg-black/5 flex items-center justify-center text-black/10 rounded-md">
+                                                                                    <ShoppingBag size={48} />
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                        {/* Footer Call to Action */}
+                                                                        <div className={`px-4 py-3 flex items-center justify-between border-t border-black/5 transition-colors group-hover:bg-black/5 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
+                                                                            <span className="text-[11px] uppercase tracking-[0.2em] opacity-60" style={{ fontFamily: effectiveFontFamily, color: smartText, fontWeight: profile.fontWeight || '900' }}>
+                                                                                {isPT ? 'PRODUTOS' : 'PRODUCTS'}
+                                                                            </span>
+                                                                            <ChevronRight size={16} className="opacity-40 group-hover:translate-x-1 transition-transform" style={{ color: smartText }} />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </InteractiveButton>
+                                                        </div>
+                                                    );
+                                                }
+
                                                 return renderedItems;
                                             })()}
 

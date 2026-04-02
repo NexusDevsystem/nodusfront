@@ -98,6 +98,7 @@ export interface UserProfile {
   usernameUpdatedAt?: string | null;
   bannerBlurColor?: string | null;
   cardBackgroundColor?: string | null;
+  showStoreShortcutOnLinks?: boolean;
   hideBranding?: boolean;
   onboardingCompleted?: boolean;
 }
@@ -113,7 +114,7 @@ export interface Theme {
   solidColor?: string;
   buttonHex?: string;
   textHex?: string;
-  category?: 'solid' | 'gradient' | 'animated' | 'music' | 'creative' | 'kawaii' | 'business' | 'engineering' | 'medicine' | 'technology' | 'advocacy';
+  category?: 'solid' | 'gradient' | 'animated' | 'music' | 'creative' | 'kawaii' | 'business' | 'engineering' | 'medicine' | 'technology' | 'advocacy' | 'modern';
   cardClass?: string;
   fontFamily?: string;
   buttonRoundness?: 'square' | 'round' | 'rounder' | 'full';

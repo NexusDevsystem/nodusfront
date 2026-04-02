@@ -775,6 +775,7 @@ export default function EditorPage() {
                                             stores={stores}
                                             onStoresChange={setStores}
                                             userProfile={profile}
+                                            onProfileChange={updateProfile}
                                             pendingCollection={pendingShopCollection}
                                             onPendingCollectionConsumed={() => setPendingShopCollection(null)}
                                         />

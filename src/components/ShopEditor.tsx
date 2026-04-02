@@ -15,6 +15,7 @@ interface ShopEditorProps {
     pendingCollection?: string | null;
     onPendingCollectionConsumed?: () => void;
     userProfile?: any;
+    onProfileChange?: (profile: any) => void;
 }
 
 export default function ShopEditor({
@@ -24,7 +25,8 @@ export default function ShopEditor({
     onStoresChange,
     pendingCollection,
     onPendingCollectionConsumed,
-    userProfile
+    userProfile,
+    onProfileChange
 }: ShopEditorProps) {
     const { t, i18n } = useTranslation();
     const lang = i18n.language || 'pt';
@@ -432,6 +434,18 @@ export default function ShopEditor({
                         </div>
 
                         <div className="flex items-center gap-3">
+                            <div className="hidden sm:flex items-center gap-2 px-3 py-2 border-2 border-black/10 rounded-md">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-black/40 cursor-pointer select-none">
+                                    {isPT ? 'ATALHO NOS LINKS' : 'SHORTCUT IN LINKS'}
+                                </label>
+                                <button
+                                    onClick={() => onProfileChange?.({ ...userProfile, showStoreShortcutOnLinks: !userProfile?.showStoreShortcutOnLinks })}
+                                    className={`relative w-8 h-4 sm:w-10 sm:h-5 rounded-full transition-colors border-2 border-black outline-none ${userProfile?.showStoreShortcutOnLinks ? 'bg-[#97cd7a]' : 'bg-slate-200'}`}
+                                >
+                                    <div className={`absolute top-0.5 bottom-0.5 w-[10px] sm:w-[14px] bg-white border-2 border-black rounded-full transition-transform ${userProfile?.showStoreShortcutOnLinks ? 'translate-x-[14px] sm:translate-x-[20px]' : 'translate-x-[2px]'}`} />
+                                </button>
+                            </div>
+
                             <button
                                 onClick={() => setIsAddingStore(!isAddingStore)}
                                 className={`w-10 h-10 flex items-center justify-center border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] transition-all rounded-md cursor-pointer active:scale-95 active:shadow-none ${isAddingStore ? 'bg-white text-red-500' : 'bg-[#ffdf00] text-black'}`}
@@ -439,6 +453,18 @@ export default function ShopEditor({
                                 <PlusCircle size={20} className={isAddingStore ? 'rotate-45' : ''} />
                             </button>
                         </div>
+                    </div>
+                    {/* Mobile Only Toggle */}
+                    <div className="flex sm:hidden items-center justify-between mt-4 px-1 py-1">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-black/50 cursor-pointer select-none">
+                            {isPT ? 'MOSTRAR ATALHO DA LOJA NOS LINKS' : 'SHOW STORE SHORTCUT IN LINKS'}
+                        </label>
+                        <button
+                            onClick={() => onProfileChange?.({ ...userProfile, showStoreShortcutOnLinks: !userProfile?.showStoreShortcutOnLinks })}
+                            className={`relative w-10 h-5 rounded-full transition-colors border-2 border-black outline-none ${userProfile?.showStoreShortcutOnLinks ? 'bg-[#97cd7a]' : 'bg-slate-200'}`}
+                        >
+                            <div className={`absolute top-0.5 bottom-0.5 w-[14px] bg-white border-2 border-black rounded-full transition-transform ${userProfile?.showStoreShortcutOnLinks ? 'translate-x-[20px]' : 'translate-x-[2px]'}`} />
+                        </button>
                     </div>
 
                     {isAddingStore && (
