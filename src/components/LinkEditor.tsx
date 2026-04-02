@@ -445,16 +445,16 @@ function LinkEditor({
           {level === 0 ? (
             <div className="px-3 md:px-5">
               <div className="flex flex-col gap-4 mb-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-base md:text-lg font-black uppercase text-black tracking-tight">{t('links.myLinks')}</h2>
-                    <p className="text-[10px] font-bold text-black/60 mt-0.5 uppercase tracking-widest leading-none">{t('links.myLinksSubtitle')}</p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <h2 className="text-lg md:text-xl font-black uppercase text-black tracking-tighter leading-none">{t('links.myLinks')}</h2>
+                    <p className="text-[10px] md:text-[11px] font-bold text-black/40 uppercase tracking-widest leading-none">{t('links.myLinksSubtitle')}</p>
                   </div>
-                  <div className="flex items-center gap-2 md:gap-2.5">
-                    <button onClick={() => setShowArchive(true)} className="w-10 h-10 flex items-center justify-center border-2 border-[#1a1a1a] bg-white hover:bg-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] transition-all hover:translate-y-[0.5px] hover:shadow-none relative rounded-md">
-                      <Archive size={18} strokeWidth={3} className="text-black" />
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <button onClick={() => setShowArchive(true)} className="w-11 h-11 shrink-0 flex items-center justify-center border-2 border-[#1a1a1a] bg-white hover:bg-[#ffdf00] shadow-[0_3px_0_0_#1a1a1a] transition-all hover:translate-y-[0.5px] hover:shadow-none relative rounded-xl">
+                      <Archive size={20} strokeWidth={3} className="text-black" />
                       {archivedLinks.length > 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center border-2 border-[#1a1a1a] bg-[#97cd7a] text-[9px] font-black uppercase text-black shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm">
+                        <span className="absolute -top-1.5 -right-1.5 flex h-6 w-6 items-center justify-center border-2 border-[#1a1a1a] bg-[#97cd7a] text-[10px] font-black uppercase text-black shadow-[0_2px_0_0_#1a1a1a] rounded-md">
                           {archivedLinks.length}
                         </span>
                       )}
@@ -462,9 +462,10 @@ function LinkEditor({
                     <button
                       onClick={() => setIsAddModalOpen(true)}
                       disabled={isLimitReached}
-                      className={`w-10 h-10 flex items-center justify-center border-2 transition-all hover:translate-y-[0.5px] hover:shadow-none rounded-md ${isLimitReached ? 'border-[#1a1a1a] bg-slate-200 text-black/30 cursor-not-allowed' : 'border-[#1a1a1a] bg-[#ffdf00] text-black shadow-[0_2px_0_0_#1a1a1a]'}`}
+                      className={`flex-1 md:flex-none h-11 px-6 md:px-8 flex items-center justify-center gap-3 border-2 transition-all hover:translate-y-[0.5px] hover:shadow-none rounded-xl ${isLimitReached ? 'border-[#1a1a1a] bg-slate-200 text-black/30 cursor-not-allowed' : 'border-[#1a1a1a] bg-[#ffdf00] text-black shadow-[0_4px_0_0_#1a1a1a]'}`}
                     >
-                      <Plus size={22} className="text-black" strokeWidth={4} />
+                      <Plus size={20} className="text-black" strokeWidth={4} />
+                      <span className="text-[11px] md:text-[12px] font-black uppercase tracking-widest whitespace-nowrap">{t('links.addLink') || 'Adicionar Link'}</span>
                     </button>
                   </div>
                 </div>
@@ -496,8 +497,8 @@ function LinkEditor({
 
         <div className="space-y-3">
           {activeLinks.length === 0 && (
-            <div className="text-center py-10 md:py-14 bg-[#fff9c4] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-md">
-              <div className="w-14 h-14 md:w-16 md:h-16 bg-white border-2 border-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-5 shadow-[0_3px_0_0_#1a1a1a] text-black">
+            <div className="text-center py-10 md:py-14 bg-[#fff9c4] border-2 border-[#97cd7a] shadow-[0_4px_0_0_#97cd7a] rounded-md">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-[#97cd7a] border-2 border-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-5 shadow-[0_3px_0_0_#1a1a1a] text-black">
                 <Ban size={32} strokeWidth={3} />
               </div>
               <p className="text-lg md:text-xl font-black uppercase tracking-widest text-black">{t('links.emptyList')}</p>

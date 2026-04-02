@@ -8,6 +8,7 @@ import LinkEditor from '../components/LinkEditor';
 import ShopEditor from '../components/ShopEditor';
 import Preview from '../components/Preview';
 import Sidebar from '../components/Sidebar';
+import OnboardingProgressCard from '../components/OnboardingProgressCard';
 import { Plus, Trash2, GripVertical, Image as ImageIcon, Layout, Palette, Type, MousePointer2, Smartphone, Monitor, Share, Eye, X, Check, Save, Loader2, PlusCircle, Search, List, MessageCircle, HelpCircle, Construction, Mail, ChevronsRight, Zap, ExternalLink, Menu, Globe, ChevronRight, AlertTriangle } from 'lucide-react';
 import SocialLinksEditor from '../components/SocialLinksEditor';
 import AnalyticsView from '../components/AnalyticsView';
@@ -559,6 +560,8 @@ export default function EditorPage() {
                         activeTab={activeTab}
                         setActiveTab={setActiveTab}
                         userProfile={profile}
+                        links={links}
+                        onUpdateProfile={updateProfile}
                         onUpgradeClick={() => setIsUpgradeOpen(true)}
                         onClose={() => setIsSidebarOpen(false)}
                         className={`hidden md:flex h-full ${(!profile.plan_type || profile.plan_type === 'free') ? 'rounded-tl-[24px] md:rounded-tl-[32px]' : ''
@@ -633,6 +636,8 @@ export default function EditorPage() {
                                         activeTab={activeTab}
                                         setActiveTab={(t) => { setActiveTab(t); setIsMobileMenuOpen(false); }}
                                         userProfile={profile}
+                                        links={links}
+                                        onUpdateProfile={updateProfile}
                                         onUpgradeClick={() => { setIsUpgradeOpen(true); setIsMobileMenuOpen(false); }}
                                         className="flex-1"
                                         onClose={() => setIsMobileMenuOpen(false)}
@@ -747,7 +752,7 @@ export default function EditorPage() {
 
 
                             {/* Dynamic Content */}
-                            <div className="animate-fade-in">
+                            <div className={`animate-fade-in mx-auto md:px-6 ${activeTab === 'admin' ? 'w-full' : 'max-w-5xl'}`}>
                                 {activeTab === 'links' && (
                                     <div className="space-y-6">
 

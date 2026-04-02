@@ -473,33 +473,59 @@ export default function OnboardingPage() {
                                     { id: 'google', label: 'Google / Busca' },
                                     { id: 'other', label: t('onboarding.referralOther', 'Outro') }
                                 ].map((opt) => (
-                                    <button
-                                        key={opt.id}
-                                        onClick={() => setReferralSource(opt.label)}
-                                        className={`
-                                            w-full p-6 border-2 text-left transition-all duration-200 relative group rounded-2xl
-                                            ${referralSource === opt.label
-                                                ? 'border-[#1a1a1a] bg-[#97cd7a] translate-y-[4px] shadow-none'
-                                                : 'border-[#1a1a1a] bg-white shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a]'}
-                                        `}
-                                    >
-                                        <span className="font-black uppercase text-lg text-black">{opt.label}</span>
-                                        {referralSource === opt.label && (
-                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 bg-white border-2 border-[#1a1a1a] flex items-center justify-center">
-                                                <Check className="text-black" size={18} strokeWidth={4} />
-                                            </div>
+                                    <div key={opt.id} className="space-y-3">
+                                        <button
+                                            key={opt.id}
+                                            onClick={() => {
+                                                if (opt.id === 'other') {
+                                                    setReferralSource('Outro');
+                                                } else {
+                                                    setReferralSource(opt.label);
+                                                }
+                                            }}
+                                            className={`
+                                                w-full p-6 border-2 text-left transition-all duration-200 relative group rounded-2xl
+                                                ${(referralSource === opt.label || (opt.id === 'other' && referralSource.startsWith('Outro')))
+                                                    ? 'border-[#1a1a1a] bg-[#97cd7a] translate-y-[4px] shadow-none'
+                                                    : 'border-[#1a1a1a] bg-white shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a]'}
+                                            `}
+                                        >
+                                            <span className="font-black uppercase text-lg text-black">{opt.label}</span>
+                                            {(referralSource === opt.label || (opt.id === 'other' && referralSource.startsWith('Outro'))) && (
+                                                <div className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 bg-white border-2 border-[#1a1a1a] flex items-center justify-center">
+                                                    <Check className="text-black" size={18} strokeWidth={4} />
+                                                </div>
+                                            )}
+                                        </button>
+                                        
+                                        {/* Conditional Input for 'Other' */}
+                                        {opt.id === 'other' && referralSource.startsWith('Outro') && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="px-2"
+                                            >
+                                                <input
+                                                    type="text"
+                                                    autoFocus
+                                                    placeholder={t('onboarding.referralOtherPlaceholder', 'Escreva aqui...')}
+                                                    value={referralSource === 'Outro' ? '' : referralSource.replace('Outro: ', '')}
+                                                    onChange={(e) => setReferralSource(`Outro: ${e.target.value}`)}
+                                                    className="w-full bg-white border-2 border-[#1a1a1a] py-4 px-5 text-sm font-bold rounded-xl shadow-[0_4px_0_0_#1a1a1a] focus:outline-none focus:shadow-none focus:translate-y-[4px] transition-all"
+                                                />
+                                            </motion.div>
                                         )}
-                                    </button>
+                                    </div>
                                 ))}
                             </div>
 
                             <button
                                 type="button"
                                 onClick={() => setStep(4)}
-                                disabled={!referralSource}
+                                disabled={!referralSource || (referralSource.startsWith('Outro') && referralSource === 'Outro')}
                                 className={`
                                     w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6 rounded-2xl
-                                    ${referralSource
+                                    ${(referralSource && (!referralSource.startsWith('Outro') || referralSource !== 'Outro'))
                                         ? 'bg-[#ffdf00] text-black shadow-[0_8px_0_0_#1a1a1a] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[8px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
                                 `}
@@ -586,14 +612,14 @@ export default function OnboardingPage() {
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.socialNetworks')}</h3>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('onboarding.topIconsDesc')}</p>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('onboarding.topIconsDesc', 'Ícones no topo do perfil')}</p>
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => { setModalView('social'); setIsAddLinkModalOpen(true); }}
-                                            className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#ffdf00] transition-colors shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none rounded-xl"
+                                            className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#ffdf00] transition-colors shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none active:translate-y-[4px] active:shadow-none rounded-xl"
                                         >
-                                            <Plus size={20} />
+                                            <Plus size={20} strokeWidth={3} />
                                         </button>
                                     </div>
                                 </div>
@@ -619,7 +645,7 @@ export default function OnboardingPage() {
                                     ) : (
                                         <div className="w-full py-6 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 rounded-xl">
                                             <Globe size={24} className="mb-2 opacity-50" />
-                                            <span className="text-xs font-bold uppercase tracking-widest">{t('onboarding.noSocials')}</span>
+                                            <span className="text-xs font-bold uppercase tracking-widest">{t('onboarding.noSocials', 'Nenhuma rede social')}</span>
                                         </div>
                                     )}
                                 </div>
@@ -629,15 +655,26 @@ export default function OnboardingPage() {
                                 <div className="p-5 pb-4">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.myLinks')}</h3>
+                                            <div className="flex items-center gap-3">
+                                                <h3 className="font-black text-lg uppercase tracking-tight">{t('onboarding.myLinks')}</h3>
+                                                {quickLinks.filter(l => l.type !== 'social').length === 0 && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        className="bg-[#ef4444] text-white text-[9px] font-black uppercase px-2 py-0.5 border-2 border-[#1a1a1a] shadow-[2px_2px_0_0_#1a1a1a] rounded-lg"
+                                                    >
+                                                        {t('onboarding.requiredLink', 'Obrigatório: 1 link')}
+                                                    </motion.div>
+                                                )}
+                                            </div>
                                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{t('onboarding.mainButtonsDesc')}</p>
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => { setModalView('links'); setIsAddLinkModalOpen(true); }}
-                                            className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#97cd7a] transition-colors shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none rounded-xl"
+                                            className="w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center hover:bg-[#97cd7a] transition-colors shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none active:translate-y-[4px] active:shadow-none rounded-xl"
                                         >
-                                            <Plus size={20} />
+                                            <Plus size={20} strokeWidth={3} />
                                         </button>
                                     </div>
                                 </div>
@@ -689,19 +726,27 @@ export default function OnboardingPage() {
                                         <div className="px-5 pb-5 w-full">
                                             <div className="w-full py-10 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 rounded-xl">
                                                 <LinkIcon size={24} className="mb-2 opacity-50" />
-                                                <span className="text-xs font-bold uppercase tracking-widest">{t('onboarding.noLinks')}</span>
+                                                <span className="text-xs font-bold uppercase tracking-widest">{t('onboarding.noLinks', 'Nenhum link adicionado')}</span>
                                             </div>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            <button
-                                onClick={() => setStep(6)}
-                                className="w-full h-16 bg-[#ffdf00] border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[3px] hover:shadow-[0_3px_0_0_#1a1a1a] active:translate-y-[6px] active:shadow-none mt-8 rounded-2xl"
-                            >
-                                {t('onboarding.continue')}
-                            </button>
+                            <div className="relative">
+                                <button
+                                    onClick={() => setStep(6)}
+                                    disabled={quickLinks.filter(l => l.type !== 'social').length === 0}
+                                    className={`
+                                        w-full h-16 border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[3px] hover:shadow-[0_3px_0_0_#1a1a1a] active:translate-y-[6px] active:shadow-none mt-8 rounded-2xl
+                                        ${quickLinks.filter(l => l.type !== 'social').length > 0
+                                            ? 'bg-[#ffdf00] text-black'
+                                            : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
+                                    `}
+                                >
+                                    {t('onboarding.continue')}
+                                </button>
+                            </div>
                             <button type="button" onClick={() => setStep(4)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">{t('onboarding.back')}</button>
                         </div>
                     )}
@@ -871,6 +916,7 @@ export default function OnboardingPage() {
                 {isAddLinkModalOpen && (
                     <AddLinkModal
                         isOpen={isAddLinkModalOpen}
+                        initialView={modalView}
                         onClose={() => setIsAddLinkModalOpen(false)}
                         onAddLink={handleAddLink}
                         onAddSocial={handleAddSocial}

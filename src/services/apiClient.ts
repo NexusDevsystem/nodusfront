@@ -589,6 +589,15 @@ class ApiClient {
             eventSource.close();
         };
     }
+
+    // Onboarding
+    async markUrlCopied(): Promise<void> {
+        return this.request('/api/profile/onboarding/copy-url', { method: 'PATCH' });
+    }
+
+    async dismissOnboarding(): Promise<void> {
+        return this.request('/api/profile/onboarding/dismiss', { method: 'PATCH' });
+    }
 }
 
 

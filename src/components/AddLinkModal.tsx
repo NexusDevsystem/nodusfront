@@ -4,12 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     X, Search, Link as LinkIcon, Layout, ShoppingBag,
     MessageSquare, Instagram, Youtube, MessageCircle,
-    ChevronRight, Plus, DollarSign, Store, Share2,
+    ChevronRight, ChevronLeft, Plus, DollarSign, Store, Share2,
     Smartphone, Mail, Type, Hash, Send as SendIcon, Zap, CreditCard,
     Tag, Grid, Calendar, BarChart3, Lock, Video, Phone
 } from 'lucide-react';
 import { SiSpotify, SiTiktok, SiPaypal, SiWhatsapp, SiDiscord, SiThreads } from 'react-icons/si';
-import { SOCIAL_NETWORKS } from '../constants';
+import { SOCIAL_NETWORKS, THEMES } from '../constants';
 import { LinkItem, UserProfile } from '../types';
 import MonetizationView from './MonetizationView';
 
@@ -81,13 +81,53 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     const [url, setUrl] = useState('');
 
 
-    const [detectedInfo, setDetectedInfo] = useState<{ platform: string, icon: React.ReactNode, type: 'social' | 'link' } | null>(null);
+    const [detectedInfo, setDetectedInfo] = useState<{ 
+        platform: string, 
+        icon: React.ReactNode, 
+        type: 'social' | 'link',
+        metadata?: { type: string, id?: string, subType?: string }
+    } | null>(null);
     const [showShopCollectionStep, setShowShopCollectionStep] = useState(false);
     const [shopCollectionName, setShopCollectionName] = useState('');
     const [showCollectionStep, setShowCollectionStep] = useState(false);
     const [collectionName, setCollectionName] = useState('');
     const [collectionLayout, setCollectionLayout] = useState<'list' | 'carousel'>('list');
     const [showMonetizationStep, setShowMonetizationStep] = useState(false);
+    const [showElements, setShowElements] = useState(true);
+
+    const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
+
+    // Helper functions for preview styling (replicated from ProfileRenderer)
+    const getLuminance = (hex: string) => {
+        const rgb = hex.replace('#', '').match(/.{1,2}/g)?.map(x => parseInt(x, 16)) || [255, 255, 255];
+        return (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255;
+    };
+
+    const isDarkTheme =
+        profile.themeId === 'custom' && profile.customSolidColor
+            ? getLuminance(profile.customSolidColor) < 0.5
+            : currentTheme.id.includes('dark') ||
+            currentTheme.id.includes('black') ||
+            currentTheme.id.includes('animated-') ||
+            (currentTheme.category === 'advocacy' && currentTheme.id !== 'advocacy-equity') ||
+            currentTheme.category === 'technology' ||
+            currentTheme.category === 'engineering';
+
+    const mainButtonStyle = profile.themeId === 'custom' && profile.customButtonColor
+        ? { backgroundColor: profile.customButtonColor }
+        : (currentTheme.buttonHex ? { backgroundColor: currentTheme.buttonHex } : {});
+
+    const getSmartTextColor = () => {
+        if (profile.themeId === 'custom' && profile.customButtonColor) {
+            return getLuminance(profile.customButtonColor) > 0.6 ? '#1a1a1a' : '#ffffff';
+        }
+        if (currentTheme.buttonHex) {
+            return getLuminance(currentTheme.buttonHex) > 0.6 ? '#1a1a1a' : '#ffffff';
+        }
+        return isDarkTheme ? '#ffffff' : '#1a1a1a';
+    };
+
+    const buttonClass = currentTheme.buttonClass;
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -95,6 +135,13 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
         if (isOpen) {
             document.body.style.overflow = 'hidden';
             document.body.style.touchAction = 'none';
+            // Reset all sub-steps and views on open
+            setShowElements(true);
+            setShowCollectionStep(false);
+            setShowShopCollectionStep(false);
+            setShowMonetizationStep(false);
+            setUrl('');
+            setDetectedInfo(null);
         } else {
             document.body.style.overflow = '';
             document.body.style.touchAction = '';
@@ -111,7 +158,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Auto-detect link type
+    // Auto-detect link type and extract metadata for preview
     useEffect(() => {
         const detectLink = () => {
             if (!url.trim() || !url.includes('.')) {
@@ -121,7 +168,53 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
 
             const lowerUrl = url.toLowerCase();
 
-            // Social Networks detection
+            // YouTube Detection & Extraction
+            const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+            if (ytMatch) {
+                setDetectedInfo({
+                    platform: 'YouTube',
+                    icon: <Youtube size={16} />,
+                    type: 'link',
+                    metadata: { type: 'youtube', id: ytMatch[1] }
+                });
+                return;
+            }
+
+            // Spotify Detection & Extraction
+            const spotMatch = url.match(/open\.spotify\.com\/(track|album|playlist|artist|episode)\/([a-zA-Z0-9]+)/i);
+            if (spotMatch) {
+                setDetectedInfo({
+                    platform: 'Spotify',
+                    icon: <SiSpotify size={16} />,
+                    type: 'link',
+                    metadata: { type: 'spotify', subType: spotMatch[1], id: spotMatch[2] }
+                });
+                return;
+            }
+
+            // TikTok Detection
+            if (lowerUrl.includes('tiktok.com')) {
+                setDetectedInfo({
+                    platform: 'TikTok',
+                    icon: <SiTiktok size={14} />,
+                    type: 'link',
+                    metadata: { type: 'tiktok' }
+                });
+                return;
+            }
+
+            // Instagram Detection
+            if (lowerUrl.includes('instagram.com')) {
+                setDetectedInfo({
+                    platform: 'Instagram',
+                    icon: <Instagram size={16} />,
+                    type: 'link',
+                    metadata: { type: 'instagram' }
+                });
+                return;
+            }
+
+            // Social Networks detection (Generic)
             const detectedSocial = SOCIAL_NETWORKS.find(platform => {
                 if (platform.id === 'custom') return false;
                 return lowerUrl.includes(platform.id.toLowerCase()) ||
@@ -138,18 +231,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 return;
             }
 
-            // Other common platforms
-            if (lowerUrl.includes('spotify.com')) {
-                setDetectedInfo({ platform: 'Spotify', icon: <SiSpotify size={16} />, type: 'link' });
-            } else if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) {
-                setDetectedInfo({ platform: 'YouTube', icon: <Youtube size={16} />, type: 'link' });
-            } else if (lowerUrl.includes('tiktok.com')) {
-                setDetectedInfo({ platform: 'TikTok', icon: <SiTiktok size={14} />, type: 'link' });
-            } else if (lowerUrl.includes('livepix.gg') || lowerUrl.includes('livepix.')) {
-                setDetectedInfo({ platform: 'livepix', icon: <PixIcon size={16} />, type: 'link' });
-            } else {
-                setDetectedInfo({ platform: t('links.unknownLink'), icon: <LinkIcon size={16} />, type: 'link' });
-            }
+            setDetectedInfo({ platform: t('links.unknownLink'), icon: <LinkIcon size={16} />, type: 'link' });
         };
 
         const timer = setTimeout(detectLink, 300);
@@ -351,7 +433,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                             {[
-                                { id: 'link', icon: <LinkIcon size={isMobile ? 20 : 24} strokeWidth={3} />, label: isMobile ? t('links.linkLabel') : t('links.externalLink'), desc: t('links.insertAnyUrl'), color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
+                                { id: 'link', icon: <LinkIcon size={isMobile ? 20 : 24} strokeWidth={3} />, label: 'Link', desc: t('links.insertAnyUrl'), color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { setShowElements(false); document.getElementById('url-input')?.focus(); } },
                                 { id: 'collection', icon: <Layout size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { setShowCollectionStep(true); } },
                                 { id: 'product', icon: <ShoppingBag size={isMobile ? 20 : 24} strokeWidth={3} />, label: isMobile ? t('links.productLabel') : t('links.newProduct'), desc: t('links.productDescShort'), color: 'bg-white', accent: 'bg-cyan-400', action: () => { setShowShopCollectionStep(true); } },
                                 { id: 'agenda', icon: <Calendar size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('agenda.title') || 'Agenda', desc: t('agenda.descShort') || 'Liste seus eventos e shows', color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddAgenda(); onClose(); } },
@@ -387,37 +469,39 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     </div>
                 )}
 
-                {/* Section: Popular Links */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-6 bg-[#97cd7a] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
-                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.popularLinks')}</h4>
-                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                {/* Section: Popular Links - Hidden on social view to avoid redundancy */}
+                {initialView === 'all' && (
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-1.5 h-6 bg-[#97cd7a] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
+                            <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.popularLinks')}</h4>
+                            <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {[
+                                { id: 'instagram', icon: <Instagram size={18} strokeWidth={3} className="text-black" />, title: 'Instagram', desc: t('links.postsReels'), color: 'bg-white', action: () => onAddSocial('instagram') },
+                                { id: 'tiktok', icon: <SiTiktok size={16} className="text-black" />, title: 'TikTok', desc: t('links.shortVideos'), color: 'bg-white', action: () => onAddSocial('tiktok') },
+                                { id: 'youtube', icon: <Youtube size={18} strokeWidth={3} className="text-black" />, title: 'YouTube', desc: t('links.channelOrVideos'), color: 'bg-white', action: () => onAddSocial('youtube') },
+                                { id: 'spotify', icon: <SiSpotify size={16} className="text-black" />, title: 'Spotify', desc: t('links.musicPlaylists'), color: 'bg-white', action: () => onAddSocial('spotify') },
+                                { id: 'whatsapp', icon: <SiWhatsapp size={18} className="text-black" />, title: 'WhatsApp', desc: t('links.directChat'), color: 'bg-white', action: () => onAddSocial('whatsapp') },
+                            ].map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => { item.action(); onClose(); }}
+                                    className="w-full flex items-center gap-3 p-3 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] rounded-md group"
+                                >
+                                    <div className={`w-9 h-9 flex items-center justify-center shrink-0 border-2 border-black bg-slate-50 shadow-[0_2px_0_0_#1a1a1a] rounded-sm  transition-transform`}>
+                                        {item.icon}
+                                    </div>
+                                    <div className="flex-1 text-left min-w-0">
+                                        <div className="text-[10px] font-black uppercase text-black leading-none mb-1">{item.title}</div>
+                                        <div className="text-[8px] text-black/40 font-bold uppercase tracking-widest truncate">{item.desc}</div>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {[
-                            { id: 'instagram', icon: <Instagram size={18} strokeWidth={3} className="text-black" />, title: 'Instagram', desc: t('links.postsReels'), color: 'bg-white', action: () => onAddSocial('instagram') },
-                            { id: 'tiktok', icon: <SiTiktok size={16} className="text-black" />, title: 'TikTok', desc: t('links.shortVideos'), color: 'bg-white', action: () => onAddSocial('tiktok') },
-                            { id: 'youtube', icon: <Youtube size={18} strokeWidth={3} className="text-black" />, title: 'YouTube', desc: t('links.channelOrVideos'), color: 'bg-white', action: () => onAddSocial('youtube') },
-                            { id: 'spotify', icon: <SiSpotify size={16} className="text-black" />, title: 'Spotify', desc: t('links.musicPlaylists'), color: 'bg-white', action: () => onAddSocial('spotify') },
-                            { id: 'whatsapp', icon: <SiWhatsapp size={18} className="text-black" />, title: 'WhatsApp', desc: t('links.directChat'), color: 'bg-white', action: () => onAddSocial('whatsapp') },
-                        ].map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => { item.action(); onClose(); }}
-                                className="w-full flex items-center gap-3 p-3 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] rounded-md group"
-                            >
-                                <div className={`w-9 h-9 flex items-center justify-center shrink-0 border-2 border-black bg-slate-50 shadow-[0_2px_0_0_#1a1a1a] rounded-sm  transition-transform`}>
-                                    {item.icon}
-                                </div>
-                                <div className="flex-1 text-left min-w-0">
-                                    <div className="text-[10px] font-black uppercase text-black leading-none mb-1">{item.title}</div>
-                                    <div className="text-[8px] text-black/40 font-bold uppercase tracking-widest truncate">{item.desc}</div>
-                                </div>
-                            </button>
-                        ))}
-                    </div>
-                </div>
+                )}
 
 
 
@@ -495,31 +579,38 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     <div className="space-y-6">
                         <div className="flex items-center gap-4">
                             <div className="w-1.5 h-6 bg-indigo-400 border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
-                            <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.social')}</h4>
+                            <h4 className="text-sm font-black text-black uppercase tracking-widest">
+                                {initialView === 'social' ? t('onboarding.socialNetworks') : t('links.social')}
+                            </h4>
                             <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {[
-                                { id: 'instagram', icon: <Instagram size={22} strokeWidth={3} />, title: 'Instagram', accent: 'bg-[#ffdf00]' },
-                                { id: 'tiktok', icon: <SiTiktok size={20} />, title: 'TikTok', accent: 'bg-white' },
-                                { id: 'twitter', icon: <Hash size={22} strokeWidth={3} />, title: 'X (Twitter)', accent: 'bg-slate-100' },
-                                { id: 'linkedin', icon: <Share2 size={22} strokeWidth={3} />, title: 'LinkedIn', accent: 'bg-blue-100' },
-                                { id: 'facebook', icon: <FacebookIcon size={22} />, title: 'Facebook', accent: 'bg-cyan-50' },
-                                { id: 'youtube', icon: <Youtube size={22} strokeWidth={3} />, title: 'YouTube', accent: 'bg-red-50' },
-                                { id: 'threads', icon: <SiThreads size={22} />, title: 'Threads', accent: 'bg-slate-50' },
-                                { id: 'discord', icon: <SiDiscord size={22} />, title: 'Discord', accent: 'bg-indigo-100' },
-                            ].map((item) => (
+                        <div className={`grid ${initialView === 'social' ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'} gap-4`}>
+                            {initialView === 'social' && (
                                 <button
-                                    key={item.id}
-                                    onClick={() => { onAddSocial(item.id); onClose(); }}
-                                    className="group flex flex-col items-center justify-center gap-3 p-6 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] rounded-md"
+                                    onClick={() => { onAddLink(); onClose(); }}
+                                    className="group flex flex-col items-center justify-center gap-3 p-6 bg-white border-2 border-black hover:bg-[#ffdf00] transition-all shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none rounded-xl"
                                 >
-                                    <div className={`w-12 h-12 flex items-center justify-center border-2 border-black ${item.accent} shadow-[0_3px_0_0_#1a1a1a] rounded-md  transition-transform`}>
-                                        {item.icon}
+                                    <div className="w-12 h-12 flex items-center justify-center border-2 border-black bg-white shadow-[0_3px_0_0_#1a1a1a] rounded-md">
+                                        <LinkIcon size={22} strokeWidth={3} />
                                     </div>
-                                    <span className="text-[9px] font-black text-black uppercase tracking-widest leading-none">{item.title}</span>
+                                    <span className="text-[9px] font-black text-black uppercase tracking-widest leading-none">Custom Link</span>
                                 </button>
-                            ))}
+                            )}
+                            {SOCIAL_NETWORKS.filter(n => n.id !== 'custom' && n.id !== 'site' && n.id !== 'email' && n.id !== 'telefone').map((item) => {
+                                const Icon = item.icon;
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => { onAddSocial(item.id); onClose(); }}
+                                        className={`group flex flex-col items-center justify-center gap-3 p-6 bg-white border-2 border-black hover:bg-[#ffdf00] transition-all shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none rounded-md`}
+                                    >
+                                        <div className={`w-12 h-12 flex items-center justify-center border-2 border-black bg-slate-50 shadow-[0_3px_0_0_#1a1a1a] rounded-md  transition-transform`}>
+                                            <Icon size={22} />
+                                        </div>
+                                        <span className="text-[9px] font-black text-black uppercase tracking-widest leading-none">{item.name}</span>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
                 )}
@@ -548,14 +639,28 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 {/* Header Section - Refined Design */}
                 <div className="flex items-center justify-between px-6 pt-10 pb-6 md:px-10 md:pt-10 md:pb-8 shrink-0">
                     <div className="flex items-center gap-3">
-                         <div className="w-1.5 h-6 bg-[#97cd7a] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full"></div>
+                        {(initialView === 'social' || !showElements) && (
+                            <button
+                                onClick={() => {
+                                    if (!showElements) {
+                                        setShowElements(true);
+                                    } else {
+                                        onClose();
+                                    }
+                                }}
+                                className="p-1.5 text-black border-2 border-transparent hover:border-[#1a1a1a] hover:bg-[#ffdf00] transition-colors rounded-md mr-1"
+                            >
+                                <ChevronLeft size={20} strokeWidth={3} />
+                            </button>
+                        )}
+                        <div className="w-1.5 h-6 bg-[#97cd7a] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full"></div>
                         <h2 className="text-xl md:text-2xl font-black text-black uppercase tracking-tight leading-none">
-                            {t('links.addElement')}
+                            {initialView === 'social' ? (t('onboarding.socialNetworks') || 'Ícones Sociais') : t('links.addElement')}
                         </h2>
                     </div>
                     <button
                         onClick={onClose}
-                         className="w-10 h-10 flex items-center justify-center text-black bg-white border-2 border-black transition-all active:translate-y-[2px] active:shadow-none shadow-[0_4px_0_0_#1a1a1a] rounded-md"
+                        className="w-10 h-10 flex items-center justify-center text-black bg-white border-2 border-black transition-all active:translate-y-[2px] active:shadow-none shadow-[0_4px_0_0_#1a1a1a] rounded-md"
                     >
                         <X size={20} strokeWidth={4} />
                     </button>
@@ -569,6 +674,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 <LinkIcon size={18} strokeWidth={2.5} className="text-black/20 group-focus-within:text-black transition-colors" />
                             </div>
                             <input
+                                id="url-input"
                                 type="text"
                                 placeholder={t('links.pasteUrlHint')}
                                 value={url}
@@ -607,6 +713,62 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                 </AnimatePresence>
                             </div>
                         </form>
+
+                        {/* Link Preview Section - REPLICATING LIVE PREVIEW STYLE */}
+                        <AnimatePresence>
+                            {url.trim() && detectedInfo && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                                    className="mt-6 flex flex-col gap-6"
+                                >
+
+                                    {/* Video/Music Card Preview (Only if metadata exists) */}
+                                    {detectedInfo.metadata && (
+                                        <div className="space-y-4">
+                                            <div className="aspect-video w-full bg-slate-50 border-2 border-black rounded-2xl overflow-hidden flex items-center justify-center relative shadow-[0_4px_0_0_#1a1a1a]">
+                                                {(detectedInfo.metadata as any).type === 'youtube' && (
+                                                    <iframe
+                                                        src={`https://www.youtube.com/embed/${(detectedInfo.metadata as any).id}`}
+                                                        className="absolute inset-0 w-full h-full border-0"
+                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                        allowFullScreen
+                                                    />
+                                                )}
+                                                {(detectedInfo.metadata as any).type === 'spotify' && (
+                                                    <iframe
+                                                        src={`https://open.spotify.com/embed/${(detectedInfo.metadata as any).subType}/${(detectedInfo.metadata as any).id}`}
+                                                        className="absolute inset-0 w-full h-full border-0"
+                                                        allow="encrypted-media"
+                                                    />
+                                                )}
+                                                {((detectedInfo.metadata as any).type === 'tiktok' || (detectedInfo.metadata as any).type === 'instagram') && (
+                                                    <div className="flex flex-col items-center gap-3 p-8 text-center">
+                                                        <div className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black rounded-full shadow-[0_3px_0_0_#1a1a1a]">
+                                                            {detectedInfo.icon}
+                                                        </div>
+                                                        <p className="text-[10px] font-black uppercase tracking-widest text-black/40 px-4">
+                                                            {t('links.contentDetected', { platform: detectedInfo.platform })}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Manual Confirm Button for focus mode */}
+                                    {!showElements && (
+                                        <button
+                                            onClick={handleUrlSubmit}
+                                            className="w-full py-4 bg-black text-white text-xs font-black uppercase tracking-[0.2em] hover:bg-[#ffdf00] hover:text-black hover:shadow-none hover:translate-y-1 transition-all rounded-md shadow-[0_4px_0_0_#1a1a1a]"
+                                        >
+                                            {t('links.confirmAndAdd') || 'CONFIRMAR E ADICIONAR'}
+                                        </button>
+                                    )}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
 
 
@@ -622,7 +784,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                     exit={{ opacity: 0, y: -10 }}
                                     transition={{ duration: 0.2 }}
                                 >
-                                    {renderContent()}
+                                    {showElements ? renderContent() : null}
                                 </motion.div>
                             </AnimatePresence>
                         </div>

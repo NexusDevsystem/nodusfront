@@ -101,6 +101,10 @@ export interface UserProfile {
   showStoreShortcutOnLinks?: boolean;
   hideBranding?: boolean;
   onboardingCompleted?: boolean;
+  hasProfilePic?: boolean;
+  hasFirstLink?: boolean;
+  hasCopiedUrl?: boolean;
+  onboardingDismissed?: boolean;
 }
 
 export interface Theme {

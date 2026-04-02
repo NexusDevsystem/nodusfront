@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserProfile } from '../types';
+import { UserProfile, LinkItem } from '../types';
 import {
   Palette,
   ShoppingBag,
@@ -23,11 +23,14 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import LanguageToggle from './LanguageToggle';
 import { imgOptimized } from '../utils/imageUtils';
+import CompactOnboardingCard from './CompactOnboardingCard';
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   userProfile: UserProfile;
+  onUpdateProfile?: (updates: Partial<UserProfile>) => void;
+  links?: LinkItem[];
   className?: string;
   onUpgradeClick?: () => void;
   onClose?: () => void;
@@ -47,7 +50,7 @@ interface MenuGroup {
   items: MenuItem[];
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile, className, onUpgradeClick, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile, onUpdateProfile, links = [], className, onUpgradeClick, onClose }) => {
   const { user, signOut } = useAuth();
   const { t, i18n } = useTranslation();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -202,8 +205,24 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
       </div>
 
       {/* Footer Area Area */}
-      <div className="w-full bg-transparent relative z-20 border-t-2 border-[#1a1a1a] pt-6 pb-6 px-5 flex flex-col gap-3">
+      <div className="w-full bg-transparent relative z-20 border-t-2 border-[#1a1a1a] pt-4 pb-6 px-5 flex flex-col">
         
+        {/* Onboarding Compact Card */}
+        {!userProfile.onboardingDismissed && (
+          <CompactOnboardingCard 
+            profile={userProfile} 
+            links={links}
+            onUpdate={onUpdateProfile}
+            onNavigate={(tab) => {
+              if (tab === 'profile') {
+                setActiveTab('appearance');
+              } else {
+                setActiveTab(tab);
+              }
+            }} 
+          />
+        )}
+
         {/* The "Mobile-style" Hidden Menu */}
         <AnimatePresence>
           {isAccountMenuOpen && (

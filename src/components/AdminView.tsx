@@ -374,7 +374,7 @@ export default function AdminView() {
                     </div>
 
                     {/* Main KPIs Row */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-10">
                         <KPIBox
                             label={t('admin.totalUsers')}
                             value={stats.summary?.totalUsers || 0}
