@@ -20,6 +20,7 @@ const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const BlogPage = lazy(() => import('./pages/BlogPage'));
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage'));
+import FileRedirect from './components/FileRedirect';
 const CookieBanner = lazy(() => import('./components/CookieBanner'));
 
 export default function App() {
@@ -39,6 +40,9 @@ export default function App() {
             <Suspense fallback={<div className="min-h-screen bg-[#111] flex items-center justify-center"><div className="w-6 h-6 border-2 border-[#97cd7a] border-t-transparent rounded-full animate-spin"></div></div>}>
               <CookieBanner />
               <Routes>
+                {/* 🎯 Branded File Link System (High Priority) */}
+                <Route path="/arquivo/*" element={<FileRedirect />} />
+
                 {/* Public routes */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/payment/success" element={<CheckoutSuccessPage />} />

@@ -10,6 +10,7 @@ import { UserProfile } from '../../types';
 interface FileItem {
     filename: string;
     url: string;
+    nodusUrl?: string;
     size: number;
     uploadedAt: string;
 }
