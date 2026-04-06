@@ -5,7 +5,7 @@ import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion
 import { LinkItem, UserProfile } from '../../types';
 import { compressImage } from '../../utils/imageUtils';
 import { fetchMusicMetadata } from '../../utils/musicUtils';
-import { fetchYoutubeChannelInfo, isYoutubeChannelUrl } from '../../utils/socialUtils';
+import { fetchYoutubeChannelInfo, isYoutubeChannelUrl, fetchSocialMetadata } from '../../utils/socialUtils';
 import { SiSpotify } from 'react-icons/si';
 import { apiClient } from '../../services/apiClient';
 import AgendaEditor from '../AgendaEditor';
@@ -144,15 +144,24 @@ function SortableLinkItem({
             const isSpotify = url.includes('open.spotify.com') && (url.includes('/track/') || url.includes('/album/') || url.includes('/playlist/') || url.includes('spotify.link'));
             const isDeezer = url.includes('deezer.com') || url.includes('deezer.page.link') || url.includes('link.deezer.com');
             const isTiktok = url.includes('tiktok.com');
+            const isInstagram = url.includes('instagram.com');
             const isYoutubeChannel = isYoutubeChannelUrl(url);
             const isYoutubeVideo = (url.includes('youtube.com') || url.includes('youtu.be')) && !isYoutubeChannel;
+            const isSocialProfile = isInstagram || (isTiktok && url.includes('@')) || isYoutubeChannel;
 
             const isSpotifyAlbum = isSpotify && (url.includes('/album/') || url.includes('/playlist/') || url.includes('spotify.link/'));
             const isDeezerAlbum = isDeezer && (url.includes('/album/') || url.includes('/playlist/') || url.includes('deezer.page.link/') || url.includes('link.deezer.com/'));
             const isMissingAlbumTracks = (isSpotifyAlbum || isDeezerAlbum) && !currentLink.children;
 
-            // Only auto-fetch if title is empty/default OR it's an album/playlist that needs track loading
-            const needsAutoFetch = !currentLink.title || currentLink.title === t('links.newLink') || currentLink.title === t('links.noTitle') || currentLink.title === t('links.unknownLink') || isMissingAlbumTracks;
+            // Trigger fetch if:
+            // 1. Title is missing/generic
+            // 2. OR it is a social profile currently stuck in 'tiktok' or 'youtube' embed type (which is wrong for profiles)
+            const needsAutoFetch = !currentLink.title || 
+                                  currentLink.title === t('links.newLink') || 
+                                  currentLink.title === t('links.noTitle') || 
+                                  currentLink.title === t('links.unknownLink') || 
+                                  (isSocialProfile && (['Instagram', 'TikTok', 'YouTube'].includes(currentLink.title || '') || currentLink.embedType !== 'none')) || 
+                                  isMissingAlbumTracks;
 
             if (isYoutubeChannel && needsAutoFetch) {
                 try {
@@ -189,7 +198,7 @@ function SortableLinkItem({
                 return;
             }
 
-            if ((isSpotify || isDeezer || isTiktok || isYoutubeVideo) && needsAutoFetch) {
+            if ((isSpotify || isDeezer || isTiktok || isYoutubeVideo || isSocialProfile) && needsAutoFetch) {
                 let type: 'spotify' | 'deezer' | 'tiktok' | 'youtube' | 'none' = 'none';
                 if (isSpotify) type = 'spotify';
                 else if (isDeezer) type = 'deezer';
@@ -197,8 +206,45 @@ function SortableLinkItem({
                 else if (isYoutubeVideo) type = 'youtube';
 
                 try {
-                    if (isTiktok) {
-                        const metadata = await fetchMusicMetadata(url);
+                    if (isSocialProfile) {
+                        // FORCE embedType to none for any profile link immediately
+                        const freshInitial = linkRef.current;
+                        if (freshInitial.embedType !== 'none') {
+                            updateLinkFields(link.id, { embedType: 'none' });
+                        }
+
+                        const meta = await fetchSocialMetadata(url);
+                        if (meta) {
+                            const fresh = linkRef.current;
+                            const updates: Partial<LinkItem> = {};
+                            
+                            const label = meta.platform === 'youtube' ? 'Inscritos' : 'Seguidores';
+                            if (meta.followers) updates.subtitle = `${meta.followers} ${label}`;
+                            
+                            // Define title if it's generic
+                            const isGenericTitle = !fresh.title || 
+                                                 ['Instagram', 'TikTok', 'YouTube'].includes(fresh.title) || 
+                                                 fresh.title === t('links.newLink') || 
+                                                 fresh.title === t('links.unknownLink');
+                                                 
+                            if (meta.username && isGenericTitle) {
+                                updates.title = meta.username;
+                            }
+                            
+                            if (meta.avatarUrl && !fresh.image) {
+                                updates.image = meta.avatarUrl;
+                            }
+                            if (meta.platform) updates.platform = meta.platform as any;
+
+                            if (Object.keys(updates).length > 0) {
+                                updateLinkFields(link.id, updates);
+                            }
+                        }
+                        return; // Prevent falling through to music metadata
+                    }
+
+                    if (isTiktok && !isSocialProfile) {
+                        metadata = await fetchMusicMetadata(url);
                         if (metadata) {
                             const fresh = linkRef.current;
                             const updates: Partial<LinkItem> = {};
@@ -234,7 +280,7 @@ function SortableLinkItem({
                         updateLinkFields(link.id, { embedType: type });
                     }
 
-                    const metadata = await fetchMusicMetadata(url);
+                    metadata = await fetchMusicMetadata(url);
                     if (metadata) {
                         const fresh = linkRef.current; // re-read after await
                         const updates: Partial<LinkItem> = {

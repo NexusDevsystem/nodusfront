@@ -6,17 +6,18 @@ import {
     MessageSquare, Instagram, Youtube, MessageCircle,
     ChevronRight, ChevronLeft, Plus, DollarSign, Store, Share2,
     Smartphone, Mail, Type, Hash, Send as SendIcon, Zap, CreditCard,
-    Tag, Grid, Calendar, BarChart3, Lock, Video, Phone
+    Tag, Grid, Calendar, BarChart3, Lock, Video, Phone, RefreshCw
 } from 'lucide-react';
 import { SiSpotify, SiTiktok, SiPaypal, SiWhatsapp, SiDiscord, SiThreads } from 'react-icons/si';
 import { SOCIAL_NETWORKS, THEMES } from '../constants';
 import { LinkItem, UserProfile } from '../types';
 import MonetizationView from './MonetizationView';
+import { fetchSocialMetadata, SocialMetadata, isYoutubeChannelUrl } from '../utils/socialUtils';
 
 interface AddLinkModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onAddLink: (url?: string) => void;
+    onAddLink: (url?: string, platform?: string) => void;
     onAddCollection: (name: string, url?: string, layout?: 'list' | 'carousel') => void;
     onAddProduct: (collectionName: string) => void;
     onAddSocial: (platform: string) => void;
@@ -87,6 +88,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
         type: 'social' | 'link',
         metadata?: { type: string, id?: string, subType?: string }
     } | null>(null);
+    const [socialData, setSocialData] = useState<SocialMetadata | null>(null);
+    const [isLoadingSocial, setIsLoadingSocial] = useState(false);
     const [showShopCollectionStep, setShowShopCollectionStep] = useState(false);
     const [shopCollectionName, setShopCollectionName] = useState('');
     const [showCollectionStep, setShowCollectionStep] = useState(false);
@@ -170,13 +173,27 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
 
             // YouTube Detection & Extraction
             const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
-            if (ytMatch) {
+            const isYTChannel = isYoutubeChannelUrl(url);
+
+            if (ytMatch && !isYTChannel) {
                 setDetectedInfo({
                     platform: 'YouTube',
                     icon: <Youtube size={16} />,
                     type: 'link',
                     metadata: { type: 'youtube', id: ytMatch[1] }
                 });
+                return;
+            } else if (isYTChannel) {
+                setDetectedInfo({
+                    platform: 'YouTube',
+                    icon: <Youtube size={16} />,
+                    type: 'link',
+                    metadata: { type: 'youtube-channel' }
+                });
+                setIsLoadingSocial(true);
+                fetchSocialMetadata(url).then(data => {
+                    setSocialData(data);
+                }).finally(() => setIsLoadingSocial(false));
                 return;
             }
 
@@ -211,6 +228,11 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     type: 'link',
                     metadata: { type: 'instagram' }
                 });
+                
+                setIsLoadingSocial(true);
+                fetchSocialMetadata(url).then(data => {
+                    setSocialData(data);
+                }).finally(() => setIsLoadingSocial(false));
                 return;
             }
 
@@ -228,6 +250,13 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     icon: <Icon size={16} />,
                     type: 'social'
                 });
+
+                if (['tiktok', 'youtube'].includes(detectedSocial.id)) {
+                    setIsLoadingSocial(true);
+                    fetchSocialMetadata(url).then(data => {
+                        setSocialData(data);
+                    }).finally(() => setIsLoadingSocial(false));
+                }
                 return;
             }
 
@@ -235,13 +264,17 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
         };
 
         const timer = setTimeout(detectLink, 300);
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            setSocialData(null);
+        };
     }, [url]);
 
     const handleUrlSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (url.trim()) {
-            onAddLink(url);
+            const platformName = (detectedInfo && detectedInfo.platform !== t('links.unknownLink')) ? detectedInfo.platform : undefined;
+            onAddLink(url, platformName);
             onClose();
             setUrl('');
         }
@@ -743,14 +776,43 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                                         allow="encrypted-media"
                                                     />
                                                 )}
-                                                {((detectedInfo.metadata as any).type === 'tiktok' || (detectedInfo.metadata as any).type === 'instagram') && (
-                                                    <div className="flex flex-col items-center gap-3 p-8 text-center">
-                                                        <div className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black rounded-full shadow-[0_3px_0_0_#1a1a1a]">
-                                                            {detectedInfo.icon}
-                                                        </div>
-                                                        <p className="text-[10px] font-black uppercase tracking-widest text-black/40 px-4">
-                                                            {t('links.contentDetected', { platform: detectedInfo.platform })}
-                                                        </p>
+                                                {((detectedInfo.metadata as any).type === 'tiktok' || (detectedInfo.metadata as any).type === 'instagram' || (detectedInfo.metadata as any).type === 'youtube-channel') && (
+                                                    <div className="flex flex-col items-center gap-4 p-8 text-center w-full">
+                                                        {socialData ? (
+                                                            <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-500">
+                                                                <div className="relative group">
+                                                                    <div className="absolute inset-0 bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                                                                    {socialData.avatarUrl ? (
+                                                                        <img 
+                                                                            src={socialData.avatarUrl} 
+                                                                            alt={socialData.username || "Profile"} 
+                                                                            className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-white shadow-[0_8px_20px_rgba(0,0,0,0.1)] object-cover relative z-10"
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-black bg-slate-50 flex items-center justify-center relative z-10">
+                                                                            <Instagram size={32} />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                <div className="space-y-1">
+                                                                    <h5 className="text-base md:text-lg font-black text-black uppercase tracking-tight">@{socialData.username || detectedInfo.platform}</h5>
+                                                                    {socialData.followers && (
+                                                                        <div className="flex items-center justify-center gap-2 px-4 py-1.5 bg-black text-[#ffdf00] rounded-full border-2 border-black shadow-[0_4px_0_0_#000]">
+                                                                            <span className="text-[10px] font-black uppercase tracking-widest">{socialData.followers} {socialData.platform === 'youtube' ? 'Inscritos' : 'Seguidores'}</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black rounded-full shadow-[0_3px_0_0_#1a1a1a]">
+                                                                    {isLoadingSocial ? <RefreshCw size={24} className="animate-spin" /> : detectedInfo.icon}
+                                                                </div>
+                                                                <p className="text-[10px] font-black uppercase tracking-widest text-black/40 px-4">
+                                                                    {isLoadingSocial ? 'Buscando perfil...' : t('links.contentDetected', { platform: detectedInfo.platform })}
+                                                                </p>
+                                                            </>
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>

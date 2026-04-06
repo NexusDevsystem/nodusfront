@@ -1,40 +1,51 @@
+
 import { API_URL } from '../services/apiClient';
 
-export interface YoutubeChannelInfo {
-    name: string;
-    avatarUrl: string;
-    subscribers: string; // e.g. "1,2 mi inscritos" or "Canal do YouTube"
-    platform: 'youtube';
-    channelUrl: string;
+export interface SocialMetadata {
+    followers: string | null;
+    platform: string;
+    username?: string;
+    avatarUrl?: string;
+    url: string;
 }
 
-/**
- * Detects if a URL is a YouTube channel (not a video/short/live).
- */
 export const isYoutubeChannelUrl = (url: string): boolean => {
-    if (!url) return false;
-    const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
-    if (!isYoutube) return false;
-    const isVideo = url.includes('watch?v=') || url.includes('/shorts/') || url.includes('/live/') || url.includes('youtu.be/');
-    return !isVideo;
+    const lowerUrl = url.toLowerCase();
+    if (!lowerUrl.includes('youtube.com') && !lowerUrl.includes('youtu.be')) return false;
+    // If it's a video/short/live, it's not a "channel only" link for scraping
+    return !lowerUrl.includes('/watch') && !lowerUrl.includes('/shorts/') && !lowerUrl.includes('/live/') && !lowerUrl.includes('youtu.be/');
 };
 
-/**
- * Fetches YouTube channel metadata (name, avatar, subscriber count).
- * Uses the dedicated /api/social/youtube endpoint.
- */
-export const fetchYoutubeChannelInfo = async (url: string): Promise<YoutubeChannelInfo | null> => {
-    if (!isYoutubeChannelUrl(url)) return null;
-
+export const fetchYoutubeChannelInfo = async (url: string): Promise<any | null> => {
     try {
         const response = await fetch(`${API_URL}/api/social/youtube?url=${encodeURIComponent(url)}`);
-        if (!response.ok) {
-            console.error('[socialUtils] Failed to fetch YouTube channel info:', response.status);
-            return null;
-        }
+        if (!response.ok) return null;
         return await response.json();
     } catch (error) {
-        console.error('[socialUtils] Error fetching YouTube channel info:', error);
+        console.error('Error fetching YouTube channel info:', error);
         return null;
     }
+};
+
+export const fetchSocialMetadata = async (url: string): Promise<SocialMetadata | null> => {
+    try {
+        const response = await fetch(`${API_URL}/api/social/metadata?url=${encodeURIComponent(url)}`);
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching social metadata:', error);
+        return null;
+    }
+};
+
+// Log helper to debug API responses
+export const debugSocialFetch = async (url: string) => {
+    console.log(`[SocialDebug] Iniciando busca para: ${url}`);
+    const metadata = await fetchSocialMetadata(url);
+    if (!metadata) {
+        console.error('[SocialDebug] Falha total: O backend não retornou dados ou o link é inválido.');
+    } else {
+        console.log('[SocialDebug] Dados recebidos do backend:', metadata);
+    }
+    return metadata;
 };
