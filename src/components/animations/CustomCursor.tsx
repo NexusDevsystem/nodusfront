@@ -115,23 +115,37 @@ const CustomCursor: React.FC<CustomCursorProps> = ({
       const element = document.elementFromPoint(x, y);
       const foundTarget = (element?.closest('.cursor-target') || element?.closest(targetSelector)) as HTMLElement;
 
+      // Sticky Logic for Magnetic Buttons
       if (foundTarget) {
         if (activeTargetRef.current !== foundTarget) {
           activeTargetRef.current = foundTarget;
           isHoveringRef.current = true;
           setIsHovering(true);
-          updateVisorPosition(x, y); // Snap immediately
+          updateVisorPosition(x, y, true);
+        } else {
+          // While already hovering, update visually to follow the target's real-time position
+          updateVisorPosition(x, y);
         }
-      } else {
-        if (activeTargetRef.current !== null) {
+      } else if (activeTargetRef.current) {
+        // Only release target if mouse is truly far from it (safety margin)
+        const rect = activeTargetRef.current.getBoundingClientRect();
+        const margin = 20; // 20px safety margin
+        if (
+          x < rect.left - margin ||
+          x > rect.right + margin ||
+          y < rect.top - margin ||
+          y > rect.bottom + margin
+        ) {
           activeTargetRef.current = null;
           isHoveringRef.current = false;
           setIsHovering(false);
-          updateVisorPosition(x, y); // Return to mouse
+          updateVisorPosition(x, y);
         } else {
-          // Just following mouse while idle
+          // Still in safety zone, keep snapping but follow mouse within it
           updateVisorPosition(x, y);
         }
+      } else {
+        updateVisorPosition(x, y);
       }
     };
 

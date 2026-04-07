@@ -251,11 +251,22 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     type: 'social'
                 });
 
-                if (['tiktok', 'youtube'].includes(detectedSocial.id)) {
-                    setIsLoadingSocial(true);
-                    fetchSocialMetadata(url).then(data => {
-                        setSocialData(data);
-                    }).finally(() => setIsLoadingSocial(false));
+                // Extract username locally from URL instead of scraping followers
+                const parts = lowerUrl.split('/').filter(p => p && !p.includes('?') && !p.includes('#'));
+                let user = '';
+                if (detectedSocial.id === 'instagram') {
+                    user = parts[parts.length - 1];
+                } else if (detectedSocial.id === 'tiktok' || detectedSocial.id === 'youtube') {
+                    user = parts.find(p => p.startsWith('@')) || parts[parts.length - 1];
+                }
+
+                if (user) {
+                    setSocialData({
+                        username: user.replace('@', ''),
+                        url: url,
+                        platform: detectedSocial.id,
+                        followers: null
+                    });
                 }
                 return;
             }

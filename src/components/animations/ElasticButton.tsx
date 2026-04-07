@@ -18,34 +18,19 @@ const ElasticButton: React.FC<ElasticButtonProps> = ({
 }) => {
     return (
         <motion.div
-            whileHover={{ 
+            whileHover={{
                 scale: 1.02,
                 transition: { type: "spring", stiffness: 400, damping: 10 }
             }}
-            whileTap={{ 
+            whileTap={{
                 scale: 0.95,
                 transition: { type: "spring", stiffness: 400, damping: 10 }
             }}
             onClick={onClick}
-            style={{ ...style, clipPath }}
-            className={`relative cursor-pointer transition-shadow ${className}`}
+            style={{ ...style, clipPath, WebkitTapHighlightColor: 'transparent', outline: 'none' }}
+            className={`relative cursor-pointer transition-shadow outline-none ${className}`}
         >
             {children}
-            
-            {/* Subtle jelly effect overlay */}
-            <motion.div
-                className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 pointer-events-none"
-                style={{ clipPath }}
-                initial={false}
-                animate={{
-                    scale: [1, 1.05, 1],
-                }}
-                transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                }}
-            />
         </motion.div>
     );
 };

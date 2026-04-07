@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { LinkItem, UserProfile } from '../types';
 import { fetchMusicMetadata } from '../utils/musicUtils';
+import { fetchSocialMetadata } from '../utils/socialUtils';
 import {
   Plus, Link as LinkIcon, Archive, FolderHeart, Zap, Folder,
   Ban, X, Trash2, LayoutGrid
@@ -272,12 +273,12 @@ function LinkEditor({
     }
   };
 
-  const addLink = async (url?: string) => {
+  const addLink = async (url?: string, platformName?: string) => {
     const newLinkId = crypto.randomUUID();
     const newLink: LinkItem = {
       id: newLinkId,
       clientId: crypto.randomUUID(),
-      title: t('links.newLink'),
+      title: platformName || t('links.newLink'),
       url: url || '',
       isActive: true,
       clicks: 0,
@@ -299,7 +300,10 @@ function LinkEditor({
     onChange(prev => [newLink, ...(prev as LinkItem[])]);
 
     if (url) {
+      const lowerUrl = url.toLowerCase();
       const isMusic = url.includes('spotify') || url.includes('deezer') || url.includes('youtube') || url.includes('youtu.be') || url.includes('tiktok');
+      const isSocialStats = lowerUrl.includes('instagram.com') || lowerUrl.includes('tiktok.com') || lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be');
+
       if (isMusic) {
         try {
           const metadata = await fetchMusicMetadata(url);
@@ -318,6 +322,24 @@ function LinkEditor({
           }
         } catch (error) {
           console.error('Error fetching metadata in addLink:', error);
+        }
+      } else if (isSocialStats) {
+        // Just extract username from URL and put in subtitle
+        const urlParts = url.split('/').filter(p => p && !p.includes('?') && !p.includes('#'));
+        let username = '';
+        if (lowerUrl.includes('instagram.com') || lowerUrl.includes('instagr.am')) {
+            username = urlParts[urlParts.length - 1];
+        } else if (lowerUrl.includes('tiktok.com')) {
+            username = urlParts.find(p => p.startsWith('@')) || urlParts[urlParts.length - 1];
+        } else if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) {
+            username = urlParts.find(p => p.startsWith('@')) || urlParts[urlParts.length - 1];
+        }
+
+        if (username) {
+            updateLinkFields(newLinkId, { 
+                subtitle: `@${username.replace('@', '')}`,
+                title: lowerUrl.includes('instagram') ? 'Instagram' : (lowerUrl.includes('tiktok') ? 'TikTok' : 'YouTube')
+            });
         }
       }
     }

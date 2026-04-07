@@ -21,6 +21,7 @@ import {
     Plus,
     ChevronUp,
     Music,
+    ExternalLink,
     Pause,
     SkipBack,
     SkipForward,
@@ -57,6 +58,7 @@ import { MapBlock } from './MapBlock';
 import PasswordLinkModal from './PasswordLinkModal';
 import MediaKitModal from './MediaKitModal';
 import InteractiveButton from './animations/InteractiveButton';
+import { MarqueeText } from './animations/MarqueeText';
 import ElasticButton from './animations/ElasticButton';
 import GlitchButton from './animations/GlitchButton';
 import { MusicRichCard, MusicPlaylistDrawer } from './profile/MusicCards';
@@ -1165,34 +1167,36 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                     return (
                         <div className="absolute top-4 left-6 z-[60] pointer-events-auto">
-                            <motion.a
-                                href="https://www.nodus.my/login"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                animate={{ width: isAutoExpanded ? 200 : 40 }}
-                                whileHover={{ width: 200 }}
-                                whileTap={{ scale: 0.95 }}
-                                transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                                className="h-10 flex items-center bg-white/50 rounded-full shadow-md overflow-hidden cursor-pointer group whitespace-nowrap border border-white/20 pointer-events-auto z-[50] cursor-target relative isolate"
-                                style={{ display: 'flex', position: 'relative' }}
-                            >
-                                <div className="w-10 h-10 flex items-center justify-center shrink-0 p-[6px]">
-                                    <video
-                                        src="/icons/Anime_mascot_fixed_white_background_delpmaspu_.mp4"
-                                        autoPlay
-                                        loop
-                                        muted
-                                        playsInline
-                                        className="w-full h-full object-cover rounded-full mix-blend-multiply"
-                                    />
-                                </div>
-                                <motion.span
-                                    animate={{ opacity: isAutoExpanded ? 1 : 0 }}
-                                    className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-900 pr-6 group-hover:opacity-100 transition-opacity duration-300 flex-1 text-center"
+                            <InteractiveButton strength={8} tiltStrength={5}>
+                                <motion.a
+                                    href="https://www.nodus.my/login"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    animate={{ width: isAutoExpanded ? 200 : 40 }}
+                                    whileHover={{ width: 200 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                                    className="h-10 flex items-center bg-white/50 rounded-full shadow-md overflow-hidden cursor-pointer group whitespace-nowrap border border-white/20 pointer-events-auto z-[50] cursor-target relative isolate"
+                                    style={{ display: 'flex', position: 'relative' }}
                                 >
-                                    {isPT ? 'Crie seu nodus' : 'Create your nodus'}
-                                </motion.span>
-                            </motion.a>
+                                    <div className="w-10 h-10 flex items-center justify-center shrink-0 p-[6px]">
+                                        <video
+                                            src="/icons/Anime_mascot_fixed_white_background_delpmaspu_.mp4"
+                                            autoPlay
+                                            loop
+                                            muted
+                                            playsInline
+                                            className="w-full h-full object-cover rounded-full mix-blend-multiply"
+                                        />
+                                    </div>
+                                    <motion.span
+                                        animate={{ opacity: isAutoExpanded ? 1 : 0 }}
+                                        className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-900 pr-6 group-hover:opacity-100 transition-opacity duration-300 flex-1 text-center"
+                                    >
+                                        {isPT ? 'Crie seu nodus' : 'Create your nodus'}
+                                    </motion.span>
+                                </motion.a>
+                            </InteractiveButton>
                         </div>
                     );
                 })()}
@@ -1358,38 +1362,42 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                     return (
                                         <>
-                                            <button
-                                                onClick={() => setActiveTab('links')}
-                                                className={`flex-1 py-1 px-6 ${roundedClass || 'rounded-full'} text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === 'links'
-                                                    ? `${cleanTabButtonClass} z-10 shadow-sm opacity-100`
-                                                    : 'opacity-40 hover:opacity-100'
-                                                    }`}
-                                                style={{
-                                                    ...(activeTab === 'links' ? mainButtonStyle : mainTextColorStyle),
-                                                    transform: 'none',
-                                                    boxShadow: 'none',
-                                                    fontWeight: profile.fontWeight || '900',
-                                                    color: activeTab === 'links' ? getSmartTextColor() : (mainTextColorStyle.color || (isDarkTheme ? '#ffffff' : '#0f172a'))
-                                                }}
-                                            >
-                                                Links
-                                            </button>
-                                            <button
-                                                onClick={() => setActiveTab('shop')}
-                                                className={`flex-1 py-1 px-6 ${roundedClass || 'rounded-full'} text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === 'shop'
-                                                    ? `${cleanTabButtonClass} z-10 shadow-sm opacity-100`
-                                                    : 'opacity-40 hover:opacity-100'
-                                                    }`}
-                                                style={{
-                                                    ...(activeTab === 'shop' ? mainButtonStyle : mainTextColorStyle),
-                                                    transform: 'none',
-                                                    boxShadow: 'none',
-                                                    fontWeight: profile.fontWeight || '900',
-                                                    color: activeTab === 'shop' ? getSmartTextColor() : (mainTextColorStyle.color || (isDarkTheme ? '#ffffff' : '#0f172a'))
-                                                }}
-                                            >
-                                                Loja
-                                            </button>
+                                            <InteractiveButton className="flex-1" strength={10}>
+                                                <button
+                                                    onClick={() => setActiveTab('links')}
+                                                    className={`w-full py-1 px-6 ${roundedClass || 'rounded-full'} text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === 'links'
+                                                        ? `${cleanTabButtonClass} z-10 shadow-sm opacity-100`
+                                                        : 'opacity-40 hover:opacity-100'
+                                                        }`}
+                                                    style={{
+                                                        ...(activeTab === 'links' ? mainButtonStyle : mainTextColorStyle),
+                                                        transform: 'none',
+                                                        boxShadow: 'none',
+                                                        fontWeight: profile.fontWeight || '900',
+                                                        color: activeTab === 'links' ? getSmartTextColor() : (mainTextColorStyle.color || (isDarkTheme ? '#ffffff' : '#0f172a'))
+                                                    }}
+                                                >
+                                                    Links
+                                                </button>
+                                            </InteractiveButton>
+                                            <InteractiveButton className="flex-1" strength={10}>
+                                                <button
+                                                    onClick={() => setActiveTab('shop')}
+                                                    className={`w-full py-1 px-6 ${roundedClass || 'rounded-full'} text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === 'shop'
+                                                        ? `${cleanTabButtonClass} z-10 shadow-sm opacity-100`
+                                                        : 'opacity-40 hover:opacity-100'
+                                                        }`}
+                                                    style={{
+                                                        ...(activeTab === 'shop' ? mainButtonStyle : mainTextColorStyle),
+                                                        transform: 'none',
+                                                        boxShadow: 'none',
+                                                        fontWeight: profile.fontWeight || '900',
+                                                        color: activeTab === 'shop' ? getSmartTextColor() : (mainTextColorStyle.color || (isDarkTheme ? '#ffffff' : '#0f172a'))
+                                                    }}
+                                                >
+                                                    Loja
+                                                </button>
+                                            </InteractiveButton>
                                         </>
                                     );
                                 })()}
@@ -2312,9 +2320,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                         </div>
 
                                                                                                         <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
-                                                                                                            <span className={`text-[14px] font-bold leading-tight uppercase tracking-tight ${child.subtitle ? 'line-clamp-1 truncate' : 'break-words'}`} style={{ color: getSmartTextColor() }}>
-                                                                                                                {child.title}
-                                                                                                            </span>
+                                                                                                            <div className="text-[14px] font-bold leading-tight uppercase tracking-tight w-full" style={{ color: getSmartTextColor() }}>
+                                                                                                                <MarqueeText 
+                                                                                                                    text={child.title} 
+                                                                                                                    className="w-full"
+                                                                                                                    speed={40}
+                                                                                                                />
+                                                                                                            </div>
                                                                                                             {child.subtitle && (
                                                                                                                 <span className="text-[10px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-0.5 truncate" style={{ color: getSmartTextColor() }}>
                                                                                                                     {child.subtitle}
@@ -2507,18 +2519,21 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                                         {/* Text Content */}
                                                                         <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
-                                                                            <span className={`text-[15px] leading-tight uppercase tracking-tight ${link.subtitle ? 'line-clamp-1 truncate' : 'line-clamp-2 break-words'}`}
+                                                                            <div className="text-[15px] leading-tight uppercase tracking-tight w-full"
                                                                                 style={{
                                                                                     color: getSmartTextColor(),
                                                                                     fontWeight: profile.fontWeight || '700'
                                                                                 }}>
-                                                                                {link.title}
-                                                                            </span>
+                                                                                <MarqueeText 
+                                                                                    text={link.title} 
+                                                                                    className="w-full"
+                                                                                    speed={40}
+                                                                                />
+                                                                            </div>
                                                                             {link.subtitle && (
                                                                                 <span className="text-[11px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-0.5 truncate" style={{ color: getSmartTextColor() }}>
-                                                                                    {(link.url.includes('youtube.com') || link.url.includes('youtu.be')) && !link.url.includes('watch?v=') && !link.url.includes('/shorts/') && !link.url.includes('/live/') && <Youtube size={10} className="shrink-0" />}
-                                                                                    {link.url.includes('tiktok.com') && <Music size={10} fill="currentColor" className="shrink-0" />}
-                                                                                    {link.subtitle}
+                                                                                    {(link.url.includes('youtube.com') || link.url.includes('instagram.com') || link.url.includes('instagr.am') || link.url.includes('tiktok.com')) && <ExternalLink size={10} className="shrink-0" />}
+                                                                                    {link.subtitle.replace(/^♫\s?/, '')}
                                                                                 </span>
                                                                             )}
                                                                         </div>

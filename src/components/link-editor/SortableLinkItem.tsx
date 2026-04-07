@@ -206,41 +206,63 @@ function SortableLinkItem({
                 else if (isYoutubeVideo) type = 'youtube';
 
                 try {
+                    let metadata;
                     if (isSocialProfile) {
-                        // FORCE embedType to none for any profile link immediately
                         const freshInitial = linkRef.current;
-                        if (freshInitial.embedType !== 'none') {
-                            updateLinkFields(link.id, { embedType: 'none' });
+                        const updates: Partial<LinkItem> = {};
+                        
+                        // 1. Detect platform from URL since backend might be slow/blocked
+                        const platformName = isInstagram ? 'Instagram' : isYoutubeChannel ? 'YouTube' : 'TikTok';
+                        const actionLabel = isYoutubeChannel ? 'Siga nos no YouTube' : 
+                                           isInstagram ? 'Siga nos no Instagram' : 
+                                           'Siga nos no TikTok';
+
+                        // 2. FORCE embedType to none and Title update
+                        if (freshInitial.embedType !== 'none') updates.embedType = 'none';
+                        
+                        const isGenericOrOld = !freshInitial.title || 
+                                             ['Instagram', 'TikTok', 'YouTube'].includes(freshInitial.title) || 
+                                             freshInitial.title.includes('Creator Profile') ||
+                                             freshInitial.title === t('links.newLink');
+
+                        if (isGenericOrOld) {
+                            updates.title = actionLabel;
                         }
 
+                        // Apply immediate UI fixes if needed
+                        if (Object.keys(updates).length > 0) {
+                            updateLinkFields(link.id, updates);
+                        }
+
+                        // 3. Now try to get followers and real username from backend
                         const meta = await fetchSocialMetadata(url);
                         if (meta) {
                             const fresh = linkRef.current;
-                            const updates: Partial<LinkItem> = {};
+                            const finalUpdates: Partial<LinkItem> = {};
                             
-                            const label = meta.platform === 'youtube' ? 'Inscritos' : 'Seguidores';
-                            if (meta.followers) updates.subtitle = `${meta.followers} ${label}`;
+                            const followerLabel = meta.platform === 'youtube' ? 'Inscritos' : 'Seguidores';
+                            let subtitleParts = [];
+                            if (meta.username) subtitleParts.push(`@${meta.username.replace('@', '')}`);
+                            if (meta.followers) subtitleParts.push(`${meta.followers} ${followerLabel}`);
                             
-                            // Define title if it's generic
-                            const isGenericTitle = !fresh.title || 
-                                                 ['Instagram', 'TikTok', 'YouTube'].includes(fresh.title) || 
-                                                 fresh.title === t('links.newLink') || 
-                                                 fresh.title === t('links.unknownLink');
-                                                 
-                            if (meta.username && isGenericTitle) {
-                                updates.title = meta.username;
+                            // Cleanup any existing music icon if found in the new or old subtitle
+                            let newSubtitle = subtitleParts.length > 0 ? subtitleParts.join(' • ') : fresh.subtitle || '';
+                            newSubtitle = newSubtitle.replace(/^♫\s?/, '');
+
+                            if (newSubtitle !== fresh.subtitle) {
+                                finalUpdates.subtitle = newSubtitle;
                             }
                             
                             if (meta.avatarUrl && !fresh.image) {
-                                updates.image = meta.avatarUrl;
+                                finalUpdates.image = meta.avatarUrl;
                             }
-                            if (meta.platform) updates.platform = meta.platform as any;
+                            if (meta.platform) finalUpdates.platform = meta.platform as any;
 
-                            if (Object.keys(updates).length > 0) {
-                                updateLinkFields(link.id, updates);
+                            if (Object.keys(finalUpdates).length > 0) {
+                                updateLinkFields(link.id, finalUpdates);
                             }
                         }
-                        return; // Prevent falling through to music metadata
+                        return;
                     }
 
                     if (isTiktok && !isSocialProfile) {
