@@ -8,7 +8,9 @@ import {
     Crown, Clock, Layout, PieChart, BarChart, Settings, Shield, Trash2, Key, ChevronRight, Hash,
     FileText,
     Rss,
-    PlusCircle
+    PlusCircle,
+    BadgeCheck,
+    XCircle
 } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import BrutalistLoader from './BrutalistLoader';
@@ -69,7 +71,13 @@ export default function AdminView() {
     const [deleteInput, setDeleteInput] = useState('');
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [editPlan, setEditPlan] = useState<{ type: string, expiry: string } | null>(null);
-    const [activeTab, setActiveTab] = useState<'overview' | 'blog' | 'settings'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'blog' | 'settings' | 'verifications'>('overview');
+    const [verifications, setVerifications] = useState<any[]>([]);
+    const [verifLoading, setVerifLoading] = useState(false);
+    const [verifFilter, setVerifFilter] = useState<string>('');
+    const [expandedVerif, setExpandedVerif] = useState<string | null>(null);
+    const [rejectReason, setRejectReason] = useState('');
+    const [verifAction, setVerifAction] = useState<{id:string,action:'approve'|'reject'}|null>(null);
     const [isUserDetailsLoading, setIsUserDetailsLoading] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
@@ -330,14 +338,210 @@ export default function AdminView() {
                     <Settings size={18} strokeWidth={3} />
                     Configurações
                 </button>
+                <button
+                    onClick={() => {
+                        setActiveTab('verifications');
+                        if (!verifLoading && verifications.length === 0) {
+                            setVerifLoading(true);
+                            apiClient.getAdminVerifications()
+                                .then(data => setVerifications(data))
+                                .catch(()=>{})
+                                .finally(()=>setVerifLoading(false));
+                        }
+                    }}
+                    className={`px-8 py-4 rounded-xl border-2 border-black font-black uppercase text-[11px] tracking-widest flex items-center gap-3 shrink-0 transition-all relative ${
+                        activeTab === 'verifications'
+                        ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1'
+                        : 'bg-white hover:bg-[#ffdf00]/10 hover:shadow-[0_4px_0_0_#1a1a1a] hover:-translate-y-0.5'
+                    }`}
+                >
+                    <BadgeCheck size={18} strokeWidth={3} />
+                    Verificações
+                    {verifications.filter(v => v.status === 'pending').length > 0 && (
+                        <span className="ml-1 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">
+                            {verifications.filter(v => v.status === 'pending').length}
+                        </span>
+                    )}
+                </button>
             </div>
 
-            {activeTab === 'blog' ? (
+            {activeTab === 'verifications' ? (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                    {/* Header */}
+                    <div className="flex flex-wrap gap-4 items-center justify-between">
+                        <h2 className="text-lg font-black uppercase tracking-tighter">Solicitações de Verificação</h2>
+                        <div className="flex gap-2 flex-wrap">
+                            {['', 'pending', 'approved', 'rejected'].map(f => (
+                                <button key={f} onClick={() => {
+                                    setVerifFilter(f);
+                                    setVerifLoading(true);
+                                    apiClient.getAdminVerifications(f || undefined)
+                                        .then(data => setVerifications(data))
+                                        .catch(()=>{})
+                                        .finally(()=>setVerifLoading(false));
+                                }} className={`px-4 py-2 border-2 border-black text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${
+                                    verifFilter === f ? 'bg-[#ffdf00] shadow-[0_3px_0_0_#000]' : 'bg-white hover:bg-slate-50 shadow-[0_3px_0_0_#000]'
+                                }`}>
+                                    {f === '' ? 'Todos' : f === 'pending' ? 'Pendentes' : f === 'approved' ? 'Aprovados' : 'Reprovados'}
+                                </button>
+                            ))}
+                            <button onClick={() => {
+                                setVerifLoading(true);
+                                apiClient.getAdminVerifications(verifFilter || undefined)
+                                    .then(data => setVerifications(data))
+                                    .catch(()=>{})
+                                    .finally(()=>setVerifLoading(false));
+                            }} className="px-4 py-2 border-2 border-black text-[10px] font-black uppercase tracking-widest rounded-lg bg-white shadow-[0_3px_0_0_#000] hover:bg-slate-50">
+                                <RefreshCw size={14} strokeWidth={3} className={verifLoading ? 'animate-spin' : ''} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* List */}
+                    {verifLoading ? (
+                        <div className="flex items-center justify-center py-16">
+                            <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                        </div>
+                    ) : verifications.length === 0 ? (
+                        <div className="p-16 border-2 border-black bg-white rounded-xl text-center shadow-[0_4px_0_0_#000]">
+                            <BadgeCheck size={48} className="mx-auto mb-4 opacity-10" />
+                            <p className="text-sm font-black uppercase opacity-30">Nenhuma solicitação encontrada</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {verifications.map(v => (
+                                <div key={v.id} className="bg-white border-2 border-black rounded-xl shadow-[0_4px_0_0_#000] overflow-hidden">
+                                    {/* Row */}
+                                    <div
+                                        className="p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors"
+                                        onClick={() => setExpandedVerif(expandedVerif === v.id ? null : v.id)}
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-11 h-11 rounded-full border-2 border-black overflow-hidden bg-slate-100 shrink-0">
+                                                {v.users?.avatar_url
+                                                    ? <img src={v.users.avatar_url} className="w-full h-full object-cover" alt="" />
+                                                    : <div className="w-full h-full flex items-center justify-center font-black text-lg">{v.users?.username?.[0]?.toUpperCase()}</div>
+                                                }
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-black">{v.display_name}</span>
+                                                    <span className={`text-[8px] font-black px-2 py-0.5 border border-black rounded-md ${
+                                                        v.status === 'pending' ? 'bg-[#ffdf00]' :
+                                                        v.status === 'approved' ? 'bg-[#97cd7a]' :
+                                                        'bg-red-100 text-red-600'
+                                                    }`}>
+                                                        {v.status === 'pending' ? 'PENDENTE' : v.status === 'approved' ? 'APROVADO' : 'REPROVADO'}
+                                                    </span>
+                                                </div>
+                                                <p className="text-[10px] font-bold text-black/40 uppercase tracking-widest">@{v.users?.username} • {new Date(v.created_at).toLocaleDateString('pt-BR')}</p>
+                                            </div>
+                                        </div>
+                                        <ChevronRight size={16} strokeWidth={3} className={`transition-transform ${expandedVerif === v.id ? 'rotate-90' : ''}`} />
+                                    </div>
+
+                                    {/* Expanded panel */}
+                                    {expandedVerif === v.id && (
+                                        <div className="border-t-2 border-black p-6 space-y-5 bg-[#fafafa]">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {[
+                                                    { label: 'Link Nodus', value: v.nodus_link },
+                                                    { label: 'E-mail', value: v.contact_email },
+                                                    { label: 'Categoria', value: v.category },
+                                                    { label: 'Verificado em outras redes', value: v.has_verified_badge ? 'Sim' : 'Não' },
+                                                ].map(item => (
+                                                    <div key={item.label} className="p-3 bg-white border-2 border-black rounded-lg">
+                                                        <p className="text-[8px] font-black uppercase tracking-widest text-black/30 mb-1">{item.label}</p>
+                                                        <p className="text-[11px] font-bold text-black break-all">{item.value}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-black/30">Perfis Sociais</p>
+                                                {[v.social_link_1, v.social_link_2, v.social_link_3].filter(Boolean).map((link: string, i: number) => (
+                                                    <a key={i} href={link} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[11px] font-bold text-blue-600 hover:underline break-all">
+                                                        <ExternalLink size={12} strokeWidth={3} />{link}
+                                                    </a>
+                                                ))}
+                                            </div>
+                                            {(v.press_link_1 || v.press_link_2 || v.press_link_3) && (
+                                                <div className="space-y-2">
+                                                    <p className="text-[9px] font-black uppercase tracking-widest text-black/30">Links de Imprensa</p>
+                                                    {[v.press_link_1, v.press_link_2, v.press_link_3].filter(Boolean).map((link: string, i: number) => (
+                                                        <a key={i} href={link} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[11px] font-bold text-blue-600 hover:underline break-all">
+                                                            <ExternalLink size={12} strokeWidth={3} />{link}
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {v.status === 'rejected' && v.reason && (
+                                                <div className="p-3 bg-red-50 border-2 border-red-300 rounded-lg">
+                                                    <p className="text-[9px] font-black uppercase tracking-widest text-red-400 mb-1">Motivo da Rejeição</p>
+                    <p className="text-[11px] font-bold text-black/70">{v.reason}</p>
+                                                </div>
+                                            )}
+                                            {v.status === 'pending' && (
+                                                <div className="space-y-3 pt-2 border-t-2 border-black/5">
+                                                    {verifAction !== null && verifAction.id === v.id && verifAction.action === 'reject' ? (
+                                                        <div className="space-y-3">
+                                                            <label className="text-[10px] font-black uppercase tracking-widest text-black/40">Motivo da Rejeição</label>
+                                                            <textarea
+                                                                value={rejectReason}
+                                                                onChange={e => setRejectReason(e.target.value)}
+                                                                placeholder="Descreva o motivo da rejeição para o usuário..."
+                                                                rows={3}
+                                                                className="w-full p-3 border-2 border-black rounded-lg text-sm font-medium resize-none outline-none focus:bg-[#fdfcf0]"
+                                                            />
+                                                            <div className="flex gap-3">
+                                                                <button onClick={() => setVerifAction(null)} className="flex-1 py-3 bg-white border-2 border-black text-[11px] font-black uppercase tracking-widest rounded-lg shadow-[0_3px_0_0_#000] hover:shadow-none hover:translate-y-[2px] transition-all">Cancelar</button>
+                                                                <button onClick={async () => {
+                                                                    setIsUpdating(true);
+                                                                    try {
+                                                                        await apiClient.reviewVerification(v.id, 'reject', rejectReason);
+                                                                        setVerifications(prev => prev.map((r: any) => r.id === v.id ? {...r, status:'rejected', reason: rejectReason} : r));
+                                                                        setVerifAction(null); setRejectReason('');
+                                                                        showNotification('Solicitação reprovada.', 'success');
+                                                                    } catch(e:any) { showNotification(e.message, 'error'); }
+                                                                    finally { setIsUpdating(false); }
+                                                                }} disabled={!rejectReason.trim() || isUpdating} className="flex-1 py-3 bg-red-500 text-white border-2 border-black text-[11px] font-black uppercase tracking-widest rounded-lg shadow-[0_3px_0_0_#000] hover:shadow-none hover:translate-y-[2px] transition-all disabled:opacity-40">
+                                                                    {isUpdating ? '...' : 'Confirmar Rejeição'}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex gap-3">
+                                                            <button onClick={() => setVerifAction({id: v.id, action:'reject'})} className="flex-1 py-3 bg-white border-2 border-black text-red-500 text-[11px] font-black uppercase tracking-widest rounded-lg shadow-[0_3px_0_0_#000] hover:shadow-none hover:translate-y-[2px] transition-all flex items-center justify-center gap-2">
+                                                                <XCircle size={14} strokeWidth={3} /> Reprovar
+                                                            </button>
+                                                            <button onClick={async () => {
+                                                                setIsUpdating(true);
+                                                                try {
+                                                                    await apiClient.reviewVerification(v.id, 'approve');
+                                                                    setVerifications(prev => prev.map((r: any) => r.id === v.id ? {...r, status:'approved'} : r));
+                                                                    showNotification('Solicitação aprovada! Perfil verificado.', 'success');
+                                                                } catch(e:any) { showNotification(e.message, 'error'); }
+                                                                finally { setIsUpdating(false); }
+                                                            }} disabled={isUpdating} className="flex-1 py-3 bg-[#97cd7a] border-2 border-black text-black text-[11px] font-black uppercase tracking-widest rounded-lg shadow-[0_3px_0_0_#000] hover:shadow-none hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 disabled:opacity-40">
+                                                                <Check size={14} strokeWidth={3} /> Aprovar
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            ) : activeTab === 'blog' ? (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <BlogAdminView />
                 </div>
             ) : activeTab === 'settings' ? (
                 <div className="p-12 border-2 border-black bg-white rounded-md shadow-[0_6px_0_0_#000] text-center">
+
                     <Settings size={48} className="mx-auto mb-4 opacity-10" />
                     <h2 className="text-xl font-black uppercase">{t('admin.settings')}</h2>
                     <p className="text-sm opacity-40 uppercase font-black mt-2">Área em desenvolvimento</p>

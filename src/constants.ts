@@ -9,6 +9,9 @@ import {
   SiBehance, SiDribbble, SiPinterest, SiDiscord, SiSteam, SiShopee, SiAmazon,
   SiKick
 } from 'react-icons/si';
+import { AiFillInstagram } from 'react-icons/ai';
+import { FaFacebook, FaTiktok } from 'react-icons/fa6';
+import { RiTwitterXFill } from 'react-icons/ri';
 import { KickIcon } from './components/icons/KickIcon';
 
 export { KickIcon };
@@ -142,10 +145,10 @@ export const THEMES: Theme[] = [
 export const SOCIAL_NETWORKS = [
   // Redes Sociais Gerais
   { id: 'custom', name: 'Custom Link', icon: LinkIcon, baseUrl: '', placeholder: 'https://your-site.com' },
-  { id: 'instagram', name: 'Instagram', icon: SiInstagram, baseUrl: 'https://instagram.com/', placeholder: '@username' },
-  { id: 'facebook', name: 'Facebook', icon: SiFacebook, baseUrl: 'https://facebook.com/', placeholder: 'username' },
-  { id: 'twitter', name: 'X (Twitter)', icon: SiX, baseUrl: 'https://x.com/', placeholder: '@username' },
-  { id: 'tiktok', name: 'TikTok', icon: SiTiktok, baseUrl: 'https://tiktok.com/@', placeholder: '@username' },
+  { id: 'instagram', name: 'Instagram', icon: AiFillInstagram, baseUrl: 'https://instagram.com/', placeholder: '@username' },
+  { id: 'facebook', name: 'Facebook', icon: FaFacebook, baseUrl: 'https://facebook.com/', placeholder: 'username' },
+  { id: 'twitter', name: 'X (Twitter)', icon: RiTwitterXFill, baseUrl: 'https://x.com/', placeholder: '@username' },
+  { id: 'tiktok', name: 'TikTok', icon: FaTiktok, baseUrl: 'https://tiktok.com/@', placeholder: '@username' },
   { id: 'threads', name: 'Threads', icon: SiThreads, baseUrl: 'https://threads.net/@', placeholder: '@username' },
   { id: 'linkedin', name: 'LinkedIn', icon: SiLinkedin, baseUrl: 'https://linkedin.com/in/', placeholder: 'username' },
   { id: 'whatsapp', name: 'WhatsApp', icon: SiWhatsapp, baseUrl: 'https://wa.me/', placeholder: '123456789' },

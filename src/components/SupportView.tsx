@@ -1,14 +1,20 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Search,
     ChevronDown,
     ChevronRight,
     ExternalLink,
-    Lock
+    Lock,
+    Clock,
+    XCircle,
+    Zap,
+    ShieldCheck
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { apiClient } from '../services/apiClient';
+import VerificationRequestModal from './VerificationRequestModal';
 
 interface FAQItem {
     id: string;
@@ -28,6 +34,31 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
     const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
     const [feedbackText, setFeedbackText] = useState('');
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isVerifModalOpen, setIsVerifModalOpen] = useState(false);
+    const [verifRequest, setVerifRequest] = useState<any>(null);
+    const [verifLoaded, setVerifLoaded] = useState(false);
+
+    const loadVerifStatus = useCallback(async () => {
+        if (!userProfile || userProfile.isVerified) return;
+        try {
+            const data = await apiClient.getMyVerificationRequest();
+            setVerifRequest(data);
+            setVerifLoaded(true);
+        } catch (err) {
+            console.error('Error loading verif status:', err);
+            setVerifLoaded(true);
+        }
+    }, [userProfile]);
+
+    useEffect(() => {
+        loadVerifStatus();
+    }, [loadVerifStatus]);
+
+    useEffect(() => {
+        const handleRefresh = () => loadVerifStatus();
+        window.addEventListener('verification-request-submitted', handleRefresh);
+        return () => window.removeEventListener('verification-request-submitted', handleRefresh);
+    }, [loadVerifStatus]);
 
     const FAQS = useMemo<FAQItem[]>(() => [
         { id: '1', category: 'financeiro', question: t('support.faqs.q1'), answer: t('support.faqs.a1') },
@@ -57,8 +88,6 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
     const handleFeedbackSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!feedbackText.trim()) return;
-
-        // Simulating submission
         setIsSubmitted(true);
         setFeedbackText('');
         setTimeout(() => setIsSubmitted(false), 5000);
@@ -66,17 +95,13 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
 
     return (
         <div className="pb-20 animate-fade-in">
-            {/* Header - Brutalist */}
             <div className="border-b-2 border-[#1a1a1a] pb-6 mb-8 pt-8">
                 <h1 className="text-xl font-black text-black uppercase tracking-widest">{t('support.title')}</h1>
                 <p className="text-[10px] text-black font-black uppercase tracking-widest mt-1 opacity-60">{t('support.subtitle')}</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-12">
-
-                {/* Left Column - Navigation / Categories */}
                 <div className="w-full md:w-64 shrink-0 space-y-6">
-                    {/* Search */}
                     <div className="relative group">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-black" size={14} strokeWidth={3} />
                         <input
@@ -88,7 +113,6 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                         />
                     </div>
 
-                    {/* Categories List */}
                     <div>
                         <h3 className="text-[10px] font-black text-black uppercase tracking-widest mb-4 px-1">{t('support.topics')}</h3>
                         <div className="flex flex-col gap-2">
@@ -110,7 +134,6 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                         </div>
                     </div>
 
-                    {/* Contact Links - Brutalist */}
                     <div className="pt-6 border-t border-[#1a1a1a] border-dashed">
                         <h3 className="text-[10px] font-black text-black uppercase tracking-widest mb-4 px-1">{t('support.directContact')}</h3>
                         <div className="space-y-3">
@@ -154,7 +177,6 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                     </div>
                 </div>
 
-                {/* Right Column - Content */}
                 <div className="flex-1 min-w-0">
                     {activeCategory === 'feedback' ? (
                         <div className="animate-fade-in">
@@ -193,7 +215,7 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                                         <div className="flex justify-end">
                                             <button
                                                 type="submit"
-                                                className="px-8 py-3 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] text-[10px] font-black uppercase tracking-widest hover:translate-y-[1px] hover:shadow-none transition-all"
+                                                className="px-8 py-3 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] text-[10px] font-black uppercase tracking-widest hover:translate-y-[1px] hover:shadow-none transition-all"
                                             >
                                                 {t('support.sendFeedbackButton')}
                                             </button>
@@ -239,8 +261,54 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                                                         exit={{ height: 0, opacity: 0 }}
                                                         transition={{ duration: 0.15, ease: "easeInOut" }}
                                                     >
-                                                        <div className="pb-6 pr-12 pl-2 text-[10px] font-bold text-black opacity-60 uppercase tracking-widest leading-relaxed">
-                                                            {faq.answer}
+                                                        <div className="pb-6 pr-12 pl-2 text-[10px] font-bold text-black uppercase tracking-widest leading-relaxed">
+                                                            <span className="opacity-60">{faq.answer}</span>
+                                                            
+                                                            {faq.id === '6' && (
+                                                                <div className="mt-6">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            if (userProfile?.isVerified) return;
+                                                                            const isFree = !userProfile?.plan_type || userProfile.plan_type === 'free';
+                                                                            if (isFree) {
+                                                                                window.dispatchEvent(new CustomEvent('open-billing-modal'));
+                                                                            } else {
+                                                                                setIsVerifModalOpen(true);
+                                                                            }
+                                                                        }}
+                                                                        className={`flex items-center gap-3 px-6 py-4 border-2 border-[#1a1a1a] text-[10px] font-black uppercase tracking-widest transition-all rounded-xl shadow-[0_6px_0_0_#1a1a1a] active:shadow-none active:translate-y-[2px] ${
+                                                                            userProfile?.isVerified 
+                                                                            ? 'bg-[#97cd7a] shadow-none cursor-default opacity-100' 
+                                                                            : verifRequest?.status === 'pending'
+                                                                            ? 'bg-[#ffdf00] opacity-50 shadow-[0_2px_0_0_#1a1a1a] translate-y-[2px]'
+                                                                            : 'bg-[#ffdf00] opacity-100 hover:bg-[#ffe533] hover:-translate-y-[1px] hover:shadow-[0_8px_0_0_#1a1a1a]'
+                                                                        }`}
+                                                                    >
+                                                                        <div className="w-7 h-7 bg-white border-2 border-[#1a1a1a] rounded-lg flex items-center justify-center shrink-0 shadow-[0_2px_0_0_#1a1a1a]">
+                                                                            {userProfile?.isVerified ? (
+                                                                                <ShieldCheck size={16} strokeWidth={3} className="text-[#97cd7a]" />
+                                                                            ) : verifRequest?.status === 'pending' ? (
+                                                                                <Clock size={16} strokeWidth={3} className="text-black" />
+                                                                            ) : (!userProfile?.plan_type || userProfile.plan_type === 'free') ? (
+                                                                                <Lock size={14} strokeWidth={3} className="text-black/40" />
+                                                                            ) : (
+                                                                                <Zap size={16} fill="currentColor" className="text-[#ffdf00]" />
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="flex flex-col items-start leading-tight">
+                                                                            <span className="text-[11px] font-black text-black">
+                                                                                {userProfile?.isVerified ? 'Você já é um noders 🎉' : 
+                                                                                 verifRequest?.status === 'pending' ? 'Pedido Enviado (Em Aguardo)' :
+                                                                                 verifRequest?.status === 'rejected' ? 'Solicitar Novamente' :
+                                                                                 'Solicitar Verificação do Canal'}
+                                                                            </span>
+                                                                            {(!userProfile?.plan_type || userProfile.plan_type === 'free') && !userProfile?.isVerified && (
+                                                                                <span className="text-[8px] font-bold text-black/40">Disponível apenas para assinantes Pro</span>
+                                                                            )}
+                                                                        </div>
+                                                                    </button>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </motion.div>
                                                 )}
@@ -256,8 +324,15 @@ const SupportView: React.FC<SupportViewProps> = ({ userProfile }) => {
                         </div>
                     )}
                 </div>
-
             </div>
+
+            {userProfile && (
+                <VerificationRequestModal
+                    isOpen={isVerifModalOpen}
+                    onClose={() => setIsVerifModalOpen(false)}
+                    profile={userProfile}
+                />
+            )}
         </div>
     );
 };

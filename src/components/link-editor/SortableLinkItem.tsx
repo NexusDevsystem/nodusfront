@@ -213,15 +213,12 @@ function SortableLinkItem({
                         
                         // 1. Detect platform from URL since backend might be slow/blocked
                         const platformName = isInstagram ? 'Instagram' : isYoutubeChannel ? 'YouTube' : 'TikTok';
-                        const actionLabel = isYoutubeChannel ? 'Siga nos no YouTube' : 
-                                           isInstagram ? 'Siga nos no Instagram' : 
-                                           'Siga nos no TikTok';
+                        const actionLabel = platformName; 
 
                         // 2. FORCE embedType to none and Title update
                         if (freshInitial.embedType !== 'none') updates.embedType = 'none';
                         
                         const isGenericOrOld = !freshInitial.title || 
-                                             ['Instagram', 'TikTok', 'YouTube'].includes(freshInitial.title) || 
                                              freshInitial.title.includes('Creator Profile') ||
                                              freshInitial.title === t('links.newLink');
 
@@ -529,12 +526,28 @@ function SortableLinkItem({
                                             </div>
                                         </div>
 
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(!showDeleteConfirm); }}
-                                            className={`p-1.5 transition-all ${showDeleteConfirm ? 'text-red-500' : 'text-black/30 hover:text-red-500'}`}
-                                        >
-                                            <Trash2 size={isMobile ? 18 : 20} strokeWidth={2.5} />
-                                        </button>
+                                        <div className="flex items-center gap-1">
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } })); }} 
+                                                className="p-1.5 text-indigo-500 hover:text-indigo-600 hover:bg-slate-50 transition-all rounded-md"
+                                                title={t('links.moveTo')}
+                                            >
+                                                <Move size={isMobile ? 18 : 20} strokeWidth={2.5} />
+                                            </button>
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); updateLink(link.id, 'isArchived', !link.isArchived); }} 
+                                                className={`p-1.5 transition-all rounded-md hover:bg-slate-50 ${link.isArchived ? 'text-black' : 'text-amber-500 hover:text-amber-600'}`}
+                                                title={link.isArchived ? t('links.restore') : t('links.archive')}
+                                            >
+                                                {link.isArchived ? <RefreshCw size={isMobile ? 18 : 20} strokeWidth={2.5} className="animate-pulse" /> : <Archive size={isMobile ? 18 : 20} strokeWidth={2.5} />}
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(!showDeleteConfirm); }}
+                                                className={`p-1.5 transition-all rounded-md hover:bg-red-50 ${showDeleteConfirm ? 'text-red-600' : 'text-red-500 hover:text-red-600'}`}
+                                            >
+                                                <Trash2 size={isMobile ? 18 : 20} strokeWidth={2.5} />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -634,14 +647,6 @@ function SortableLinkItem({
                                                     <BarChart2 size={14} strokeWidth={2} />
                                                     <span>{link.clicks || 0} {t('analytics.totalClicks').toUpperCase()}</span>
                                                 </div>
-                                                <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                                                    <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-black text-black hover:bg-[#ffdf00] transition-all shadow-[0_2.5px_0_0_#000] active:translate-y-[2px] active:shadow-none">{t('links.moveTo')}</button>
-                                                    <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all gap-1.5 flex items-center justify-center ${link.isArchived ? 'bg-[#ffdf00] border-black text-black shadow-[0_2.5px_0_0_#000] active:translate-y-[2px] active:shadow-none font-black' : 'bg-white border-black text-black hover:bg-[#ffdf00] shadow-[0_2.5px_0_0_#000] active:translate-y-[2px] active:shadow-none'}`}>
-                                                        {link.isArchived ? <RefreshCw size={14} strokeWidth={3} className="transition-transform group-hover:rotate-180 duration-500" /> : null}
-                                                        {link.isArchived ? (t('links.restore') || 'RESTAURAR') : (t('links.archive') || 'ARQUIVAR')}
-                                                    </button>
-                                                    <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_2.5px_0_0_#000] active:translate-y-[2px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-black text-white' : 'bg-white border-2 border-black text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
-                                                </div>
                                             </div>
 
                                             <div className="md:px-0 pt-6">
@@ -722,12 +727,28 @@ function SortableLinkItem({
                                             </div>
                                         </div>
 
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(!showDeleteConfirm); }}
-                                            className={`p-1.5 transition-colors ${showDeleteConfirm ? 'text-red-500' : 'text-black/20 hover:text-red-500'}`}
-                                        >
-                                            <Trash2 size={isMobile ? 18 : 20} strokeWidth={2.5} />
-                                        </button>
+                                        <div className="flex items-center gap-1">
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } })); }} 
+                                                className="p-1.5 text-indigo-500 hover:text-indigo-600 hover:bg-slate-50 transition-all rounded-md"
+                                                title={t('links.moveTo')}
+                                            >
+                                                <Move size={isMobile ? 18 : 20} strokeWidth={2.5} />
+                                            </button>
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); updateLink(link.id, 'isArchived', !link.isArchived); }} 
+                                                className={`p-1.5 transition-all rounded-md hover:bg-slate-50 ${link.isArchived ? 'text-black' : 'text-amber-500 hover:text-amber-600'}`}
+                                                title={link.isArchived ? t('links.restore') : t('links.archive')}
+                                            >
+                                                {link.isArchived ? <RefreshCw size={isMobile ? 18 : 20} strokeWidth={2.5} className="animate-pulse" /> : <Archive size={isMobile ? 18 : 20} strokeWidth={2.5} />}
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(!showDeleteConfirm); }}
+                                                className={`p-1.5 transition-all rounded-md hover:bg-red-50 ${showDeleteConfirm ? 'text-red-600' : 'text-red-500 hover:text-red-600'}`}
+                                            >
+                                                <Trash2 size={isMobile ? 18 : 20} strokeWidth={2.5} />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1265,14 +1286,6 @@ function SortableLinkItem({
                                                     <div className="flex items-center gap-2 text-black font-bold uppercase tracking-widest text-[10px] sm:shrink-0">
                                                         <BarChart2 size={14} strokeWidth={2} />
                                                         <span>{link.clicks || 0} {t('analytics.totalClicks').toUpperCase()}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                                                        <button onClick={() => window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } }))} className="flex-1 sm:flex-none px-2 sm:px-3 h-8 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] text-black hover:bg-[#ffdf00] transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none">{t('links.moveTo')}</button>
-                                                        <button onClick={() => updateLink(link.id, 'isArchived', !link.isArchived)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all gap-1.5 flex items-center justify-center ${link.isArchived ? 'bg-[#ffdf00] border-[#1a1a1a] text-black shadow-[0_2px_0_0_#1a1a1a] font-black' : 'bg-white border-[#1a1a1a] text-black hover:bg-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none'}`}>
-                                                            {link.isArchived ? <RefreshCw size={14} strokeWidth={3} className="transition-transform group-hover:rotate-180 duration-500" /> : null}
-                                                            {link.isArchived ? (t('links.restore') || 'RESTAURAR') : (t('links.archive') || 'ARQUIVAR')}
-                                                        </button>
-                                                        <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className={`flex-1 sm:flex-none px-2 sm:px-3 h-8 border-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[0.5px] active:shadow-none ${showDeleteConfirm ? 'bg-red-500 border-[#1a1a1a] text-white' : 'bg-white border border-[#1a1a1a] text-black hover:bg-red-500 hover:text-white'}`}>{t('common.delete')}</button>
                                                     </div>
                                                 </div>
                                             )}

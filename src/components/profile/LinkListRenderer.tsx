@@ -94,9 +94,9 @@ const LinkListRenderer: React.FC<LinkListRendererProps> = ({
                                 <div className={`absolute inset-0 -m-2 opacity-10 rounded-full ${isDarkTheme ? 'bg-white' : 'bg-[#1a1a1a]'}`}></div>
                                 <div className="relative z-10 p-1">
                                     {iconLink.image ? (
-                                        <img src={iconLink.image} alt="" className="w-8 h-8 rounded-sm object-cover" />
+                                        <img src={iconLink.image} alt="" className="w-12 h-12 rounded-sm object-cover" />
                                     ) : (
-                                        <Icon size={28} />
+                                        <Icon size={36} />
                                     )}
                                 </div>
                             </motion.a>

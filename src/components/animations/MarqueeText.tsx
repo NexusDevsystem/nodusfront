@@ -9,10 +9,10 @@ interface MarqueeTextProps {
     gap?: number;   // Gap between text repeats
 }
 
-export const MarqueeText: React.FC<MarqueeTextProps> = ({ 
-    text, 
-    className = "", 
-    style = {}, 
+export const MarqueeText: React.FC<MarqueeTextProps> = ({
+    text,
+    className = "",
+    style = {},
     speed = 50,
     gap = 50
 }) => {
@@ -25,7 +25,7 @@ export const MarqueeText: React.FC<MarqueeTextProps> = ({
         if (containerRef.current && textRef.current) {
             const containerWidth = containerRef.current.offsetWidth;
             const textWidth = textRef.current.offsetWidth;
-            
+
             if (textWidth > containerWidth) {
                 setIsOverflowing(true);
                 setContentWidth(textWidth);
@@ -48,10 +48,10 @@ export const MarqueeText: React.FC<MarqueeTextProps> = ({
     const duration = (contentWidth + gap) / speed;
 
     return (
-        <div 
-            ref={containerRef} 
+        <div
+            ref={containerRef}
             className={`w-full overflow-hidden relative ${className}`}
-            style={{ ...style, maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)' }}
+            style={{ ...style, maskImage: 'linear-gradient(to right, transparent, black 4%, black 96%, transparent)' }}
         >
             <motion.div
                 className="flex whitespace-nowrap"

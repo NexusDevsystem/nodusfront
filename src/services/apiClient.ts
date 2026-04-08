@@ -269,6 +269,42 @@ class ApiClient {
         });
     }
 
+    // Verification Requests
+    async submitVerificationRequest(data: {
+        nodus_link: string;
+        display_name: string;
+        contact_email: string;
+        category: string;
+        social_link_1: string;
+        social_link_2?: string;
+        social_link_3?: string;
+        has_verified_badge: boolean;
+        press_link_1?: string;
+        press_link_2?: string;
+        press_link_3?: string;
+    }): Promise<any> {
+        return this.request('/api/verification/request', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async getMyVerificationRequest(): Promise<any> {
+        return this.request('/api/verification/my');
+    }
+
+    async getAdminVerifications(status?: string): Promise<any[]> {
+        const qs = status ? `?status=${status}` : '';
+        return this.request(`/api/admin/verifications${qs}`);
+    }
+
+    async reviewVerification(id: string, action: 'approve' | 'reject', reason?: string): Promise<any> {
+        return this.request(`/api/admin/verifications/${id}/review`, {
+            method: 'PATCH',
+            body: JSON.stringify({ action, reason })
+        });
+    }
+
     // Analytics
     async getAnalytics(days?: number): Promise<any> {
         return this.request(`/api/analytics/summary?days=${days || 14}`);

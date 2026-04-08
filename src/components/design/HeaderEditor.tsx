@@ -2,12 +2,13 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { UserProfile } from '../../types';
-import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle, Loader2, Check, Lock, Zap } from 'lucide-react';
+import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle, Loader2, Check, Lock, Zap, Clock, XCircle } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
 import { compressImage } from '../../utils/imageUtils';
 import { THEMES } from '../../constants';
 import ImageCropperModal from '../tools/ImageCropperModal';
 import { blobToDataURL } from '../../utils/imageUtils';
+import VerificationRequestModal from '../VerificationRequestModal';
 
 // Add this utility to imageUtils later or here if not there
 const fileToDataURL = (file: File): Promise<string> => {
@@ -30,6 +31,9 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const [isUsernameAvailable, setIsUsernameAvailable] = useState(true);
 
+    const [isVerifModalOpen, setIsVerifModalOpen] = useState(false);
+    const [verifRequest, setVerifRequest] = useState<any>(null);
+    const [verifLoaded, setVerifLoaded] = useState(false);
     const avatarInputRef = useRef<HTMLInputElement>(null);
     const bannerInputRef = useRef<HTMLInputElement>(null);
     const logoInputRef = useRef<HTMLInputElement>(null);
@@ -38,6 +42,27 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
 
     const [isSavingImage, setIsSavingImage] = useState(false);
+
+    const loadVerifStatus = useCallback(async () => {
+        if (profile.isVerified) return;
+        try {
+            const data = await apiClient.getMyVerificationRequest();
+            setVerifRequest(data);
+            setVerifLoaded(true);
+        } catch (err) {
+            setVerifLoaded(true);
+        }
+    }, [profile.isVerified]);
+
+    useEffect(() => {
+        loadVerifStatus();
+    }, [loadVerifStatus]);
+
+    useEffect(() => {
+        const handleRefresh = () => loadVerifStatus();
+        window.addEventListener('verification-request-submitted', handleRefresh);
+        return () => window.removeEventListener('verification-request-submitted', handleRefresh);
+    }, [loadVerifStatus]);
 
     useEffect(() => {
         setTempUsername(profile.username || '');
@@ -732,9 +757,79 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                 className="w-full h-28 p-4 border-2 border-[#1a1a1a] bg-white focus:bg-[#fcfcfc] outline-none transition-all text-sm font-medium tracking-wide text-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] focus:shadow-none focus:translate-y-[2px] resize-none rounded-md"
                             />
                         </div>
+
+                        {/* Verification Status */}
+                        <div className="pt-4 border-t-2 border-[#1a1a1a]/5 mt-2">
+                             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-[#fdfcf0] border-2 border-[#1a1a1a] rounded-xl shadow-[0_4px_0_0_#1a1a1a]">
+                                <div className="flex items-center gap-4 w-full sm:w-auto">
+                                    <div className={`w-12 h-12 flex items-center justify-center rounded-xl border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] shrink-0 transition-colors ${
+                                        profile.isVerified ? 'bg-[#97cd7a]' :
+                                        verifRequest?.status === 'pending' ? 'bg-[#ffdf00]' :
+                                        verifRequest?.status === 'rejected' ? 'bg-red-50 text-red-400' :
+                                        'bg-white text-black/20'
+                                    }`}>
+                                        {profile.isVerified ? (
+                                            <img src="/icons/icons8-verificado-48.png" className="w-7 h-7 object-contain" alt="Verified" />
+                                        ) : verifRequest?.status === 'pending' ? (
+                                            <Clock size={22} strokeWidth={3} className="text-black" />
+                                        ) : verifRequest?.status === 'rejected' ? (
+                                            <XCircle size={22} strokeWidth={3} />
+                                        ) : (
+                                            <Check size={24} strokeWidth={4} />
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h4 className="text-[11px] font-black uppercase tracking-widest text-black">Status de Verificação</h4>
+                                        <p className="text-[9px] font-bold uppercase tracking-widest text-black/40 mt-0.5">
+                                            {profile.isVerified ? 'Perfil Verificado Oficial' :
+                                             verifRequest?.status === 'pending' ? 'Pedido enviado (Em Aguardo)' :
+                                             verifRequest?.status === 'rejected' ? 'Solicitação reprovada' :
+                                             'Selo não solicitado'}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                {!profile.isVerified && (
+                                    <button
+                                        onClick={() => {
+                                            const isFree = !profile.plan_type || profile.plan_type === 'free';
+                                            if (isFree) {
+                                                window.dispatchEvent(new CustomEvent('open-billing-modal'));
+                                            } else {
+                                                setIsVerifModalOpen(true);
+                                            }
+                                        }}
+                                        className={`w-full sm:w-auto px-6 py-3 border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none transition-all rounded-lg active:scale-95 flex items-center justify-center gap-2 ${
+                                            verifRequest?.status === 'pending' ? 'bg-[#ffdf00]/50' : 'bg-[#ffdf00]'
+                                        }`}
+                                    >
+                                        <Zap size={14} fill="currentColor" />
+                                        {verifRequest?.status === 'pending' ? 'Pedido Enviado (Em Aguardo)' :
+                                         verifRequest?.status === 'rejected' ? 'Solicitar Novamente' :
+                                         'Solicitar Verificado'}
+                                    </button>
+                                )}
+                            </div>
+                            <p className="text-[8px] font-bold text-black/30 uppercase tracking-tighter mt-3 px-1 leading-relaxed">
+                                * A verificação ajuda a dar credibilidade ao seu perfil. Disponível para assinantes Mensais ou Anuais.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            {/* Verification Request Modal */}
+            <VerificationRequestModal
+                isOpen={isVerifModalOpen}
+                onClose={() => {
+                    setIsVerifModalOpen(false);
+                    // Reload status after modal closes
+                    apiClient.getMyVerificationRequest()
+                        .then(data => setVerifRequest(data))
+                        .catch(() => {});
+                }}
+                profile={profile}
+            />
 
             {/* Hidden file inputs - REQUIRED for upload to work */}
             <input

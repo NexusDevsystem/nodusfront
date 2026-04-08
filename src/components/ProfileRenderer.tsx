@@ -1134,7 +1134,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 className="text-white hover:scale-110 active:scale-95 transition-all drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
                                                 style={{ color: '#FFFFFF' }}
                                             >
-                                                <Icon size={22} />
+                                                <Icon size={30} />
                                             </a>
                                         );
                                     })}
@@ -1342,7 +1342,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     className="hover:scale-110 active:scale-95 transition-all p-1"
                                                     style={{ color: getSmartTextColor() || (isDarkTheme ? '#ffffff' : '#0f172a') }}
                                                 >
-                                                    <Icon size={24} />
+                                                    <Icon size={32} />
                                                 </a>
                                             );
                                         })}
@@ -1548,10 +1548,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             </div>
                                                                             {/* Footer Call to Action */}
                                                                             <div className={`px-4 py-3 flex items-center justify-between border-t border-black/5 transition-colors group-hover:bg-black/5 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
-                                                                                <span className="text-[11px] uppercase tracking-[0.2em] opacity-60" style={{ fontFamily: effectiveFontFamily, color: getSmartTextColor(), fontWeight: profile.fontWeight || '900' }}>
+                                                                                <span className="text-[11px] uppercase tracking-[0.2em] opacity-60 w-full text-center" style={{ fontFamily: effectiveFontFamily, color: getSmartTextColor(), fontWeight: profile.fontWeight || '900' }}>
                                                                                     {isPT ? 'PRODUTOS' : 'PRODUCTS'}
                                                                                 </span>
-                                                                                <ChevronRight size={16} className="opacity-40 group-hover:translate-x-1 transition-transform" style={{ color: getSmartTextColor() }} />
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1701,7 +1700,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         }}
                                                                                     />
                                                                                 ) : (
-                                                                                    <Icon size={28} />
+                                                                                    <Icon size={36} />
                                                                                 )}
                                                                             </div>
                                                                         </motion.a>
@@ -1747,7 +1746,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 className={`group relative transition-all duration-300 w-full flex flex-col ${baseCardClass} ${getHighlightClass(cardLink.highlight)} cursor-pointer`}
                                                                             >
                                                                                 {/* Image Area */}
-                                                                                <div 
+                                                                                <div
                                                                                     className="relative overflow-hidden h-44 md:h-52 w-full flex-shrink-0"
                                                                                     style={{
                                                                                         borderTopLeftRadius: innerRadius,
@@ -2022,6 +2021,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                 ...mainButtonStyle, clipPath: themeClipPath,
                                                                                                 backgroundColor: `${mainButtonStyle?.backgroundColor || '#ffffff'}ee`,
                                                                                                 color: getSmartTextColor(),
+                                                                                                fontSize: `${(profile.fontSize || 15) + 2}px`,
                                                                                                 borderRadius: borderRadiusValue,
                                                                                                 borderWidth: '1px',
                                                                                                 boxShadow: 'none'
@@ -2296,7 +2296,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                         {/* Icon/Image Container */}
                                                                                                         <div className="relative shrink-0 z-10">
                                                                                                             {child.image ? (
-                                                                                                                <div className="w-9 h-9 rounded-sm overflow-hidden border border-[#1a1a1a]/5 transition-transform">
+                                                                                                                <div className="w-12 h-12 rounded-sm overflow-hidden border border-[#1a1a1a]/5 transition-transform">
                                                                                                                     <img
                                                                                                                         src={child.image}
                                                                                                                         alt=""
@@ -2311,32 +2311,30 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                                     />
                                                                                                                 </div>
                                                                                                             ) : Icon ? (
-                                                                                                                <div className="w-9 h-9 flex items-center justify-center opacity-80 transition-transform">
-                                                                                                                    <Icon size={20} />
+                                                                                                                <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                                                    <Icon size={28} />
                                                                                                                 </div>
                                                                                                             ) : (
-                                                                                                                <div className="w-9" />
+                                                                                                                <div className="w-12" />
                                                                                                             )}
                                                                                                         </div>
 
                                                                                                         <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
-                                                                                                            <div className="text-[14px] font-bold leading-tight uppercase tracking-tight w-full" style={{ color: getSmartTextColor() }}>
-                                                                                                                <MarqueeText 
-                                                                                                                    text={child.title} 
+                                                                                                            <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full" style={{ color: getSmartTextColor() }}>
+                                                                                                                <MarqueeText
+                                                                                                                    text={child.title}
                                                                                                                     className="w-full"
                                                                                                                     speed={40}
                                                                                                                 />
                                                                                                             </div>
                                                                                                             {child.subtitle && (
-                                                                                                                <span className="text-[10px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-0.5 truncate" style={{ color: getSmartTextColor() }}>
+                                                                                                                <span className="text-[13px] opacity-80 font-medium leading-tight flex items-center justify-center gap-1.5 mt-1 truncate" style={{ color: getSmartTextColor() }}>
+                                                                                                                    {Icon && <Icon size={14} className="shrink-0" />}
                                                                                                                     {child.subtitle}
                                                                                                                 </span>
                                                                                                             )}
                                                                                                         </div>
-
-                                                                                                        <div className="w-9 shrink-0 flex items-center justify-center z-10 relative opacity-20 group-hover:opacity-100 transition-opacity">
-                                                                                                            <ChevronRight size={16} style={{ color: getSmartTextColor() }} strokeWidth={3} />
-                                                                                                        </div>
+                                                                                                        <div className="w-12 shrink-0" />
                                                                                                     </motion.a>
                                                                                                 </EffectWrapper>
                                                                                             </InteractiveButton>
@@ -2420,9 +2418,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         <div className="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shrink-0 border-r bg-black/[0.03]" style={{ borderColor: `${getSmartTextColor()}0A` }}>
                                                                             <BarChart3 size={22} className="transition-transform duration-300" strokeWidth={1.5} style={{ color: getSmartTextColor() }} />
                                                                         </div>
-                                                                        <div className="flex-1 min-w-0 flex flex-col items-start justify-center px-6 text-left">
+                                                                        <div className="flex-1 min-w-0 flex flex-col items-center justify-center px-6 text-center">
                                                                             <span
-                                                                                className="uppercase tracking-[0.1em] truncate w-full flex items-center gap-2"
+                                                                                className="uppercase tracking-[0.15em] truncate w-full flex items-center justify-center gap-2 text-center"
                                                                                 style={{
                                                                                     color: getSmartTextColor(),
                                                                                     fontSize: `${profile.fontSize || 15}px`,
@@ -2435,7 +2433,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             </span>
                                                                             {link.subtitle && (
                                                                                 <span
-                                                                                    className="opacity-50 uppercase tracking-[0.05em] truncate w-full mt-0.5"
+                                                                                    className="opacity-50 uppercase tracking-[0.05em] truncate w-full mt-0.5 text-center"
                                                                                     style={{
                                                                                         color: getSmartTextColor(),
                                                                                         fontSize: `${Math.max((profile.fontSize || 15) - 4, 10)}px`,
@@ -2448,9 +2446,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 </span>
                                                                             )}
                                                                         </div>
-                                                                        <div className="w-12 h-full flex items-center justify-center border-l shrink-0" style={{ borderColor: `${getSmartTextColor()}0A` }}>
-                                                                            <ChevronRight size={16} className="opacity-30 group-hover:opacity-100 transition-opacity translate-x-1 group-hover:translate-x-0 transition-transform" strokeWidth={1.5} style={{ color: getSmartTextColor() }} />
-                                                                        </div>
+                                                                        <div className="w-14 h-14 md:w-16 md:h-16 shrink-0" />
                                                                     </button>
                                                                 </motion.div>
                                                             </InteractiveButton>
@@ -2494,7 +2490,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         {/* Icon/Image Container */}
                                                                         <div className="relative shrink-0 z-10">
                                                                             {link.image ? (
-                                                                                <div className="w-10 h-10 rounded-sm overflow-hidden border border-[#1a1a1a]/5 shadow-sm transition-transform duration-300">
+                                                                                <div className="w-12 h-12 rounded-sm overflow-hidden border border-[#1a1a1a]/5 shadow-sm transition-transform duration-300">
                                                                                     <img
                                                                                         src={link.image}
                                                                                         alt=""
@@ -2509,45 +2505,46 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     />
                                                                                 </div>
                                                                             ) : Icon ? (
-                                                                                <div className="w-10 h-10 flex items-center justify-center opacity-80 transition-transform duration-300">
-                                                                                    <Icon size={22} />
+                                                                                <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform duration-300">
+                                                                                    <Icon size={30} />
                                                                                 </div>
                                                                             ) : (
-                                                                                <div className="w-10" /> // Spacer to keep title centered if no icon
+                                                                                <div className="w-12" /> // Spacer to keep title centered if no icon
                                                                             )}
                                                                         </div>
 
                                                                         {/* Text Content */}
                                                                         <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
-                                                                            <div className="text-[15px] leading-tight uppercase tracking-tight w-full"
+                                                                            <div className="text-[15px] leading-tight uppercase tracking-[0.05em] w-full"
                                                                                 style={{
                                                                                     color: getSmartTextColor(),
                                                                                     fontWeight: profile.fontWeight || '700'
                                                                                 }}>
-                                                                                <MarqueeText 
-                                                                                    text={link.title} 
+                                                                                <MarqueeText
+                                                                                    text={link.title}
                                                                                     className="w-full"
                                                                                     speed={40}
                                                                                 />
                                                                             </div>
                                                                             {link.subtitle && (
-                                                                                <span className="text-[11px] opacity-60 leading-tight flex items-center justify-center gap-1 mt-0.5 truncate" style={{ color: getSmartTextColor() }}>
-                                                                                    {(link.url.includes('youtube.com') || link.url.includes('instagram.com') || link.url.includes('instagr.am') || link.url.includes('tiktok.com')) && <ExternalLink size={10} className="shrink-0" />}
+                                                                                <span className="text-[14px] opacity-80 font-medium leading-tight flex items-center justify-center gap-1.5 mt-1 truncate" style={{ color: getSmartTextColor() }}>
+                                                                                    {Icon ? <Icon size={14} className="shrink-0" /> : (link.url.includes('youtube.com') || link.url.includes('instagram.com') || link.url.includes('instagr.am') || link.url.includes('tiktok.com')) && <ExternalLink size={12} className="shrink-0" />}
                                                                                     {link.subtitle.replace(/^♫\s?/, '')}
                                                                                 </span>
                                                                             )}
                                                                         </div>
 
-                                                                        {/* Action Indicator (Right Side) — 🔐 lock if password protected */}
-                                                                        <div className="w-10 shrink-0 flex items-center justify-center z-10 relative opacity-40 group-hover:opacity-100 transition-all">
-                                                                            {link.isPasswordProtected ? (
+                                                                        {/* Action Indicator (Right Side) — Only rendered if needed to maximize title space */}
+                                                                        {link.isPasswordProtected ? (
+                                                                            <div className="w-12 shrink-0 flex items-center justify-end pr-4 z-10 relative opacity-40 group-hover:opacity-100 transition-all">
                                                                                 <div className="bg-black/5 p-1.5 rounded-md border border-black/5">
                                                                                     <Lock size={15} style={{ color: getSmartTextColor() }} strokeWidth={2.5} />
                                                                                 </div>
-                                                                            ) : (
-                                                                                <ChevronRight size={18} style={{ color: getSmartTextColor() }} strokeWidth={3} />
-                                                                            )}
-                                                                        </div>
+                                                                            </div>
+                                                                        ) : (
+                                                                            /* Empty spacer that matches the left icon width to keep title centered */
+                                                                            <div className="w-12 shrink-0" />
+                                                                        )}
 
                                                                         {/* Subtle shine effect on hover */}
                                                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
@@ -2623,10 +2620,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         </div>
                                                                         {/* Footer Call to Action */}
                                                                         <div className={`px-4 py-3 flex items-center justify-between border-t border-black/5 transition-colors group-hover:bg-black/5 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
-                                                                            <span className="text-[11px] uppercase tracking-[0.2em] opacity-60" style={{ fontFamily: effectiveFontFamily, color: smartText, fontWeight: profile.fontWeight || '900' }}>
+                                                                            <span className="text-[11px] uppercase tracking-[0.2em] opacity-60 w-full text-center" style={{ fontFamily: effectiveFontFamily, color: smartText, fontWeight: profile.fontWeight || '900' }}>
                                                                                 {isPT ? 'PRODUTOS' : 'PRODUCTS'}
                                                                             </span>
-                                                                            <ChevronRight size={16} className="opacity-40 group-hover:translate-x-1 transition-transform" style={{ color: smartText }} />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -2684,8 +2680,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         ) : (
                                             <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" loading="lazy" decoding="async" />
                                         )}
-                                        <span className="truncate flex-1 px-3" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Apoiar</span>
-                                        <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={20} /></span>
+                                        <span className="truncate flex-1 px-3 text-lg" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || '900'), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Apoiar</span>
+                                        <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={24} /></span>
                                     </div>
                                 </motion.a>
                             </InteractiveButton>
