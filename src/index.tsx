@@ -2,17 +2,24 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { AuthProvider } from './contexts/AuthContext';
+import { BrowserRouter } from 'react-router-dom';
+import { LanguageProvider } from './components/landing/i18n/LanguageContext';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n';
 import './index.css';
 
-// Silence all console output for a cleaner production experience
-if (import.meta.env.PROD || true) { // Force true as per user request
-  const noop = () => {};
-  console.log = noop;
-  console.info = noop;
-  console.warn = noop;
-  console.error = noop;
-  console.debug = noop;
-  console.trace = noop;
+// Clean Up Console - Removes annoying library messages
+if (typeof window !== 'undefined') {
+  const originalLog = console.log;
+  console.log = (...args) => {
+    if (typeof args[0] === 'string' && (
+      args[0].includes('i18next') || 
+      args[0].includes('Locize') || 
+      args[0].includes('React DevTools')
+    )) return;
+    originalLog(...args);
+  };
 }
 
 const rootElement = document.getElementById('root');
@@ -24,7 +31,15 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId="632892081798-gothfv2nqj6a6k4gfukltishejnq0f9d.apps.googleusercontent.com">
-      <App />
+      <LanguageProvider>
+        <I18nextProvider i18n={i18n}>
+          <AuthProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </AuthProvider>
+        </I18nextProvider>
+      </LanguageProvider>
     </GoogleOAuthProvider>
   </React.StrictMode>
 );

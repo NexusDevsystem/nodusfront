@@ -38,7 +38,7 @@ export const artisticThemes: Theme[] = [
         name: 'Pop Art',
         backgroundClass: 'bg-[#FFF200]', // Bright Yellow
         // Button: Bold comic style
-        buttonClass: 'bg-[#00AEEF] text-white border-4 border-[#1a1a1a] hover:-translate-y-1 hover:shadow-[0_8px_0_0_#1a1a1a] active:translate-y-0 active:shadow-none transition-all duration-200 w-full rounded-none py-4 px-6 flex items-center justify-between font-black uppercase shadow-[0_6px_0_0_#1a1a1a]',
+        buttonClass: 'bg-[#00AEEF] text-white border-2 border-black hover:-translate-y-1 hover:shadow-[0_4px_0_0_#000] active:translate-y-0 active:shadow-none transition-all duration-200 w-full rounded-none py-4 px-6 flex items-center justify-between font-black uppercase shadow-[0_4px_0_0_#000]',
         buttonHex: '#00AEEF',
         textHex: '#1a1a1a',
         textClass: 'text-black font-sans font-black uppercase tracking-tight italic',
@@ -68,7 +68,7 @@ export const artisticThemes: Theme[] = [
         name: 'Bauhaus',
         backgroundClass: 'bg-[#f4f1ea]', // Off-white
         // Button: Geometric blocks
-        buttonClass: 'bg-[#D22630] text-[#f4f1ea] border-none hover:bg-[#1a1a1a] transition-colors duration-300 w-full rounded-none py-4 px-6 flex items-center justify-between font-bold tracking-wide shadow-[0_5px_0_0_#1a1a1a]',
+        buttonClass: 'bg-[#D22630] text-[#f4f1ea] border-2 border-black hover:bg-[#1a1a1a] transition-colors duration-300 w-full rounded-none py-4 px-6 flex items-center justify-between font-bold tracking-wide shadow-[0_4px_0_0_#000]',
         buttonHex: '#D22630',
         textHex: '#1a1a1a',
         textClass: 'text-[#1a1a1a] font-sans font-bold tracking-tighter',

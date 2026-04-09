@@ -113,7 +113,7 @@ export default function BlogAdminView() {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-5xl bg-white border-4 border-black rounded-[40px] overflow-hidden flex flex-col max-h-[92vh] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)]"
+                className="relative w-full max-w-5xl bg-white border-2 border-black rounded-[40px] overflow-hidden flex flex-col max-h-[92vh] shadow-[0_32px_0_0_#000]"
               >
                 {/* Header: Criar publicação */}
                 <div className="flex items-center justify-between px-10 py-7 border-b-4 border-black bg-white shrink-0 z-20">
@@ -137,7 +137,7 @@ export default function BlogAdminView() {
                 <div className="flex-1 overflow-y-auto custom-scrollbar-brutal bg-[#fafafa] flex flex-col">
                   {/* HERO AREA: Cover Image */}
                   <div className="p-8 md:p-12 pb-0">
-                    <div className="relative group/cover w-full h-[400px] bg-white border-4 border-black rounded-[40px] overflow-hidden flex items-center justify-center transition-all shadow-[0_12px_0_0_rgba(0,0,0,0.05)] hover:shadow-[0_12px_0_0_rgba(255,223,0,0.2)]">
+                    <div className="relative group/cover w-full h-[400px] bg-white border-2 border-black rounded-[40px] overflow-hidden flex items-center justify-center transition-all shadow-[0_8px_0_0_#000] hover:shadow-[0_12px_0_0_#000]">
                       {isUploadingCover ? (
                         <div className="flex flex-col items-center gap-4">
                           <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
@@ -149,14 +149,14 @@ export default function BlogAdminView() {
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/cover:opacity-100 transition-all flex items-center justify-center gap-6 backdrop-blur-[2px]">
                             <button 
                               onClick={() => document.getElementById('cover-upload')?.click()}
-                              className="px-8 py-4 bg-white border-4 border-black rounded-xl font-black uppercase text-xs tracking-widest shadow-[0_8px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_6px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-3"
+                              className="px-8 py-4 bg-white border-2 border-black rounded-xl font-black uppercase text-xs tracking-widest shadow-[0_6px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all flex items-center gap-3"
                             >
                               <ImageIcon size={20} strokeWidth={3} />
                               Trocar Capa
                             </button>
                             <button 
                               onClick={() => setEditingPost({ ...editingPost, imageUrl: '' })}
-                              className="px-8 py-4 bg-white border-4 border-black rounded-xl font-black uppercase text-xs tracking-widest shadow-[0_8px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_6px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all text-red-500 flex items-center gap-3"
+                              className="px-8 py-4 bg-white border-2 border-black rounded-xl font-black uppercase text-xs tracking-widest shadow-[0_6px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all text-red-500 flex items-center gap-3"
                             >
                               <Trash2 size={20} strokeWidth={3} />
                               Remover
@@ -168,7 +168,7 @@ export default function BlogAdminView() {
                           onClick={() => document.getElementById('cover-upload')?.click()}
                           className="flex flex-col items-center gap-5 text-black hover:scale-105 transition-all duration-500"
                         >
-                          <div className="w-24 h-24 bg-[#ffdf00] border-4 border-black rounded-[32px] flex items-center justify-center shadow-[0_8px_0_0_#000]">
+                          <div className="w-24 h-24 bg-[#ffdf00] border-2 border-black rounded-[32px] flex items-center justify-center shadow-[0_6px_0_0_#000]">
                             <ImageIcon size={40} strokeWidth={2.5} />
                           </div>
                           <div className="text-center">
@@ -230,7 +230,7 @@ export default function BlogAdminView() {
                     {/* Body Content - Block Based Editor */}
                     <div className="space-y-10 min-h-[400px] relative">
                       {uploadError && (
-                        <div className="bg-red-50 border-4 border-red-500 p-6 rounded-[20px] flex items-center justify-between text-red-700 animate-in fade-in slide-in-from-top-4 duration-300">
+                        <div className="bg-red-50 border-2 border-red-500 p-6 rounded-[20px] flex items-center justify-between text-red-700 animate-in fade-in slide-in-from-top-4 duration-300">
                            <div className="flex items-center gap-4">
                              <ShieldAlert size={28} />
                              <div>
@@ -265,7 +265,7 @@ export default function BlogAdminView() {
                             const [full, alt, url] = imageMatch;
                             return (
                               <div key={index} className="relative group/img-block my-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                                <div className="border-4 border-black rounded-[40px] overflow-hidden shadow-[0_20px_0_0_rgba(0,0,0,0.05)]">
+                                <div className="border-2 border-black rounded-[40px] overflow-hidden shadow-[0_12px_0_0_#000]">
                                   <img src={url} alt={alt} className="w-full" />
                                 </div>
                                 <button
@@ -286,7 +286,7 @@ export default function BlogAdminView() {
                             const [full, url] = videoMatch;
                             return (
                               <div key={index} className="relative group/vid-block my-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                                <div className="w-full aspect-video rounded-[40px] border-4 border-black overflow-hidden shadow-[0_20px_0_0_rgba(0,0,0,0.05)] bg-black">
+                                <div className="w-full aspect-video rounded-[40px] border-2 border-black overflow-hidden shadow-[0_12px_0_0_#000] bg-black">
                                   <video src={url} controls className="w-full h-full" />
                                 </div>
                                 <button
@@ -306,7 +306,7 @@ export default function BlogAdminView() {
                           if (fileMatch) {
                             const [full, name, url] = fileMatch;
                             return (
-                              <div key={index} className="relative group/file-block my-8 p-10 bg-white border-4 border-black rounded-[32px] flex items-center justify-between shadow-[0_12px_0_0_rgba(0,0,0,0.05)] hover:shadow-[0_12px_0_0_#97cd7a] transition-all">
+                              <div key={index} className="relative group/file-block my-8 p-10 bg-white border-2 border-black rounded-[32px] flex items-center justify-between shadow-[0_8px_0_0_#000] hover:shadow-[0_12px_0_0_#000] transition-all">
                                 <div className="flex items-center gap-6">
                                   <div className="w-16 h-16 bg-[#fafafa] border-2 border-black rounded-xl flex items-center justify-center shadow-[0_4px_0_0_#000]">
                                     <FileText size={32} />
@@ -359,7 +359,7 @@ export default function BlogAdminView() {
                 </div>
 
                 {/* Footer Toolbar - Refined Tool Belt */}
-                <div className="border-t-4 border-black p-8 px-10 flex flex-col lg:flex-row items-center justify-between bg-white gap-8 shrink-0 relative z-30">
+                <div className="border-t-2 border-black p-8 px-10 flex flex-col lg:flex-row items-center justify-between bg-white gap-8 shrink-0 relative z-30">
                   <div className="flex flex-wrap items-center gap-6 w-full lg:w-auto">
                     {/* Media Tools */}
                     <div className="flex items-center gap-3 bg-[#fafafa] p-2 border-2 border-black rounded-xl">
@@ -485,10 +485,10 @@ export default function BlogAdminView() {
                       onClick={handleSave}
                       disabled={isSaving || !editingPost.title || !editingPost.content}
                       className={`
-                        flex-1 lg:flex-none px-16 py-5 rounded-[20px] border-4 border-black font-extrabold uppercase tracking-[0.2em] transition-all text-xs
+                        flex-1 lg:flex-none px-16 py-5 rounded-[20px] border-2 border-black font-extrabold uppercase tracking-[0.2em] transition-all text-xs
                         ${(editingPost.title && editingPost.content) 
-                          ? 'bg-black text-[#ffdf00] shadow-[0_8px_0_0_#ffdf00] hover:-translate-y-1 hover:shadow-[0_12px_0_0_#ffdf00] active:translate-y-1 active:shadow-none' 
-                          : 'bg-white text-black/10 shadow-[0_4px_0_0_rgba(0,0,0,0.05)] cursor-not-allowed'}
+                          ? 'bg-black text-[#ffdf00] shadow-[0_8px_0_0_#000] hover:-translate-y-1 hover:shadow-[0_12px_0_0_#000] active:translate-y-1 active:shadow-none' 
+                          : 'bg-white text-black/10 shadow-[0_4px_0_0_#000] cursor-not-allowed'}
                       `}
                     >
                       {isSaving ? 'PROCESSANDO...' : (editingPost.id ? 'SALVAR ALTERAÇÕES' : 'PUBLICAR AGORA')}

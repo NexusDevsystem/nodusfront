@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { SiSpotify, SiTiktok } from 'react-icons/si';
 import { SOCIAL_NETWORKS, KickIcon } from '../constants';
+import { isLinkIncomplete } from '../utils/socialUtils';
 
 interface SocialLinksEditorProps {
     links: LinkItem[];
@@ -281,6 +282,14 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                         style={{ backgroundColor: dotColor }}
                                     />
                                 )}
+                                {isLinkIncomplete(link.url, network.id) && (
+                                    <div
+                                        className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white flex items-center justify-center animate-pulse shadow-sm"
+                                        title={t('social.incompleteLink') || 'Link Incompleto'}
+                                    >
+                                        <div className="w-1 h-1.5 bg-white rounded-full" style={{ width: '1.5px', height: '1.5px' }} />
+                                    </div>
+                                )}
                             </button>
                         );
                     })}
@@ -433,11 +442,19 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 ? t('social.linkInputPlaceholder')
                                                                 : t('social.userInputPlaceholder')}
                                                             onKeyDown={(e) => e.key === 'Enter' && confirmPlatform()}
-                                                            className="w-full bg-white border-2 border-[#1a1a1a] px-4 py-3 text-black text-[10px] font-medium uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/30 shadow-[0_4px_0_0_#1a1a1a] transition-colors rounded-md"
+                                                            className={`w-full bg-white border-2 px-4 py-3 text-black text-[10px] font-medium uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/30 shadow-[0_4px_0_0_#1a1a1a] transition-colors rounded-md ${isLinkIncomplete(tempUrl.startsWith('http') ? tempUrl : (activeConfigPlatform?.baseUrl || '') + tempUrl.replace('@', ''), activeConfigPlatform?.id) ? 'border-red-500 bg-red-50/10' : 'border-[#1a1a1a]'}`}
                                                         />
-                                                        <p className="text-[8px] font-normal text-black uppercase tracking-widest px-1 opacity-50 italic">
-                                                            {t('social.userHint', { username: activeConfigPlatform?.placeholder || 'USUARIO' })}
-                                                        </p>
+                                                        <div className="flex flex-col gap-1.5 px-1">
+                                                            <p className="text-[8px] font-normal text-black uppercase tracking-widest opacity-50 italic">
+                                                                {t('social.userHint', { username: activeConfigPlatform?.placeholder || 'USUARIO' })}
+                                                            </p>
+                                                            {isLinkIncomplete(tempUrl.startsWith('http') ? tempUrl : (activeConfigPlatform?.baseUrl || '') + tempUrl.replace('@', ''), activeConfigPlatform?.id) && (
+                                                                <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest flex items-center gap-1">
+                                                                    <AlertCircle size={10} strokeWidth={3} />
+                                                                    {t('social.incompleteLinkHint') || 'Insira o seu usuário ou número para completar o link'}
+                                                                </p>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 )}
 

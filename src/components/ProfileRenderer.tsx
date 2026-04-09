@@ -66,6 +66,19 @@ import ProductDrawer from './profile/ProductDrawer';
 import { imgOptimized } from '../utils/imageUtils';
 
 /**
+ * Ensures URLs start with a protocol (http/https/mailto/tel/whatsapp)
+ * so they don't break routing acting as relative paths.
+ */
+const formatUrl = (url: string | undefined | null) => {
+    if (!url) return '';
+    const trimmed = url.trim();
+    if (/^(https?:\/\/|mailto:|tel:|whatsapp:)/i.test(trimmed)) {
+        return trimmed;
+    }
+    return `https://${trimmed}`;
+};
+
+/**
  * LinkCountdown helper component for scheduled links
  */
 const LinkCountdown: React.FC<{
@@ -1050,7 +1063,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 className="w-full h-full object-cover object-center opacity-100"
                                 loading="eager"
                                 decoding="async"
-                                {...({ fetchpriority: "high" } as any)}
+                                {...({ fetchPriority: "high" } as any)}
                             />
 
                             {/* Noise/Grain Overlay for "Premium" look */}
@@ -1127,7 +1140,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         return (
                                             <a
                                                 key={`banner-social-${link.id}`}
-                                                href={link.url}
+                                                href={formatUrl(link.url)}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 onClick={() => handleLinkClick(link.id)}
@@ -1263,7 +1276,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             className={`w-full h-full object-cover rounded-full`}
                                             loading="eager"
                                             decoding="async"
-                                            {...({ fetchpriority: "high" } as any)}
+                                            {...({ fetchPriority: "high" } as any)}
                                             onError={(e) => {
                                                 e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'Nodus'}`;
                                             }}
@@ -1335,7 +1348,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             return (
                                                 <a
                                                     key={`classic-social-${link.id}`}
-                                                    href={link.url}
+                                                    href={formatUrl(link.url)}
                                                     target="_blank"
                                                     rel="noreferrer"
                                                     onClick={() => handleLinkClick(link.id)}
@@ -1671,7 +1684,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             initial={{ scale: 0.8, opacity: 0 }}
                                                                             animate={{ scale: 1, opacity: 1 }}
                                                                             transition={{ duration: 0 }}
-                                                                            href={iconLink.isPasswordProtected ? undefined : iconLink.url}
+                                                                            href={iconLink.isPasswordProtected ? undefined : formatUrl(iconLink.url)}
                                                                             target={iconLink.isPasswordProtected ? undefined : "_blank"}
                                                                             rel="noreferrer"
                                                                             onClick={(e) => {
@@ -1731,7 +1744,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 initial={{ scale: 0.95, opacity: 0 }}
                                                                                 whileInView={{ scale: 1, opacity: 1 }}
                                                                                 viewport={{ once: true }}
-                                                                                href={cardLink.isPasswordProtected ? undefined : cardLink.url}
+                                                                                href={cardLink.isPasswordProtected ? undefined : formatUrl(cardLink.url)}
                                                                                 target={cardLink.isPasswordProtected ? undefined : "_blank"}
                                                                                 rel="noreferrer"
                                                                                 onClick={(e) => {
@@ -1875,7 +1888,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 </motion.div>
                                                             </InteractiveButton>
                                                         );
-                                                    } else if (instagramIntegration && (link.platform === 'instagram' || (link.url.includes('instagram.com') && link.type !== 'collection'))) {
+                                                    } else if (instagramIntegration && (link.platform === 'instagram' || (instagramUsername && link.url.includes(`instagram.com/${instagramUsername}`) && link.type !== 'collection'))) {
                                                         flushIcons();
                                                         flushCards();
                                                         renderedItems.push(
@@ -2093,7 +2106,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 <InteractiveButton key={child.id} className="flex-shrink-0 w-44">
                                                                                     <motion.a
                                                                                         transition={{ duration: 0 }}
-                                                                                        href={child.isPasswordProtected ? undefined : child.url}
+                                                                                        href={child.isPasswordProtected ? undefined : formatUrl(child.url)}
                                                                                         target={child.isPasswordProtected ? undefined : "_blank"}
                                                                                         rel="noreferrer"
                                                                                         onClick={(e) => {
@@ -2276,7 +2289,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                 <EffectWrapper {...effectProps}>
                                                                                                     <motion.a
                                                                                                         transition={{ duration: 0.2 }}
-                                                                                                        href={child.isPasswordProtected ? undefined : child.url}
+                                                                                                        href={child.isPasswordProtected ? undefined : formatUrl(child.url)}
                                                                                                         target={child.isPasswordProtected ? undefined : "_blank"}
                                                                                                         rel="noreferrer"
                                                                                                         onClick={(e) => {
@@ -2327,10 +2340,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                                     speed={40}
                                                                                                                 />
                                                                                                             </div>
-                                                                                                            {child.subtitle && (
-                                                                                                                <span className="text-[13px] opacity-80 font-medium leading-tight flex items-center justify-center gap-1.5 mt-1 truncate" style={{ color: getSmartTextColor() }}>
+                                                                                                             {child.subtitle && (
+                                                                                                                <span className="text-[13px] opacity-80 font-medium leading-tight flex items-center justify-center gap-1.5 mt-1 min-w-0" style={{ color: getSmartTextColor() }}>
                                                                                                                     {Icon && <Icon size={14} className="shrink-0" />}
-                                                                                                                    {child.subtitle}
+                                                                                                                    <span className="truncate">{child.subtitle}</span>
                                                                                                                 </span>
                                                                                                             )}
                                                                                                         </div>
@@ -2470,7 +2483,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 <EffectWrapper {...effectProps}>
                                                                     <motion.a
                                                                         transition={{ duration: 0.2 }}
-                                                                        href={link.isPasswordProtected ? undefined : link.url}
+                                                                        href={link.isPasswordProtected ? undefined : formatUrl(link.url)}
                                                                         target={link.isPasswordProtected ? undefined : "_blank"}
                                                                         rel="noreferrer"
                                                                         onClick={(e) => {
@@ -2527,9 +2540,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 />
                                                                             </div>
                                                                             {link.subtitle && (
-                                                                                <span className="text-[14px] opacity-80 font-medium leading-tight flex items-center justify-center gap-1.5 mt-1 truncate" style={{ color: getSmartTextColor() }}>
+                                                                                <span className="text-[14px] opacity-80 font-medium leading-tight flex items-center justify-center gap-1.5 mt-1 min-w-0" style={{ color: getSmartTextColor() }}>
                                                                                     {Icon ? <Icon size={14} className="shrink-0" /> : (link.url.includes('youtube.com') || link.url.includes('instagram.com') || link.url.includes('instagr.am') || link.url.includes('tiktok.com')) && <ExternalLink size={12} className="shrink-0" />}
-                                                                                    {link.subtitle.replace(/^♫\s?/, '')}
+                                                                                    <span className="truncate">{link.subtitle.replace(/^♫\s?/, '')}</span>
                                                                                 </span>
                                                                             )}
                                                                         </div>

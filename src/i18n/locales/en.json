@@ -556,7 +556,9 @@
         "errorDisconnectInstagram": "Error disconnecting Instagram",
         "errorStartConnection": "Error starting connection",
         "live": "LIVE",
-        "youtubeBetaNotice": "BETA: Under Google review. During login, click 'Advanced' to proceed safely."
+        "youtubeBetaNotice": "BETA: Under Google review. During login, click 'Advanced' to proceed safely.",
+        "incompleteLink": "Incomplete Link",
+        "incompleteLinkHint": "Enter your username or number to complete the link"
     },
     "analytics": {
         "title": "Analytics",

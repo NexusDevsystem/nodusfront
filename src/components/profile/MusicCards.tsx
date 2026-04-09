@@ -36,51 +36,49 @@ export const MusicRichCard: React.FC<MusicRichCardProps> = ({
 
     return (
         <div
-            className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${baseCardClass} h-[72px] p-0 items-center justify-between mb-1 ${getHighlightClass(link.highlight)}`}
+            className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${baseCardClass} h-[72px] p-0 px-3 items-center justify-between mb-1 ${getHighlightClass(link.highlight)}`}
             style={mainButtonStyle}
         >
-            <div className="flex h-full items-center px-4 gap-3.5 flex-1 min-w-0">
-                {/* Album Art */}
-                <div className={`relative w-12 h-12 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-sm'} overflow-hidden shadow-sm shrink-0 transition-transform duration-500`}>
-                    <img src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
-                        alt={musicTitle}
-                        className="w-full h-full object-cover" loading="lazy" decoding="async" />
+            {/* Album Art */}
+            <div className={`relative w-12 h-12 flex-shrink-0 ${profile.buttonRoundness === 'square' ? 'rounded-none' : 'rounded-sm'} overflow-hidden shadow-sm shrink-0 transition-transform duration-500`}>
+                <img src={link.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
+                    alt={musicTitle}
+                    className="w-full h-full object-cover" loading="lazy" decoding="async" />
+            </div>
+
+            {/* Info Column */}
+            <div className="flex-1 min-w-0 flex flex-col justify-center h-full text-center px-2" style={{ fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+                {/* Header Label */}
+                <div className="flex items-center justify-center gap-1.5 mb-1 opacity-50">
+                    {isDeezer ? <Music size={10} color={getSmartTextColor()} /> : <SiSpotify size={10} color="#1DB954" />}
+                    <span className="text-[7px] uppercase tracking-[0.25em] leading-none font-bold" style={{ color: contrastColor }}>
+                        {isDeezer ? 'Deezer' : 'Spotify'} {hasTracks ? 'Álbum' : ''}
+                    </span>
                 </div>
 
-                {/* Info Column */}
-                <div className="flex-1 min-w-0 flex flex-col justify-center h-full text-left" style={{ fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
-                    {/* Header Label */}
-                    <div className="flex items-center gap-1.5 mb-1 opacity-50">
-                        {isDeezer ? <Music size={10} color={getSmartTextColor()} /> : <SiSpotify size={10} color="#1DB954" />}
-                        <span className="text-[7px] uppercase tracking-[0.25em] leading-none font-bold" style={{ color: contrastColor }}>
-                            {isDeezer ? 'Deezer' : 'Spotify'} {hasTracks ? 'Álbum' : ''}
+                {/* Song Title */}
+                <h4 className="text-[14px] font-bold truncate tracking-tight uppercase leading-none mb-1.5" style={{ color: contrastColor }}>
+                    {musicTitle}
+                </h4>
+
+                {/* Artist Info Row */}
+                <div className="flex items-center justify-center gap-2 overflow-hidden">
+                    <div className="flex items-center gap-1 opacity-80 min-w-0">
+                        <Music size={10} style={{ color: contrastColor }} className="opacity-50 shrink-0" />
+                        <span className="text-[10px] font-bold uppercase leading-none truncate" style={{ color: contrastColor }}>
+                            {musicArtist}
                         </span>
-                    </div>
-
-                    {/* Song Title */}
-                    <h4 className="text-[14px] font-bold truncate tracking-tight uppercase leading-none mb-1.5" style={{ color: contrastColor }}>
-                        {musicTitle}
-                    </h4>
-
-                    {/* Artist Info Row */}
-                    <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1 opacity-80">
-                            <Music size={10} style={{ color: contrastColor }} className="opacity-50" />
-                            <span className="text-[10px] font-bold uppercase leading-none" style={{ color: contrastColor }}>
-                                {musicArtist}
-                            </span>
-                            {(hasTracks || !isDeezer) && (
-                                <div className="flex items-end gap-0.5 h-2 ml-1 opacity-40">
-                                    <span className="w-0.5 h-full bg-current animate-[music-bar_0.8s_ease-in-out_infinite]" style={{ color: contrastColor }} />
-                                    <span className="w-0.5 h-1/2 bg-current animate-[music-bar_1.1s_ease-in-out_infinite]" style={{ color: contrastColor }} />
-                                </div>
-                            )}
-                        </div>
+                        {(hasTracks || !isDeezer) && (
+                            <div className="flex items-end gap-0.5 h-2 ml-1 opacity-40 shrink-0">
+                                <span className="w-0.5 h-full bg-current animate-[music-bar_0.8s_ease-in-out_infinite]" style={{ color: contrastColor }} />
+                                <span className="w-0.5 h-1/2 bg-current animate-[music-bar_1.1s_ease-in-out_infinite]" style={{ color: contrastColor }} />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            <div className="shrink-0 h-full flex items-center pr-4">
+            <div className="shrink-0 w-12 h-full flex items-center justify-center">
                 {hasTracks ? (
                     <ChevronUp size={20} style={{ color: contrastColor }} className="opacity-60 group-hover:opacity-100 transition-opacity" />
                 ) : (

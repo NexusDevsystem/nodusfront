@@ -27,7 +27,6 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
 
     // Calcula audiência total das integrações
     const integrations = profile.integrations || [];
-    console.log('📊 [MediaKitModal] Integrations:', integrations);
     const totalAudience = integrations.reduce((acc, integration) => {
         const profileData = integration.profile_data || {};
         const count = profileData.follower_count || profileData.subscriber_count || integration.follower_count || 0;

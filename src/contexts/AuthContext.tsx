@@ -163,7 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // This handles the case where the Google token expires after ~1h of use
     const signOutRef = useRef<(() => void) | undefined>(undefined);
     signOutRef.current = () => {
-        const isProtectedRoute = window.location.pathname.startsWith('/admin') || 
+        const isProtectedRoute = window.location.pathname.startsWith('/editor') || 
                                window.location.pathname.startsWith('/onboarding');
         
         setUser(null);
@@ -304,7 +304,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     // An existing user is considered to have completed onboarding if the field is explicitly true
-    const hasCompletedOnboarding = !!(profile?.onboardingCompleted);
+    // OR if they already have a username (indicating they have already finished the initial setup)
+    const hasCompletedOnboarding = !!(profile?.onboardingCompleted) || !!profile?.username;
 
     return (
         <AuthContext.Provider value={{

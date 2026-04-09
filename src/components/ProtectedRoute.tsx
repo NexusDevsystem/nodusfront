@@ -38,7 +38,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
 
     if (onboardingCompleted && location === '/onboarding') {
-        return <Navigate to="/admin" replace />;
+        return <Navigate to="/editor" replace />;
     }
 
     return <>{children}</>;

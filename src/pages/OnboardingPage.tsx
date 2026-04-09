@@ -259,7 +259,7 @@ export default function OnboardingPage() {
 
             // 4. Navigate to admin
             localStorage.removeItem('nodus_reserved_username');
-            navigate('/admin');
+            navigate('/editor');
 
         } catch (err: any) {
             console.error('Finalization error:', err);

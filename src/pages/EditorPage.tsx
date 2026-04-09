@@ -17,6 +17,7 @@ import SupportView from '../components/SupportView';
 import ManageBillingView from '../components/ManageBillingView';
 import AdminView from '../components/AdminView';
 import BlogAdminView from '../components/BlogAdminView';
+import RoadmapAdminView from '../components/admin/RoadmapAdminView';
 import BillingView from '../components/BillingView';
 import BillingModal from '../components/BillingModal';
 import QRCodeModal from '../components/QRCodeModal';
@@ -34,6 +35,7 @@ import { IntegrationsView } from '../views/IntegrationsView';
 import { useTranslation } from 'react-i18next';
 import { hasProFeatures } from '../utils/planUtils';
 import { AlertCircle } from 'lucide-react';
+import AnnouncementModal from '../components/AnnouncementModal';
 
 export default function EditorPage() {
     const { profile: authProfile, loading: authLoading } = useAuth();
@@ -460,7 +462,7 @@ export default function EditorPage() {
     React.useEffect(() => {
         const handleOpenBilling = () => setIsUpgradeOpen(true);
         window.addEventListener('open-billing-modal', handleOpenBilling);
-        document.title = 'Nodus admin';
+        document.title = 'Nodus editor';
         return () => window.removeEventListener('open-billing-modal', handleOpenBilling);
     }, []);
 
@@ -713,7 +715,7 @@ export default function EditorPage() {
                         <div className="w-full py-2 md:py-4 px-1 pb-24">
 
                             {/* Page Title - Brutalist Design */}
-                            {activeTab !== 'admin' && activeTab !== 'blog' && activeTab !== 'support' && activeTab !== 'billing' && (
+                            {activeTab !== 'admin' && activeTab !== 'blog' && activeTab !== 'support' && activeTab !== 'billing' && activeTab !== 'roadmap' && (
                                 <motion.div
                                     initial={{ opacity: 0, y: -20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -752,7 +754,7 @@ export default function EditorPage() {
 
 
                             {/* Dynamic Content */}
-                            <div className={`animate-fade-in mx-auto md:px-6 ${activeTab === 'admin' ? 'w-full' : 'max-w-5xl'}`}>
+                            <div className={`animate-fade-in mx-auto md:px-6 ${activeTab === 'admin' || activeTab === 'roadmap' ? 'w-full' : 'max-w-5xl'}`}>
                                 {activeTab === 'links' && (
                                     <div className="space-y-6">
 
@@ -811,6 +813,12 @@ export default function EditorPage() {
                                     <AdminView />
                                 )}
 
+                                {activeTab === 'roadmap' && (
+                                    <RoadmapAdminView view="kanban-admin" />
+                                )}
+
+
+
 
 
 
@@ -858,7 +866,7 @@ export default function EditorPage() {
                                     </div>
                                 )}
 
-                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'integrations' && activeTab !== 'admin' && (
+                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'integrations' && activeTab !== 'admin' && activeTab !== 'roadmap' && (
                                     <div className="bg-transparent p-12 rounded-[20px] border border-dashed border-[#1a1a1a]/20 text-center">
                                         <div className="text-4xl mb-4 text-slate-300 flex justify-center"><Construction size={48} /></div>
                                         <h3 className="text-lg font-medium text-slate-700">{t('editor.inDevelopment')}</h3>
@@ -877,7 +885,7 @@ export default function EditorPage() {
            --------------------------------------------------
         */}
                     <div className={`
-                        ${activeTab !== 'admin' && activeTab !== 'billing' ? 'lg:flex' : 'hidden'} flex-col items-center justify-center 
+                        ${activeTab !== 'admin' && activeTab !== 'billing' && activeTab !== 'roadmap' ? 'lg:flex' : 'hidden'} flex-col items-center justify-center 
                         lg:border-l-4 lg:border-[#1a1a1a] lg:bg-transparent 
                         w-full lg:w-[350px] xl:w-[450px] shrink-0
                         ${!showMobilePreview ? 'hidden' : 'flex-1 h-full flex flex-col z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0 bg-transparent'}
@@ -980,6 +988,7 @@ export default function EditorPage() {
                     )}
                 </AnimatePresence>
 
+                <AnnouncementModal />
             </div>
         </div>
     );

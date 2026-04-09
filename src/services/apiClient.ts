@@ -86,7 +86,7 @@ class ApiClient {
             }
 
             const text = await response.text();
-            return text ? JSON.parse(text) : {};
+            return text ? JSON.parse(text) : null;
         } catch (error: any) {
             clearTimeout(timeoutId);
 
@@ -133,9 +133,7 @@ class ApiClient {
     }
 
     async checkUsername(username: string): Promise<{ available: boolean }> {
-        const response = await fetch(`${API_URL}/api/profile/check-username/${username}`);
-        if (!response.ok) throw new Error('Erro ao verificar username');
-        return response.json();
+        return this.request(`/api/profile/check-username/${username}`);
     }
 
     // Links
@@ -633,6 +631,72 @@ class ApiClient {
 
     async dismissOnboarding(): Promise<void> {
         return this.request('/api/profile/onboarding/dismiss', { method: 'PATCH' });
+    }
+
+    // Roadmap
+    async getRoadmapTasks(): Promise<any[]> {
+        return this.request('/api/roadmap');
+    }
+
+    async createRoadmapTask(task: { title: string; description?: string; author_name?: string; is_admin?: boolean }): Promise<any> {
+        return this.request('/api/roadmap', {
+            method: 'POST',
+            body: JSON.stringify(task)
+        });
+    }
+
+    async updateRoadmapTaskStatus(id: string, status: string): Promise<any> {
+        return this.request(`/api/roadmap/${id}/status`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status })
+        });
+    }
+
+    async deleteRoadmapTask(id: string): Promise<any> {
+        return this.request(`/api/roadmap/${id}`, { method: 'DELETE' });
+    }
+
+    async voteRoadmapTask(id: string, type: 'up' | 'down' = 'up'): Promise<any> {
+        return this.request(`/api/roadmap/${id}/vote`, { 
+            method: 'POST',
+            body: JSON.stringify({ type })
+        });
+    }
+
+    // Announcements
+    async getActiveAnnouncement(): Promise<any> {
+        return this.request('/api/announcements/active');
+    }
+    
+    async dismissAnnouncement(id: string): Promise<any> {
+        return this.request(`/api/announcements/${id}/dismiss`, { method: 'POST' });
+    }
+
+    async getAdminAnnouncements(): Promise<any[]> {
+        return this.request('/api/announcements');
+    }
+
+    async createAnnouncement(announcement: any): Promise<any> {
+        return this.request('/api/announcements', {
+            method: 'POST',
+            body: JSON.stringify(announcement)
+        });
+    }
+
+    async updateAnnouncement(id: string, updates: any): Promise<any> {
+        return this.request(`/api/announcements/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify(updates)
+        });
+    }
+
+    async deleteAnnouncement(id: string): Promise<any> {
+        return this.request(`/api/announcements/${id}`, {
+            method: 'DELETE'
+        });
+    }
+    async listUserEmails(): Promise<string[]> {
+        return this.request('/api/admin/users/emails');
     }
 }
 

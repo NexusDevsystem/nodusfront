@@ -571,7 +571,9 @@
         "errorDisconnectInstagram": "Erro ao desconectar Instagram",
         "errorStartConnection": "Erro ao iniciar conexão",
         "live": "AO VIVO",
-        "youtubeBetaNotice": "BETA: Em análise pelo Google. No login, clique em 'Avançado' para prosseguir com segurança."
+        "youtubeBetaNotice": "BETA: Em análise pelo Google. No login, clique em 'Avançado' para prosseguir com segurança.",
+        "incompleteLink": "Link Incompleto",
+        "incompleteLinkHint": "Insira o seu usuário ou número para completar o link"
     },
     "analytics": {
         "title": "Estatísticas",

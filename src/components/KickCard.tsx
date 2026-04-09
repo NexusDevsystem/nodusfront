@@ -95,20 +95,20 @@ export const KickCard: React.FC<KickCardProps> = ({
                         {displayName || username}
                     </h4>
 
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5 overflow-hidden">
                         {followers > 0 ? (
-                            <div className="flex items-center gap-1">
-                                <Users size={10} style={{ color: themeTextHex }} className="opacity-50" />
-                                <span className="text-[10px] sm:text-[11px] font-bold leading-none" style={{ color: themeTextHex }}>
+                            <div className="flex items-center gap-1 opacity-60 min-w-0">
+                                <Users size={10} style={{ color: themeTextHex }} className="opacity-50 shrink-0" />
+                                <span className="text-[10px] sm:text-[11px] font-bold leading-none shrink-0" style={{ color: themeTextHex }}>
                                     {formatFollowers(followers)}
                                 </span>
-                                <span className="text-[9px] uppercase tracking-wider opacity-50 font-medium leading-none" style={{ color: themeTextHex }}>
+                                <span className="text-[9px] uppercase tracking-wider opacity-50 font-medium leading-none truncate" style={{ color: themeTextHex }}>
                                     seguidores
                                 </span>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-1 opacity-50" style={{ color: themeTextHex }}>
-                                <span className="text-[9px] uppercase tracking-wider font-medium leading-none">
+                            <div className="flex items-center gap-1 opacity-50 min-w-0" style={{ color: themeTextHex }}>
+                                <span className="text-[9px] uppercase tracking-wider font-medium leading-none truncate">
                                     Canal Oficial
                                 </span>
                             </div>

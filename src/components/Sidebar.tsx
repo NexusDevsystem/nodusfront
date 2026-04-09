@@ -16,7 +16,9 @@ import {
   User,
   LogOut,
   ChevronUp,
-  Settings
+  Settings,
+  MapPin,
+  FlaskConical
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -89,10 +91,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
       label: t('sidebar.tools'),
       groupIcon: Settings,
       items: [
-        { id: 'files', label: t('sidebar.files'), icon: FolderOpen, disabled: false }
+        { id: 'files', label: t('sidebar.files'), icon: FolderOpen, disabled: false },
+        { id: 'roadmap', label: 'Lab', icon: FlaskConical, disabled: false }
       ]
     }
   ];
+
+  /* Platform items logic is now handled directly in the render */
 
   React.useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -202,6 +207,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
             </div>
           </div>
         ))}
+
+
+
       </div>
 
       {/* Footer Area Area */}

@@ -5,7 +5,7 @@ import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion
 import { LinkItem, UserProfile } from '../../types';
 import { compressImage } from '../../utils/imageUtils';
 import { fetchMusicMetadata } from '../../utils/musicUtils';
-import { fetchYoutubeChannelInfo, isYoutubeChannelUrl, fetchSocialMetadata } from '../../utils/socialUtils';
+import { fetchYoutubeChannelInfo, isYoutubeChannelUrl, fetchSocialMetadata, isLinkIncomplete } from '../../utils/socialUtils';
 import { SiSpotify } from 'react-icons/si';
 import { apiClient } from '../../services/apiClient';
 import AgendaEditor from '../AgendaEditor';
@@ -22,7 +22,8 @@ import {
     Calendar as CalendarIcon, Loader2, BarChart3, Lock,
     Activity, Sun, Waves, PartyPopper, Box as Package,
     Heart, RotateCw, Disc, RefreshCw,
-    Move, Target, Lightbulb, Rainbow, ZapOff, Radio, Vibrate, Bolt, Instagram
+    Move, Target, Lightbulb, Rainbow, ZapOff, Radio, Vibrate, Bolt, Instagram,
+    AlertCircle
 } from 'lucide-react';
 
 // Lazy-imported to break circular dep (LinkEditor uses SortableLinkItem uses LinkEditor)
@@ -385,6 +386,8 @@ function SortableLinkItem({
         return Icon ? <Icon size={iconSize} /> : <ImageIcon size={iconSize} strokeWidth={3} />;
     };
 
+    const isIncomplete = isLinkIncomplete(link.url || '', link.platform);
+
     const renderLinkTags = () => (
         <>
             {link.scheduleStart && new Date(link.scheduleStart) > new Date() && (
@@ -465,11 +468,21 @@ function SortableLinkItem({
                 layout
                 onDrag={() => { }}
                 onDragEnd={() => { }}
-                className={`relative border-2 ${isCollection ? 'border-[#fef08a] shadow-[0_4px_0_0_#d9c84a] bg-[#fef08a]' : 'border-[#97cd7a] shadow-[0_4px_0_0_#76a45f] bg-[#97cd7a]'} rounded-md ${(!isExpanded && !isCollectionExpanded) ? 'mb-3' : ''} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
+                className={`relative border-2 ${
+                    isIncomplete && link.type === 'link' && !link.isArchived
+                        ? 'border-red-500 shadow-[0_4px_0_0_#991b1b] bg-red-500' // Red if incomplete
+                        : isCollection 
+                            ? 'border-[#fef08a] shadow-[0_4px_0_0_#d9c84a] bg-[#fef08a]' 
+                            : 'border-[#97cd7a] shadow-[0_4px_0_0_#76a45f] bg-[#97cd7a]'
+                } rounded-md ${(!isExpanded && !isCollectionExpanded) ? 'mb-3' : ''} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
                 whileDrag={{ zIndex: 50, borderRadius: '6px' }}
                 style={{ willChange: 'transform' }}
             >
-                <div className={`transition-all duration-300 rounded-[6px] overflow-hidden ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${isCollection ? 'bg-[#fef08a]' : 'bg-[#97cd7a]'}`}>
+                <div className={`transition-all duration-300 rounded-[6px] overflow-hidden ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${
+                    isIncomplete && link.type === 'link' && !link.isArchived
+                        ? 'bg-red-500'
+                        : isCollection ? 'bg-[#fef08a]' : 'bg-[#97cd7a]'
+                }`}>
                     {isCollection ? (
                         /* COLLECTION ITEM */
                         <div className="overflow-hidden">
@@ -675,7 +688,11 @@ function SortableLinkItem({
                             <div className="flex items-stretch bg-transparent">
                                 {/* Drag Handle - Full Height */}
                                 <div
-                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black border-r-2 border-[#97cd7a] bg-[#97cd7a] touch-none transition-colors`}
+                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black border-r-2 ${
+                                        isIncomplete && link.type === 'link' && !link.isArchived 
+                                            ? 'border-red-500 bg-red-500' 
+                                            : 'border-[#97cd7a] bg-[#97cd7a]'
+                                    } touch-none transition-colors`}
                                     onPointerDown={(e) => dragControls.start(e)}
                                 >
                                     <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="5" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="19" r="1" /></svg>
@@ -691,6 +708,16 @@ function SortableLinkItem({
                                             <div className="flex items-center gap-2 mb-1.5">
                                                 <h3 className="font-bold text-sm md:text-base text-black uppercase tracking-tight truncate flex items-center gap-2">
                                                     {link.title || (link.type === 'header' ? t('links.headerItem') : t('links.untitled'))}
+                                                    {isIncomplete && link.type === 'link' && !link.isArchived && (
+                                                        <motion.div
+                                                            initial={{ scale: 0.5, opacity: 0 }}
+                                                            animate={{ scale: 1, opacity: 1 }}
+                                                            className="text-red-500 shrink-0"
+                                                            title={t('social.incompleteLink') || 'Link Incompleto'}
+                                                        >
+                                                            <AlertCircle size={16} strokeWidth={3} className="animate-pulse" />
+                                                        </motion.div>
+                                                    )}
                                                     {link.type === 'incentives' && (
                                                         <div className="shrink-0 flex items-center gap-1 px-1.5 py-0.5 bg-black text-[#ffdf00] border border-black text-[7px] font-black uppercase tracking-widest shadow-[0_1.5px_0_0_#000] italic ml-1">
                                                             <Zap size={8} strokeWidth={4} />
@@ -761,7 +788,11 @@ function SortableLinkItem({
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
                                         transition={{ duration: 0.2 }}
-                                        className="overflow-hidden bg-[#fdfcf0] border-t border-[#97cd7a] border-dashed"
+                                        className={`overflow-hidden bg-[#fdfcf0] border-t border-dashed ${
+                                            isIncomplete && link.type === 'link' && !link.isArchived 
+                                                ? 'border-red-500' 
+                                                : 'border-[#97cd7a]'
+                                        }`}
                                     >
                                         <div className={`${level > 0 ? 'p-3' : 'px-4 md:px-6 pb-6 pt-5'}`}>
                                             {link.type === 'agenda' ? (
@@ -839,7 +870,16 @@ function SortableLinkItem({
                                                                 {link.type !== 'header' && (
                                                                     <div className="space-y-1">
                                                                         <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{link.type === 'mediakit' ? t('mediakit.contactUrlLabel') || 'URL de Contato (Ex: WhatsApp, Email)' : t('links.urlLabel')}</label>
-                                                                        <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className="w-full text-xs font-medium uppercase tracking-widest text-black bg-white border-2 border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[0_2.5px_0_0_#000]" placeholder={link.type === 'mediakit' ? t('mediakit.contactPlaceholder') || "https://wa.me/5511999999999" : "https://exemplo.com"} />
+                                                                        <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className={`w-full text-xs font-medium uppercase tracking-widest text-black bg-white border-2 px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[0_2.5px_0_0_#000] ${isIncomplete ? 'border-red-500 bg-red-50/30' : 'border-black'}`} placeholder={link.type === 'mediakit' ? t('mediakit.contactPlaceholder') || "https://wa.me/5511999999999" : "https://exemplo.com"} />
+                                                                        {isIncomplete && link.type === 'link' && (
+                                                                            <motion.div 
+                                                                                initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}
+                                                                                className="px-1 flex items-center gap-1.5 text-red-500 font-bold text-[9px] uppercase tracking-wider"
+                                                                            >
+                                                                                <AlertCircle size={12} strokeWidth={3} />
+                                                                                {t('social.incompleteLinkHint') || 'Insira o seu usuário ou número para completar o link'}
+                                                                            </motion.div>
+                                                                        )}
                                                                     </div>
                                                                 )}
                                                                 <div className="space-y-1">

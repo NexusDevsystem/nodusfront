@@ -52,7 +52,7 @@ function LoginPage() {
                 const googleProfile = await res.json();
                 const { error: authError } = await signInWithProfile(googleProfile, tokenResponse.access_token);
                 if (authError) throw authError;
-                navigate('/admin');
+                navigate('/editor');
             } catch (err: any) {
                 setError(err.message || 'Erro ao autenticar com o Google');
                 setLoading(false);
@@ -84,7 +84,7 @@ function LoginPage() {
                 const { error: authError } = await registerWithEmail(email, password, name, tempUsername);
                 if (authError) throw authError;
             }
-            navigate('/admin');
+            navigate('/editor');
         } catch (err: any) {
             setError(err.message || 'Ocorreu um erro. Tente novamente.');
             setLoading(false);

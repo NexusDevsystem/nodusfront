@@ -75,13 +75,13 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                         </h4>
 
                         {/* Stats Row */}
-                        <div className="flex items-center gap-2.5">
-                            <div className="flex items-center gap-1 opacity-60">
-                                <Users size={10} style={{ color: themeTextHex }} className="opacity-50" />
-                                <span className="text-[10px] sm:text-[11px] font-bold leading-none" style={{ color: themeTextHex }}>
+                        <div className="flex items-center gap-2.5 overflow-hidden">
+                            <div className="flex items-center gap-1 opacity-60 min-w-0">
+                                <Users size={10} style={{ color: themeTextHex }} className="opacity-50 shrink-0" />
+                                <span className="text-[10px] sm:text-[11px] font-bold leading-none shrink-0" style={{ color: themeTextHex }}>
                                     {formatFollowers(followers)}
                                 </span>
-                                <span className="text-[9px] uppercase tracking-wider opacity-50 font-medium leading-none" style={{ color: themeTextHex }}>
+                                <span className="text-[9px] uppercase tracking-wider opacity-50 font-medium leading-none truncate" style={{ color: themeTextHex }}>
                                     seguidores
                                 </span>
                             </div>
@@ -245,11 +245,11 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
 
                 {/* Profile Information */}
                 <a href={`https://instagram.com/${username}`} target="_blank" rel="noreferrer"
-                    className="flex flex-col items-center gap-0.5 transition-all hover:scale-105 active:scale-95 group/pill">
-                    <span className="text-[12px] font-black tracking-tight uppercase" style={{ color: themeTextHex }}>@{username}</span>
-                    <div className="flex items-center gap-1.5 opacity-60">
-                        <Users size={10} style={{ color: themeTextHex }} />
-                        <span className="text-[9px] font-bold tracking-tight uppercase" style={{ color: themeTextHex }}>{followers.toLocaleString()} seguidores</span>
+                    className="flex flex-col items-center gap-0.5 transition-all hover:scale-105 active:scale-95 group/pill w-full overflow-hidden">
+                    <span className="text-[12px] font-black tracking-tight uppercase truncate w-full text-center" style={{ color: themeTextHex }}>@{username}</span>
+                    <div className="flex items-center justify-center gap-1.5 opacity-60 w-full overflow-hidden">
+                        <Users size={10} style={{ color: themeTextHex }} className="shrink-0" />
+                        <span className="text-[9px] font-bold tracking-tight uppercase truncate" style={{ color: themeTextHex }}>{followers.toLocaleString()} seguidores</span>
                     </div>
                 </a>
             </div>
