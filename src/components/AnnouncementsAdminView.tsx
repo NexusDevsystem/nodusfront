@@ -12,6 +12,8 @@ interface Announcement {
     title: string;
     content: string;
     imageUrl?: string;
+    imageUrls?: string[];
+    blogPostId?: string | null;
     targetUserEmail?: string;
     isActive: boolean;
     createdAt?: string;
@@ -19,6 +21,7 @@ interface Announcement {
 
 export default function AnnouncementsAdminView() {
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+    const [blogPosts, setBlogPosts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [editingAnnouncement, setEditingAnnouncement] = useState<Partial<Announcement> | null>(null);
     const [isSaving, setIsSaving] = useState(false);
@@ -28,7 +31,15 @@ export default function AnnouncementsAdminView() {
     useEffect(() => {
         fetchAnnouncements();
         fetchEmails();
+        fetchBlogPosts();
     }, []);
+
+    const fetchBlogPosts = async () => {
+        try {
+            const posts = await apiClient.getPublicBlogPosts();
+            setBlogPosts(posts);
+        } catch (err) { console.error('Error fetching blog posts:', err); }
+    };
 
     const fetchEmails = async () => {
         try {
@@ -87,6 +98,44 @@ export default function AnnouncementsAdminView() {
         }
     };
 
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        setIsUploading(true);
+        try {
+            const uploadedUrls: string[] = [...(editingAnnouncement?.imageUrls || [])];
+            
+            for (let i = 0; i < files.length; i++) {
+                const res = await apiClient.uploadFile(files[i], 'internal');
+                if (res.file?.url) {
+                    uploadedUrls.push(res.file.url);
+                }
+            }
+            
+            setEditingAnnouncement({ 
+                ...editingAnnouncement, 
+                imageUrls: uploadedUrls,
+                imageUrl: uploadedUrls[0] // Primary image
+            });
+        } catch (err) {
+            console.error('Upload failed:', err);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const removeImage = (index: number) => {
+        if (!editingAnnouncement?.imageUrls) return;
+        const newUrls = [...editingAnnouncement.imageUrls];
+        newUrls.splice(index, 1);
+        setEditingAnnouncement({ 
+            ...editingAnnouncement, 
+            imageUrls: newUrls,
+            imageUrl: newUrls[0] || ''
+        });
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center p-20">
@@ -111,6 +160,8 @@ export default function AnnouncementsAdminView() {
                         title: '', 
                         content: '', 
                         imageUrl: '',
+                        imageUrls: [],
+                        blogPostId: null,
                         targetUserEmail: '',
                         isActive: true
                     })}
@@ -136,8 +187,13 @@ export default function AnnouncementsAdminView() {
                             className={`relative bg-white border-2 border-black rounded-xl overflow-hidden flex flex-col shadow-[0_8px_0_0_#000] hover:translate-y-[-2px] transition-all ${!ann.isActive ? 'opacity-60 saturate-50' : ''}`}
                         >
                             {ann.imageUrl && (
-                                <div className="h-40 border-b-2 border-black bg-slate-100 overflow-hidden">
+                                <div className="h-40 border-b-2 border-black bg-slate-100 overflow-hidden relative">
                                     <img src={ann.imageUrl} className="w-full h-full object-cover" alt="" />
+                                    {(ann.imageUrls?.length || 0) > 1 && (
+                                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-[8px] font-black px-2 py-1 rounded-sm uppercase italic">
+                                            +{ann.imageUrls!.length - 1} IMAGENS
+                                        </div>
+                                    )}
                                 </div>
                             )}
                             <div className="p-8 flex-1 flex flex-col gap-4">
@@ -145,17 +201,14 @@ export default function AnnouncementsAdminView() {
                                     <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-full border-2 border-black ${ann.isActive ? 'bg-[#97cd7a]' : 'bg-slate-200'}`}>
                                         {ann.isActive ? 'Ativo' : 'Rascunho'}
                                     </span>
-                                    {ann.isActive && (
-                                        <div className="flex items-center gap-1.5 text-black/60">
-                                            <Sparkles size={14} className={ann.targetUserEmail ? "text-blue-500" : "text-[#ffdf00]"} fill="currentColor" />
-                                            <span className="text-[9px] font-black uppercase">
-                                                {ann.targetUserEmail ? `Exclusivo: ${ann.targetUserEmail}` : 'Público: Todos os Usuários'}
-                                            </span>
-                                        </div>
+                                    {ann.blogPostId && (
+                                        <span className="text-[9px] font-black uppercase px-3 py-1 rounded-full border-2 border-black bg-blue-100">
+                                            Link Blog
+                                        </span>
                                     )}
                                 </div>
                                 <h4 className="text-2xl font-black uppercase tracking-tighter italic">{ann.title}</h4>
-                                <p className="text-sm font-bold text-black/40 line-clamp-3">{ann.content}</p>
+                                <p className="text-sm font-bold text-black/40 line-clamp-2">{ann.content}</p>
                                 
                                 <div className="mt-auto pt-6 flex items-center justify-between border-t-2 border-black/5">
                                     <div className="flex items-center gap-2">
@@ -219,42 +272,72 @@ export default function AnnouncementsAdminView() {
                                 </div>
 
                                 <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-[#fafafa]">
-                                    {/* Upload de Imagem */}
+                                    {/* Múltiplas Imagens */}
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-black/40 ml-1">Imagem de Destaque</label>
-                                        <div 
-                                            className="relative group w-full h-44 border-2 border-black border-dashed rounded-xl overflow-hidden flex items-center justify-center bg-white hover:bg-slate-50 transition-all cursor-pointer shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)]"
-                                            onClick={() => document.getElementById('ann-upload')?.click()}
-                                        >
-                                            {isUploading ? (
-                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
-                                            ) : editingAnnouncement.imageUrl ? (
-                                                <img src={editingAnnouncement.imageUrl} className="w-full h-full object-cover" alt="" />
-                                            ) : (
-                                                <div className="text-center">
-                                                    <ImageIcon size={32} className="mx-auto mb-2 text-black/10" />
-                                                    <span className="font-black uppercase text-[10px] tracking-widest text-black/20">Clique para carregar</span>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-black/40 ml-1">Imagens do Anúncio (Carousel)</label>
+                                        
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {editingAnnouncement.imageUrls?.map((url, idx) => (
+                                                <div key={idx} className="relative aspect-video border-2 border-black rounded-lg overflow-hidden group">
+                                                    <img src={url} className="w-full h-full object-cover" />
+                                                    <button 
+                                                        onClick={() => removeImage(idx)}
+                                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <X size={12} strokeWidth={4} />
+                                                    </button>
+                                                    {idx === 0 && (
+                                                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[6px] font-black uppercase py-0.5 text-center">
+                                                            Capa
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
+                                            ))}
+                                            
+                                            <button 
+                                                onClick={() => document.getElementById('ann-upload')?.click()}
+                                                disabled={isUploading}
+                                                className="aspect-video border-2 border-black border-dashed rounded-lg flex flex-col items-center justify-center bg-white hover:bg-slate-50 transition-all cursor-pointer"
+                                            >
+                                                {isUploading ? (
+                                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
+                                                ) : (
+                                                    <>
+                                                        <Plus size={20} className="text-black/20" />
+                                                        <span className="text-[8px] font-black uppercase text-black/20 mt-1">Add Imagem</span>
+                                                    </>
+                                                )}
+                                            </button>
                                         </div>
+
                                         <input 
                                             id="ann-upload"
                                             type="file"
+                                            multiple
                                             accept="image/*"
                                             className="hidden"
-                                            onChange={async (e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    try {
-                                                        setIsUploading(true);
-                                                        const res = await apiClient.uploadFile(file, 'internal');
-                                                        if (res.file?.url) {
-                                                            setEditingAnnouncement({ ...editingAnnouncement, imageUrl: res.file.url });
-                                                        }
-                                                    } catch (err) { console.error(err); } finally { setIsUploading(false); }
-                                                }
-                                            }}
+                                            onChange={handleFileUpload}
                                         />
+                                    </div>
+
+                                    {/* Link para Blog Post */}
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-black/40 ml-1">Encaminhar para Post do Blog</label>
+                                        <div className="relative group">
+                                            <select 
+                                                value={editingAnnouncement.blogPostId || ''}
+                                                onChange={e => setEditingAnnouncement({ ...editingAnnouncement, blogPostId: e.target.value || null })}
+                                                className="w-full bg-white border-2 border-black rounded-xl px-5 py-3.5 text-xs font-black uppercase outline-none focus:bg-[#ffdf00]/10 transition-colors appearance-none cursor-pointer"
+                                            >
+                                                <option value="">🚫 NENHUM POST SELECIONADO</option>
+                                                {blogPosts.map(post => (
+                                                    <option key={post.id} value={post.id}>📄 {post.title}</option>
+                                                ))}
+                                            </select>
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
+                                                <Sparkles size={14} />
+                                            </div>
+                                        </div>
                                     </div>
 
                                     {/* Título */}
@@ -273,14 +356,14 @@ export default function AnnouncementsAdminView() {
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-black/40 ml-1">Mensagem</label>
                                         <textarea 
-                                            rows={4}
+                                            rows={3}
                                             value={editingAnnouncement.content}
                                             onChange={e => setEditingAnnouncement({ ...editingAnnouncement, content: e.target.value })}
                                             className="w-full bg-white border-2 border-black rounded-xl px-5 py-3.5 text-sm font-bold outline-none focus:bg-[#ffdf00]/10 transition-colors resize-none"
                                             placeholder="O que você quer anunciar para a comunidade?"
                                         />
                                     </div>
-                                    {/* Segmentação */}
+
                                     {/* Segmentação */}
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-black/40 ml-1">Público Alvo</label>

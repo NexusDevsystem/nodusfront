@@ -8,11 +8,14 @@ interface Announcement {
     title: string;
     content: string;
     imageUrl?: string;
+    imageUrls?: string[];
+    blogPostSlug?: string | null;
 }
 
 export default function AnnouncementModal() {
     const [announcement, setAnnouncement] = useState<Announcement | null>(null);
     const [isOpen, setIsOpen] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     useEffect(() => {
         // Check for active announcement
@@ -20,12 +23,9 @@ export default function AnnouncementModal() {
             try {
                 const active = await apiClient.getActiveAnnouncement();
                 if (active && active.id) {
-                    // Backend already filters out seen announcements for logged-in users.
-                    // For guests, we still check localStorage.
                     const seenId = localStorage.getItem('nodus_seen_announcement');
                     if (seenId !== active.id) {
                         setAnnouncement(active);
-                        // Delay opening for better UX - reduced to 1s
                         setTimeout(() => setIsOpen(true), 1200);
                     }
                 }
@@ -37,12 +37,21 @@ export default function AnnouncementModal() {
         checkAnnouncement();
     }, []);
 
+    // Automatic Carousel Logic
+    useEffect(() => {
+        if (!isOpen || !announcement || !announcement.imageUrls || announcement.imageUrls.length <= 1) return;
+
+        const interval = setInterval(() => {
+            setCurrentImageIndex(prev => (prev + 1) % announcement.imageUrls!.length);
+        }, 5000); // Change image every 5 seconds
+
+        return () => clearInterval(interval);
+    }, [isOpen, announcement]);
+
     const handleClose = async () => {
         setIsOpen(false);
         if (announcement) {
-            // Persist to localStorage for fallback
             localStorage.setItem('nodus_seen_announcement', announcement.id);
-            // Sync with backend database
             try {
                 await apiClient.dismissAnnouncement(announcement.id);
             } catch (e) {
@@ -52,6 +61,10 @@ export default function AnnouncementModal() {
     };
 
     if (!announcement) return null;
+
+    const urls = announcement.imageUrls && announcement.imageUrls.length > 0 
+        ? announcement.imageUrls 
+        : (announcement.imageUrl ? [announcement.imageUrl] : []);
 
     return (
         <AnimatePresence>
@@ -86,18 +99,38 @@ export default function AnnouncementModal() {
                             </button>
                         </div>
 
-                        {/* Main Body with Image and Text Overlay */}
+                        {/* Main Body with Image Carousel and Text Overlay */}
                         <div className="relative w-fit bg-slate-100 overflow-hidden group min-h-[100px]">
-                            {announcement.imageUrl ? (
-                                <>
-                                    <img 
-                                        src={announcement.imageUrl} 
-                                        alt={announcement.title}
-                                        className="h-auto w-auto max-w-full max-h-[75vh] block object-contain"
-                                    />
+                            {urls.length > 0 ? (
+                                <div className="relative overflow-hidden flex items-center justify-center">
+                                    <AnimatePresence mode="wait">
+                                        <motion.img 
+                                            key={currentImageIndex}
+                                            src={urls[currentImageIndex]} 
+                                            alt={announcement.title}
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.8 }}
+                                            className="h-auto w-auto max-w-full max-h-[75vh] block object-contain"
+                                        />
+                                    </AnimatePresence>
+                                    
+                                    {/* Indicators */}
+                                    {urls.length > 1 && (
+                                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+                                            {urls.map((_, i) => (
+                                                <div 
+                                                    key={i}
+                                                    className={`h-1.5 transition-all duration-300 border border-black/20 ${i === currentImageIndex ? 'w-8 bg-[#ffdf00]' : 'w-2 bg-white/40'}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+
                                     {/* Gradient Overlay for Text Legibility */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10 pointer-events-none" />
-                                </>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10 pointer-events-none" />
+                                </div>
                             ) : (
                                 <div className="w-full h-[400px] flex items-center justify-center bg-slate-900 z-10">
                                     <Megaphone size={64} className="text-white/10" />
@@ -112,7 +145,7 @@ export default function AnnouncementModal() {
                             </div>
 
                             {/* Overlaid Text Content */}
-                            <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 md:p-12 pb-12">
+                            <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 md:p-12 pb-16">
                                 <motion.div 
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
@@ -126,9 +159,20 @@ export default function AnnouncementModal() {
                                         <div className="w-24 h-2 bg-[#ffdf00] border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,0.5)]" />
                                     </div>
 
-                                    <p className="text-lg md:text-xl font-bold text-white/95 leading-tight whitespace-pre-line drop-shadow-xl">
-                                        {announcement.content}
-                                    </p>
+                                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                                        <p className="text-lg md:text-xl font-bold text-white/95 leading-tight whitespace-pre-line drop-shadow-xl flex-1">
+                                            {announcement.content}
+                                        </p>
+
+                                        {announcement.blogPostSlug && (
+                                            <a 
+                                                href={`/blog/${announcement.blogPostSlug}`}
+                                                className="bg-white text-black border-2 border-black rounded-lg px-6 py-3 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0_0_#000] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all text-center"
+                                            >
+                                                Ver Detalhes
+                                            </a>
+                                        )}
+                                    </div>
                                 </motion.div>
                             </div>
                         </div>
