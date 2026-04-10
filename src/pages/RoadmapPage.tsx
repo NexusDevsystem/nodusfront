@@ -17,8 +17,8 @@ interface RoadmapTask {
 
 const COLUMNS = [
   { id: 'backlog', label: 'Backlog', color: '#e0e0e0' },
-  { id: 'planned', label: 'Faremos', color: '#fde68a' },
-  { id: 'in_progress', label: 'Cozinhando', color: '#bfdbfe' },
+  { id: 'planned', label: 'Analisando', color: '#fde68a' },
+  { id: 'in_progress', label: 'Desenvolvendo', color: '#bfdbfe' },
   { id: 'done', label: 'Pronto', color: '#97cd7a' },
   { id: 'rejected', label: 'Não faremos', color: '#fee2e2' },
 ] as const;
@@ -27,6 +27,7 @@ export default function RoadmapPage() {
   const [tasks, setTasks] = useState<RoadmapTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<RoadmapTask | null>(null);
   const [votedIds, setVotedIds] = useState<Set<string>>(() => {
     try {
       return new Set(JSON.parse(localStorage.getItem('nodus_roadmap_votes') || '[]'));
@@ -137,7 +138,8 @@ export default function RoadmapPage() {
                       animate={{ opacity: 1, y: 0 }}
                       draggable={false}
                       onDragStart={(e) => e.preventDefault()}
-                      className="bg-white border-2 border-[#1a1a1a] rounded-2xl shadow-[0_5px_0_0_#1a1a1a] p-6 flex flex-col gap-4 group select-none"
+                      onClick={() => setSelectedTask(task)}
+                      className="bg-white border-2 border-[#1a1a1a] rounded-2xl shadow-[0_5px_0_0_#1a1a1a] p-6 flex flex-col gap-4 group select-none cursor-pointer hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#1a1a1a] transition-all"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <h3 className="text-sm md:text-base font-black uppercase leading-tight break-words">{task.title}</h3>
@@ -146,11 +148,10 @@ export default function RoadmapPage() {
                       <div className="flex items-center justify-between pt-4 border-t-2 border-[#1a1a1a]/5 mt-auto">
                         <div className="flex flex-col gap-1">
                           <span className="text-[9px] font-black text-[#1a1a1a]/20 uppercase">{new Date(task.created_at).toLocaleDateString()}</span>
-                          {task.author_name && <span className="text-[9px] font-bold text-[#1a1a1a]/30 uppercase truncate max-w-[120px]">por {task.author_name}</span>}
                         </div>
                         <button
-                          onClick={() => handleVote(task.id)}
-                          className={`flex items-center gap-2 px-4 py-2 border-2 border-[#1a1a1a] rounded-xl text-[11px] font-black uppercase transition-all ${votedIds.has(task.id) ? 'bg-[#ff7eb6] text-white' : 'bg-white text-[#1a1a1a]'}`}
+                          onClick={(e) => { e.stopPropagation(); handleVote(task.id); }}
+                          className={`flex items-center gap-1.5 px-3 py-2 border-2 border-[#1a1a1a] rounded-xl text-[10px] md:text-[11px] font-black uppercase transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none ${votedIds.has(task.id) ? 'bg-[#ff7eb6] text-white' : 'bg-white text-[#1a1a1a] hover:bg-[#ffdf00]'}`}
                         >
                           <Heart size={16} strokeWidth={4} className={votedIds.has(task.id) ? 'fill-white' : ''} />
                           <span className="tabular-nums">{task.votes}</span>
@@ -207,6 +208,58 @@ export default function RoadmapPage() {
             </motion.div>
           </div>
         )}
+      </AnimatePresence>
+
+      {/* Details Modal */}
+      <AnimatePresence>
+        {selectedTask && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#1a1a1a]/80 backdrop-blur-sm" onClick={() => setSelectedTask(null)} />
+              <motion.div 
+                initial={{ y: 20, opacity: 0 }} 
+                animate={{ y: 0, opacity: 1 }} 
+                exit={{ y: 20, opacity: 0 }} 
+                className="relative w-full max-w-xl bg-white border-4 border-[#1a1a1a] p-6 md:p-8 shadow-[0_12px_0_0_#1a1a1a] rounded-3xl pointer-events-auto flex flex-col max-h-[85vh]"
+              >
+                <div className="flex justify-between items-start mb-6 gap-4">
+                  <div className="flex flex-col gap-3 min-w-0">
+                    <span 
+                        className="text-[9px] uppercase font-black tracking-widest px-2.5 py-1.5 border-2 border-[#1a1a1a] rounded-lg w-fit shadow-[0_2px_0_0_#1a1a1a]" 
+                        style={{ backgroundColor: COLUMNS.find(c => c.id === selectedTask.status)?.color || '#eee' }}
+                    >
+                        {COLUMNS.find(c => c.id === selectedTask.status)?.label}
+                    </span>
+                    <h2 className="text-2xl md:text-3xl font-black uppercase text-[#1a1a1a] leading-tight break-words pr-4">{selectedTask.title}</h2>
+                  </div>
+                  <button onClick={() => setSelectedTask(null)} className="shrink-0 w-10 h-10 flex items-center justify-center bg-white border-2 border-[#1a1a1a] rounded-xl text-[#1a1a1a] hover:bg-[#ffdf00] transition-colors shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none active:translate-y-[4px] active:shadow-none">
+                    <X size={20} strokeWidth={4} />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto mb-8 pr-2 custom-scrollbar min-h-[100px]">
+                    {selectedTask.description ? (
+                        <p className="text-sm font-bold text-[#1a1a1a]/70 whitespace-pre-wrap leading-relaxed">{selectedTask.description}</p>
+                    ) : (
+                        <p className="text-sm font-bold text-[#1a1a1a]/40 italic">Nenhuma descrição fornecida.</p>
+                    )}
+                </div>
+
+                <div className="flex items-center justify-between pt-5 border-t-4 border-[#1a1a1a]/10">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-black uppercase text-[#1a1a1a]/40 tracking-widest">Data da Sugestão</span>
+                    <span className="text-xs font-black uppercase text-[#1a1a1a]">{new Date(selectedTask.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); handleVote(selectedTask.id); }} 
+                    className={`flex items-center gap-2 px-6 h-12 border-2 border-[#1a1a1a] rounded-xl text-[11px] tracking-widest font-black uppercase transition-all shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[4px] active:shadow-none ${votedIds.has(selectedTask.id) ? 'bg-[#ff7eb6] text-white' : 'bg-white text-[#1a1a1a] hover:bg-[#ffdf00]'}`}
+                  >
+                    <Heart size={16} strokeWidth={4} className={votedIds.has(selectedTask.id) ? 'fill-white' : ''} />
+                    <span className="tabular-nums font-black">{tasks.find(t => t.id === selectedTask.id)?.votes} Voto{tasks.find(t => t.id === selectedTask.id)?.votes !== 1 && 's'}</span>
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
       </AnimatePresence>
     </div>
   );

@@ -1758,14 +1758,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 }}
                                                                                 className={`group relative transition-all duration-300 w-full flex flex-col ${baseCardClass} ${getHighlightClass(cardLink.highlight)} cursor-pointer`}
                                                                             >
-                                                                                {/* Image Area */}
-                                                                                <div
-                                                                                    className="relative overflow-hidden h-44 md:h-52 w-full flex-shrink-0"
-                                                                                    style={{
-                                                                                        borderTopLeftRadius: innerRadius,
-                                                                                        borderTopRightRadius: innerRadius,
-                                                                                    }}
-                                                                                >
+                                                                                {/* Wrapper to enforce border radius and clip inner content */}
+                                                                                <div className="w-full h-full overflow-hidden flex flex-col" style={{ borderRadius: 'inherit' }}>
+                                                                                    {/* Image Area */}
+                                                                                    <div className="relative overflow-hidden h-44 md:h-52 w-full flex-shrink-0">
                                                                                     {cardLink.image ? (
                                                                                         <img
                                                                                             src={cardLink.image}
@@ -1785,16 +1781,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     )}
                                                                                 </div>
 
-                                                                                {/* Footer — inherits card bg and text style completely */}
-                                                                                <div
-                                                                                    className="p-3.5 flex flex-col justify-center items-center text-center w-full flex-shrink-0"
-                                                                                    style={{
-                                                                                        borderTop: `1px solid ${separatorColor}`,
-                                                                                        minHeight: '56px',
-                                                                                        borderBottomLeftRadius: innerRadius,
-                                                                                        borderBottomRightRadius: innerRadius,
-                                                                                    }}
-                                                                                >
+                                                                                    {/* Footer — inherits card bg and text style completely */}
+                                                                                    <div
+                                                                                        className="p-3.5 flex flex-col justify-center items-center text-center w-full flex-shrink-0"
+                                                                                        style={{
+                                                                                            borderTop: `1px solid ${separatorColor}`,
+                                                                                            minHeight: '56px'
+                                                                                        }}
+                                                                                    >
                                                                                     {isMusicLink(cardLink) && (
                                                                                         <div className="mb-1 opacity-60">
                                                                                             {cardLink.url.includes('deezer') ? (
@@ -1823,6 +1817,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             }}
                                                                                         >{cardLink.subtitle}</span>
                                                                                     )}
+                                                                                </div>
                                                                                 </div>
                                                                             </motion.a>
                                                                         </InteractiveButton>
@@ -2100,7 +2095,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         </div>
                                                                     )}
                                                                     <div className="relative w-full">
-                                                                        <button onClick={scrollLeft} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronLeft size={20} /></button>
+                                                                        <button onClick={scrollLeft} className="absolute left-2 top-1/2 -translate-y-1/2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white border border-slate-200"><ChevronLeft size={20} /></button>
                                                                         <div id={scrollContainerId} className="flex overflow-x-auto gap-2 px-1 pb-4 -mx-1 scrollbar-hide snap-x relative scroll-smooth">
                                                                             {(activeChildren.length > 0 ? activeChildren : [link]).map(child => (
                                                                                 <InteractiveButton key={child.id} className="flex-shrink-0 w-44">
@@ -2113,10 +2108,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             if (handlePasswordProtectedLink(child, e)) return;
                                                                                             handleLinkClick(child.id);
                                                                                         }}
-                                                                                        className={`relative group flex flex-col overflow-hidden transition-all duration-300 ${baseCardClass || buttonClass} ${getHighlightClass(child.highlight)}`}
+                                                                                        className={`relative group flex flex-col transition-all duration-300 ${baseCardClass || buttonClass} ${getHighlightClass(child.highlight)}`}
                                                                                         style={mainButtonStyle}
                                                                                     >
-                                                                                        <div className="relative z-10 flex flex-col h-full w-full">
+                                                                                        <div className="relative z-10 flex flex-col h-full w-full overflow-hidden" style={{ borderRadius: 'inherit' }}>
                                                                                             <div className="relative overflow-hidden h-36 w-full bg-white">
                                                                                                 {child.image ? <img
                                                                                                     src={child.image}
@@ -2138,7 +2133,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 </InteractiveButton>
                                                                             ))}
                                                                         </div>
-                                                                        <button onClick={scrollRight} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white"><ChevronRight size={20} /></button>
+                                                                        <button onClick={scrollRight} className="absolute right-2 top-1/2 -translate-y-1/2 z-30 p-2 bg-white/90 text-slate-900 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-opacity hidden md:flex items-center justify-center hover:bg-white border border-slate-200"><ChevronRight size={20} /></button>
                                                                     </div >
                                                                 </motion.div >
                                                             );
@@ -2281,7 +2276,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
                                                                                         const isVideo = (child.url.includes('youtube.com') || child.url.includes('youtu.be') || child.url.includes('tiktok.com'));
 
-                                                                                        const EffectWrapper = isHighlighted ? GlitchButton : isVideo ? ElasticButton : React.Fragment;
+                                                                                        const EffectWrapper: any = isHighlighted ? GlitchButton : isVideo ? ElasticButton : ({children}: any) => <>{children}</>;
                                                                                         const effectProps = (isHighlighted || isVideo) ? { className: "w-full", clipPath: themeClipPath } : {};
 
                                                                                         nestedItems.push(
@@ -2334,13 +2329,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                                                                         <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
                                                                                                             <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full" style={{ color: getSmartTextColor() }}>
-                                                                                                                <MarqueeText
-                                                                                                                    text={child.title}
-                                                                                                                    className="w-full"
-                                                                                                                    speed={40}
-                                                                                                                />
+                                                                                                                <span className="truncate block w-full">{child.title}</span>
                                                                                                             </div>
-                                                                                                             {child.subtitle && (
+                                                                                                            {child.subtitle && (
                                                                                                                 <span className="text-[13px] opacity-80 font-medium leading-tight flex items-center justify-center gap-1.5 mt-1 min-w-0" style={{ color: getSmartTextColor() }}>
                                                                                                                     {Icon && <Icon size={14} className="shrink-0" />}
                                                                                                                     <span className="truncate">{child.subtitle}</span>
@@ -2475,7 +2466,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         const isHighlighted = link.highlight === 'blink' || link.highlight === 'glow' || link.highlight === 'flash' || link.highlight === 'rainbow' || link.highlight === 'glitch';
                                                         const isVideo = (link.url.includes('youtube.com') || link.url.includes('youtu.be') || link.url.includes('tiktok.com'));
 
-                                                        const EffectWrapper = isHighlighted ? GlitchButton : isVideo ? ElasticButton : React.Fragment;
+                                                        const EffectWrapper: any = isHighlighted ? GlitchButton : isVideo ? ElasticButton : ({children}: any) => <>{children}</>;
                                                         const effectProps = (isHighlighted || isVideo) ? { className: "w-full", clipPath: themeClipPath } : {};
 
                                                         renderedItems.push(
@@ -2533,11 +2524,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     color: getSmartTextColor(),
                                                                                     fontWeight: profile.fontWeight || '700'
                                                                                 }}>
-                                                                                <MarqueeText
-                                                                                    text={link.title}
-                                                                                    className="w-full"
-                                                                                    speed={40}
-                                                                                />
+                                                                                <span className="truncate block w-full">{link.title}</span>
                                                                             </div>
                                                                             {link.subtitle && (
                                                                                 <span className="text-[14px] opacity-80 font-medium leading-tight flex items-center justify-center gap-1.5 mt-1 min-w-0" style={{ color: getSmartTextColor() }}>

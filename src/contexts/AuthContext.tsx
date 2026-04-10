@@ -304,8 +304,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     // An existing user is considered to have completed onboarding if the field is explicitly true
-    // OR if they already have a username (indicating they have already finished the initial setup)
-    const hasCompletedOnboarding = !!(profile?.onboardingCompleted) || !!profile?.username;
+    // OR if they already have a username that doesn't look like an auto-generated temporary one
+    const isTempUsername = profile?.username?.startsWith('user_') || /_[a-z0-9]{5}$/.test(profile?.username || '');
+    const hasCompletedOnboarding = !!(profile?.onboardingCompleted) || (!!profile?.username && !isTempUsername);
 
     return (
         <AuthContext.Provider value={{

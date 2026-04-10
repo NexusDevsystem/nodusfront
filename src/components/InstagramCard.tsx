@@ -104,8 +104,10 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
         <div className={`w-full overflow-hidden isolate relative group flex flex-col transition-all duration-300 ${themeButtonClass}`}
             style={{ ...themeButtonStyle, height: 'auto' }}>
 
-            {/* Dynamic Media Grid */}
-            <div className={`overflow-hidden border-b border-black/5 ${isDark ? 'bg-zinc-800' : 'bg-slate-50'}`}>
+            {/* Wrapper to enforce border radius safely */}
+            <div className="w-full h-full overflow-hidden flex flex-col" style={{ borderRadius: 'inherit' }}>
+                {/* Dynamic Media Grid */}
+                <div className={`overflow-hidden border-b border-black/5 ${isDark ? 'bg-zinc-800' : 'bg-slate-50'}`}>
                 <div className="aspect-square sm:aspect-video w-full">
                     {displayMedia.length === 1 && (
                         <a href={displayMedia[0].permalink} target="_blank" rel="noreferrer" className="w-full h-full block group/item">
@@ -252,6 +254,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                         <span className="text-[9px] font-bold tracking-tight uppercase truncate" style={{ color: themeTextHex }}>{followers.toLocaleString()} seguidores</span>
                     </div>
                 </a>
+            </div>
             </div>
         </div>
     );

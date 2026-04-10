@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Bell, Megaphone, Sparkles } from 'lucide-react';
+import { X, Bell, Megaphone, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -25,23 +25,9 @@ export default function AnnouncementModal() {
             try {
                 const active = await apiClient.getActiveAnnouncement();
                 if (active && active.id) {
-                    // Logic: 
-                    // 1. If logged in, the backend already filtered out announcements DISMISSED in DB.
-                    //    We ignore localStorage to allow account-switching on the same browser.
-                    // 2. If guest (no profile), we use localStorage as the only source of truth.
-                    
-                    if (profile && profile.id) {
-                        // Logged in: Always show what the backend returns
-                        setAnnouncement(active);
-                        setTimeout(() => setIsOpen(true), 1200);
-                    } else {
-                        // Guest: Use localStorage to prevent spamming
-                        const seenId = localStorage.getItem('nodus_seen_announcement');
-                        if (seenId !== active.id) {
-                            setAnnouncement(active);
-                            setTimeout(() => setIsOpen(true), 1200);
-                        }
-                    }
+                    // ALWAYS show what the backend returns. The backend handles filtering based on DB 'announcement_views'.
+                    setAnnouncement(active);
+                    setTimeout(() => setIsOpen(true), 1200);
                 }
             } catch (error) {
                 console.warn('[Announcement] Could not check for announcements:', error);
@@ -51,21 +37,16 @@ export default function AnnouncementModal() {
         checkAnnouncement();
     }, [profile?.id]);
 
-    // Automatic Carousel Logic
-    useEffect(() => {
-        if (!isOpen || !announcement || !announcement.imageUrls || announcement.imageUrls.length <= 1) return;
-
-        const interval = setInterval(() => {
-            setCurrentImageIndex(prev => (prev + 1) % announcement.imageUrls!.length);
-        }, 5000); // Change image every 5 seconds
-
-        return () => clearInterval(interval);
-    }, [isOpen, announcement]);
+    // Manual Navigation Helpers
+    const paginate = (newDirection: number) => {
+        if (!announcement?.imageUrls || announcement.imageUrls.length <= 1) return;
+        const total = announcement.imageUrls.length;
+        setCurrentImageIndex(prev => (prev + newDirection + total) % total);
+    };
 
     const handleClose = async () => {
         setIsOpen(false);
         if (announcement) {
-            localStorage.setItem('nodus_seen_announcement', announcement.id);
             try {
                 await apiClient.dismissAnnouncement(announcement.id);
             } catch (e) {
@@ -90,109 +71,146 @@ export default function AnnouncementModal() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={handleClose}
-                        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                        className="absolute inset-0 bg-black/80 backdrop-blur-xl"
                     />
 
                     {/* Modal Content */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.95, y: 30 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative w-fit max-w-[90vw] max-h-[90vh] bg-white border-2 border-black rounded-xl shadow-[0_12px_0_0_#000] overflow-hidden flex flex-col mx-auto"
+                        exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                        className="relative w-full max-w-5xl max-h-[90vh] bg-white border-2 border-black rounded-2xl shadow-[0_16px_0_0_#000] overflow-hidden flex flex-col md:flex-row mx-auto"
                     >
-                        {/* Status Bar */}
-                        <div className="bg-[#ffdf00] border-b-2 border-black flex items-center px-6 py-2.5 gap-3">
-                            <Megaphone size={16} strokeWidth={3} />
-                            <span className="font-black uppercase tracking-[0.2em] text-[9px]">Anúncio Oficial Nodus</span>
-                            <div className="flex-1" />
-                            <button 
-                                onClick={handleClose}
-                                className="w-8 h-8 flex items-center justify-center bg-white border-2 border-black rounded hover:bg-red-400 hover:text-white transition-all shadow-[2px_2px_0_0_#000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
-                            >
-                                <X size={14} strokeWidth={4} />
-                            </button>
-                        </div>
-
-                        {/* Main Body with Image Carousel and Text Overlay */}
-                        <div className="relative w-fit bg-slate-100 overflow-hidden group min-h-[100px]">
+                        {/* 1. Left side: Image Carousel (Adaptive) */}
+                        <div className="relative w-full md:w-auto md:max-w-[60%] bg-black flex-shrink-0 border-b-2 md:border-b-0 md:border-r-2 border-black max-h-[50vh] md:max-h-none flex items-center justify-center overflow-hidden group">
                             {urls.length > 0 ? (
-                                <div className="relative overflow-hidden flex items-center justify-center">
-                                    <AnimatePresence mode="wait">
+                                <div className="relative h-full w-full flex items-center justify-center touch-none">
+                                    <AnimatePresence mode="wait" initial={false}>
                                         <motion.img 
                                             key={currentImageIndex}
                                             src={urls[currentImageIndex]} 
                                             alt={announcement.title}
+                                            drag="x"
+                                            dragConstraints={{ left: 0, right: 0 }}
+                                            onDragEnd={(_, info) => {
+                                                const swipe = info.offset.x;
+                                                const threshold = 50;
+                                                if (swipe < -threshold) paginate(1);
+                                                else if (swipe > threshold) paginate(-1);
+                                            }}
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             exit={{ opacity: 0 }}
-                                            transition={{ duration: 0.8 }}
-                                            className="h-auto w-auto max-w-full max-h-[75vh] block object-contain"
+                                            transition={{ duration: 0.3 }}
+                                            className="w-full h-full max-h-full object-contain cursor-grab active:cursor-grabbing select-none"
                                         />
                                     </AnimatePresence>
                                     
+                                    {/* Navigation Arrows */}
+                                    {urls.length > 1 && (
+                                        <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 z-30 flex items-center justify-between pointer-events-none">
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); paginate(-1); }}
+                                                className="pointer-events-auto w-12 h-12 flex items-center justify-center bg-white border-2 border-black shadow-[4px_4px_0_0_#22c55e] hover:translate-y-[-2px] active:translate-y-[2px] active:shadow-none transition-all"
+                                            >
+                                                <ChevronLeft size={28} strokeWidth={3} className="text-black" />
+                                            </button>
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); paginate(1); }}
+                                                className="pointer-events-auto w-12 h-12 flex items-center justify-center bg-white border-2 border-black shadow-[4px_4px_0_0_#22c55e] hover:translate-y-[-2px] active:translate-y-[2px] active:shadow-none transition-all"
+                                            >
+                                                <ChevronRight size={28} strokeWidth={3} className="text-black" />
+                                            </button>
+                                        </div>
+                                    )}
+
                                     {/* Indicators */}
                                     {urls.length > 1 && (
                                         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2">
                                             {urls.map((_, i) => (
-                                                <div 
+                                                <button 
                                                     key={i}
-                                                    className={`h-1.5 transition-all duration-300 border border-black/20 ${i === currentImageIndex ? 'w-8 bg-[#ffdf00]' : 'w-2 bg-white/40'}`}
+                                                    onClick={() => setCurrentImageIndex(i)}
+                                                    className={`h-2 transition-all duration-300 border border-black/20 ${i === currentImageIndex ? 'w-10 bg-[#ffdf00]' : 'w-3 bg-white/40'}`}
                                                 />
                                             ))}
                                         </div>
                                     )}
-
-                                    {/* Gradient Overlay for Text Legibility */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10 pointer-events-none" />
                                 </div>
                             ) : (
-                                <div className="w-full h-[400px] flex items-center justify-center bg-slate-900 z-10">
-                                    <Megaphone size={64} className="text-white/10" />
+                                <div className="w-full h-full flex items-center justify-center bg-slate-900">
+                                    <Megaphone size={64} className="text-[#22c55e]" />
                                 </div>
                             )}
 
                             {/* Badge */}
-                            <div className="absolute top-6 left-6 z-20 bg-[#ffdf00] border-2 border-black px-4 py-1.5 shadow-[3px_3px_0_0_#000]">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-black flex items-center gap-2">
-                                    <Sparkles size={12} /> Destaque Oficial
+                            <div className="absolute top-6 left-6 z-40 bg-[#ffdf00] border-2 border-black px-4 py-1.5 shadow-[4px_4px_0_0_#000]">
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black flex items-center gap-2">
+                                    <Sparkles size={12} /> Destaque Nodus
                                 </span>
                             </div>
+                        </div>
 
-                            {/* Overlaid Text Content */}
-                            <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 md:p-12 pb-16">
+                        {/* 2. Right Side: Text & Actions */}
+                        <div className="flex-1 flex flex-col bg-white overflow-hidden min-h-0">
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-6 md:p-8 bg-slate-50 border-b-2 border-black">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center shadow-[4px_4px_0_0_#22c55e]">
+                                        <Megaphone size={24} className="text-white" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="font-black uppercase tracking-widest text-[12px] text-black">Comunicado</span>
+                                        <span className="text-[10px] font-bold text-black/30 uppercase tracking-tighter">Official Release 2026</span>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={handleClose}
+                                    className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black rounded-lg hover:bg-red-500 hover:text-white transition-all shadow-[4px_4px_0_0_#000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                                >
+                                    <X size={24} strokeWidth={4} />
+                                </button>
+                            </div>
+
+                            {/* Scroll Area */}
+                            <div className="flex-1 overflow-y-auto p-8 md:p-12 custom-scrollbar">
                                 <motion.div 
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.2 }}
-                                    className="space-y-6 max-w-2xl"
+                                    className="space-y-10"
                                 >
-                                    <div className="space-y-3">
-                                        <h3 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-[0.85] italic text-white drop-shadow-2xl">
+                                    <div className="space-y-4">
+                                        <h3 
+                                            className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[0.8] italic text-black"
+                                            style={{ textShadow: '6px 6px 0px #22c55e' }}
+                                        >
                                             {announcement.title}
                                         </h3>
-                                        <div className="w-24 h-2 bg-[#ffdf00] border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,0.5)]" />
+                                        <div className="w-24 h-4 bg-black" />
                                     </div>
 
-                                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                                        <p className="text-lg md:text-xl font-bold text-white/95 leading-tight whitespace-pre-line drop-shadow-xl flex-1">
+                                    <div className="prose-xl">
+                                        <p className="text-xl md:text-2xl font-bold text-black border-l-8 border-[#22c55e] pl-6 py-2 leading-relaxed whitespace-pre-line">
                                             {announcement.content}
                                         </p>
-
-                                        {announcement.blogPostSlug && (
-                                            <a 
-                                                href={`/blog/${announcement.blogPostSlug}`}
-                                                className="bg-white text-black border-2 border-black rounded-lg px-6 py-3 font-black uppercase text-xs tracking-widest shadow-[4px_4px_0_0_#000] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all text-center"
-                                            >
-                                                Ver Detalhes
-                                            </a>
-                                        )}
                                     </div>
                                 </motion.div>
                             </div>
-                        </div>
 
-                        {/* Decorative corner */}
-                        <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-[#ffdf00] border-4 border-black rounded-full opacity-20 blur-xl pointer-events-none" />
+                            {/* Extra Compact Footer */}
+                            <div className="p-4 md:p-6 bg-slate-50 border-t-2 border-black flex items-center justify-end">
+                                {announcement.blogPostSlug && (
+                                    <a 
+                                        href={`/blog/${announcement.blogPostSlug}`}
+                                        className="w-full sm:w-auto inline-flex items-center justify-center gap-4 bg-white text-black border-2 border-black px-8 py-3 font-black uppercase text-xs tracking-[0.2em] shadow-[4px_4px_0_0_#22c55e] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_#22c55e] active:translate-y-[2px] active:shadow-none transition-all group"
+                                    >
+                                        Explorar
+                                        <ChevronRight size={18} strokeWidth={4} className="group-hover:translate-x-2 transition-transform" />
+                                    </a>
+                                )}
+                            </div>
+                        </div>
                     </motion.div>
                 </div>
             )}

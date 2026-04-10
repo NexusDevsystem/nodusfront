@@ -36,7 +36,7 @@ export const MusicRichCard: React.FC<MusicRichCardProps> = ({
 
     return (
         <div
-            className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${baseCardClass} h-[72px] p-0 px-3 items-center justify-between mb-1 ${getHighlightClass(link.highlight)}`}
+            className={`w-full overflow-visible isolate relative group flex transition-all duration-300 ${baseCardClass} h-[72px] p-0 px-3 items-center justify-between mb-1 ${getHighlightClass(link.highlight)}`}
             style={mainButtonStyle}
         >
             {/* Album Art */}

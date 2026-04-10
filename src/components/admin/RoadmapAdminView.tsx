@@ -18,8 +18,8 @@ interface RoadmapTask {
 
 const COLUMNS = [
   { id: 'backlog', label: 'Backlog', color: '#e0e0e0', text: '#1a1a1a' },
-  { id: 'planned', label: 'Faremos', color: '#fde68a', text: '#b45309' },
-  { id: 'in_progress', label: 'Cozinhando', color: '#bfdbfe', text: '#1d4ed8' },
+  { id: 'planned', label: 'Analisando', color: '#fde68a', text: '#b45309' },
+  { id: 'in_progress', label: 'Desenvolvendo', color: '#bfdbfe', text: '#1d4ed8' },
   { id: 'done', label: 'Pronto', color: '#97cd7a', text: '#15803d' },
   { id: 'rejected', label: 'Não faremos', color: '#fee2e2', text: '#991b1b' },
 ];
@@ -38,6 +38,7 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
   const [form, setForm] = useState({ title: '', description: '' });
   const [submitting, setSubmitting] = useState(false);
   const [votedIds, setVotedIds] = useState<Set<string>>(new Set());
+  const [selectedTask, setSelectedTask] = useState<RoadmapTask | null>(null);
 
   const fetchTasks = () => {
     setLoading(true);
@@ -211,6 +212,65 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
                 </motion.div>
             </div>
           )}
+
+          {selectedTask && (
+            <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedTask(null)} />
+              <motion.div 
+                initial={{ y: 20, opacity: 0 }} 
+                animate={{ y: 0, opacity: 1 }} 
+                exit={{ y: 20, opacity: 0 }} 
+                className="relative w-full max-w-xl bg-white border-2 border-black p-6 md:p-8 shadow-[0_12px_0_0_#000] rounded-2xl pointer-events-auto flex flex-col max-h-[85vh]"
+              >
+                <div className="flex justify-between items-start mb-6 gap-4">
+                  <div className="flex flex-col gap-3 min-w-0">
+                    <span 
+                        className="text-[9px] uppercase font-black tracking-widest px-2.5 py-1.5 border-2 border-black rounded-lg w-fit shadow-[0_2px_0_0_#000]" 
+                        style={{ backgroundColor: COLUMNS.find(c => c.id === selectedTask.status)?.color || '#eee' }}
+                    >
+                        {COLUMNS.find(c => c.id === selectedTask.status)?.label}
+                    </span>
+                    <h2 className="text-2xl font-black uppercase text-black leading-tight break-words">{selectedTask.title}</h2>
+                  </div>
+                  <button onClick={() => setSelectedTask(null)} className="shrink-0 w-10 h-10 flex items-center justify-center bg-white border-2 border-black rounded-xl text-black hover:bg-[#ffdf00] transition-colors shadow-[0_4px_0_0_#000] hover:translate-y-[2px] hover:shadow-none active:translate-y-[4px] active:shadow-none">
+                    <X size={20} strokeWidth={4} />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto mb-8 pr-2 custom-scrollbar min-h-[100px]">
+                    {selectedTask.description ? (
+                        <p className="text-sm font-bold text-black/70 whitespace-pre-wrap leading-relaxed">{selectedTask.description}</p>
+                    ) : (
+                        <p className="text-sm font-bold text-black/40 italic">Nenhuma descrição fornecida.</p>
+                    )}
+                </div>
+
+                <div className="flex items-center justify-between pt-5 border-t-2 border-black/10">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-black uppercase text-black/40 tracking-widest">Data da Sugestão</span>
+                    <span className="text-xs font-black uppercase text-black">{new Date(selectedTask.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                      {isAdmin && (
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(selectedTask.id); setSelectedTask(null); }} 
+                            className="w-12 h-12 flex items-center justify-center border-2 border-black rounded-xl text-red-500 hover:bg-red-500 hover:text-white transition-colors shadow-[0_4px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000] active:translate-y-[4px] active:shadow-none"
+                        >
+                            <Trash2 size={16} strokeWidth={3} />
+                        </button>
+                      )}
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleVote(selectedTask.id); }} 
+                        className={`flex items-center gap-2 px-6 h-12 border-2 border-black rounded-xl text-[11px] tracking-widest font-black uppercase transition-all shadow-[0_4px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#000] active:translate-y-[4px] active:shadow-none ${votedIds.has(selectedTask.id) ? 'bg-[#ff7eb6] text-white' : 'bg-white text-black hover:bg-[#ffdf00]'}`}
+                      >
+                        <Heart size={16} strokeWidth={4} className={votedIds.has(selectedTask.id) ? 'fill-white' : ''} />
+                        <span className="tabular-nums font-black">{tasks.find(t => t.id === selectedTask.id)?.votes} Voto{tasks.find(t => t.id === selectedTask.id)?.votes !== 1 && 's'}</span>
+                      </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
         </AnimatePresence>
       </>,
       document.body
@@ -267,7 +327,8 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
                   key={task.id} 
                   draggable={isAdmin}
                   onDragStart={(e) => isAdmin && handleDragStart(e, task.id)}
-                  className={`bg-white border-2 border-[#1a1a1a] rounded-2xl shadow-[0_5px_0_0_#1a1a1a] p-5 md:p-6 flex flex-col gap-4 relative group transition-all ${isAdmin ? 'cursor-grab active:cursor-grabbing hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#1a1a1a]' : ''}`}
+                  onClick={() => setSelectedTask(task)}
+                  className={`bg-white border-2 border-[#1a1a1a] rounded-2xl shadow-[0_5px_0_0_#1a1a1a] p-5 md:p-6 flex flex-col gap-4 relative group transition-all cursor-pointer ${isAdmin ? 'active:cursor-grabbing hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#1a1a1a]' : 'hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#1a1a1a]'}`}
                 >
                   {updating === task.id && (
                     <div className="absolute inset-0 z-10 bg-white/80 backdrop-blur-[2px] flex items-center justify-center rounded-sm">
@@ -288,7 +349,7 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
                        <h3 className="text-[12px] md:text-[13px] font-black text-[#1a1a1a] uppercase leading-tight break-words">{task.title}</h3>
                     </div>
                     {isAdmin && (
-                      <button onClick={() => setDeleteConfirmId(task.id)} className="shrink-0 text-[#1a1a1a]/10 hover:text-red-500 transition-colors p-1">
+                      <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(task.id); }} className="shrink-0 text-[#1a1a1a]/20 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50">
                         <Trash2 size={13} />
                       </button>
                     )}
@@ -296,8 +357,8 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
                   {task.description && <p className="text-[10px] md:text-[11px] text-[#1a1a1a]/50 font-medium line-clamp-3">{task.description}</p>}
                   <div className="flex items-center justify-between pt-3 md:pt-4 border-t-2 border-[#1a1a1a]/5 mt-auto">
                     <span className="text-[8px] md:text-[9px] font-black text-[#1a1a1a]/40">{new Date(task.created_at).toLocaleDateString()}</span>
-                    <button onClick={() => handleVote(task.id)} className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[9px] md:text-[10px] font-black uppercase transition-all ${votedIds.has(task.id) ? 'text-[#ff7eb6]' : 'text-[#1a1a1a]/40'}`}>
-                      <Heart size={12} className={votedIds.has(task.id) ? 'fill-[#ff7eb6]' : ''} strokeWidth={3} />
+                    <button onClick={(e) => { e.stopPropagation(); handleVote(task.id); }} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] md:text-[11px] font-black uppercase transition-all ${votedIds.has(task.id) ? 'bg-[#ff7eb6] text-white' : 'bg-black/5 text-[#1a1a1a]/50 hover:bg-black/10'}`}>
+                      <Heart size={14} className={votedIds.has(task.id) ? 'fill-white' : ''} strokeWidth={3} />
                       <span className="tabular-nums">{task.votes}</span>
                     </button>
                   </div>
