@@ -5,6 +5,7 @@ export const translations = {
       howItWorks: "Como Funciona",
       pricing: "Preços",
       blog: "Blog",
+      login: "Entrar",
       create: "Criar meu Nodus"
     },
     hero: {
@@ -227,6 +228,7 @@ export const translations = {
       howItWorks: "How it Works",
       pricing: "Pricing",
       blog: "Blog",
+      login: "Login",
       create: "Create my Nodus"
     },
     hero: {

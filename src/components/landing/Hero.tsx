@@ -89,17 +89,6 @@ export function Hero() {
       ease: 'sine.inOut',
       stagger: 0.3
     });
-
-    // Pulse animation for live dot
-    gsap.to('.live-dot', {
-      opacity: 0.2,
-      scale: 1.5,
-      duration: 0.8,
-      repeat: -1,
-      yoyo: true,
-      ease: 'power1.inOut'
-    });
-
   }, { scope: container });
 
   return (

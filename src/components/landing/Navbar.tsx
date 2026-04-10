@@ -122,7 +122,17 @@ export function Navbar() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          <Link to="/login" className="md:hidden">
+            <Button 
+              variant="primary" 
+              size="sm" 
+              className="rounded-xl px-4 py-1.5 shadow-[2px_4px_0_0_#121212] bg-[#b4e3b8] border-2 text-dark font-black tracking-tight text-xs active:translate-y-[2px] active:shadow-none transition-all"
+            >
+              {t.nav.login}
+            </Button>
+          </Link>
+
           <div className="hidden md:flex bg-white border-2 border-dark rounded-2xl overflow-hidden font-bold shadow-[0_4px_0_0_#121212]">
             <button 
               onClick={() => setLang('pt')}
@@ -204,6 +214,9 @@ export function Navbar() {
                   {newPostsCount}
                 </span>
               )}
+            </Link>
+            <Link to="/login" onClick={() => setIsMenuOpen(false)} className="hover:text-brand transition-colors uppercase text-sm">
+              {t.nav.login}
             </Link>
             <div className="flex justify-center mx-auto mb-2">
               <div className="flex bg-white border-2 border-dark rounded-full overflow-hidden font-black shadow-[0_4px_0_0_#121212] min-w-[140px]">
