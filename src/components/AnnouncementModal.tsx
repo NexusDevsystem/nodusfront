@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bell, Megaphone, Sparkles } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Announcement {
     id: string;
@@ -13,6 +14,7 @@ interface Announcement {
 }
 
 export default function AnnouncementModal() {
+    const { profile } = useAuth();
     const [announcement, setAnnouncement] = useState<Announcement | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -23,10 +25,22 @@ export default function AnnouncementModal() {
             try {
                 const active = await apiClient.getActiveAnnouncement();
                 if (active && active.id) {
-                    const seenId = localStorage.getItem('nodus_seen_announcement');
-                    if (seenId !== active.id) {
+                    // Logic: 
+                    // 1. If logged in, the backend already filtered out announcements DISMISSED in DB.
+                    //    We ignore localStorage to allow account-switching on the same browser.
+                    // 2. If guest (no profile), we use localStorage as the only source of truth.
+                    
+                    if (profile && profile.id) {
+                        // Logged in: Always show what the backend returns
                         setAnnouncement(active);
                         setTimeout(() => setIsOpen(true), 1200);
+                    } else {
+                        // Guest: Use localStorage to prevent spamming
+                        const seenId = localStorage.getItem('nodus_seen_announcement');
+                        if (seenId !== active.id) {
+                            setAnnouncement(active);
+                            setTimeout(() => setIsOpen(true), 1200);
+                        }
                     }
                 }
             } catch (error) {
@@ -35,7 +49,7 @@ export default function AnnouncementModal() {
         };
 
         checkAnnouncement();
-    }, []);
+    }, [profile?.id]);
 
     // Automatic Carousel Logic
     useEffect(() => {
