@@ -294,11 +294,32 @@ export default function OnboardingPage() {
     }));
 
     return (
-        <div className="min-h-screen w-full bg-white flex flex-col lg:flex-row font-sans overflow-hidden">
+        <div className="min-h-screen w-full bg-white flex flex-col lg:flex-row font-sans overflow-hidden relative">
+
+            {/* MOBILE LIVE PREVIEW BACKGROUND (Visible from Step 4 onwards) */}
+            {step >= 4 && (
+                <div className="lg:hidden absolute inset-0 z-0 bg-slate-50 flex flex-col overflow-hidden pt-16">
+                    <div className="w-full h-full origin-top relative">
+                        <div className="w-full h-full overflow-hidden bg-transparent">
+                            <ProfileRenderer
+                                profile={previewProfile}
+                                links={previewLinks}
+                                products={[]}
+                                isPreview={true}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
 
 
             {/* Left Side: Form */}
-            <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-12 relative border-b-2 lg:border-b-0 lg:border-r-2 border-[#1a1a1a] z-10 flex-1">
+            <div className={`
+                w-full lg:w-1/2 flex flex-col p-8 lg:p-12 relative z-10 flex-1
+                lg:border-r-2 border-[#1a1a1a]
+                ${step === 6 ? 'bg-transparent lg:bg-white' : 'bg-white'}
+                ${step >= 4 ? 'border-t-2 lg:border-t-0' : ''}
+            `}>
                 {/* Header */}
                 <div className="flex justify-between items-center mb-16">
                     <button
@@ -341,11 +362,11 @@ export default function OnboardingPage() {
                             </h1>
                         )}
                         {step === 6 && (
-                            <h1 className="text-5xl lg:text-6xl font-black uppercase leading-[0.9] mb-6">
+                            <h1 className="hidden lg:block text-5xl lg:text-6xl font-black uppercase leading-[0.9] mb-6">
                                 {t('onboarding.step6Title')}
                             </h1>
                         )}
-                        <p className="font-medium text-lg text-black/70 border-l-4 border-[#ffdf00] pl-4">
+                        <p className={`font-medium text-lg text-black/70 border-l-4 border-[#ffdf00] pl-4 ${step === 6 ? 'hidden lg:block' : ''}`}>
                             {step === 1 && t('onboarding.step1Desc')}
                             {step === 2 && t('onboarding.step2Desc')}
                             {step === 3 && t('onboarding.step3Desc')}
@@ -752,12 +773,14 @@ export default function OnboardingPage() {
                     )}
 
                     {step === 6 && (
-                        <form onSubmit={handleFinalize} className="space-y-6">
-                            <div className="max-h-[520px] overflow-y-auto scrollbar-hide [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pb-6 p-1">
+                        <form onSubmit={handleFinalize} className="space-y-6 flex-1 flex flex-col h-full lg:h-auto">
+
+
+                            <div className="flex-1 lg:max-h-[520px] overflow-y-auto lg:overflow-visible scrollbar-hide">
+                                {/* Desktop Grid (Hidden on mobile) */}
+                                <div className="hidden lg:grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pb-6 p-1 bg-transparent">
                                     {THEMES.filter(t => !t.isPro && t.id !== 'custom').map((theme) => {
                                         const isSelected = themeId === theme.id;
-                                        // Simple cleaner for button classes to show in preview
                                         const buttonVisuals = theme.buttonClass.replace(/\b(w-full|flex|items-center|justify-between|py-\d+|px-\d+|gap-\d+|active:.*|hover:.*|transition-.*|duration-.*)\b/g, '').trim();
                                         
                                         return (
@@ -767,10 +790,7 @@ export default function OnboardingPage() {
                                                 className="flex flex-col gap-2 group cursor-pointer relative"
                                             >
                                                 <div className={`relative aspect-[3/4] w-full border-2 transition-all duration-300 rounded-xl overflow-hidden ${isSelected ? 'border-[#1a1a1a] bg-[#ffdf00] shadow-[0_6px_0_0_#1a1a1a] -translate-y-1' : 'border-[#1a1a1a]/10 hover:border-[#1a1a1a]/30 bg-white shadow-[0_2px_0_0_#1a1a1a]/5'}`}>
-                                                    {/* Background Preview */}
                                                     <div className={`absolute inset-0 ${theme.backgroundClass}`} style={{ backgroundColor: theme.solidColor }} />
-                                                    
-                                                    {/* Content Preview */}
                                                     <div className="absolute inset-0 p-4 flex flex-col items-center justify-center gap-4">
                                                         <div className="flex-1 flex items-center justify-center w-full">
                                                             <div className={`${theme.textClass} text-4xl font-black opacity-90`} style={{ fontFamily: theme.fontFamily }}>Aa</div>
@@ -781,8 +801,6 @@ export default function OnboardingPage() {
                                                             </div>
                                                         </div>
                                                     </div>
-
-                                                    {/* Selection Badge */}
                                                     {isSelected && (
                                                         <div className="absolute top-2 right-2 w-7 h-7 bg-[#97cd7a] text-black border-2 border-[#1a1a1a] flex items-center justify-center shadow-[0_3px_0_0_#1a1a1a] z-10 rounded-lg">
                                                             <Check size={16} strokeWidth={4} />
@@ -796,21 +814,76 @@ export default function OnboardingPage() {
                                         );
                                     })}
                                 </div>
+
+                                {/* MOBILE THEME NAVBAR (Bottom) */}
+                                <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-6 bg-white border-t-4 border-black shadow-[0_-10px_30px_rgba(0,0,0,0.1)] flex flex-col gap-6 animate-slide-up">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-black uppercase tracking-widest text-black/40">Selecionar Tema</span>
+                                        <div className="flex items-center gap-1">
+                                            <div className="w-2 h-2 rounded-full bg-black"></div>
+                                            <div className="w-2 h-2 rounded-full bg-black/10"></div>
+                                        </div>
+                                    </div>
+
+                                    {/* Horizontal Themes List */}
+                                    <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
+                                        {THEMES.filter(t => !t.isPro && t.id !== 'custom').map((theme) => {
+                                            const isSelected = themeId === theme.id;
+                                            return (
+                                                <div
+                                                    key={theme.id}
+                                                    onClick={() => setThemeId(theme.id)}
+                                                    className="flex-shrink-0 flex flex-col items-center gap-2 group cursor-pointer"
+                                                >
+                                                    <div className={`w-16 h-20 border-2 relative transition-all duration-300 rounded-xl overflow-hidden ${isSelected ? 'border-black bg-[#ffdf00] shadow-[0_4px_0_0_#000] -translate-y-1' : 'border-black/10 bg-white shadow-none'}`}>
+                                                        <div className={`absolute inset-0 ${theme.backgroundClass}`} style={{ backgroundColor: theme.solidColor }} />
+                                                        <div className="absolute inset-0 flex items-center justify-center">
+                                                            <div className={`${theme.textClass} text-2xl font-black opacity-80`} style={{ fontFamily: theme.fontFamily }}>Aa</div>
+                                                        </div>
+                                                        {isSelected && (
+                                                            <div className="absolute top-1 right-1 w-5 h-5 bg-[#97cd7a] text-black border-2 border-black flex items-center justify-center shadow-[0_2px_0_0_#000] z-10 rounded-lg">
+                                                                <Check size={12} strokeWidth={4} />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <span className={`text-[8px] font-black uppercase tracking-[0.1em] text-center truncate w-20 ${isSelected ? 'text-black' : 'text-black/30'}`}>
+                                                        {theme.name}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="w-full h-16 border-2 border-black bg-[#97cd7a] font-black text-xl uppercase tracking-widest text-black shadow-[0_6px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-4 rounded-2xl"
+                                    >
+                                        {loading ? <Loader2 className="animate-spin" size={24} /> : (
+                                            <>
+                                                {t('onboarding.enterStudio')}
+                                                <Zap size={20} fill="currentColor" />
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className={`
-                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 rounded-2xl
-                                    ${!loading
-                                        ? 'bg-[#97cd7a] text-black shadow-[0_8px_0_0_#1a1a1a] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[8px] active:shadow-none'
-                                        : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
-                                `}
-                            >
-                                {loading ? <Loader2 className="animate-spin" size={24} /> : t('onboarding.enterStudio')}
-                            </button>
-                            <button type="button" onClick={() => setStep(5)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">{t('onboarding.back')}</button>
+                            <div className="hidden lg:block">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className={`
+                                        w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 rounded-2xl
+                                        ${!loading
+                                            ? 'bg-[#97cd7a] text-black shadow-[0_8px_0_0_#1a1a1a] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[8px] active:shadow-none'
+                                            : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
+                                    `}
+                                >
+                                    {loading ? <Loader2 className="animate-spin" size={24} /> : t('onboarding.enterStudio')}
+                                </button>
+                                <button type="button" onClick={() => setStep(5)} className="w-full text-black/40 text-xs font-black uppercase tracking-widest hover:text-black transition-colors pt-4">{t('onboarding.back')}</button>
+                            </div>
                         </form>
                     )}
 

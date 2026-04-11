@@ -32,7 +32,7 @@ const Preview: React.FC<PreviewProps> = ({ profile, links, products = [], stores
         <div className="relative w-full h-full lg:bg-black lg:border-[8px] lg:border-[#1a1a1a] lg:rounded-sm lg:shadow-[0_20px_40px_-10px_rgba(26,26,26,0.4)] flex flex-col lg:ring-1 lg:ring-[#2a2a2a] transform z-10">
 
           {/* Screen Content Wrapper */}
-          <div className="relative w-full h-full lg:rounded-sm overflow-hidden bg-[#fdfcf0] flex flex-col transform">
+          <div className="relative w-full h-full lg:rounded-sm overflow-hidden bg-transparent lg:bg-[#fdfcf0] flex flex-col transform">
 
             {/* Android Status Bar (Overlay) */}
             <div className="hidden lg:flex w-full absolute top-0 z-[100] h-8 px-4 justify-between items-center text-white pointer-events-none mix-blend-difference">

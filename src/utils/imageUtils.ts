@@ -133,7 +133,8 @@ export const optimizeImageUrl = (
     if (!url) return '';
     if (!isSupabaseUrl(url)) return url;
 
-    const { width, height, quality = 80, format = 'webp' } = options;
+    const isGif = url.toLowerCase().includes('.gif');
+    const { width, height, quality = 80, format = isGif ? 'origin' : 'webp' } = options;
 
     const params = new URLSearchParams();
     if (width) params.set('width', String(width));

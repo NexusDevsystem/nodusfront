@@ -9,7 +9,7 @@ import ShopEditor from '../components/ShopEditor';
 import Preview from '../components/Preview';
 import Sidebar from '../components/Sidebar';
 import OnboardingProgressCard from '../components/OnboardingProgressCard';
-import { Plus, Trash2, GripVertical, Image as ImageIcon, Layout, Palette, Type, MousePointer2, Smartphone, Monitor, Share, Eye, X, Check, Save, Loader2, PlusCircle, Search, List, MessageCircle, HelpCircle, Construction, Mail, ChevronsRight, Zap, ExternalLink, Menu, Globe, ChevronRight, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Image as ImageIcon, Layout, Palette, Type, MousePointer2, Smartphone, Monitor, Share, Eye, X, Check, Save, Loader2, PlusCircle, Search, List, MessageCircle, HelpCircle, Construction, Mail, ChevronsRight, Zap, ExternalLink, Menu, Globe, ChevronRight, AlertTriangle, LogOut } from 'lucide-react';
 import SocialLinksEditor from '../components/SocialLinksEditor';
 import AnalyticsView from '../components/AnalyticsView';
 import MonetizationView from '../components/MonetizationView';
@@ -27,9 +27,12 @@ import HeaderEditor from '../components/design/HeaderEditor';
 import TypographyEditor from '../components/design/TypographyEditor';
 import WallpaperEditor from '../components/design/WallpaperEditor';
 import ButtonsEditor from '../components/design/ButtonsEditor';
-import { compressImage } from '../utils/imageUtils';
+import { compressImage, imgOptimized } from '../utils/imageUtils';
 import { apiClient } from '../services/apiClient';
 import { useAuth } from '../contexts/AuthContext';
+import MobileBottomSheet from '../components/MobileBottomSheet';
+import MobileBottomNav from '../components/MobileBottomNav';
+import MobileExtrasMenu from '../components/MobileExtrasMenu';
 import FileManager from '../components/tools/FileManager';
 import { IntegrationsView } from '../views/IntegrationsView';
 import { useTranslation } from 'react-i18next';
@@ -38,7 +41,7 @@ import { AlertCircle } from 'lucide-react';
 import AnnouncementModal from '../components/AnnouncementModal';
 
 export default function EditorPage() {
-    const { profile: authProfile, loading: authLoading } = useAuth();
+    const { profile: authProfile, loading: authLoading, signOut } = useAuth();
     const { t } = useTranslation();
 
     // Initialize state from localStorage (SNAPSHOT) to avoid placeholder flash
@@ -509,6 +512,7 @@ export default function EditorPage() {
     // Mobile drawer state
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showMobilePreview, setShowMobilePreview] = useState(false);
+    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
 
@@ -519,6 +523,132 @@ export default function EditorPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     const shareUrl = `https://www.nodus.my/${profile.username || profile.name.toLowerCase().replace(/\s/g, '')}`;
+
+    const renderEditorContent = () => (
+        <>
+            {activeTab === 'links' && (
+                <div className="space-y-6">
+                    <SocialLinksEditor links={links} onChange={setLinks} profile={profile} setProfile={setProfile} />
+                    <LinkEditor
+                        links={links}
+                        onChange={setLinks}
+                        profile={profile}
+                        setActiveTab={setActiveTab}
+                        onAddProduct={addProductToShop}
+                        expandedLinks={expandedLinks}
+                        setExpandedLinks={setExpandedLinks}
+                        expandedCollections={expandedCollections}
+                        setExpandedCollections={setExpandedCollections}
+                        setProfile={setProfile}
+                    />
+                </div>
+            )}
+
+            {activeTab === 'shop' && (
+                <div className="space-y-6">
+                    <ShopEditor
+                        products={products}
+                        onChange={setProducts}
+                        stores={stores}
+                        onStoresChange={setStores}
+                        userProfile={profile}
+                        onProfileChange={updateProfile}
+                        pendingCollection={pendingShopCollection}
+                        onPendingCollectionConsumed={() => setPendingShopCollection(null)}
+                    />
+                </div>
+            )}
+
+            {activeTab === 'analytics' && (
+                <AnalyticsView userProfile={profile} />
+            )}
+
+            {activeTab === 'billing' && (
+                <ManageBillingView profile={profile} onChange={setProfile} links={links} />
+            )}
+
+            {activeTab === 'support' && (
+                <SupportView userProfile={profile} />
+            )}
+
+            {activeTab === 'files' && (
+                <FileManager userProfile={profile} />
+            )}
+
+            {activeTab === 'integrations' && (
+                <IntegrationsView profile={profile} onChange={setProfile} links={links} onLinksChange={setLinks} />
+            )}
+
+            {activeTab === 'admin' && (profile.username === 'nodus' || authProfile?.email === 'jaoomarcos75@gmail.com') && (
+                <AdminView />
+            )}
+
+            {activeTab === 'roadmap' && (
+                <RoadmapAdminView view="kanban-admin" />
+            )}
+
+            {activeTab === 'extras' && (
+                <MobileExtrasMenu 
+                    onSelect={(tab) => {
+                        setActiveTab(tab);
+                        setIsBottomSheetOpen(true);
+                    }} 
+                    isAdmin={profile?.username === 'nodus' || authProfile?.email === 'jaoomarcos75@gmail.com'}
+                />
+            )}
+
+            {activeTab === 'appearance' && (
+                <div className="flex flex-col md:-mt-6 bg-transparent relative min-h-[calc(100vh-140px)]">
+                    {/* Design Sidebar - Static Flow */}
+                    <div className="shrink-0 z-[50] relative bg-transparent">
+                        <DesignSidebar
+                            activeSection={activeDesignSection}
+                            setActiveSection={setActiveDesignSection}
+                        />
+                    </div>
+
+                    {/* Design Content Area - Wider Layout */}
+                    <div className="flex-1 px-1 md:px-2 pb-32 md:pb-8 w-full">
+                        <h2 className="text-2xl font-normal text-slate-800 mb-6 hidden md:block">
+                            {activeDesignSection === 'header' && t('design.header')}
+                            {activeDesignSection === 'theme' && t('design.themes')}
+                            {activeDesignSection === 'buttons' && t('design.buttons')}
+                            {activeDesignSection === 'wallpaper' && t('design.wallpaper')}
+                            {activeDesignSection === 'text' && t('design.typography')}
+                        </h2>
+
+                        {activeDesignSection === 'header' && (
+                            <HeaderEditor profile={profile} onChange={setProfile} updateProfile={updateProfile} />
+                        )}
+
+                        {activeDesignSection === 'theme' && (
+                            <ThemeSelector profile={profile} links={links} products={products} onChange={setProfile} />
+                        )}
+
+                        {activeDesignSection === 'wallpaper' && (
+                            <WallpaperEditor profile={profile} onChange={setProfile} updateProfile={updateProfile} />
+                        )}
+
+                        {activeDesignSection === 'buttons' && (
+                            <ButtonsEditor profile={profile} updateProfile={updateProfile} />
+                        )}
+
+                        {activeDesignSection === 'text' && (
+                            <TypographyEditor profile={profile} onChange={setProfile} updateProfile={updateProfile} />
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'integrations' && activeTab !== 'admin' && activeTab !== 'roadmap' && activeTab !== 'extras' && (
+                <div className="bg-transparent p-12 rounded-[20px] border border-dashed border-[#1a1a1a]/20 text-center">
+                    <div className="text-4xl mb-4 text-slate-300 flex justify-center"><Construction size={48} /></div>
+                    <h3 className="text-lg font-medium text-slate-700">{t('editor.inDevelopment')}</h3>
+                    <p className="text-slate-500 mt-2">{t('editor.inDevelopmentDesc')}</p>
+                </div>
+            )}
+        </>
+    );
 
     return (
         <div className="h-screen w-full bg-transparent font-sans text-black selection:bg-black selection:text-[#ffdf00] flex flex-col overflow-hidden">
@@ -574,47 +704,8 @@ export default function EditorPage() {
                 {/* Main Layout */}
                 <main className="flex-1 flex flex-col md:flex-row min-w-0 h-full relative transition-all duration-300">
 
-                    {/* Mobile Header */}
-                    <div className={`md:hidden bg-transparent border-b-2 border-[#1a1a1a] px-4 py-4 flex items-center justify-between shrink-0 z-[60] shadow-sm relative`}>
-                        <div className="flex items-center gap-3">
-                            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                                <Menu size={24} className="text-black" />
-                            </button>
-                            <h1 className="font-medium uppercase tracking-tight text-xl text-black">Nodus</h1>
-                        </div>
-                        <div className="flex gap-2 items-center">
-                            {/* Sync Status - Brutalist */}
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-[#1a1a1a] bg-white shadow-[0_2px_0_0_#1a1a1a]">
-                                {(isSaving || visualSavingProfile) ? (
-                                    <>
-                                        <Loader2 size={10} className="animate-spin text-black" strokeWidth={3} />
-                                        <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">Sync</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Check size={10} className="text-[#97cd7a]" strokeWidth={4} />
-                                        <span className="text-[8px] font-medium uppercase tracking-[0.2em] text-black">{t('editor.saved')}</span>
-                                    </>
-                                )}
-                            </div>
-
-                            {/* Share Button - Brutalist */}
-                            <button
-                                onClick={() => setIsShareModalOpen(true)}
-                                className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none transition-all text-black"
-                            >
-                                <Share size={18} strokeWidth={2.5} />
-                            </button>
-
-                            {/* Preview Button - Brutalist */}
-                            <button
-                                className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none transition-all"
-                                onClick={() => setShowMobilePreview(!showMobilePreview)}
-                            >
-                                {showMobilePreview ? <X size={18} strokeWidth={3} /> : <Eye size={18} strokeWidth={2.5} />}
-                            </button>
-                        </div>
-                    </div>
+                    {/* Mobile Header - Hidden entirely in new Live Mobile Edit */}
+                    <div className={`hidden bg-transparent border-b-2 border-[#1a1a1a] px-4 py-4 flex items-center justify-between shrink-0 z-[60] shadow-sm relative`} />
 
                     {/* Mobile Sidebar (Drawer) - Full height side-drawer */}
                     <AnimatePresence>
@@ -649,13 +740,115 @@ export default function EditorPage() {
                         )}
                     </AnimatePresence>
 
+                    {/* MOBILE TOP BAR */}
+                    <div className="md:hidden fixed top-0 left-0 right-0 h-20 bg-[#fdfcf0] border-b-4 border-black z-[70] flex items-center justify-between px-5 shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 bg-white border-2 border-black rounded-xl overflow-hidden flex items-center justify-center shadow-[0_3px_0_0_#000]">
+                                {profile.avatarUrl ? (
+                                    <img 
+                                        src={profile.avatarUrl} 
+                                        alt={profile.name} 
+                                        className="w-full h-full object-cover" 
+                                        onError={(e) => {
+                                            e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name || 'user'}`;
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-[#97cd7a] flex items-center justify-center text-xl font-black italic">
+                                        {profile.name?.charAt(0) || '?'}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-[13px] font-black uppercase italic tracking-tighter leading-none truncate max-w-[120px]">
+                                    {profile.name || 'Sem Nome'}
+                                </span>
+                                <span className="text-[9px] font-bold uppercase text-black/40 tracking-widest mt-1.5 truncate max-w-[140px]">
+                                    {authProfile?.email || `@${profile.username || 'user'}`}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                             <button
+                                onClick={() => setIsShareModalOpen(true)}
+                                className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black rounded-xl shadow-[0_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all text-black"
+                            >
+                                <Share size={18} strokeWidth={3} />
+                            </button>
+                            <button
+                                onClick={() => signOut && signOut()}
+                                className="px-3 h-10 flex items-center gap-2 bg-[#ffdddd] border-2 border-black rounded-xl shadow-[0_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all text-black"
+                            >
+                                <LogOut size={16} strokeWidth={3} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Sair</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* MOBILE LIVE PREVIEW BACKGROUND */}
+                    <div className="md:hidden absolute inset-0 z-0 bg-transparent flex flex-col overflow-hidden pt-20">
+
+                       <div className="w-full h-full origin-top relative">
+                         <div className="w-full h-full overflow-hidden bg-transparent">
+                            <Preview
+                                profile={deferredProfile}
+                                links={deferredLinks}
+                                products={deferredProducts}
+                                stores={deferredStores}
+                                onShare={() => setIsShareModalOpen(true)}
+                                forcedTab={activeTab === 'shop' ? 'shop' : 'links'}
+                            />
+                         </div>
+                       </div>
+                    </div>
+
+                    {/* MOBILE BOTTOM NAVIGATION */}
+                    <MobileBottomNav 
+                        activeTab={activeTab} 
+                        setActiveTab={setActiveTab} 
+                        isSheetOpen={isBottomSheetOpen} 
+                        openSheet={() => setIsBottomSheetOpen(true)}
+                        closeSheet={() => setIsBottomSheetOpen(false)}
+                    />
+
+                    {/* MOBILE BOTTOM SHEET */}
+                    <MobileBottomSheet 
+                        isOpen={isBottomSheetOpen} 
+                        onClose={() => setIsBottomSheetOpen(false)} 
+                        fullScreen={['analytics', 'roadmap', 'billing', 'support', 'admin'].includes(activeTab)}
+                        onBack={
+                            ['shop', 'analytics', 'integrations', 'files', 'roadmap', 'billing', 'support', 'admin'].includes(activeTab) 
+                            ? () => setActiveTab('extras') 
+                            : undefined
+                        }
+                        title={
+                            activeTab === 'links' ? t('editor.tabs.links') : 
+                            activeTab === 'appearance' ? t('editor.tabs.appearance') : 
+                            activeTab === 'shop' ? t('editor.tabs.shop') : 
+                            activeTab === 'extras' ? 'Extras' : 
+                            activeTab === 'analytics' ? t('editor.tabs.analytics') :
+                            activeTab === 'integrations' ? 'Integrações' :
+                            activeTab === 'files' ? 'Arquivos' :
+                            activeTab === 'roadmap' ? 'Lab' :
+                            activeTab === 'billing' ? 'Faturamento' :
+                            activeTab === 'support' ? 'Suporte' :
+                            activeTab === 'admin' ? 'Administração' :
+                            ''
+                        }
+                    >
+                       <div className="pb-10 pt-2">
+                          {renderEditorContent()}
+                       </div>
+                    </MobileBottomSheet>
+
                     {/* 
            --------------------------------------------------
            COLUMN 1: EDITOR AREA 
            Scrollable, Grey Background, Centered Content
            --------------------------------------------------
         */}
-                    <div className={`flex-1 h-full overflow-y-auto scrollbar-hide ${showMobilePreview ? 'hidden lg:block' : 'block'}`}>
+                    <div className={`hidden md:block flex-1 h-full overflow-y-auto scrollbar-hide`}>
 
                         {/* Desktop Header (Sticky) */}
                         <header className="hidden md:flex sticky top-0 z-30 items-center justify-between px-8 py-3 bg-[#fdfcf0] border-b-2 border-[#1a1a1a]">
@@ -755,125 +948,7 @@ export default function EditorPage() {
 
                             {/* Dynamic Content */}
                             <div className={`animate-fade-in mx-auto md:px-6 ${activeTab === 'admin' || activeTab === 'roadmap' ? 'w-full' : 'max-w-5xl'}`}>
-                                {activeTab === 'links' && (
-                                    <div className="space-y-6">
-
-                                        <SocialLinksEditor links={links} onChange={setLinks} profile={profile} setProfile={setProfile} />
-                                        <LinkEditor
-                                            links={links}
-                                            onChange={setLinks}
-                                            profile={profile}
-                                            setActiveTab={setActiveTab}
-                                            onAddProduct={addProductToShop}
-                                            expandedLinks={expandedLinks}
-                                            setExpandedLinks={setExpandedLinks}
-                                            expandedCollections={expandedCollections}
-                                            setExpandedCollections={setExpandedCollections}
-                                            setProfile={setProfile}
-                                        />
-                                    </div>
-                                )}
-
-                                {activeTab === 'shop' && (
-                                    <div className="space-y-6">
-                                        <ShopEditor
-                                            products={products}
-                                            onChange={setProducts}
-                                            stores={stores}
-                                            onStoresChange={setStores}
-                                            userProfile={profile}
-                                            onProfileChange={updateProfile}
-                                            pendingCollection={pendingShopCollection}
-                                            onPendingCollectionConsumed={() => setPendingShopCollection(null)}
-                                        />
-                                    </div>
-                                )}
-
-                                {activeTab === 'analytics' && (
-                                    <AnalyticsView userProfile={profile} />
-                                )}
-
-                                {activeTab === 'billing' && (
-                                    <ManageBillingView profile={profile} onChange={setProfile} links={links} />
-                                )}
-
-                                {activeTab === 'support' && (
-                                    <SupportView userProfile={profile} />
-                                )}
-
-                                {activeTab === 'files' && (
-                                    <FileManager userProfile={profile} />
-                                )}
-
-                                {activeTab === 'integrations' && (
-                                    <IntegrationsView profile={profile} onChange={setProfile} links={links} onLinksChange={setLinks} />
-                                )}
-
-                                {activeTab === 'admin' && (profile.username === 'nodus' || authProfile?.email === 'jaoomarcos75@gmail.com') && (
-                                    <AdminView />
-                                )}
-
-                                {activeTab === 'roadmap' && (
-                                    <RoadmapAdminView view="kanban-admin" />
-                                )}
-
-
-
-
-
-
-
-                                {activeTab === 'appearance' && (
-                                    <div className="flex flex-col md:-mt-6 bg-transparent relative min-h-[calc(100vh-140px)]">
-                                        {/* Design Sidebar - Static Flow */}
-                                        <div className="shrink-0 z-[50] relative bg-transparent">
-                                            <DesignSidebar
-                                                activeSection={activeDesignSection}
-                                                setActiveSection={setActiveDesignSection}
-                                            />
-                                        </div>
-
-                                        {/* Design Content Area - Wider Layout */}
-                                        <div className="flex-1 px-1 md:px-2 pb-32 md:pb-8 w-full">
-                                            <h2 className="text-2xl font-normal text-slate-800 mb-6 hidden md:block">
-                                                {activeDesignSection === 'header' && t('design.header')}
-                                                {activeDesignSection === 'theme' && t('design.themes')}
-                                                {activeDesignSection === 'buttons' && t('design.buttons')}
-                                                {activeDesignSection === 'wallpaper' && t('design.wallpaper')}
-                                                {activeDesignSection === 'text' && t('design.typography')}
-                                            </h2>
-
-                                            {activeDesignSection === 'header' && (
-                                                <HeaderEditor profile={profile} onChange={setProfile} updateProfile={updateProfile} />
-                                            )}
-
-                                            {activeDesignSection === 'theme' && (
-                                                <ThemeSelector profile={profile} links={links} products={products} onChange={setProfile} />
-                                            )}
-
-                                            {activeDesignSection === 'wallpaper' && (
-                                                <WallpaperEditor profile={profile} onChange={setProfile} updateProfile={updateProfile} />
-                                            )}
-
-                                            {activeDesignSection === 'buttons' && (
-                                                <ButtonsEditor profile={profile} updateProfile={updateProfile} />
-                                            )}
-
-                                            {activeDesignSection === 'text' && (
-                                                <TypographyEditor profile={profile} onChange={setProfile} updateProfile={updateProfile} />
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'integrations' && activeTab !== 'admin' && activeTab !== 'roadmap' && (
-                                    <div className="bg-transparent p-12 rounded-[20px] border border-dashed border-[#1a1a1a]/20 text-center">
-                                        <div className="text-4xl mb-4 text-slate-300 flex justify-center"><Construction size={48} /></div>
-                                        <h3 className="text-lg font-medium text-slate-700">{t('editor.inDevelopment')}</h3>
-                                        <p className="text-slate-500 mt-2">{t('editor.inDevelopmentDesc')}</p>
-                                    </div>
-                                )}
-
+                                {renderEditorContent()}
                             </div>
                         </div>
                     </div>
@@ -885,7 +960,8 @@ export default function EditorPage() {
            --------------------------------------------------
         */}
                     <div className={`
-                        ${activeTab !== 'admin' && activeTab !== 'billing' && activeTab !== 'roadmap' ? 'lg:flex' : 'hidden'} flex-col items-center justify-center 
+                        ${activeTab !== 'admin' && activeTab !== 'billing' && activeTab !== 'roadmap' ? 'hidden md:flex lg:flex' : 'hidden'} 
+                        flex-col items-center justify-center 
                         lg:border-l-4 lg:border-[#1a1a1a] lg:bg-transparent 
                         w-full lg:w-[350px] xl:w-[450px] shrink-0
                         ${!showMobilePreview ? 'hidden' : 'flex-1 h-full flex flex-col z-40 overflow-hidden lg:relative lg:inset-auto lg:top-0 lg:flex lg:h-full lg:sticky lg:right-0 bg-transparent'}
