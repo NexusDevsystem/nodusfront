@@ -2,7 +2,7 @@
   "name": "Nodus",
   "short_name": "Nodus",
   "description": "O link na bio que se adapta a sua personalidade.",
-  "start_url": "/",
+  "start_url": "/editor?mode=pwa",
   "display": "standalone",
   "background_color": "#fdfcf0",
   "theme_color": "#fdfcf0",

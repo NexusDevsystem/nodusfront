@@ -731,7 +731,7 @@ export default function AdminView() {
                                                 onClick={() => setSelectedUser(null)}
                                                 className="group flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 bg-white border-2 border-black shadow-[0_4px_0_0_#000] hover:shadow-none hover:translate-y-1 active:scale-95 transition-all rounded-xl"
                                             >
-                                                <ChevronLeft size={20} md:size={22} strokeWidth={4} className="group-hover:-translate-x-1 transition-transform" />
+                                                <ChevronLeft size={isMobile ? 20 : 22} strokeWidth={4} className="group-hover:-translate-x-1 transition-transform" />
                                                 <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">{isMobile ? 'Voltar' : 'Painel Administrativo'}</span>
                                             </button>
                                             <div className="h-10 w-1 bg-black/10 rounded-full hidden md:block" />
@@ -961,12 +961,15 @@ export default function AdminView() {
                                                 </div>
 
                                                 {/* Danger Zone */}
-                                                <div className="bg-[#fff1f1] border-2 md:border-4 border-black p-6 md:p-12 rounded-3xl md:rounded-[48px] shadow-[0_8px_0_0_#ff3333] md:shadow-[0_16px_0_0_#ff3333] space-y-6 md:space-y-10">
-                                                    <div className="flex items-center gap-4 md:gap-6 text-[#ff3333]">
-                                                        <ShieldAlert size={isMobile ? 32 : 48} strokeWidth={4} />
+                                                <div className="bg-[#fff5f5] border-x-0 md:border-2 md:border-black p-8 md:p-12 rounded-none md:rounded-[48px] shadow-none md:shadow-[0_16px_0_0_#ff3333] space-y-8 md:space-y-10 relative overflow-hidden">
+                                                    <div className="absolute top-0 left-0 w-full h-1.5 bg-[#ff3333] md:hidden" />
+                                                    <div className="flex items-center gap-5 md:gap-6 text-[#ff3333]">
+                                                        <div className="w-12 h-12 md:w-16 md:h-16 bg-white border-2 border-[#ff3333] rounded-2xl flex items-center justify-center shadow-[0_4px_0_0_#ff3333] shrink-0">
+                                                            <ShieldAlert size={isMobile ? 24 : 32} strokeWidth={4} />
+                                                        </div>
                                                         <div className="space-y-1">
-                                                            <h3 className="text-xl md:text-3xl font-black uppercase tracking-tighter">Zona Crítica</h3>
-                                                            <p className="text-[10px] md:text-xs font-bold uppercase opacity-60 tracking-widest">Exclusão definitiva de conta</p>
+                                                            <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tighter leading-none">Zona Crítica</h3>
+                                                            <p className="text-[10px] md:text-xs font-bold uppercase opacity-60 tracking-widest">Exclusão irreversível de perfil</p>
                                                         </div>
                                                     </div>
                                                     
@@ -978,27 +981,27 @@ export default function AdminView() {
                                                             Deletar Conta do Usuário
                                                         </button>
                                                     ) : (
-                                                        <div className="bg-white border-2 md:border-4 border-black p-6 md:p-10 rounded-2xl md:rounded-[40px] space-y-6 md:space-y-8 shadow-[0_8px_0_0_rgba(255,51,51,0.1)] md:shadow-[0_12px_0_0_rgba(255,51,51,0.2)]">
-                                                            <div className="text-center space-y-3">
-                                                                <div className="inline-block px-3 py-1 bg-red-100 text-[#ff3333] text-[9px] font-black uppercase rounded-lg">Ação Irreversível</div>
-                                                                <p className="text-[10px] md:text-sm font-bold uppercase opacity-30 tracking-tight">Digite 'DELETE' abaixo para confirmar</p>
+                                                        <div className="bg-white border-2 border-black p-8 md:p-10 rounded-3xl md:rounded-[40px] space-y-8 shadow-[0_8px_0_0_rgba(255,51,51,0.05)]">
+                                                            <div className="text-center space-y-4">
+                                                                <div className="inline-block px-4 py-1.5 bg-red-50 text-[#ff3333] text-[10px] font-black uppercase rounded-lg border border-red-200">Ação Irreversível</div>
+                                                                <p className="text-[11px] md:text-sm font-bold uppercase opacity-30 tracking-tight px-4 leading-relaxed">Confirme digitando <span className="text-black font-black opacity-100">DELETE</span> no campo abaixo</p>
                                                             </div>
                                                             <input
                                                                 type="text"
                                                                 value={deleteInput}
                                                                 onChange={(e) => setDeleteInput(e.target.value)}
                                                                 placeholder="CONFIRMAÇÃO"
-                                                                className="w-full bg-slate-50 border-2 md:border-4 border-black p-4 md:p-6 text-center text-sm md:text-lg font-black rounded-xl outline-none focus:bg-white transition-colors"
+                                                                className="w-full bg-[#fafafa] border-2 border-black p-4 md:p-6 text-center text-sm md:text-lg font-black rounded-2xl outline-none focus:bg-white focus:shadow-[0_4px_0_0_#000] transition-all placeholder:opacity-20 uppercase"
                                                             />
-                                                            <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+                                                            <div className="flex flex-col md:flex-row gap-4">
                                                                 <button 
                                                                     onClick={handleDeleteUser} 
                                                                     disabled={deleteInput.trim().toUpperCase() !== 'DELETE'}
-                                                                    className={`w-full py-4 md:py-6 border-2 md:border-4 border-black text-[12px] md:text-sm font-black uppercase transition-all rounded-xl md:rounded-2xl ${deleteInput.trim().toUpperCase() === 'DELETE' ? 'bg-[#ff3333] text-white shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000]' : 'bg-slate-200 text-black/20'}`}
+                                                                    className={`w-full py-5 border-2 border-black text-[11px] font-black uppercase tracking-widest transition-all rounded-2xl ${deleteInput.trim().toUpperCase() === 'DELETE' ? 'bg-[#ff3333] text-white shadow-[0_6px_0_0_#800000] active:translate-y-1 active:shadow-none' : 'bg-slate-100 text-black/10'}`}
                                                                 >
                                                                     Confirmar Purga
                                                                 </button>
-                                                                <button onClick={() => setDeleteConfirm(false)} className="w-full py-4 md:py-6 bg-white border-2 md:border-4 border-black text-[12px] md:text-sm font-black uppercase hover:bg-black hover:text-white transition-all shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000] rounded-xl md:rounded-2xl">Abortar</button>
+                                                                <button onClick={() => setDeleteConfirm(false)} className="w-full py-5 bg-white border-2 border-black text-[11px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-[0_6px_0_0_#000] active:translate-y-1 active:shadow-none rounded-2xl">Abortar</button>
                                                             </div>
                                                         </div>
                                                     )}
