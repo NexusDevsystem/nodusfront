@@ -27,7 +27,7 @@ export default function MobileBottomNav({ activeTab, setActiveTab, isSheetOpen, 
   };
 
   return (
-    <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center items-center pointer-events-none md:hidden px-4">
+    <div className="fixed bottom-6 left-0 right-0 z-[100] flex justify-center items-center pointer-events-none md:hidden px-4">
       <div className="bg-[#fdfcf0] rounded-2xl p-1.5 flex items-center gap-1.5 shadow-[0_6px_0_0_#000] border-[3px] border-black pointer-events-auto relative overflow-hidden">
         {navItems.map((item) => {
           const Icon = item.icon;

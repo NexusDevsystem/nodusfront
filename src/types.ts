@@ -105,6 +105,8 @@ export interface UserProfile {
   hasFirstLink?: boolean;
   hasCopiedUrl?: boolean;
   onboardingDismissed?: boolean;
+  lastProThemeId?: string | null;
+  lastProFontFamily?: string | null;
 }
 
 export interface Theme {
@@ -148,6 +150,7 @@ export interface Store {
   imageUrl?: string;
   position: number;
   isActive: boolean;
+  deactivatedBySystem?: boolean;
   collections?: string[];
   disabledCollections?: string[];
 }

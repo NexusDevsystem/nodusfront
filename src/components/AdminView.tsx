@@ -311,28 +311,29 @@ export default function AdminView() {
         <>
         <div className="w-full max-w-full pb-12 pt-6">
             {/* Nav Tabs */}
-            <div className="flex gap-4 mb-8 overflow-x-auto pt-2 pb-4 scrollbar-hide">
+            {/* Nav Tabs - Responsive Grid for mobile, Flex for desktop */}
+            <div className="grid grid-cols-2 lg:flex lg:flex-row gap-3 md:gap-4 mb-8 pt-2 pb-4">
                 <button
                     onClick={() => setActiveTab('overview')}
-                    className={`px-8 py-4 rounded-xl border-2 border-black font-black uppercase text-[11px] tracking-widest flex items-center gap-3 shrink-0 transition-all ${
+                    className={`px-3 md:px-8 py-3 md:py-4 rounded-xl border-2 border-black font-black uppercase text-[9px] md:text-[11px] tracking-widest flex items-center justify-center md:justify-start gap-2 md:gap-3 transition-all ${
                         activeTab === 'overview' 
                         ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#000] -translate-y-1' 
                         : 'bg-white hover:bg-[#ffdf00]/10 hover:shadow-[0_4px_0_0_#000] hover:-translate-y-0.5'
                     }`}
                 >
-                    <TrendingUp size={18} strokeWidth={3} />
-                    Overview
+                    <TrendingUp size={typeof window !== 'undefined' && window.innerWidth < 1024 ? 16 : 18} strokeWidth={3} />
+                    <span className="truncate">Overview</span>
                 </button>
                 <button
                     onClick={() => setActiveTab('blog')}
-                    className={`px-8 py-4 rounded-xl border-2 border-black font-black uppercase text-[11px] tracking-widest flex items-center gap-3 shrink-0 transition-all ${
+                    className={`px-3 md:px-8 py-3 md:py-4 rounded-xl border-2 border-black font-black uppercase text-[9px] md:text-[11px] tracking-widest flex items-center justify-center md:justify-start gap-2 md:gap-3 transition-all ${
                         activeTab === 'blog' 
                         ? 'bg-[#97cd7a] shadow-[0_4px_0_0_#000] -translate-y-1' 
                         : 'bg-white hover:bg-[#97cd7a]/10 hover:shadow-[0_4px_0_0_#000] hover:-translate-y-0.5'
                     }`}
                 >
-                    <Rss size={18} strokeWidth={3} />
-                    Conteúdo do Blog
+                    <Rss size={typeof window !== 'undefined' && window.innerWidth < 1024 ? 16 : 18} strokeWidth={3} />
+                    <span className="truncate">Blog</span>
                 </button>
 
                 <button
@@ -346,16 +347,16 @@ export default function AdminView() {
                                 .finally(()=>setVerifLoading(false));
                         }
                     }}
-                    className={`px-8 py-4 rounded-xl border-2 border-black font-black uppercase text-[11px] tracking-widest flex items-center gap-3 shrink-0 transition-all relative ${
+                    className={`px-3 md:px-8 py-3 md:py-4 rounded-xl border-2 border-black font-black uppercase text-[9px] md:text-[11px] tracking-widest flex items-center justify-center md:justify-start gap-2 md:gap-3 transition-all relative ${
                         activeTab === 'verifications'
-                        ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#000] -translate-y-1'
-                        : 'bg-white hover:bg-[#ffdf00]/10 hover:shadow-[0_4px_0_0_#000] hover:-translate-y-0.5'
+                        ? 'bg-[#66ccff] shadow-[0_4px_0_0_#000] -translate-y-1'
+                        : 'bg-white hover:bg-[#66ccff]/10 hover:shadow-[0_4px_0_0_#000] hover:-translate-y-0.5'
                     }`}
                 >
-                    <BadgeCheck size={18} strokeWidth={3} />
-                    Verificações
+                    <BadgeCheck size={typeof window !== 'undefined' && window.innerWidth < 1024 ? 16 : 18} strokeWidth={3} />
+                    <span className="truncate">Verificações</span>
                     {verifications.filter(v => v.status === 'pending').length > 0 && (
-                        <span className="ml-1 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 border-2 border-black rounded-full shadow-[2px_2px_0_0_#000]">
                             {verifications.filter(v => v.status === 'pending').length}
                         </span>
                     )}
@@ -363,14 +364,15 @@ export default function AdminView() {
 
                 <button
                     onClick={() => setActiveTab('announcements')}
-                    className={`px-8 py-4 rounded-xl border-2 border-black font-black uppercase text-[11px] tracking-widest flex items-center gap-3 shrink-0 transition-all ${
+                    className={`px-3 md:px-8 py-3 md:py-4 rounded-xl border-2 border-black font-black uppercase text-[9px] md:text-[11px] tracking-widest flex items-center justify-center md:justify-start gap-2 md:gap-3 transition-all ${
                         activeTab === 'announcements' 
                         ? 'bg-[#e6b3ff] shadow-[0_4px_0_0_#000] -translate-y-1' 
                         : 'bg-white hover:bg-[#e6b3ff]/10 hover:shadow-[0_4px_0_0_#000] hover:-translate-y-0.5'
                     }`}
                 >
-                    <Megaphone size={18} strokeWidth={3} />
-                    Anúncios (Broadcast)
+                    <Megaphone size={typeof window !== 'undefined' && window.innerWidth < 1024 ? 16 : 18} strokeWidth={3} />
+                    <span className="truncate md:hidden">Avisos</span>
+                    <span className="truncate hidden md:inline">Anúncios (Broadcast)</span>
                 </button>
             </div>
 
@@ -554,37 +556,9 @@ export default function AdminView() {
                 </div>
             ) : (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    {/* Header */}
-                    <div className="bg-white border-2 border-black p-8 md:p-12 mb-10 shadow-[0_6px_0_0_#000] relative overflow-hidden rounded-3xl">
-                        <div className="absolute -right-20 -top-20 text-[#1a1a1a]/5 pointer-events-none">
-                            <ShieldAlert size={400} />
-                        </div>
-                        <div className="relative z-10">
-                            <div className="flex flex-wrap items-center gap-4 mb-6">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-[#ffdf00] text-[10px] font-black uppercase tracking-[0.2em] border-2 border-black shadow-[0_3px_0_0_rgba(0,0,0,1)] rounded-md">
-                                    <span className="w-2 h-2 rounded-full bg-[#ffdf00] animate-pulse"></span>
-                                    {t('admin.console')}
-                                </div>
-                                <div className="px-3 py-1 bg-white border-2 border-black text-black text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_3px_0_0_rgba(0,0,0,1)] rounded-md">
-                                    <RefreshCw size={10} strokeWidth={4} className="animate-spin duration-[4000ms]" />
-                                    {t('admin.realTimeMonitoring')}
-                                </div>
-                            </div>
-                            <h1 className="text-4xl md:text-7xl font-black text-black uppercase tracking-tighter leading-[0.8] mb-4">
-                                {t('admin.title').split(' ').map((word, i) => (
-                                    <React.Fragment key={i}>
-                                        {word} {i === 1 && <br className="hidden md:block" />}
-                                    </React.Fragment>
-                                ))}
-                            </h1>
-                            <p className="text-xs md:text-lg font-black text-black uppercase tracking-widest max-w-2xl bg-white border-2 border-black p-2 inline-block shadow-[0_3px_0_0_#000000] rounded-md">
-                                {t('admin.subtitle')}
-                            </p>
-                        </div>
-                    </div>
 
                     {/* Main KPIs Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-10">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-6 mb-10">
                         <KPIBox
                             label={t('admin.totalUsers')}
                             value={stats.summary?.totalUsers || 0}
@@ -755,10 +729,10 @@ export default function AdminView() {
                                         <div className="flex items-center gap-6">
                                             <button 
                                                 onClick={() => setSelectedUser(null)}
-                                                className="group flex items-center gap-3 px-6 py-3 bg-white border-2 border-black shadow-[0_4px_0_0_#000] hover:shadow-none hover:translate-y-1 active:scale-95 transition-all rounded-xl"
+                                                className="group flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 bg-white border-2 border-black shadow-[0_4px_0_0_#000] hover:shadow-none hover:translate-y-1 active:scale-95 transition-all rounded-xl"
                                             >
-                                                <ChevronLeft size={22} strokeWidth={4} className="group-hover:-translate-x-1 transition-transform" />
-                                                <span className="text-xs font-black uppercase tracking-widest">Painel Administrativo</span>
+                                                <ChevronLeft size={20} md:size={22} strokeWidth={4} className="group-hover:-translate-x-1 transition-transform" />
+                                                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">{isMobile ? 'Voltar' : 'Painel Administrativo'}</span>
                                             </button>
                                             <div className="h-10 w-1 bg-black/10 rounded-full hidden md:block" />
                                             <div className="hidden md:flex flex-col">
@@ -788,10 +762,10 @@ export default function AdminView() {
                                             {/* LEFT SIDEBAR: IDENTITY & SUBSCRIPTION (Cols: 4) */}
                                             <div className="lg:col-span-4 space-y-10 lg:sticky lg:top-32">
                                                 {/* Identity Card */}
-                                                <div className="bg-white border-2 border-black rounded-[40px] shadow-[0_12px_0_0_#000] overflow-hidden p-10 space-y-8">
-                                                    <div className="flex flex-col items-center text-center space-y-6">
+                                                <div className="bg-white border-2 border-black rounded-3xl md:rounded-[40px] shadow-[0_8px_0_0_#000] md:shadow-[0_12px_0_0_#000] overflow-hidden p-6 md:p-10 space-y-6 md:space-y-8">
+                                                    <div className="flex flex-col items-center text-center space-y-4 md:space-y-6">
                                                         <div className="relative">
-                                                            <div className="w-44 h-44 rounded-[40px] border-2 border-black shadow-[0_6px_0_0_#000] overflow-hidden bg-white shrink-0 relative z-10">
+                                                            <div className="w-28 h-28 md:w-44 md:h-44 rounded-3xl md:rounded-[40px] border-2 border-black shadow-[0_4px_0_0_#000] md:shadow-[0_6px_0_0_#000] overflow-hidden bg-white shrink-0 relative z-10">
                                                                 {selectedUser.avatar_url ? (
                                                                     <img src={selectedUser.avatar_url} className="w-full h-full object-cover" alt={selectedUser.username} />
                                                                 ) : (
@@ -805,11 +779,11 @@ export default function AdminView() {
                                                             </div>
                                                         </div>
 
-                                                        <div className="space-y-4">
-                                                            <h2 className="text-4xl font-black uppercase tracking-tighter text-black leading-none">{selectedUser.name || selectedUser.username}</h2>
-                                                            <div className="flex flex-col items-center gap-2">
-                                                                <span className="px-4 py-1.5 bg-slate-100 text-black/50 text-[11px] font-black uppercase tracking-widest rounded-lg">@{selectedUser.username}</span>
-                                                                <span className="text-[11px] font-bold text-black/30 break-all">{selectedUser.email}</span>
+                                                        <div className="space-y-3 md:space-y-4">
+                                                            <h2 className="text-2xl md:text-4xl font-black uppercase tracking-tighter text-black leading-none">{selectedUser.name || selectedUser.username}</h2>
+                                                            <div className="flex flex-col items-center gap-1.5 md:gap-2">
+                                                                <span className="px-3 md:px-4 py-1 md:py-1.5 bg-slate-100 text-black/50 text-[9px] md:text-[11px] font-black uppercase tracking-widest rounded-lg">@{selectedUser.username}</span>
+                                                                <span className="text-[10px] md:text-[11px] font-bold text-black/30 break-all px-4">{selectedUser.email}</span>
                                                             </div>
                                                         </div>
 
@@ -831,20 +805,20 @@ export default function AdminView() {
                                                     </div>
 
                                                     <div className="space-y-6 pt-6 border-t-[2px] border-black/5">
-                                                        <div className="bg-black/5 p-8 rounded-[32px] border-2 border-dashed border-black/10 relative">
+                                                        <div className="bg-black/5 p-6 md:p-8 rounded-3xl md:rounded-[32px] border-2 border-dashed border-black/10 relative">
                                                             <div className="absolute -top-3 left-6 px-3 py-1 bg-[#ffdf00] border-2 border-black text-black text-[9px] font-black uppercase tracking-widest rounded-lg">Bio Manifesto</div>
-                                                            <p className="text-xl font-black uppercase text-black leading-tight">
+                                                            <p className="text-sm md:text-xl font-black uppercase text-black leading-tight">
                                                                 "{selectedUser.bio || 'SEM DESCRIÇÃO'}"
                                                             </p>
                                                         </div>
 
-                                                        <div className="bg-white border-[3px] border-black rounded-[32px] p-8 shadow-[0_8px_0_0_#ffdf00] space-y-6">
+                                                        <div className="bg-white border-[3px] border-black rounded-3xl md:rounded-[32px] p-6 md:p-8 shadow-[0_6px_0_0_#ffdf00] md:shadow-[0_8px_0_0_#ffdf00] space-y-6">
                                                             <div className="flex items-center justify-between">
                                                                 <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Plano Atual</span>
                                                                 <div className="px-3 py-1 bg-[#ffdf00] text-black border-2 border-black text-[8px] font-black rounded-md uppercase italic">Pro Active</div>
                                                             </div>
                                                             <div className="flex items-end gap-3">
-                                                                <span className="text-5xl font-black uppercase tracking-tighter leading-none">{selectedUser.plan_type}</span>
+                                                                <span className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none">{selectedUser.plan_type}</span>
                                                             </div>
                                                             <div className="space-y-4 pt-4">
                                                                 <div className="grid grid-cols-3 gap-2">
@@ -874,26 +848,26 @@ export default function AdminView() {
                                             {/* RIGHT CONTENT: STATS & ASSETS (Cols: 8) */}
                                             <div className="lg:col-span-8 space-y-12 pb-32">
                                                 {/* Metric Tiles */}
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                                    <div className="bg-white border-2 border-black p-12 rounded-[40px] shadow-[0_8px_0_0_#000] relative overflow-hidden">
-                                                        <div className="absolute -right-6 -bottom-6 opacity-[0.05] text-[#66ccff]"><Eye size={180} /></div>
-                                                        <span className="text-xs font-black uppercase tracking-widest text-black mb-4 block opacity-40">Volume de Alcance</span>
-                                                        <div className="text-8xl font-black tracking-tighter tabular-nums leading-none">{isUserDetailsLoading ? '---' : (selectedUser.views || 0)}</div>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                                                    <div className="bg-white border-2 border-black p-8 md:p-12 rounded-3xl md:rounded-[40px] shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000] relative overflow-hidden">
+                                                        <div className="absolute -right-6 -bottom-6 opacity-[0.05] text-[#66ccff]"><Eye size={isMobile ? 120 : 180} /></div>
+                                                        <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-black mb-4 block opacity-40">Volume de Alcance</span>
+                                                        <div className="text-5xl md:text-8xl font-black tracking-tighter tabular-nums leading-none">{isUserDetailsLoading ? '---' : (selectedUser.views || 0)}</div>
                                                         <div className="flex items-center gap-2 mt-6 text-[11px] font-black uppercase text-black/40">
                                                             <div className="w-2 h-2 rounded-full bg-black/20 animate-pulse" />
                                                             Visualizações únicas
                                                         </div>
                                                     </div>
-                                                    <div className="bg-white border-2 border-black p-12 rounded-[40px] shadow-[0_8px_0_0_#000] relative overflow-hidden">
-                                                        <div className="absolute -right-6 -bottom-6 opacity-[0.05] text-[#000]"><MousePointerClick size={180} /></div>
-                                                        <span className="text-xs font-black uppercase tracking-widest text-black mb-4 block opacity-40">Interações Reais</span>
-                                                        <div className="text-8xl font-black tracking-tighter tabular-nums leading-none">{isUserDetailsLoading ? '---' : (selectedUser.clicks?.[0]?.count || 0)}</div>
+                                                    <div className="bg-white border-2 border-black p-8 md:p-12 rounded-3xl md:rounded-[40px] shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000] relative overflow-hidden">
+                                                        <div className="absolute -right-6 -bottom-6 opacity-[0.05] text-[#000]"><MousePointerClick size={isMobile ? 120 : 180} /></div>
+                                                        <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-black mb-4 block opacity-40">Interações Reais</span>
+                                                        <div className="text-5xl md:text-8xl font-black tracking-tighter tabular-nums leading-none">{isUserDetailsLoading ? '---' : (selectedUser.clicks?.[0]?.count || 0)}</div>
                                                         <div className="text-[11px] font-black uppercase text-black/40 mt-6">Engajamento Direto</div>
                                                     </div>
-                                                    <div className="bg-white border-2 border-black p-12 rounded-[40px] shadow-[0_8px_0_0_#000] relative overflow-hidden">
-                                                        <div className="absolute -right-6 -bottom-6 opacity-[0.05] text-[#000]"><TrendingUp size={180} /></div>
-                                                        <span className="text-xs font-black uppercase tracking-widest text-black mb-4 block opacity-40">Performance</span>
-                                                        <div className="text-8xl font-black tracking-tighter tabular-nums leading-none">
+                                                    <div className="bg-white border-2 border-black p-8 md:p-12 rounded-3xl md:rounded-[40px] shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000] relative overflow-hidden">
+                                                        <div className="absolute -right-6 -bottom-6 opacity-[0.05] text-[#000]"><TrendingUp size={isMobile ? 120 : 180} /></div>
+                                                        <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-black mb-4 block opacity-40">Performance</span>
+                                                        <div className="text-5xl md:text-8xl font-black tracking-tighter tabular-nums leading-none">
                                                             {isUserDetailsLoading ? '---' : `${Math.floor((selectedUser.clicks?.reduce((acc:any, c:any)=>acc+c.count, 0) || 0) / (selectedUser.views || 1) * 100)}%`}
                                                         </div>
                                                         <div className="text-[11px] font-black uppercase text-black/40 mt-6">Taxa de Conversão</div>
@@ -947,7 +921,7 @@ export default function AdminView() {
                                                     </div>
 
                                                     {/* Products Explorer */}
-                                                    <div className="bg-white border-4 border-black rounded-[48px] shadow-[0_12px_0_0_#1a1a1a] flex flex-col min-h-[600px]">
+                                                    <div className="bg-white border-2 md:border-4 border-black rounded-3xl md:rounded-[48px] shadow-[0_8px_0_0_#1a1a1a] md:shadow-[0_12px_0_0_#1a1a1a] flex flex-col min-h-[400px] md:min-h-[600px]">
                                                         <div className="p-8 border-b-4 border-black flex items-center justify-between">
                                                             <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
                                                                 <ShoppingBag size={20} strokeWidth={4} />
@@ -987,12 +961,12 @@ export default function AdminView() {
                                                 </div>
 
                                                 {/* Danger Zone */}
-                                                <div className="bg-[#fff1f1] border-4 border-black p-12 rounded-[48px] shadow-[0_16px_0_0_#ff3333] space-y-10">
-                                                    <div className="flex items-center gap-6 text-[#ff3333]">
-                                                        <ShieldAlert size={48} strokeWidth={4} />
+                                                <div className="bg-[#fff1f1] border-2 md:border-4 border-black p-6 md:p-12 rounded-3xl md:rounded-[48px] shadow-[0_8px_0_0_#ff3333] md:shadow-[0_16px_0_0_#ff3333] space-y-6 md:space-y-10">
+                                                    <div className="flex items-center gap-4 md:gap-6 text-[#ff3333]">
+                                                        <ShieldAlert size={isMobile ? 32 : 48} strokeWidth={4} />
                                                         <div className="space-y-1">
-                                                            <h3 className="text-3xl font-black uppercase tracking-tighter">Zona Crítica</h3>
-                                                            <p className="text-xs font-bold uppercase opacity-60 tracking-widest">Gerenciamento de exclusão definitiva</p>
+                                                            <h3 className="text-xl md:text-3xl font-black uppercase tracking-tighter">Zona Crítica</h3>
+                                                            <p className="text-[10px] md:text-xs font-bold uppercase opacity-60 tracking-widest">Exclusão definitiva de conta</p>
                                                         </div>
                                                     </div>
                                                     
@@ -1004,27 +978,27 @@ export default function AdminView() {
                                                             Deletar Conta do Usuário
                                                         </button>
                                                     ) : (
-                                                        <div className="bg-white border-4 border-black p-10 rounded-[40px] space-y-8 shadow-[0_12px_0_0_rgba(255,51,51,0.2)]">
-                                                            <div className="text-center space-y-4">
-                                                                <div className="inline-block px-4 py-2 bg-red-100 text-[#ff3333] text-[10px] font-black uppercase rounded-lg mb-2">Ação Irreversível</div>
-                                                                <p className="text-sm font-bold uppercase opacity-30 tracking-tight">Digite 'DELETE' abaixo para confirmar</p>
+                                                        <div className="bg-white border-2 md:border-4 border-black p-6 md:p-10 rounded-2xl md:rounded-[40px] space-y-6 md:space-y-8 shadow-[0_8px_0_0_rgba(255,51,51,0.1)] md:shadow-[0_12px_0_0_rgba(255,51,51,0.2)]">
+                                                            <div className="text-center space-y-3">
+                                                                <div className="inline-block px-3 py-1 bg-red-100 text-[#ff3333] text-[9px] font-black uppercase rounded-lg">Ação Irreversível</div>
+                                                                <p className="text-[10px] md:text-sm font-bold uppercase opacity-30 tracking-tight">Digite 'DELETE' abaixo para confirmar</p>
                                                             </div>
                                                             <input
                                                                 type="text"
                                                                 value={deleteInput}
                                                                 onChange={(e) => setDeleteInput(e.target.value)}
                                                                 placeholder="CONFIRMAÇÃO"
-                                                                className="w-full bg-slate-50 border-4 border-black p-6 text-center text-lg font-black rounded-xl outline-none focus:bg-white transition-colors"
+                                                                className="w-full bg-slate-50 border-2 md:border-4 border-black p-4 md:p-6 text-center text-sm md:text-lg font-black rounded-xl outline-none focus:bg-white transition-colors"
                                                             />
-                                                            <div className="flex gap-6">
+                                                            <div className="flex flex-col md:flex-row gap-4 md:gap-6">
                                                                 <button 
                                                                     onClick={handleDeleteUser} 
                                                                     disabled={deleteInput.trim().toUpperCase() !== 'DELETE'}
-                                                                    className={`flex-1 py-6 border-4 border-black text-sm font-black uppercase transition-all rounded-2xl ${deleteInput.trim().toUpperCase() === 'DELETE' ? 'bg-[#ff3333] text-white shadow-[0_8px_0_0_#000]' : 'bg-slate-200 text-black/20'}`}
+                                                                    className={`w-full py-4 md:py-6 border-2 md:border-4 border-black text-[12px] md:text-sm font-black uppercase transition-all rounded-xl md:rounded-2xl ${deleteInput.trim().toUpperCase() === 'DELETE' ? 'bg-[#ff3333] text-white shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000]' : 'bg-slate-200 text-black/20'}`}
                                                                 >
                                                                     Confirmar Purga
                                                                 </button>
-                                                                <button onClick={() => setDeleteConfirm(false)} className="flex-1 py-6 bg-white border-4 border-black text-sm font-black uppercase hover:bg-black hover:text-white transition-all shadow-[0_8px_0_0_#000] rounded-2xl">Abortar</button>
+                                                                <button onClick={() => setDeleteConfirm(false)} className="w-full py-4 md:py-6 bg-white border-2 md:border-4 border-black text-[12px] md:text-sm font-black uppercase hover:bg-black hover:text-white transition-all shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000] rounded-xl md:rounded-2xl">Abortar</button>
                                                             </div>
                                                         </div>
                                                     )}
@@ -1199,44 +1173,50 @@ function StatusIndicator({ label, status }: any) {
 
 function KPIBox({ label, value, icon, color, sublabel }: any) {
     const { t } = useTranslation();
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    
     return (
         <div 
-            className="group relative bg-white border-2 border-black p-8 rounded-3xl shadow-[0_8px_0_0_#000] flex flex-col transition-all duration-200 overflow-hidden cursor-default active:translate-y-[2px] active:shadow-none"
+            className="group relative bg-white border-2 border-black p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-[0_4px_0_0_#000] sm:shadow-[0_8px_0_0_#000] flex flex-col transition-all duration-200 overflow-hidden cursor-default active:translate-y-[2px] active:shadow-none"
         >
-            <div className="flex justify-between items-start mb-10 relative z-10">
+            <div className="flex justify-between items-start mb-4 sm:mb-10 relative z-10">
                 <div 
-                    className="w-14 h-14 rounded-sm border-2 border-black flex items-center justify-center transition-all duration-500 shadow-[0_3px_0_0_#000000]" 
+                    className="w-10 h-10 sm:w-14 sm:h-14 rounded-sm border-2 border-black flex items-center justify-center transition-all duration-500 shadow-[0_2px_0_0_#000000] sm:shadow-[0_3px_0_0_#000000]" 
                     style={{ backgroundColor: color }}
                 >
-                    {React.cloneElement(icon as any, { size: 28, strokeWidth: 4, className: 'text-black' })}
+                    {React.cloneElement(icon as any, { 
+                        size: isMobile ? 20 : 28, 
+                        strokeWidth: 4, 
+                        className: 'text-black' 
+                    })}
                 </div>
                 
                 <div className="flex flex-col items-end">
-                    <span className="text-[10px] font-black uppercase text-black/40 tracking-[0.2em] mb-1.5 flex items-center gap-1.5">
-                        {t('admin.status')}
+                    <span className="text-[8px] md:text-[10px] font-black uppercase text-black/40 tracking-[0.2em] mb-1 sm:mb-1.5 flex items-center gap-1.5 line-clamp-1">
+                        Status
                     </span>
-                    <div className="flex items-center gap-2 bg-white border-2 border-black px-2 py-0.5 rounded-md shadow-[0_2px_0_0_#000000]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#ffdf00] animate-pulse" />
-                        <span className="text-[9px] font-black uppercase text-black tracking-tighter">Live</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 bg-white border-2 border-black px-1.5 sm:px-2 py-0.5 rounded-md shadow-[0_2px_0_0_#000000]">
+                        <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#ffdf00] animate-pulse" />
+                        <span className="text-[8px] sm:text-[9px] font-black uppercase text-black tracking-tighter">Live</span>
                     </div>
                 </div>
             </div>
 
-            <div className="relative z-10 flex flex-col gap-3">
-                <span className="text-[11px] font-black uppercase tracking-[0.25em] text-black">
+            <div className="relative z-10 flex flex-col gap-1 sm:gap-3">
+                <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] text-black line-clamp-1">
                     {label}
                 </span>
                 
                 <div className="flex flex-col">
                     <div className="flex items-baseline gap-2">
-                        <span className="text-5xl font-black tracking-tighter tabular-nums text-black">
+                        <span className="text-3xl sm:text-5xl font-black tracking-tighter tabular-nums text-black">
                             {typeof value === 'number' ? value.toLocaleString() : value}
                         </span>
                     </div>
                     {sublabel && (
-                        <div className="mt-2 flex items-center gap-1.5 px-3 py-1 bg-black text-white border-2 border-black rounded-sm w-fit">
-                            <Activity size={10} strokeWidth={4} />
-                            <span className="text-[10px] font-black uppercase tracking-tight">{sublabel}</span>
+                        <div className="mt-1.5 sm:mt-2 flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 bg-black text-white border-2 border-black rounded-sm w-fit line-clamp-1">
+                            <Activity size={isMobile ? 10 : 14} strokeWidth={4} />
+                            <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tight">{sublabel}</span>
                         </div>
                     )}
                 </div>

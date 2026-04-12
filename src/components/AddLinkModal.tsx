@@ -673,16 +673,16 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
             />
 
             <motion.div
-                initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
-                animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
-                exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
+                initial={{ y: "100%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: "100%", opacity: 0 }}
                 transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
-                className="relative bg-white flex flex-col border-2 border-black md:rounded-md shadow-none w-full md:max-w-[800px] h-[92vh] md:h-auto md:max-h-[85vh] rounded-t-[32px] md:rounded-md overflow-hidden"
+                className="relative bg-white flex flex-col border-t-4 border-x-4 md:border-4 border-black md:rounded-md shadow-none w-full md:max-w-[800px] h-[92vh] md:h-auto md:max-h-[85vh] rounded-t-[40px] md:rounded-md overflow-hidden"
             >
 
                 {/* Header Section - Refined Design */}
                 <div className="flex items-center justify-between px-6 pt-10 pb-6 md:px-10 md:pt-10 md:pb-8 shrink-0">
-                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3">
                         {(initialView === 'social' || !showElements) && (
                             <button
                                 onClick={() => {
@@ -692,9 +692,9 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                         onClose();
                                     }
                                 }}
-                                className="p-1.5 text-black border-2 border-transparent hover:border-[#1a1a1a] hover:bg-[#ffdf00] transition-colors rounded-md mr-1"
+                                className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group mr-1"
                             >
-                                <ChevronLeft size={20} strokeWidth={3} />
+                                <ChevronLeft size={24} strokeWidth={4} />
                             </button>
                         )}
                         <div className="w-1.5 h-6 bg-[#97cd7a] border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full"></div>
@@ -704,9 +704,9 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-10 h-10 flex items-center justify-center text-black bg-white border-2 border-black transition-all active:translate-y-[2px] active:shadow-none shadow-[0_4px_0_0_#1a1a1a] rounded-md"
+                        className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group"
                     >
-                        <X size={20} strokeWidth={4} />
+                        <X size={24} strokeWidth={4} />
                     </button>
                 </div>
 

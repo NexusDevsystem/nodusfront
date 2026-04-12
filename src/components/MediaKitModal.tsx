@@ -77,11 +77,11 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
                     />
 
                     <motion.div
-                        initial={{ y: '100%' }}
-                        animate={{ y: 0 }}
-                        exit={{ y: '100%' }}
+                        initial={{ y: '100%', opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: '100%', opacity: 0 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200, mass: 0.8 }}
-                        className={`bg-white flex flex-col pointer-events-auto border-t-2 border-x-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] w-full max-w-lg h-auto max-h-[85%] rounded-t-[2.5rem] relative overflow-hidden`}
+                        className={`bg-white flex flex-col pointer-events-auto border-t-4 border-x-4 border-black w-full max-w-lg h-auto max-h-[85%] rounded-t-[40px] relative overflow-hidden`}
                         style={{ willChange: 'transform' }}
                     >
                         <div className="flex-none bg-white">
@@ -89,9 +89,9 @@ const MediaKitModal: React.FC<MediaKitModalProps> = ({ isOpen, onClose, profile,
                             <div className="p-5 pt-8 border-b border-[#1a1a1a]/5 relative">
                                 <button
                                     onClick={onClose}
-                                    className="absolute right-5 top-8 p-1 text-slate-400 hover:text-slate-900 transition-colors z-10"
+                                    className="absolute right-5 top-8 w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group z-10"
                                 >
-                                    <X size={24} strokeWidth={2} />
+                                    <X size={24} strokeWidth={4} />
                                 </button>
 
                                 <div className="flex items-center gap-4 pt-1">

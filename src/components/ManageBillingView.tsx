@@ -124,7 +124,7 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile, links, o
     }
 
     return (
-        <div className="relative min-h-screen w-full bg-[#fdfcf0] text-[#1a1a1a] p-4 md:p-14 animate-fade-in font-sans pb-32">
+        <div className="relative min-h-screen w-full bg-[#fdfcf0] text-[#1a1a1a] pt-2 px-4 md:p-14 animate-fade-in font-sans pb-10 md:pb-32">
             <AnimatePresence>
                 {selectedReceipt && (
                     <motion.div 
@@ -248,17 +248,17 @@ const ManageBillingView: React.FC<ManageBillingViewProps> = ({ profile, links, o
 
             <div className="max-w-6xl mx-auto relative z-10 space-y-12">
                 <header className="space-y-8">
-                    <div className="flex items-center gap-3 uppercase text-[10px] font-black tracking-[0.4em] text-black/20 italic">
+                    <div className="hidden md:flex items-center gap-3 uppercase text-[10px] font-black tracking-[0.4em] text-black/20 italic">
                         <Settings size={12} strokeWidth={4} />
                         Gerenciamento de Assinatura
                     </div>
                     
-                    <div className="bg-white border-4 border-black rounded-3xl shadow-[0_12px_0_0_#1a1a1a] p-8 md:p-12 relative overflow-hidden flex flex-col lg:flex-row gap-12 justify-between">
+                    <div className="bg-white border-4 border-black rounded-3xl shadow-[0_12px_0_0_#1a1a1a] p-6 md:p-12 relative overflow-hidden flex flex-col lg:flex-row gap-12 justify-between">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-[#ffdf00]/5 -rotate-45 translate-x-32 -translate-y-32 pointer-events-none" />
                         
                         <div className="space-y-8 relative z-10 flex-1">
                             <div className="space-y-2">
-                                <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter italic leading-none text-black">
+                                <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic leading-none text-black">
                                     {isFree ? 'Nodus Free' : `Nodus Pro ${profile.plan_type === 'annual' ? 'Anual' : 'Mensal'}`}
                                 </h1>
                                 <p className="text-sm font-bold text-black/40 uppercase tracking-widest leading-loose">

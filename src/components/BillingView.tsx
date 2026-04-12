@@ -57,7 +57,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
             period: '/MÊS',
             description: t('billing.plans.monthly.description'),
             features: [
-                t('billing.plans.monthly.features.0'),
+                'Avatar Animado (GIF)',
                 t('billing.plans.monthly.features.1'),
                 t('billing.plans.monthly.features.2'),
                 t('billing.plans.monthly.features.3'),
@@ -75,7 +75,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
             period: '/ANO',
             description: t('billing.plans.annual.description'),
             features: [
-                t('billing.plans.annual.features.0'),
+                'Avatar Animado (GIF)',
                 t('billing.plans.annual.features.1'),
                 t('billing.plans.annual.features.2'),
                 t('billing.plans.annual.features.3'),
@@ -167,6 +167,9 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
     }, [status, currentPlan, onChange]);
 
     const [isCheckingOut, setIsCheckingOut] = useState<string | null>(null);
+    const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+
+    const filteredPlans = PLANS.filter(plan => plan.id === billingCycle);
 
     const handleSelectPlan = async (planId: string) => {
         if (planId === 'free' || planId === currentPlan) return;
@@ -314,6 +317,7 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
 
     const SPECIFICATIONS = [
         { label: 'Links Ilimitados', free: true, monthly: true, annual: true },
+        { label: 'Avatar Animado (GIF)', free: false, monthly: true, annual: true },
         { label: 'Layouts de Perfil', free: 'Clássico', monthly: 'Banner / Perfil', annual: 'Banner / Perfil' },
         { label: 'Animações nos Links', free: 'Básicas', monthly: 'Avançadas', annual: 'Avançadas' },
         { label: 'Biblioteca de Temas', free: '8 temas', monthly: 'Ilimitado', annual: 'Ilimitado' },
@@ -328,61 +332,95 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
 
     return (
         <div className="animate-fade-in pb-12 flex flex-col gap-10">
-            {/* 3 Plans side-by-side */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto w-full px-4">
-                {PLANS.map((plan, i) => {
+            {/* Toggle Mensal/Anual */}
+            <div className="flex justify-center px-4">
+                <div className="bg-white border-2 border-black p-1 rounded-xl flex items-center shadow-[4px_4px_0_0_#000] relative">
+                    <button
+                        onClick={() => setBillingCycle('monthly')}
+                        className={`
+                            px-8 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all relative z-10
+                            ${billingCycle === 'monthly' ? 'bg-[#ffdf00] text-black shadow-[2px_2px_0_0_#000]' : 'text-black/40 hover:text-black'}
+                        `}
+                    >
+                        Mensal
+                    </button>
+                    <button
+                        onClick={() => setBillingCycle('annual')}
+                        className={`
+                            px-8 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all relative z-10
+                            ${billingCycle === 'annual' ? 'bg-[#ffdf00] text-black shadow-[2px_2px_0_0_#000]' : 'text-black/40 hover:text-black'}
+                        `}
+                    >
+                        Anual
+                        <span className={`ml-2 px-2 py-0.5 rounded-md text-[8px] ${billingCycle === 'annual' ? 'bg-black/10 text-black' : 'bg-[#97cd7a]/20 text-[#32a800]'}`}>-20%</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* Single Selected Plan Card */}
+            <div className="max-w-md mx-auto w-full px-4">
+                {filteredPlans.map((plan, i) => {
                     const isCurrent = plan.id === currentPlan;
                     return (
                         <div 
                             key={plan.id}
                             className={`
-                                relative bg-white border-2 border-[#1a1a1a] p-6 md:p-10 rounded-[40px] flex flex-col transition-all duration-300
-                                ${plan.highlight ? 'shadow-[0_12px_0_0_#ffdf00] -translate-y-2 border-[#1a1a1a] z-20' : 'shadow-[0_8px_0_0_#1a1a1a] hover:-translate-y-1'}
+                                relative bg-white border-2 border-black p-6 md:p-10 rounded-[40px] flex flex-col transition-all duration-300
+                                ${plan.highlight ? 'shadow-[6px_6px_0_0_#000] z-20' : 'shadow-[4px_4px_0_0_#000]'}
                                 ${isCurrent ? 'bg-slate-50 opacity-90' : ''}
                             `}
                         >
                             {plan.badge && (
-                                <div className="absolute -top-4 left-10 px-4 py-1.5 bg-black text-[#97cd7a] text-[10px] font-black uppercase tracking-widest border-2 border-[#1a1a1a] shadow-[4px_4px_0_0_#1a1a1a] rounded-lg">
+                                <div className="absolute -top-3 left-6 px-3 py-1 bg-black text-[#97cd7a] text-[8px] font-black uppercase tracking-widest border-2 border-black rounded-md">
                                     {plan.badge}
                                 </div>
                             )}
 
                             {isCurrent && (
-                                <div className="absolute -top-4 right-10 px-4 py-1.5 bg-[#97cd7a] text-black text-[10px] font-black uppercase tracking-widest border-2 border-[#1a1a1a] shadow-[4px_4px_0_0_#1a1a1a] rounded-lg">
-                                    {t('billing.currentPlan')}
+                                <div className="absolute top-0 right-0 px-4 py-2 bg-[#97cd7a] text-black text-[9px] font-black uppercase tracking-widest border-l-2 border-b-2 border-black rounded-tr-[40px] rounded-bl-2xl">
+                                    {t('billing.currentPlan').split(' ')[0]}
                                 </div>
                             )}
 
-                            <div className="mb-6">
-                                <span className={`text-[10px] font-black uppercase tracking-[0.3em] mb-4 block ${plan.highlight ? 'text-[#97cd7a]' : 'text-black/30'}`}>{plan.name}</span>
-                                <div className="flex items-baseline gap-2 mb-6">
-                                    <span className="text-4xl md:text-5xl font-black text-black tracking-tighter leading-none">{plan.price}</span>
-                                    {plan.period && <span className="font-black text-[10px] uppercase tracking-widest text-black/40 bg-black/5 px-2 py-1 rounded-md">{plan.period}</span>}
-                                </div>
-                                <p className="text-[12px] font-bold leading-relaxed uppercase tracking-tight text-black/40 border-l-4 border-[#ffdf00] pl-4 mb-8">{plan.description}</p>
-                            </div>
-
-                            <div className="flex-1 space-y-4 mb-8 pt-6 border-t-2 border-black/5">
-                                {plan.features.slice(0, 6).map((f, i) => (
-                                    <div key={i} className="flex items-start gap-3">
-                                        <div className="mt-0.5 w-5 h-5 bg-[#97cd7a] border-2 border-[#1a1a1a] flex items-center justify-center rounded-sm shadow-[0_2px_0_0_#1a1a1a] shrink-0">
-                                            <Check size={10} strokeWidth={4} className="text-black" />
-                                        </div>
-                                        <span className="text-[10px] leading-tight font-black uppercase tracking-tight text-black/70">{f}</span>
+                            {plan.id === 'free' ? (
+                                <div className="flex flex-col items-center justify-center flex-1 py-4">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] mb-3 text-black/30">{plan.name}</span>
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-4xl font-black text-black tracking-tighter leading-none">{plan.price}</span>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="mb-6">
+                                        <span className={`text-[10px] font-black uppercase tracking-[0.3em] mb-4 block ${plan.highlight ? 'text-[#97cd7a]' : 'text-black/30'}`}>{plan.name}</span>
+                                        <div className="flex items-baseline gap-2 mb-6">
+                                            <span className="text-4xl md:text-5xl font-black text-black tracking-tighter leading-none">{plan.price}</span>
+                                            {plan.period && <span className="font-black text-[10px] uppercase tracking-widest text-black/40 bg-black/5 px-2 py-1 rounded-md">{plan.period}</span>}
+                                        </div>
+                                        <p className="text-[12px] font-bold leading-relaxed uppercase tracking-tight text-black/40 border-l-4 border-[#ffdf00] pl-4 mb-8">{plan.description}</p>
+                                    </div>
+
+                                    <div className="flex-1 space-y-4 mb-8 pt-6 border-t-2 border-black/5">
+                                        {plan.features.slice(0, 6).map((f, i) => (
+                                            <div key={i} className="flex items-start gap-3">
+                                                <div className="mt-0.5 w-5 h-5 bg-[#97cd7a] border-2 border-black flex items-center justify-center rounded-sm shadow-[2px_2px_0_0_#000] shrink-0">
+                                                    <Check size={10} strokeWidth={4} className="text-black" />
+                                                </div>
+                                                <span className="text-[10px] leading-tight font-black uppercase tracking-tight text-black/70">{f}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
 
                             <button
                                 onClick={() => handleSelectPlan(plan.id)}
                                 disabled={plan.id === 'free' || isCurrent}
                                 className={`
-                                    w-full py-5 border-2 border-[#1a1a1a] text-[11px] font-black flex items-center justify-center gap-3 uppercase tracking-[0.2em] rounded-[24px] transition-all
+                                    w-full py-4 border-2 border-black text-[11px] font-black flex items-center justify-center gap-3 uppercase tracking-[0.2em] rounded-full transition-all
                                     ${isCurrent 
-                                        ? 'bg-[#f0f0f0] text-black/20 cursor-default' 
-                                        : plan.id === 'annual' 
-                                            ? 'bg-black text-white shadow-[0_6px_0_0_#ffdf00] hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#ffdf00] active:shadow-none active:translate-y-[6px]' 
-                                            : 'bg-[#ffdf00] text-black shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#1a1a1a] active:shadow-none active:translate-y-[6px]'}
+                                        ? 'bg-transparent text-black/20 border-black/10 cursor-default' 
+                                        : 'bg-[#ffdf00] text-black shadow-[4px_4px_0_0_#000] hover:translate-y-[2px] hover:shadow-[2px_2px_0_0_#000] active:translate-y-[4px] active:shadow-none'}
                                 `}
                             >
                                 {isCheckingOut === plan.id ? (
@@ -399,11 +437,10 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                 })}
             </div>
 
-            {/* Detailed Table Comparison */}
             <div className="max-w-7xl mx-auto w-full px-4 mt-8">
-                <div className="bg-white border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] rounded-[32px] overflow-hidden">
-                    <div className="p-6 md:p-8 border-b-2 border-[#1a1a1a] bg-[#fdfcf0] flex items-center gap-4">
-                        <div className="w-12 h-12 bg-[#ffdf00] border-2 border-[#1a1a1a] rounded-xl flex items-center justify-center shadow-[0_4px_0_0_#1a1a1a]">
+                <div className="bg-white border-2 border-black shadow-[6px_6px_0_0_#000] rounded-[32px] overflow-hidden">
+                    <div className="p-6 md:p-8 border-b-2 border-black bg-[#fdfcf0] flex items-center gap-4">
+                        <div className="w-12 h-12 bg-[#ffdf00] border-2 border-black rounded-xl flex items-center justify-center shadow-[4px_4px_0_0_#000]">
                             <BarChart3 size={24} className="text-black" />
                         </div>
                         <div>
@@ -415,23 +452,23 @@ const BillingView: React.FC<BillingViewProps> = ({ profile, onChange }) => {
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="bg-[#fdfcf0]">
-                                    <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-black/40 border-b-2 border-r-2 border-[#1a1a1a]/5">Recursos</th>
-                                    <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-black/40 border-b-2 border-r-2 border-[#1a1a1a]/5 text-center">Free</th>
-                                    <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-[#97cd7a] border-b-2 border-r-2 border-[#1a1a1a]/5 text-center bg-[#97cd7a]/5">Pro Mensal</th>
-                                    <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-[#ffdf00] border-b-2 border-[#1a1a1a]/5 text-center bg-[#ffdf00]/5">Pro Anual</th>
+                                    <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-black/40 border-b-2 border-r-2 border-black/5">Recursos</th>
+                                    <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-black/40 border-b-2 border-r-2 border-black/5 text-center">Free</th>
+                                    <th className={`px-8 py-5 text-[11px] font-black uppercase tracking-widest text-[#97cd7a] border-b-2 border-r-2 border-black/5 text-center bg-[#97cd7a]/5 transition-opacity ${billingCycle !== 'monthly' ? 'opacity-30' : 'opacity-100'}`}>Pro Mensal</th>
+                                    <th className={`px-8 py-5 text-[11px] font-black uppercase tracking-widest text-[#ffdf00] border-b-2 border-black/5 text-center bg-[#ffdf00]/5 transition-opacity ${billingCycle !== 'annual' ? 'opacity-30' : 'opacity-100'}`}>Pro Anual</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {SPECIFICATIONS.map((spec, i) => (
                                     <tr key={i} className="group hover:bg-slate-50/80 transition-colors">
-                                        <td className="px-8 py-4 text-[12px] font-black uppercase tracking-tight text-black border-b border-r border-[#1a1a1a]/5">{spec.label}</td>
-                                        <td className="px-8 py-4 text-center border-b border-r border-[#1a1a1a]/5">
+                                        <td className="px-8 py-4 text-[12px] font-black uppercase tracking-tight text-black border-b border-r border-black/5">{spec.label}</td>
+                                        <td className="px-8 py-4 text-center border-b border-r border-black/5">
                                             {spec.free === true ? <Check size={18} className="text-[#97cd7a] mx-auto" strokeWidth={4} /> : spec.free ? <span className="text-[10px] font-black text-black/40 uppercase">{spec.free}</span> : <X size={18} className="text-black/10 mx-auto" strokeWidth={3} />}
                                         </td>
-                                        <td className="px-8 py-4 text-center border-b border-r border-[#1a1a1a]/5 bg-[#97cd7a]/2">
+                                        <td className={`px-8 py-4 text-center border-b border-r border-black/5 bg-[#97cd7a]/2 transition-opacity ${billingCycle !== 'monthly' ? 'opacity-30' : 'opacity-100'}`}>
                                             {spec.monthly === true ? <Check size={18} className="text-[#97cd7a] mx-auto" strokeWidth={4} /> : spec.monthly ? <span className="text-[10px] font-black text-[#97cd7a] uppercase">{spec.monthly}</span> : <X size={18} className="text-black/10 mx-auto" strokeWidth={3} />}
                                         </td>
-                                        <td className="px-8 py-4 text-center border-b border-[#1a1a1a]/5 bg-[#ffdf00]/2">
+                                        <td className={`px-8 py-4 text-center border-b border-black/5 bg-[#ffdf00]/2 transition-opacity ${billingCycle !== 'annual' ? 'opacity-30' : 'opacity-100'}`}>
                                             {spec.annual === true ? <Check size={18} className="text-[#97cd7a] mx-auto" strokeWidth={4} /> : spec.annual ? <span className="text-[10px] font-black text-[#ffdf00] uppercase">{spec.annual}</span> : <X size={18} className="text-black/10 mx-auto" strokeWidth={3} />}
                                         </td>
                                     </tr>

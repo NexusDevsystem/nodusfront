@@ -64,7 +64,7 @@ export default function AnnouncementModal() {
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[10000] flex items-end justify-center">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -76,10 +76,11 @@ export default function AnnouncementModal() {
 
                     {/* Modal Content */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 30 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                        className="relative w-full max-w-5xl max-h-[90vh] bg-white border-2 border-black rounded-2xl shadow-[0_16px_0_0_#000] overflow-hidden flex flex-col md:flex-row mx-auto"
+                        initial={{ y: "100%", opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: "100%", opacity: 0 }}
+                        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                        className="relative w-full max-w-5xl max-h-[90vh] bg-white border-t-4 border-x-4 border-black rounded-t-[40px] overflow-hidden flex flex-col md:flex-row mx-auto z-10"
                     >
                         {/* 1. Left side: Image Carousel (Adaptive) */}
                         <div className="relative w-full md:w-auto md:max-w-[60%] bg-black flex-shrink-0 border-b-2 md:border-b-0 md:border-r-2 border-black max-h-[50vh] md:max-h-none flex items-center justify-center overflow-hidden group">
@@ -166,7 +167,7 @@ export default function AnnouncementModal() {
                                 </div>
                                 <button 
                                     onClick={handleClose}
-                                    className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black rounded-lg hover:bg-red-500 hover:text-white transition-all shadow-[4px_4px_0_0_#000] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                                    className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group"
                                 >
                                     <X size={24} strokeWidth={4} />
                                 </button>

@@ -14,18 +14,22 @@ interface BillingModalProps {
 const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose }) => {
     const { t } = useTranslation();
     return (
-        <div className="fixed inset-0 z-[500] bg-[#fdfcf0] overflow-hidden flex flex-col">
-            {/* Background elements */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#97cd7a]/15 blur-[120px] rounded-full animate-pulse-slow" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#ffdf00]/10 blur-[120px] rounded-full animate-pulse-slow" />
-            </div>
+        <div className="fixed inset-0 z-[500] flex items-end justify-center">
+            {/* Backdrop */}
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={onClose}
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            />
 
             <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                className="w-full h-full relative flex flex-col overflow-hidden z-10"
+                initial={{ y: "100%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: "100%", opacity: 0 }}
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                className="relative bg-[#fdfcf0] border-t-4 border-x-4 border-[#1a1a1a] w-full h-[95vh] flex flex-col overflow-hidden z-10 rounded-t-[40px]"
             >
                 {/* Premium Header - Optimized for Full Page - COMPACT */}
                 <div className="flex items-center justify-between p-4 md:px-10 md:py-6 border-b-2 border-[#1a1a1a] shrink-0 relative overflow-hidden bg-[#fdfcf0] group">
@@ -69,9 +73,9 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
 
                     <button
                         onClick={onClose}
-                        className="group relative p-2 md:p-3 text-black hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover:text-[#ffdf00] border-2 border-[#1a1a1a] bg-white transition-all active:scale-95 shadow-[0_3px_0_0_#1a1a1a] md:shadow-[0_4px_0_0_#1a1a1a] z-30 rounded-xl"
+                        className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group z-30"
                     >
-                        <X className="w-5 h-5 md:w-6 md:h-6" strokeWidth={4} />
+                        <X size={24} strokeWidth={4} />
                     </button>
                 </div>
 

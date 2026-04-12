@@ -77,24 +77,27 @@ export default function PasswordLinkModal({ linkId, linkTitle, onClose, apiBaseU
                 />
 
                 <motion.div
-                    className="relative w-full sm:max-w-sm mx-4 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] mb-4 sm:mb-0"
-                    initial={{ y: 80, opacity: 0, scale: 0.95 }}
-                    animate={{ y: 0, opacity: 1, scale: 1 }}
-                    exit={{ y: 80, opacity: 0, scale: 0.95 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    className="relative w-full sm:max-w-md mx-4 bg-white border-t-4 border-x-4 sm:border-4 border-black sm:shadow-[0_12px_0_0_#000] rounded-t-[40px] sm:rounded-[32px] overflow-hidden pointer-events-auto"
+                    initial={{ y: "100%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: "100%", opacity: 0 }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                 >
                     {/* Header */}
-                    <div className="flex items-center justify-between border-b-2 border-[#1a1a1a] px-4 py-3">
-                        <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 bg-black flex items-center justify-center">
-                                <Lock size={14} strokeWidth={3} className="text-[#97cd7a]" />
+                    <div className="flex items-center justify-between border-b-2 border-black/5 px-6 py-6 md:px-8">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-black flex items-center justify-center rounded-xl shadow-[3px_3px_0_0_#97cd7a]">
+                                <Lock size={18} strokeWidth={3} className="text-[#97cd7a]" />
                             </div>
-                            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black">
+                            <span className="text-[14px] font-black uppercase tracking-tighter text-black italic">
                                 {t('passwordLink.modalTitle') || 'Conteúdo Exclusivo'}
                             </span>
                         </div>
-                        <button onClick={onClose} className="p-1 hover:bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] hover: transition-colors">
-                            <X size={16} strokeWidth={3} />
+                        <button 
+                            onClick={onClose} 
+                            className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group"
+                        >
+                            <X size={24} strokeWidth={4} />
                         </button>
                     </div>
 

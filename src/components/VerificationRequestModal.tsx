@@ -120,7 +120,7 @@ const VerificationRequestModal: React.FC<VerificationRequestModalProps> = ({ isO
 
     const content = (
         <AnimatePresence>
-            <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 md:p-12 pointer-events-none">
+            <div className="fixed inset-0 z-[999999] flex items-end justify-center pointer-events-none">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -130,15 +130,16 @@ const VerificationRequestModal: React.FC<VerificationRequestModalProps> = ({ isO
                 />
 
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.96, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.96, y: 20 }}
-                    className="relative bg-white border-2 border-[#1a1a1a] shadow-[0_12px_24px_-8px_rgba(0,0,0,0.1),0_12px_0_0_#1a1a1a] w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden z-10 pointer-events-auto"
+                    initial={{ y: "100%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: "100%", opacity: 0 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                    className="relative bg-white border-t-4 border-x-4 border-black w-full max-w-4xl max-h-[95vh] flex flex-col rounded-t-[40px] overflow-hidden z-10 pointer-events-auto"
                 >
                     <div className="h-2 bg-[#ffdf00] shrink-0" />
-                    <div className="px-8 pt-6 pb-4 border-b-2 border-[#1a1a1a]/8 flex items-center justify-between shrink-0">
+                    <div className="px-8 pt-6 pb-4 border-b-2 border-black/5 flex items-center justify-between shrink-0">
                         <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-[#ffdf00] border-2 border-[#1a1a1a] rounded-lg flex items-center justify-center shadow-[0_3px_0_0_#1a1a1a]">
+                            <div className="w-9 h-9 bg-[#ffdf00] border-2 border-black rounded-lg flex items-center justify-center shadow-[0_3px_0_0_#000]">
                                 <ShieldCheck size={18} strokeWidth={3} className="text-black" />
                             </div>
                             <div>
@@ -146,7 +147,12 @@ const VerificationRequestModal: React.FC<VerificationRequestModalProps> = ({ isO
                                 <p className="text-[9px] font-bold text-black/30 uppercase tracking-widest">Análise pela equipe Nodus</p>
                             </div>
                         </div>
-                        <button onClick={onClose} className="w-9 h-9 flex items-center justify-center border-2 border-[#1a1a1a] bg-white rounded-lg shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[2px] transition-all"><X size={16} strokeWidth={3} /></button>
+                        <button 
+                            onClick={onClose} 
+                            className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group"
+                        >
+                            <X size={24} strokeWidth={4} />
+                        </button>
                     </div>
 
                     <div className="flex-1 overflow-y-auto">

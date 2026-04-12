@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { UserProfile } from '../../types';
-import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle, Loader2, Check, Lock, Zap, Clock, XCircle } from 'lucide-react';
+import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle, Loader2, Check, Lock, Zap, Clock, X, RefreshCw } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
 import { compressImage } from '../../utils/imageUtils';
 import { THEMES } from '../../constants';
@@ -42,6 +43,8 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
 
     const [isSavingImage, setIsSavingImage] = useState(false);
+    const [isAvatarTypeModalOpen, setIsAvatarTypeModalOpen] = useState(false);
+    const [uploadType, setUploadType] = useState<'static' | 'animated'>('static');
 
     const loadVerifStatus = useCallback(async () => {
         if (profile.isVerified) return;
@@ -130,11 +133,23 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
             const file = e.target.files[0];
             setIsSavingImage(true);
             try {
-                // Compress if needed (optional but good for perf)
-                const compressedDataUrl = await compressImage(file, 800, 0.8);
-                const response = await fetch(compressedDataUrl);
-                const blob = await response.blob();
-                const uploadFile = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+                let uploadFile: File;
+
+                // Handle Animated GIF (No compression to preserve animation)
+                if (uploadType === 'animated') {
+                    if (file.type !== 'image/gif') {
+                        alert('Por favor, selecione um arquivo GIF para a opção animada.');
+                        setIsSavingImage(false);
+                        return;
+                    }
+                    uploadFile = file;
+                } else {
+                    // Compress standard images
+                    const compressedDataUrl = await compressImage(file, 800, 0.8);
+                    const response = await fetch(compressedDataUrl);
+                    const blob = await response.blob();
+                    uploadFile = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+                }
 
                 const uploadRes = await apiClient.uploadInternalAsset(uploadFile);
                 if (uploadRes.success && uploadRes.file?.url) {
@@ -147,6 +162,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
             } finally {
                 setIsSavingImage(false);
                 e.target.value = '';
+                setIsAvatarTypeModalOpen(false);
             }
         }
     };
@@ -293,9 +309,20 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                         <div className="flex-1 w-full space-y-4">
                             <div className="flex gap-2">
-                                <label htmlFor="avatar-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#97cd7a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-md">
+                                <button 
+                                    onClick={() => setIsAvatarTypeModalOpen(true)}
+                                    className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#86b86c] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-md"
+                                >
                                     <Upload size={14} strokeWidth={3} /> {profile.avatarUrl ? t('common.change') : t('design.chooseImage')}
-                                </label>
+                                </button>
+                                <input
+                                    type="file"
+                                    ref={avatarInputRef}
+                                    onChange={handleAvatarUpload}
+                                    accept={uploadType === 'animated' ? 'image/gif' : 'image/*'}
+                                    className="hidden"
+                                    id="avatar-upload"
+                                />
                                 {profile.avatarUrl && (
                                         <button
                                             onClick={() => onChange({ ...profile, avatarUrl: '' })}
@@ -818,6 +845,92 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                 </div>
             </div>
 
+            {/* Avatar Type Selection Modal */}
+            {isAvatarTypeModalOpen && createPortal(
+                <div className="fixed inset-0 z-[999999] flex items-end justify-center sm:items-center">
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsAvatarTypeModalOpen(false)}
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                    />
+                    <motion.div 
+                        initial={{ y: "100%", opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: "100%", opacity: 0 }}
+                        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                        className="bg-white border-t-4 sm:border-4 border-black p-8 sm:max-w-md w-full relative z-10 rounded-t-[40px] sm:rounded-3xl max-h-[90vh] overflow-y-auto"
+                    >
+                        <button 
+                            onClick={() => setIsAvatarTypeModalOpen(false)}
+                            className="absolute top-6 right-6 w-9 h-9 bg-white border-4 border-black flex items-center justify-center shadow-[0_3px_0_0_#000] hover:translate-y-[1px] hover:shadow-none transition-all rounded-lg active:scale-95 z-20"
+                        >
+                            <X size={20} strokeWidth={4} className="text-black" />
+                        </button>
+
+                        <div className="text-center mb-10 mt-4">
+                            <h3 className="text-2xl font-black uppercase tracking-tighter italic">Escolha o Estilo</h3>
+                            <p className="text-[11px] font-bold text-black/40 uppercase tracking-widest mt-1">Como será sua nova foto de perfil?</p>
+                        </div>
+
+                        <div className="space-y-4 pb-4">
+                            <button
+                                onClick={() => {
+                                    setUploadType('static');
+                                    setTimeout(() => avatarInputRef.current?.click(), 100);
+                                }}
+                                className="w-full p-5 border-4 border-black bg-white hover:bg-slate-50 flex items-center gap-5 transition-all group shadow-[0_3px_0_0_#000] active:translate-y-1 active:shadow-none rounded-2xl"
+                            >
+                                <div className="w-14 h-14 bg-blue-100 border-2 border-black rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <ImageIcon size={28} className="text-blue-600" />
+                                </div>
+                                <div className="text-left flex-1">
+                                    <span className="block text-base font-black uppercase tracking-tighter">Imagem Estática</span>
+                                    <span className="block text-[10px] font-bold text-black/40 uppercase">Formatos JPEG, PNG, WEBP</span>
+                                </div>
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    const isPro = profile.plan_type && profile.plan_type !== 'free';
+                                    if (!isPro) {
+                                        setIsAvatarTypeModalOpen(false);
+                                        window.dispatchEvent(new CustomEvent('open-billing-modal'));
+                                        return;
+                                    }
+                                    setUploadType('animated');
+                                    setTimeout(() => avatarInputRef.current?.click(), 100);
+                                }}
+                                className="w-full p-5 border-4 border-black bg-white hover:bg-slate-50 flex items-center gap-5 transition-all group shadow-[0_3px_0_0_#000] active:translate-y-1 active:shadow-none relative overflow-hidden rounded-2xl"
+                            >
+                                {(!profile.plan_type || profile.plan_type === 'free') && (
+                                    <div className="absolute top-3 right-3">
+                                        <Zap size={16} fill="#ffdf00" className="text-[#ffdf00]" />
+                                    </div>
+                                )}
+                                <div className="w-14 h-14 bg-yellow-50 border-2 border-black rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <motion.div
+                                        animate={{ rotate: 360 }}
+                                        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                    >
+                                        <RefreshCw size={28} className="text-[#ffdf00]" />
+                                    </motion.div>
+                                </div>
+                                <div className="text-left flex-1">
+                                    <div className="flex items-center gap-2">
+                                        <span className="block text-base font-black uppercase tracking-tighter">Avatar Animado</span>
+                                        <span className="px-1.5 py-0.5 bg-[#ffdf00] text-black text-[9px] font-black rounded-sm border border-black shadow-[2px_2px_0_0_#000]">PRO</span>
+                                    </div>
+                                    <span className="block text-[10px] font-bold text-black/40 uppercase tracking-tight">Use GIFs para dar vida ao perfil</span>
+                                </div>
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>,
+                document.body
+            )}
+
             {/* Verification Request Modal */}
             <VerificationRequestModal
                 isOpen={isVerifModalOpen}
@@ -831,15 +944,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                 profile={profile}
             />
 
-            {/* Hidden file inputs - REQUIRED for upload to work */}
-            <input
-                ref={avatarInputRef}
-                id="avatar-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarUpload}
-            />
+            {/* Banner Upload */}
             <input
                 ref={bannerInputRef}
                 id="banner-upload"
@@ -848,6 +953,8 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                 className="hidden"
                 onChange={handleBannerUpload}
             />
+
+            {/* Logo Upload */}
             <input
                 ref={logoInputRef}
                 id="logo-upload"

@@ -36,7 +36,7 @@ import MobileExtrasMenu from '../components/MobileExtrasMenu';
 import FileManager from '../components/tools/FileManager';
 import { IntegrationsView } from '../views/IntegrationsView';
 import { useTranslation } from 'react-i18next';
-import { hasProFeatures } from '../utils/planUtils';
+import { hasProFeatures, reconcileSubscription } from '../utils/planUtils';
 import { AlertCircle } from 'lucide-react';
 import AnnouncementModal from '../components/AnnouncementModal';
 
@@ -138,10 +138,16 @@ export default function EditorPage() {
                     );
                 }
 
-                setProfile(profileData);
-                setLinks(linksData);
+                const { 
+                    profile: finalProfile, 
+                    stores: finalStoresWithSanitization, 
+                    links: finalLinksWithSanitization 
+                } = reconcileSubscription(profileData, finalStores, linksData);
+
+                setProfile(finalProfile);
+                setLinks(finalLinksWithSanitization);
                 setProducts(finalProducts);
-                setStores(finalStores);
+                setStores(finalStoresWithSanitization);
 
 
                 // --- AUTOMATIC PAYMENT RECONCILIATION ---
@@ -653,9 +659,11 @@ export default function EditorPage() {
     return (
         <div className="h-screen w-full bg-transparent font-sans text-black selection:bg-black selection:text-[#ffdf00] flex flex-col overflow-hidden">
             {/* Quests Checklist moved to Sidebar component */}
-            {/* Top Banner for Free Users */}
+            {/* Top Banner for Free Users - Desktop Only */}
             {(!profile.plan_type || profile.plan_type === 'free') && (
-                <UpgradeBanner onUpgradeClick={() => setIsUpgradeOpen(true)} />
+                <div className="hidden md:block">
+                    <UpgradeBanner onUpgradeClick={() => setIsUpgradeOpen(true)} />
+                </div>
             )}
 
             <div className={`flex-1 flex overflow-hidden relative bg-transparent`}>
@@ -741,7 +749,8 @@ export default function EditorPage() {
                     </AnimatePresence>
 
                     {/* MOBILE TOP BAR */}
-                    <div className="md:hidden fixed top-0 left-0 right-0 h-20 bg-[#fdfcf0] border-b-4 border-black z-[70] flex items-center justify-between px-5 shadow-sm">
+                    {!(isBottomSheetOpen && ['analytics', 'roadmap', 'billing', 'support', 'admin'].includes(activeTab)) && (
+                        <div className="md:hidden fixed top-0 left-0 right-0 h-20 bg-[#fdfcf0] border-b-4 border-black z-[70] flex items-center justify-between px-5 shadow-sm">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 bg-white border-2 border-black rounded-xl overflow-hidden flex items-center justify-center shadow-[0_3px_0_0_#000]">
                                 {profile.avatarUrl ? (
@@ -770,24 +779,53 @@ export default function EditorPage() {
                         </div>
                         
                         <div className="flex items-center gap-2">
-                             <button
-                                onClick={() => setIsShareModalOpen(true)}
-                                className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black rounded-xl shadow-[0_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all text-black"
+                             {/* MOBILE STATUS INDICATOR */}
+                            <div 
+                                className={`
+                                    h-10 px-3 flex items-center justify-center gap-2 rounded-xl border-2 border-black transition-all duration-300
+                                    ${isSaving 
+                                        ? 'bg-[#ffdf00] shadow-[0_3px_0_0_#000]' 
+                                        : isPreviewMode 
+                                            ? 'bg-white border-dashed shadow-none opacity-50' 
+                                            : 'bg-[#97cd7a] shadow-[0_3px_0_0_#000]'}
+                                `}
                             >
-                                <Share size={18} strokeWidth={3} />
-                            </button>
+                                {isSaving ? (
+                                    <>
+                                        <Loader2 size={16} className="animate-spin" strokeWidth={3} />
+                                        <span className="text-[9px] font-black uppercase tracking-widest">Salvando</span>
+                                    </>
+                                ) : isPreviewMode ? (
+                                    <>
+                                        <Eye size={16} strokeWidth={3} />
+                                        <span className="text-[9px] font-black uppercase tracking-widest uppercase">Preview</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Check size={16} strokeWidth={4} />
+                                        <span className="text-[9px] font-black uppercase tracking-widest">Salvo</span>
+                                    </>
+                                )}
+                            </div>
                             <button
                                 onClick={() => signOut && signOut()}
-                                className="px-3 h-10 flex items-center gap-2 bg-[#ffdddd] border-2 border-black rounded-xl shadow-[0_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all text-black"
+                                className="w-10 h-10 flex items-center justify-center bg-[#fdfcf0] border-2 border-black rounded-xl shadow-[0_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all text-black"
                             >
-                                <LogOut size={16} strokeWidth={3} />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Sair</span>
+                                <LogOut size={18} strokeWidth={3} />
                             </button>
                         </div>
                     </div>
+                )}
+
+                    {/* MOBILE UPGRADE BANNER */}
+                    {(!profile.plan_type || profile.plan_type === 'free') && activeTab !== 'billing' && (
+                        <div className="md:hidden fixed top-20 left-0 right-0 z-[65]">
+                            <UpgradeBanner onUpgradeClick={() => setIsUpgradeOpen(true)} />
+                        </div>
+                    )}
 
                     {/* MOBILE LIVE PREVIEW BACKGROUND */}
-                    <div className="md:hidden absolute inset-0 z-0 bg-transparent flex flex-col overflow-hidden pt-20">
+                    <div className={`md:hidden absolute inset-0 z-0 bg-transparent flex flex-col overflow-hidden ${((!profile.plan_type || profile.plan_type === 'free') && activeTab !== 'billing') ? 'pt-[120px]' : 'pt-20'}`}>
 
                        <div className="w-full h-full origin-top relative">
                          <div className="w-full h-full overflow-hidden bg-transparent">

@@ -9,7 +9,7 @@ interface UpgradeBannerProps {
 const UpgradeBanner: React.FC<UpgradeBannerProps> = ({ onUpgradeClick }) => {
     const { t } = useTranslation();
     return (
-        <div className="w-full bg-[#ffdf00] h-10 px-4 flex items-center justify-center relative z-30 animate-fade-in shrink-0 border-b border-[#1a1a1a]">
+        <div className="w-full bg-[#ffdf00] h-10 px-4 flex items-center justify-center relative z-30 animate-fade-in shrink-0 border-b-2 border-black">
             <div className="flex items-center gap-3 sm:gap-6 max-w-7xl w-full justify-between sm:justify-center relative z-10">
                 {/* Left Icon (Minimalist) */}
                 <div className="hidden sm:flex text-black/50">
@@ -17,15 +17,15 @@ const UpgradeBanner: React.FC<UpgradeBannerProps> = ({ onUpgradeClick }) => {
                 </div>
 
                 {/* Centered Text */}
-                <p className="text-[11px] sm:text-xs font-black text-black tracking-widest text-center flex-1 sm:flex-none uppercase relative z-10">
+                <p className="text-[10px] sm:text-xs font-black text-black tracking-tighter text-left sm:text-center flex-1 sm:flex-none uppercase italic relative z-10">
                     <span className="mr-2">{t('upgradeBanner.title')}</span>
-                    <span className="opacity-50 hidden sm:inline">{t('upgradeBanner.subtitle')}</span>
+                    <span className="opacity-50 hidden md:inline">{t('upgradeBanner.subtitle')}</span>
                 </p>
 
-                {/* Upgrade Button (Minimalist) */}
+                {/* Upgrade Button (Brutalist) */}
                 <button
                     onClick={onUpgradeClick}
-                    className="flex items-center gap-1.5 px-3 py-1 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a]  hover:bg-white hover:text-[#1a1a1a] transition-all text-[9px] font-black uppercase tracking-widest relative z-10 border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] active:shadow-none active:translate-y-[1px]"
+                    className="flex items-center gap-1.5 px-3 py-1 bg-white border-2 border-black shadow-[2px_2px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all text-[9px] font-black uppercase tracking-widest relative z-10 rounded-md"
                 >
                     <CreditCard size={12} strokeWidth={3} />
                     {t('upgradeBanner.button')}

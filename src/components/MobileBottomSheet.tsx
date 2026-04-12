@@ -20,19 +20,19 @@ export default function MobileBottomSheet({ isOpen, onClose, onBack, title, chil
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? 'auto' : 'none',
         }}
-        className={`fixed inset-0 bg-black/50 md:hidden ${fullScreen ? 'z-[55]' : 'z-40'}`}
+        className={`fixed inset-0 bg-black/80 backdrop-blur-md md:hidden ${fullScreen ? 'z-[55]' : 'z-40'}`}
         onClick={onClose}
       />
       <motion.div
         initial="closed"
         animate={isOpen ? 'open' : 'closed'}
         variants={{
-          open: { y: 0 },
-          closed: { y: '100%' },
+          open: { y: 0, opacity: 1 },
+          closed: { y: '100%', opacity: 0 },
         }}
-        transition={{ duration: 0 }}
-        className={`fixed bottom-0 left-0 right-0 bg-[#fdfcf0] border-t-4 border-black shadow-[0_-12px_24px_rgba(0,0,0,0.15)] flex flex-col md:hidden
-          ${fullScreen ? 'h-[calc(100%-80px)] z-[60] rounded-none' : 'h-[70dvh] max-h-[70dvh] z-40 rounded-t-3xl'}`}
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        className={`fixed bottom-0 left-0 right-0 bg-[#fdfcf0] flex flex-col md:hidden
+          ${fullScreen ? 'h-[100dvh] z-[80] rounded-none border-t-0' : 'h-[75vh] z-[60] border-t-4 border-black rounded-t-[40px]'}`}
       >
         {/* Header */}
         <div className="px-5 py-4 border-b-2 border-dashed border-black/10 shrink-0 flex items-center justify-between">
@@ -40,9 +40,9 @@ export default function MobileBottomSheet({ isOpen, onClose, onBack, title, chil
             {onBack && (
               <button 
                 onClick={(e) => { e.stopPropagation(); onBack(); }}
-                className="p-1 -ml-1 hover:bg-black/5 rounded-lg transition-colors border-2 border-transparent active:border-black/10 text-black"
+                className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group"
               >
-                <ChevronLeft size={24} strokeWidth={3} />
+                <ChevronLeft size={24} strokeWidth={4} />
               </button>
             )}
             {title && (
@@ -52,14 +52,14 @@ export default function MobileBottomSheet({ isOpen, onClose, onBack, title, chil
 
           <button 
             onClick={(e) => { e.stopPropagation(); onClose(); }}
-            className="p-1 hover:bg-black/5 rounded-lg transition-colors border-2 border-transparent active:border-black/10 text-black"
+            className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group"
           >
-            <X size={24} strokeWidth={3} />
+            <X size={24} strokeWidth={4} />
           </button>
         </div>
 
         {/* Content with Scroll */}
-        <div className={`flex-1 overflow-y-auto px-4 pt-4 custom-scrollbar ${fullScreen ? 'pb-10' : 'pb-28'}`}>
+        <div className={`flex-1 overflow-y-auto px-4 pt-4 custom-scrollbar ${fullScreen ? 'pb-32' : 'pb-28'}`}>
           {children}
         </div>
       </motion.div>

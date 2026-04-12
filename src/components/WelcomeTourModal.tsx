@@ -24,12 +24,18 @@ const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ isOpen, onAccept, o
                         onClick={onDecline}
                     />
                     <motion.div
-                        initial={{ opacity: 0, y: "100%" }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: "100%" }}
+                        initial={{ y: "100%", opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: "100%", opacity: 0 }}
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="relative bg-white border-2 border-[#1a1a1a] p-8 md:p-8 rounded-none shadow-[0_4px_0_0_#1a1a1a] w-full md:max-w-sm flex flex-col items-center text-center font-sans overflow-hidden pointer-events-auto"
+                        className="relative bg-white border-t-4 border-x-4 md:border-4 border-black p-8 md:p-10 rounded-t-[40px] md:rounded-[40px] md:shadow-[0_12px_0_0_#000] w-full md:max-w-md flex flex-col items-center text-center font-sans overflow-hidden pointer-events-auto"
                     >
+                        <button
+                            onClick={onDecline}
+                            className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group z-10"
+                        >
+                            <X size={24} strokeWidth={4} />
+                        </button>
                         {/* Decorative Background Elements */}
                         <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#ffdf00] rounded-none mix-blend-multiply opacity-20 pointer-events-none blur-2xl"></div>
                         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-[#97cd7a] rounded-none mix-blend-multiply opacity-20 pointer-events-none blur-2xl"></div>
