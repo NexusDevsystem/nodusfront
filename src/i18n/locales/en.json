@@ -906,7 +906,8 @@
         "overview": "Overview",
         "analytics": "Analytics",
         "assets": "Assets",
-        "manage": "Manage"
+        "manage": "Manage",
+        "referralSource": "Referral Source"
     },
     "shop": {
         "title": "Configure Showcase",

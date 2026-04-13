@@ -13,6 +13,9 @@ import { SOCIAL_NETWORKS, THEMES } from '../constants';
 import { LinkItem, UserProfile } from '../types';
 import MonetizationView from './MonetizationView';
 import { fetchSocialMetadata, SocialMetadata, isYoutubeChannelUrl } from '../utils/socialUtils';
+import DiscordCard from './profile/DiscordCard';
+import { formatUrl } from '../utils/urlUtils';
+import InteractiveButton from './animations/InteractiveButton';
 
 interface AddLinkModalProps {
     isOpen: boolean;
@@ -233,6 +236,17 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 fetchSocialMetadata(url).then(data => {
                     setSocialData(data);
                 }).finally(() => setIsLoadingSocial(false));
+                return;
+            }
+
+            // Discord Detection
+            if (lowerUrl.includes('discord.gg') || lowerUrl.includes('discord.com/invite')) {
+                setDetectedInfo({
+                    platform: 'Discord',
+                    icon: <SiDiscord size={16} />,
+                    type: 'link',
+                    metadata: { type: 'discord' }
+                });
                 return;
             }
 
@@ -477,7 +491,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                             {[
-                                { id: 'link', icon: <LinkIcon size={isMobile ? 20 : 24} strokeWidth={3} />, label: 'Link', desc: t('links.insertAnyUrl'), color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { setShowElements(false); document.getElementById('url-input')?.focus(); } },
+                                { id: 'link', icon: <LinkIcon size={isMobile ? 20 : 24} strokeWidth={3} />, label: 'Link', desc: t('links.insertAnyUrl'), color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
                                 { id: 'collection', icon: <Layout size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { setShowCollectionStep(true); } },
                                 { id: 'product', icon: <ShoppingBag size={isMobile ? 20 : 24} strokeWidth={3} />, label: isMobile ? t('links.productLabel') : t('links.newProduct'), desc: t('links.productDescShort'), color: 'bg-white', accent: 'bg-cyan-400', action: () => { setShowShopCollectionStep(true); } },
                                 { id: 'agenda', icon: <Calendar size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('agenda.title') || 'Agenda', desc: t('agenda.descShort') || 'Liste seus eventos e shows', color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddAgenda(); onClose(); } },
@@ -711,141 +725,6 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 </div>
 
                 <div className="flex flex-col flex-1 overflow-hidden">
-                    {/* Integrated URL Input Component */}
-                    <div className={`px-6 md:px-8 pb-6 md:pb-8 shrink-0`}>
-                        <form onSubmit={handleUrlSubmit} className="relative group max-w-2xl">
-                            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none z-10">
-                                <LinkIcon size={18} strokeWidth={2.5} className="text-black/20 group-focus-within:text-black transition-colors" />
-                            </div>
-                            <input
-                                id="url-input"
-                                type="text"
-                                placeholder={t('links.pasteUrlHint')}
-                                value={url}
-                                onChange={(e) => setUrl(e.target.value)}
-                                className={`
-                                     w-full bg-slate-50 border-2 border-black rounded-md py-3 md:py-3.5 pl-10 pr-20 text-xs font-bold text-black
-                                     focus:outline-none focus:ring-0 focus:bg-white focus:shadow-[0_4px_0_0_#1a1a1a] transition-all
-                                    placeholder:text-black/20 placeholder:font-bold uppercase tracking-[0.05em]
-                                `}
-                            />
-                            <div className="absolute inset-y-0 right-4 flex items-center">
-                                <AnimatePresence mode="wait">
-                                    {detectedInfo ? (
-                                        <motion.button
-                                            key="detected"
-                                            initial={{ opacity: 0, x: 10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: 10 }}
-                                            type="submit"
-                                             className="flex items-center gap-2 px-3 py-1.5 bg-[#ffdf00] border-2 border-black shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-0.5 transition-all rounded-sm"
-                                        >
-                                            <span className="text-black">{detectedInfo.icon}</span>
-                                            <Plus size={16} strokeWidth={4} className="text-black" />
-                                        </motion.button>
-                                    ) : (
-                                        <motion.div
-                                            key="waiting"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 0.3 }}
-                                            className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-black/5 border border-dashed border-black/20 rounded-sm"
-                                        >
-                                            <Zap size={12} className="text-black" />
-                                            <span className="text-[9px] font-black uppercase tracking-widest">{t('common.waiting')}</span>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        </form>
-
-                        {/* Link Preview Section - REPLICATING LIVE PREVIEW STYLE */}
-                        <AnimatePresence>
-                            {url.trim() && detectedInfo && (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                                    className="mt-6 flex flex-col gap-6"
-                                >
-
-                                    {/* Video/Music Card Preview (Only if metadata exists) */}
-                                    {detectedInfo.metadata && (
-                                        <div className="space-y-4">
-                                            <div className="aspect-video w-full bg-slate-50 border-2 border-black rounded-2xl overflow-hidden flex items-center justify-center relative shadow-[0_4px_0_0_#1a1a1a]">
-                                                {(detectedInfo.metadata as any).type === 'youtube' && (
-                                                    <iframe
-                                                        src={`https://www.youtube.com/embed/${(detectedInfo.metadata as any).id}`}
-                                                        className="absolute inset-0 w-full h-full border-0"
-                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                        allowFullScreen
-                                                    />
-                                                )}
-                                                {(detectedInfo.metadata as any).type === 'spotify' && (
-                                                    <iframe
-                                                        src={`https://open.spotify.com/embed/${(detectedInfo.metadata as any).subType}/${(detectedInfo.metadata as any).id}`}
-                                                        className="absolute inset-0 w-full h-full border-0"
-                                                        allow="encrypted-media"
-                                                    />
-                                                )}
-                                                {((detectedInfo.metadata as any).type === 'tiktok' || (detectedInfo.metadata as any).type === 'instagram' || (detectedInfo.metadata as any).type === 'youtube-channel') && (
-                                                    <div className="flex flex-col items-center gap-4 p-8 text-center w-full">
-                                                        {socialData ? (
-                                                            <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-500">
-                                                                <div className="relative group">
-                                                                    <div className="absolute inset-0 bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] rounded-full blur-md opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                                                                    {socialData.avatarUrl ? (
-                                                                        <img 
-                                                                            src={socialData.avatarUrl} 
-                                                                            alt={socialData.username || "Profile"} 
-                                                                            className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-white shadow-[0_8px_20px_rgba(0,0,0,0.1)] object-cover relative z-10"
-                                                                        />
-                                                                    ) : (
-                                                                        <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-black bg-slate-50 flex items-center justify-center relative z-10">
-                                                                            <Instagram size={32} />
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                                <div className="space-y-1">
-                                                                    <h5 className="text-base md:text-lg font-black text-black uppercase tracking-tight">@{socialData.username || detectedInfo.platform}</h5>
-                                                                    {socialData.followers && (
-                                                                        <div className="flex items-center justify-center gap-2 px-4 py-1.5 bg-black text-[#ffdf00] rounded-full border-2 border-black shadow-[0_4px_0_0_#000]">
-                                                                            <span className="text-[10px] font-black uppercase tracking-widest">{socialData.followers} {socialData.platform === 'youtube' ? 'Inscritos' : 'Seguidores'}</span>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        ) : (
-                                                            <>
-                                                                <div className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black rounded-full shadow-[0_3px_0_0_#1a1a1a]">
-                                                                    {isLoadingSocial ? <RefreshCw size={24} className="animate-spin" /> : detectedInfo.icon}
-                                                                </div>
-                                                                <p className="text-[10px] font-black uppercase tracking-widest text-black/40 px-4">
-                                                                    {isLoadingSocial ? 'Buscando perfil...' : t('links.contentDetected', { platform: detectedInfo.platform })}
-                                                                </p>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Manual Confirm Button for focus mode */}
-                                    {!showElements && (
-                                        <button
-                                            onClick={handleUrlSubmit}
-                                            className="w-full py-4 bg-black text-white text-xs font-black uppercase tracking-[0.2em] hover:bg-[#ffdf00] hover:text-black hover:shadow-none hover:translate-y-1 transition-all rounded-md shadow-[0_4px_0_0_#1a1a1a]"
-                                        >
-                                            {t('links.confirmAndAdd') || 'CONFIRMAR E ADICIONAR'}
-                                        </button>
-                                    )}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
-
-
-
                     {/* Main Scrollable Area */}
                     <div className="flex-1 overflow-y-auto no-scrollbar px-6 md:px-8 py-4">
                         <div className="max-w-4xl mx-auto w-full pb-10">

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LinkItem, UserProfile } from '../../types';
-import { ChevronUp, Music, Play, ChevronDown } from 'lucide-react';
+import { ChevronUp, Music, Play, ChevronDown, X } from 'lucide-react';
 import { SiSpotify } from 'react-icons/si';
 import BackgroundLayer from '../BackgroundLayer';
 
@@ -123,6 +123,8 @@ interface MusicPlaylistDrawerProps {
     effectiveFontFamily: string;
     borderRadiusValue: any;
     isStatic: boolean;
+    mainButtonStyle?: React.CSSProperties;
+    buttonClass?: string;
 }
 
 export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
@@ -135,11 +137,13 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
     getSmartTextColor,
     effectiveFontFamily,
     borderRadiusValue,
-    isStatic
+    isStatic,
+    mainButtonStyle = {},
+    buttonClass = ""
 }) => {
     const isDeezer = openPlaylist?.embedType === 'deezer' || openPlaylist?.url.includes('deezer');
     const isDark = isDarkTheme;
-    const contrastColor = getSmartTextColor() || (isDark ? '#FFFFFF' : '#000000');
+    const contrastColor = mainButtonStyle?.color as string || getSmartTextColor() || (isDark ? '#FFFFFF' : '#000000');
 
     return (
         <AnimatePresence>
@@ -157,33 +161,31 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
-                        className={`relative w-full max-w-lg overflow-hidden flex flex-col shadow-2xl pointer-events-auto ${currentTheme.backgroundClass}`}
+                        className={`relative w-full max-w-lg overflow-hidden flex flex-col shadow-2xl pointer-events-auto ${buttonClass.replace(/\b(w-full|h-full|p-[xy]?-\d+|flex|items-center|justify-between|h-\[.*?\]|min-h-\[.*?\])\b/g, '').trim()}`}
                         style={{
-                            backgroundColor: (profile.themeId === 'custom' && profile.customSolidColor) ? profile.customSolidColor : undefined,
+                            ...mainButtonStyle,
+                            backgroundColor: mainButtonStyle?.backgroundColor || (profile.themeId === 'custom' && profile.customSolidColor ? profile.customSolidColor : undefined),
                             color: contrastColor,
                             fontFamily: effectiveFontFamily,
                             borderTopLeftRadius: borderRadiusValue === 0 ? '0px' : '32px',
                             borderTopRightRadius: borderRadiusValue === 0 ? '0px' : '32px',
-                            border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`,
+                            borderBottomLeftRadius: 0,
+                            borderBottomRightRadius: 0,
                             height: 'auto',
                             maxHeight: '90%',
-                            willChange: 'transform'
+                            willChange: 'transform',
+                            boxShadow: profile.buttonShadow ? '0 -4px 0 0 #1a1a1a, 4px 0 0 0 #1a1a1a, -4px 0 0 0 #1a1a1a' : undefined
                         }}
                     >
-                        <BackgroundLayer
-                            profile={{ ...profile, headerLayout: 'classic' }}
-                            currentTheme={currentTheme}
-                            isStatic={isStatic}
-                        />
 
                         {/* Header Section */}
-                        <div className={`px-6 pt-6 pb-6 flex items-center gap-5 border-b relative z-10 ${isDark ? 'border-white/5' : 'border-black/5'}`}>
+                        <div className={`px-2 pt-8 pb-6 flex items-center gap-4 border-b relative z-10 ${isDark ? 'border-white/5' : 'border-black/5'}`}>
                             <div className="relative group/cover shrink-0">
                                 <img src={openPlaylist?.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
                                     className="w-16 h-16 rounded-lg object-cover shadow-lg transition-transform duration-500"
                                     alt="" loading="lazy" decoding="async" />
                             </div>
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 pr-10">
                                 <div className="flex items-center gap-1.5 mb-1 opacity-50">
                                     {isDeezer ? <Music size={12} color={contrastColor} /> : <SiSpotify size={12} color="#1DB954" />}
                                     <span className="text-[8px] uppercase tracking-[0.3em] font-black">
@@ -199,51 +201,102 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                             </div>
                             <button
                                 onClick={() => setOpenPlaylist(null)}
-                                className={`p-2 rounded-full transform active:scale-95 transition-all ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
+                                className={`absolute top-2 right-2 p-2.5 rounded-none border-2 border-[#1a1a1a] shadow-[3px_3px_0_0_#1a1a1a] transform transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none z-50 ${isDark ? 'bg-white text-[#1a1a1a]' : 'bg-white text-[#1a1a1a]'}`}
                             >
-                                <ChevronDown size={24} />
+                                <X size={18} strokeWidth={3} />
                             </button>
                         </div>
 
                         {/* Tracks List */}
-                        <div className="overflow-y-auto flex-1 px-4 py-4 space-y-1 relative z-10 overscroll-contain scrollbar-hide">
-                            {openPlaylist.children?.map((track, idx) => (
-                                <motion.a
-                                    key={track.id}
-                                    href={track.url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    onClick={() => handleLinkClick(track.id)}
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: idx * 0.03 }}
-                                    className={`flex items-center gap-4 p-3.5 rounded-xl group transition-all relative overflow-hidden ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
-                                >
-                                    <div className="flex items-baseline gap-4 flex-1 min-w-0">
-                                        <span className="text-[10px] font-mono opacity-20 w-4 shrink-0 font-black" style={{ color: contrastColor }}>
-                                            {(idx + 1).toString().padStart(2, '0')}
-                                        </span>
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="text-sm font-bold truncate tracking-tight uppercase" style={{ color: contrastColor }}>
-                                                {track.title}
-                                            </h4>
-                                            {track.subtitle && (
-                                                <p className="text-[10px] opacity-40 font-bold tracking-wider truncate uppercase mt-0.5" style={{ color: contrastColor }}>
-                                                    {track.subtitle}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="w-8 h-8 flex items-center justify-center transition-all">
-                                        <Play
-                                            size={16}
-                                            fill={contrastColor}
-                                            className="transition-all opacity-40 group-hover:opacity-100 group-hover:scale-110 ml-0.5"
-                                            style={{ color: contrastColor }}
-                                        />
-                                    </div>
-                                </motion.a>
-                            ))}
+                        <div className={`overflow-y-auto flex-1 relative z-10 overscroll-contain scrollbar-hide ${openPlaylist.layout === 'carousel' ? 'overflow-x-hidden' : ''}`}>
+                            {openPlaylist.layout === 'carousel' ? (
+                                <div className="flex overflow-x-auto snap-x snap-mandatory px-4 py-8 gap-5 scrollbar-hide">
+                                    {openPlaylist.children?.map((track, idx) => (
+                                        <motion.a
+                                            key={track.id}
+                                            href={track.url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            onClick={() => handleLinkClick(track.id)}
+                                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                            transition={{ delay: idx * 0.05 }}
+                                            className="flex-shrink-0 w-64 snap-center relative group"
+                                        >
+                                            {/* Album Card */}
+                                            <div className="relative aspect-square mb-4 rounded-2xl overflow-hidden shadow-2xl border-4 border-[#1a1a1a]">
+                                                <img 
+                                                    src={track.image || openPlaylist.image || (isDeezer ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
+                                                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                                                    alt={track.title}
+                                                />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                                                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-black shadow-xl">
+                                                        <Play fill="black" size={28} className="translate-x-0.5" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Track Info */}
+                                            <div className="px-2">
+                                                <h4 className="text-lg font-black truncate leading-tight uppercase tracking-tight mb-1" style={{ color: contrastColor }}>
+                                                    {track.title}
+                                                </h4>
+                                                {track.subtitle && (
+                                                    <p className="text-xs font-bold opacity-60 truncate uppercase tracking-widest" style={{ color: contrastColor }}>
+                                                        {track.subtitle}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            {/* Brutalist Shadow Effect */}
+                                            <div className="absolute inset-0 -z-10 translate-x-2 translate-y-2 bg-[#1a1a1a] rounded-2xl opacity-20" />
+                                        </motion.a>
+                                    ))}
+                                    {/* Spacer for horizontal scroll */}
+                                    <div className="flex-shrink-0 w-4" />
+                                </div>
+                            ) : (
+                                <div className="py-1 space-y-0.5">
+                                    {openPlaylist.children?.map((track, idx) => (
+                                        <motion.a
+                                            key={track.id}
+                                            href={track.url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            onClick={() => handleLinkClick(track.id)}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: idx * 0.03 }}
+                                            className={`flex items-center gap-4 px-2 py-4 group transition-all relative overflow-hidden ${isDark ? 'hover:bg-white/8' : 'hover:bg-black/5'}`}
+                                        >
+                                            <div className="flex items-baseline gap-4 flex-1 min-w-0">
+                                                <span className="text-[10px] font-mono opacity-20 w-4 shrink-0 font-black" style={{ color: contrastColor }}>
+                                                    {(idx + 1).toString().padStart(2, '0')}
+                                                </span>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-sm font-bold truncate tracking-tight uppercase" style={{ color: contrastColor }}>
+                                                        {track.title}
+                                                    </h4>
+                                                    {track.subtitle && (
+                                                        <p className="text-[10px] opacity-40 font-bold tracking-wider truncate uppercase mt-0.5" style={{ color: contrastColor }}>
+                                                            {track.subtitle}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="w-8 h-8 flex items-center justify-center transition-all">
+                                                <Play
+                                                    size={16}
+                                                    fill={contrastColor}
+                                                    className="transition-all opacity-40 group-hover:opacity-100 group-hover:scale-110 ml-0.5"
+                                                    style={{ color: contrastColor }}
+                                                />
+                                            </div>
+                                        </motion.a>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                         <div className="h-6 w-full shrink-0" />
                     </motion.div>

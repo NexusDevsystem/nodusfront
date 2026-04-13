@@ -52,13 +52,16 @@ interface AdminStats {
         email: string;
         name: string;
         created_at: string;
+        updated_at?: string;
         plan_type: string;
         bio?: string;
         avatar_url?: string;
         is_verified?: boolean;
+        is_online?: boolean;
         user_category?: string;
         subscription_expiry_date?: string | null;
         theme_id?: string;
+        referral_source?: string;
         links?: { count: number, type?: string }[];
         clicks?: { count: number }[];
         products?: { count: number }[];
@@ -138,6 +141,52 @@ export default function AdminView() {
         syncSelected();
     }, [stats, selectedUser?.id]);
 
+    const getAbsoluteLatestUpdate = (u: any) => {
+        if (!u) return null;
+        let dates = [u.updated_at, u.created_at];
+        
+        if (u.links && Array.isArray(u.links)) {
+            u.links.forEach((l: any) => {
+                if (l.updated_at) dates.push(l.updated_at);
+            });
+        }
+        
+        if (u.products && Array.isArray(u.products)) {
+            u.products.forEach((p: any) => {
+                if (p.updated_at) dates.push(p.updated_at);
+            });
+        }
+        
+        const validDates = dates.filter(Boolean).map(d => new Date(d).getTime());
+        if (validDates.length === 0) return null;
+        return new Date(Math.max(...validDates));
+    };
+
+    const getWhatWasChanged = (u: any) => {
+        if (!u) return null;
+        let latest = { type: 'Perfil/Informações', date: new Date(u.updated_at || u.created_at).getTime() };
+
+        if (u.links && Array.isArray(u.links)) {
+            u.links.forEach((l: any) => {
+                if (l.updated_at) {
+                    const d = new Date(l.updated_at).getTime();
+                    if (d > latest.date) latest = { type: 'Links/Botões', date: d };
+                }
+            });
+        }
+
+        if (u.products && Array.isArray(u.products)) {
+            u.products.forEach((p: any) => {
+                if (p.updated_at) {
+                    const d = new Date(p.updated_at).getTime();
+                    if (d > latest.date) latest = { type: 'Produtos/Loja', date: d };
+                }
+            });
+        }
+        
+        return latest.type;
+    };
+
     const handleCopy = (text: string, field: string) => {
         navigator.clipboard.writeText(text);
         setCopiedField(field);
@@ -210,6 +259,22 @@ export default function AdminView() {
             showNotification('Usuário registrado com sucesso!', 'success');
         } catch (err: any) {
             showNotification(err.message || t('common.error'), 'error');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleImpersonate = async () => {
+        if (!selectedUser || isUpdating) return;
+        try {
+            setIsUpdating(true);
+            const { token } = await apiClient.impersonateUser(selectedUser.id);
+            // Open editor in new tab with stealth token
+            // The AuthContext in the new tab will handle the login automatically
+            const editorUrl = `/dashboard?token=${token}&stealth=true`;
+            window.open(editorUrl, '_blank');
+        } catch (err: any) {
+            showNotification(err.message || 'Erro ao iniciar sessão furtiva', 'error');
         } finally {
             setIsUpdating(false);
         }
@@ -617,11 +682,14 @@ export default function AdminView() {
                                             className="p-4 flex items-center justify-between hover:bg-[#ffdf00]/10 cursor-pointer transition-all active:translate-y-1 active:translate-x-1 active:shadow-none group"
                                         >
                                             <div className="flex items-center gap-4">
-                                                <div className={`w-10 h-10 border-4 border-black flex items-center justify-center font-black text-lg rounded-2xl overflow-hidden shrink-0 bg-white shadow-[0_4px_0_0_#000]`}>
+                                                <div className={`w-10 h-10 border-4 border-black flex items-center justify-center font-black text-lg rounded-2xl overflow-hidden shrink-0 bg-white shadow-[0_4px_0_0_#000] relative`}>
                                                     {u.avatar_url ? (
                                                         <img src={u.avatar_url} className="w-full h-full object-cover rounded-full" alt={u.username} />
                                                     ) : (
                                                         u.username?.[0]?.toUpperCase() || 'U'
+                                                    )}
+                                                    {u.is_online && (
+                                                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 border-2 border-black rounded-full animate-pulse z-20" />
                                                     )}
                                                 </div>
                                                 <div>
@@ -784,22 +852,74 @@ export default function AdminView() {
                                                             <div className="flex flex-col items-center gap-1.5 md:gap-2">
                                                                 <span className="px-3 md:px-4 py-1 md:py-1.5 bg-slate-100 text-black/50 text-[9px] md:text-[11px] font-black uppercase tracking-widest rounded-lg">@{selectedUser.username}</span>
                                                                 <span className="text-[10px] md:text-[11px] font-bold text-black/30 break-all px-4">{selectedUser.email}</span>
+                                                                
+                                                                {/* Online Status & Last Update Indicators */}
+                                                                <div className="flex flex-col gap-2.5 w-full mt-4">
+                                                                    <div className={`flex items-center justify-between p-3 rounded-2xl border-2 border-black shadow-[0_4px_0_0_#000] ${selectedUser.is_online ? 'bg-green-50' : 'bg-slate-50'}`}>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className={`w-2.5 h-2.5 rounded-full border border-black ${selectedUser.is_online ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`} />
+                                                                            <span className="text-[9px] font-black uppercase tracking-wider text-black/50">Status</span>
+                                                                        </div>
+                                                                        <span className={`text-[9px] font-black uppercase ${selectedUser.is_online ? 'text-green-600' : 'text-slate-400'}`}>
+                                                                            {selectedUser.is_online ? 'Online Agora' : 'Offline'}
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <div className="flex items-center justify-between p-3 bg-white rounded-2xl border-2 border-black shadow-[0_4px_0_0_#000]">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Clock size={12} className="text-black/30" />
+                                                                            <span className="text-[9px] font-black uppercase tracking-wider text-black/40">Última Atividade</span>
+                                                                        </div>
+                                                                        <span className="text-[9px] font-black uppercase text-black">
+                                                                            {getAbsoluteLatestUpdate(selectedUser) 
+                                                                                ? getAbsoluteLatestUpdate(selectedUser)?.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+                                                                                : 'Nenhuma'}
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <div className="flex items-center justify-between p-3 bg-white rounded-2xl border-2 border-black shadow-[0_4px_0_0_#000]">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <ShieldCheck size={12} className="text-black/30" />
+                                                                            <span className="text-[9px] font-black uppercase tracking-wider text-black/40">O que mudou?</span>
+                                                                        </div>
+                                                                        <span className="text-[9px] font-black uppercase text-black">
+                                                                            {getWhatWasChanged(selectedUser) || '-'}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                {selectedUser.referral_source && (
+                                                                    <div className="mt-3 px-3 py-1 bg-[#66ccff]/10 border border-[#66ccff]/30 rounded-lg flex items-center justify-center gap-1.5">
+                                                                        <Info size={12} className="text-[#66ccff]" />
+                                                                        <span className="text-[9px] font-black uppercase text-[#66ccff] tracking-wider">
+                                                                            Origem: {selectedUser.referral_source}
+                                                                        </span>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
 
                                                         <div className="flex gap-3 w-full">
                                                             <button 
                                                                 onClick={() => window.open(`/${selectedUser.username}`, '_blank')}
-                                                                className="flex-1 flex items-center justify-center gap-2 py-4 bg-[#ffdf00] border-2 border-black shadow-[0_6px_0_0_#000] hover:shadow-none hover:translate-y-1 active:scale-95 transition-all text-[10px] font-black uppercase tracking-widest rounded-xl"
+                                                                className="flex-1 flex items-center justify-center gap-2 py-4 bg-[#ffdf00] border-2 border-black shadow-[0_4px_0_0_#000] hover:shadow-none hover:translate-y-1 active:scale-95 transition-all text-[9px] font-black uppercase tracking-widest rounded-xl"
                                                             >
-                                                                <ExternalLink size={16} strokeWidth={4} />
+                                                                <ExternalLink size={14} strokeWidth={4} />
                                                                 Perfil
                                                             </button>
                                                             <button 
-                                                                onClick={toggleVerification}
-                                                                className={`flex-1 py-4 border-4 border-black shadow-[0_8px_0_0_#000] hover:shadow-none hover:translate-y-1 transition-all text-[10px] font-black uppercase tracking-widest rounded-2xl ${selectedUser.is_verified ? 'bg-white text-black' : 'bg-[#97cd7a] text-black'}`}
+                                                                onClick={handleImpersonate}
+                                                                disabled={isUpdating}
+                                                                className="flex-1 flex items-center justify-center gap-2 py-4 bg-black text-white border-2 border-black shadow-[0_4px_0_0_#97cd7a] hover:shadow-none hover:translate-y-1 active:scale-95 transition-all text-[9px] font-black uppercase tracking-widest rounded-xl"
                                                             >
-                                                                {selectedUser.is_verified ? 'Remover Selo' : 'Dar Selo'}
+                                                                <Zap size={14} strokeWidth={4} className="text-[#97cd7a]" />
+                                                                Ghost
+                                                            </button>
+                                                            <button 
+                                                                onClick={toggleVerification}
+                                                                className={`flex-1 py-4 border-2 border-black shadow-[0_4px_0_0_#000] hover:shadow-none hover:translate-y-1 transition-all text-[9px] font-black uppercase tracking-widest rounded-xl ${selectedUser.is_verified ? 'bg-white text-black' : 'bg-[#97cd7a] text-black'}`}
+                                                            >
+                                                                {selectedUser.is_verified ? 'Remove' : 'Verify'}
                                                             </button>
                                                         </div>
                                                     </div>
@@ -882,7 +1002,11 @@ export default function AdminView() {
                                                             <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
                                                                 <LinkIcon size={20} strokeWidth={4} />
                                                                 Links do Perfil
-                                                                {selectedUser.links?.length > 0 && <span className="bg-black text-white px-3 py-1 rounded-full text-[10px] font-black">{selectedUser.links.length}</span>}
+                                                                {selectedUser.links?.filter((l: any) => l.type === 'link' || !l.type || l.type === 'social').length > 0 && 
+                                                                    <span className="bg-black text-white px-3 py-1 rounded-full text-[10px] font-black">
+                                                                        {selectedUser.links.filter((l: any) => l.type === 'link' || !l.type || l.type === 'social').length}
+                                                                    </span>
+                                                                }
                                                             </h3>
                                                         </div>
                                                         <div className="flex-1 p-8 overflow-y-auto custom-scrollbar-brutal space-y-4">
@@ -891,8 +1015,10 @@ export default function AdminView() {
                                                                     <RefreshCw size={40} className="animate-spin mb-4" />
                                                                     <p className="text-xs font-black uppercase tracking-widest">Sincronizando Links...</p>
                                                                 </div>
-                                                            ) : selectedUser.links?.length > 0 ? (
-                                                                selectedUser.links.map((link: any) => (
+                                                            ) : selectedUser.links?.filter((l: any) => l.type === 'link' || !l.type || l.type === 'social').length > 0 ? (
+                                                                selectedUser.links
+                                                                    .filter((l: any) => l.type === 'link' || !l.type || l.type === 'social')
+                                                                    .map((link: any) => (
                                                                     <div key={link.id} className="p-5 bg-white border-2 border-black rounded-3xl shadow-[0_6px_0_0_#000] flex items-center justify-between group/link hover:translate-y-[-2px] hover:shadow-[0_8px_0_0_#000] transition-all">
                                                                         <div className="flex items-center gap-5 overflow-hidden">
                                                                             <div className="w-14 h-14 rounded-2xl bg-slate-50 border-2 border-black flex items-center justify-center shrink-0">

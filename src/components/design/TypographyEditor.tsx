@@ -17,7 +17,7 @@ const TypographyEditor: React.FC<TypographyEditorProps> = ({ profile, onChange, 
     const isDarkTheme = currentTheme.id.includes('dark') || currentTheme.id.includes('black');
 
     // Replicate luminance and smart text color logic from ProfileRenderer
-    const buttonHex = (profile.themeId === 'custom' && profile.customButtonColor) ? profile.customButtonColor : currentTheme.buttonHex;
+    const buttonHex = profile.customButtonColor || currentTheme.buttonHex;
     const isButtonLight = (() => {
         if (!buttonHex) return false;
         const hex = buttonHex.replace('#', '');

@@ -53,7 +53,6 @@ export default function LandingPage() {
         <Navbar />
         <main>
           <Hero />
-          <Marquee />
           <BentoGrid />
           <FeaturesList />
           <HowItWorks />

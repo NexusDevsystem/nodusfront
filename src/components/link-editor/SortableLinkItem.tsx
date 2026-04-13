@@ -133,6 +133,8 @@ function SortableLinkItem({
         linkRef.current = link;
     });
 
+    const isDiscord = link.url?.toLowerCase().includes('discord.gg') || link.url?.toLowerCase().includes('discord.com/invite');
+
     // Auto-detect music metadata when URL changes
     React.useEffect(() => {
         if (!link.url) return;
@@ -153,16 +155,19 @@ function SortableLinkItem({
             const isSpotifyAlbum = isSpotify && (url.includes('/album/') || url.includes('/playlist/') || url.includes('spotify.link/'));
             const isDeezerAlbum = isDeezer && (url.includes('/album/') || url.includes('/playlist/') || url.includes('deezer.page.link/') || url.includes('link.deezer.com/'));
             const isMissingAlbumTracks = (isSpotifyAlbum || isDeezerAlbum) && !currentLink.children;
+            const isDiscord = url.toLowerCase().includes('discord.gg') || url.toLowerCase().includes('discord.com/invite');
 
             // Trigger fetch if:
             // 1. Title is missing/generic
-            // 2. OR it is a social profile currently stuck in 'tiktok' or 'youtube' embed type (which is wrong for profiles)
-            const needsAutoFetch = !currentLink.title || 
-                                  currentLink.title === t('links.newLink') || 
-                                  currentLink.title === t('links.noTitle') || 
-                                  currentLink.title === t('links.unknownLink') || 
-                                  (isSocialProfile && (['Instagram', 'TikTok', 'YouTube'].includes(currentLink.title || '') || currentLink.embedType !== 'none')) || 
-                                  isMissingAlbumTracks;
+            // 2. OR it is a social profile currently stuck in 'tiktok' or 'youtube' embed type
+            // 3. OR it is a Discord link and doesn't have the member stats yet
+            const needsAutoFetch = !currentLink.title ||
+                currentLink.title === t('links.newLink') ||
+                currentLink.title === t('links.noTitle') ||
+                currentLink.title === t('links.unknownLink') ||
+                (isSocialProfile && (['Instagram', 'TikTok', 'YouTube'].includes(currentLink.title || '') || currentLink.embedType !== 'none')) ||
+                isMissingAlbumTracks ||
+                (isDiscord && (!currentLink.subtitle || !currentLink.subtitle.includes('○')));
 
             if (isYoutubeChannel && needsAutoFetch) {
                 try {
@@ -199,7 +204,7 @@ function SortableLinkItem({
                 return;
             }
 
-            if ((isSpotify || isDeezer || isTiktok || isYoutubeVideo || isSocialProfile) && needsAutoFetch) {
+            if ((isSpotify || isDeezer || isTiktok || isYoutubeVideo || isSocialProfile || isDiscord) && needsAutoFetch) {
                 let type: 'spotify' | 'deezer' | 'tiktok' | 'youtube' | 'none' = 'none';
                 if (isSpotify) type = 'spotify';
                 else if (isDeezer) type = 'deezer';
@@ -211,17 +216,17 @@ function SortableLinkItem({
                     if (isSocialProfile) {
                         const freshInitial = linkRef.current;
                         const updates: Partial<LinkItem> = {};
-                        
+
                         // 1. Detect platform from URL since backend might be slow/blocked
                         const platformName = isInstagram ? 'Instagram' : isYoutubeChannel ? 'YouTube' : 'TikTok';
-                        const actionLabel = platformName; 
+                        const actionLabel = platformName;
 
                         // 2. FORCE embedType to none and Title update
                         if (freshInitial.embedType !== 'none') updates.embedType = 'none';
-                        
-                        const isGenericOrOld = !freshInitial.title || 
-                                             freshInitial.title.includes('Creator Profile') ||
-                                             freshInitial.title === t('links.newLink');
+
+                        const isGenericOrOld = !freshInitial.title ||
+                            freshInitial.title.includes('Creator Profile') ||
+                            freshInitial.title === t('links.newLink');
 
                         if (isGenericOrOld) {
                             updates.title = actionLabel;
@@ -237,12 +242,12 @@ function SortableLinkItem({
                         if (meta) {
                             const fresh = linkRef.current;
                             const finalUpdates: Partial<LinkItem> = {};
-                            
+
                             const followerLabel = meta.platform === 'youtube' ? 'Inscritos' : 'Seguidores';
                             let subtitleParts = [];
                             if (meta.username) subtitleParts.push(`@${meta.username.replace('@', '')}`);
                             if (meta.followers) subtitleParts.push(`${meta.followers} ${followerLabel}`);
-                            
+
                             // Cleanup any existing music icon if found in the new or old subtitle
                             let newSubtitle = subtitleParts.length > 0 ? subtitleParts.join(' • ') : fresh.subtitle || '';
                             newSubtitle = newSubtitle.replace(/^♫\s?/, '');
@@ -250,7 +255,7 @@ function SortableLinkItem({
                             if (newSubtitle !== fresh.subtitle) {
                                 finalUpdates.subtitle = newSubtitle;
                             }
-                            
+
                             if (meta.avatarUrl && !fresh.image) {
                                 finalUpdates.image = meta.avatarUrl;
                             }
@@ -294,6 +299,52 @@ function SortableLinkItem({
                             }
                             return;
                         }
+                    }
+
+                    if (isDiscord) {
+                        try {
+                            console.log('[DiscordFetch] Fetching info for:', url);
+                            const discordInfo = await apiClient.getDiscordInfo(url);
+                            console.log('[DiscordFetch] Data received:', discordInfo);
+                            const fresh = linkRef.current;
+                            const updates: Partial<LinkItem> = {};
+
+                            const lowerTitle = (fresh.title || '').toLowerCase();
+                            const isGenericTitle = !fresh.title || 
+                                fresh.title === t('links.newLink') || 
+                                fresh.title === t('links.noTitle') || 
+                                lowerTitle === 'discord' || 
+                                lowerTitle === 'discord server' ||
+                                lowerTitle === 'servidor';
+
+                            if (isGenericTitle && discordInfo.name) {
+                                updates.title = discordInfo.name;
+                            }
+
+                            // Format exactly like the preview card button
+                            const memberText = `● ${discordInfo.online.toLocaleString()} ONLINE ○ ${discordInfo.total.toLocaleString()}`;
+                            
+                            // Force update if subtitle is empty or doesn't have the circle symbol
+                            if (!fresh.subtitle || !fresh.subtitle.includes('○')) {
+                                updates.subtitle = memberText;
+                            }
+
+                            if (discordInfo.icon && !fresh.image) {
+                                updates.image = discordInfo.icon;
+                            }
+
+                            if (fresh.embedType !== 'discord') {
+                                updates.embedType = 'discord';
+                            }
+
+                            if (Object.keys(updates).length > 0) {
+                                console.log('[DiscordFetch] Applying updates:', updates);
+                                updateLinkFields(link.id, updates);
+                            }
+                        } catch (e) {
+                            console.error('[SortableLinkItem] Discord fetch error:', e);
+                        }
+                        return;
                     }
 
                     if (linkRef.current.embedType !== type) {
@@ -409,6 +460,9 @@ function SortableLinkItem({
             {(link.platform === 'twitch' || link.url?.includes('twitch.tv')) && (
                 <span className="shrink-0 px-1.5 py-0.5 bg-[#6441a5] text-[8px] font-medium text-white border-2 border-black uppercase shadow-[0_2.5px_0_0_#000]">TWITCH</span>
             )}
+            {(link.embedType === 'discord' || link.platform === 'discord' || link.url?.includes('discord.gg') || link.url?.includes('discord.com/invite')) && (
+                <span className="shrink-0 px-1.5 py-0.5 bg-[#5865F2] text-[8px] font-medium text-white border-2 border-black uppercase shadow-[0_2.5px_0_0_#000]">DISCORD</span>
+            )}
             {(link.platform === 'kick' || link.url?.toLowerCase().includes('kick.com')) && (
                 <span className="shrink-0 px-1.5 py-0.5 bg-[#53FC18] text-[8px] font-medium text-black border-2 border-black uppercase shadow-[0_2.5px_0_0_#000]">KICK</span>
             )}
@@ -468,21 +522,19 @@ function SortableLinkItem({
                 layout
                 onDrag={() => { }}
                 onDragEnd={() => { }}
-                className={`relative border-2 ${
-                    isIncomplete && link.type === 'link' && !link.isArchived
+                className={`relative border-2 ${isIncomplete && link.type === 'link' && !link.isArchived
                         ? 'border-red-500 shadow-[0_4px_0_0_#991b1b] bg-red-500' // Red if incomplete
-                        : isCollection 
-                            ? 'border-[#fef08a] shadow-[0_4px_0_0_#d9c84a] bg-[#fef08a]' 
+                        : isCollection
+                            ? 'border-[#fef08a] shadow-[0_4px_0_0_#d9c84a] bg-[#fef08a]'
                             : 'border-[#97cd7a] shadow-[0_4px_0_0_#76a45f] bg-[#97cd7a]'
-                } rounded-md ${(!isExpanded && !isCollectionExpanded) ? 'mb-3' : ''} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
+                    } rounded-md ${(!isExpanded && !isCollectionExpanded) ? 'mb-3' : ''} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
                 whileDrag={{ zIndex: 50, borderRadius: '6px' }}
                 style={{ willChange: 'transform' }}
             >
-                <div className={`transition-all duration-300 rounded-[6px] overflow-hidden ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${
-                    isIncomplete && link.type === 'link' && !link.isArchived
+                <div className={`transition-all duration-300 rounded-[6px] overflow-hidden ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${isIncomplete && link.type === 'link' && !link.isArchived
                         ? 'bg-red-500'
                         : isCollection ? 'bg-[#fef08a]' : 'bg-[#97cd7a]'
-                }`}>
+                    }`}>
                     {isCollection ? (
                         /* COLLECTION ITEM */
                         <div className="overflow-hidden">
@@ -540,15 +592,15 @@ function SortableLinkItem({
                                         </div>
 
                                         <div className="flex items-center gap-1">
-                                            <button 
-                                                onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } })); }} 
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } })); }}
                                                 className="p-1.5 text-indigo-500 hover:text-indigo-600 hover:bg-slate-50 transition-all rounded-md"
                                                 title={t('links.moveTo')}
                                             >
                                                 <Move size={isMobile ? 18 : 20} strokeWidth={2.5} />
                                             </button>
-                                            <button 
-                                                onClick={(e) => { e.stopPropagation(); updateLink(link.id, 'isArchived', !link.isArchived); }} 
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); updateLink(link.id, 'isArchived', !link.isArchived); }}
                                                 className={`p-1.5 transition-all rounded-md hover:bg-slate-50 ${link.isArchived ? 'text-black' : 'text-amber-500 hover:text-amber-600'}`}
                                                 title={link.isArchived ? t('links.restore') : t('links.archive')}
                                             >
@@ -688,11 +740,10 @@ function SortableLinkItem({
                             <div className="flex items-stretch bg-transparent">
                                 {/* Drag Handle - Full Height */}
                                 <div
-                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black border-r-2 ${
-                                        isIncomplete && link.type === 'link' && !link.isArchived 
-                                            ? 'border-red-500 bg-red-500' 
+                                    className={`${dragHandleSize} flex items-center justify-center cursor-move text-black border-r-2 ${isIncomplete && link.type === 'link' && !link.isArchived
+                                            ? 'border-red-500 bg-red-500'
                                             : 'border-[#97cd7a] bg-[#97cd7a]'
-                                    } touch-none transition-colors`}
+                                        } touch-none transition-colors`}
                                     onPointerDown={(e) => dragControls.start(e)}
                                 >
                                     <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="5" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="19" r="1" /></svg>
@@ -755,15 +806,15 @@ function SortableLinkItem({
                                         </div>
 
                                         <div className="flex items-center gap-1">
-                                            <button 
-                                                onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } })); }} 
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('nodus:open-move-modal', { detail: { linkId: link.id } })); }}
                                                 className="p-1.5 text-indigo-500 hover:text-indigo-600 hover:bg-slate-50 transition-all rounded-md"
                                                 title={t('links.moveTo')}
                                             >
                                                 <Move size={isMobile ? 18 : 20} strokeWidth={2.5} />
                                             </button>
-                                            <button 
-                                                onClick={(e) => { e.stopPropagation(); updateLink(link.id, 'isArchived', !link.isArchived); }} 
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); updateLink(link.id, 'isArchived', !link.isArchived); }}
                                                 className={`p-1.5 transition-all rounded-md hover:bg-slate-50 ${link.isArchived ? 'text-black' : 'text-amber-500 hover:text-amber-600'}`}
                                                 title={link.isArchived ? t('links.restore') : t('links.archive')}
                                             >
@@ -788,11 +839,10 @@ function SortableLinkItem({
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
                                         transition={{ duration: 0.2 }}
-                                        className={`overflow-hidden bg-[#fdfcf0] border-t border-dashed ${
-                                            isIncomplete && link.type === 'link' && !link.isArchived 
-                                                ? 'border-red-500' 
+                                        className={`overflow-hidden bg-[#fdfcf0] border-t border-dashed ${isIncomplete && link.type === 'link' && !link.isArchived
+                                                ? 'border-red-500'
                                                 : 'border-[#97cd7a]'
-                                        }`}
+                                            }`}
                                     >
                                         <div className={`${level > 0 ? 'p-3' : 'px-4 md:px-6 pb-6 pt-5'}`}>
                                             {link.type === 'agenda' ? (
@@ -813,11 +863,11 @@ function SortableLinkItem({
                                                             <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border-2 border-black px-3 py-2 focus:bg-[#f1f1f1] outline-none transition-all placeholder:text-black/30 shadow-[0_2.5px_0_0_#000]" placeholder={t('links.incentives') || 'Monetização'} />
                                                         </div>
                                                         <div className="mt-8 border-t-2 border-black/5 pt-6">
-                                                            <MonetizationView 
-                                                                profile={profile} 
+                                                            <MonetizationView
+                                                                profile={profile}
                                                                 onChange={(newProfile) => {
                                                                     if (setProfile) setProfile(newProfile);
-                                                                }} 
+                                                                }}
                                                             />
                                                         </div>
                                                     </div>
@@ -872,7 +922,7 @@ function SortableLinkItem({
                                                                         <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{link.type === 'mediakit' ? t('mediakit.contactUrlLabel') || 'URL de Contato (Ex: WhatsApp, Email)' : t('links.urlLabel')}</label>
                                                                         <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className={`w-full text-xs font-medium uppercase tracking-widest text-black bg-white border-2 px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[0_2.5px_0_0_#000] ${isIncomplete ? 'border-red-500 bg-red-50/30' : 'border-black'}`} placeholder={link.type === 'mediakit' ? t('mediakit.contactPlaceholder') || "https://wa.me/5511999999999" : "https://exemplo.com"} />
                                                                         {isIncomplete && link.type === 'link' && (
-                                                                            <motion.div 
+                                                                            <motion.div
                                                                                 initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}
                                                                                 className="px-1 flex items-center gap-1.5 text-red-500 font-bold text-[9px] uppercase tracking-wider"
                                                                             >
@@ -883,63 +933,78 @@ function SortableLinkItem({
                                                                     </div>
                                                                 )}
                                                                 <div className="space-y-1">
-                                                                    <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.subtitleLabel')}</label>
-                                                                    <input type="text" value={link.subtitle || ''} onChange={(e) => updateLink(link.id, 'subtitle', e.target.value)} className="w-full text-xs font-normal uppercase tracking-wider text-black bg-white border-2 border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[0_2.5px_0_0_#000]" placeholder={link.type === 'mediakit' ? t('mediakit.subtitlePlaceholder') || 'Chamada para ação extra' : t('links.subtitlePlaceholder')} />
-                                                                 </div>
+                                                                    <div className="flex items-center justify-between px-1">
+                                                                        <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em]">{t('links.subtitleLabel')}</label>
+                                                                        {isDiscord && (
+                                                                            <span className="text-[8px] font-black text-black/40 uppercase tracking-widest flex items-center gap-1">
+                                                                                <div className="w-1 h-1 rounded-full bg-black/20" />
+                                                                                Sincronizado
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    <input 
+                                                                        type="text" 
+                                                                        value={link.subtitle || ''} 
+                                                                        onChange={(e) => !isDiscord && updateLink(link.id, 'subtitle', e.target.value)} 
+                                                                        readOnly={!!isDiscord}
+                                                                        className={`w-full text-xs font-normal uppercase tracking-wider text-black border-2 border-black px-3 py-2.5 outline-none transition-all placeholder:text-black/30 shadow-[0_2.5px_0_0_#000] ${isDiscord ? 'bg-black/[0.03] cursor-not-allowed select-none' : 'bg-white focus:bg-white'}`} 
+                                                                        placeholder={link.type === 'mediakit' ? t('mediakit.subtitlePlaceholder') || 'Chamada para ação extra' : t('links.subtitlePlaceholder')} 
+                                                                    />
+                                                                </div>
 
-                                                                 {(link.platform === 'instagram' || link.url?.includes('instagram.com')) && (
-                                                                     <div className="pt-2 pb-2">
-                                                                         <label className="text-[9px] font-bold text-black uppercase tracking-[0.2em] px-1 mb-3 block">Estilo de Exibição</label>
-                                                                         <div className="grid grid-cols-2 gap-3 max-w-[340px]">
-                                                                             {[
-                                                                                 { id: 'classic', label: 'LISTA SIMPLES' },
-                                                                                 { id: 'card', label: 'FEED DE POSTS' },
-                                                                             ].map((opt) => {
-                                                                                 const isActive = opt.id === 'card' ? link.layout === 'card' : link.layout !== 'card';
-                                                                                 return (
-                                                                                     <button
-                                                                                         key={opt.id}
-                                                                                         onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                                         className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black rounded-md transition-all ${isActive ? 'bg-[#ffdf00] shadow-[0_2.5px_0_0_#000] -translate-y-0.5' : 'bg-white hover:bg-[#f8f8f8] shadow-[0_2.5px_0_0_#000]'}`}
-                                                                                     >
-                                                                                         {isActive && (
-                                                                                             <div className="absolute top-1.5 right-1.5 w-4 h-4 bg-black flex items-center justify-center border-2 border-black rounded-full z-10">
-                                                                                                 <Check size={10} strokeWidth={4} className="text-[#ffdf00]" />
-                                                                                             </div>
-                                                                                         )}
+                                                                {(link.platform === 'instagram' || link.url?.includes('instagram.com')) && (
+                                                                    <div className="pt-2 pb-2">
+                                                                        <label className="text-[9px] font-bold text-black uppercase tracking-[0.2em] px-1 mb-3 block">Estilo de Exibição</label>
+                                                                        <div className="grid grid-cols-2 gap-3 max-w-[340px]">
+                                                                            {[
+                                                                                { id: 'classic', label: 'LISTA SIMPLES' },
+                                                                                { id: 'card', label: 'FEED DE POSTS' },
+                                                                            ].map((opt) => {
+                                                                                const isActive = opt.id === 'card' ? link.layout === 'card' : link.layout !== 'card';
+                                                                                return (
+                                                                                    <button
+                                                                                        key={opt.id}
+                                                                                        onClick={() => updateLink(link.id, 'layout', opt.id)}
+                                                                                        className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black rounded-md transition-all ${isActive ? 'bg-[#ffdf00] shadow-[0_2.5px_0_0_#000] -translate-y-0.5' : 'bg-white hover:bg-[#f8f8f8] shadow-[0_2.5px_0_0_#000]'}`}
+                                                                                    >
+                                                                                        {isActive && (
+                                                                                            <div className="absolute top-1.5 right-1.5 w-4 h-4 bg-black flex items-center justify-center border-2 border-black rounded-full z-10">
+                                                                                                <Check size={10} strokeWidth={4} className="text-[#ffdf00]" />
+                                                                                            </div>
+                                                                                        )}
 
-                                                                                         <div className="flex-1 flex items-center justify-center w-full mb-1 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
-                                                                                             {opt.id === 'classic' ? (
-                                                                                                 <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
-                                                                                                     <rect x="5" y="25" width="90" height="30" fill="white" stroke="black" strokeWidth="6" rx="4" />
-                                                                                                     <rect x="15" y="32" width="16" height="16" fill="black" rx="2" />
-                                                                                                     <rect x="40" y="35" width="45" height="4" fill="black" rx="1" />
-                                                                                                     <rect x="40" y="44" width="25" height="4" fill="black" opacity="0.3" rx="1" />
-                                                                                                 </svg>
-                                                                                             ) : (
-                                                                                                 <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
+                                                                                        <div className="flex-1 flex items-center justify-center w-full mb-1 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
+                                                                                            {opt.id === 'classic' ? (
+                                                                                                <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
+                                                                                                    <rect x="5" y="25" width="90" height="30" fill="white" stroke="black" strokeWidth="6" rx="4" />
+                                                                                                    <rect x="15" y="32" width="16" height="16" fill="black" rx="2" />
+                                                                                                    <rect x="40" y="35" width="45" height="4" fill="black" rx="1" />
+                                                                                                    <rect x="40" y="44" width="25" height="4" fill="black" opacity="0.3" rx="1" />
+                                                                                                </svg>
+                                                                                            ) : (
+                                                                                                <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
                                                                                                     <rect x="10" y="10" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
                                                                                                     <rect x="38" y="10" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
                                                                                                     <rect x="66" y="10" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
                                                                                                     <rect x="10" y="38" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
                                                                                                     <rect x="38" y="38" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
                                                                                                     <rect x="66" y="38" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
-                                                                                                 </svg>
-                                                                                             )}
-                                                                                         </div>
+                                                                                                </svg>
+                                                                                            )}
+                                                                                        </div>
 
-                                                                                         <span className="text-[9px] font-bold uppercase tracking-tight text-black text-center leading-none mt-auto">
-                                                                                             {opt.label}
-                                                                                         </span>
-                                                                                     </button>
-                                                                                 );
-                                                                             })}
-                                                                         </div>
-                                                                     </div>
-                                                                 )}
-                                                             </div>
-                                                         </div>
-                                                     )}
+                                                                                        <span className="text-[9px] font-bold uppercase tracking-tight text-black text-center leading-none mt-auto">
+                                                                                            {opt.label}
+                                                                                        </span>
+                                                                                    </button>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
 
                                                     {level === 0 && link.type !== 'mediakit' && (
                                                         <div className="flex-1 space-y-2">
@@ -1359,7 +1424,7 @@ function SortableLinkItem({
                                     <div className="w-16 h-16 bg-red-100 border-2 border-black rounded-md flex items-center justify-center shadow-[4px_4px_0_0_#000]">
                                         <Trash2 size={32} className="text-red-600" strokeWidth={3} />
                                     </div>
-                                    
+
                                     <div>
                                         <h3 className="text-xl font-black uppercase tracking-tighter text-black mb-2">Confirmar Exclusão?</h3>
                                         <p className="text-xs font-bold uppercase tracking-widest text-black/50 leading-relaxed">
@@ -1368,13 +1433,13 @@ function SortableLinkItem({
                                     </div>
 
                                     <div className="flex flex-col w-full gap-3 pt-2">
-                                        <button 
+                                        <button
                                             onClick={() => { removeLink(link.id); setShowDeleteConfirm(false); }}
                                             className="w-full py-4 bg-red-600 text-white font-black uppercase text-[12px] tracking-widest border-2 border-black shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all"
                                         >
                                             Sim, Excluir Item
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => setShowDeleteConfirm(false)}
                                             className="w-full py-4 bg-white text-black font-black uppercase text-[12px] tracking-widest border-2 border-black hover:bg-slate-50 transition-all"
                                         >

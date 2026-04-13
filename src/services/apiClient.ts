@@ -52,7 +52,6 @@ class ApiClient {
         try {
             const response = await fetch(`${API_URL}${path}`, {
                 ...options,
-                cache: 'no-store',
                 signal: controller.signal,
                 headers: {
                     ...baseHeaders,
@@ -258,6 +257,12 @@ class ApiClient {
 
     async getAdminUserStats(userId: string): Promise<any> {
         return this.request(`/api/admin/users/${userId}/stats`);
+    }
+
+    async impersonateUser(userId: string): Promise<any> {
+        return this.request(`/api/admin/users/${userId}/impersonate`, {
+            method: 'POST'
+        });
     }
 
     async createAdminUser(userData: any): Promise<any> {
@@ -600,7 +605,10 @@ class ApiClient {
     }
     // SSE Subscriptions
     public subscribeToProfileUpdates(username: string, onUpdate: () => void): () => void {
-        const eventSource = new EventSource(`${API_URL}/api/profile/realtime/${username}`);
+        const isStealth = localStorage.getItem('nodus_stealth_mode') === 'true';
+        const url = `${API_URL}/api/profile/realtime/${username}${isStealth ? '?stealth=true' : ''}`;
+        
+        const eventSource = new EventSource(url);
         
         eventSource.onmessage = (event) => {
             try {
@@ -615,7 +623,6 @@ class ApiClient {
 
         eventSource.onerror = (error) => {
             console.error('SSE error:', error);
-            // eventSource.close(); // Don't close, browser might retry
         };
 
         return () => {
@@ -697,6 +704,11 @@ class ApiClient {
     }
     async listUserEmails(): Promise<string[]> {
         return this.request('/api/admin/users/emails');
+    }
+
+    // Social Data
+    async getDiscordInfo(inviteUrl: string): Promise<{ name: string; online: number; total: number; icon: string | null }> {
+        return this.request(`/api/social/discord?url=${encodeURIComponent(inviteUrl)}`);
     }
 }
 

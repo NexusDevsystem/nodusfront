@@ -30,7 +30,7 @@ export interface LinkItem {
   subtitle?: string;
   image?: string;
   highlight?: 'none' | 'pulse' | 'bounce' | 'shake' | 'glow' | 'wobble' | 'tada' | 'jello' | 'rubberBand' | 'blink' | 'flash' | 'pendulum' | 'aura' | 'spin' | 'heartbeat' | 'float' | 'neon' | 'spotlight' | 'rainbow' | 'glitch' | 'ping' | 'vibrate';
-  embedType?: 'none' | 'youtube' | 'spotify' | 'twitch' | 'deezer' | 'tiktok';
+  embedType?: 'none' | 'youtube' | 'spotify' | 'twitch' | 'deezer' | 'tiktok' | 'discord';
   videoUrl?: string; // For native video players
   clicks?: number;
   isArchived?: boolean;

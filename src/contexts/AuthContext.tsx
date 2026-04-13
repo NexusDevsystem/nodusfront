@@ -157,6 +157,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
 
         initAuth();
+
+        // Handle impersonation from URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const urlToken = params.get('token');
+        const isStealth = params.get('stealth') === 'true';
+
+        if (urlToken) {
+            // Remove token from URL for security
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.delete('token');
+            newUrl.searchParams.delete('stealth');
+            window.history.replaceState({}, '', newUrl.toString());
+
+            // Initialize impersonation session
+            localStorage.setItem('nodus_access_token', urlToken);
+            if (isStealth) {
+                localStorage.setItem('nodus_stealth_mode', 'true');
+            } else {
+                localStorage.removeItem('nodus_stealth_mode');
+            }
+            // Reload to let standard initAuth take over with new token
+            window.location.reload();
+            return;
+        }
     }, []);
 
     // Listen for session-expired events dispatched by apiClient on 401 responses
@@ -234,6 +258,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('nodus_profile');
         localStorage.removeItem('nodus_links');
         localStorage.removeItem('nodus_products');
+        localStorage.removeItem('nodus_stealth_mode');
     };
 
     const signInWithEmail = async (email: string, password: string) => {
@@ -243,6 +268,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             // Save token to localStorage BEFORE fetching profile so apiClient picks it up
             safeSetItem('nodus_access_token', jwtToken);
+            localStorage.removeItem('nodus_stealth_mode'); // Clear stealth on normal login
             setToken(jwtToken);
 
             const userObj = { id: userData.id, email: userData.email, name: userData.name, username: userData.username, picture: null };

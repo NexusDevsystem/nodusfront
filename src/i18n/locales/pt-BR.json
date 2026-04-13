@@ -922,7 +922,8 @@
         "overview": "Visão Geral",
         "analytics": "Estatísticas",
         "assets": "Inventário",
-        "manage": "Gerenciar"
+        "manage": "Gerenciar",
+        "referralSource": "Origem / Indicação"
     },
     "shop": {
         "title": "Configurar Vitrine",

@@ -1,4 +1,5 @@
 import { UserProfile } from '../../types';
+import { THEMES } from '../../constants';
 import { useTranslation } from 'react-i18next';
 import { Zap } from 'lucide-react';
 
@@ -11,6 +12,7 @@ interface ButtonsEditorProps {
 
 export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorProps) {
     const { t } = useTranslation();
+    const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
     return (
         <div className="space-y-6 pb-10">
             <section className="space-y-4">
@@ -65,62 +67,6 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                 </div>
             </section>
 
-            <section className="space-y-4 pt-6 mt-6 border-t-2 border-[#1a1a1a] border-dashed">
-                <div className="flex flex-col">
-                    <h3 className="text-sm font-medium text-black uppercase tracking-widest">{t('design.colors')}</h3>
-                    <p className="text-xs font-normal uppercase tracking-widest text-black/70 mt-1">{t('design.buttonColorDesc')}</p>
-                </div>
-
-                {profile.themeId === 'custom' ? (
-                    <div className="space-y-4">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                            <div className="flex items-center gap-2 w-full sm:w-auto">
-                                <div className="relative w-10 h-10 overflow-hidden border border-[#1a1a1a] shrink-0 shadow-[0_2px_0_0_#1a1a1a] bg-white">
-                                    <input
-                                        type="color"
-                                        value={profile.customButtonColor || '#000000'}
-                                        onChange={(e) => updateProfile({ customButtonColor: e.target.value })}
-                                        className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer border-none p-0"
-                                    />
-                                </div>
-                                <input
-                                    type="text"
-                                    value={profile.customButtonColor || ''}
-                                    onChange={(e) => updateProfile({ customButtonColor: e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}` })}
-                                    placeholder="Hex (#000000)"
-                                    className="flex-1 h-10 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-sm font-medium uppercase text-black shadow-[0_2px_0_0_#1a1a1a] tracking-widest cursor-target"
-                                />
-                            </div>
-                            {profile.customButtonColor && (
-                                    <button
-                                        onClick={() => updateProfile({ customButtonColor: null })}
-                                        className="text-[10px] text-black border border-[#1a1a1a] bg-white px-3 h-10 font-medium uppercase tracking-widest shrink-0 shadow-[0_1px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none hover:bg-[#97cd7a] hover:text-[#97cd7a] transition-all w-full sm:w-auto cursor-target"
-                                    >
-                                        {t('common.reset')}
-                                    </button>
-                            )}
-                        </div>
-                    </div>
-                ) : (
-                    <div className="bg-[#fdfcf0] border border-[#1a1a1a] p-5 flex flex-col items-center text-center gap-3 shadow-[0_2px_0_0_#1a1a1a]">
-                        <div className="w-10 h-10 bg-white border border-[#1a1a1a] text-[#97cd7a] flex items-center justify-center shadow-[0_1px_0_0_#1a1a1a]">
-                            <Zap size={20} className="fill-[#97cd7a]" />
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-xs font-black uppercase tracking-widest text-black">{t('design.customColorsPreview', 'Custom Colors Preview')}</p>
-                            <p className="text-[9px] font-normal uppercase tracking-[0.2em] text-black/50 leading-relaxed max-w-xs mx-auto">
-                                {t('design.customColorsPreviewDesc', 'As a FREE plan member, you can test custom colors now, but you will need the PRO tier to save these changes permanently.')}
-                            </p>
-                        </div>
-                        <button
-                            onClick={() => updateProfile({ themeId: 'custom' })}
-                            className="mt-1 text-[9px] font-black bg-[#97cd7a] border-2 border-[#1a1a1a] text-black px-6 py-3 uppercase tracking-widest shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none transition-all active:scale-95"
-                        >
-                            {t('design.enablePreview', 'Enable Preview')}
-                        </button>
-                    </div>
-                )}
-            </section>
         </div>
     );
 }

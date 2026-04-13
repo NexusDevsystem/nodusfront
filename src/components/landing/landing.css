@@ -82,3 +82,22 @@
 .animate-marquee-reverse-landing {
   animation: marquee-reverse-landing 20s linear infinite;
 }
+
+/* Float animations for mockups */
+@keyframes float-mockup {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-10px) rotate(0deg); }
+}
+
+@keyframes float-mockup-alt {
+  0%, 100% { transform: translateY(0) rotate(2deg); }
+  50% { transform: translateY(10px) rotate(-1deg); }
+}
+
+.hero-mockup-sidebar {
+  animation: float-mockup 6s ease-in-out infinite;
+}
+
+.hero-mockup-phone {
+  animation: float-mockup-alt 7s ease-in-out infinite;
+}

@@ -9,10 +9,10 @@ export const translations = {
       create: "Criar meu Nodus"
     },
     hero: {
-      title1: "Sua presença,",
-      title2: "brutal.",
-      title3: "Fuja do ",
-      title4: "padrão.",
+      title1: "O Hub de Links",
+      title2: "Perfeito para",
+      title3: "a sua ",
+      title4: "bio.",
       sub1: "Chega de templates genéricos. Crie um mini-hub de alta performance que ",
       subBrutal: "é a sua cara",
       sub2: ", sem precisar de código.",
@@ -100,44 +100,44 @@ export const translations = {
       competitor: "Concorrente",
       items: [
         {
-          feature: "Integração Streams",
-          nodus: "Deep Sync: Puxa seguidores e avatar via API em tempo real.",
-          competitor: "Apenas link simples com ícone."
+          feature: "Redes Sociais",
+          nodus: "Sincronização: Busca sua foto e seguidores automaticamente.",
+          competitor: "Apenas um link comum com ícone."
         },
         {
-          feature: "Media Kit Expansível",
-          nodus: "Nativo: Botão que revela métricas profissionais ao clicar.",
-          competitor: "Requer integração externa ou PDF estático."
+          feature: "Media Kit para Marcas",
+          nodus: "Profissional: Mostre seus números de alcance em um só clique.",
+          competitor: "Precisa de PDF ou sites externos."
         },
         {
-          feature: "PIX e Pagamentos BR",
-          nodus: "Nativo: Focado no mercado brasileiro com chaves e QR Codes.",
-          competitor: "Focado em Stripe/PayPal (taxas altas e menos intuitivo no BR)."
+          feature: "Vendas e PIX",
+          nodus: "Fácil: Receba pagamentos via PIX e QR Code direto na bio.",
+          competitor: "Sistemas gringos complicados e com taxas altas."
         },
         {
-          feature: "Music Card (Álbuns)",
-          nodus: "Agrupado: Expande a playlist inteira dentro de um único botão.",
-          competitor: "Geralmente apenas um embed de uma única faixa ou player externo."
+          feature: "Músicas e Álbuns",
+          nodus: "Completo: Mostre sua playlist inteira dentro de um só botão.",
+          competitor: "Links que mandam pra fora do seu perfil."
         },
         {
           feature: "Localização e Mapas",
-          nodus: "Card Ativo: Mapa interativo renderizado direto na bio.",
-          competitor: "Apenas redirecionamento para Google Maps."
+          nodus: "Mapa na Bio: Seus clientes veem o endereço direto na página.",
+          competitor: "Abre o app de Mapas e tira o cliente do seu link."
         },
         {
-          feature: "Download de Arquivos",
-          nodus: "Nodus Storage: Hospedagem interna de PDFs e E-books.",
-          competitor: "Requer link externo (Google Drive/Dropbox)."
+          feature: "Download de Materiais",
+          nodus: "Direto: Entregue seus E-books e PDFs sem links externos.",
+          competitor: "Precisa usar Google Drive ou Dropbox."
         },
         {
-          feature: "Estética Visual",
-          nodus: "Neobrutalismo: Bordas 1.5px, sombras rígidas e animações premium.",
-          competitor: "Design minimalista padrão (arredondado e genérico)."
+          feature: "Design e Estilo",
+          nodus: "Único: Visual que foge do comum e marca sua identidade.",
+          competitor: "Design arredondado e igual ao de todo mundo."
         },
         {
-          feature: "Links com Senha",
-          nodus: "Nativo: Proteção direta na interface do editor.",
-          competitor: "Funcionalidade restrita apenas a planos pagos elevados."
+          feature: "Botões com Senha",
+          nodus: "Seguro: Proteja links exclusivos para quem tem a senha.",
+          competitor: "Sempre cobrado como um recurso extra caro."
         }
       ]
     },
@@ -232,10 +232,10 @@ export const translations = {
       create: "Create my Nodus"
     },
     hero: {
-      title1: "Your presence,",
-      title2: "brutal.",
-      title3: "Break the ",
-      title4: "standard.",
+      title1: "The perfect",
+      title2: "link hub",
+      title3: "for your ",
+      title4: "bio.",
       sub1: "No more generic templates. Create a high-performance mini-hub that ",
       subBrutal: "is truly yours",
       sub2: ", with zero coding.",
@@ -323,44 +323,44 @@ export const translations = {
       competitor: "Competitor",
       items: [
         {
-          feature: "Streaming Integration",
-          nodus: "Deep Sync: Pulls followers and avatar via API in real-time.",
-          competitor: "Simple link with icon only."
+          feature: "Social Networks",
+          nodus: "Sync: Automatically pulls your photo and follower count.",
+          competitor: "Just a standard link with an icon."
         },
         {
-          feature: "Expandable Media Kit",
-          nodus: "Native: Button that reveals professional metrics upon clicking.",
-          competitor: "Requires external integration or static PDF."
+          feature: "Brand Media Kit",
+          nodus: "Professional: Showcase your reach numbers in one click.",
+          competitor: "Requires PDFs or external websites."
         },
         {
-          feature: "Local Payments",
-          nodus: "Native: Focused on local markets with keys and QR Codes.",
-          competitor: "Focused on global processors (high fees and less intuitive)."
+          feature: "Sales & Payments",
+          nodus: "Seamless: Receive payments and QR codes directly in your bio.",
+          competitor: "Complex setups with high processing fees."
         },
         {
-          feature: "Music Card (Albums)",
-          nodus: "Grouped: Expands an entire playlist within a single button.",
-          competitor: "Usually just an embed of a single track or external player."
+          feature: "Music & Albums",
+          nodus: "Unified: Show your whole playlist inside a single button.",
+          competitor: "Links that take users away from your profile."
         },
         {
           feature: "Location & Maps",
-          nodus: "Active Card: Interactive map rendered directly on bio.",
-          competitor: "Redirection to Google Maps only."
+          nodus: "Live Map: Customers see your address right on the page.",
+          competitor: "Opens Map apps and takes the customer away."
         },
         {
           feature: "File Downloads",
-          nodus: "Nodus Storage: Internal hosting for PDFs and E-books.",
-          competitor: "Requires external link (Google Drive/Dropbox)."
+          nodus: "Direct: Give away E-books and PDFs without external links.",
+          competitor: "Requires Google Drive or Dropbox."
         },
         {
-          feature: "Visual Aesthetic",
-          nodus: "Neobrutalism: 1.5px borders, hard shadows, and premium animations.",
-          competitor: "Standard minimalist design (rounded and generic)."
+          feature: "Design & Style",
+          nodus: "Unique: A visual style that stands out from the crowd.",
+          competitor: "Rounded, generic design like everyone else."
         },
         {
           feature: "Password Links",
-          nodus: "Native: Direct protection within the editor interface.",
-          competitor: "Feature restricted to high-tier paid plans."
+          nodus: "Secure: Protect exclusive links with a simple password.",
+          competitor: "Often hidden behind expensive extra tiers."
         }
       ]
     },

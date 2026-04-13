@@ -21,20 +21,8 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
 
         const updates: Partial<UserProfile> = {
             ...profile,
-            themeId,
-            fontFamily: theme?.fontFamily || "'Inter', sans-serif",
-            buttonRoundness: null,
-            fontWeight: null,
-            fontItalic: false,
-            fontSize: null
+            themeId
         };
-
-        if (themeId !== 'custom') {
-            // We keep customBackground and secondary colors to preserve user layouts (Profile/Banner modes)
-            // but we reset button-specific overrides to allow the theme's look to take over.
-            updates.customButtonColor = null;
-            updates.customButtonTextColor = null;
-        }
 
         onChange(updates as UserProfile);
     };
@@ -77,7 +65,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
                                 Pro
                             </div>
                             {isLocked && isSelected && (
-                                <motion.span 
+                                <motion.span
                                     initial={{ x: -10, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
                                     className="text-[7px] font-black bg-[#ffdf00] text-black px-1.5 py-0.5 border-2 border-black uppercase tracking-widest rounded-sm"
@@ -94,13 +82,15 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
     };
 
     const renderThemesContent = () => {
+        const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
+
         // Separate Free themes (special section)
         const freeThemes = THEMES.filter(t => !t.isPro && t.id !== 'custom');
-        
+
         // Group ALL themes by category dynamically to ensure NONE are missed
         const categorizedThemes = THEMES.filter(t => t.id !== 'custom');
         const categoriesMap = new Map<string, typeof THEMES>();
-        
+
         categorizedThemes.forEach(theme => {
             const cat = theme.category || 'other';
             if (!categoriesMap.has(cat)) {
@@ -114,6 +104,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
 
         return (
             <div className="space-y-16">
+
                 {/* Free Themes Section */}
                 {freeThemes.length > 0 && (
                     <div className="space-y-8">

@@ -156,7 +156,6 @@ function LinkEditor({
     if (nextColls) setExpandedCollections(nextColls);
   }, [links, level, expandedLinks, expandedCollections, setExpandedLinks, setExpandedCollections]);
 
-  const isLimitReached = (profile.plan_type === 'free' || !profile.plan_type) && links.length >= 5;
 
   const activeLinks = useMemo(() => {
     const manual = links.filter(l => !l.isArchived);
@@ -301,6 +300,12 @@ function LinkEditor({
 
     if (url) {
       const lowerUrl = url.toLowerCase();
+      const isDiscord = lowerUrl.includes('discord.gg') || lowerUrl.includes('discord.com/invite');
+      
+      if (isDiscord) {
+        newLink.embedType = 'discord';
+      }
+
       const isMusic = url.includes('spotify') || url.includes('deezer') || url.includes('youtube') || url.includes('youtu.be') || url.includes('tiktok');
       const isSocialStats = lowerUrl.includes('instagram.com') || lowerUrl.includes('tiktok.com') || lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be');
 
@@ -483,8 +488,7 @@ function LinkEditor({
                     </button>
                     <button
                       onClick={() => setIsAddModalOpen(true)}
-                      disabled={isLimitReached}
-                      className={`flex-1 md:flex-none h-11 px-6 md:px-8 flex items-center justify-center gap-3 border-2 transition-all hover:translate-y-[0.5px] hover:shadow-none rounded-xl ${isLimitReached ? 'border-[#1a1a1a] bg-slate-200 text-black/30 cursor-not-allowed' : 'border-[#1a1a1a] bg-[#ffdf00] text-black shadow-[0_4px_0_0_#1a1a1a]'}`}
+                      className="flex-1 md:flex-none h-11 px-6 md:px-8 flex items-center justify-center gap-3 border-2 transition-all hover:translate-y-[0.5px] hover:shadow-none rounded-xl border-[#1a1a1a] bg-[#ffdf00] text-black shadow-[0_4px_0_0_#1a1a1a]"
                     >
                       <Plus size={20} className="text-black" strokeWidth={4} />
                       <span className="text-[11px] md:text-[12px] font-black uppercase tracking-widest whitespace-nowrap">{t('links.addLink') || 'Adicionar Link'}</span>
@@ -492,15 +496,7 @@ function LinkEditor({
                   </div>
                 </div>
               </div>
-              {isLimitReached && (
-                <div className="bg-amber-50 border border-amber-100 p-6 rounded-md flex items-center gap-6 mb-8">
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-amber-900">{t('links.limitReached')}</p>
-                    <p className="text-sm text-amber-700 mt-0.5">{t('links.limitReachedDesc')}</p>
-                  </div>
-                  <button className="text-xs font-bold text-amber-700 bg-white border border-amber-200 px-4 py-2 rounded-md hover:bg-amber-100 transition-colors shadow-sm">{t('links.seePlans')}</button>
-                </div>
-              )}
+              {/* Link limit removed by user request */}
             </div>
           ) : (
             <button

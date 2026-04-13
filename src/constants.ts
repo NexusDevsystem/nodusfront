@@ -115,19 +115,6 @@ import { musicThemes } from './themes/music';
 import { brutalistThemes } from './themes/brutalist';
 
 export const THEMES: Theme[] = [
-  {
-    id: 'custom',
-    name: 'Custom',
-    backgroundClass: 'bg-white',
-    buttonClass: 'bg-slate-950 text-white rounded-2xl font-bold',
-    textClass: 'text-slate-950',
-    avatarBorder: 'border-slate-200 border-2',
-    category: 'solid',
-    solidColor: '#ffffff',
-    buttonHex: '#020617',
-    cardClass: 'bg-white border border-slate-200 shadow-sm rounded-2xl',
-    fontFamily: "'Questrial', sans-serif"
-  },
   kawaiiSakuraTheme,
   ...businessThemes,
   ...advocacyThemes,

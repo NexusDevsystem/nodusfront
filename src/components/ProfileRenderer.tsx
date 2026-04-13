@@ -58,6 +58,7 @@ import { MapBlock } from './MapBlock';
 import PasswordLinkModal from './PasswordLinkModal';
 import MediaKitModal from './MediaKitModal';
 import InteractiveButton from './animations/InteractiveButton';
+import DiscordCard from './profile/DiscordCard';
 import { MarqueeText } from './animations/MarqueeText';
 import ElasticButton from './animations/ElasticButton';
 import GlitchButton from './animations/GlitchButton';
@@ -173,7 +174,16 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const [openMediaKit, setOpenMediaKit] = React.useState<LinkItem | null>(null);
     const [expandedIncentive, setExpandedIncentive] = useState<string | null>(null);
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [brandingIndex, setBrandingIndex] = React.useState(0);
     const portalTargetRef = React.useRef<HTMLDivElement>(null);
+
+    // Toggle branding text between PT and EN every 4 seconds for a dynamic feel
+    React.useEffect(() => {
+        const timer = setInterval(() => {
+            setBrandingIndex(prev => (prev === 0 ? 1 : 0));
+        }, 4000);
+        return () => clearInterval(timer);
+    }, []);
 
     // CSS keyframes memoized — inserted ONCE, never recreated on re-render
     const profileGlobalStyles = React.useMemo(() => (
@@ -864,8 +874,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const overrideTypes: ('rounded' | 'bg' | 'text' | 'border' | 'shadow')[] = [];
     if (roundedClass) overrideTypes.push('rounded');
     if (profile.buttonShadow) overrideTypes.push('border', 'shadow');
-    if (isCustomTheme && profile.customButtonColor) overrideTypes.push('bg');
-    if (isCustomTheme && profile.customButtonTextColor) overrideTypes.push('text');
+    if (profile.customButtonColor) overrideTypes.push('bg');
+    if (profile.customButtonTextColor) overrideTypes.push('text');
 
     const isProfileMode = profile.headerLayout === 'compact';
 
@@ -879,9 +889,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         buttonClass += ' border-2 border-[#1a1a1a] shadow-[4px_4px_0_0_#1a1a1a] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_0_#1a1a1a] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none';
     }
 
-    // 2. Button Color Logic - Custom colors ONLY apply to 'custom' theme
-    const buttonHex = (isCustomTheme && profile.customButtonColor) ? profile.customButtonColor : currentTheme.buttonHex;
-    const mainButtonStyle = (isCustomTheme && profile.customButtonColor) ? { backgroundColor: profile.customButtonColor } : {};
+    // 2. Button Color Logic - Rely completely on theme classes
+    const buttonHex = currentTheme.buttonHex;
+    const mainButtonStyle: React.CSSProperties = {};
 
     // 2.5 Font Logic - Always prioritize profile settings if available
     const effectiveFontFamily = profile.fontFamily || currentTheme.fontFamily || "'Inter', sans-serif";
@@ -950,10 +960,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const isButtonLight = buttonHex ? getLuminance(buttonHex) > 0.6 : false;
 
     // Universal Helper for Button/Card Text Contrast
-    const getSmartTextColor = React.useCallback(() => {
-        // 0. Priority: User custom button text color
-        if (profile.customButtonTextColor) return profile.customButtonTextColor;
-
+    const getSmartTextColor = React.useCallback((): string => {
         // 1. If currently in a DARK card/theme context and button is NOT light, use white
         if (!isButtonLight && (isDarkTheme)) return '#ffffff';
 
@@ -963,9 +970,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         // 3. Fallback to white if background is dark/glass
         if (profile.customBackground || isDarkTheme) return '#ffffff';
 
-        // 4. Default to undefined to let Tailwind/Inheritance handle it
-        return undefined;
-    }, [profile.customButtonTextColor, isButtonLight, isDarkTheme, profile.customBackground]);
+        // 4. Default to dark for standard light backgrounds
+        return '#0f172a';
+    }, [isButtonLight, isDarkTheme, profile.customBackground]);
 
     const smartTextColor = React.useMemo(() => getSmartTextColor(), [getSmartTextColor]);
 
@@ -1204,9 +1211,20 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     </div>
                                     <motion.span
                                         animate={{ opacity: isAutoExpanded ? 1 : 0 }}
-                                        className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-900 pr-6 group-hover:opacity-100 transition-opacity duration-300 flex-1 text-center"
+                                        className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-900 pr-6 group-hover:opacity-100 transition-opacity duration-300 flex-1 text-center h-full flex items-center justify-center relative"
                                     >
-                                        {isPT ? 'Crie seu nodus' : 'Create your nodus'}
+                                        <AnimatePresence mode="wait">
+                                            <motion.span
+                                                key={brandingIndex}
+                                                initial={{ y: 10, opacity: 0 }}
+                                                animate={{ y: 0, opacity: 1 }}
+                                                exit={{ y: -10, opacity: 0 }}
+                                                transition={{ duration: 0.5, ease: "easeInOut" }}
+                                                className="absolute inset-0 flex items-center justify-center pr-6"
+                                            >
+                                                {brandingIndex === 0 ? 'Crie seu nodus' : 'Create your nodus'}
+                                            </motion.span>
+                                        </AnimatePresence>
                                     </motion.span>
                                 </motion.a>
                             </InteractiveButton>
@@ -1353,7 +1371,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     rel="noreferrer"
                                                     onClick={() => handleLinkClick(link.id)}
                                                     className="hover:scale-110 active:scale-95 transition-all p-1"
-                                                    style={{ color: getSmartTextColor() || (isDarkTheme ? '#ffffff' : '#0f172a') }}
+                                                    style={{ color: effectiveCollectionTextColor }}
                                                 >
                                                     <Icon size={32} />
                                                 </a>
@@ -1762,24 +1780,24 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 <div className="w-full h-full overflow-hidden flex flex-col" style={{ borderRadius: 'inherit' }}>
                                                                                     {/* Image Area */}
                                                                                     <div className="relative overflow-hidden h-44 md:h-52 w-full flex-shrink-0">
-                                                                                    {cardLink.image ? (
-                                                                                        <img
-                                                                                            src={cardLink.image}
-                                                                                            alt=""
-                                                                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                                                                            loading="lazy"
-                                                                                            decoding="async"
-                                                                                            onError={(e) => {
-                                                                                                e.currentTarget.onerror = null;
-                                                                                                e.currentTarget.style.display = 'none';
-                                                                                            }}
-                                                                                        />
-                                                                                    ) : (
-                                                                                        <div className="w-full h-full flex items-center justify-center" style={{ color: smartText, opacity: 0.15 }}>
-                                                                                            <Globe size={40} />
-                                                                                        </div>
-                                                                                    )}
-                                                                                </div>
+                                                                                        {cardLink.image ? (
+                                                                                            <img
+                                                                                                src={cardLink.image}
+                                                                                                alt=""
+                                                                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                                                                                loading="lazy"
+                                                                                                decoding="async"
+                                                                                                onError={(e) => {
+                                                                                                    e.currentTarget.onerror = null;
+                                                                                                    e.currentTarget.style.display = 'none';
+                                                                                                }}
+                                                                                            />
+                                                                                        ) : (
+                                                                                            <div className="w-full h-full flex items-center justify-center" style={{ color: smartText, opacity: 0.15 }}>
+                                                                                                <Globe size={40} />
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
 
                                                                                     {/* Footer — inherits card bg and text style completely */}
                                                                                     <div
@@ -1789,35 +1807,35 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             minHeight: '56px'
                                                                                         }}
                                                                                     >
-                                                                                    {isMusicLink(cardLink) && (
-                                                                                        <div className="mb-1 opacity-60">
-                                                                                            {cardLink.url.includes('deezer') ? (
-                                                                                                <DeezerIcon size={10} color={smartText} />
-                                                                                            ) : (
-                                                                                                <SiSpotify size={10} color={isButtonLight ? "#1a2c14" : "#1DB954"} />
-                                                                                            )}
-                                                                                        </div>
-                                                                                    )}
-                                                                                    <span
-                                                                                        className="text-[15px] leading-tight truncate w-full uppercase tracking-tight"
-                                                                                        style={{
-                                                                                            color: smartText,
-                                                                                            fontWeight: (profile.fontWeight || '700'),
-                                                                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                                                                            fontFamily: effectiveFontFamily,
-                                                                                        }}
-                                                                                    >{cardLink.title}</span>
-                                                                                    {cardLink.subtitle && (
+                                                                                        {isMusicLink(cardLink) && (
+                                                                                            <div className="mb-1 opacity-60">
+                                                                                                {cardLink.url.includes('deezer') ? (
+                                                                                                    <DeezerIcon size={10} color={smartText} />
+                                                                                                ) : (
+                                                                                                    <SiSpotify size={10} color={isButtonLight ? "#1a2c14" : "#1DB954"} />
+                                                                                                )}
+                                                                                            </div>
+                                                                                        )}
                                                                                         <span
-                                                                                            className="text-[11px] leading-tight truncate w-full mt-1"
+                                                                                            className="text-[15px] leading-tight truncate w-full uppercase tracking-tight"
                                                                                             style={{
                                                                                                 color: smartText,
-                                                                                                opacity: 0.6,
+                                                                                                fontWeight: (profile.fontWeight || '700'),
+                                                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal',
                                                                                                 fontFamily: effectiveFontFamily,
                                                                                             }}
-                                                                                        >{cardLink.subtitle}</span>
-                                                                                    )}
-                                                                                </div>
+                                                                                        >{cardLink.title}</span>
+                                                                                        {cardLink.subtitle && (
+                                                                                            <span
+                                                                                                className="text-[11px] leading-tight truncate w-full mt-1"
+                                                                                                style={{
+                                                                                                    color: smartText,
+                                                                                                    opacity: 0.6,
+                                                                                                    fontFamily: effectiveFontFamily,
+                                                                                                }}
+                                                                                            >{cardLink.subtitle}</span>
+                                                                                        )}
+                                                                                    </div>
                                                                                 </div>
                                                                             </motion.a>
                                                                         </InteractiveButton>
@@ -2276,7 +2294,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
                                                                                         const isVideo = (child.url.includes('youtube.com') || child.url.includes('youtu.be') || child.url.includes('tiktok.com'));
 
-                                                                                        const EffectWrapper: any = isHighlighted ? GlitchButton : isVideo ? ElasticButton : ({children}: any) => <>{children}</>;
+                                                                                        const EffectWrapper: any = isHighlighted ? GlitchButton : isVideo ? ElasticButton : ({ children }: any) => <>{children}</>;
                                                                                         const effectProps = (isHighlighted || isVideo) ? { className: "w-full", clipPath: themeClipPath } : {};
 
                                                                                         nestedItems.push(
@@ -2353,25 +2371,138 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 </motion.div>
                                                             );
                                                         }
-                                                        flushIcons();
-                                                        flushCards();
                                                     } else if (isMusicLink(link)) {
                                                         flushIcons();
                                                         flushCards();
+                                                        if (link.layout === 'carousel' && link.children && link.children.length > 0) {
+                                                            const smartText = getSmartTextColor();
+                                                            const carouselId = `music-carousel-${link.id.replace(/[^a-z0-9]/gi, '-')}`;
+
+                                                            renderedItems.push(
+                                                                <div key={`carousel-wrapper-${link.id}`} data-music-carousel className="w-full relative mb-6 group/carousel overflow-visible">
+                                                                    <div className="flex items-center justify-between px-2 mb-3">
+                                                                        <h3 className="text-[11px] uppercase tracking-[0.2em] font-black opacity-40" style={{ color: smartText }}>
+                                                                            {link.title}
+                                                                        </h3>
+                                                                    </div>
+
+                                                                    {/* Side Arrows */}
+                                                                    <div className="absolute top-1/2 -translate-y-1/2 -left-5 z-[70] opacity-0 group-hover/carousel:opacity-100 hidden md:block transition-all duration-300">
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                const wrapper = e.currentTarget.closest('[data-music-carousel]');
+                                                                                const container = wrapper?.querySelector('.no-scrollbar');
+                                                                                if (container) container.scrollLeft -= 212;
+                                                                            }}
+                                                                            className="w-10 h-10 rounded-full bg-white/95 shadow-xl flex items-center justify-center text-black hover:bg-white active:scale-90 transition-all border border-black/5"
+                                                                        >
+                                                                            <ChevronLeft size={20} />
+                                                                        </button>
+                                                                    </div>
+                                                                    <div className="absolute top-1/2 -translate-y-1/2 -right-5 z-[70] opacity-0 group-hover/carousel:opacity-100 hidden md:block transition-all duration-300">
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                const wrapper = e.currentTarget.closest('[data-music-carousel]');
+                                                                                const container = wrapper?.querySelector('.no-scrollbar');
+                                                                                if (container) container.scrollLeft += 212;
+                                                                            }}
+                                                                            className="w-10 h-10 rounded-full bg-white/95 shadow-xl flex items-center justify-center text-black hover:bg-white active:scale-90 transition-all border border-black/5"
+                                                                        >
+                                                                            <ChevronRight size={20} />
+                                                                        </button>
+                                                                    </div>
+
+                                                                    <div className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-8 pt-2 px-4 scrollbar-hide no-scrollbar -mx-4 scroll-smooth" style={{ overflowY: 'visible' }}>
+                                                                        {link.children.map((track, idx) => (
+                                                                            <div key={track.id} className="flex-shrink-0 w-48 snap-start">
+                                                                                <InteractiveButton className="w-full" strength={10} clipPath={themeClipPath}>
+                                                                                    <motion.a
+                                                                                        href={formatUrl(track.url)}
+                                                                                        target="_blank"
+                                                                                        rel="noreferrer"
+                                                                                        onClick={() => handleLinkClick(track.id)}
+                                                                                        initial={{ opacity: 0, x: 20 }}
+                                                                                        animate={{ opacity: 1, x: 0 }}
+                                                                                        transition={{ delay: idx * 0.05 }}
+                                                                                        className={`block w-full relative group transition-all duration-300 ${baseCardClass}`}
+                                                                                        style={{ ...mainButtonStyle, clipPath: themeClipPath, borderRadius: borderRadiusValue, padding: 0, overflow: 'hidden' }}
+                                                                                    >
+                                                                                        <div className="aspect-square relative overflow-hidden">
+                                                                                            <img
+                                                                                                src={track.image || (track.embedType === 'deezer' ? 'https://e-cdns-images.dzcdn.net/images/cover/d41d8cd98f00b204e9800998ecf8427e/500x500.jpg' : 'https://i.scdn.co/image/ab6761610000e5eb4f4cb38605332c021379c13b')}
+                                                                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                                                                loading="lazy"
+                                                                                            />
+                                                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                                                                <Play fill="white" size={24} className="text-white translate-x-0.5" />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div className={`px-3 py-2.5 border-t border-black/5 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
+                                                                                            <h4 className="text-[11px] font-black uppercase truncate tracking-tight mb-0.5 leading-none" style={{ color: smartText }}>{track.title}</h4>
+                                                                                            <p className="text-[9px] font-bold uppercase opacity-50 truncate tracking-widest leading-none" style={{ color: smartText }}>{track.subtitle}</p>
+                                                                                        </div>
+                                                                                    </motion.a>
+                                                                                </InteractiveButton>
+                                                                            </div>
+                                                                        ))}
+                                                                        <div className="flex-shrink-0 w-4" />
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        } else {
+                                                            renderedItems.push(
+                                                                <InteractiveButton key={link.id} className="w-full">
+                                                                    <div className={getHighlightClass(link.highlight)}>
+                                                                        <MusicRichCard
+                                                                            link={link}
+                                                                            handleLinkClick={handleLinkClick}
+                                                                            baseCardClass={baseCardClass}
+                                                                            mainButtonStyle={mainButtonStyle}
+                                                                            effectiveFontFamily={effectiveFontFamily}
+                                                                            profile={profile}
+                                                                            getSmartTextColor={getSmartTextColor}
+                                                                            getHighlightClass={getHighlightClass}
+                                                                            setOpenPlaylist={setOpenPlaylist}
+                                                                        />
+                                                                    </div>
+                                                                </InteractiveButton>
+                                                            );
+                                                        }
+                                                    } else if (link.embedType === 'discord' || link.url?.includes('discord.gg') || link.url?.includes('discord.com/invite')) {
+                                                        flushIcons();
+                                                        flushCards();
                                                         renderedItems.push(
-                                                            <InteractiveButton key={link.id} className="w-full">
+                                                            <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
                                                                 <div className={getHighlightClass(link.highlight)}>
-                                                                    <MusicRichCard
-                                                                        link={link}
-                                                                        handleLinkClick={handleLinkClick}
-                                                                        baseCardClass={baseCardClass}
-                                                                        mainButtonStyle={mainButtonStyle}
-                                                                        effectiveFontFamily={effectiveFontFamily}
-                                                                        profile={profile}
-                                                                        getSmartTextColor={getSmartTextColor}
-                                                                        getHighlightClass={getHighlightClass}
-                                                                        setOpenPlaylist={setOpenPlaylist}
-                                                                    />
+                                                                    <motion.a
+                                                                        transition={{ duration: 0.2 }}
+                                                                        href={link.isPasswordProtected ? undefined : formatUrl(link.url)}
+                                                                        target={link.isPasswordProtected ? undefined : "_blank"}
+                                                                        rel="noreferrer"
+                                                                        onClick={(e) => {
+                                                                            if (handlePasswordProtectedLink(link, e)) return;
+                                                                            handleLinkClick(link.id);
+                                                                        }}
+                                                                        className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} cursor-pointer`}
+                                                                        style={{
+                                                                            ...mainButtonStyle, clipPath: themeClipPath,
+                                                                            fontFamily: profile.fontFamily,
+                                                                            fontWeight: (profile.fontWeight || undefined),
+                                                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                            borderRadius: borderRadiusValue
+                                                                        }}
+                                                                    >
+                                                                        <DiscordCard
+                                                                            link={link}
+                                                                            handleLinkClick={handleLinkClick}
+                                                                            baseCardClass={""}
+                                                                            mainButtonStyle={{}}
+                                                                            effectiveFontFamily={effectiveFontFamily}
+                                                                            profile={profile}
+                                                                            getSmartTextColor={getSmartTextColor}
+                                                                        />
+                                                                    </motion.a>
                                                                 </div>
                                                             </InteractiveButton>
                                                         );
@@ -2466,7 +2597,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         const isHighlighted = link.highlight === 'blink' || link.highlight === 'glow' || link.highlight === 'flash' || link.highlight === 'rainbow' || link.highlight === 'glitch';
                                                         const isVideo = (link.url.includes('youtube.com') || link.url.includes('youtu.be') || link.url.includes('tiktok.com'));
 
-                                                        const EffectWrapper: any = isHighlighted ? GlitchButton : isVideo ? ElasticButton : ({children}: any) => <>{children}</>;
+                                                        const EffectWrapper: any = isHighlighted ? GlitchButton : isVideo ? ElasticButton : ({ children }: any) => <>{children}</>;
                                                         const effectProps = (isHighlighted || isVideo) ? { className: "w-full", clipPath: themeClipPath } : {};
 
                                                         renderedItems.push(
@@ -2764,6 +2895,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 effectiveFontFamily={effectiveFontFamily}
                 borderRadiusValue={borderRadiusValue}
                 isStatic={isStatic}
+                mainButtonStyle={mainButtonStyle}
+                buttonClass={buttonClass}
             />
 
 
