@@ -484,8 +484,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     // @ts-ignore
     const collections = React.useMemo(() => {
         const groups: Record<string, Product[]> = {};
-        const activeStores = stores.filter(s => s.isActive !== false);
-        const activeProducts = products.filter(p => !p.isArchived && p.isActive !== false);
+        const activeStores = stores.filter(s => s.isActive !== false).sort((a, b) => (a.position || 0) - (b.position || 0));
+        const activeProducts = products.filter(p => !p.isArchived && p.isActive !== false).sort((a, b) => (a.position || 0) - (b.position || 0));
 
         // Ensure all explicitly created collections in ACTIVE STORES exist even if empty
         activeStores.forEach(s => {

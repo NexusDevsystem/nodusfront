@@ -126,9 +126,9 @@ export default function ShopEditor({
     };
 
     const handleReorderStores = (newStores: Store[]) => {
-        // Update positions based on the new array order
-        const reordered = newStores.map((s, idx) => ({ ...s, position: idx }));
-        onStoresChange(reordered);
+        // Mutate positions to preserve object identity for Framer Motion Reorder component
+        newStores.forEach((s, idx) => { s.position = idx; });
+        onStoresChange([...newStores]);
     };
 
     const handleDeleteStore = (id: string) => {
@@ -197,10 +197,18 @@ export default function ShopEditor({
     };
 
     const handleReorderProducts = (storeId: string, colName: string, reorderedSubset: Product[]) => {
-        const otherProducts = products.filter(p => p.storeId !== storeId || p.collection !== (colName === 'uncategorized' ? undefined : colName));
-        const updatedSubset = reorderedSubset.map((p, idx) => ({ ...p, position: idx }));
-        onChange([...otherProducts, ...updatedSubset]);
+        // Atualiza a posição modificando o objeto diretamente (in-place)
+        // Isso é CRÍTICO para o Framer Motion reorder não perder a referência do objeto (que causava o travamento/duplicação)
+        reorderedSubset.forEach((p, idx) => {
+            if (p) p.position = idx;
+        });
+
+        // Trocamos o array apenas para acionar o re-render do React.
+        // Como o ShopEditor já organiza e filtra por posição automaticamente,
+        // não precisamos mexer na ordem manual do array "prev".
+        onChange(prev => [...prev]);
     };
+
 
     const handleRenameCollection = (storeId: string, oldName: string, newName: string) => {
         if (!newName.trim() || oldName === newName) {
@@ -234,7 +242,7 @@ export default function ShopEditor({
         setEditingProductId(null);
     };
 
-    const renderProduct = (product: Product, sortable = true) => (
+    const renderProduct = (product: Product, sortable = true, idx = 0) => (
         <ProductItem
             key={product.clientId || product.id}
             product={product}
@@ -470,6 +478,7 @@ export default function ShopEditor({
                     {isAddingStore && (
                         <motion.div
                             initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+                            transition={{ type: 'tween', ease: 'easeOut', duration: 0.25 }}
                             className="mt-8 space-y-6 pt-6 border-t-2 border-[#1a1a1a] border-dashed"
                         >
                             <div className="grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-6">
@@ -531,7 +540,6 @@ export default function ShopEditor({
                                     values={sortedStores} 
                                     onReorder={handleReorderStores} 
                                     className="space-y-3"
-                                    transition={{ type: 'spring', stiffness: 400, damping: 35 }}
                                 >
                                     {sortedStores.map(store => (
                                         <StoreItem 
@@ -581,7 +589,13 @@ export default function ShopEditor({
                 <AnimatePresence>
                     {deletingStoreId && (
                         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="bg-white border-2 border-black p-10 rounded-md max-w-md w-full shadow-[0_20px_0_0_#000]">
+                            <motion.div 
+                                initial={{ y: 50, opacity: 0 }} 
+                                animate={{ y: 0, opacity: 1 }} 
+                                exit={{ y: 50, opacity: 0 }} 
+                                transition={{ type: 'tween', ease: 'easeOut', duration: 0.2 }}
+                                className="bg-white border-2 border-black p-10 rounded-md max-w-md w-full shadow-[0_20px_0_0_#000]"
+                            >
                                 <h4 className="text-3xl font-black uppercase text-center mb-10 tracking-tighter">{isPT ? 'EXCLUIR LOJA?' : 'DELETE STORE?'}</h4>
                                 <div className="flex gap-4">
                                     <button onClick={() => setDeletingStoreId(null)} className="flex-1 py-4 bg-slate-100 rounded-sm font-black uppercase text-[10px] tracking-widest">{t('common.cancel')}</button>
@@ -653,6 +667,7 @@ export default function ShopEditor({
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                transition={{ type: 'tween', ease: 'easeOut', duration: 0.2 }}
                                 className="relative bg-white w-full max-w-sm p-6 rounded-md border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] overflow-hidden"
                             >
                                 <div className="mb-6 flex items-center justify-between">
@@ -730,8 +745,9 @@ export default function ShopEditor({
                         className="absolute inset-0 bg-black/60 backdrop-blur-md"
                     />
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                        initial={{ opacity: 0, scale: 0.95, y: 30 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ type: 'tween', ease: 'easeOut', duration: 0.25 }}
                         className="relative bg-white w-full max-w-2xl p-6 sm:p-10 rounded-md border-4 border-black shadow-[0_20px_0_0_#000] overflow-hidden flex flex-col max-h-[85vh] z-10"
                     >
                         <div className="mb-8 flex items-center justify-between">
@@ -826,11 +842,13 @@ const ProductItem: React.FC<ProductItemProps> = ({
 
     const containerProps = {
         value: product,
+        id: product.id,
         dragListener: false,
         dragControls: dragControls,
         layout: true as const,
         whileDrag: { zIndex: 50, borderRadius: '6px' },
-        className: `group relative select-none border-2 border-[#1a1a1a] rounded-md overflow-hidden mb-3 transition-colors duration-300 ${isEditing ? 'bg-[#fefcbf] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'}`
+        style: { willChange: 'transform' },
+        className: `group relative select-none border-2 border-[#1a1a1a] rounded-md overflow-hidden mb-3 ${isEditing ? 'bg-[#fefcbf] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'}`
     };
 
     const content = (
@@ -935,6 +953,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
+                        transition={{ type: 'tween', ease: 'easeOut', duration: 0.2 }}
                         className="border-t-2 border-[#1a1a1a] border-dashed overflow-hidden"
                     >
                         <div className="p-2 sm:p-4">
@@ -999,9 +1018,19 @@ const StoreItem: React.FC<StoreItemProps> = ({
     handleReorderProducts, handleReorderCollections
 }) => {
     const dragControls = useDragControls();
-    const storeProducts = products
-        .filter(p => p.storeId === store.id && !p.isArchived)
+    
+    // Deduplicar produtos localmente baseados em id para consertar estados corrompidos 
+    // que causam falhas no Framer Motion devido a keys duplicadas
+    const uniqueStoreProductsMap = new Map();
+    (products || []).filter(p => p && p.storeId === store.id && !p.isArchived).forEach(p => {
+        if (!uniqueStoreProductsMap.has(p.id)) {
+            uniqueStoreProductsMap.set(p.id, p);
+        }
+    });
+
+    const storeProducts = Array.from(uniqueStoreProductsMap.values())
         .sort((a, b) => (a.position || 0) - (b.position || 0));
+
     const storeCols = Array.from(new Set([
         ...(store.collections || []),
         ...storeProducts.map(p => p.collection).filter(Boolean) as string[]
@@ -1012,11 +1041,13 @@ const StoreItem: React.FC<StoreItemProps> = ({
     return (
         <Reorder.Item
             value={store}
+            id={store.id}
             dragListener={false}
             dragControls={dragControls}
             layout
             whileDrag={{ zIndex: 50, borderRadius: '6px' }}
-            className={`group relative select-none border-2 border-[#1a1a1a] rounded-md overflow-hidden transition-colors duration-300 ${isExpanded ? 'bg-[#fefcbf] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'}`}
+            style={{ willChange: 'transform' }}
+            className={`group relative select-none border-2 border-[#1a1a1a] rounded-md overflow-hidden ${isExpanded ? 'bg-[#fefcbf] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'}`}
         >
             <div className="flex items-stretch min-h-[80px]">
                 {/* Drag Handle Area */}
@@ -1076,7 +1107,13 @@ const StoreItem: React.FC<StoreItemProps> = ({
 
             <AnimatePresence>
                 {isExpanded && (
-                    <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="border-t-2 border-[#1a1a1a] border-dashed overflow-hidden bg-white px-1 sm:px-2.5 py-6 space-y-8">
+                    <motion.div 
+                        initial={{ height: 0 }} 
+                        animate={{ height: 'auto' }} 
+                        exit={{ height: 0 }} 
+                        transition={{ type: 'tween', ease: 'easeOut', duration: 0.3 }}
+                        className="border-t-2 border-[#1a1a1a] border-dashed overflow-hidden bg-white px-1 sm:px-2.5 py-6 space-y-8"
+                    >
                         <div className="flex items-center gap-4 sm:gap-6 pb-8 border-b-2 border-black/5">
                             <div className="relative group shrink-0">
                                 <div className="w-16 h-16 sm:w-20 sm:h-20 bg-black border-2 border-black rounded-md overflow-hidden shadow-[0_4px_0_0_#000] relative">
@@ -1136,7 +1173,13 @@ const StoreItem: React.FC<StoreItemProps> = ({
 
                             <AnimatePresence>
                                 {isAddingCollection === store.id && (
-                                    <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} className="bg-[#ffdf00] p-6 border-2 border-black rounded-md mb-8 flex flex-col sm:flex-row gap-4 shadow-[0_8px_0_0_#1a1a1a]">
+                                <motion.div 
+                                    initial={{ y: -20, opacity: 0 }} 
+                                    animate={{ y: 0, opacity: 1 }} 
+                                    exit={{ y: -20, opacity: 0 }} 
+                                    transition={{ type: 'tween', ease: 'easeOut', duration: 0.2 }}
+                                    className="bg-[#ffdf00] p-6 border-2 border-black rounded-md mb-8 flex flex-col sm:flex-row gap-4 shadow-[0_8px_0_0_#1a1a1a]"
+                                >
                                         <input
                                             autoFocus type="text" placeholder={isPT ? "Ex: Lançamentos" : "Ex: New Arrivals"}
                                             className="flex-1 bg-white border-2 border-black rounded-md px-5 py-3 text-sm font-black uppercase shadow-[0_3px_0_0_#000] outline-none"
@@ -1159,14 +1202,16 @@ const StoreItem: React.FC<StoreItemProps> = ({
                                     </div>
                                 )}
                                 
-                                <Reorder.Group 
-                                    axis="y" 
-                                    values={uncat} 
-                                    onReorder={(newUncat) => handleReorderProducts(store.id, 'uncategorized', newUncat)}
-                                    className="space-y-3"
-                                >
-                                    {uncat.map(renderProduct)}
-                                </Reorder.Group>
+                                {uncat.length > 0 && (
+                                    <Reorder.Group 
+                                        axis="y" 
+                                        values={uncat} 
+                                        onReorder={(newUncat) => handleReorderProducts(store.id, 'uncategorized', newUncat)}
+                                        className="space-y-3"
+                                    >
+                                        {uncat.map((product, idx) => renderProduct(product, true, idx))}
+                                    </Reorder.Group>
+                                )}
 
                                 <Reorder.Group 
                                     axis="y" 
@@ -1174,106 +1219,27 @@ const StoreItem: React.FC<StoreItemProps> = ({
                                     onReorder={(newCols) => handleReorderCollections(store.id, newCols)}
                                     className="space-y-4"
                                 >
-                                    {storeCols.map(colName => {
-                                        const colProducts = storeProducts.filter(p => p.collection === colName);
-                                        const isAddingToCol = addingToCollection?.storeId === store.id && addingToCollection?.colName === colName;
-                                        const colKey = `${store.id}:${colName}`;
-                                        const isColExpanded = expandedCollections.includes(colKey);
-                                        const colDragControls = useDragControls();
-
-                                        return (
-                                            <Reorder.Item 
-                                                key={colName} 
-                                                value={colName}
-                                                dragListener={false}
-                                                dragControls={colDragControls}
-                                                layout
-                                                whileDrag={{ zIndex: 50, borderRadius: '6px' }}
-                                                className={`select-none border-2 border-black rounded-md overflow-hidden shadow-[0_4px_0_0_#000] bg-white transition-colors ${isColExpanded ? 'mb-4' : 'mb-3'}`}
-                                            >
-                                                <div
-                                                    className="flex items-center min-h-[82px] transition-colors cursor-pointer hover:bg-slate-50"
-                                                    onClick={() => toggleCollection(store.id, colName)}
-                                                >
-                                                    <div 
-                                                        className="w-10 sm:w-12 shrink-0 flex items-center justify-center border-r-[1.5px] border-black/10 transition-colors bg-white cursor-grab active:cursor-grabbing touch-none"
-                                                        onPointerDown={(e) => colDragControls.start(e)}
-                                                    >
-                                                        <GripVertical size={16} className="text-black/15 group-hover:text-black/40" />
-                                                    </div>
-
-                                                    <div className="flex-1 flex items-center gap-3 sm:gap-4 py-4 px-3 sm:px-4 overflow-hidden">
-                                                        <div className="text-black/20 shrink-0">
-                                                            {isColExpanded ? <ChevronDown size={16} strokeWidth={3} /> : <ChevronRight size={16} strokeWidth={3} />}
-                                                        </div>
-
-                                                        <div className="hidden sm:flex w-12 h-12 sm:w-14 sm:h-14 border-2 border-black rounded-md bg-white items-center justify-center shadow-[0_3px_0_0_#000] shrink-0">
-                                                            <Folder className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.5} />
-                                                        </div>
-
-                                                        <div className="flex-1 min-w-0 pr-2">
-                                                            {editingCollection?.storeId === store.id && editingCollection?.oldName === colName ? (
-                                                                <input autoFocus type="text" className="bg-white border-2 border-black rounded-md px-2 py-1 text-sm sm:text-base font-black uppercase outline-none shadow-[0_2px_0_0_#000] w-full" value={editingCollection.newName} onChange={e => setEditingCollection({ ...editingCollection, newName: e.target.value })} onBlur={() => handleRenameCollection(store.id, colName, editingCollection.newName)} onKeyDown={e => e.key === 'Enter' && handleRenameCollection(store.id, colName, editingCollection.newName)} onClick={e => e.stopPropagation()} />
-                                                            ) : (
-                                                                <div className="flex items-center gap-2 group/col-title">
-                                                                    <h6 className="text-[14px] sm:text-[16px] font-black uppercase tracking-tight truncate">{colName}</h6>
-                                                                    <button onClick={(e) => { e.stopPropagation(); setEditingCollection({ storeId: store.id, oldName: colName, newName: colName }); }} className="opacity-0 group-hover/col-title:opacity-100 p-1 text-black/20 hover:text-black transition-all"><Pencil size={12} /></button>
-                                                                </div>
-                                                            )}
-                                                            <p className="text-[10px] sm:text-[11px] font-black text-black/30 uppercase tracking-widest mt-1 truncate">
-                                                                {colProducts.length} {colProducts.length === 1 ? (isPT ? 'ITEM CONFIGURADO' : 'ITEM CONFIGURED') : (isPT ? 'ITENS CONFIGURADOS' : 'ITEMS CONFIGURED')}
-                                                            </p>
-                                                        </div>
-
-                                                        <div className="flex items-center gap-2 sm:gap-3 shrink-0" onClick={e => e.stopPropagation()}>
-
-                                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                                <input 
-                                                                    type="checkbox" 
-                                                                    checked={!(store.disabledCollections || []).includes(colName)} 
-                                                                    onChange={() => {
-                                                                        const disabled = store.disabledCollections || [];
-                                                                        const updated = disabled.includes(colName) 
-                                                                            ? disabled.filter(c => c !== colName) 
-                                                                            : [...disabled, colName];
-                                                                        onStoresChange(stores.map(s => s.id === store.id ? { ...s, disabledCollections: updated } : s));
-                                                                    }} 
-                                                                    className="sr-only peer" 
-                                                                />
-                                                                <div className="w-[42px] h-[22px] border-[2.5px] border-black bg-white rounded-full transition-all duration-300 peer-checked:bg-[#97cd7a] shadow-[0_2px_0_0_#000] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-2 after:border-black after:w-[13px] after:h-[13px] after:rounded-full after:transition-all peer-checked:after:translate-x-[20px]"></div>
-                                                            </label>
-                                                            <button onClick={() => setDeletingCollection({ storeId: store.id, name: colName })} className="p-1 sm:p-2 text-black/10 hover:text-red-500 transition-colors">
-                                                                <Trash2 className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px]" />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <AnimatePresence>
-                                                    {isColExpanded && (
-                                                        <motion.div
-                                                            initial={{ height: 0, opacity: 0 }}
-                                                            animate={{ height: 'auto', opacity: 1 }}
-                                                            exit={{ height: 0, opacity: 0 }}
-                                                            className="overflow-hidden bg-[#fff9c4]/10 border-t border-black border-dashed"
-                                                        >
-                                                            <div className="p-1 sm:p-2 space-y-3">
-                                                                {isAddingToCol && renderAddForm(store.id, colName)}
-                                                                <Reorder.Group 
-                                                                    axis="y" 
-                                                                    values={colProducts} 
-                                                                    onReorder={(newProds) => handleReorderProducts(store.id, colName, newProds)}
-                                                                    className="space-y-3"
-                                                                >
-                                                                    {colProducts.map(renderProduct)}
-                                                                </Reorder.Group>
-                                                            </div>
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
-                                            </Reorder.Item>
-                                        );
-                                    })}
+                                    {storeCols.map(colName => (
+                                        <CollectionItem
+                                            key={`${store.id}:${colName}`}
+                                            colName={colName}
+                                            store={store}
+                                            storeProducts={storeProducts}
+                                            addingToCollection={addingToCollection}
+                                            expandedCollections={expandedCollections}
+                                            toggleCollection={toggleCollection}
+                                            editingCollection={editingCollection}
+                                            setEditingCollection={setEditingCollection}
+                                            handleRenameCollection={handleRenameCollection}
+                                            onStoresChange={onStoresChange}
+                                            stores={stores}
+                                            setDeletingCollection={setDeletingCollection}
+                                            renderAddForm={renderAddForm}
+                                            handleReorderProducts={handleReorderProducts}
+                                            renderProduct={renderProduct}
+                                            isPT={isPT}
+                                        />
+                                    ))}
                                 </Reorder.Group>
                             </div>
                         </div>
@@ -1283,4 +1249,130 @@ const StoreItem: React.FC<StoreItemProps> = ({
         </Reorder.Item>
     );
 }
+
+interface CollectionItemProps {
+    colName: string;
+    store: Store;
+    storeProducts: Product[];
+    addingToCollection: { storeId: string, colName: string } | null;
+    expandedCollections: string[];
+    toggleCollection: (storeId: string, colName: string) => void;
+    editingCollection: { storeId: string, oldName: string, newName: string } | null;
+    setEditingCollection: (val: { storeId: string, oldName: string, newName: string } | null) => void;
+    handleRenameCollection: (storeId: string, oldName: string, newName: string) => void;
+    onStoresChange: (stores: Store[]) => void;
+    stores: Store[];
+    setDeletingCollection: (val: { storeId: string, name: string } | null) => void;
+    renderAddForm: (storeId: string, collectionName: string, existingProduct?: Product) => React.ReactNode;
+    handleReorderProducts: (storeId: string, colName: string, reorderedSubset: Product[]) => void;
+    renderProduct: (product: Product) => React.ReactNode;
+    isPT: boolean;
+}
+
+const CollectionItem: React.FC<CollectionItemProps> = ({
+    colName, store, storeProducts, addingToCollection, expandedCollections, toggleCollection,
+    editingCollection, setEditingCollection, handleRenameCollection, onStoresChange,
+    stores, setDeletingCollection, renderAddForm, handleReorderProducts, renderProduct, isPT
+}) => {
+    const colDragControls = useDragControls();
+    const colProducts = storeProducts.filter(p => p.collection === colName);
+    const isAddingToCol = addingToCollection?.storeId === store.id && addingToCollection?.colName === colName;
+    const colKey = `${store.id}:${colName}`;
+    const isColExpanded = expandedCollections.includes(colKey);
+
+    return (
+        <Reorder.Item 
+            value={colName}
+            dragListener={false}
+            dragControls={colDragControls}
+            layout
+            whileDrag={{ zIndex: 50, borderRadius: '6px' }}
+            className={`select-none border-2 border-black rounded-md overflow-hidden shadow-[0_4px_0_0_#000] bg-white ${isColExpanded ? 'mb-4' : 'mb-3'}`}
+        >
+            <div
+                className="flex items-center min-h-[82px] transition-colors cursor-pointer hover:bg-slate-50"
+                onClick={() => toggleCollection(store.id, colName)}
+            >
+                <div 
+                    className="w-10 sm:w-12 shrink-0 flex items-center justify-center border-r-[1.5px] border-black/10 transition-colors bg-white cursor-grab active:cursor-grabbing touch-none"
+                    onPointerDown={(e) => colDragControls.start(e)}
+                >
+                    <GripVertical size={16} className="text-black/15 group-hover:text-black/40" />
+                </div>
+
+                <div className="flex-1 flex items-center gap-3 sm:gap-4 py-4 px-3 sm:px-4 overflow-hidden">
+                    <div className="text-black/20 shrink-0">
+                        {isColExpanded ? <ChevronDown size={16} strokeWidth={3} /> : <ChevronRight size={16} strokeWidth={3} />}
+                    </div>
+
+                    <div className="hidden sm:flex w-12 h-12 sm:w-14 sm:h-14 border-2 border-black rounded-md bg-white items-center justify-center shadow-[0_3px_0_0_#000] shrink-0">
+                        <Folder className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.5} />
+                    </div>
+
+                    <div className="flex-1 min-w-0 pr-2">
+                        {editingCollection?.storeId === store.id && editingCollection?.oldName === colName ? (
+                            <input autoFocus type="text" className="bg-white border-2 border-black rounded-md px-2 py-1 text-sm sm:text-base font-black uppercase outline-none shadow-[0_2px_0_0_#000] w-full" value={editingCollection.newName} onChange={e => setEditingCollection({ ...editingCollection, newName: e.target.value })} onBlur={() => handleRenameCollection(store.id, colName, editingCollection.newName)} onKeyDown={e => e.key === 'Enter' && handleRenameCollection(store.id, colName, editingCollection.newName)} onClick={e => e.stopPropagation()} />
+                        ) : (
+                            <div className="flex items-center gap-2 group/col-title">
+                                <h6 className="text-[14px] sm:text-[16px] font-black uppercase tracking-tight truncate">{colName}</h6>
+                                <button onClick={(e) => { e.stopPropagation(); setEditingCollection({ storeId: store.id, oldName: colName, newName: colName }); }} className="opacity-0 group-hover/col-title:opacity-100 p-1 text-black/20 hover:text-black transition-all"><Pencil size={12} /></button>
+                            </div>
+                        )}
+                        <p className="text-[10px] sm:text-[11px] font-black text-black/30 uppercase tracking-widest mt-1 truncate">
+                            {colProducts.length} {colProducts.length === 1 ? (isPT ? 'ITEM CONFIGURADO' : 'ITEM CONFIGURED') : (isPT ? 'ITENS CONFIGURADOS' : 'ITEMS CONFIGURED')}
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0" onClick={e => e.stopPropagation()}>
+
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                checked={!(store.disabledCollections || []).includes(colName)} 
+                                onChange={() => {
+                                    const disabled = store.disabledCollections || [];
+                                    const updated = disabled.includes(colName) 
+                                        ? disabled.filter(c => c !== colName) 
+                                        : [...disabled, colName];
+                                    onStoresChange(stores.map(s => s.id === store.id ? { ...s, disabledCollections: updated } : s));
+                                }} 
+                                className="sr-only peer" 
+                            />
+                            <div className="w-[42px] h-[22px] border-[2.5px] border-black bg-white rounded-full transition-all duration-300 peer-checked:bg-[#97cd7a] shadow-[0_2px_0_0_#000] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-2 after:border-black after:w-[13px] after:h-[13px] after:rounded-full after:transition-all peer-checked:after:translate-x-[20px]"></div>
+                        </label>
+                        <button onClick={() => setDeletingCollection({ storeId: store.id, name: colName })} className="p-1 sm:p-2 text-black/10 hover:text-red-500 transition-colors">
+                            <Trash2 className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px]" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <AnimatePresence>
+                {isColExpanded && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ type: 'tween', ease: 'easeOut', duration: 0.25 }}
+                        className="overflow-hidden bg-[#fff9c4]/10 border-t border-black border-dashed"
+                    >
+                        <div className="p-1 sm:p-2 space-y-3">
+                            {isAddingToCol && renderAddForm(store.id, colName)}
+                            {colProducts.length > 0 && (
+                                <Reorder.Group 
+                                    axis="y" 
+                                    values={colProducts} 
+                                    onReorder={(newProds) => handleReorderProducts(store.id, colName, newProds)}
+                                    className="space-y-3"
+                                >
+                                    {colProducts.map((product, idx) => renderProduct(product, true, idx))}
+                                </Reorder.Group>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </Reorder.Item>
+    );
+};
 

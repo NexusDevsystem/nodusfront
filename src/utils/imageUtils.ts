@@ -130,8 +130,9 @@ export const optimizeImageUrl = (
     url: string | undefined | null,
     options: OptimizeImageOptions = {}
 ): string => {
-    if (!url) return '';
-    if (!isSupabaseUrl(url)) return url;
+    if (import.meta.env.VITE_DISABLE_IMAGE_OPTIMIZATION === 'true') {
+        return url;
+    }
 
     const isGif = url.toLowerCase().includes('.gif');
     const { width, height, quality = 80, format = isGif ? 'origin' : 'webp' } = options;
