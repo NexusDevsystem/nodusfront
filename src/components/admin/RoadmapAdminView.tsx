@@ -122,7 +122,7 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
                 initial={{ y: 20, opacity: 0 }} 
                 animate={{ y: 0, opacity: 1 }} 
                 exit={{ y: 20, opacity: 0 }} 
-                className="relative w-full md:max-w-md bg-white border-2 border-black p-6 md:p-8 shadow-[0_12px_0_0_#000] rounded-2xl pointer-events-auto"
+                className="relative w-full md:max-w-md bg-white border-2 border-black p-6 md:p-8 shadow-[0_12px_0_0_#000] rounded-xl pointer-events-auto"
               >
                 <div className="mb-8 border-b-2 border-black/10 pb-4">
                   <h2 className="text-2xl font-black uppercase italic tracking-tighter text-black leading-none">Sugerir</h2>
@@ -193,7 +193,7 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
           {deleteConfirmId && (
             <div className="fixed inset-0 z-[99999] flex items-end md:items-center justify-center p-0 md:p-4">
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => !submitting && setDeleteConfirmId(null)} />
-                <motion.div initial={{ y: '100%', opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: '100%', opacity: 0 }} className="relative w-full md:max-w-md bg-white border-t-4 border-[#1a1a1a] md:border-b-4 md:rounded-2xl p-6 md:p-8 shadow-none md:shadow-[0_12px_0_0_#1a1a1a] pointer-events-auto">
+                <motion.div initial={{ y: '100%', opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: '100%', opacity: 0 }} className="relative w-full md:max-w-md bg-white border-t-4 border-[#1a1a1a] md:border-b-4 md:rounded-xl p-6 md:p-8 shadow-none md:shadow-[0_12px_0_0_#1a1a1a] pointer-events-auto">
                     <div className="flex flex-col items-center text-center">
                         <div className="w-16 h-16 md:w-20 md:h-20 bg-[#ffdddd] border-4 border-[#1a1a1a] flex items-center justify-center mb-6 shadow-[0_4px_0_0_#1a1a1a] rounded-xl">
                             <AlertTriangle size={32} className="text-red-500" />
@@ -220,12 +220,12 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
                 initial={{ y: 20, opacity: 0 }} 
                 animate={{ y: 0, opacity: 1 }} 
                 exit={{ y: 20, opacity: 0 }} 
-                className="relative w-full max-w-xl bg-white border-2 border-black p-6 md:p-8 shadow-[0_12px_0_0_#000] rounded-2xl pointer-events-auto flex flex-col max-h-[85vh]"
+                className="relative w-full max-w-xl bg-white border-2 border-black p-6 md:p-8 shadow-[0_12px_0_0_#000] rounded-xl pointer-events-auto flex flex-col max-h-[85vh]"
               >
                 <div className="flex justify-between items-start mb-6 gap-4">
                   <div className="flex flex-col gap-3 min-w-0">
                     <span 
-                        className="text-[9px] uppercase font-black tracking-widest px-2.5 py-1.5 border-2 border-black rounded-lg w-fit shadow-[0_2px_0_0_#000]" 
+                        className="text-[9px] uppercase font-black tracking-widest px-2.5 py-1.5 border-2 border-black rounded-xl w-fit shadow-[0_2px_0_0_#000]" 
                         style={{ backgroundColor: COLUMNS.find(c => c.id === selectedTask.status)?.color || '#eee' }}
                     >
                         {COLUMNS.find(c => c.id === selectedTask.status)?.label}
@@ -303,7 +303,7 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
             onDragOver={(e) => isAdmin && e.preventDefault()}
             onDrop={(e) => isAdmin && handleDrop(e, col.id)}
           >
-            <div className="flex items-center justify-between px-5 py-3 border-2 border-black rounded-2xl shadow-[0_4px_0_0_#000] mb-1" style={{ backgroundColor: col.color }}>
+            <div className="flex items-center justify-between px-5 py-3 border-2 border-black rounded-xl shadow-[0_4px_0_0_#000] mb-1" style={{ backgroundColor: col.color }}>
               <span className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-black">{col.label}</span>
               <div className="flex items-center gap-2">
                  <div className="w-1.5 h-1.5 rounded-full bg-black/10 animate-pulse" />
@@ -311,12 +311,12 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
               </div>
             </div>
 
-            <div className={`flex flex-col gap-5 min-h-[500px] rounded-2xl transition-colors p-1 ${isAdmin ? 'hover:bg-[#1a1a1a]/[0.02] border-2 border-dashed border-transparent hover:border-[#1a1a1a]/10' : ''}`}>
+            <div className={`flex flex-col gap-5 min-h-[500px] rounded-xl transition-colors p-1 ${isAdmin ? 'hover:bg-[#1a1a1a]/[0.02] border-2 border-dashed border-transparent hover:border-[#1a1a1a]/10' : ''}`}>
               {/* Quick Suggest Button (Backlog Only) */}
               {col.id === 'backlog' && (
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="w-full py-4 px-6 border-2 border-dashed border-[#1a1a1a]/10 rounded-2xl text-[#1a1a1a]/30 text-[10px] font-black uppercase tracking-widest hover:border-[#1a1a1a]/20 hover:text-[#1a1a1a]/50 hover:bg-[#1a1a1a]/[0.02] transition-all flex items-center justify-center gap-2 mb-2"
+                  className="w-full py-4 px-6 border-2 border-dashed border-[#1a1a1a]/10 rounded-xl text-[#1a1a1a]/30 text-[10px] font-black uppercase tracking-widest hover:border-[#1a1a1a]/20 hover:text-[#1a1a1a]/50 hover:bg-[#1a1a1a]/[0.02] transition-all flex items-center justify-center gap-2 mb-2"
                 >
                   <PlusCircle size={14} />
                   Sugerir
@@ -328,10 +328,10 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
                   draggable={isAdmin}
                   onDragStart={(e) => isAdmin && handleDragStart(e, task.id)}
                   onClick={() => setSelectedTask(task)}
-                  className={`bg-white border-2 border-[#1a1a1a] rounded-2xl shadow-[0_5px_0_0_#1a1a1a] p-5 md:p-6 flex flex-col gap-4 relative group transition-all cursor-pointer ${isAdmin ? 'active:cursor-grabbing hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#1a1a1a]' : 'hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#1a1a1a]'}`}
+                  className={`bg-white border-2 border-[#1a1a1a] rounded-xl shadow-[0_5px_0_0_#1a1a1a] p-5 md:p-6 flex flex-col gap-4 relative group transition-all cursor-pointer ${isAdmin ? 'active:cursor-grabbing hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#1a1a1a]' : 'hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#1a1a1a]'}`}
                 >
                   {updating === task.id && (
-                    <div className="absolute inset-0 z-10 bg-white/80 backdrop-blur-[2px] flex items-center justify-center rounded-sm">
+                    <div className="absolute inset-0 z-10 bg-white/80 backdrop-blur-[2px] flex items-center justify-center rounded-xl">
                       <div className="flex flex-col items-center gap-2">
                         <Loader2 size={24} className="animate-spin text-[#97cd7a]" strokeWidth={4} />
                         <span className="text-[8px] font-black uppercase tracking-widest text-black/40">Sincronizando...</span>
@@ -342,14 +342,14 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-col gap-1.5 md:gap-2">
                        {isAdmin && isNew(task.created_at) && (
-                         <span className="flex items-center gap-1 w-fit px-1.5 py-0.5 bg-[#ffdf00] border border-[#1a1a1a] rounded-md text-[7px] font-black uppercase tracking-widest">
+                         <span className="flex items-center gap-1 w-fit px-1.5 py-0.5 bg-[#ffdf00] border border-[#1a1a1a] rounded-xl text-[7px] font-black uppercase tracking-widest">
                            <Sparkles size={8} /> Novo
                          </span>
                        )}
                        <h3 className="text-[12px] md:text-[13px] font-black text-[#1a1a1a] uppercase leading-tight break-words">{task.title}</h3>
                     </div>
                     {isAdmin && (
-                      <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(task.id); }} className="shrink-0 text-[#1a1a1a]/20 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50">
+                      <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(task.id); }} className="shrink-0 text-[#1a1a1a]/20 hover:text-red-500 transition-colors p-1 rounded-xl hover:bg-red-50">
                         <Trash2 size={13} />
                       </button>
                     )}
@@ -357,7 +357,7 @@ export default function RoadmapAdminView({ isOwner = false, view = 'kanban' }: P
                   {task.description && <p className="text-[10px] md:text-[11px] text-[#1a1a1a]/50 font-medium line-clamp-3">{task.description}</p>}
                   <div className="flex items-center justify-between pt-3 md:pt-4 border-t-2 border-[#1a1a1a]/5 mt-auto">
                     <span className="text-[8px] md:text-[9px] font-black text-[#1a1a1a]/40">{new Date(task.created_at).toLocaleDateString()}</span>
-                    <button onClick={(e) => { e.stopPropagation(); handleVote(task.id); }} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] md:text-[11px] font-black uppercase transition-all ${votedIds.has(task.id) ? 'bg-[#ff7eb6] text-white' : 'bg-black/5 text-[#1a1a1a]/50 hover:bg-black/10'}`}>
+                    <button onClick={(e) => { e.stopPropagation(); handleVote(task.id); }} className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] md:text-[11px] font-black uppercase transition-all ${votedIds.has(task.id) ? 'bg-[#ff7eb6] text-white' : 'bg-black/5 text-[#1a1a1a]/50 hover:bg-black/10'}`}>
                       <Heart size={14} className={votedIds.has(task.id) ? 'fill-white' : ''} strokeWidth={3} />
                       <span className="tabular-nums">{task.votes}</span>
                     </button>

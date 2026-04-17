@@ -135,14 +135,14 @@ export default function CompactOnboardingCard({ profile, links = [], onUpdate, o
                         <button 
                             onClick={() => onNavigate?.('profile')}
                             disabled={hasPhoto}
-                            className={`w-full group flex items-center justify-between p-2 rounded-lg border-2 transition-all ${
+                            className={`w-full group flex items-center justify-between p-2 rounded-xl border-2 transition-all ${
                                 hasPhoto 
                                 ? 'bg-[#97cd7a]/10 border-[#97cd7a]/20 text-[#97cd7a]/50 cursor-default' 
                                 : 'bg-white border-[#1a1a1a] hover:bg-[#ffdf00] hover:shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none'
                             }`}
                         >
                             <div className="flex items-center gap-2">
-                                <div className={`w-6 h-6 rounded-md flex items-center justify-center border-2 ${
+                                <div className={`w-6 h-6 rounded-xl flex items-center justify-center border-2 ${
                                     hasPhoto ? 'border-[#97cd7a]/20' : 'border-[#1a1a1a]'
                                 }`}>
                                     {hasPhoto ? <Check size={12} strokeWidth={4} /> : <Camera size={12} strokeWidth={2.5} />}
@@ -158,14 +158,14 @@ export default function CompactOnboardingCard({ profile, links = [], onUpdate, o
                         <button 
                             onClick={() => onNavigate?.('links')}
                             disabled={hasLink}
-                            className={`w-full group flex items-center justify-between p-2 rounded-lg border-2 transition-all ${
+                            className={`w-full group flex items-center justify-between p-2 rounded-xl border-2 transition-all ${
                                 hasLink 
                                 ? 'bg-[#97cd7a]/10 border-[#97cd7a]/20 text-[#97cd7a]/50 cursor-default' 
                                 : 'bg-white border-[#1a1a1a] hover:bg-[#ffdf00] hover:shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none'
                             }`}
                         >
                             <div className="flex items-center gap-2">
-                                <div className={`w-6 h-6 rounded-md flex items-center justify-center border-2 ${
+                                <div className={`w-6 h-6 rounded-xl flex items-center justify-center border-2 ${
                                     hasLink ? 'border-[#97cd7a]/20' : 'border-[#1a1a1a]'
                                 }`}>
                                     {hasLink ? <Check size={12} strokeWidth={4} /> : <Link size={12} strokeWidth={2.5} />}
@@ -180,14 +180,14 @@ export default function CompactOnboardingCard({ profile, links = [], onUpdate, o
                         {/* Task 3: Share/Copy Link */}
                         <button 
                             onClick={handleCopy}
-                            className={`w-full group flex items-center justify-between p-2 rounded-lg border-2 transition-all ${
+                            className={`w-full group flex items-center justify-between p-2 rounded-xl border-2 transition-all ${
                                 hasCopied 
                                 ? 'bg-[#97cd7a]/10 border-[#97cd7a]/20 text-[#97cd7a]/50' 
                                 : 'bg-white border-[#1a1a1a] hover:bg-[#ffdf00] hover:shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none'
                             }`}
                         >
                             <div className="flex items-center gap-2">
-                                <div className={`w-6 h-6 rounded-md flex items-center justify-center border-2 ${
+                                <div className={`w-6 h-6 rounded-xl flex items-center justify-center border-2 ${
                                     hasCopied ? 'border-[#97cd7a]/20' : 'border-[#1a1a1a]'
                                 }`}>
                                     {hasCopied ? <Check size={12} strokeWidth={4} /> : <Copy size={12} strokeWidth={2.5} />}

@@ -1,14 +1,12 @@
 import { UserProfile } from '../../types';
 import { THEMES } from '../../constants';
 import { useTranslation } from 'react-i18next';
-import { Zap } from 'lucide-react';
+import { Zap, RotateCcw } from 'lucide-react';
 
 interface ButtonsEditorProps {
     profile: UserProfile;
     updateProfile: (updates: Partial<UserProfile>) => void;
 }
-
-
 
 export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorProps) {
     const { t } = useTranslation();
@@ -16,9 +14,20 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
     return (
         <div className="space-y-6 pb-10">
             <section className="space-y-4">
-                <div className="flex flex-col">
-                    <h3 className="text-sm font-medium text-black uppercase tracking-widest">{t('design.format')}</h3>
-                    <p className="text-xs font-normal uppercase tracking-widest text-black/70 mt-1">{t('design.buttonRoundnessDesc')}</p>
+                <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                        <h3 className="text-sm font-medium text-black uppercase tracking-widest">{t('design.format')}</h3>
+                        <p className="text-xs font-normal uppercase tracking-widest text-black/70 mt-1">{t('design.buttonRoundnessDesc')}</p>
+                    </div>
+                    {(profile.buttonRoundness || profile.buttonShadow !== undefined) && (
+                        <button 
+                            onClick={() => updateProfile({ buttonRoundness: null, buttonShadow: undefined })}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-black rounded-lg text-[10px] font-bold uppercase tracking-widest shadow-[0_2px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none transition-all"
+                        >
+                            <RotateCcw size={12} strokeWidth={3} />
+                            Resetar Formato
+                        </button>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-3">
@@ -30,7 +39,7 @@ export default function ButtonsEditor({ profile, updateProfile }: ButtonsEditorP
                     ].map((roundness) => (
                         <div key={roundness.id} className="flex flex-col w-full">
                             <button
-                                onClick={() => updateProfile({ buttonRoundness: roundness.id as any })}
+                                onClick={() => updateProfile({ buttonRoundness: profile.buttonRoundness === roundness.id ? null : roundness.id as any })}
                                 className={`group relative h-12 sm:h-10 w-full flex items-center justify-start sm:justify-center px-5 sm:px-0 gap-4 sm:gap-0 transition-all border-2 border-[#1a1a1a] cursor-target ${roundness.rounded} ${profile.buttonRoundness === roundness.id
                                     ? 'bg-[#97cd7a] shadow-[0_3px_0_0_#1a1a1a] sm:shadow-[0_2px_0_0_#1a1a1a] -translate-y-[0.5px]'
                                     : 'bg-white shadow-[0_2px_0_0_#1a1a1a] sm:shadow-[0_1px_0_0_#1a1a1a] hover:shadow-none hover:bg-slate-50 text-black/40 hover:text-black'

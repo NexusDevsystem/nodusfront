@@ -75,7 +75,7 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
             {/* Action Bar with Label and Add Button */}
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-[#ffdf00] border-2 border-black flex items-center justify-center shadow-[0_2px_0_0_#000] rounded-sm transform rotate-[-2deg]">
+                    <div className="w-9 h-9 bg-[#ffdf00] border-2 border-black flex items-center justify-center shadow-[0_2px_0_0_#000] rounded-xl transform rotate-[-2deg]">
                         <DollarSign size={18} strokeWidth={3} className="text-black" />
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/50">
@@ -84,7 +84,7 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                 </div>
                 <button
                     onClick={handleAddMethod}
-                    className="w-11 h-11 flex items-center justify-center bg-[#ffdf00] border-2 border-[#1a1a1a] text-black shadow-[3.5px_3.5px_0_0_#1a1a1a] hover:translate-y-[1.5px] hover:shadow-none transition-all shrink-0 rounded-md group"
+                    className="w-11 h-11 flex items-center justify-center bg-[#ffdf00] border-2 border-[#1a1a1a] text-black shadow-[3.5px_3.5px_0_0_#1a1a1a] hover:translate-y-[1.5px] hover:shadow-none transition-all shrink-0 rounded-xl group"
                     title="Adicionar Novo"
                 >
                     <Plus size={22} strokeWidth={4} className="group-hover:scale-110 transition-transform" />
@@ -105,7 +105,7 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 className={`
-                                    bg-white border-2 border-[#1a1a1a] transition-all relative overflow-hidden rounded-md
+                                    bg-white border-2 border-[#1a1a1a] transition-all relative overflow-hidden rounded-xl
                                     shadow-[0_4px_0_0_#1a1a1a]
                                 `}
                             >
@@ -149,7 +149,7 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
 
                                         <button
                                             onClick={() => setExpandedId(isExpanded ? null : method.id)}
-                                            className={`w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center transition-all rounded-sm ${isExpanded ? 'bg-[#ffdf00] text-black rotate-180' : 'bg-white text-black hover:bg-[#ffdf00]/5'}`}
+                                            className={`w-10 h-10 border-2 border-[#1a1a1a] flex items-center justify-center transition-all rounded-xl ${isExpanded ? 'bg-[#ffdf00] text-black rotate-180' : 'bg-white text-black hover:bg-[#ffdf00]/5'}`}
                                         >
                                             <ChevronDown size={24} strokeWidth={3} />
                                         </button>
@@ -173,14 +173,14 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                                                         <div className="grid grid-cols-2 gap-4">
                                                             <button
                                                                 onClick={() => handleUpdateMethod(method.id, { type: 'pix' })}
-                                                                className={`flex flex-col items-center justify-center gap-3 p-6 border-2 border-[#1a1a1a] transition-all rounded-md ${method.type === 'pix' ? 'bg-[#32bcad] text-white shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white text-black hover:bg-[#ffdf00]/5'}`}
+                                                                className={`flex flex-col items-center justify-center gap-3 p-6 border-2 border-[#1a1a1a] transition-all rounded-xl ${method.type === 'pix' ? 'bg-[#32bcad] text-white shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white text-black hover:bg-[#ffdf00]/5'}`}
                                                             >
                                                                 <img src="/icons/pix-svgrepo-com.svg" className={`w-6 h-6 ${method.type === 'pix' ? 'invert brightness-0' : ''}`} alt="Pix" />
                                                                 <span className="text-[10px] font-black uppercase tracking-widest">PIX</span>
                                                             </button>
                                                             <button
                                                                 onClick={() => handleUpdateMethod(method.id, { type: 'paypal' })}
-                                                                className={`flex flex-col items-center justify-center gap-3 p-6 border-2 border-[#1a1a1a] transition-all rounded-md ${method.type === 'paypal' ? 'bg-[#003087] text-white shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white text-black hover:bg-[#ffdf00]/5'}`}
+                                                                className={`flex flex-col items-center justify-center gap-3 p-6 border-2 border-[#1a1a1a] transition-all rounded-xl ${method.type === 'paypal' ? 'bg-[#003087] text-white shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white text-black hover:bg-[#ffdf00]/5'}`}
                                                             >
                                                                 <SiPaypal size={24} />
                                                                 <span className="text-[10px] font-black uppercase tracking-widest">PAYPAL</span>
@@ -199,7 +199,7 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                                                                 value={method.key}
                                                                 onChange={(e) => handleUpdateMethod(method.id, { key: e.target.value })}
                                                                 placeholder={method.type === 'pix' ? t('monetization.pixKeyPlaceholder') : t('monetization.paypalPlaceholder')}
-                                                                className="w-full bg-white border-2 border-[#1a1a1a] p-3 text-xs font-bold uppercase tracking-widest outline-none focus:bg-[#ffdf00] shadow-[0_4px_0_0_rgba(26,26,26,0.1)] transition-all rounded-md"
+                                                                className="w-full bg-white border-2 border-[#1a1a1a] p-3 text-xs font-bold uppercase tracking-widest outline-none focus:bg-[#ffdf00] shadow-[0_4px_0_0_rgba(26,26,26,0.1)] transition-all rounded-xl"
                                                             />
                                                         </div>
                                                     </div>
@@ -212,7 +212,7 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                                                     </div>
                                                     <button
                                                         onClick={() => handleRemoveMethod(method.id)}
-                                                        className="px-6 py-3 bg-red-500 text-white border-2 border-[#1a1a1a] text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none flex items-center gap-2 rounded-md"
+                                                        className="px-6 py-3 bg-red-500 text-white border-2 border-[#1a1a1a] text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none flex items-center gap-2 rounded-xl"
                                                     >
                                                         <Trash2 size={14} strokeWidth={3} />
                                                         {t('monetization.removeMethod')}
@@ -228,13 +228,13 @@ export default function MonetizationView({ profile, onChange }: MonetizationView
                 </AnimatePresence>
 
                 {(!profile.paymentMethods || profile.paymentMethods.length === 0) && (
-                    <div className="p-12 border-2 border-dashed border-[#1a1a1a]/20 flex flex-col items-center justify-center text-center rounded-md">
+                    <div className="p-12 border-2 border-dashed border-[#1a1a1a]/20 flex flex-col items-center justify-center text-center rounded-xl">
                         <Wallet size={48} className="text-black/10 mb-4" />
                         <h3 className="text-sm font-black text-black/40 uppercase tracking-widest">{t('monetization.noMethodConfigured')}</h3>
                         <p className="text-[10px] font-bold text-black/30 uppercase tracking-widest mt-2">{t('monetization.noMethodConfiguredDesc')}</p>
                         <button
                             onClick={handleAddMethod}
-                            className="mt-6 px-8 py-4 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] text-xs font-black uppercase tracking-widest hover:translate-y-[1px] hover:shadow-none transition-all rounded-md"
+                            className="mt-6 px-8 py-4 bg-white border-2 border-[#1a1a1a] text-black shadow-[0_4px_0_0_#1a1a1a] text-xs font-black uppercase tracking-widest hover:translate-y-[1px] hover:shadow-none transition-all rounded-xl"
                         >
                             {t('monetization.setupNow')}
                         </button>

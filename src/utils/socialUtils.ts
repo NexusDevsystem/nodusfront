@@ -108,15 +108,44 @@ export const fetchTiktokProfileInfo = async (url: string): Promise<any | null> =
     return requestPromise;
 };
 
+const socialInflightRequests = new Map<string, Promise<SocialMetadata | null>>();
+const socialResultCache = new Map<string, { data: SocialMetadata; expiresAt: number }>();
+
 export const fetchSocialMetadata = async (url: string): Promise<SocialMetadata | null> => {
-    try {
-        const response = await fetch(`${API_URL}/api/social/metadata?url=${encodeURIComponent(url)}`);
-        if (!response.ok) return null;
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching social metadata:', error);
-        return null;
+    const cacheKey = url.toLowerCase().trim();
+
+    // Check cache
+    const cached = socialResultCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+        return cached.data;
     }
+
+    // Check in-flight
+    if (socialInflightRequests.has(cacheKey)) {
+        return socialInflightRequests.get(cacheKey)!;
+    }
+
+    const requestPromise = (async () => {
+        try {
+            const response = await fetch(`${API_URL}/api/social/metadata?url=${encodeURIComponent(url)}`);
+            if (!response.ok) return null;
+            const data = await response.json();
+            
+            // Cache for 30 seconds if it has useful data
+            if (data && (data.followers || data.avatarUrl || data.username)) {
+                socialResultCache.set(cacheKey, { data, expiresAt: Date.now() + 30 * 1000 });
+            }
+            return data;
+        } catch (error) {
+            console.error('Error fetching social metadata:', error);
+            return null;
+        } finally {
+            socialInflightRequests.delete(cacheKey);
+        }
+    })();
+
+    socialInflightRequests.set(cacheKey, requestPromise);
+    return requestPromise;
 };
 
 // Log helper to debug API responses

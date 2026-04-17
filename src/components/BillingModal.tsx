@@ -29,7 +29,7 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: "100%", opacity: 0 }}
                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="relative bg-[#fdfcf0] border-t-4 border-x-4 border-[#1a1a1a] w-full h-[95vh] flex flex-col overflow-hidden z-10 rounded-t-[40px]"
+                className="relative bg-[#fdfcf0] border-t-4 border-x-4 border-[#1a1a1a] w-full h-[95vh] flex flex-col overflow-hidden z-10 rounded-xl"
             >
                 {/* Premium Header - Optimized for Full Page - COMPACT */}
                 <div className="flex items-center justify-between p-4 md:px-10 md:py-6 border-b-2 border-[#1a1a1a] shrink-0 relative overflow-hidden bg-[#fdfcf0] group">
@@ -46,7 +46,7 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
                             transition={{ delay: 0.2 }}
                             className="flex items-center gap-2 mb-2 md:mb-4"
                         >
-                            <div className="px-2 md:px-3 py-0.5 md:py-1 bg-black text-white border-2 border-[#1a1a1a] text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] shadow-[2px_2px_0px_0px_#97cd7a] rounded-md">
+                            <div className="px-2 md:px-3 py-0.5 md:py-1 bg-black text-white border-2 border-[#1a1a1a] text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] shadow-[2px_2px_0px_0px_#97cd7a] rounded-xl">
                                 <span>Nodus Pro</span>
                             </div>
                             <span className="text-[8px] md:text-[9px] font-bold text-black/40 uppercase tracking-widest hidden sm:block">Premium Pass</span>
@@ -73,7 +73,7 @@ const BillingModal: React.FC<BillingModalProps> = ({ profile, onChange, onClose 
 
                     <button
                         onClick={onClose}
-                        className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group z-30"
+                        className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-xl group z-30"
                     >
                         <X size={24} strokeWidth={4} />
                     </button>

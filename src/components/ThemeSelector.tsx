@@ -24,6 +24,11 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
             themeId
         };
 
+        // When switching to a predefined theme, reset the button roundness so it follows its own design
+        if (themeId !== 'custom') {
+            updates.buttonRoundness = null as any;
+        }
+
         onChange(updates as UserProfile);
     };
 
@@ -42,7 +47,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
                 className="flex flex-col gap-2 group cursor-pointer relative cursor-target"
                 onClick={() => handleThemeSelect(theme.id)}
             >
-                <div className={`relative aspect-[3/4] w-full border-2 transition-all duration-300 rounded-md overflow-hidden ${isActive ? 'border-black bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'border-black/10 hover:border-black/30 bg-white'}`}>
+                <div className={`relative aspect-[3/4] w-full border-2 transition-all duration-300 rounded-xl overflow-hidden ${isActive ? 'border-black bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-1' : 'border-black/10 hover:border-black/30 bg-white'}`}>
                     <div className={`absolute inset-0 ${theme.backgroundClass}`} style={{ backgroundColor: theme.solidColor }} />
                     <div className="absolute inset-0 p-4 flex flex-col items-center justify-center gap-4">
                         <div className="flex-1 flex items-center justify-center w-full">
@@ -55,20 +60,20 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
                         </div>
                     </div>
                     {isActive && (
-                        <div className="absolute top-2 right-2 w-6 h-6 bg-[#97cd7a] text-black border-2 border-black flex items-center justify-center shadow-[0_2px_0_0_#1a1a1a] z-10 rounded-md">
+                        <div className="absolute top-2 right-2 w-6 h-6 bg-[#97cd7a] text-black border-2 border-black flex items-center justify-center shadow-[0_2px_0_0_#1a1a1a] z-10 rounded-xl">
                             <Check size={14} strokeWidth={4} />
                         </div>
                     )}
                     {theme.isPro && (
                         <div className="absolute top-2 left-2 flex flex-col gap-1 z-20 pointer-events-none">
-                            <div className="px-1.5 py-0.5 bg-black text-white text-[8px] font-black border-2 border-black uppercase tracking-tighter shadow-[0_2px_0_0_#ffdf00] rounded-sm">
+                            <div className="px-1.5 py-0.5 bg-black text-white text-[8px] font-black border-2 border-black uppercase tracking-tighter shadow-[0_2px_0_0_#ffdf00] rounded-md">
                                 Pro
                             </div>
                             {isLocked && isSelected && (
                                 <motion.span
                                     initial={{ x: -10, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
-                                    className="text-[7px] font-black bg-[#ffdf00] text-black px-1.5 py-0.5 border-2 border-black uppercase tracking-widest rounded-sm"
+                                    className="text-[7px] font-black bg-[#ffdf00] text-black px-1.5 py-0.5 border-2 border-black uppercase tracking-widest rounded-md"
                                 >
                                     Preview
                                 </motion.span>
@@ -138,7 +143,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
     };
 
     return (
-        <div className="bg-[#fdfcf0] border-2 border-black p-6 md:p-8 shadow-[0_4px_0_0_#1a1a1a] rounded-sm relative overflow-hidden">
+        <div className="bg-[#fdfcf0] border-2 border-black p-6 md:p-8 shadow-[0_4px_0_0_#1a1a1a] rounded-md relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#ffdf00] opacity-5 -mr-32 -mt-32 rounded-full blur-[80px] pointer-events-none" />
 
             <div className="flex flex-col gap-12">
@@ -151,7 +156,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, onChange }) => {
                         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-6">{t('design.chooseThemeDesc')}</p>
                     </div>
 
-                    <div className="flex items-center gap-4 p-3 bg-[#fdfcf0] border-2 border-black rounded-md shadow-[0_4px_0_0_#1a1a1a]">
+                    <div className="flex items-center gap-4 p-3 bg-[#fdfcf0] border-2 border-black rounded-xl shadow-[0_4px_0_0_#1a1a1a]">
                         <div className="flex items-center gap-2">
                             <Zap size={16} className={profile.enableBlur ? 'text-black fill-[#ffdf00]' : 'text-black/10'} strokeWidth={3} />
                             <span className="text-[10px] text-black font-black uppercase tracking-widest">{t('design.blurFade')}</span>

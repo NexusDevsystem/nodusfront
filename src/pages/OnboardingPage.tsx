@@ -326,7 +326,7 @@ export default function OnboardingPage() {
                         onClick={() => navigate('/')}
                         className="group flex items-center gap-2 font-bold text-sm uppercase hover:text-[#97cd7a] transition-colors"
                     >
-                        <div className="w-8 h-8 border-2 border-[#1a1a1a] flex items-center justify-center bg-white shadow-[0_2px_0_0_#1a1a1a] group-hover:translate-y-[2px] group-hover:shadow-none transition-all rounded-lg">
+                        <div className="w-8 h-8 border-2 border-[#1a1a1a] flex items-center justify-center bg-white shadow-[0_2px_0_0_#1a1a1a] group-hover:translate-y-[2px] group-hover:shadow-none transition-all rounded-xl">
                             <ArrowLeft size={16} />
                         </div>
                         {t('onboarding.back')}
@@ -386,7 +386,7 @@ export default function OnboardingPage() {
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9._]/g, ''))}
                                         className={`
-                                            w-full bg-white border-2 border-[#1a1a1a] py-6 pl-[135px] pr-12 text-xl font-black rounded-2xl
+                                            w-full bg-white border-2 border-[#1a1a1a] py-6 pl-[135px] pr-12 text-xl font-black rounded-xl
                                             shadow-[0_4px_0_0_#1a1a1a]
                                             focus:outline-none focus:shadow-none focus:translate-y-[4px] 
                                             transition-all duration-200
@@ -414,12 +414,12 @@ export default function OnboardingPage() {
                                 </div>
                                 <div className="h-6 mt-2">
                                     {available === true && (
-                                        <div className="bg-[#97cd7a]/10 border-2 border-[#97cd7a] text-[#5b8c41] px-3 py-1 text-[10px] font-black uppercase tracking-tight inline-block shadow-[0_2px_0_0_#97cd7a] rounded-lg">
+                                        <div className="bg-[#97cd7a]/10 border-2 border-[#97cd7a] text-[#5b8c41] px-3 py-1 text-[10px] font-black uppercase tracking-tight inline-block shadow-[0_2px_0_0_#97cd7a] rounded-xl">
                                             {t('onboarding.usernameAvailable')}
                                         </div>
                                     )}
                                     {available === false && username && !checking && (
-                                        <div className="bg-red-50 border-2 border-red-500 text-red-600 px-3 py-1 text-[10px] font-black uppercase tracking-tight inline-block shadow-[0_2px_0_0_#ef4444] rounded-lg">
+                                        <div className="bg-red-50 border-2 border-red-500 text-red-600 px-3 py-1 text-[10px] font-black uppercase tracking-tight inline-block shadow-[0_2px_0_0_#ef4444] rounded-xl">
                                             {t('onboarding.usernameUnavailable')}
                                         </div>
                                     )}
@@ -430,7 +430,7 @@ export default function OnboardingPage() {
                                 type="submit"
                                 disabled={!available || loading || checking}
                                 className={`
-                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 rounded-2xl
+                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 rounded-xl
                                     ${available && !loading && !checking
                                         ? 'bg-[#ffdf00] text-black shadow-[0_8px_0_0_#1a1a1a] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[8px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
@@ -452,7 +452,7 @@ export default function OnboardingPage() {
                                     key={cat.id}
                                     onClick={() => setUserCategory(cat.id as any)}
                                     className={`
-                                        w-full p-6 border-2 text-left transition-all duration-200 relative group rounded-2xl
+                                        w-full p-6 border-2 text-left transition-all duration-200 relative group rounded-xl
                                         ${userCategory === cat.id
                                             ? 'border-[#1a1a1a] bg-[#97cd7a] translate-y-[4px] shadow-none'
                                             : 'border-[#1a1a1a] bg-white shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a]'}
@@ -471,7 +471,7 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(3)}
                                 disabled={!userCategory}
                                 className={`
-                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6 rounded-2xl
+                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6 rounded-xl
                                     ${userCategory
                                         ? 'bg-[#ffdf00] text-black shadow-[0_8px_0_0_#1a1a1a] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[8px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
@@ -505,7 +505,7 @@ export default function OnboardingPage() {
                                                 }
                                             }}
                                             className={`
-                                                w-full p-6 border-2 text-left transition-all duration-200 relative group rounded-2xl
+                                                w-full p-6 border-2 text-left transition-all duration-200 relative group rounded-xl
                                                 ${(referralSource === opt.label || (opt.id === 'other' && referralSource.startsWith('Outro')))
                                                     ? 'border-[#1a1a1a] bg-[#97cd7a] translate-y-[4px] shadow-none'
                                                     : 'border-[#1a1a1a] bg-white shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-[0_2px_0_0_#1a1a1a]'}
@@ -545,7 +545,7 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(4)}
                                 disabled={!referralSource || (referralSource.startsWith('Outro') && referralSource === 'Outro')}
                                 className={`
-                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6 rounded-2xl
+                                    w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-6 rounded-xl
                                     ${(referralSource && (!referralSource.startsWith('Outro') || referralSource !== 'Outro'))
                                         ? 'bg-[#ffdf00] text-black shadow-[0_8px_0_0_#1a1a1a] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[8px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
@@ -578,7 +578,7 @@ export default function OnboardingPage() {
                                         <motion.div
                                             initial={{ scale: 0, rotate: -15 }}
                                             animate={{ scale: 1, rotate: -5 }}
-                                            className="absolute -top-2 -right-4 bg-[#ef4444] text-white text-[10px] font-black uppercase px-3 py-1 border-2 border-[#1a1a1a] shadow-[3px_3px_0_0_#1a1a1a] rounded-lg z-20"
+                                            className="absolute -top-2 -right-4 bg-[#ef4444] text-white text-[10px] font-black uppercase px-3 py-1 border-2 border-[#1a1a1a] shadow-[3px_3px_0_0_#1a1a1a] rounded-xl z-20"
                                         >
                                             {t('common.required', 'Obrigatório')}
                                         </motion.div>
@@ -593,7 +593,7 @@ export default function OnboardingPage() {
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-white border-2 border-[#1a1a1a] py-4 px-4 text-lg font-bold rounded-2xl shadow-[0_4px_0_0_#1a1a1a] focus:outline-none focus:shadow-none focus:translate-y-[4px] transition-all duration-200"
+                                    className="w-full bg-white border-2 border-[#1a1a1a] py-4 px-4 text-lg font-bold rounded-xl shadow-[0_4px_0_0_#1a1a1a] focus:outline-none focus:shadow-none focus:translate-y-[4px] transition-all duration-200"
                                     placeholder={t('onboarding.namePlaceholder')}
                                     required
                                 />
@@ -604,7 +604,7 @@ export default function OnboardingPage() {
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
                                     rows={3}
-                                    className="w-full bg-white border-2 border-[#1a1a1a] py-4 px-4 text-base font-medium rounded-2xl shadow-[0_4px_0_0_#1a1a1a] focus:outline-none focus:shadow-none focus:translate-y-[4px] transition-all duration-200 resize-none"
+                                    className="w-full bg-white border-2 border-[#1a1a1a] py-4 px-4 text-base font-medium rounded-xl shadow-[0_4px_0_0_#1a1a1a] focus:outline-none focus:shadow-none focus:translate-y-[4px] transition-all duration-200 resize-none"
                                     placeholder={t('onboarding.bioPlaceholder')}
                                 />
                             </div>
@@ -613,7 +613,7 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(5)}
                                 disabled={!name || !avatarUrl}
                                 className={`
-                                    w-full h-16 border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-4 rounded-2xl
+                                    w-full h-16 border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 mt-4 rounded-xl
                                     ${name && avatarUrl
                                         ? 'bg-[#ffdf00] text-black shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[3px] hover:shadow-[0_3px_0_0_#1a1a1a] active:translate-y-[6px] active:shadow-none'
                                         : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
@@ -628,7 +628,7 @@ export default function OnboardingPage() {
                     {step === 5 && (
                         <div className="space-y-8">
                             <p className="font-bold text-slate-500 text-sm">{t('onboarding.addSocialsAndLinks')}</p>
-                            <div className="bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-3xl overflow-hidden flex flex-col">
+                            <div className="bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl overflow-hidden flex flex-col">
                                 <div className="p-5 pb-4">
                                     <div className="flex items-center justify-between">
                                         <div>
@@ -672,7 +672,7 @@ export default function OnboardingPage() {
                                 </div>
                             </div>
 
-                            <div className="bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-3xl overflow-hidden flex flex-col">
+                            <div className="bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] rounded-xl overflow-hidden flex flex-col">
                                 <div className="p-5 pb-4">
                                     <div className="flex items-center justify-between">
                                         <div>
@@ -682,7 +682,7 @@ export default function OnboardingPage() {
                                                     <motion.div
                                                         initial={{ opacity: 0, scale: 0.8 }}
                                                         animate={{ opacity: 1, scale: 1 }}
-                                                        className="bg-[#ef4444] text-white text-[9px] font-black uppercase px-2 py-0.5 border-2 border-[#1a1a1a] shadow-[2px_2px_0_0_#1a1a1a] rounded-lg"
+                                                        className="bg-[#ef4444] text-white text-[9px] font-black uppercase px-2 py-0.5 border-2 border-[#1a1a1a] shadow-[2px_2px_0_0_#1a1a1a] rounded-xl"
                                                     >
                                                         {t('onboarding.requiredLink', 'Obrigatório: 1 link')}
                                                     </motion.div>
@@ -759,7 +759,7 @@ export default function OnboardingPage() {
                                     onClick={() => setStep(6)}
                                     disabled={quickLinks.filter(l => l.type !== 'social').length === 0}
                                     className={`
-                                        w-full h-16 border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[3px] hover:shadow-[0_3px_0_0_#1a1a1a] active:translate-y-[6px] active:shadow-none mt-8 rounded-2xl
+                                        w-full h-16 border-2 border-[#1a1a1a] font-black text-xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[3px] hover:shadow-[0_3px_0_0_#1a1a1a] active:translate-y-[6px] active:shadow-none mt-8 rounded-xl
                                         ${quickLinks.filter(l => l.type !== 'social').length > 0
                                             ? 'bg-[#ffdf00] text-black'
                                             : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}
@@ -802,7 +802,7 @@ export default function OnboardingPage() {
                                                         </div>
                                                     </div>
                                                     {isSelected && (
-                                                        <div className="absolute top-2 right-2 w-7 h-7 bg-[#97cd7a] text-black border-2 border-[#1a1a1a] flex items-center justify-center shadow-[0_3px_0_0_#1a1a1a] z-10 rounded-lg">
+                                                        <div className="absolute top-2 right-2 w-7 h-7 bg-[#97cd7a] text-black border-2 border-[#1a1a1a] flex items-center justify-center shadow-[0_3px_0_0_#1a1a1a] z-10 rounded-xl">
                                                             <Check size={16} strokeWidth={4} />
                                                         </div>
                                                     )}
@@ -841,7 +841,7 @@ export default function OnboardingPage() {
                                                             <div className={`${theme.textClass} text-2xl font-black opacity-80`} style={{ fontFamily: theme.fontFamily }}>Aa</div>
                                                         </div>
                                                         {isSelected && (
-                                                            <div className="absolute top-1 right-1 w-5 h-5 bg-[#97cd7a] text-black border-2 border-black flex items-center justify-center shadow-[0_2px_0_0_#000] z-10 rounded-lg">
+                                                            <div className="absolute top-1 right-1 w-5 h-5 bg-[#97cd7a] text-black border-2 border-black flex items-center justify-center shadow-[0_2px_0_0_#000] z-10 rounded-xl">
                                                                 <Check size={12} strokeWidth={4} />
                                                             </div>
                                                         )}
@@ -857,7 +857,7 @@ export default function OnboardingPage() {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="w-full h-16 border-2 border-black bg-[#97cd7a] font-black text-xl uppercase tracking-widest text-black shadow-[0_6px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-4 rounded-2xl"
+                                        className="w-full h-16 border-2 border-black bg-[#97cd7a] font-black text-xl uppercase tracking-widest text-black shadow-[0_6px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-4 rounded-xl"
                                     >
                                         {loading ? <Loader2 className="animate-spin" size={24} /> : (
                                             <>
@@ -874,7 +874,7 @@ export default function OnboardingPage() {
                                     type="submit"
                                     disabled={loading}
                                     className={`
-                                        w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 rounded-2xl
+                                        w-full h-20 border-2 border-[#1a1a1a] font-black text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all duration-300 rounded-xl
                                         ${!loading
                                             ? 'bg-[#97cd7a] text-black shadow-[0_8px_0_0_#1a1a1a] hover:translate-y-[4px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[8px] active:shadow-none'
                                             : 'bg-white text-black/20 cursor-not-allowed opacity-50 shadow-none'}

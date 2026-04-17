@@ -281,7 +281,7 @@ export default function ShopEditor({
                 <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 relative z-10">
                     {/* Image Section - Made More Compact */}
                     <div className="shrink-0 flex sm:flex-col items-center gap-4">
-                        <div className="relative w-28 h-28 sm:w-32 sm:h-32 border-2 border-black bg-black flex items-center justify-center rounded-md overflow-hidden group shadow-[0_4px_0_0_#000] transition-all cursor-pointer">
+                        <div className="relative w-28 h-28 sm:w-32 sm:h-32 border-2 border-black bg-black flex items-center justify-center rounded-xl overflow-hidden group shadow-[0_4px_0_0_#000] transition-all cursor-pointer">
                             {targetProduct.image ? (
                                 <img src={targetProduct.image} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                             ) : (
@@ -327,7 +327,7 @@ export default function ShopEditor({
                                 <input
                                     type="text"
                                     placeholder="EX: TÊNIS ESPORTIVO XYZ"
-                                    className="w-full bg-slate-50 border-2 border-black px-5 sm:px-6 py-3 sm:py-4 text-[11px] sm:text-[12px] font-black uppercase tracking-tight rounded-md sm:rounded-sm outline-none shadow-[0_3px_0_0_#000] transition-all placeholder:text-black/5"
+                                    className="w-full bg-slate-50 border-2 border-black px-5 sm:px-6 py-3 sm:py-4 text-[11px] sm:text-[12px] font-black uppercase tracking-tight rounded-xl sm:rounded-xl outline-none shadow-[0_3px_0_0_#000] transition-all placeholder:text-black/5"
                                     value={targetProduct.name || ''}
                                     onChange={e => isEditing
                                         ? updateProductField(existingProduct.id, 'name', e.target.value)
@@ -340,7 +340,7 @@ export default function ShopEditor({
                                 <input
                                     type="text"
                                     placeholder="https://loja.com/produto"
-                                    className="w-full bg-slate-50 border-2 border-black px-5 sm:px-6 py-3 sm:py-4 text-[9px] sm:text-[10px] font-medium rounded-md sm:rounded-sm outline-none shadow-[0_3px_0_0_#000] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/5 italic"
+                                    className="w-full bg-slate-50 border-2 border-black px-5 sm:px-6 py-3 sm:py-4 text-[9px] sm:text-[10px] font-medium rounded-xl sm:rounded-xl outline-none shadow-[0_3px_0_0_#000] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/5 italic"
                                     value={targetProduct.url || ''}
                                     onChange={e => isEditing
                                         ? updateProductField(existingProduct.id, 'url', e.target.value)
@@ -360,7 +360,7 @@ export default function ShopEditor({
                                     <input
                                         type="text"
                                         placeholder="0,00"
-                                        className="w-full bg-slate-50 border-2 border-black pl-12 pr-6 py-3 sm:py-4 text-[11px] sm:text-[12px] font-black rounded-md sm:rounded-sm outline-none shadow-[0_3px_0_0_#000] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/10"
+                                        className="w-full bg-slate-50 border-2 border-black pl-12 pr-6 py-3 sm:py-4 text-[11px] sm:text-[12px] font-black rounded-xl sm:rounded-xl outline-none shadow-[0_3px_0_0_#000] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/10"
                                         value={String(targetProduct.price || '').replace(/[^\d,.]/g, '')}
                                         onChange={e => {
                                             const val = e.target.value.replace(/[^\d,.]/g, '');
@@ -380,7 +380,7 @@ export default function ShopEditor({
                                     <input
                                         type="text"
                                         placeholder="EX: PROMO10"
-                                        className="w-full bg-slate-50 border-2 border-black pl-12 pr-6 py-3 sm:py-4 text-[11px] sm:text-[12px] font-black uppercase rounded-md sm:rounded-sm outline-none shadow-[0_3px_0_0_#000] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/5"
+                                        className="w-full bg-slate-50 border-2 border-black pl-12 pr-6 py-3 sm:py-4 text-[11px] sm:text-[12px] font-black uppercase rounded-xl sm:rounded-xl outline-none shadow-[0_3px_0_0_#000] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/5"
                                         value={targetProduct.discountCode || ''}
                                         onChange={e => isEditing
                                             ? updateProductField(existingProduct.id, 'discountCode', e.target.value)
@@ -426,13 +426,13 @@ export default function ShopEditor({
                 <div className="flex justify-end gap-3 pt-10 sm:pt-14 items-center pb-8 sm:pb-12 px-2">
                     <button
                         onClick={() => isEditing ? setEditingProductId(null) : setAddingToCollection(null)}
-                        className="px-6 py-2.5 bg-white border-2 border-black rounded-sm text-[10px] font-black uppercase tracking-widest text-black/40 hover:text-black hover:border-black transition-all shadow-[0_4px_0_0_#000]"
+                        className="px-6 py-2.5 bg-white border-2 border-black rounded-xl text-[10px] font-black uppercase tracking-widest text-black/40 hover:text-black hover:border-black transition-all shadow-[0_4px_0_0_#000]"
                     >
                         {t('common.cancel')}
                     </button>
                     <button
                         onClick={() => isEditing ? setEditingProductId(null) : handleAddProduct(storeId, collectionName)}
-                        className="flex-1 sm:flex-none px-10 py-2.5 bg-[#97cd7a] border-2 border-black rounded-sm text-[10px] font-black uppercase tracking-widest text-black hover:bg-[#86b96c] transition-all shadow-[0_4px_0_0_#1d3d1d] flex items-center justify-center gap-2"
+                        className="flex-1 sm:flex-none px-10 py-2.5 bg-[#97cd7a] border-2 border-black rounded-xl text-[10px] font-black uppercase tracking-widest text-black hover:bg-[#86b96c] transition-all shadow-[0_4px_0_0_#1d3d1d] flex items-center justify-center gap-2"
                     >
                         {isEditing ? (isPT ? 'SALVAR ALTERAÇÕES' : 'SAVE CHANGES') : (isPT ? 'ADICIONAR PRODUTO' : 'ADD PRODUCT')}
                     </button>
@@ -443,7 +443,7 @@ export default function ShopEditor({
 
     return (
         <div className="space-y-8 pb-24">
-            <div className="bg-white rounded-md border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] sm:shadow-[0_8px_0_0_#1a1a1a] relative overflow-hidden transition-all duration-300">
+            <div className="bg-white rounded-xl border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] sm:shadow-[0_8px_0_0_#1a1a1a] relative overflow-hidden transition-all duration-300">
                 {/* Header Section */}
                 <div className="p-4 sm:p-6 border-b-2 border-[#1a1a1a]">
                     <div className="flex items-center justify-between gap-3">
@@ -457,7 +457,7 @@ export default function ShopEditor({
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <div className="hidden sm:flex items-center gap-2 px-3 py-2 border-2 border-black/10 rounded-md">
+                            <div className="hidden sm:flex items-center gap-2 px-3 py-2 border-2 border-black/10 rounded-xl">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-black/40 cursor-pointer select-none">
                                     {isPT ? 'ATALHO NOS LINKS' : 'SHORTCUT IN LINKS'}
                                 </label>
@@ -471,7 +471,7 @@ export default function ShopEditor({
 
                             <button
                                 onClick={() => setIsAddingStore(!isAddingStore)}
-                                className={`w-10 h-10 flex items-center justify-center border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] transition-all rounded-md cursor-pointer active:scale-95 active:shadow-none ${isAddingStore ? 'bg-white text-red-500' : 'bg-[#ffdf00] text-black'}`}
+                                className={`w-10 h-10 flex items-center justify-center border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] transition-all rounded-xl cursor-pointer active:scale-95 active:shadow-none ${isAddingStore ? 'bg-white text-red-500' : 'bg-[#ffdf00] text-black'}`}
                             >
                                 <PlusCircle size={20} className={isAddingStore ? 'rotate-45' : ''} />
                             </button>
@@ -498,7 +498,7 @@ export default function ShopEditor({
                         >
                             <div className="grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-6">
                                 <div className="flex flex-col items-center gap-3">
-                                    <div className="w-24 h-24 bg-black border-2 border-black rounded-sm overflow-hidden flex items-center justify-center shadow-[0_4px_0_0_#000] relative group">
+                                    <div className="w-24 h-24 bg-black border-2 border-black rounded-xl overflow-hidden flex items-center justify-center shadow-[0_4px_0_0_#000] relative group">
                                         {newStoreLogo ? (
                                             <img src={newStoreLogo} className="w-full h-full object-cover" />
                                         ) : (
@@ -523,12 +523,12 @@ export default function ShopEditor({
                                         <input
                                             type="text" value={newStoreName} onChange={e => setNewStoreName(e.target.value)}
                                             placeholder={isPT ? 'Ex: Minha Loja Gamer' : 'Ex: My Gamer Store'}
-                                            className="w-full bg-slate-50 border-2 border-black px-6 py-4 text-sm font-black rounded-sm outline-none shadow-[0_4px_0_0_#000] transition-all uppercase placeholder:italic placeholder:text-black/5"
+                                            className="w-full bg-slate-50 border-2 border-black px-6 py-4 text-sm font-black rounded-xl outline-none shadow-[0_4px_0_0_#000] transition-all uppercase placeholder:italic placeholder:text-black/5"
                                         />
                                     </div>
                                     <div className="flex justify-end gap-3 pt-2">
-                                        <button onClick={() => setIsAddingStore(false)} className="px-6 py-3 bg-white border-2 border-black font-black uppercase tracking-widest rounded-md text-[10px] shadow-[0_3px_0_0_#000] transition-all">{t('common.cancel')}</button>
-                                        <button onClick={handleAddStore} className="px-8 py-3 bg-[#97cd7a] border-2 border-black font-black uppercase tracking-widest rounded-md text-[10px] shadow-[0_3px_0_0_#1a1a1a] transition-all">{isPT ? 'CRIAR LOJA' : 'CREATE STORE'}</button>
+                                        <button onClick={() => setIsAddingStore(false)} className="px-6 py-3 bg-white border-2 border-black font-black uppercase tracking-widest rounded-xl text-[10px] shadow-[0_3px_0_0_#000] transition-all">{t('common.cancel')}</button>
+                                        <button onClick={handleAddStore} className="px-8 py-3 bg-[#97cd7a] border-2 border-black font-black uppercase tracking-widest rounded-xl text-[10px] shadow-[0_3px_0_0_#1a1a1a] transition-all">{isPT ? 'CRIAR LOJA' : 'CREATE STORE'}</button>
                                     </div>
                                 </div>
                             </div>
@@ -609,12 +609,12 @@ export default function ShopEditor({
                                 animate={{ y: 0, opacity: 1 }} 
                                 exit={{ y: 50, opacity: 0 }} 
                                 transition={{ type: 'tween', ease: 'easeOut', duration: 0.2 }}
-                                className="bg-white border-2 border-black p-10 rounded-md max-w-md w-full shadow-[0_20px_0_0_#000]"
+                                className="bg-white border-2 border-black p-10 rounded-xl max-w-md w-full shadow-[0_20px_0_0_#000]"
                             >
                                 <h4 className="text-3xl font-black uppercase text-center mb-10 tracking-tighter">{isPT ? 'EXCLUIR LOJA?' : 'DELETE STORE?'}</h4>
                                 <div className="flex gap-4">
-                                    <button onClick={() => setDeletingStoreId(null)} className="flex-1 py-4 bg-slate-100 rounded-sm font-black uppercase text-[10px] tracking-widest">{t('common.cancel')}</button>
-                                    <button onClick={() => handleDeleteStore(deletingStoreId!)} className="flex-1 py-4 bg-red-500 border-2 border-black text-white rounded-sm font-black uppercase text-[10px] tracking-widest shadow-[0_5px_0_0_#000] transition-all">{isPT ? 'EXCLUIR' : 'DELETE'}</button>
+                                    <button onClick={() => setDeletingStoreId(null)} className="flex-1 py-4 bg-slate-100 rounded-xl font-black uppercase text-[10px] tracking-widest">{t('common.cancel')}</button>
+                                    <button onClick={() => handleDeleteStore(deletingStoreId!)} className="flex-1 py-4 bg-red-500 border-2 border-black text-white rounded-xl font-black uppercase text-[10px] tracking-widest shadow-[0_5px_0_0_#000] transition-all">{isPT ? 'EXCLUIR' : 'DELETE'}</button>
                                 </div>
                             </motion.div>
                         </div>
@@ -627,10 +627,10 @@ export default function ShopEditor({
                 <AnimatePresence>
                     {deletingCollection && (
                         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="bg-white border-2 border-black p-10 rounded-md max-w-sm w-full shadow-[0_15px_0_0_#000]">
+                            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="bg-white border-2 border-black p-10 rounded-xl max-w-sm w-full shadow-[0_15px_0_0_#000]">
                                 <h4 className="text-2xl font-black uppercase text-center mb-8 tracking-tighter">{isPT ? 'EXCLUIR CATEGORIA?' : 'DELETE FOLDER?'}</h4>
                                 <div className="flex gap-4">
-                                    <button onClick={() => setDeletingCollection(null)} className="flex-1 py-3 bg-slate-100 rounded-md font-black uppercase text-[9px] tracking-widest">{t('common.cancel')}</button>
+                                    <button onClick={() => setDeletingCollection(null)} className="flex-1 py-3 bg-slate-100 rounded-xl font-black uppercase text-[9px] tracking-widest">{t('common.cancel')}</button>
                                     <button onClick={() => {
                                         const store = stores.find(s => s.id === deletingCollection!.storeId);
                                         if (store) {
@@ -639,7 +639,7 @@ export default function ShopEditor({
                                         }
                                         onChange(products.filter(p => !(p.storeId === deletingCollection!.storeId && p.collection === deletingCollection!.name)));
                                         setDeletingCollection(null);
-                                    }} className="flex-1 py-3 bg-red-500 text-white border-2 border-black rounded-md font-black uppercase text-[9px] tracking-widest shadow-[0_4px_0_0_#000] transition-all">{isPT ? 'EXCLUIR' : 'DELETE'}</button>
+                                    }} className="flex-1 py-3 bg-red-500 text-white border-2 border-black rounded-xl font-black uppercase text-[9px] tracking-widest shadow-[0_4px_0_0_#000] transition-all">{isPT ? 'EXCLUIR' : 'DELETE'}</button>
                                 </div>
                             </motion.div>
                         </div>
@@ -652,15 +652,15 @@ export default function ShopEditor({
                 <AnimatePresence>
                     {deletingProductId && (
                         <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="bg-white border-2 border-black p-10 rounded-md max-w-sm w-full shadow-[0_15px_0_0_#000]">
+                            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="bg-white border-2 border-black p-10 rounded-xl max-w-sm w-full shadow-[0_15px_0_0_#000]">
                                 <h4 className="text-2xl font-black uppercase text-center mb-4 tracking-tighter">{isPT ? 'EXCLUIR PRODUTO?' : 'DELETE PRODUCT?'}</h4>
                                 <p className="text-[10px] font-black uppercase tracking-widest text-black/30 text-center mb-8">{isPT ? 'ESSA AÇÃO NÃO PODE SER DESFEITA' : 'THIS ACTION CANNOT BE UNDONE'}</p>
                                 <div className="flex gap-4">
-                                    <button onClick={() => setDeletingProductId(null)} className="flex-1 py-4 bg-slate-100 rounded-sm font-black uppercase text-[9px] tracking-widest">{t('common.cancel')}</button>
+                                    <button onClick={() => setDeletingProductId(null)} className="flex-1 py-4 bg-slate-100 rounded-xl font-black uppercase text-[9px] tracking-widest">{t('common.cancel')}</button>
                                     <button onClick={() => {
                                         onChange(products.filter(p => p.id !== deletingProductId));
                                         setDeletingProductId(null);
-                                    }} className="flex-1 py-4 bg-red-500 text-white border-2 border-black rounded-sm font-black uppercase text-[9px] tracking-widest shadow-[0_4px_0_0_#000] transition-all">{isPT ? 'EXCLUIR' : 'DELETE'}</button>
+                                    }} className="flex-1 py-4 bg-red-500 text-white border-2 border-black rounded-xl font-black uppercase text-[9px] tracking-widest shadow-[0_4px_0_0_#000] transition-all">{isPT ? 'EXCLUIR' : 'DELETE'}</button>
                                 </div>
                             </motion.div>
                         </div>
@@ -683,11 +683,11 @@ export default function ShopEditor({
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                                 transition={{ type: 'tween', ease: 'easeOut', duration: 0.2 }}
-                                className="relative bg-white w-full max-w-sm p-6 rounded-md border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] overflow-hidden"
+                                className="relative bg-white w-full max-w-sm p-6 rounded-xl border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#1a1a1a] overflow-hidden"
                             >
                                 <div className="mb-6 flex items-center justify-between">
                                     <h3 className="text-xl font-black uppercase tracking-tighter text-black">{isPT ? 'MOVER PARA...' : 'MOVE TO...'}</h3>
-                                    <button onClick={() => setMoveModalProductId(null)} className="p-1.5 bg-white text-black border-2 border-[#1a1a1a] hover:bg-[#ffdf00] transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-sm">
+                                    <button onClick={() => setMoveModalProductId(null)} className="p-1.5 bg-white text-black border-2 border-[#1a1a1a] hover:bg-[#ffdf00] transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl">
                                         <X size={18} strokeWidth={4} />
                                     </button>
                                 </div>
@@ -763,11 +763,11 @@ export default function ShopEditor({
                         initial={{ opacity: 0, scale: 0.95, y: 30 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         transition={{ type: 'tween', ease: 'easeOut', duration: 0.25 }}
-                        className="relative bg-white w-full max-w-2xl p-6 sm:p-10 rounded-md border-4 border-black shadow-[0_20px_0_0_#000] overflow-hidden flex flex-col max-h-[85vh] z-10"
+                        className="relative bg-white w-full max-w-2xl p-6 sm:p-10 rounded-xl border-4 border-black shadow-[0_20px_0_0_#000] overflow-hidden flex flex-col max-h-[85vh] z-10"
                     >
                         <div className="mb-8 flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-[#ffdf00] border-2 border-black rounded-md flex items-center justify-center shadow-[0_4px_0_0_#000]">
+                                <div className="w-12 h-12 bg-[#ffdf00] border-2 border-black rounded-xl flex items-center justify-center shadow-[0_4px_0_0_#000]">
                                     <Archive size={28} strokeWidth={3} />
                                 </div>
                                 <div>
@@ -779,7 +779,7 @@ export default function ShopEditor({
                             </div>
                             <button
                                 onClick={() => setShowArchive(false)}
-                                className="w-12 h-12 flex items-center justify-center bg-white text-black border-2 border-black hover:bg-red-400 transition-all shadow-[0_4px_0_0_#000] rounded-md cursor-pointer active:scale-95 active:shadow-none"
+                                className="w-12 h-12 flex items-center justify-center bg-white text-black border-2 border-black hover:bg-red-400 transition-all shadow-[0_4px_0_0_#000] rounded-xl cursor-pointer active:scale-95 active:shadow-none"
                             >
                                 <X size={24} strokeWidth={4} />
                             </button>
@@ -788,8 +788,8 @@ export default function ShopEditor({
                         <div className="flex-1 overflow-y-auto pr-2 space-y-4 scrollbar-hide min-h-[300px]">
                             {products.filter(p => p.isArchived).length > 0 ? (
                                 products.filter(p => p.isArchived).map(product => (
-                                    <div key={product.id} className="group flex items-center gap-5 p-5 bg-white border-2 border-black rounded-md shadow-[0_6px_0_0_#000] transition-all cursor-pointer">
-                                        <div className="shrink-0 w-16 h-16 border-2 border-black bg-slate-50 rounded-md overflow-hidden relative shadow-sm">
+                                    <div key={product.id} className="group flex items-center gap-5 p-5 bg-white border-2 border-black rounded-xl shadow-[0_6px_0_0_#000] transition-all cursor-pointer">
+                                        <div className="shrink-0 w-16 h-16 border-2 border-black bg-slate-50 rounded-xl overflow-hidden relative shadow-sm">
                                             {product.image ? (
                                                 <img src={product.image} className="w-full h-full object-cover" />
                                             ) : (
@@ -805,14 +805,14 @@ export default function ShopEditor({
                                         <div className="flex items-center gap-3">
                                             <button
                                                 onClick={() => updateProductField(product.id, 'isArchived', false)}
-                                                className="px-4 h-12 flex items-center justify-center gap-2 bg-[#97cd7a] text-black border-2 border-black rounded-md shadow-[0_4px_0_0_#000] transition-all cursor-pointer active:scale-95 active:shadow-none font-black text-[10px] tracking-widest"
+                                                className="px-4 h-12 flex items-center justify-center gap-2 bg-[#97cd7a] text-black border-2 border-black rounded-xl shadow-[0_4px_0_0_#000] transition-all cursor-pointer active:scale-95 active:shadow-none font-black text-[10px] tracking-widest"
                                             >
                                                 <RotateCcw size={18} strokeWidth={3} />
                                                 {isPT ? 'RESTAURAR' : 'RESTORE'}
                                             </button>
                                             <button
                                                 onClick={() => { setDeletingProductId(product.id); setShowArchive(false); }}
-                                                className="w-12 h-12 flex items-center justify-center bg-red-400 text-black border-2 border-black rounded-md shadow-[0_4px_0_0_#000] transition-all cursor-pointer active:scale-95 active:shadow-none"
+                                                className="w-12 h-12 flex items-center justify-center bg-red-400 text-black border-2 border-black rounded-xl shadow-[0_4px_0_0_#000] transition-all cursor-pointer active:scale-95 active:shadow-none"
                                             >
                                                 <Trash2 size={20} strokeWidth={3} />
                                             </button>
@@ -863,7 +863,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
         layout: true as const,
         whileDrag: { zIndex: 50, borderRadius: '6px' },
         style: { willChange: 'transform' },
-        className: `group relative select-none border-2 border-[#1a1a1a] rounded-md overflow-hidden mb-3 ${isEditing ? 'bg-[#fefcbf] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'}`
+        className: `group relative select-none border-2 border-[#1a1a1a] rounded-xl overflow-hidden mb-3 ${isEditing ? 'bg-[#fefcbf] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'}`
     };
 
     const content = (
@@ -885,7 +885,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
                     >
                         <div className="flex items-center gap-4">
                             {/* Product Image Thumbnail */}
-                            <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 border-2 border-black bg-black rounded-md overflow-hidden relative shadow-[0_3px_0_0_#000]">
+                            <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 border-2 border-black bg-black rounded-xl overflow-hidden relative shadow-[0_3px_0_0_#000]">
                                 {product.image ? (
                                     <img src={product.image} className="w-full h-full object-cover" />
                                 ) : (
@@ -909,7 +909,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
                                 
                                 <div className="flex items-center flex-wrap gap-x-6 gap-y-2 mt-3 sm:mt-4">
                                     <div className="flex items-center gap-2 group/stat">
-                                        <div className="p-1.5 sm:p-2 bg-black/5 rounded-md text-black/20 group-hover/stat:bg-[#e5414d]/10 group-hover/stat:text-[#e5414d] transition-all">
+                                        <div className="p-1.5 sm:p-2 bg-black/5 rounded-xl text-black/20 group-hover/stat:bg-[#e5414d]/10 group-hover/stat:text-[#e5414d] transition-all">
                                             <BarChart2 size={12} strokeWidth={3} />
                                         </div>
                                         <div className="flex flex-col justify-center">
@@ -920,7 +920,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
 
                                     {product.price && (
                                         <div className="flex items-center gap-2 group/stat">
-                                            <div className="p-1.5 sm:p-2 bg-black/5 rounded-md text-black/20 group-hover/stat:bg-[#97cd7a]/15 group-hover/stat:text-[#97cd7a] transition-all">
+                                            <div className="p-1.5 sm:p-2 bg-black/5 rounded-xl text-black/20 group-hover/stat:bg-[#97cd7a]/15 group-hover/stat:text-[#97cd7a] transition-all">
                                                 <Tag size={12} strokeWidth={3} />
                                             </div>
                                             <div className="flex flex-col justify-center">
@@ -1062,7 +1062,7 @@ const StoreItem: React.FC<StoreItemProps> = ({
             layout
             whileDrag={{ zIndex: 50, borderRadius: '6px' }}
             style={{ willChange: 'transform' }}
-            className={`group relative select-none border-2 border-[#1a1a1a] rounded-md overflow-hidden ${isExpanded ? 'bg-[#fefcbf] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'}`}
+            className={`group relative select-none border-2 border-[#1a1a1a] rounded-xl overflow-hidden ${isExpanded ? 'bg-[#fefcbf] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white shadow-[0_4px_0_0_#1a1a1a]'}`}
         >
             <div className="flex items-stretch min-h-[80px]">
                 {/* Drag Handle Area */}
@@ -1082,7 +1082,7 @@ const StoreItem: React.FC<StoreItemProps> = ({
                             {isExpanded ? <ChevronDown size={14} strokeWidth={3} /> : <ChevronRight size={14} strokeWidth={3} />}
                         </div>
 
-                        <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 border-[1.5px] border-black bg-black rounded-md overflow-hidden relative shadow-[0_2px_0_0_#000]">
+                        <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 border-[1.5px] border-black bg-black rounded-xl overflow-hidden relative shadow-[0_2px_0_0_#000]">
                             {store.imageUrl ? (
                                 <img src={store.imageUrl} className="w-full h-full object-cover" />
                             ) : (
@@ -1131,10 +1131,10 @@ const StoreItem: React.FC<StoreItemProps> = ({
                     >
                         <div className="flex items-center gap-4 sm:gap-6 pb-8 border-b-2 border-black/5">
                             <div className="relative group shrink-0">
-                                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-black border-2 border-black rounded-md overflow-hidden shadow-[0_4px_0_0_#000] relative">
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-black border-2 border-black rounded-xl overflow-hidden shadow-[0_4px_0_0_#000] relative">
                                     {store.imageUrl ? <img src={store.imageUrl} className="w-full h-full object-cover" /> : <div className="bg-white w-full h-full flex items-center justify-center text-black/5"><StoreIcon /></div>}
                                     {uploadingTarget === `STORE_LOGO:${store.id}` && (
-                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10 transition-all rounded-sm">
+                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10 transition-all rounded-xl">
                                             <Loader2 size={24} className="text-[#ffdf00] animate-spin" />
                                         </div>
                                     )}
@@ -1150,7 +1150,7 @@ const StoreItem: React.FC<StoreItemProps> = ({
                                         }}
                                     />
                                 </div>
-                                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#ffdf00] border-2 border-black rounded-sm flex items-center justify-center shadow-[0_2px_0_0_#000] pointer-events-none group-hover:scale-110 transition-transform">
+                                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#ffdf00] border-2 border-black rounded-xl flex items-center justify-center shadow-[0_2px_0_0_#000] pointer-events-none group-hover:scale-110 transition-transform">
                                     <Pencil size={12} strokeWidth={3} />
                                 </div>
                             </div>
@@ -1162,7 +1162,7 @@ const StoreItem: React.FC<StoreItemProps> = ({
                                     value={store.name}
                                     placeholder={isPT ? "MINHA VITRINE" : "MY SHOWCASE"}
                                     onChange={e => onStoresChange(stores.map(s => s.id === store.id ? { ...s, name: e.target.value } : s))}
-                                    className="w-full bg-slate-50 border-2 border-black px-4 py-3 sm:py-4 text-[13px] sm:text-base font-black uppercase rounded-sm outline-none shadow-[0_4px_0_0_#000] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/5"
+                                    className="w-full bg-slate-50 border-2 border-black px-4 py-3 sm:py-4 text-[13px] sm:text-base font-black uppercase rounded-xl outline-none shadow-[0_4px_0_0_#000] focus:translate-y-[1px] focus:shadow-none transition-all placeholder:text-black/5"
                                 />
                             </div>
                         </div>
@@ -1173,14 +1173,14 @@ const StoreItem: React.FC<StoreItemProps> = ({
                                 <div className="grid grid-cols-2 md:grid-cols-3 xl:flex xl:items-center gap-2 sm:gap-3">
                                     <button
                                         onClick={() => setAddingToCollection({ storeId: store.id, colName: 'uncategorized' })}
-                                        className="flex items-center justify-center gap-2 px-3 sm:px-4 h-10 bg-[#ffdf00] border-2 border-black rounded-md text-[8px] sm:text-[9px] font-black uppercase tracking-widest shadow-[0_3px_0_0_#000] transition-all cursor-pointer active:scale-95 active:shadow-none"
+                                        className="flex items-center justify-center gap-2 px-3 sm:px-4 h-10 bg-[#ffdf00] border-2 border-black rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest shadow-[0_3px_0_0_#000] transition-all cursor-pointer active:scale-95 active:shadow-none"
                                     >
                                         <Plus size={14} strokeWidth={3} /> {isPT ? 'PRODUTO' : 'PRODUCT'}
                                     </button>
-                                    <button onClick={() => setIsAddingCollection(store.id)} className="flex items-center justify-center gap-2 px-3 sm:px-4 h-10 bg-white border-2 border-black rounded-md text-[8px] sm:text-[9px] font-black uppercase tracking-widest shadow-[0_3px_0_0_#1a1a1a] transition-all cursor-pointer active:scale-95 active:shadow-none">
+                                    <button onClick={() => setIsAddingCollection(store.id)} className="flex items-center justify-center gap-2 px-3 sm:px-4 h-10 bg-white border-2 border-black rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest shadow-[0_3px_0_0_#1a1a1a] transition-all cursor-pointer active:scale-95 active:shadow-none">
                                         <FolderPlus size={14} /> {isPT ? 'COLEÇÃO' : 'COLLECTION'}
                                     </button>
-                                    <button onClick={() => setShowArchive(true)} className="col-span-2 md:col-span-1 flex items-center justify-center gap-2 px-3 sm:px-4 h-10 bg-white border-2 border-black rounded-md text-[8px] sm:text-[9px] font-black uppercase tracking-widest shadow-[0_3px_0_0_#1a1a1a] transition-all cursor-pointer active:scale-95 active:shadow-none">
+                                    <button onClick={() => setShowArchive(true)} className="col-span-2 md:col-span-1 flex items-center justify-center gap-2 px-3 sm:px-4 h-10 bg-white border-2 border-black rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest shadow-[0_3px_0_0_#1a1a1a] transition-all cursor-pointer active:scale-95 active:shadow-none">
                                         <Archive size={14} /> {isPT ? 'ARQUIVADOS' : 'ARCHIVED'} ({products.filter(p => p.isArchived).length})
                                     </button>
                                 </div>
@@ -1193,17 +1193,17 @@ const StoreItem: React.FC<StoreItemProps> = ({
                                     animate={{ y: 0, opacity: 1 }} 
                                     exit={{ y: -20, opacity: 0 }} 
                                     transition={{ type: 'tween', ease: 'easeOut', duration: 0.2 }}
-                                    className="bg-[#ffdf00] p-6 border-2 border-black rounded-md mb-8 flex flex-col sm:flex-row gap-4 shadow-[0_8px_0_0_#1a1a1a]"
+                                    className="bg-[#ffdf00] p-6 border-2 border-black rounded-xl mb-8 flex flex-col sm:flex-row gap-4 shadow-[0_8px_0_0_#1a1a1a]"
                                 >
                                         <input
                                             autoFocus type="text" placeholder={isPT ? "Ex: Lançamentos" : "Ex: New Arrivals"}
-                                            className="flex-1 bg-white border-2 border-black rounded-md px-5 py-3 text-sm font-black uppercase shadow-[0_3px_0_0_#000] outline-none"
+                                            className="flex-1 bg-white border-2 border-black rounded-xl px-5 py-3 text-sm font-black uppercase shadow-[0_3px_0_0_#000] outline-none"
                                             value={newCollectionName} onChange={e => setNewCollectionName(e.target.value)}
                                             onKeyDown={e => e.key === 'Enter' && handleAddCollection(store.id)}
                                         />
                                         <div className="flex gap-2">
-                                            <button onClick={() => handleAddCollection(store.id)} className="flex-1 sm:px-8 py-3 bg-black text-[#97cd7a] border-2 border-black rounded-md text-[10px] font-black uppercase tracking-widest shadow-[0_3px_0_0_rgba(0,0,0,0.2)] transition-all">{isPT ? 'CRIAR' : 'CREATE'}</button>
-                                            <button onClick={() => setIsAddingCollection(null)} className="p-3 bg-white border-2 border-black rounded-md shadow-[0_3px_0_0_#000] transition-all"><X size={20} /></button>
+                                            <button onClick={() => handleAddCollection(store.id)} className="flex-1 sm:px-8 py-3 bg-black text-[#97cd7a] border-2 border-black rounded-xl text-[10px] font-black uppercase tracking-widest shadow-[0_3px_0_0_rgba(0,0,0,0.2)] transition-all">{isPT ? 'CRIAR' : 'CREATE'}</button>
+                                            <button onClick={() => setIsAddingCollection(null)} className="p-3 bg-white border-2 border-black rounded-xl shadow-[0_3px_0_0_#000] transition-all"><X size={20} /></button>
                                         </div>
                                     </motion.div>
                                 )}
@@ -1212,7 +1212,7 @@ const StoreItem: React.FC<StoreItemProps> = ({
                             <div className="space-y-4">
                                 {/* Root products (uncategorized) */}
                                 {addingToCollection?.storeId === store.id && addingToCollection?.colName === 'uncategorized' && (
-                                    <div className="bg-slate-50 p-6 rounded-md border-2 border-dashed border-black mb-6">
+                                    <div className="bg-slate-50 p-6 rounded-xl border-2 border-dashed border-black mb-6">
                                         {renderAddForm(store.id, 'uncategorized')}
                                     </div>
                                 )}
@@ -1302,7 +1302,7 @@ const CollectionItem: React.FC<CollectionItemProps> = ({
             dragControls={colDragControls}
             layout
             whileDrag={{ zIndex: 50, borderRadius: '6px' }}
-            className={`select-none border-2 border-black rounded-md overflow-hidden shadow-[0_4px_0_0_#000] bg-white ${isColExpanded ? 'mb-4' : 'mb-3'}`}
+            className={`select-none border-2 border-black rounded-xl overflow-hidden shadow-[0_4px_0_0_#000] bg-white ${isColExpanded ? 'mb-4' : 'mb-3'}`}
         >
             <div
                 className="flex items-center min-h-[82px] transition-colors cursor-pointer hover:bg-slate-50"
@@ -1320,13 +1320,13 @@ const CollectionItem: React.FC<CollectionItemProps> = ({
                         {isColExpanded ? <ChevronDown size={16} strokeWidth={3} /> : <ChevronRight size={16} strokeWidth={3} />}
                     </div>
 
-                    <div className="hidden sm:flex w-12 h-12 sm:w-14 sm:h-14 border-2 border-black rounded-md bg-white items-center justify-center shadow-[0_3px_0_0_#000] shrink-0">
+                    <div className="hidden sm:flex w-12 h-12 sm:w-14 sm:h-14 border-2 border-black rounded-xl bg-white items-center justify-center shadow-[0_3px_0_0_#000] shrink-0">
                         <Folder className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.5} />
                     </div>
 
                     <div className="flex-1 min-w-0 pr-2">
                         {editingCollection?.storeId === store.id && editingCollection?.oldName === colName ? (
-                            <input autoFocus type="text" className="bg-white border-2 border-black rounded-md px-2 py-1 text-sm sm:text-base font-black uppercase outline-none shadow-[0_2px_0_0_#000] w-full" value={editingCollection.newName} onChange={e => setEditingCollection({ ...editingCollection, newName: e.target.value })} onBlur={() => handleRenameCollection(store.id, colName, editingCollection.newName)} onKeyDown={e => e.key === 'Enter' && handleRenameCollection(store.id, colName, editingCollection.newName)} onClick={e => e.stopPropagation()} />
+                            <input autoFocus type="text" className="bg-white border-2 border-black rounded-xl px-2 py-1 text-sm sm:text-base font-black uppercase outline-none shadow-[0_2px_0_0_#000] w-full" value={editingCollection.newName} onChange={e => setEditingCollection({ ...editingCollection, newName: e.target.value })} onBlur={() => handleRenameCollection(store.id, colName, editingCollection.newName)} onKeyDown={e => e.key === 'Enter' && handleRenameCollection(store.id, colName, editingCollection.newName)} onClick={e => e.stopPropagation()} />
                         ) : (
                             <div className="flex items-center gap-2 group/col-title">
                                 <h6 className="text-[14px] sm:text-[16px] font-black uppercase tracking-tight truncate">{colName}</h6>

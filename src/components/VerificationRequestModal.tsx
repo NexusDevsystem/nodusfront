@@ -134,12 +134,12 @@ const VerificationRequestModal: React.FC<VerificationRequestModalProps> = ({ isO
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: "100%", opacity: 0 }}
                     transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                    className="relative bg-white border-t-4 border-x-4 border-black w-full max-w-4xl max-h-[95vh] flex flex-col rounded-t-[40px] overflow-hidden z-10 pointer-events-auto"
+                    className="relative bg-white border-t-4 border-x-4 border-black w-full max-w-4xl max-h-[95vh] flex flex-col rounded-t-xl overflow-hidden z-10 pointer-events-auto"
                 >
                     <div className="h-2 bg-[#ffdf00] shrink-0" />
                     <div className="px-8 pt-6 pb-4 border-b-2 border-black/5 flex items-center justify-between shrink-0">
                         <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-[#ffdf00] border-2 border-black rounded-lg flex items-center justify-center shadow-[0_3px_0_0_#000]">
+                            <div className="w-9 h-9 bg-[#ffdf00] border-2 border-black rounded-xl flex items-center justify-center shadow-[0_3px_0_0_#000]">
                                 <ShieldCheck size={18} strokeWidth={3} className="text-black" />
                             </div>
                             <div>
@@ -149,7 +149,7 @@ const VerificationRequestModal: React.FC<VerificationRequestModalProps> = ({ isO
                         </div>
                         <button 
                             onClick={onClose} 
-                            className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group"
+                            className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-lg group"
                         >
                             <X size={24} strokeWidth={4} />
                         </button>
@@ -158,7 +158,7 @@ const VerificationRequestModal: React.FC<VerificationRequestModalProps> = ({ isO
                     <div className="flex-1 overflow-y-auto">
                         {modalState === 'approved' && (
                             <div className="flex flex-col items-center justify-center py-14 px-10 text-center gap-6">
-                                <div className="w-20 h-20 bg-[#ffdf00] border-2 border-[#1a1a1a] rounded-3xl flex items-center justify-center mx-auto shadow-[0_8px_0_0_#1a1a1a] animate-bounce">
+                                <div className="w-20 h-20 bg-[#ffdf00] border-2 border-[#1a1a1a] rounded-xl flex items-center justify-center mx-auto shadow-[0_8px_0_0_#1a1a1a] animate-bounce">
                                     <ShieldCheck size={40} strokeWidth={3} className="text-black" />
                                 </div>
                                 <div className="space-y-1">
@@ -168,7 +168,7 @@ const VerificationRequestModal: React.FC<VerificationRequestModalProps> = ({ isO
                                 <p className="text-[10px] font-bold text-black/40 uppercase max-w-xs mx-auto leading-relaxed">
                                     Seu perfil foi verificado com sucesso. O selo de autenticidade já está ativo no seu cabeçalho.
                                 </p>
-                                <button onClick={onClose} className="w-full py-4 bg-[#1a1a1a] text-[#97cd7a] border-2 border-[#1a1a1a] font-black uppercase tracking-[0.2em] text-[11px] rounded-xl shadow-[0_6px_0_0_#97cd7a] active:shadow-none active:translate-y-[2px] transition-all">
+                                <button onClick={onClose} className="w-full py-4 bg-[#1a1a1a] text-[#97cd7a] border-2 border-[#1a1a1a] font-black uppercase tracking-[0.2em] text-[11px] rounded-lg shadow-[0_6px_0_0_#97cd7a] active:shadow-none active:translate-y-[2px] transition-all">
                                     Acessar meu Perfil Verificado
                                 </button>
                             </div>
@@ -176,32 +176,32 @@ const VerificationRequestModal: React.FC<VerificationRequestModalProps> = ({ isO
 
                         {modalState === 'loading_status' && (
                             <div className="flex items-center justify-center py-24">
-                                <div className="w-8 h-8 border-3 border-[#1a1a1a] border-t-transparent rounded-full animate-spin" />
+                                <div className="w-8 h-8 border-3 border-[#1a1a1a] border-t-transparent rounded-xl animate-spin" />
                             </div>
                         )}{modalState === 'success' && (
                             <div className="text-center py-10 space-y-6">
-                                <div className="w-16 h-16 bg-[#97cd7a] border-2 border-[#1a1a1a] rounded-2xl flex items-center justify-center mx-auto shadow-[0_4px_0_0_#1a1a1a]"><CheckCircle size={32} strokeWidth={3} /></div>
+                                <div className="w-16 h-16 bg-[#97cd7a] border-2 border-[#1a1a1a] rounded-xl flex items-center justify-center mx-auto shadow-[0_4px_0_0_#1a1a1a]"><CheckCircle size={32} strokeWidth={3} /></div>
                                 <h3 className="text-xl font-black uppercase">Solicitação Enviada!</h3>
                                 <p className="text-[10px] uppercase font-bold text-black/40">Analisaremos em até 7 dias úteis.</p>
-                                <button onClick={onClose} className="w-full py-3 bg-[#ffdf00] border-2 border-[#1a1a1a] font-black uppercase tracking-widest rounded-xl shadow-[0_4px_0_0_#1a1a1a]">Fechar</button>
+                                <button onClick={onClose} className="w-full py-3 bg-[#ffdf00] border-2 border-[#1a1a1a] font-black uppercase tracking-widest rounded-lg shadow-[0_4px_0_0_#1a1a1a]">Fechar</button>
                             </div>
                         )}
 
                         {modalState === 'pending' && (
                             <div className="text-center py-10 space-y-6">
-                                <div className="w-16 h-16 bg-[#ffdf00] border-2 border-[#1a1a1a] rounded-2xl flex items-center justify-center mx-auto shadow-[0_4px_0_0_#1a1a1a]"><Clock size={32} strokeWidth={3} /></div>
+                                <div className="w-16 h-16 bg-[#ffdf00] border-2 border-[#1a1a1a] rounded-xl flex items-center justify-center mx-auto shadow-[0_4px_0_0_#1a1a1a]"><Clock size={32} strokeWidth={3} /></div>
                                 <h3 className="text-xl font-black uppercase">Em Análise</h3>
                                 <p className="text-[10px] uppercase font-bold text-black/40">Sua solicitação está sendo processada.</p>
-                                <button onClick={onClose} className="w-full py-3 bg-white border-2 border-[#1a1a1a] font-black uppercase tracking-widest rounded-xl shadow-[0_4px_0_0_#1a1a1a]">Fechar</button>
+                                <button onClick={onClose} className="w-full py-3 bg-white border-2 border-[#1a1a1a] font-black uppercase tracking-widest rounded-lg shadow-[0_4px_0_0_#1a1a1a]">Fechar</button>
                             </div>
                         )}
 
                         {modalState === 'rejected' && (
                             <div className="text-center py-10 space-y-6">
-                                <div className="w-16 h-16 bg-red-50 border-2 border-[#1a1a1a] rounded-2xl flex items-center justify-center mx-auto shadow-[0_4px_0_0_#1a1a1a]"><XCircle size={32} strokeWidth={3} className="text-red-500" /></div>
+                                <div className="w-16 h-16 bg-red-50 border-2 border-[#1a1a1a] rounded-xl flex items-center justify-center mx-auto shadow-[0_4px_0_0_#1a1a1a]"><XCircle size={32} strokeWidth={3} className="text-red-500" /></div>
                                 <h3 className="text-xl font-black uppercase">Solicitação Reprovada</h3>
                                 {existingRequest?.reason && <p className="p-4 bg-red-50 border-2 border-[#1a1a1a] rounded-xl text-[11px] font-bold">{existingRequest.reason}</p>}
-                                <button onClick={() => setModalState('form')} className="w-full py-3 bg-[#ffdf00] border-2 border-[#1a1a1a] font-black uppercase tracking-widest rounded-xl shadow-[0_4px_0_0_#1a1a1a]">Solicitar Novamente</button>
+                                <button onClick={() => setModalState('form')} className="w-full py-3 bg-[#ffdf00] border-2 border-[#1a1a1a] font-black uppercase tracking-widest rounded-lg shadow-[0_4px_0_0_#1a1a1a]">Solicitar Novamente</button>
                             </div>
                         )}
 
@@ -220,7 +220,7 @@ const VerificationRequestModal: React.FC<VerificationRequestModalProps> = ({ isO
                                         <h3 className="text-lg font-black uppercase">Categoria</h3>
                                         <div className="grid grid-cols-1 gap-2">
                                             {CATEGORIES.map(cat => (
-                                                <button key={cat.value} onClick={() => setForm({...form, category: cat.value})} className={`p-4 border-2 border-black rounded-xl text-left font-black uppercase text-[11px] transition-all shadow-[0_4px_0_0_#1a1a1a] ${form.category === cat.value ? 'bg-[#ffdf00] translate-y-[2px] shadow-none' : 'bg-white'}`}>{cat.label}</button>
+                                                <button key={cat.value} onClick={() => setForm({...form, category: cat.value})} className={`p-4 border-2 border-black rounded-lg text-left font-black uppercase text-[11px] transition-all shadow-[0_4px_0_0_#1a1a1a] ${form.category === cat.value ? 'bg-[#ffdf00] translate-y-[2px] shadow-none' : 'bg-white'}`}>{cat.label}</button>
                                             ))}
                                         </div>
                                     </div>
@@ -239,8 +239,8 @@ const VerificationRequestModal: React.FC<VerificationRequestModalProps> = ({ isO
                                         {step === 4 ? (
                                             <input type="url" className="w-full p-4 border-2 border-black rounded-xl shadow-[0_4px_0_0_#1a1a1a]" placeholder="Link de Imprensa (Opcional)" value={form.press_link_1} onChange={e => setForm({...form, press_link_1: e.target.value})} />
                                         ) : (
-                                            <button onClick={() => setForm({...form, declaration: !form.declaration})} className={`w-full p-6 border-2 border-black rounded-xl flex gap-4 items-center shadow-[0_4px_0_0_#1a1a1a] ${form.declaration ? 'bg-[#97cd7a]/20 border-[#97cd7a]' : 'bg-white'}`}>
-                                                <div className={`w-6 h-6 border-2 border-black rounded flex items-center justify-center ${form.declaration ? 'bg-[#97cd7a]' : 'bg-white'}`}>{form.declaration && <CheckCircle size={14}/>}</div>
+                                            <button onClick={() => setForm({...form, declaration: !form.declaration})} className={`w-full p-6 border-2 border-black rounded-lg flex gap-4 items-center shadow-[0_4px_0_0_#1a1a1a] ${form.declaration ? 'bg-[#97cd7a]/20 border-[#97cd7a]' : 'bg-white'}`}>
+                                                <div className={`w-6 h-6 border-2 border-black rounded-xl flex items-center justify-center ${form.declaration ? 'bg-[#97cd7a]' : 'bg-white'}`}>{form.declaration && <CheckCircle size={14}/>}</div>
                                                 <span className="text-[10px] font-black uppercase">Declaro que os dados são verídicos</span>
                                             </button>
                                         )}
@@ -252,8 +252,8 @@ const VerificationRequestModal: React.FC<VerificationRequestModalProps> = ({ isO
 
                     {modalState === 'form' && (
                         <div className="px-8 py-6 border-t-2 border-black/5 flex gap-3">
-                            <button onClick={() => step === 1 ? onClose() : setStep(s => s - 1)} className="px-6 py-3 border-2 border-black rounded-xl font-black uppercase tracking-widest text-[11px] shadow-[0_4px_0_0_#1a1a1a]">Voltar</button>
-                            <button onClick={() => step === 5 ? handleSubmit() : setStep(s => s + 1)} disabled={!canGoNext() || isSubmitting} className="flex-1 py-3 bg-[#ffdf00] border-2 border-black rounded-xl font-black uppercase tracking-widest text-[11px] shadow-[0_4px_0_0_#1a1a1a] disabled:opacity-40">{step === 5 ? (isSubmitting ? 'Enviando...' : 'Enviar') : 'Próximo'}</button>
+                            <button onClick={() => step === 1 ? onClose() : setStep(s => s - 1)} className="px-6 py-3 border-2 border-black rounded-lg font-black uppercase tracking-widest text-[11px] shadow-[0_4px_0_0_#1a1a1a]">Voltar</button>
+                            <button onClick={() => step === 5 ? handleSubmit() : setStep(s => s + 1)} disabled={!canGoNext() || isSubmitting} className="flex-1 py-3 bg-[#ffdf00] border-2 border-black rounded-lg font-black uppercase tracking-widest text-[11px] shadow-[0_4px_0_0_#1a1a1a] disabled:opacity-40">{step === 5 ? (isSubmitting ? 'Enviando...' : 'Enviar') : 'Próximo'}</button>
                         </div>
                     )}
                 </motion.div>

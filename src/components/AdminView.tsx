@@ -351,7 +351,7 @@ export default function AdminView() {
     if (error) {
         return (
             <div className="w-full p-6 text-center">
-                <div className="bg-[#ff3333] border-2 border-black p-8 shadow-[0_6px_0_0_#000] inline-block rounded-2xl">
+                <div className="bg-[#ff3333] border-2 border-black p-8 shadow-[0_6px_0_0_#000] inline-block rounded-xl">
                     <ShieldAlert size={48} className="mx-auto mb-4 text-black" />
                     <h2 className="text-xl font-black uppercase tracking-widest text-black mb-2">{t('admin.criticalError')}</h2>
                     <p className="text-sm font-bold text-black uppercase">{error}</p>
@@ -455,7 +455,7 @@ export default function AdminView() {
                                         .then(data => setVerifications(data))
                                         .catch(()=>{})
                                         .finally(()=>setVerifLoading(false));
-                                }} className={`px-4 py-2 border-2 border-black text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${
+                                }} className={`px-4 py-2 border-2 border-black text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${
                                     verifFilter === f ? 'bg-[#ffdf00] shadow-[0_3px_0_0_#000]' : 'bg-white hover:bg-slate-50 shadow-[0_3px_0_0_#000]'
                                 }`}>
                                     {f === '' ? 'Todos' : f === 'pending' ? 'Pendentes' : f === 'approved' ? 'Aprovados' : 'Reprovados'}
@@ -467,7 +467,7 @@ export default function AdminView() {
                                     .then(data => setVerifications(data))
                                     .catch(()=>{})
                                     .finally(()=>setVerifLoading(false));
-                            }} className="px-4 py-2 border-2 border-black text-[10px] font-black uppercase tracking-widest rounded-lg bg-white shadow-[0_3px_0_0_#000] hover:bg-slate-50">
+                            }} className="px-4 py-2 border-2 border-black text-[10px] font-black uppercase tracking-widest rounded-xl bg-white shadow-[0_3px_0_0_#000] hover:bg-slate-50">
                                 <RefreshCw size={14} strokeWidth={3} className={verifLoading ? 'animate-spin' : ''} />
                             </button>
                         </div>
@@ -526,7 +526,7 @@ export default function AdminView() {
                                                     { label: 'Categoria', value: v.category },
                                                     { label: 'Verificado em outras redes', value: v.has_verified_badge ? 'Sim' : 'Não' },
                                                 ].map(item => (
-                                                    <div key={item.label} className="p-3 bg-white border-2 border-black rounded-lg">
+                                                    <div key={item.label} className="p-3 bg-white border-2 border-black rounded-xl">
                                                         <p className="text-[8px] font-black uppercase tracking-widest text-black/30 mb-1">{item.label}</p>
                                                         <p className="text-[11px] font-bold text-black break-all">{item.value}</p>
                                                     </div>
@@ -551,7 +551,7 @@ export default function AdminView() {
                                                 </div>
                                             )}
                                             {v.status === 'rejected' && v.reason && (
-                                                <div className="p-3 bg-red-50 border-2 border-red-300 rounded-lg">
+                                                <div className="p-3 bg-red-50 border-2 border-red-300 rounded-xl">
                                                     <p className="text-[9px] font-black uppercase tracking-widest text-red-400 mb-1">Motivo da Rejeição</p>
                     <p className="text-[11px] font-bold text-black/70">{v.reason}</p>
                                                 </div>
@@ -566,10 +566,10 @@ export default function AdminView() {
                                                                 onChange={e => setRejectReason(e.target.value)}
                                                                 placeholder="Descreva o motivo da rejeição para o usuário..."
                                                                 rows={3}
-                                                                className="w-full p-3 border-2 border-black rounded-lg text-sm font-medium resize-none outline-none focus:bg-[#fdfcf0]"
+                                                                className="w-full p-3 border-2 border-black rounded-xl text-sm font-medium resize-none outline-none focus:bg-[#fdfcf0]"
                                                             />
                                                             <div className="flex gap-3">
-                                                                <button onClick={() => setVerifAction(null)} className="flex-1 py-3 bg-white border-2 border-black text-[11px] font-black uppercase tracking-widest rounded-lg shadow-[0_3px_0_0_#000] hover:shadow-none hover:translate-y-[2px] transition-all">Cancelar</button>
+                                                                <button onClick={() => setVerifAction(null)} className="flex-1 py-3 bg-white border-2 border-black text-[11px] font-black uppercase tracking-widest rounded-xl shadow-[0_3px_0_0_#000] hover:shadow-none hover:translate-y-[2px] transition-all">Cancelar</button>
                                                                 <button onClick={async () => {
                                                                     setIsUpdating(true);
                                                                     try {
@@ -579,14 +579,14 @@ export default function AdminView() {
                                                                         showNotification('Solicitação reprovada.', 'success');
                                                                     } catch(e:any) { showNotification(e.message, 'error'); }
                                                                     finally { setIsUpdating(false); }
-                                                                }} disabled={!rejectReason.trim() || isUpdating} className="flex-1 py-3 bg-red-500 text-white border-2 border-black text-[11px] font-black uppercase tracking-widest rounded-lg shadow-[0_3px_0_0_#000] hover:shadow-none hover:translate-y-[2px] transition-all disabled:opacity-40">
+                                                                }} disabled={!rejectReason.trim() || isUpdating} className="flex-1 py-3 bg-red-500 text-white border-2 border-black text-[11px] font-black uppercase tracking-widest rounded-xl shadow-[0_3px_0_0_#000] hover:shadow-none hover:translate-y-[2px] transition-all disabled:opacity-40">
                                                                     {isUpdating ? '...' : 'Confirmar Rejeição'}
                                                                 </button>
                                                             </div>
                                                         </div>
                                                     ) : (
                                                         <div className="flex gap-3">
-                                                            <button onClick={() => setVerifAction({id: v.id, action:'reject'})} className="flex-1 py-3 bg-white border-2 border-black text-red-500 text-[11px] font-black uppercase tracking-widest rounded-lg shadow-[0_3px_0_0_#000] hover:shadow-none hover:translate-y-[2px] transition-all flex items-center justify-center gap-2">
+                                                            <button onClick={() => setVerifAction({id: v.id, action:'reject'})} className="flex-1 py-3 bg-white border-2 border-black text-red-500 text-[11px] font-black uppercase tracking-widest rounded-xl shadow-[0_3px_0_0_#000] hover:shadow-none hover:translate-y-[2px] transition-all flex items-center justify-center gap-2">
                                                                 <XCircle size={14} strokeWidth={3} /> Reprovar
                                                             </button>
                                                             <button onClick={async () => {
@@ -597,7 +597,7 @@ export default function AdminView() {
                                                                     showNotification('Solicitação aprovada! Perfil verificado.', 'success');
                                                                 } catch(e:any) { showNotification(e.message, 'error'); }
                                                                 finally { setIsUpdating(false); }
-                                                            }} disabled={isUpdating} className="flex-1 py-3 bg-[#97cd7a] border-2 border-black text-black text-[11px] font-black uppercase tracking-widest rounded-lg shadow-[0_3px_0_0_#000] hover:shadow-none hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 disabled:opacity-40">
+                                                            }} disabled={isUpdating} className="flex-1 py-3 bg-[#97cd7a] border-2 border-black text-black text-[11px] font-black uppercase tracking-widest rounded-xl shadow-[0_3px_0_0_#000] hover:shadow-none hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 disabled:opacity-40">
                                                                 <Check size={14} strokeWidth={3} /> Aprovar
                                                             </button>
                                                         </div>
@@ -663,7 +663,7 @@ export default function AdminView() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-2 space-y-6">
-                            <div className="bg-white border-2 border-black shadow-[0_6px_0_0_#000] flex flex-col rounded-3xl overflow-hidden">
+                            <div className="bg-white border-2 border-black shadow-[0_6px_0_0_#000] flex flex-col rounded-xl overflow-hidden">
                                 <div className="p-6 border-b-2 border-black bg-[#fafafa] flex justify-between items-center">
                                     <h2 className="text-sm font-black uppercase tracking-[0.2em] text-black">{t('admin.newExplorers')}</h2>
                                     <button 
@@ -682,7 +682,7 @@ export default function AdminView() {
                                             className="p-4 flex items-center justify-between hover:bg-[#ffdf00]/10 cursor-pointer transition-all active:translate-y-1 active:translate-x-1 active:shadow-none group"
                                         >
                                             <div className="flex items-center gap-4">
-                                                <div className={`w-10 h-10 border-4 border-black flex items-center justify-center font-black text-lg rounded-2xl overflow-hidden shrink-0 bg-white shadow-[0_4px_0_0_#000] relative`}>
+                                                <div className={`w-10 h-10 border-4 border-black flex items-center justify-center font-black text-lg rounded-xl overflow-hidden shrink-0 bg-white shadow-[0_4px_0_0_#000] relative`}>
                                                     {u.avatar_url ? (
                                                         <img src={u.avatar_url} className="w-full h-full object-cover rounded-full" alt={u.username} />
                                                     ) : (
@@ -714,7 +714,7 @@ export default function AdminView() {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div className="bg-white border-2 border-black p-8 shadow-[0_6px_0_0_#000] rounded-3xl">
+                                <div className="bg-white border-2 border-black p-8 shadow-[0_6px_0_0_#000] rounded-xl">
                                     <h3 className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-2">{t('admin.contentInventory')}</h3>
                                     <div className="flex items-center justify-between">
                                         <div>
@@ -728,7 +728,7 @@ export default function AdminView() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-white border-2 border-black p-6 shadow-[0_6px_0_0_#000] rounded-3xl">
+                                <div className="bg-white border-2 border-black p-6 shadow-[0_6px_0_0_#000] rounded-xl">
                                     <h3 className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-2">{t('admin.realTimeMonitoring')}</h3>
                                     <div className="flex items-center justify-between">
                                         <div>
@@ -830,10 +830,10 @@ export default function AdminView() {
                                             {/* LEFT SIDEBAR: IDENTITY & SUBSCRIPTION (Cols: 4) */}
                                             <div className="lg:col-span-4 space-y-10 lg:sticky lg:top-32">
                                                 {/* Identity Card */}
-                                                <div className="bg-white border-2 border-black rounded-3xl md:rounded-[40px] shadow-[0_8px_0_0_#000] md:shadow-[0_12px_0_0_#000] overflow-hidden p-6 md:p-10 space-y-6 md:space-y-8">
+                                                <div className="bg-white border-2 border-black rounded-xl md:rounded-[40px] shadow-[0_8px_0_0_#000] md:shadow-[0_12px_0_0_#000] overflow-hidden p-6 md:p-10 space-y-6 md:space-y-8">
                                                     <div className="flex flex-col items-center text-center space-y-4 md:space-y-6">
                                                         <div className="relative">
-                                                            <div className="w-28 h-28 md:w-44 md:h-44 rounded-3xl md:rounded-[40px] border-2 border-black shadow-[0_4px_0_0_#000] md:shadow-[0_6px_0_0_#000] overflow-hidden bg-white shrink-0 relative z-10">
+                                                            <div className="w-28 h-28 md:w-44 md:h-44 rounded-xl md:rounded-[40px] border-2 border-black shadow-[0_4px_0_0_#000] md:shadow-[0_6px_0_0_#000] overflow-hidden bg-white shrink-0 relative z-10">
                                                                 {selectedUser.avatar_url ? (
                                                                     <img src={selectedUser.avatar_url} className="w-full h-full object-cover" alt={selectedUser.username} />
                                                                 ) : (
@@ -850,12 +850,12 @@ export default function AdminView() {
                                                         <div className="space-y-3 md:space-y-4">
                                                             <h2 className="text-2xl md:text-4xl font-black uppercase tracking-tighter text-black leading-none">{selectedUser.name || selectedUser.username}</h2>
                                                             <div className="flex flex-col items-center gap-1.5 md:gap-2">
-                                                                <span className="px-3 md:px-4 py-1 md:py-1.5 bg-slate-100 text-black/50 text-[9px] md:text-[11px] font-black uppercase tracking-widest rounded-lg">@{selectedUser.username}</span>
+                                                                <span className="px-3 md:px-4 py-1 md:py-1.5 bg-slate-100 text-black/50 text-[9px] md:text-[11px] font-black uppercase tracking-widest rounded-xl">@{selectedUser.username}</span>
                                                                 <span className="text-[10px] md:text-[11px] font-bold text-black/30 break-all px-4">{selectedUser.email}</span>
                                                                 
                                                                 {/* Online Status & Last Update Indicators */}
                                                                 <div className="flex flex-col gap-2.5 w-full mt-4">
-                                                                    <div className={`flex items-center justify-between p-3 rounded-2xl border-2 border-black shadow-[0_4px_0_0_#000] ${selectedUser.is_online ? 'bg-green-50' : 'bg-slate-50'}`}>
+                                                                    <div className={`flex items-center justify-between p-3 rounded-xl border-2 border-black shadow-[0_4px_0_0_#000] ${selectedUser.is_online ? 'bg-green-50' : 'bg-slate-50'}`}>
                                                                         <div className="flex items-center gap-2">
                                                                             <div className={`w-2.5 h-2.5 rounded-full border border-black ${selectedUser.is_online ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`} />
                                                                             <span className="text-[9px] font-black uppercase tracking-wider text-black/50">Status</span>
@@ -865,7 +865,7 @@ export default function AdminView() {
                                                                         </span>
                                                                     </div>
 
-                                                                    <div className="flex items-center justify-between p-3 bg-white rounded-2xl border-2 border-black shadow-[0_4px_0_0_#000]">
+                                                                    <div className="flex items-center justify-between p-3 bg-white rounded-xl border-2 border-black shadow-[0_4px_0_0_#000]">
                                                                         <div className="flex items-center gap-2">
                                                                             <Clock size={12} className="text-black/30" />
                                                                             <span className="text-[9px] font-black uppercase tracking-wider text-black/40">Última Atividade</span>
@@ -877,7 +877,7 @@ export default function AdminView() {
                                                                         </span>
                                                                     </div>
 
-                                                                    <div className="flex items-center justify-between p-3 bg-white rounded-2xl border-2 border-black shadow-[0_4px_0_0_#000]">
+                                                                    <div className="flex items-center justify-between p-3 bg-white rounded-xl border-2 border-black shadow-[0_4px_0_0_#000]">
                                                                         <div className="flex items-center gap-2">
                                                                             <ShieldCheck size={12} className="text-black/30" />
                                                                             <span className="text-[9px] font-black uppercase tracking-wider text-black/40">O que mudou?</span>
@@ -889,7 +889,7 @@ export default function AdminView() {
                                                                 </div>
 
                                                                 {selectedUser.referral_source && (
-                                                                    <div className="mt-3 px-3 py-1 bg-[#66ccff]/10 border border-[#66ccff]/30 rounded-lg flex items-center justify-center gap-1.5">
+                                                                    <div className="mt-3 px-3 py-1 bg-[#66ccff]/10 border border-[#66ccff]/30 rounded-xl flex items-center justify-center gap-1.5">
                                                                         <Info size={12} className="text-[#66ccff]" />
                                                                         <span className="text-[9px] font-black uppercase text-[#66ccff] tracking-wider">
                                                                             Origem: {selectedUser.referral_source}
@@ -925,14 +925,14 @@ export default function AdminView() {
                                                     </div>
 
                                                     <div className="space-y-6 pt-6 border-t-[2px] border-black/5">
-                                                        <div className="bg-black/5 p-6 md:p-8 rounded-3xl md:rounded-[32px] border-2 border-dashed border-black/10 relative">
-                                                            <div className="absolute -top-3 left-6 px-3 py-1 bg-[#ffdf00] border-2 border-black text-black text-[9px] font-black uppercase tracking-widest rounded-lg">Bio Manifesto</div>
+                                                        <div className="bg-black/5 p-6 md:p-8 rounded-xl md:rounded-[32px] border-2 border-dashed border-black/10 relative">
+                                                            <div className="absolute -top-3 left-6 px-3 py-1 bg-[#ffdf00] border-2 border-black text-black text-[9px] font-black uppercase tracking-widest rounded-xl">Bio Manifesto</div>
                                                             <p className="text-sm md:text-xl font-black uppercase text-black leading-tight">
                                                                 "{selectedUser.bio || 'SEM DESCRIÇÃO'}"
                                                             </p>
                                                         </div>
 
-                                                        <div className="bg-white border-[3px] border-black rounded-3xl md:rounded-[32px] p-6 md:p-8 shadow-[0_6px_0_0_#ffdf00] md:shadow-[0_8px_0_0_#ffdf00] space-y-6">
+                                                        <div className="bg-white border-[3px] border-black rounded-xl md:rounded-[32px] p-6 md:p-8 shadow-[0_6px_0_0_#ffdf00] md:shadow-[0_8px_0_0_#ffdf00] space-y-6">
                                                             <div className="flex items-center justify-between">
                                                                 <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Plano Atual</span>
                                                                 <div className="px-3 py-1 bg-[#ffdf00] text-black border-2 border-black text-[8px] font-black rounded-md uppercase italic">Pro Active</div>
@@ -946,7 +946,7 @@ export default function AdminView() {
                                                                         <button
                                                                             key={type}
                                                                             onClick={() => setEditPlan(prev => ({ ...prev!, type }))}
-                                                                            className={`py-3 text-[9px] font-black uppercase border-2 border-black rounded-lg transition-all ${editPlan?.type === type ? 'bg-[#ffdf00] shadow-[0_3px_0_0_#1a1a1a] -translate-y-0.5' : 'bg-white hover:bg-slate-50'}`}
+                                                                            className={`py-3 text-[9px] font-black uppercase border-2 border-black rounded-xl transition-all ${editPlan?.type === type ? 'bg-[#ffdf00] shadow-[0_3px_0_0_#1a1a1a] -translate-y-0.5' : 'bg-white hover:bg-slate-50'}`}
                                                                         >
                                                                             {type}
                                                                         </button>
@@ -969,7 +969,7 @@ export default function AdminView() {
                                             <div className="lg:col-span-8 space-y-12 pb-32">
                                                 {/* Metric Tiles */}
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-                                                    <div className="bg-white border-2 border-black p-8 md:p-12 rounded-3xl md:rounded-[40px] shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000] relative overflow-hidden">
+                                                    <div className="bg-white border-2 border-black p-8 md:p-12 rounded-xl md:rounded-[40px] shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000] relative overflow-hidden">
                                                         <div className="absolute -right-6 -bottom-6 opacity-[0.05] text-[#66ccff]"><Eye size={isMobile ? 120 : 180} /></div>
                                                         <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-black mb-4 block opacity-40">Volume de Alcance</span>
                                                         <div className="text-5xl md:text-8xl font-black tracking-tighter tabular-nums leading-none">{isUserDetailsLoading ? '---' : (selectedUser.views || 0)}</div>
@@ -978,13 +978,13 @@ export default function AdminView() {
                                                             Visualizações únicas
                                                         </div>
                                                     </div>
-                                                    <div className="bg-white border-2 border-black p-8 md:p-12 rounded-3xl md:rounded-[40px] shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000] relative overflow-hidden">
+                                                    <div className="bg-white border-2 border-black p-8 md:p-12 rounded-xl md:rounded-[40px] shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000] relative overflow-hidden">
                                                         <div className="absolute -right-6 -bottom-6 opacity-[0.05] text-[#000]"><MousePointerClick size={isMobile ? 120 : 180} /></div>
                                                         <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-black mb-4 block opacity-40">Interações Reais</span>
                                                         <div className="text-5xl md:text-8xl font-black tracking-tighter tabular-nums leading-none">{isUserDetailsLoading ? '---' : (selectedUser.clicks?.[0]?.count || 0)}</div>
                                                         <div className="text-[11px] font-black uppercase text-black/40 mt-6">Engajamento Direto</div>
                                                     </div>
-                                                    <div className="bg-white border-2 border-black p-8 md:p-12 rounded-3xl md:rounded-[40px] shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000] relative overflow-hidden">
+                                                    <div className="bg-white border-2 border-black p-8 md:p-12 rounded-xl md:rounded-[40px] shadow-[0_6px_0_0_#000] md:shadow-[0_8px_0_0_#000] relative overflow-hidden">
                                                         <div className="absolute -right-6 -bottom-6 opacity-[0.05] text-[#000]"><TrendingUp size={isMobile ? 120 : 180} /></div>
                                                         <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-black mb-4 block opacity-40">Performance</span>
                                                         <div className="text-5xl md:text-8xl font-black tracking-tighter tabular-nums leading-none">
@@ -1019,9 +1019,9 @@ export default function AdminView() {
                                                                 selectedUser.links
                                                                     .filter((l: any) => l.type === 'link' || !l.type || l.type === 'social')
                                                                     .map((link: any) => (
-                                                                    <div key={link.id} className="p-5 bg-white border-2 border-black rounded-3xl shadow-[0_6px_0_0_#000] flex items-center justify-between group/link hover:translate-y-[-2px] hover:shadow-[0_8px_0_0_#000] transition-all">
+                                                                    <div key={link.id} className="p-5 bg-white border-2 border-black rounded-xl shadow-[0_6px_0_0_#000] flex items-center justify-between group/link hover:translate-y-[-2px] hover:shadow-[0_8px_0_0_#000] transition-all">
                                                                         <div className="flex items-center gap-5 overflow-hidden">
-                                                                            <div className="w-14 h-14 rounded-2xl bg-slate-50 border-2 border-black flex items-center justify-center shrink-0">
+                                                                            <div className="w-14 h-14 rounded-xl bg-slate-50 border-2 border-black flex items-center justify-center shrink-0">
                                                                                 <LinkIcon size={24} className="opacity-40" />
                                                                             </div>
                                                                             <div className="overflow-hidden">
@@ -1031,7 +1031,7 @@ export default function AdminView() {
                                                                         </div>
                                                                         <button 
                                                                             onClick={() => window.open(link.url, '_blank')}
-                                                                            className="w-12 h-12 rounded-2xl border-2 border-black flex items-center justify-center hover:bg-[#ffdf00] shadow-[0_4px_0_0_#000] hover:shadow-none hover:translate-y-1 transition-all shrink-0"
+                                                                            className="w-12 h-12 rounded-xl border-2 border-black flex items-center justify-center hover:bg-[#ffdf00] shadow-[0_4px_0_0_#000] hover:shadow-none hover:translate-y-1 transition-all shrink-0"
                                                                         >
                                                                             <ExternalLink size={20} strokeWidth={3} />
                                                                         </button>
@@ -1047,7 +1047,7 @@ export default function AdminView() {
                                                     </div>
 
                                                     {/* Products Explorer */}
-                                                    <div className="bg-white border-2 md:border-4 border-black rounded-3xl md:rounded-[48px] shadow-[0_8px_0_0_#1a1a1a] md:shadow-[0_12px_0_0_#1a1a1a] flex flex-col min-h-[400px] md:min-h-[600px]">
+                                                    <div className="bg-white border-2 md:border-4 border-black rounded-xl md:rounded-[48px] shadow-[0_8px_0_0_#1a1a1a] md:shadow-[0_12px_0_0_#1a1a1a] flex flex-col min-h-[400px] md:min-h-[600px]">
                                                         <div className="p-8 border-b-4 border-black flex items-center justify-between">
                                                             <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-3">
                                                                 <ShoppingBag size={20} strokeWidth={4} />
@@ -1090,7 +1090,7 @@ export default function AdminView() {
                                                 <div className="bg-[#fff5f5] border-x-0 md:border-2 md:border-black p-8 md:p-12 rounded-none md:rounded-[48px] shadow-none md:shadow-[0_16px_0_0_#ff3333] space-y-8 md:space-y-10 relative overflow-hidden">
                                                     <div className="absolute top-0 left-0 w-full h-1.5 bg-[#ff3333] md:hidden" />
                                                     <div className="flex items-center gap-5 md:gap-6 text-[#ff3333]">
-                                                        <div className="w-12 h-12 md:w-16 md:h-16 bg-white border-2 border-[#ff3333] rounded-2xl flex items-center justify-center shadow-[0_4px_0_0_#ff3333] shrink-0">
+                                                        <div className="w-12 h-12 md:w-16 md:h-16 bg-white border-2 border-[#ff3333] rounded-xl flex items-center justify-center shadow-[0_4px_0_0_#ff3333] shrink-0">
                                                             <ShieldAlert size={isMobile ? 24 : 32} strokeWidth={4} />
                                                         </div>
                                                         <div className="space-y-1">
@@ -1102,14 +1102,14 @@ export default function AdminView() {
                                                     {!deleteConfirm ? (
                                                         <button 
                                                             onClick={() => setDeleteConfirm(true)}
-                                                            className="w-full py-6 bg-white border-4 border-black text-[#ff3333] font-black uppercase text-sm tracking-[0.2em] transition-all shadow-[0_8px_0_0_#000] hover:shadow-none hover:translate-y-1 active:scale-[0.98] rounded-2xl"
+                                                            className="w-full py-6 bg-white border-4 border-black text-[#ff3333] font-black uppercase text-sm tracking-[0.2em] transition-all shadow-[0_8px_0_0_#000] hover:shadow-none hover:translate-y-1 active:scale-[0.98] rounded-xl"
                                                         >
                                                             Deletar Conta do Usuário
                                                         </button>
                                                     ) : (
-                                                        <div className="bg-white border-2 border-black p-8 md:p-10 rounded-3xl md:rounded-[40px] space-y-8 shadow-[0_8px_0_0_rgba(255,51,51,0.05)]">
+                                                        <div className="bg-white border-2 border-black p-8 md:p-10 rounded-xl md:rounded-[40px] space-y-8 shadow-[0_8px_0_0_rgba(255,51,51,0.05)]">
                                                             <div className="text-center space-y-4">
-                                                                <div className="inline-block px-4 py-1.5 bg-red-50 text-[#ff3333] text-[10px] font-black uppercase rounded-lg border border-red-200">Ação Irreversível</div>
+                                                                <div className="inline-block px-4 py-1.5 bg-red-50 text-[#ff3333] text-[10px] font-black uppercase rounded-xl border border-red-200">Ação Irreversível</div>
                                                                 <p className="text-[11px] md:text-sm font-bold uppercase opacity-30 tracking-tight px-4 leading-relaxed">Confirme digitando <span className="text-black font-black opacity-100">DELETE</span> no campo abaixo</p>
                                                             </div>
                                                             <input
@@ -1117,17 +1117,17 @@ export default function AdminView() {
                                                                 value={deleteInput}
                                                                 onChange={(e) => setDeleteInput(e.target.value)}
                                                                 placeholder="CONFIRMAÇÃO"
-                                                                className="w-full bg-[#fafafa] border-2 border-black p-4 md:p-6 text-center text-sm md:text-lg font-black rounded-2xl outline-none focus:bg-white focus:shadow-[0_4px_0_0_#000] transition-all placeholder:opacity-20 uppercase"
+                                                                className="w-full bg-[#fafafa] border-2 border-black p-4 md:p-6 text-center text-sm md:text-lg font-black rounded-xl outline-none focus:bg-white focus:shadow-[0_4px_0_0_#000] transition-all placeholder:opacity-20 uppercase"
                                                             />
                                                             <div className="flex flex-col md:flex-row gap-4">
                                                                 <button 
                                                                     onClick={handleDeleteUser} 
                                                                     disabled={deleteInput.trim().toUpperCase() !== 'DELETE'}
-                                                                    className={`w-full py-5 border-2 border-black text-[11px] font-black uppercase tracking-widest transition-all rounded-2xl ${deleteInput.trim().toUpperCase() === 'DELETE' ? 'bg-[#ff3333] text-white shadow-[0_6px_0_0_#800000] active:translate-y-1 active:shadow-none' : 'bg-slate-100 text-black/10'}`}
+                                                                    className={`w-full py-5 border-2 border-black text-[11px] font-black uppercase tracking-widest transition-all rounded-xl ${deleteInput.trim().toUpperCase() === 'DELETE' ? 'bg-[#ff3333] text-white shadow-[0_6px_0_0_#800000] active:translate-y-1 active:shadow-none' : 'bg-slate-100 text-black/10'}`}
                                                                 >
                                                                     Confirmar Purga
                                                                 </button>
-                                                                <button onClick={() => setDeleteConfirm(false)} className="w-full py-5 bg-white border-2 border-black text-[11px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-[0_6px_0_0_#000] active:translate-y-1 active:shadow-none rounded-2xl">Abortar</button>
+                                                                <button onClick={() => setDeleteConfirm(false)} className="w-full py-5 bg-white border-2 border-black text-[11px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-[0_6px_0_0_#000] active:translate-y-1 active:shadow-none rounded-xl">Abortar</button>
                                                             </div>
                                                         </div>
                                                     )}
@@ -1155,7 +1155,7 @@ export default function AdminView() {
                                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                     animate={{ opacity: 1, scale: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                    className="bg-white w-full max-w-lg p-10 border-2 border-black shadow-[0_12px_0_0_#000] rounded-3xl relative overflow-hidden"
+                                    className="bg-white w-full max-w-lg p-10 border-2 border-black shadow-[0_12px_0_0_#000] rounded-xl relative overflow-hidden"
                                 >
                                     <div className="absolute top-0 left-0 w-full h-[8px] bg-[#97cd7a]" />
                                     
@@ -1306,7 +1306,7 @@ function KPIBox({ label, value, icon, color, sublabel }: any) {
     
     return (
         <div 
-            className="group relative bg-white border-2 border-black p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-[0_4px_0_0_#000] sm:shadow-[0_8px_0_0_#000] flex flex-col transition-all duration-200 overflow-hidden cursor-default active:translate-y-[2px] active:shadow-none"
+            className="group relative bg-white border-2 border-black p-4 sm:p-8 rounded-xl sm:rounded-xl shadow-[0_4px_0_0_#000] sm:shadow-[0_8px_0_0_#000] flex flex-col transition-all duration-200 overflow-hidden cursor-default active:translate-y-[2px] active:shadow-none"
         >
             <div className="flex justify-between items-start mb-4 sm:mb-10 relative z-10">
                 <div 

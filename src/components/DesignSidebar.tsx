@@ -27,7 +27,7 @@ const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveS
                     gap-2 md:gap-0 
                     md:border-2 md:border-[#1a1a1a] md:shadow-[0_4px_0_0_#1a1a1a] 
                     bg-transparent md:bg-white 
-                    md:rounded-lg md:overflow-hidden md:shrink-0
+                    md:rounded-xl md:overflow-hidden md:shrink-0
                 ">
                     {DESIGN_MENU_ITEMS.map((item, index) => {
                         const isActive = activeSection === item.id;
@@ -43,10 +43,10 @@ const DesignSidebar: React.FC<DesignSidebarProps> = ({ activeSection, setActiveS
                                         ? 'bg-[#ffdf00] text-black border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] md:shadow-none md:border-none md:border-r-2 md:border-[#1a1a1a]'
                                         : 'bg-white text-black/40 border-2 border-[#1a1a1a]/10 md:border-none md:border-r-2 md:border-[#1a1a1a] hover:bg-[#ffdf00]/5 hover:text-black'
                                     }
-                                    rounded-lg md:rounded-none
+                                    rounded-xl md:rounded-none
                                     md:last:border-r-0
-                                    ${index === 0 && 'md:rounded-l-[6px]'}
-                                    ${index === DESIGN_MENU_ITEMS.length - 1 && 'md:rounded-r-[6px]'}
+                                    ${index === 0 && 'md:rounded-l-[10px]'}
+                                    ${index === DESIGN_MENU_ITEMS.length - 1 && 'md:rounded-r-[10px]'}
                                 `}
                             >
                                 {item.label}

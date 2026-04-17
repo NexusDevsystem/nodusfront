@@ -25,7 +25,7 @@ const UpgradeBanner: React.FC<UpgradeBannerProps> = ({ onUpgradeClick }) => {
                 {/* Upgrade Button (Brutalist) */}
                 <button
                     onClick={onUpgradeClick}
-                    className="flex items-center gap-1.5 px-3 py-1 bg-white border-2 border-black shadow-[2px_2px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all text-[9px] font-black uppercase tracking-widest relative z-10 rounded-md"
+                    className="flex items-center gap-1.5 px-3 py-1 bg-white border-2 border-black shadow-[2px_2px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all text-[9px] font-black uppercase tracking-widest relative z-10 rounded-xl"
                 >
                     <CreditCard size={12} strokeWidth={3} />
                     {t('upgradeBanner.button')}

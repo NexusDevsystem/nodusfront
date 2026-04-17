@@ -119,7 +119,7 @@ export default function OnboardingProgressCard({ profile, onUpdate, onNavigate }
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
         >
-            <div className="bg-white border-2 border-black rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden relative">
+            <div className="bg-white border-2 border-black rounded-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden relative">
                 {/* Header with Title & Dismiss */}
                 <div className="p-5 sm:p-6 border-b-2 border-black bg-[#fafafa]">
                     <div className="flex items-start justify-between gap-4">
@@ -138,7 +138,7 @@ export default function OnboardingProgressCard({ profile, onUpdate, onNavigate }
                         {isComplete && (
                             <button 
                                 onClick={handleDismiss}
-                                className="p-1 hover:bg-black/5 transition-colors rounded-md group"
+                                className="p-1 hover:bg-black/5 transition-colors rounded-xl group"
                                 title={isPT ? "Remover card" : "Dismiss card"}
                             >
                                 <X size={20} className="text-black/30 group-hover:text-black transition-colors" />
@@ -170,7 +170,7 @@ export default function OnboardingProgressCard({ profile, onUpdate, onNavigate }
                             disabled={step.completed && step.id !== 'copy'}
                             onClick={step.action}
                             className={`
-                                group relative flex items-center gap-4 p-4 rounded-md border-2 transition-all text-left
+                                group relative flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left
                                 ${step.completed 
                                     ? 'bg-slate-50 border-black/10 text-black/40' 
                                     : 'bg-white border-black hover:bg-[#ffdf00] hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-0 active:shadow-none'

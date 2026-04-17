@@ -332,37 +332,13 @@ function LinkEditor({
       } else if (isSocialStats) {
         try {
           const metadata = prefetchData || await fetchSocialMetadata(url);
-          if (metadata && metadata.username) {
+          if (metadata) {
             updateLinkFields(newLinkId, {
-                title: metadata.platform.charAt(0).toUpperCase() + metadata.platform.slice(1),
-                subtitle: metadata.followers ? metadata.followers : '',
+                title: metadata.name || metadata.platform.charAt(0).toUpperCase() + metadata.platform.slice(1),
+                subtitle: metadata.followers || '',
                 image: metadata.avatarUrl,
                 platform: metadata.platform
             });
-          } else {
-            // Fallback specifically for TikTok/Instagram/YouTube based on URL
-            const urlParts = url.split('/').filter(p => p && !p.includes('?') && !p.includes('#'));
-            let username = '';
-            if (lowerUrl.includes('instagram.com') || lowerUrl.includes('instagr.am')) {
-                username = urlParts[urlParts.length - 1];
-            } else if (lowerUrl.includes('tiktok.com')) {
-                username = urlParts.find(p => p.startsWith('@')) || urlParts[urlParts.length - 1];
-            } else if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) {
-                username = urlParts.find(p => p.startsWith('@')) || urlParts[urlParts.length - 1];
-            }
-
-            if (username) {
-                let platformId = undefined;
-                if (lowerUrl.includes('instagram')) platformId = 'instagram';
-                else if (lowerUrl.includes('tiktok')) platformId = 'tiktok';
-                else if (lowerUrl.includes('youtube')) platformId = 'youtube';
-
-                updateLinkFields(newLinkId, { 
-                    subtitle: '',
-                    title: lowerUrl.includes('instagram') ? 'Instagram' : (lowerUrl.includes('tiktok') ? 'TikTok' : 'YouTube'),
-                    platform: platformId
-                });
-            }
           }
         } catch (error) {
           console.error('Error fetching social metadata:', error);
@@ -488,7 +464,7 @@ function LinkEditor({
 
   return (
     <div className="space-y-6 w-full">
-      <div className={`${level === 0 ? 'bg-transparent md:bg-transparent border-0 md:border-0 px-0 md:px-0 py-0 md:py-0 shadow-none md:shadow-none rounded-md' : ''}`}>
+      <div className={`${level === 0 ? 'bg-transparent md:bg-transparent border-0 md:border-0 px-0 md:px-0 py-0 md:py-0 shadow-none md:shadow-none rounded-xl' : ''}`}>
         <div className="space-y-3">
           {level === 0 ? (
             <div className="px-3 md:px-5">
@@ -502,7 +478,7 @@ function LinkEditor({
                     <button onClick={() => setShowArchive(true)} className="w-11 h-11 shrink-0 flex items-center justify-center border-2 border-[#1a1a1a] bg-white hover:bg-[#ffdf00] shadow-[0_3px_0_0_#1a1a1a] transition-all hover:translate-y-[0.5px] hover:shadow-none relative rounded-xl">
                       <Archive size={20} strokeWidth={3} className="text-black" />
                       {archivedLinks.length > 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 flex h-6 w-6 items-center justify-center border-2 border-[#1a1a1a] bg-[#97cd7a] text-[10px] font-black uppercase text-black shadow-[0_2px_0_0_#1a1a1a] rounded-md">
+                        <span className="absolute -top-1.5 -right-1.5 flex h-6 w-6 items-center justify-center border-2 border-[#1a1a1a] bg-[#97cd7a] text-[10px] font-black uppercase text-black shadow-[0_2px_0_0_#1a1a1a] rounded-xl">
                           {archivedLinks.length}
                         </span>
                       )}
@@ -526,7 +502,7 @@ function LinkEditor({
               w-full ${level > 0 ? 'py-1.5 text-[10px]' : 'py-2.5 text-xs'} 
               border-2 border-dashed border-[#1a1a1a] bg-white font-black uppercase text-black 
               hover:bg-[#ffdf00] transition-colors flex items-center justify-center gap-2 
-              shadow-[0_3px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none rounded-md
+              shadow-[0_3px_0_0_#1a1a1a] hover:translate-y-[0.5px] hover:shadow-none rounded-xl
             `}
             >
               <Plus size={level > 0 ? 16 : 20} strokeWidth={4} /> {t('links.addLinkInCollection')}
@@ -536,7 +512,7 @@ function LinkEditor({
 
         <div className="space-y-3">
           {activeLinks.length === 0 && (
-            <div className="text-center py-10 md:py-14 bg-[#fff9c4] border-2 border-[#97cd7a] shadow-[0_4px_0_0_#97cd7a] rounded-md">
+            <div className="text-center py-10 md:py-14 bg-[#fff9c4] border-2 border-[#97cd7a] shadow-[0_4px_0_0_#97cd7a] rounded-xl">
               <div className="w-14 h-14 md:w-16 md:h-16 bg-[#97cd7a] border-2 border-[#1a1a1a] rounded-full flex items-center justify-center mx-auto mb-5 shadow-[0_3px_0_0_#1a1a1a] text-black">
                 <Ban size={32} strokeWidth={3} />
               </div>
@@ -574,14 +550,14 @@ function LinkEditor({
 
       {/* Profile Footer Branding Section */}
       {level === 0 && (
-        <div className="bg-transparent md:bg-transparent border-0 md:border-0 p-0 md:p-0 shadow-none md:shadow-none rounded-md">
+        <div className="bg-transparent md:bg-transparent border-0 md:border-0 p-0 md:p-0 shadow-none md:shadow-none rounded-xl">
           <div className="flex flex-col gap-5">
             <div>
               <h2 className="text-xs md:text-sm font-black uppercase text-black tracking-widest leading-none">Link Footer</h2>
               <p className="text-[9px] md:text-[10px] text-black font-normal uppercase tracking-wider mt-1 opacity-60 leading-none">Gerencie a exibição da marca Nodus no seu perfil público.</p>
             </div>
 
-            <div className={`p-5 border-2 border-[#97cd7a] shadow-[0_4px_0_0_#76a45f] rounded-md flex items-center justify-between transition-all bg-[#fdfcf0]`}>
+            <div className={`p-5 border-2 border-[#97cd7a] shadow-[0_4px_0_0_#76a45f] rounded-xl flex items-center justify-between transition-all bg-[#fdfcf0]`}>
               <div className="flex flex-col gap-1">
                 <span className="text-xs font-black uppercase text-black tracking-widest leading-tight">Exibir branding da Nodus</span>
                 {profile.plan_type === 'free' || !profile.plan_type ? (
@@ -624,29 +600,29 @@ function LinkEditor({
                 dragConstraints={isMobile ? { top: 0, bottom: 0 } : undefined}
                 dragElastic={isMobile ? 0.05 : 1}
                 onDragEnd={(_, info) => { if (isMobile && (info.offset.y > 100 || info.velocity.y > 500)) setShowArchive(false); }}
-                className={`relative bg-white border-x-2 border-t-2 border-[#1a1a1a] flex flex-col shadow-[0_-8px_30px_rgba(0,0,0,0.1)] overflow-hidden ${isMobile ? 'w-full rounded-t-[40px] h-[96vh] p-8 pb-12' : 'w-full max-w-xl max-h-[85vh] p-6 md:p-10 rounded-md border-b-2 shadow-[0_4px_0_0_#1a1a1a]'}`}
+                className={`relative bg-white border-x-2 border-t-2 border-[#1a1a1a] flex flex-col shadow-[0_-8px_30px_rgba(0,0,0,0.1) overflow-hidden ${isMobile ? 'w-full rounded-t-xl h-[96vh] p-8 pb-12' : 'w-full max-w-xl max-h-[85vh] p-6 md:p-10 rounded-xl border-b-2 shadow-[0_4px_0_0_#1a1a1a]'}`}
               >
                 <div className="mb-6 flex items-center justify-between shrink-0">
                   <div>
                     <h3 className={`${isMobile ? 'text-2xl' : 'text-xl md:text-2xl'} font-black uppercase tracking-tighter text-black`}>{t('links.archivedItems')}</h3>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-black/70 mt-0.5">{archivedLinks.length} {t('links.linksInArchive')}</p>
                   </div>
-                  <button onClick={() => setShowArchive(false)} className="p-2 bg-white text-black border-2 border-[#1a1a1a] hover:bg-red-500 hover:text-white transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md">
+                  <button onClick={() => setShowArchive(false)} className="p-2 bg-white text-black border-2 border-[#1a1a1a] hover:bg-red-500 hover:text-white transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl">
                     <X size={18} strokeWidth={3} />
                   </button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-hide py-2">
                   {archivedLinks.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center py-20 border-4 border-dashed border-[#1a1a1a] rounded-sm">
-                      <div className="w-20 h-20 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex items-center justify-center mb-6 rounded-md">
+                    <div className="h-full flex flex-col items-center justify-center py-20 border-4 border-dashed border-[#1a1a1a] rounded-xl">
+                      <div className="w-20 h-20 bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] flex items-center justify-center mb-6 rounded-xl">
                         <Archive size={32} strokeWidth={3} className="text-black" />
                       </div>
                       <p className="text-sm font-black text-black uppercase tracking-widest leading-none">{t('links.emptyArchive')}</p>
                     </div>
                   ) : (
                     archivedLinks.map((link) => (
-                      <motion.div key={link.id} layout className="flex items-center justify-between p-3 bg-white border-2 border-[#1a1a1a] transition-all hover:bg-[#ffdf00] group/item shadow-[0_2px_0_0_#1a1a1a] mb-4 rounded-md">
+                      <motion.div key={link.id} layout className="flex items-center justify-between p-3 bg-white border-2 border-[#1a1a1a] transition-all hover:bg-[#ffdf00] group/item shadow-[0_2px_0_0_#1a1a1a] mb-4 rounded-xl">
                         <div className="flex items-center gap-5 min-w-0">
                           <div className="min-w-0">
                             <h4 className="text-sm font-black uppercase tracking-widest text-black truncate mb-0.5">{link.title || t('links.untitled')}</h4>
@@ -658,8 +634,8 @@ function LinkEditor({
                           </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <button onClick={() => updateLink(link.id, 'isArchived', false)} className="h-8 px-3 bg-white border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest hover:bg-[#ffdf00] transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm">{t('links.restore')}</button>
-                          <button onClick={() => removeLink(link.id)} className="p-2 bg-white border-2 border-[#1a1a1a] text-black hover:text-white hover:bg-red-500 transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm"><Trash2 size={16} strokeWidth={3} /></button>
+                          <button onClick={() => updateLink(link.id, 'isArchived', false)} className="h-8 px-3 bg-white border-2 border-[#1a1a1a] text-black text-[10px] font-black uppercase tracking-widest hover:bg-[#ffdf00] transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-xl">{t('links.restore')}</button>
+                          <button onClick={() => removeLink(link.id)} className="p-2 bg-white border-2 border-[#1a1a1a] text-black hover:text-white hover:bg-red-500 transition-all shadow-[0_1.5px_0_0_#1a1a1a] rounded-xl"><Trash2 size={16} strokeWidth={3} /></button>
                         </div>
                       </motion.div>
                     ))
@@ -667,7 +643,7 @@ function LinkEditor({
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-[#1a1a1a] border-dashed shrink-0">
-                  <button onClick={() => setShowArchive(false)} className="w-full h-11 bg-[#ffdf00] text-black font-black uppercase tracking-widest text-xs transition-all border-2 border-[#1a1a1a] hover:bg-white shadow-[0_4px_0_0_#1a1a1a] rounded-md">
+                  <button onClick={() => setShowArchive(false)} className="w-full h-11 bg-[#ffdf00] text-black font-black uppercase tracking-widest text-xs transition-all border-2 border-[#1a1a1a] hover:bg-white shadow-[0_4px_0_0_#1a1a1a] rounded-xl">
                     {t('links.backToMyLinks')}
                   </button>
                 </div>
@@ -712,7 +688,7 @@ function LinkEditor({
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="relative bg-white border-4 border-black p-8 rounded-md shadow-[0_12px_0_0_#000] max-w-sm w-full"
+                className="relative bg-white border-4 border-black p-8 rounded-xl shadow-[0_12px_0_0_#000] max-w-sm w-full"
               >
                 <div className="flex flex-col gap-6">
                   <div className="flex items-center justify-between">
@@ -722,7 +698,7 @@ function LinkEditor({
                     </div>
                     <button
                       onClick={() => setMoveModalLinkId(null)}
-                      className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black hover:bg-black hover:text-white transition-all shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none rounded-md"
+                      className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black hover:bg-black hover:text-white transition-all shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none rounded-xl"
                     >
                       <X size={20} strokeWidth={3} />
                     </button>
@@ -731,9 +707,9 @@ function LinkEditor({
                   <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                     <button
                       onClick={() => { window.dispatchEvent(new CustomEvent('nodus:move-link', { detail: { sourceId: moveModalLinkId, targetId: 'root' } })); setMoveModalLinkId(null); }}
-                      className="w-full group flex items-center gap-4 p-4 bg-[#f8f9fa] border-2 border-black hover:bg-[#ffdf00] transition-all rounded-md shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none"
+                      className="w-full group flex items-center gap-4 p-4 bg-[#f8f9fa] border-2 border-black hover:bg-[#ffdf00] transition-all rounded-xl shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none"
                     >
-                      <div className="w-12 h-12 bg-white border-2 border-black rounded-md flex items-center justify-center shadow-[2px_2px_0_0_#000] transition-transform group-hover:scale-110">
+                      <div className="w-12 h-12 bg-white border-2 border-black rounded-xl flex items-center justify-center shadow-[2px_2px_0_0_#000] transition-transform group-hover:scale-110">
                         <LayoutGrid size={24} strokeWidth={3} className="text-black" />
                       </div>
                       <div className="text-left">
@@ -750,9 +726,9 @@ function LinkEditor({
                             <button
                               key={c.id}
                               onClick={() => { window.dispatchEvent(new CustomEvent('nodus:move-link', { detail: { sourceId: moveModalLinkId, targetId: c.id } })); setMoveModalLinkId(null); }}
-                              className="w-full group flex items-center gap-4 p-4 bg-white border-2 border-black hover:bg-[#97cd7a] transition-all rounded-md shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none"
+                              className="w-full group flex items-center gap-4 p-4 bg-white border-2 border-black hover:bg-[#97cd7a] transition-all rounded-xl shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none"
                             >
-                              <div className="w-11 h-11 bg-white border-2 border-black rounded-sm flex items-center justify-center shadow-[2px_2px_0_0_#000] group-hover:bg-white/50 transition-colors">
+                              <div className="w-11 h-11 bg-white border-2 border-black rounded-xl flex items-center justify-center shadow-[2px_2px_0_0_#000] group-hover:bg-white/50 transition-colors">
                                 <Folder size={20} strokeWidth={3} className="text-black" />
                               </div>
                               <div className="text-left">
@@ -762,7 +738,7 @@ function LinkEditor({
                             </button>
                           ))
                         ) : (
-                          <div className="p-8 border-2 border-dashed border-black/10 rounded-md flex flex-col items-center justify-center text-center bg-slate-50">
+                          <div className="p-8 border-2 border-dashed border-black/10 rounded-xl flex flex-col items-center justify-center text-center bg-slate-50">
                             <Archive size={24} className="text-black/10 mb-2" />
                             <span className="text-[9px] font-black uppercase tracking-widest text-black/30">Nenhuma coleção encontrada</span>
                           </div>

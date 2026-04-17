@@ -103,7 +103,7 @@ export default function BlogAdminView() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: '100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="relative w-full sm:max-w-5xl h-full sm:h-auto bg-white sm:border-2 border-black sm:rounded-[40px] overflow-hidden flex flex-col sm:max-h-[92vh] shadow-[0_32px_0_0_#000]"
+                className="relative w-full sm:max-w-5xl h-full sm:h-auto bg-white sm:border-2 border-black sm:rounded-xl overflow-hidden flex flex-col sm:max-h-[92vh] shadow-[0_32px_0_0_#000]"
               >
                 <div className="flex items-center justify-between px-6 sm:px-10 py-5 sm:py-7 border-b-4 border-black bg-white shrink-0 z-20">
                   <div className="flex items-center gap-3 sm:gap-4">
@@ -114,7 +114,7 @@ export default function BlogAdminView() {
                   </div>
                   <button 
                     onClick={() => setEditingPost(null)} 
-                    className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-white border-2 border-black shadow-[0_4px_0_0_#000] hover:translate-y-[2px] transition-all rounded-md"
+                    className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-white border-2 border-black shadow-[0_4px_0_0_#000] hover:translate-y-[2px] transition-all rounded-lg"
                   >
                     <X size={20} strokeWidth={3} />
                   </button>
@@ -122,7 +122,7 @@ export default function BlogAdminView() {
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar-brutal bg-[#fafafa] flex flex-col">
                   <div className="p-4 sm:p-8 md:p-12 pb-0">
-                    <div className="relative group/cover w-full h-[220px] sm:h-[400px] bg-white border-2 border-black rounded-[30px] sm:rounded-[40px] overflow-hidden flex items-center justify-center transition-all shadow-[0_6px_0_0_#000] sm:shadow-[0_8px_0_0_#000]">
+                    <div className="relative group/cover w-full h-[220px] sm:h-[400px] bg-white border-2 border-black rounded-lg overflow-hidden flex items-center justify-center transition-all shadow-[0_6px_0_0_#000] sm:shadow-[0_8px_0_0_#000]">
                       {isUploadingCover ? (
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
                       ) : editingPost.imageUrl ? (
@@ -131,13 +131,13 @@ export default function BlogAdminView() {
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/cover:opacity-100 transition-all flex items-center justify-center gap-4">
                             <button 
                               onClick={() => document.getElementById('cover-upload')?.click()}
-                              className="px-6 py-3 bg-white border-2 border-black rounded-xl font-black uppercase text-xs"
+                              className="px-6 py-3 bg-white border-2 border-black rounded-lg font-black uppercase text-xs"
                             >
                               Trocar
                             </button>
                             <button 
                               onClick={() => setEditingPost({ ...editingPost, imageUrl: '' })}
-                              className="px-6 py-3 bg-white border-2 border-black rounded-xl font-black uppercase text-xs text-red-500"
+                              className="px-6 py-3 bg-white border-2 border-black rounded-lg font-black uppercase text-xs text-red-500"
                             >
                               Remover
                             </button>
@@ -148,7 +148,7 @@ export default function BlogAdminView() {
                           onClick={() => document.getElementById('cover-upload')?.click()}
                           className="flex flex-col items-center gap-4"
                         >
-                          <div className="w-16 h-16 bg-[#ffdf00] border-2 border-black rounded-2xl flex items-center justify-center shadow-[0_4px_0_0_#000]">
+                          <div className="w-16 h-16 bg-[#ffdf00] border-2 border-black rounded-lg flex items-center justify-center shadow-[0_4px_0_0_#000]">
                             <ImageIcon size={32} />
                           </div>
                           <span className="font-black uppercase tracking-widest text-[10px]">Capa Principal</span>
@@ -191,7 +191,7 @@ export default function BlogAdminView() {
                           
                           if (imageMatch) return (
                             <div key={index} className="relative group/img my-8">
-                              <div className="border-2 border-black rounded-2xl overflow-hidden shadow-[0_8px_0_0_#000]">
+                              <div className="border-2 border-black rounded-lg overflow-hidden shadow-[0_8px_0_0_#000]">
                                 <img src={imageMatch[2]} alt="" className="w-full" />
                               </div>
                               <button onClick={() => {
@@ -205,7 +205,7 @@ export default function BlogAdminView() {
                           
                           if (videoMatch) return (
                             <div key={index} className="relative group/vid my-8">
-                              <video src={videoMatch[1]} controls className="w-full rounded-2xl border-2 border-black shadow-[0_8px_0_0_#000]" />
+                              <video src={videoMatch[1]} controls className="w-full rounded-lg border-2 border-black shadow-[0_8px_0_0_#000]" />
                               <button onClick={() => {
                                 const np = [...parts]; np.splice(index, 1);
                                 setEditingPost({ ...editingPost, content: np.join('') });
@@ -216,9 +216,9 @@ export default function BlogAdminView() {
                           );
 
                           if (fileMatch) return (
-                            <div key={index} className="p-8 bg-white border-2 border-black rounded-2xl flex items-center justify-between shadow-[0_8px_0_0_#000] my-6">
+                            <div key={index} className="p-8 bg-white border-2 border-black rounded-lg flex items-center justify-between shadow-[0_8px_0_0_#000] my-6">
                               <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-slate-100 border-2 border-black rounded-xl flex items-center justify-center">
+                                <div className="w-12 h-12 bg-slate-100 border-2 border-black rounded-lg flex items-center justify-center">
                                   <FileText size={24} />
                                 </div>
                                 <span className="font-black truncate max-w-[200px]">{fileMatch[1]}</span>
@@ -263,22 +263,22 @@ export default function BlogAdminView() {
                 {/* Footer */}
                 <div className="border-t-2 border-black p-5 sm:p-10 flex flex-col lg:flex-row items-center justify-between bg-white gap-6 shrink-0 z-30">
                   <div className="flex flex-col sm:flex-row items-center gap-6 w-full lg:w-auto">
-                    <div className="flex items-center gap-2 bg-slate-50 p-2 border-2 border-black rounded-2xl w-full sm:w-auto justify-center">
-                      <button onClick={() => document.getElementById('unified-upload-final')?.click()} className="flex items-center gap-2 px-6 py-3 bg-[#97cd7a] border-2 border-black rounded-xl shadow-[0_4px_0_0_#000] font-black uppercase text-[10px]">
+                    <div className="flex items-center gap-2 bg-slate-50 p-2 border-2 border-black rounded-lg w-full sm:w-auto justify-center">
+                      <button onClick={() => document.getElementById('unified-upload-final')?.click()} className="flex items-center gap-2 px-6 py-3 bg-[#97cd7a] border-2 border-black rounded-lg shadow-[0_4px_0_0_#000] font-black uppercase text-[10px]">
                         <PlusCircle size={18} /> Arquivo
                       </button>
-                      <button onClick={() => setEditingPost({ ...editingPost, content: (editingPost?.content || '') + '\n\n# ' })} className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black rounded-xl shadow-[0_4px_0_0_#000]"><Hash size={20} /></button>
-                      <button onClick={() => setEditingPost({ ...editingPost, content: (editingPost?.content || '') + '\n\n- ' })} className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black rounded-xl shadow-[0_4px_0_0_#000]"><Layers size={20} /></button>
+                      <button onClick={() => setEditingPost({ ...editingPost, content: (editingPost?.content || '') + '\n\n# ' })} className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black rounded-lg shadow-[0_4px_0_0_#000]"><Hash size={20} /></button>
+                      <button onClick={() => setEditingPost({ ...editingPost, content: (editingPost?.content || '') + '\n\n- ' })} className="w-12 h-12 flex items-center justify-center bg-white border-2 border-black rounded-lg shadow-[0_4px_0_0_#000]"><Layers size={20} /></button>
                     </div>
 
                     <div className="relative w-full sm:w-44">
-                      <button onClick={() => setIsCategoryOpen(!isCategoryOpen)} className={`w-full px-4 py-3.5 rounded-xl border-2 border-black font-black uppercase text-[10px] flex items-center justify-between shadow-[0_4px_0_0_#000] ${editingPost.category === 'Atualização' ? 'bg-[#ff66b2]' : editingPost.category === 'Novidades' ? 'bg-[#ffdf00]' : 'bg-[#e6b3ff]'}`}>
+                      <button onClick={() => setIsCategoryOpen(!isCategoryOpen)} className={`w-full px-4 py-3.5 rounded-lg border-2 border-black font-black uppercase text-[10px] flex items-center justify-between shadow-[0_4px_0_0_#000] ${editingPost.category === 'Atualização' ? 'bg-[#ff66b2]' : editingPost.category === 'Novidades' ? 'bg-[#ffdf00]' : 'bg-[#e6b3ff]'}`}>
                         {editingPost.category}
                         <ChevronDown size={14} />
                       </button>
                       <AnimatePresence>
                         {isCategoryOpen && (
-                          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute bottom-full mb-3 left-0 w-full bg-white border-2 border-black rounded-xl overflow-hidden shadow-[0_8px_0_0_#000] z-50">
+                          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute bottom-full mb-3 left-0 w-full bg-white border-2 border-black rounded-lg overflow-hidden shadow-[0_8px_0_0_#000] z-50">
                             {['Atualização', 'Novidades', 'Cultura', 'Off Topic'].map(cat => (
                               <button key={cat} onClick={() => { setEditingPost({ ...editingPost, category: cat }); setIsCategoryOpen(false); }} className="w-full text-left px-4 py-3 font-black uppercase text-[9px] hover:bg-slate-50 border-b border-black/5 last:border-0">{cat}</button>
                             ))}
@@ -288,7 +288,7 @@ export default function BlogAdminView() {
                     </div>
                   </div>
 
-                  <button onClick={handleSave} disabled={isSaving || !editingPost.title || !editingPost.content} className={`w-full lg:w-64 py-5 rounded-2xl border-2 border-black font-black uppercase text-xs transition-all ${editingPost.title && editingPost.content ? 'bg-[#97cd7a] text-black shadow-[0_8px_0_0_#000] active:translate-y-1 active:shadow-none' : 'bg-slate-100 text-black/20 shadow-none'}`}>
+                  <button onClick={handleSave} disabled={isSaving || !editingPost.title || !editingPost.content} className={`w-full lg:w-64 py-5 rounded-lg border-2 border-black font-black uppercase text-xs transition-all ${editingPost.title && editingPost.content ? 'bg-[#97cd7a] text-black shadow-[0_8px_0_0_#000] active:translate-y-1 active:shadow-none' : 'bg-slate-100 text-black/20 shadow-none'}`}>
                     {isSaving ? 'PROCESSANDO...' : (editingPost.id ? 'SALVAR ALTERAÇÕES' : 'PUBLICAR AGORA')}
                   </button>
                 </div>
@@ -318,7 +318,7 @@ export default function BlogAdminView() {
             <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tighter italic border-l-8 border-[#ffdf00] pl-6 leading-none">Dashboard do Blog</h2>
             <p className="text-[10px] sm:text-xs text-black/40 font-black uppercase tracking-[0.3em] mt-3 ml-6">Gerencie o conteúdo editorial</p>
           </div>
-          <button onClick={() => setEditingPost({ title: '', content: '', excerpt: '', category: 'Novidades', author: 'Nodus', isPublished: true, color: '#97cd7a', position: 0 })} className="flex items-center justify-center gap-3 bg-[#97cd7a] border-2 border-black rounded-md px-10 py-5 font-black uppercase text-sm shadow-[0_8px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all group w-full sm:w-auto">
+          <button onClick={() => setEditingPost({ title: '', content: '', excerpt: '', category: 'Novidades', author: 'Nodus', isPublished: true, color: '#97cd7a', position: 0 })} className="flex items-center justify-center gap-3 bg-[#97cd7a] border-2 border-black rounded-lg px-10 py-5 font-black uppercase text-sm shadow-[0_8px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all group w-full sm:w-auto">
             <Plus size={20} />
             {lang === 'pt' ? 'Criar publicação' : 'Create Post'}
           </button>
@@ -326,7 +326,7 @@ export default function BlogAdminView() {
 
         <div className="grid grid-cols-1 gap-4">
           {posts.length === 0 ? (
-            <div className="border-2 border-black border-dashed rounded-md p-24 text-center bg-slate-50/50">
+            <div className="border-2 border-black border-dashed rounded-lg p-24 text-center bg-slate-50/50">
               <div className="flex justify-center mb-4"><Layers size={48} className="text-slate-200" /></div>
               <h3 className="text-xl font-black text-slate-400 uppercase tracking-widest">Sem publicações</h3>
             </div>
@@ -352,7 +352,7 @@ function BlogListItem({ post, onEdit, onDelete, deletingPostId, setDeletingPostI
       dragListener={false}
       dragControls={dragControls}
       className={`
-        bg-white border-2 border-black rounded-xl p-4 sm:p-5 
+        bg-white border-2 border-black rounded-lg p-4 sm:p-5 
         flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 
         shadow-[0_6px_0_0_#000] group cursor-default relative overflow-hidden transition-all
         ${deletingPostId === post.id ? 'border-red-500' : 'border-black'}
@@ -386,7 +386,7 @@ function BlogListItem({ post, onEdit, onDelete, deletingPostId, setDeletingPostI
         {/* Content Info */}
         <div className="flex-1 min-w-0 flex flex-col justify-center">
           <div className="flex flex-wrap items-center gap-2 mb-1">
-            <span className={`text-[7px] sm:text-[8px] font-black uppercase px-2 py-0.5 rounded-md border border-black ${post.isPublished ? 'bg-[#97cd7a]' : 'bg-[#ffdf00]'}`}>
+            <span className={`text-[7px] sm:text-[8px] font-black uppercase px-2 py-0.5 rounded-lg border border-black ${post.isPublished ? 'bg-[#97cd7a]' : 'bg-[#ffdf00]'}`}>
               {post.isPublished ? (lang === 'pt' ? 'PUBLICADO' : 'PUBLISHED') : (lang === 'pt' ? 'RASCUNHO' : 'DRAFT')}
             </span>
             <span className="text-[7px] sm:text-[8px] font-bold uppercase text-slate-400 tracking-tighter">
@@ -423,7 +423,7 @@ function BlogListItem({ post, onEdit, onDelete, deletingPostId, setDeletingPostI
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="flex items-center gap-2 bg-red-50 p-1 rounded-xl border-2 border-black"
+              className="flex items-center gap-2 bg-red-50 p-1 rounded-lg border-2 border-black"
               onClick={e => e.stopPropagation()}
             >
               <button

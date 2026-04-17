@@ -121,7 +121,7 @@ export default function RoadmapPage() {
               onDragOver={(e) => e.preventDefault()}
             >
               <div
-                className="flex items-center justify-between px-6 py-4 border-2 border-[#1a1a1a] rounded-2xl shadow-[0_4px_0_0_#1a1a1a]"
+                className="flex items-center justify-between px-6 py-4 border-2 border-[#1a1a1a] rounded-xl shadow-[0_4px_0_0_#1a1a1a]"
                 style={{ backgroundColor: col.color }}
               >
                 <span className="text-[11px] md:text-[12px] font-black uppercase tracking-widest">{col.label}</span>
@@ -139,7 +139,7 @@ export default function RoadmapPage() {
                       draggable={false}
                       onDragStart={(e) => e.preventDefault()}
                       onClick={() => setSelectedTask(task)}
-                      className="bg-white border-2 border-[#1a1a1a] rounded-2xl shadow-[0_5px_0_0_#1a1a1a] p-6 flex flex-col gap-4 group select-none cursor-pointer hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#1a1a1a] transition-all"
+                      className="bg-white border-2 border-[#1a1a1a] rounded-xl shadow-[0_5px_0_0_#1a1a1a] p-6 flex flex-col gap-4 group select-none cursor-pointer hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#1a1a1a] transition-all"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <h3 className="text-sm md:text-base font-black uppercase leading-tight break-words">{task.title}</h3>
@@ -171,7 +171,7 @@ export default function RoadmapPage() {
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => !submitting && setIsModalOpen(false)} />
-            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="relative w-full md:max-w-xl bg-white border-t-4 md:border-4 border-[#1a1a1a] p-8 md:p-12 shadow-none md:shadow-[0_12px_0_0_#1a1a1a] md:rounded-3xl pointer-events-auto">
+            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="relative w-full md:max-w-xl bg-white border-t-4 md:border-4 border-[#1a1a1a] p-8 md:p-12 shadow-none md:shadow-[0_12px_0_0_#1a1a1a] md:rounded-xl pointer-events-auto">
               {submitted ? (
                 <div className="flex flex-col items-center text-center py-10">
                   <div className="w-20 h-20 bg-[#97cd7a] border-4 border-[#1a1a1a] flex items-center justify-center mb-8 shadow-[0_6px_0_0_#1a1a1a]">
@@ -219,12 +219,12 @@ export default function RoadmapPage() {
                 initial={{ y: 20, opacity: 0 }} 
                 animate={{ y: 0, opacity: 1 }} 
                 exit={{ y: 20, opacity: 0 }} 
-                className="relative w-full max-w-xl bg-white border-4 border-[#1a1a1a] p-6 md:p-8 shadow-[0_12px_0_0_#1a1a1a] rounded-3xl pointer-events-auto flex flex-col max-h-[85vh]"
+                className="relative w-full max-w-xl bg-white border-4 border-[#1a1a1a] p-6 md:p-8 shadow-[0_12px_0_0_#1a1a1a] rounded-xl pointer-events-auto flex flex-col max-h-[85vh]"
               >
                 <div className="flex justify-between items-start mb-6 gap-4">
                   <div className="flex flex-col gap-3 min-w-0">
                     <span 
-                        className="text-[9px] uppercase font-black tracking-widest px-2.5 py-1.5 border-2 border-[#1a1a1a] rounded-lg w-fit shadow-[0_2px_0_0_#1a1a1a]" 
+                        className="text-[9px] uppercase font-black tracking-widest px-2.5 py-1.5 border-2 border-[#1a1a1a] rounded-xl w-fit shadow-[0_2px_0_0_#1a1a1a]" 
                         style={{ backgroundColor: COLUMNS.find(c => c.id === selectedTask.status)?.color || '#eee' }}
                     >
                         {COLUMNS.find(c => c.id === selectedTask.status)?.label}

@@ -238,7 +238,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
               initial={{ opacity: 0, y: 15, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 15, scale: 0.95 }}
-              className="absolute bottom-[calc(100%+8px)] left-4 right-4 bg-white border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#121212] rounded-2xl overflow-hidden z-[100] flex flex-col"
+              className="absolute bottom-[calc(100%+8px)] left-4 right-4 bg-white border-2 border-[#1a1a1a] shadow-[0_8px_0_0_#121212] rounded-xl overflow-hidden z-[100] flex flex-col"
             >
               <div className="bg-[#fef08a] py-3 px-5 border-b-2 border-[#1a1a1a]">
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1a1a1a]">Menu de Conta</span>
@@ -293,7 +293,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
         {/* Account Bottom Block (Trigger) Area */}
         <button
           onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
-          className={`w-full flex items-center justify-between p-2.5 bg-[#fdfcf0] border-2 border-[#1a1a1a] rounded-lg shadow-[0_3px_0_0_#1a1a1a] hover:-translate-y-[0.5px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-0.5 active:shadow-none transition-all group ${isAccountMenuOpen ? 'translate-y-0.5 shadow-none bg-f8f8f8' : ''}`}
+          className={`w-full flex items-center justify-between p-2.5 bg-[#fdfcf0] border-2 border-[#1a1a1a] rounded-xl shadow-[0_3px_0_0_#1a1a1a] hover:-translate-y-[0.5px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-0.5 active:shadow-none transition-all group ${isAccountMenuOpen ? 'translate-y-0.5 shadow-none bg-f8f8f8' : ''}`}
         >
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="w-9 h-9 rounded-full border-2 border-[#1a1a1a] overflow-hidden bg-slate-50 shrink-0 shadow-[0_1.5px_0_0_#1a1a1a]">

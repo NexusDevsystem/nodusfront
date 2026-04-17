@@ -62,7 +62,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
     const finalStatusLabel = statusLabel || t('common.inTests');
 
     return (
-        <div className={`relative border-2 border-[#1a1a1a] bg-white transition-all shadow-[0_4px_0_0_#1a1a1a] overflow-hidden rounded-md ${!isAvailable ? 'opacity-60 grayscale' : ''}`}>
+        <div className={`relative border-2 border-[#1a1a1a] bg-white transition-all shadow-[0_4px_0_0_#1a1a1a] overflow-hidden rounded-xl ${!isAvailable ? 'opacity-60 grayscale' : ''}`}>
             {!isAvailable && (
                 <div className="absolute top-0 right-0 z-20">
                     <div className="bg-black text-[#ffdf00] text-[8px] font-medium uppercase tracking-[0.2em] px-2 py-0.5 border-b-2 border-l-2 border-[#1a1a1a] flex items-center gap-1">
@@ -73,7 +73,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
 
             <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className={`p-2 border-2 border-[#1a1a1a] bg-white shadow-[0_2px_0_0_#1a1a1a] shrink-0 rounded-md`} style={{ color: isAvailable ? color : "#ccc" }}>
+                    <div className={`p-2 border-2 border-[#1a1a1a] bg-white shadow-[0_2px_0_0_#1a1a1a] shrink-0 rounded-xl`} style={{ color: isAvailable ? color : "#ccc" }}>
                         <Icon size={24} />
                     </div>
                     <div className="min-w-0 pr-4">
@@ -90,7 +90,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:shrink-0 w-full sm:w-auto mt-2 sm:mt-0 flex-1 justify-end">
                     {notice && (
-                        <div className="p-2 bg-yellow-50 border-2 border-[#1a1a1a] flex items-start sm:items-center gap-2 w-full sm:max-w-[320px] shrink-0 mr-auto rounded-md">
+                        <div className="p-2 bg-yellow-50 border-2 border-[#1a1a1a] flex items-start sm:items-center gap-2 w-full sm:max-w-[320px] shrink-0 mr-auto rounded-xl">
                             <AlertCircle size={14} className="text-yellow-600 shrink-0" strokeWidth={3} />
                             <p className="text-[8px] font-bold text-yellow-800 uppercase tracking-widest leading-normal">
                                 {notice}
@@ -99,7 +99,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                     )}
                     <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
                         {isConnected && profileData && (
-                            <div className="flex items-center gap-2 p-1.5 pr-3 bg-slate-50 border border-[#1a1a1a]/10 shrink-0 rounded-md">
+                            <div className="flex items-center gap-2 p-1.5 pr-3 bg-slate-50 border border-[#1a1a1a]/10 shrink-0 rounded-xl">
                                 <div className="w-8 h-8 rounded-full border border-[#1a1a1a] overflow-hidden bg-white shrink-0">
                                     <img src={profileData.avatar_url || profileData.picture || profileData.profile_picture_url || profileData.profile_pic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`}
                                         alt=""
@@ -122,7 +122,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                                     <div className="flex flex-col gap-1 w-full">
                                         <button
                                             onClick={() => setShowConfirm(!showConfirm)}
-                                            className="w-full py-2 bg-white hover:bg-red-50 text-red-600 border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none rounded-md"
+                                            className="w-full py-2 bg-white hover:bg-red-50 text-red-600 border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none rounded-xl"
                                         >
                                             {showConfirm ? t('common.cancelCaps') : t('common.disconnect')}
                                         </button>
@@ -135,7 +135,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                                                     exit={{ height: 0, opacity: 0 }}
                                                     onClick={onDisconnect}
                                                     disabled={isLoading}
-                                                    className="w-full py-2 bg-red-600 text-white border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] hover:bg-red-700 disabled:opacity-50 rounded-md"
+                                                    className="w-full py-2 bg-red-600 text-white border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-widest transition-all shadow-[0_2px_0_0_#1a1a1a] hover:bg-red-700 disabled:opacity-50 rounded-xl"
                                                 >
                                                     {isLoading ? <Loader2 size={12} className="animate-spin mx-auto" strokeWidth={3} /> : t('common.confirmDisconnect')}
                                                 </motion.button>
@@ -146,7 +146,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                                     <button
                                         onClick={onConnect}
                                         disabled={isLoading}
-                                        className="w-full py-2.5 bg-[#97cd7a] hover:bg-[#86b96b] text-black border-2 border-[#1a1a1a] text-[10px] font-bold uppercase tracking-[0.15em] transition-all shadow-[0_3px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none flex items-center justify-center gap-2 rounded-md"
+                                        className="w-full py-2.5 bg-[#97cd7a] hover:bg-[#86b96b] text-black border-2 border-[#1a1a1a] text-[10px] font-bold uppercase tracking-[0.15em] transition-all shadow-[0_3px_0_0_#1a1a1a] active:translate-y-[2px] active:shadow-none flex items-center justify-center gap-2 rounded-xl"
                                     >
                                         {isLoading ? <Loader2 size={14} className="animate-spin" strokeWidth={3} /> : (
                                             <>
@@ -156,7 +156,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
                                     </button>
                                 )
                             ) : (
-                                <div className="flex items-center justify-center py-2 px-4 bg-slate-100 border border-slate-200 text-slate-400 text-[10px] font-bold uppercase tracking-widest w-full rounded-md">
+                                <div className="flex items-center justify-center py-2 px-4 bg-slate-100 border border-slate-200 text-slate-400 text-[10px] font-bold uppercase tracking-widest w-full rounded-xl">
                                     {t('common.blocked')}
                                 </div>
                             )}

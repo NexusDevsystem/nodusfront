@@ -568,11 +568,11 @@ function SortableLinkItem({
                         : isCollection
                             ? 'border-[#fef08a] shadow-[0_4px_0_0_#d9c84a] bg-[#fef08a]'
                             : 'border-[#97cd7a] shadow-[0_4px_0_0_#76a45f] bg-[#97cd7a]'
-                    } rounded-md ${(!isExpanded && !isCollectionExpanded) ? 'mb-3' : ''} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
-                whileDrag={{ zIndex: 50, borderRadius: '6px' }}
+                    } rounded-xl ${(!isExpanded && !isCollectionExpanded) ? 'mb-3' : ''} select-none ${(!isExpanded && !isCollectionExpanded) ? 'cursor-target' : ''}`}
+                whileDrag={{ zIndex: 50, borderRadius: '12px' }}
                 style={{ willChange: 'transform' }}
             >
-                <div className={`transition-all duration-300 rounded-[6px] overflow-hidden ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${isIncomplete && link.type === 'link' && !link.isArchived
+                <div className={`transition-all duration-300 rounded-[12px] overflow-hidden ${level === 0 && isAnyExpanded && !isExpanded && !isCollectionExpanded ? 'opacity-40' : 'opacity-100'} ${isIncomplete && link.type === 'link' && !link.isArchived
                         ? 'bg-red-500'
                         : isCollection ? 'bg-[#fef08a]' : 'bg-[#97cd7a]'
                     }`}>
@@ -597,7 +597,7 @@ function SortableLinkItem({
                                                 <div className="flex-1 font-bold text-black uppercase tracking-[0.1em] text-sm md:text-base truncate leading-tight">
                                                     {link.title || t('links.collectionUnnamed')}
                                                 </div>
-                                                <div className="shrink-0 flex items-center gap-1.5 px-2 py-0.5 bg-black text-[#fef08a] border-2 border-black text-[8px] font-black uppercase tracking-widest shadow-[0_2px_0_0_#000] italic">
+                                                <div className="shrink-0 flex items-center gap-1.5 px-2 py-0.5 bg-black text-[#fef08a] border-2 border-black text-[8px] font-black uppercase tracking-widest shadow-[0_2px_0_0_#000] italic rounded-xl">
                                                     <FolderHeart size={10} strokeWidth={3} />
                                                     {isPT ? 'Coleção' : 'Collection'}
                                                 </div>
@@ -649,7 +649,7 @@ function SortableLinkItem({
                                             </button>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(!showDeleteConfirm); }}
-                                                className={`p-1.5 transition-all rounded-md hover:bg-red-50 ${showDeleteConfirm ? 'text-red-600' : 'text-red-500 hover:text-red-600'}`}
+                                                className={`p-1.5 transition-all rounded-xl hover:bg-red-50 ${showDeleteConfirm ? 'text-red-600' : 'text-red-500 hover:text-red-600'}`}
                                             >
                                                 <Trash2 size={isMobile ? 18 : 20} strokeWidth={2.5} />
                                             </button>
@@ -691,7 +691,7 @@ function SortableLinkItem({
                                                         type="text"
                                                         value={link.title}
                                                         onChange={(e) => updateLink(link.id, 'title', e.target.value)}
-                                                        className="w-full font-medium text-sm text-black bg-white border-2 border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[0_2.5px_0_0_#000]"
+                                                        className="w-full font-medium text-sm text-black bg-white border-2 border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 shadow-[0_2.5px_0_0_#000] rounded-xl"
                                                         placeholder={t('links.collectionNamePlaceholder')}
                                                     />
                                                 </div>
@@ -709,10 +709,10 @@ function SortableLinkItem({
                                                                 <button
                                                                     key={opt.id}
                                                                     onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                    className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black rounded-md transition-all ${isActive ? 'bg-[#ffdf00] shadow-none translate-y-[2px]' : 'bg-white hover:bg-[#f8f8f8] hover:translate-y-[1px] hover:shadow-[0_1.5px_0_0_#000] shadow-[0_2.5px_0_0_#000]'}`}
+                                                                    className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black rounded-xl transition-all ${isActive ? 'bg-[#ffdf00] shadow-none translate-y-[2px]' : 'bg-white hover:bg-[#f8f8f8] hover:translate-y-[1px] hover:shadow-[0_1.5px_0_0_#000] shadow-[0_2.5px_0_0_#000]'}`}
                                                                 >
                                                                     {isActive && (
-                                                                        <div className="absolute top-1 right-1 w-4 h-4 bg-black flex items-center justify-center border border-black rounded-md z-10 shadow-[0_1px_0_0_rgba(255,255,255,0.2)]">
+                                                                        <div className="absolute top-1 right-1 w-4 h-4 bg-black flex items-center justify-center border border-black rounded-xl z-10 shadow-[0_1px_0_0_rgba(255,255,255,0.2)]">
                                                                             <Check size={10} strokeWidth={2.5} className="text-[#ffdf00]" />
                                                                         </div>
                                                                     )}
@@ -1006,7 +1006,7 @@ function SortableLinkItem({
                                                                                     <button
                                                                                         key={opt.id}
                                                                                         onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                                        className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black rounded-md transition-all ${isActive ? 'bg-[#ffdf00] shadow-[0_2.5px_0_0_#000] -translate-y-0.5' : 'bg-white hover:bg-[#f8f8f8] shadow-[0_2.5px_0_0_#000]'}`}
+                                                                                        className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black rounded-xl transition-all ${isActive ? 'bg-[#ffdf00] shadow-[0_2.5px_0_0_#000] -translate-y-0.5' : 'bg-white hover:bg-[#f8f8f8] shadow-[0_2.5px_0_0_#000]'}`}
                                                                                     >
                                                                                         {isActive && (
                                                                                             <div className="absolute top-1.5 right-1.5 w-4 h-4 bg-black flex items-center justify-center border-2 border-black rounded-full z-10">
@@ -1067,7 +1067,7 @@ function SortableLinkItem({
                                                                         <button
                                                                             key={opt.id}
                                                                             onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                            className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-md transition-all ${isActive ? 'bg-[#97cd7a] shadow-[0_6px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-y-0.5 shadow-[0_4px_0_0_#1a1a1a]'}`}
+                                                                            className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-xl transition-all ${isActive ? 'bg-[#97cd7a] shadow-[0_6px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-y-0.5 shadow-[0_4px_0_0_#1a1a1a]'}`}
                                                                         >
                                                                             {isActive && (
                                                                                 <div className="absolute top-1 right-1 w-4 h-4 bg-[#97cd7a] flex items-center justify-center border border-[#1a1a1a] z-10 shadow-[0_1px_0_0_rgba(255,255,255,1)]">
@@ -1217,13 +1217,13 @@ function SortableLinkItem({
                                                     <div className="space-y-4">
                                                         <div className="flex items-center justify-between">
                                                             <div className="flex items-center gap-2">
-                                                                <div className="p-1 px-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-md">
+                                                                <div className="p-1 px-1.5 bg-[#ffdf00] border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-xl">
                                                                     <Zap size={10} strokeWidth={3} className="text-black" />
                                                                 </div>
                                                                 <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em]">{t('links.animations')} (PRO)</label>
                                                             </div>
                                                             {(!profile.plan_type || profile.plan_type === 'free') && (
-                                                                <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-md">
+                                                                <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-xl">
                                                                     <motion.div
                                                                         animate={{ x: ['-200%', '200%'] }}
                                                                         transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
@@ -1234,7 +1234,7 @@ function SortableLinkItem({
                                                             )}
                                                         </div>
 
-                                                        <div className={`flex bg-slate-100 p-1.5 rounded-md border-2 border-[#1a1a1a]/5 gap-1.5 overflow-visible ${(!profile.plan_type || profile.plan_type === 'free') ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
+                                                        <div className={`flex bg-slate-100 p-1.5 rounded-xl border-2 border-[#1a1a1a]/5 gap-1.5 overflow-visible ${(!profile.plan_type || profile.plan_type === 'free') ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
                                                             {[
                                                                 { id: 'soft', label: t('links.categorySoft').includes('links.') ? 'Suave' : t('links.categorySoft') },
                                                                 { id: 'dynamic', label: t('links.categoryDynamic').includes('links.') ? 'Energia' : t('links.categoryDynamic') },
@@ -1243,7 +1243,7 @@ function SortableLinkItem({
                                                                 <button
                                                                     key={cat.id}
                                                                     onClick={() => setAnimCategory(cat.id)}
-                                                                    className={`flex-1 py-2 text-[8px] font-bold uppercase tracking-widest transition-all rounded-md border-2 relative ${animCategory === cat.id ? 'bg-[#ffdf00] text-black border-black shadow-[0_2px_0_0_#1a1a1a] z-10' : 'bg-transparent text-black/40 border-transparent hover:text-black z-0'}`}
+                                                                    className={`flex-1 py-2 text-[8px] font-bold uppercase tracking-widest transition-all rounded-xl border-2 relative ${animCategory === cat.id ? 'bg-[#ffdf00] text-black border-black shadow-[0_2px_0_0_#1a1a1a] z-10' : 'bg-transparent text-black/40 border-transparent hover:text-black z-0'}`}
                                                                 >
                                                                     {cat.label}
                                                                 </button>
@@ -1286,7 +1286,7 @@ function SortableLinkItem({
                                                                             if (anim.id !== 'none' && (!profile.plan_type || profile.plan_type === 'free')) return;
                                                                             updateLink(link.id, 'highlight', anim.id as any);
                                                                         }}
-                                                                        className={`flex flex-col items-center justify-center gap-2 px-2 py-3 rounded-md border-2 transition-all duration-200 group relative
+                                                                        className={`flex flex-col items-center justify-center gap-2 px-2 py-3 rounded-xl border-2 transition-all duration-200 group relative
                                                                             ${isSelected
                                                                                 ? 'bg-[#ffdf00] border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] translate-y-[-1px]'
                                                                                 : 'bg-white border-[#1a1a1a]/10 hover:border-[#1a1a1a] hover:shadow-[0_3px_0_0_#1a1a1a] text-black/40 hover:text-black hover:translate-y-[-1px]'}`}
@@ -1315,7 +1315,7 @@ function SortableLinkItem({
                                                                 <div className="flex items-center justify-between">
                                                                     <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('links.schedule')} (PRO)</label>
                                                                     {(!profile.plan_type || profile.plan_type === 'free') && (
-                                                                        <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-md">
+                                                                        <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-xl">
                                                                             <motion.div
                                                                                 animate={{ x: ['-200%', '200%'] }}
                                                                                 transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
@@ -1325,21 +1325,21 @@ function SortableLinkItem({
                                                                         </span>
                                                                     )}
                                                                 </div>
-                                                                <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-md ${(!profile.plan_type || profile.plan_type === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
+                                                                <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-xl ${(!profile.plan_type || profile.plan_type === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
                                                                     <div className="grid grid-cols-1 gap-4">
                                                                         <div className="space-y-1.5">
                                                                             <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-black">
                                                                                 <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm ${(link.scheduleStart && new Date(link.scheduleStart) > new Date()) ? 'bg-[#97cd7a]' : 'bg-white'}`}></div>
                                                                                 {t('links.scheduleStart')}
                                                                             </div>
-                                                                            <input type="datetime-local" value={link.scheduleStart ? new Date(new Date(link.scheduleStart).getTime() - new Date(link.scheduleStart).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleStart', date); }} disabled={!profile.plan_type || profile.plan_type === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md" />
+                                                                            <input type="datetime-local" value={link.scheduleStart ? new Date(new Date(link.scheduleStart).getTime() - new Date(link.scheduleStart).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleStart', date); }} disabled={!profile.plan_type || profile.plan_type === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl" />
                                                                         </div>
                                                                         <div className="space-y-1.5">
                                                                             <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-black">
                                                                                 <div className={`w-2.5 h-2.5 border-2 border-[#1a1a1a] shadow-[0_1.5px_0_0_#1a1a1a] rounded-sm ${(link.scheduleEnd && new Date(link.scheduleEnd) < new Date()) ? 'bg-red-500' : 'bg-white'}`}></div>
                                                                                 {t('links.scheduleEnd')}
                                                                             </div>
-                                                                            <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.plan_type || profile.plan_type === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md" />
+                                                                            <input type="datetime-local" value={link.scheduleEnd ? new Date(new Date(link.scheduleEnd).getTime() - new Date(link.scheduleEnd).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''} onChange={(e) => { const date = e.target.value ? new Date(e.target.value).toISOString() : null; updateLink(link.id, 'scheduleEnd', date); }} disabled={!profile.plan_type || profile.plan_type === 'free'} className="w-full text-[10px] font-bold uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl" />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1354,7 +1354,7 @@ function SortableLinkItem({
                                                                 <div className="flex items-center justify-between">
                                                                     <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">{t('passwordLink.toggle') || 'Proteger com Senha'} (PRO)</label>
                                                                     {(!profile.plan_type || profile.plan_type === 'free') && (
-                                                                        <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-md">
+                                                                        <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-xl">
                                                                             <motion.div
                                                                                 animate={{ x: ['-200%', '200%'] }}
                                                                                 transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
@@ -1364,7 +1364,7 @@ function SortableLinkItem({
                                                                         </span>
                                                                     )}
                                                                 </div>
-                                                                <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-md ${(!profile.plan_type || profile.plan_type === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
+                                                                <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-xl ${(!profile.plan_type || profile.plan_type === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
                                                                     <div className="flex items-center gap-3 mb-4">
                                                                         <button
                                                                             type="button"
@@ -1383,7 +1383,7 @@ function SortableLinkItem({
                                                                             value={(link as any).linkPassword || ''}
                                                                             onChange={e => updateLink(link.id, 'linkPassword' as any, e.target.value)}
                                                                             placeholder={t('passwordLink.placeholder') || 'Digite a senha...'}
-                                                                            className="w-full text-[10px] font-medium uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md"
+                                                                            className="w-full text-[10px] font-medium uppercase tracking-widest text-black bg-white border-2 border-[#1a1a1a] px-2 py-1.5 focus:bg-[#ffdf00] outline-none transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-xl"
                                                                             autoComplete="new-password"
                                                                         />
                                                                     )}
@@ -1396,7 +1396,7 @@ function SortableLinkItem({
                                                                 <div className="flex items-center justify-between">
                                                                     <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] px-1 bg-gradient-to-r from-[#ffdf00]/20 to-transparent">Contagem Regressiva (PRO)</label>
                                                                     {(!profile.plan_type || profile.plan_type === 'free') && (
-                                                                        <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-md">
+                                                                        <span className="px-2 py-0.5 bg-gradient-to-r from-[#ffdf00] to-[#ffd700] text-black border-2 border-[#1a1a1a] text-[9px] font-bold uppercase tracking-tight shadow-[0_2px_0_0_#1a1a1a] relative overflow-hidden rounded-xl">
                                                                             <motion.div
                                                                                 animate={{ x: ['-200%', '200%'] }}
                                                                                 transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
@@ -1406,7 +1406,7 @@ function SortableLinkItem({
                                                                         </span>
                                                                     )}
                                                                 </div>
-                                                                <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-md ${(!profile.plan_type || profile.plan_type === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
+                                                                <div className={`p-4 border-2 shadow-[0_4px_0_0_#1a1a1a] rounded-xl ${(!profile.plan_type || profile.plan_type === 'free') ? 'bg-slate-100 border-[#1a1a1a] opacity-60 pointer-events-none grayscale' : 'bg-white border-[#1a1a1a]'}`}>
                                                                     <div className="flex items-center gap-3">
                                                                         <button
                                                                             type="button"
@@ -1459,10 +1459,10 @@ function SortableLinkItem({
                                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                className="relative bg-white border-4 border-black p-8 rounded-md shadow-[0_12px_0_0_#000] max-w-sm w-full"
+                                className="relative bg-white border-4 border-black p-8 rounded-xl shadow-[0_12px_0_0_#000] max-w-sm w-full"
                             >
                                 <div className="flex flex-col items-center text-center gap-6">
-                                    <div className="w-16 h-16 bg-red-100 border-2 border-black rounded-md flex items-center justify-center shadow-[4px_4px_0_0_#000]">
+                                    <div className="w-16 h-16 bg-red-100 border-2 border-black rounded-xl flex items-center justify-center shadow-[4px_4px_0_0_#000]">
                                         <Trash2 size={32} className="text-red-600" strokeWidth={3} />
                                     </div>
 

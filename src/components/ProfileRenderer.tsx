@@ -843,14 +843,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         : profile.buttonRoundness;
 
     const roundedClass = effectiveRoundness === 'square' ? 'rounded-none' :
-        effectiveRoundness === 'round' ? 'rounded-md' :
-            effectiveRoundness === 'rounder' ? 'rounded-sm' :
+        effectiveRoundness === 'round' ? 'rounded-lg' :
+            effectiveRoundness === 'rounder' ? 'rounded-xl' :
                 effectiveRoundness === 'full' ? 'rounded-full' :
                     (currentTheme.buttonClass.match(/rounded-[^\s]+(?=\s|$)/g)?.join(' ') || null);
 
     const borderRadiusValue = effectiveRoundness === 'square' ? 0 :
-        effectiveRoundness === 'round' ? 12 :
-            effectiveRoundness === 'rounder' ? 24 :
+        effectiveRoundness === 'round' ? 8 :
+            effectiveRoundness === 'rounder' ? 12 :
                 effectiveRoundness === 'full' ? 40 :
                     undefined; // Let theme CSS handle it
 
@@ -1193,7 +1193,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     whileTap={{ scale: 0.95 }}
                                     transition={{ type: "spring", damping: 20, stiffness: 300 }}
                                     className="h-10 flex items-center bg-white/50 rounded-full shadow-md overflow-hidden cursor-pointer group whitespace-nowrap border border-white/20 pointer-events-auto z-[50] cursor-target relative isolate"
-                                    style={{ display: 'flex', position: 'relative' }}
+                                    style={{ display: 'flex', position: 'relative', fontFamily: "'Inter', sans-serif" }}
                                 >
                                     <div className="w-10 h-10 flex items-center justify-center shrink-0 p-[6px]">
                                         <video
@@ -1208,6 +1208,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     <motion.span
                                         animate={{ opacity: isAutoExpanded ? 1 : 0 }}
                                         className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-900 pr-6 group-hover:opacity-100 transition-opacity duration-300 flex-1 text-center h-full flex items-center justify-center relative"
+                                        style={{ fontFamily: "'Inter', sans-serif" }}
                                     >
                                         <AnimatePresence mode="wait">
                                             <motion.span
@@ -1217,6 +1218,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 exit={{ y: -10, opacity: 0 }}
                                                 transition={{ duration: 0.5, ease: "easeInOut" }}
                                                 className="absolute inset-0 flex items-center justify-center pr-6"
+                                                style={{ fontFamily: "'Inter', sans-serif" }}
                                             >
                                                 {brandingIndex === 0 ? 'Crie seu nodus' : 'Create your nodus'}
                                             </motion.span>
@@ -3397,7 +3399,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             </InteractiveButton>
                         )}
 
-                        <div className="mt-auto mb-2 flex flex-col items-center w-full px-4 text-center gap-1 relative z-30 shrink-0">
+                        <div className="mt-auto mb-2 flex flex-col items-center w-full px-4 text-center gap-1 relative z-30 shrink-0" style={{ fontFamily: "'Inter', sans-serif" }}>
                             {(profile.plan_type === 'free' || !profile.plan_type || !profile.hideBranding) && (
                                 <div className="flex flex-col items-center gap-0.5">
                                     <span style={{
@@ -3433,11 +3435,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 </div>
                             )}
 
-                            <div className="flex items-center gap-2">
-                                <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: effectiveCollectionTextColor || '#111827', opacity: 0.4, fontSize: '8px', textTransform: 'uppercase', textDecoration: 'none', letterSpacing: '0.15em', fontWeight: 300 }}>Termos</a>
-                                <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: effectiveCollectionTextColor || '#111827', opacity: 0.4, fontSize: '8px', textTransform: 'uppercase', textDecoration: 'none', letterSpacing: '0.15em', fontWeight: 300 }}>Privacidade</a>
+                            <div className="flex items-center gap-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+                                <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: effectiveCollectionTextColor || '#111827', opacity: 0.4, fontSize: '8px', textTransform: 'uppercase', textDecoration: 'none', letterSpacing: '0.15em', fontWeight: 300, fontFamily: "'Inter', sans-serif" }}>Termos</a>
+                                <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: effectiveCollectionTextColor || '#111827', opacity: 0.4, fontSize: '8px', textTransform: 'uppercase', textDecoration: 'none', letterSpacing: '0.15em', fontWeight: 300, fontFamily: "'Inter', sans-serif" }}>Privacidade</a>
                             </div>
                         </div>
+                        {/* Spacer for Mobile Navbar in Preview */}
+                        {isPreview && <div className="h-24 md:h-0 shrink-0 pointer-events-none" />}
                     </div>
                 </div>
             </div>

@@ -165,7 +165,7 @@ export default function AnnouncementsAdminView() {
                         targetUserEmail: '',
                         isActive: true
                     })}
-                    className="flex items-center justify-center gap-3 bg-black text-[#ffdf00] border-2 border-black rounded-md px-6 sm:px-10 py-4 sm:py-5 font-black uppercase text-xs sm:text-sm shadow-[0_6px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all group w-full sm:w-auto"
+                    className="flex items-center justify-center gap-3 bg-black text-[#ffdf00] border-2 border-black rounded-lg px-6 sm:px-10 py-4 sm:py-5 font-black uppercase text-xs sm:text-sm shadow-[0_6px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_4px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all group w-full sm:w-auto"
                 >
                     <Plus size={20} />
                     Criar Anúncio
@@ -174,7 +174,7 @@ export default function AnnouncementsAdminView() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {announcements.length === 0 ? (
-                    <div className="md:col-span-2 border-2 border-black border-dashed rounded-[40px] p-24 text-center bg-slate-50/50">
+                    <div className="md:col-span-2 border-2 border-black border-dashed rounded-xl p-24 text-center bg-slate-50/50">
                         <Megaphone size={48} className="mx-auto text-black/10 mb-4" />
                         <h3 className="text-xl font-black text-black/20 uppercase tracking-widest">
                             Nenhum anúncio criado
@@ -190,7 +190,7 @@ export default function AnnouncementsAdminView() {
                                 <div className="h-40 border-b-2 border-black bg-slate-100 overflow-hidden relative">
                                     <img src={ann.imageUrl} className="w-full h-full object-cover" alt="" />
                                     {(ann.imageUrls?.length || 0) > 1 && (
-                                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-[8px] font-black px-2 py-1 rounded-sm uppercase italic">
+                                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-[8px] font-black px-2 py-1 rounded-xl uppercase italic">
                                             +{ann.imageUrls!.length - 1} IMAGENS
                                         </div>
                                     )}
@@ -198,11 +198,11 @@ export default function AnnouncementsAdminView() {
                             )}
                             <div className="p-8 flex-1 flex flex-col gap-4">
                                 <div className="flex items-center gap-3">
-                                    <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-full border-2 border-black ${ann.isActive ? 'bg-[#97cd7a]' : 'bg-slate-200'}`}>
+                                    <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-xl border-2 border-black ${ann.isActive ? 'bg-[#97cd7a]' : 'bg-slate-200'}`}>
                                         {ann.isActive ? 'Ativo' : 'Rascunho'}
                                     </span>
                                     {ann.blogPostId && (
-                                        <span className="text-[9px] font-black uppercase px-3 py-1 rounded-full border-2 border-black bg-blue-100">
+                                        <span className="text-[9px] font-black uppercase px-3 py-1 rounded-xl border-2 border-black bg-blue-100">
                                             Link Blog
                                         </span>
                                     )}
@@ -214,20 +214,20 @@ export default function AnnouncementsAdminView() {
                                     <div className="flex items-center gap-2">
                                         <button 
                                             onClick={() => setEditingAnnouncement(ann)}
-                                            className="p-3 bg-white border-2 border-black rounded-xl hover:bg-slate-50 shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all"
+                                            className="p-3 bg-white border-2 border-black rounded-lg hover:bg-slate-50 shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all"
                                         >
                                             <Edit2 size={18} />
                                         </button>
                                         <button 
                                             onClick={() => handleDelete(ann.id)}
-                                            className="p-3 bg-red-50 text-red-500 border-2 border-black rounded-xl hover:bg-red-100 shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all"
+                                            className="p-3 bg-red-50 text-red-500 border-2 border-black rounded-lg hover:bg-red-100 shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all"
                                         >
                                             <Trash2 size={18} />
                                         </button>
                                     </div>
                                     <button 
                                         onClick={() => handleToggleStatus(ann)}
-                                        className={`px-6 py-3 border-2 border-black rounded-xl font-black uppercase text-[10px] tracking-widest shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all ${ann.isActive ? 'bg-[#ffdf00]' : 'bg-[#97cd7a]'}`}
+                                        className={`px-6 py-3 border-2 border-black rounded-lg font-black uppercase text-[10px] tracking-widest shadow-[0_4px_0_0_#000] active:translate-y-[2px] active:shadow-none transition-all ${ann.isActive ? 'bg-[#ffdf00]' : 'bg-[#97cd7a]'}`}
                                     >
                                         {ann.isActive ? 'Desativar' : 'Ativar'}
                                     </button>
@@ -254,7 +254,7 @@ export default function AnnouncementsAdminView() {
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                className="relative w-full max-w-xl bg-white border-2 border-black rounded-lg shadow-[0_12px_0_0_#000] overflow-hidden flex flex-col max-h-[90vh]"
+                                className="relative w-full max-w-xl bg-white border-2 border-black rounded-xl shadow-[0_12px_0_0_#000] overflow-hidden flex flex-col max-h-[90vh]"
                             >
                                 <div className="px-8 py-5 border-b-2 border-black flex items-center justify-between bg-white shrink-0">
                                     <div className="flex items-center gap-3">
@@ -265,7 +265,7 @@ export default function AnnouncementsAdminView() {
                                     </div>
                                     <button 
                                         onClick={() => setEditingAnnouncement(null)} 
-                                        className="w-10 h-10 flex items-center justify-center border-2 border-black hover:bg-black hover:text-white transition-all rounded-sm shadow-[0_3px_0_0_#000] active:translate-y-[2px] active:shadow-none"
+                                        className="w-10 h-10 flex items-center justify-center border-2 border-black hover:bg-black hover:text-white transition-all rounded-lg shadow-[0_3px_0_0_#000] active:translate-y-[2px] active:shadow-none"
                                     >
                                         <X size={20} strokeWidth={4} />
                                     </button>
@@ -278,16 +278,16 @@ export default function AnnouncementsAdminView() {
                                         
                                         <div className="grid grid-cols-3 gap-3">
                                             {editingAnnouncement.imageUrls?.map((url, idx) => (
-                                                <div key={idx} className="relative aspect-video border-2 border-black rounded-lg overflow-hidden group">
+                                                <div key={idx} className="relative aspect-video border-2 border-black rounded-xl overflow-hidden group">
                                                     <img src={url} className="w-full h-full object-cover" />
                                                     <button 
                                                         onClick={() => removeImage(idx)}
-                                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
                                                     >
                                                         <X size={12} strokeWidth={4} />
                                                     </button>
                                                     {idx === 0 && (
-                                                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[6px] font-black uppercase py-0.5 text-center">
+                                                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[6px] font-black uppercase py-0.5 text-center rounded-xl">
                                                             Capa
                                                         </div>
                                                     )}
@@ -297,7 +297,7 @@ export default function AnnouncementsAdminView() {
                                             <button 
                                                 onClick={() => document.getElementById('ann-upload')?.click()}
                                                 disabled={isUploading}
-                                                className="aspect-video border-2 border-black border-dashed rounded-lg flex flex-col items-center justify-center bg-white hover:bg-slate-50 transition-all cursor-pointer"
+                                                className="aspect-video border-2 border-black border-dashed rounded-xl flex flex-col items-center justify-center bg-white hover:bg-slate-50 transition-all cursor-pointer"
                                             >
                                                 {isUploading ? (
                                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
@@ -390,7 +390,7 @@ export default function AnnouncementsAdminView() {
                                             type="checkbox"
                                             checked={editingAnnouncement.isActive}
                                             onChange={e => setEditingAnnouncement({ ...editingAnnouncement, isActive: e.target.checked })}
-                                            className="w-5 h-5 border-2 border-black rounded-md accent-black"
+                                            className="w-5 h-5 border-2 border-black rounded-xl accent-black"
                                         />
                                         <div>
                                             <span className="font-black uppercase text-xs block">Publicar Imediatamente</span>
@@ -402,7 +402,7 @@ export default function AnnouncementsAdminView() {
                                     <button 
                                         onClick={handleSave}
                                         disabled={isSaving || !editingAnnouncement.title || !editingAnnouncement.content}
-                                        className="flex-1 py-4 bg-black text-[#ffdf00] border-2 border-black rounded-xl font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_5px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_3px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex-1 py-4 bg-black text-[#ffdf00] border-2 border-black rounded-lg font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_5px_0_0_#000] hover:translate-y-[2px] hover:shadow-[0_3px_0_0_#000] active:translate-y-[4px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isSaving ? 'Salvando...' : 'Salvar Anúncio'}
                                     </button>
