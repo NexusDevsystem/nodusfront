@@ -37,7 +37,8 @@ import {
     ShoppingCart,
     Tag as TagIcon,
     X,
-    DollarSign
+    DollarSign,
+    Users
 } from 'lucide-react';
 import YouTubeEmbed from './YouTubeEmbed';
 import TikTokEmbed from './TikTokEmbed';
@@ -48,8 +49,10 @@ import { apiClient } from '../services/apiClient';
 import { SiSpotify, SiPaypal } from 'react-icons/si';
 import { InstagramCard } from './InstagramCard';
 import { TwitchCard } from './TwitchCard';
+import { formatUrl } from '../utils/urlUtils';
 import { KickCard } from './KickCard';
 import { YouTubeCard } from './YouTubeCard';
+import TikTokCard from './profile/TikTokCard';
 // @ts-ignore
 import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
 import BrutalistVisualizer from './themes/BrutalistVisualizer';
@@ -70,14 +73,7 @@ import { imgOptimized } from '../utils/imageUtils';
  * Ensures URLs start with a protocol (http/https/mailto/tel/whatsapp)
  * so they don't break routing acting as relative paths.
  */
-const formatUrl = (url: string | undefined | null) => {
-    if (!url) return '';
-    const trimmed = url.trim();
-    if (/^(https?:\/\/|mailto:|tel:|whatsapp:)/i.test(trimmed)) {
-        return trimmed;
-    }
-    return `https://${trimmed}`;
-};
+
 
 /**
  * LinkCountdown helper component for scheduled links
@@ -677,7 +673,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 if (url) {
                     result.unshift({
                         id: `btn-integration-${provider}`,
-                        title: provider === 'instagram' ? 'Instagram' : (provider === 'youtube' ? 'Canal do YouTube' : (provider === 'twitch' ? 'Twitch Live' : 'Kick Live')),
+                        title: provider === 'instagram' ? 'Instagram' : (provider === 'youtube' ? 'YouTube' : (provider === 'twitch' ? 'Twitch Live' : 'Kick Live')),
                         url: url,
                         isActive: true,
                         layout: 'classic',
@@ -1235,7 +1231,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
                 <div
-                    className={`px-6 flex flex-col relative flex-1 ${profile.headerLayout === 'banner' ? 'pt-12 pb-2' : (profile.headerLayout === 'compact' ? 'pt-0 pb-4' : (isPreview ? 'pt-16 pb-0' : 'pt-[72px] pb-0'))}`}
+                    className={`${activeTab === 'shop' ? 'px-2' : 'px-6'} flex flex-col relative flex-1 ${profile.headerLayout === 'banner' ? 'pt-12 pb-2' : (profile.headerLayout === 'compact' ? 'pt-0 pb-4' : (isPreview ? 'pt-16 pb-0' : 'pt-[72px] pb-0'))}`}
                     style={profile.headerLayout === 'banner' ? {
                         minHeight: '250px'
                     } : {}}
@@ -1450,23 +1446,35 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 e.stopPropagation();
                                                 setSelectedProduct(product);
                                             }}
-                                            className={`group/item flex items-center h-[88px] px-4 gap-4 transition-all duration-300 ${buttonClass} shadow-sm hover:translate-y-[-2px]`}
-                                            style={{ ...mainButtonStyle, clipPath: themeClipPath, width: '100%', borderRadius: borderRadiusValue }}
+                                            className={`group/item flex flex-col transition-all duration-300 ${buttonClass} shadow-sm hover:translate-y-[-2px] relative overflow-hidden`}
+                                            style={{ ...mainButtonStyle, clipPath: themeClipPath, width: '100%', borderRadius: borderRadiusValue, padding: 0 }}
                                         >
-                                            <div className="relative w-16 h-16 shrink-0 rounded-sm overflow-hidden border border-black/5 bg-white">
-                                                <img src={product.image} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                                            <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-white" style={{ borderBottom: `1px solid ${isDarkTheme ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}` }}>
+                                                <img
+                                                    src={product.image}
+                                                    className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-500"
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                />
                                                 {product.discountCode && (
-                                                    <div className="absolute top-0 left-0 bg-[#ffdf00] text-black text-[8px] font-black px-2 py-0.5 rounded-br shadow-sm z-10 flex items-center gap-1">
+                                                    <div className="absolute top-2 left-2 bg-[#ffdf00] text-black text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm z-10 flex items-center gap-1">
                                                         <TagIcon size={8} strokeWidth={4} />
                                                         {product.discountCode}
                                                     </div>
                                                 )}
+
+                                                {/* Float Cart Icon Overlay */}
+                                                <div className={`absolute bottom-2 right-2 w-7 h-7 rounded-full ${isDarkTheme ? 'bg-white/15' : 'bg-black/10'} backdrop-blur-md flex items-center justify-center translate-y-1 opacity-0 group-hover/item:translate-y-0 group-hover/item:opacity-100 transition-all duration-300`}>
+                                                    <ShoppingCart size={14} style={{ color: getSmartTextColor() }} strokeWidth={2.5} />
+                                                </div>
                                             </div>
 
-                                            <div className="flex-1 min-w-0 flex flex-col items-start text-left">
-                                                <h4 className="text-[14px] font-black uppercase tracking-tight truncate w-full" style={{ color: getSmartTextColor() }}>{product.name}</h4>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[12px] font-black opacity-40 uppercase tracking-widest" style={{ color: getSmartTextColor() }}>
+                                            <div className="p-2 flex flex-col items-start text-left w-full gap-1.5 flex-1 min-h-[64px]">
+                                                <h4 className="text-[13px] font-black uppercase tracking-tight line-clamp-2 leading-tight w-full" style={{ color: getSmartTextColor() }}>
+                                                    {product.name}
+                                                </h4>
+                                                <div className="mt-auto flex flex-col gap-1 w-full">
+                                                    <span className="text-[12px] font-black opacity-100 uppercase tracking-widest" style={{ color: getSmartTextColor() }}>
                                                         {(() => {
                                                             const clean = String(product.price || '').replace(/[^\d,.]/g, '').replace(',', '.');
                                                             const val = parseFloat(clean);
@@ -1477,17 +1485,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             }).format(val);
                                                         })()}
                                                     </span>
-                                                    {product.discountCode && (
-                                                        <div className="flex items-center gap-1.5 px-2 py-0.5 border border-dashed border-[#97cd7a]/50 text-[#97cd7a] rounded text-[9px] font-black uppercase tracking-wider">
-                                                            <TagIcon size={10} strokeWidth={3} />
-                                                            {product.discountCode}
-                                                        </div>
-                                                    )}
                                                 </div>
-                                            </div>
-
-                                            <div className={`w-10 h-10 rounded-full ${isDarkTheme ? 'bg-white/10' : 'bg-black/10'} flex items-center justify-center opacity-40 group-hover/item:opacity-100 transition-opacity`}>
-                                                <ShoppingCart size={18} style={{ color: getSmartTextColor() }} />
                                             </div>
                                         </button>
                                     </InteractiveButton>
@@ -1632,7 +1630,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 <>
                                                                     {/* Uncategorized Products First */}
                                                                     {uncat.length > 0 && (
-                                                                        <div className="grid grid-cols-1 gap-4">
+                                                                        <div className="grid grid-cols-2 gap-2">
                                                                             {uncat.map(product => renderStoreProduct(product))}
                                                                         </div>
                                                                     )}
@@ -1649,7 +1647,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     <h4 className="text-[10px] uppercase tracking-[0.2em] opacity-30 whitespace-nowrap" style={{ color: getSmartTextColor(), fontWeight: profile.fontWeight || '900' }}>{colName}</h4>
                                                                                     <div className="h-[2px] flex-1 bg-black/5" />
                                                                                 </div>
-                                                                                <div className="grid grid-cols-1 gap-4">
+                                                                                <div className="grid grid-cols-2 gap-2">
                                                                                     {colItems.map(product => renderStoreProduct(product))}
                                                                                 </div>
                                                                             </div>
@@ -1878,69 +1876,447 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     }
 
                                                     // 1. Specialized Integrated Components (Instagram, YouTube, Twitch)
-                                                    if (instagramIntegration && link.type === 'collection' && (link.platform === 'instagram' || link.title === 'Posts do Instagram')) {
+                                                    if (link.platform === 'instagram' || (link.url.includes('instagram.com') && !link.url.includes('/reels/') && !link.url.includes('/p/'))) {
                                                         flushIcons();
                                                         flushCards();
-                                                        const collectionMedia = (link.children || []).map(c => ({
-                                                            id: c.id,
-                                                            media_url: c.image,
-                                                            thumbnail_url: c.image,
-                                                            permalink: c.url,
-                                                            caption: c.title,
-                                                            media_type: c.videoUrl ? 'VIDEO' : 'IMAGE'
-                                                        }));
-                                                        renderedItems.push(
-                                                            <InteractiveButton key={`instagram-card-${link.id}`} className="w-full">
-                                                                <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
-                                                                    {link.title && (
-                                                                        <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
-                                                                            <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
-                                                                        </div>
-                                                                    )}
-                                                                    <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={collectionMedia.length > 0 ? collectionMedia : instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={link.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                </motion.div>
-                                                            </InteractiveButton>
-                                                        );
-                                                    } else if (instagramIntegration && (link.platform === 'instagram' || (instagramUsername && link.url.includes(`instagram.com/${instagramUsername}`) && link.type !== 'collection'))) {
+
+                                                        if (instagramIntegration && link.layout !== 'classic') {
+                                                            const instagramMedia = instagramIntegration?.profile_data?.media?.data || [];
+                                                            const collectionMedia = (link.children || []).map(c => ({
+                                                                id: c.id,
+                                                                media_url: c.image,
+                                                                thumbnail_url: c.image,
+                                                                permalink: c.url,
+                                                                caption: c.title,
+                                                                media_type: c.videoUrl ? 'VIDEO' : 'IMAGE'
+                                                            }));
+
+                                                            renderedItems.push(
+                                                                <InteractiveButton key={`instagram-card-${link.id}`} className="w-full">
+                                                                    <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                                        {link.title && link.type === 'collection' && (
+                                                                            <div className="text-center mb-2 px-4 flex flex-col items-center gap-1.5 pt-2">
+                                                                                <div className="opacity-90 text-sm font-normal uppercase tracking-widest" style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{link.title}</div>
+                                                                            </div>
+                                                                        )}
+                                                                        <InstagramCard
+                                                                            username={instagramUsername || 'instagram_user'}
+                                                                            followers={instagramFollowers || 0}
+                                                                            avatarUrl={instagramAvatar || ''}
+                                                                            media={collectionMedia.length > 0 ? collectionMedia : instagramMedia}
+                                                                            themeButtonClass={baseCardClass}
+                                                                            themeButtonStyle={mainButtonStyle}
+                                                                            themeTextHex={getSmartTextColor()}
+                                                                            buttonRoundness={roundedClass || undefined}
+                                                                            isDark={isDarkTheme}
+                                                                            variant="feed"
+                                                                            fontFamily={profile.fontFamily}
+                                                                            fontWeight={profile.fontWeight || undefined}
+                                                                            fontItalic={profile.fontItalic}
+                                                                        />
+                                                                    </motion.div>
+                                                                </InteractiveButton>
+                                                            );
+                                                        } else {
+                                                            // Fallback to classic button
+                                                            const network = SOCIAL_NETWORKS.find(n => n.id === 'instagram');
+                                                            const Icon = network?.icon;
+                                                            const isHighlighted = link.highlight === 'blink' || link.highlight === 'glow' || link.highlight === 'flash' || link.highlight === 'rainbow' || link.highlight === 'glitch';
+                                                            const EffectWrapper: any = isHighlighted ? GlitchButton : ({ children }: any) => <>{children}</>;
+                                                            const effectProps = isHighlighted ? { className: "w-full", clipPath: themeClipPath } : {};
+
+                                                            renderedItems.push(
+                                                                <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
+                                                                    <EffectWrapper {...effectProps}>
+                                                                        <motion.a
+                                                                            transition={{ duration: 0.2 }}
+                                                                            href={link.isPasswordProtected ? undefined : formatUrl(link.url)}
+                                                                            target={link.isPasswordProtected ? undefined : "_blank"}
+                                                                            rel="noreferrer"
+                                                                            onClick={(e) => {
+                                                                                if (handlePasswordProtectedLink(link, e)) return;
+                                                                                handleLinkClick(link.id);
+                                                                            }}
+                                                                            className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                            style={{
+                                                                                ...mainButtonStyle, clipPath: themeClipPath,
+                                                                                fontFamily: profile.fontFamily,
+                                                                                fontWeight: (profile.fontWeight || undefined),
+                                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                                borderRadius: borderRadiusValue
+                                                                            }}
+                                                                        >
+                                                                            <div className="relative shrink-0 z-10">
+                                                                                {link.image ? (
+                                                                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
+                                                                                        <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                                                                    </div>
+                                                                                ) : Icon ? (
+                                                                                    <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                        <Icon size={28} />
+                                                                                    </div>
+                                                                                ) : <div className="w-12" />}
+                                                                            </div>
+                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
+                                                                                    {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
+                                                                                    <span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                        Instagram
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
+                                                                                    <span className="block w-full whitespace-nowrap">{`@${link.url.match(/instagram\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil'}`}</span>
+                                                                                </div>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-nowrap" style={{ color: getSmartTextColor() }}>
+                                                                                    <Users size={12} className="shrink-0" />
+                                                                                    <span>{link.subtitle || 'Ver Perfil'}</span>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="w-12" />
+                                                                        </motion.a>
+                                                                    </EffectWrapper>
+                                                                </InteractiveButton>
+                                                            );
+                                                        }
+                                                    } else if (link.platform === 'youtube' || (link.url.includes('youtube.com') && !link.url.includes('watch?v=') && !link.url.includes('/shorts/')) || link.url.includes('youtu.be/')) {
                                                         flushIcons();
                                                         flushCards();
-                                                        renderedItems.push(
-                                                            <InteractiveButton key={`instagram-profile-card-${link.id}`} className="w-full">
-                                                                <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
-                                                                    <InstagramCard username={instagramUsername || 'instagram_user'} followers={instagramFollowers || 0} avatarUrl={instagramAvatar || ''} media={instagramMedia} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} variant={link.layout === 'classic' ? 'profile' : 'feed'} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                </motion.div>
-                                                            </InteractiveButton>
-                                                        );
-                                                    } else if (youtubeIntegration && (link.platform === 'youtube' || (link.url.includes('youtube.com') && !link.url.includes('watch?v=') && !link.url.includes('/shorts/')))) {
+
+                                                        const ytUsername = youtubeUsername || link.subtitle?.match(/@([^\s\•]+)/)?.[1] || link.url.match(/youtube\.com\/@([^\/\?]+)/)?.[1] || link.url;
+                                                        const ytDisplayUsername = typeof ytUsername === 'string' && ytUsername.length > 0 && !ytUsername.includes('youtube.com') ? `@${ytUsername.replace('@', '').split('/')[0].split('?')[0]}` : 'YouTube';
+                                                        const formatSubs = (n: string | number | null | undefined): string => {
+                                                            if (!n) return '';
+                                                            const num = typeof n === 'string' ? parseFloat(n.replace(/[KMB]/i, (m) => m === 'K' || m === 'k' ? '000' : m === 'M' || m === 'm' ? '000000' : '000000000')) : n;
+                                                            if (isNaN(num) || num <= 0) return '';
+                                                            if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(1).replace(/\.0$/, '')}B`;
+                                                            if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+                                                            if (num >= 1_000) return `${(num / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+                                                            return String(num);
+                                                        };
+                                                        const ytSubscribersRaw = youtubeSubscribers ?? (link.subtitle?.match(/([\d\.]+[KMB]?)\s*Inscritos/i)?.[1]);
+                                                        const ytSubsFormatted = formatSubs(ytSubscribersRaw);
+                                                        const ytSubscribersValue = ytSubsFormatted ? ` • ${ytSubsFormatted} Inscritos` : '';
+
+                                                        if (link.layout !== 'classic') {
+                                                            const ytTitle = youtubeTitle || link.title;
+                                                            const ytSubscribers = ytSubscribersRaw || 0;
+                                                            const ytAvatar = youtubeAvatar || link.image || '';
+
+                                                            renderedItems.push(
+                                                                <InteractiveButton key={`youtube-card-${link.id}`} className="w-full">
+                                                                    <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                                        <YouTubeCard
+                                                                            username={ytUsername}
+                                                                            title={ytTitle}
+                                                                            subscribers={ytSubscribers}
+                                                                            avatarUrl={ytAvatar}
+                                                                            isLive={youtubeIsLive}
+                                                                            channelId={youtubeChannelId}
+                                                                            themeButtonClass={baseCardClass}
+                                                                            themeButtonStyle={mainButtonStyle}
+                                                                            themeTextHex={getSmartTextColor()}
+                                                                            buttonRoundness={roundedClass || undefined}
+                                                                            isDark={isDarkTheme}
+                                                                            fontFamily={profile.fontFamily}
+                                                                            fontWeight={profile.fontWeight || undefined}
+                                                                            fontItalic={profile.fontItalic}
+                                                                        />
+                                                                    </motion.div>
+                                                                </InteractiveButton>
+                                                            );
+                                                        } else {
+                                                            // Fallback to classic button (Elastic by default for YouTube)
+                                                            const network = SOCIAL_NETWORKS.find(n => n.id === 'youtube');
+                                                            const Icon = network?.icon;
+                                                            const isHighlighted = link.highlight === 'blink' || link.highlight === 'glow' || link.highlight === 'flash' || link.highlight === 'rainbow' || link.highlight === 'glitch';
+                                                            const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
+                                                            const effectProps = { className: "w-full", clipPath: themeClipPath };
+
+                                                            renderedItems.push(
+                                                                <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
+                                                                    <EffectWrapper {...effectProps}>
+                                                                        <motion.a
+                                                                            transition={{ duration: 0.2 }}
+                                                                            href={link.isPasswordProtected ? undefined : formatUrl(link.url)}
+                                                                            target={link.isPasswordProtected ? undefined : "_blank"}
+                                                                            rel="noreferrer"
+                                                                            onClick={(e) => {
+                                                                                if (handlePasswordProtectedLink(link, e)) return;
+                                                                                handleLinkClick(link.id);
+                                                                            }}
+                                                                            className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                            style={{
+                                                                                ...mainButtonStyle, clipPath: themeClipPath,
+                                                                                fontFamily: profile.fontFamily,
+                                                                                fontWeight: (profile.fontWeight || undefined),
+                                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                                borderRadius: borderRadiusValue
+                                                                            }}
+                                                                        >
+                                                                            <div className="relative shrink-0 z-10">
+                                                                                {link.image ? (
+                                                                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
+                                                                                        <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                                                                    </div>
+                                                                                ) : Icon ? (
+                                                                                    <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                        <Icon size={28} />
+                                                                                    </div>
+                                                                                ) : <div className="w-12" />}
+                                                                            </div>
+                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
+                                                                                    {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
+                                                                                    <span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                        YouTube
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
+                                                                                    <span className="block w-full whitespace-nowrap">{ytDisplayUsername}</span>
+                                                                                </div>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-nowrap" style={{ color: getSmartTextColor() }}>
+                                                                                    <Users size={12} className="shrink-0" />
+                                                                                    <span>{link.subtitle || (ytSubsFormatted ? `${ytSubsFormatted} Inscritos` : 'Ver Canal')}</span>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="w-12" />
+                                                                        </motion.a>
+                                                                    </EffectWrapper>
+                                                                </InteractiveButton>
+                                                            );
+                                                        }
+                                                    } else if (link.platform === 'twitch' || (link.url.includes('twitch.tv') && !link.url.includes('/videos/') && !link.url.includes('/clips/'))) {
                                                         flushIcons();
                                                         flushCards();
-                                                        renderedItems.push(
-                                                            <InteractiveButton key={`youtube-card-${link.id}`} className="w-full">
-                                                                <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
-                                                                    <YouTubeCard username={youtubeUsername || link.url} title={youtubeTitle || link.title} subscribers={youtubeSubscribers || 0} avatarUrl={youtubeAvatar || ''} isLive={youtubeIsLive} channelId={youtubeChannelId} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                </motion.div>
-                                                            </InteractiveButton>
-                                                        );
-                                                    } else if (twitchIntegration && (link.platform === 'twitch' || link.title.toLowerCase().includes('twitch'))) {
+
+                                                        if (twitchIntegration && link.layout !== 'classic') {
+                                                            renderedItems.push(
+                                                                <InteractiveButton key={`twitch-card-${link.id}`} className="w-full">
+                                                                    <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                                        <TwitchCard username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                    </motion.div>
+                                                                </InteractiveButton>
+                                                            );
+                                                        } else {
+                                                            const network = SOCIAL_NETWORKS.find(n => n.id === 'twitch');
+                                                            const Icon = network?.icon;
+                                                            const isHighlighted = link.highlight === 'blink' || link.highlight === 'glow' || link.highlight === 'flash' || link.highlight === 'rainbow' || link.highlight === 'glitch';
+                                                            const EffectWrapper: any = isHighlighted ? GlitchButton : ({ children }: any) => <>{children}</>;
+                                                            const effectProps = isHighlighted ? { className: "w-full", clipPath: themeClipPath } : {};
+
+                                                            renderedItems.push(
+                                                                <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
+                                                                    <EffectWrapper {...effectProps}>
+                                                                        <motion.a
+                                                                            transition={{ duration: 0.2 }}
+                                                                            href={link.isPasswordProtected ? undefined : formatUrl(link.url)}
+                                                                            target={link.isPasswordProtected ? undefined : "_blank"}
+                                                                            rel="noreferrer"
+                                                                            onClick={(e) => {
+                                                                                if (handlePasswordProtectedLink(link, e)) return;
+                                                                                handleLinkClick(link.id);
+                                                                            }}
+                                                                            className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                            style={{
+                                                                                ...mainButtonStyle, clipPath: themeClipPath,
+                                                                                fontFamily: profile.fontFamily,
+                                                                                fontWeight: (profile.fontWeight || undefined),
+                                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                                borderRadius: borderRadiusValue
+                                                                            }}
+                                                                        >
+                                                                            <div className="relative shrink-0 z-10">
+                                                                                {link.image ? (
+                                                                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
+                                                                                        <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                                                                    </div>
+                                                                                ) : Icon ? (
+                                                                                    <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                        <Icon size={28} />
+                                                                                    </div>
+                                                                                ) : <div className="w-12" />}
+                                                                            </div>
+                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full" style={{ color: getSmartTextColor() }}>
+                                                                                    <span className="truncate block w-full">{link.title}</span>
+                                                                                </div>
+                                                                                {link.subtitle && (
+                                                                                    <span className="text-[13px] opacity-70 leading-tight truncate flex items-center justify-center gap-1.5" style={{ color: getSmartTextColor() }}>
+                                                                                        {Icon && <Icon size={12} className="shrink-0" />}
+                                                                                        {link.subtitle}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                            <div className="w-12" />
+                                                                        </motion.a>
+                                                                    </EffectWrapper>
+                                                                </InteractiveButton>
+                                                            );
+                                                        }
+                                                    } else if (link.platform === 'tiktok' || (link.url.includes('tiktok.com') && link.url.includes('/@'))) {
                                                         flushIcons();
                                                         flushCards();
-                                                        renderedItems.push(
-                                                            <InteractiveButton key={`twitch-card-${link.id}`} className="w-full">
-                                                                <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
-                                                                    <TwitchCard username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                </motion.div>
-                                                            </InteractiveButton>
-                                                        );
-                                                    } else if (kickIntegration && (link.platform === 'kick' || link.title.toLowerCase().includes('kick'))) {
+
+                                                        if (link.layout !== 'classic') {
+                                                            const tkUsername = tiktokUsername || link.subtitle?.match(/@([^\s\•]+)/)?.[1] || link.url.match(/tiktok\.com\/@([^\/\?]+)/)?.[1] || 'tiktok_user';
+                                                            const tkDisplayName = tiktokIntegration?.profile_data?.display_name || link.title || tkUsername;
+                                                            const tkFollowers = tiktokFollowers || (link.subtitle?.match(/([\d\.]+[KMB]?)\s*Seguidores/i)?.[1]) || 0;
+                                                            const tkAvatar = link.image || '';
+
+                                                            renderedItems.push(
+                                                                <InteractiveButton key={`tiktok-card-${link.id}`} className="w-full">
+                                                                    <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                                        <TikTokCard
+                                                                            username={tkUsername}
+                                                                            displayName={tkDisplayName}
+                                                                            followers={tkFollowers}
+                                                                            avatarUrl={tkAvatar}
+                                                                            themeButtonClass={baseCardClass}
+                                                                            themeButtonStyle={mainButtonStyle}
+                                                                            themeTextHex={getSmartTextColor()}
+                                                                            buttonRoundness={roundedClass || undefined}
+                                                                            isDark={isDarkTheme}
+                                                                            fontFamily={profile.fontFamily}
+                                                                            fontWeight={profile.fontWeight || undefined}
+                                                                            fontItalic={profile.fontItalic}
+                                                                        />
+                                                                    </motion.div>
+                                                                </InteractiveButton>
+                                                            );
+                                                        } else {
+                                                            const network = SOCIAL_NETWORKS.find(n => n.id === 'tiktok');
+                                                            const Icon = network?.icon;
+                                                            const isHighlighted = link.highlight === 'blink' || link.highlight === 'glow' || link.highlight === 'flash' || link.highlight === 'rainbow' || link.highlight === 'glitch';
+                                                            const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
+                                                            const effectProps = { className: "w-full", clipPath: themeClipPath };
+
+                                                            renderedItems.push(
+                                                                <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
+                                                                    <EffectWrapper {...effectProps}>
+                                                                        <motion.a
+                                                                            transition={{ duration: 0.2 }}
+                                                                            href={link.isPasswordProtected ? undefined : formatUrl(link.url)}
+                                                                            target={link.isPasswordProtected ? undefined : "_blank"}
+                                                                            rel="noreferrer"
+                                                                            onClick={(e) => {
+                                                                                if (handlePasswordProtectedLink(link, e)) return;
+                                                                                handleLinkClick(link.id);
+                                                                            }}
+                                                                            className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                            style={{
+                                                                                ...mainButtonStyle, clipPath: themeClipPath,
+                                                                                fontFamily: profile.fontFamily,
+                                                                                fontWeight: (profile.fontWeight || undefined),
+                                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                                borderRadius: borderRadiusValue
+                                                                            }}
+                                                                        >
+                                                                            <div className="relative shrink-0 z-10">
+                                                                                {link.image ? (
+                                                                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
+                                                                                        <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                                                                    </div>
+                                                                                ) : Icon ? (
+                                                                                    <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                        <Icon size={28} />
+                                                                                    </div>
+                                                                                ) : <div className="w-12" />}
+                                                                            </div>
+                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
+                                                                                    {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
+                                                                                    <span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                        TikTok
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full" style={{ color: getSmartTextColor() }}>
+                                                                                    <span className="truncate block w-full">{link.title}</span>
+                                                                                </div>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-nowrap" style={{ color: getSmartTextColor() }}>
+                                                                                    <Users size={12} className="shrink-0" />
+                                                                                    <span>{link.subtitle || 'Ver Perfil'}</span>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div className="w-12" />
+                                                                        </motion.a>
+                                                                    </EffectWrapper>
+                                                                </InteractiveButton>
+                                                            );
+                                                        }
+                                                    } else if (link.platform === 'kick' || link.url.includes('kick.com')) {
                                                         flushIcons();
                                                         flushCards();
-                                                        renderedItems.push(
-                                                            <InteractiveButton key={`kick-card-${link.id}`} className="w-full">
-                                                                <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
-                                                                    <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                </motion.div>
-                                                            </InteractiveButton>
-                                                        );
+
+                                                        if (kickIntegration && link.layout !== 'classic') {
+                                                            renderedItems.push(
+                                                                <InteractiveButton key={`kick-card-${link.id}`} className="w-full">
+                                                                    <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                                        <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
+                                                                    </motion.div>
+                                                                </InteractiveButton>
+                                                            );
+                                                        } else {
+                                                            const network = SOCIAL_NETWORKS.find(n => n.id === 'kick');
+                                                            const Icon = network?.icon;
+                                                            const isHighlighted = link.highlight === 'blink' || link.highlight === 'glow' || link.highlight === 'flash' || link.highlight === 'rainbow' || link.highlight === 'glitch';
+                                                            const EffectWrapper: any = isHighlighted ? GlitchButton : ({ children }: any) => <>{children}</>;
+                                                            const effectProps = isHighlighted ? { className: "w-full", clipPath: themeClipPath } : {};
+
+                                                            renderedItems.push(
+                                                                <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
+                                                                    <EffectWrapper {...effectProps}>
+                                                                        <motion.a
+                                                                            transition={{ duration: 0.2 }}
+                                                                            href={link.isPasswordProtected ? undefined : formatUrl(link.url)}
+                                                                            target={link.isPasswordProtected ? undefined : "_blank"}
+                                                                            rel="noreferrer"
+                                                                            onClick={(e) => {
+                                                                                if (handlePasswordProtectedLink(link, e)) return;
+                                                                                handleLinkClick(link.id);
+                                                                            }}
+                                                                            className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                            style={{
+                                                                                ...mainButtonStyle, clipPath: themeClipPath,
+                                                                                fontFamily: profile.fontFamily,
+                                                                                fontWeight: (profile.fontWeight || undefined),
+                                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                                borderRadius: borderRadiusValue
+                                                                            }}
+                                                                        >
+                                                                            <div className="relative shrink-0 z-10">
+                                                                                {link.image ? (
+                                                                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
+                                                                                        <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                                                                    </div>
+                                                                                ) : Icon ? (
+                                                                                    <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                        <Icon size={28} />
+                                                                                    </div>
+                                                                                ) : <div className="w-12" />}
+                                                                            </div>
+                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full" style={{ color: getSmartTextColor() }}>
+                                                                                    <span className="truncate block w-full">{link.title}</span>
+                                                                                </div>
+                                                                                {link.subtitle && (
+                                                                                    <span className="text-[13px] opacity-70 leading-tight truncate flex items-center justify-center gap-1.5" style={{ color: getSmartTextColor() }}>
+                                                                                        {Icon && <Icon size={12} className="shrink-0" />}
+                                                                                        {link.subtitle}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                            <div className="w-12" />
+                                                                        </motion.a>
+                                                                    </EffectWrapper>
+                                                                </InteractiveButton>
+                                                            );
+                                                        }
+
                                                     } else if (link.type === 'agenda') {
                                                         flushIcons();
                                                         flushCards();
@@ -2190,7 +2566,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             </div>
                                                                                         </InteractiveButton>
                                                                                     );
-                                                                                } else if (child.embedType === 'youtube') {
+                                                                                } else if (child.embedType === 'youtube' && (child.url?.includes('watch?v=') || child.url?.includes('/shorts/') || child.url?.includes('/live/'))) {
                                                                                     nestedItems.push(
                                                                                         <InteractiveButton key={child.id} className="w-full">
                                                                                             <div className={getHighlightClass(child.highlight)}>
@@ -2198,7 +2574,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             </div>
                                                                                         </InteractiveButton>
                                                                                     );
-                                                                                } else if (child.embedType === 'tiktok') {
+                                                                                } else if (child.embedType === 'tiktok' && (child.url?.includes('/video/') || child.videoUrl)) {
                                                                                     nestedItems.push(
                                                                                         <InteractiveButton key={child.id} className="w-full">
                                                                                             <div className={getHighlightClass(child.highlight)}>
@@ -2242,8 +2618,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         );
                                                                                         renderedSpecial = true;
                                                                                     }
-                                                                                    if (!renderedSpecial && (child.platform === 'youtube' || (child.url.includes('youtube.com') && !child.url.includes('watch?v=') && !child.url.includes('/shorts/')))) {
-                                                                                        if (youtubeIntegration) {
+                                                                                    if (!renderedSpecial && (child.platform === 'youtube' || (child.url?.includes('youtube.com') && !child.url?.includes('watch?v=') && !child.url?.includes('/shorts/')) || child.url?.includes('youtu.be/'))) {
+                                                                                        if (youtubeIntegration && child.layout !== 'classic') {
                                                                                             nestedItems.push(
                                                                                                 <InteractiveButton key={child.id} className="w-full">
                                                                                                     <div className={getHighlightClass(child.highlight)}>
@@ -2252,7 +2628,210 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                 </InteractiveButton>
                                                                                             );
                                                                                             renderedSpecial = true;
+                                                                                        } else {
+                                                                                            // Special Classic Layout for YouTube in Collections
+                                                                                            const network = SOCIAL_NETWORKS.find(n => n.id === 'youtube');
+                                                                                            const Icon = network?.icon;
+                                                                                            const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
+                                                                                            const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
+                                                                                            const effectProps = { className: "w-full", clipPath: themeClipPath };
+                                                                                            
+                                                                                            const ytUsername = youtubeUsername || child.subtitle?.match(/@([^\s\•]+)/)?.[1] || child.url?.match(/youtube\.com\/@([^\/\?]+)/)?.[1] || child.url?.match(/youtube\.com\/(?:c|user)\/([^\/\?]+)/)?.[1] || child.url;
+                                                                                            const ytDisplayUsername = typeof ytUsername === 'string' && ytUsername.length > 0 && !ytUsername.includes('youtube.com') ? `@${ytUsername.replace('@', '').split('/')[0].split('?')[0]}` : (child.title || 'YouTube');
+                                                                                            
+                                                                                            const formatSubs = (n: string | number | null | undefined): string => {
+                                                                                                if (!n) return '';
+                                                                                                const num = typeof n === 'string' ? parseFloat(n.replace(/[KMB]/i, (m) => m === 'K' || m === 'k' ? '000' : m === 'M' || m === 'm' ? '000000' : '000000000')) : n;
+                                                                                                if (isNaN(num) || num <= 0) return '';
+                                                                                                if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(1).replace(/\.0$/, '')}B`;
+                                                                                                if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+                                                                                                if (num >= 1_000) return `${(num / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+                                                                                                return String(num);
+                                                                                            };
+                                                                                            
+                                                                                            const ytSubscribersRaw = youtubeSubscribers ?? (child.subtitle?.match(/([\d\.]+[KMB]?)\s*Inscritos/i)?.[1]);
+                                                                                            const ytSubsFormatted = formatSubs(ytSubscribersRaw);
+
+                                                                                            nestedItems.push(
+                                                                                                <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
+                                                                                                    <EffectWrapper {...effectProps}>
+                                                                                                        <motion.a
+                                                                                                            transition={{ duration: 0.2 }}
+                                                                                                            href={child.isPasswordProtected ? undefined : formatUrl(child.url)}
+                                                                                                            target={child.isPasswordProtected ? undefined : "_blank"}
+                                                                                                            rel="noreferrer"
+                                                                                                            onClick={(e) => {
+                                                                                                                if (handlePasswordProtectedLink(child, e)) return;
+                                                                                                                handleLinkClick(child.id);
+                                                                                                            }}
+                                                                                                            className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`}
+                                                                                                            style={{
+                                                                                                                ...mainButtonStyle, clipPath: themeClipPath,
+                                                                                                                fontFamily: profile.fontFamily,
+                                                                                                                fontWeight: (profile.fontWeight || undefined),
+                                                                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                                                ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                                                                borderRadius: borderRadiusValue
+                                                                                                            }}
+                                                                                                        >
+                                                                                                            <div className="relative shrink-0 z-10">
+                                                                                                                {child.image ? (
+                                                                                                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
+                                                                                                                        <img src={child.image} alt="" className="w-full h-full object-cover" />
+                                                                                                                    </div>
+                                                                                                                ) : Icon ? (
+                                                                                                                    <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                                                        <Icon size={28} />
+                                                                                                                    </div>
+                                                                                                                ) : <div className="w-12" />}
+                                                                                                            </div>
+                                                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                                                <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
+                                                                                                                    {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
+                                                                                                                    <span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                                                        YouTube
+                                                                                                                    </span>
+                                                                                                                </div>
+                                                                                                                <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
+                                                                                                                    <span className="block w-full whitespace-nowrap">{ytDisplayUsername}</span>
+                                                                                                                </div>
+                                                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-nowrap" style={{ color: getSmartTextColor() }}>
+                                                                                                                    <Users size={12} className="shrink-0" />
+                                                                                                                    <span>{child.subtitle || (ytSubsFormatted ? `${ytSubsFormatted} Inscritos` : 'Ver Canal')}</span>
+                                                                                                                </span>
+                                                                                                            </div>
+                                                                                                            <div className="w-12 shrink-0" />
+                                                                                                        </motion.a>
+                                                                                                    </EffectWrapper>
+                                                                                                </InteractiveButton>
+                                                                                            );
+                                                                                            renderedSpecial = true;
                                                                                         }
+                                                                                    }
+                                                                                    
+                                                                                    if (!renderedSpecial && (child.platform === 'instagram' || child.url?.includes('instagram.com'))) {
+                                                                                        const network = SOCIAL_NETWORKS.find(n => n.id === 'instagram');
+                                                                                        const Icon = network?.icon;
+                                                                                        const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
+                                                                                        const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
+                                                                                        const effectProps = { className: "w-full", clipPath: themeClipPath };
+
+                                                                                        nestedItems.push(
+                                                                                            <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
+                                                                                                <EffectWrapper {...effectProps}>
+                                                                                                    <motion.a
+                                                                                                        transition={{ duration: 0.2 }}
+                                                                                                        href={child.isPasswordProtected ? undefined : formatUrl(child.url)}
+                                                                                                        target={child.isPasswordProtected ? undefined : "_blank"}
+                                                                                                        rel="noreferrer"
+                                                                                                        onClick={(e) => {
+                                                                                                            if (handlePasswordProtectedLink(child, e)) return;
+                                                                                                            handleLinkClick(child.id);
+                                                                                                        }}
+                                                                                                        className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`}
+                                                                                                        style={{
+                                                                                                            ...mainButtonStyle, clipPath: themeClipPath,
+                                                                                                            fontFamily: profile.fontFamily,
+                                                                                                            fontWeight: (profile.fontWeight || undefined),
+                                                                                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                                                            borderRadius: borderRadiusValue
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <div className="relative shrink-0 z-10">
+                                                                                                            {child.image ? (
+                                                                                                                <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
+                                                                                                                    <img src={child.image} alt="" className="w-full h-full object-cover" />
+                                                                                                                </div>
+                                                                                                            ) : Icon ? (
+                                                                                                                <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                                                        <Icon size={28} />
+                                                                                                                </div>
+                                                                                                            ) : <div className="w-12" />}
+                                                                                                        </div>
+                                                                                                        <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                                            <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
+                                                                                                                {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
+                                                                                                                <span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                                                    Instagram
+                                                                                                                </span>
+                                                                                                            </div>
+                                                                                                            <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
+                                                                                                                <span className="block w-full whitespace-nowrap">{`@${child.url?.match(/instagram\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil'}`}</span>
+                                                                                                            </div>
+                                                                                                            <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-nowrap" style={{ color: getSmartTextColor() }}>
+                                                                                                                <Users size={12} className="shrink-0" />
+                                                                                                                <span>{child.subtitle || 'Ver Perfil'}</span>
+                                                                                                            </span>
+                                                                                                        </div>
+                                                                                                        <div className="w-12 shrink-0" />
+                                                                                                    </motion.a>
+                                                                                                </EffectWrapper>
+                                                                                            </InteractiveButton>
+                                                                                        );
+                                                                                        renderedSpecial = true;
+                                                                                    }
+                                                                                    if (!renderedSpecial && (child.platform === 'tiktok' || child.url?.includes('tiktok.com'))) {
+                                                                                        const network = SOCIAL_NETWORKS.find(n => n.id === 'tiktok');
+                                                                                        const Icon = network?.icon;
+                                                                                        const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
+                                                                                        const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
+                                                                                        const effectProps = { className: "w-full", clipPath: themeClipPath };
+
+                                                                                        nestedItems.push(
+                                                                                            <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
+                                                                                                <EffectWrapper {...effectProps}>
+                                                                                                    <motion.a
+                                                                                                        transition={{ duration: 0.2 }}
+                                                                                                        href={child.isPasswordProtected ? undefined : formatUrl(child.url)}
+                                                                                                        target={child.isPasswordProtected ? undefined : "_blank"}
+                                                                                                        rel="noreferrer"
+                                                                                                        onClick={(e) => {
+                                                                                                            if (handlePasswordProtectedLink(child, e)) return;
+                                                                                                            handleLinkClick(child.id);
+                                                                                                        }}
+                                                                                                        className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`}
+                                                                                                        style={{
+                                                                                                            ...mainButtonStyle, clipPath: themeClipPath,
+                                                                                                            fontFamily: profile.fontFamily,
+                                                                                                            fontWeight: (profile.fontWeight || undefined),
+                                                                                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                                                            borderRadius: borderRadiusValue
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <div className="relative shrink-0 z-10">
+                                                                                                            {child.image ? (
+                                                                                                                <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
+                                                                                                                    <img src={child.image} alt="" className="w-full h-full object-cover" />
+                                                                                                                </div>
+                                                                                                            ) : Icon ? (
+                                                                                                                <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                                                        <Icon size={28} />
+                                                                                                                </div>
+                                                                                                            ) : <div className="w-12" />}
+                                                                                                        </div>
+                                                                                                        <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                                            <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
+                                                                                                                {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
+                                                                                                                <span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                                                    TikTok
+                                                                                                                </span>
+                                                                                                            </div>
+                                                                                                            <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
+                                                                                                                <span className="block w-full whitespace-nowrap">{child.title}</span>
+                                                                                                            </div>
+                                                                                                            <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-nowrap" style={{ color: getSmartTextColor() }}>
+                                                                                                                <Users size={12} className="shrink-0" />
+                                                                                                                <span>{child.subtitle || 'Ver Perfil'}</span>
+                                                                                                            </span>
+                                                                                                        </div>
+                                                                                                        <div className="w-12 shrink-0" />
+                                                                                                    </motion.a>
+                                                                                                </EffectWrapper>
+                                                                                            </InteractiveButton>
+                                                                                        );
+                                                                                        renderedSpecial = true;
                                                                                     }
                                                                                     if (!renderedSpecial && (child.platform === 'twitch' || child.title.toLowerCase().includes('twitch'))) {
                                                                                         if (twitchIntegration) {
@@ -2320,9 +2899,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                         }}
                                                                                                     >
                                                                                                         {/* Icon/Image Container */}
-                                                                                                        <div className="relative shrink-0 z-10">
+                                                                                <div className="relative shrink-0 z-10">
                                                                                                             {child.image ? (
-                                                                                                                <div className="w-12 h-12 rounded-sm overflow-hidden border border-[#1a1a1a]/5 transition-transform">
+                                                                                                                <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
                                                                                                                     <img
                                                                                                                         src={child.image}
                                                                                                                         alt=""
@@ -2625,7 +3204,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         {/* Icon/Image Container */}
                                                                         <div className="relative shrink-0 z-10">
                                                                             {link.image ? (
-                                                                                <div className="w-12 h-12 rounded-sm overflow-hidden border border-[#1a1a1a]/5 shadow-sm transition-transform duration-300">
+                                                                                <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 shadow-sm transition-transform duration-300">
                                                                                     <img
                                                                                         src={link.image}
                                                                                         alt=""

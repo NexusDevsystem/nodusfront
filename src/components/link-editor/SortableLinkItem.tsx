@@ -5,7 +5,7 @@ import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion
 import { LinkItem, UserProfile } from '../../types';
 import { compressImage } from '../../utils/imageUtils';
 import { fetchMusicMetadata } from '../../utils/musicUtils';
-import { fetchYoutubeChannelInfo, isYoutubeChannelUrl, fetchSocialMetadata, isLinkIncomplete } from '../../utils/socialUtils';
+import { fetchYoutubeChannelInfo, fetchInstagramProfileInfo, fetchTiktokProfileInfo, isYoutubeChannelUrl, fetchSocialMetadata, isLinkIncomplete } from '../../utils/socialUtils';
 import { SiSpotify } from 'react-icons/si';
 import { apiClient } from '../../services/apiClient';
 import AgendaEditor from '../AgendaEditor';
@@ -150,7 +150,8 @@ function SortableLinkItem({
             const isInstagram = url.includes('instagram.com');
             const isYoutubeChannel = isYoutubeChannelUrl(url);
             const isYoutubeVideo = (url.includes('youtube.com') || url.includes('youtu.be')) && !isYoutubeChannel;
-            const isSocialProfile = isInstagram || (isTiktok && url.includes('@')) || isYoutubeChannel;
+            const isSocialProfile = (isTiktok && url.includes('@')) || isYoutubeChannel || isInstagram;
+
 
             const isSpotifyAlbum = isSpotify && (url.includes('/album/') || url.includes('/playlist/') || url.includes('spotify.link/'));
             const isDeezerAlbum = isDeezer && (url.includes('/album/') || url.includes('/playlist/') || url.includes('deezer.page.link/') || url.includes('link.deezer.com/'));
@@ -161,13 +162,39 @@ function SortableLinkItem({
             // 1. Title is missing/generic
             // 2. OR it is a social profile currently stuck in 'tiktok' or 'youtube' embed type
             // 3. OR it is a Discord link and doesn't have the member stats yet
+            // 4. OR it is a YouTube channel with no real subscriber data (subtitle is generic or missing)
+            const hasGenericYtSubtitle = isYoutubeChannel && (
+                !currentLink.subtitle ||
+                /^canal do youtube$/i.test((currentLink.subtitle || '').trim()) ||
+                /^youtube channel$/i.test((currentLink.subtitle || '').trim()) ||
+                /^youtube$/i.test((currentLink.subtitle || '').trim()) ||
+                !/inscritos|subscribers/i.test(currentLink.subtitle || '')
+            );
+            const hasGenericIgData = isInstagram && (
+                currentLink.title === 'Instagram' ||
+                !currentLink.title ||
+                !currentLink.subtitle ||
+                !/seguidores|followers/i.test(currentLink.subtitle || '') ||
+                !currentLink.image
+            );
+            const hasGenericTiktokData = isTiktok && (
+                ['TikTok', 'Tiktok'].includes(currentLink.title || '') ||
+                !currentLink.title ||
+                !currentLink.subtitle ||
+                !/seguidores|followers/i.test(currentLink.subtitle || '') ||
+                !currentLink.image
+            );
             const needsAutoFetch = !currentLink.title ||
                 currentLink.title === t('links.newLink') ||
                 currentLink.title === t('links.noTitle') ||
                 currentLink.title === t('links.unknownLink') ||
                 (isSocialProfile && (['Instagram', 'TikTok', 'YouTube'].includes(currentLink.title || '') || currentLink.embedType !== 'none')) ||
                 isMissingAlbumTracks ||
-                (isDiscord && (!currentLink.subtitle || !currentLink.subtitle.includes('○')));
+                (isDiscord && (!currentLink.subtitle || !currentLink.subtitle.includes('○'))) ||
+                hasGenericYtSubtitle ||
+                hasGenericIgData ||
+                hasGenericTiktokData;
+
 
             if (isYoutubeChannel && needsAutoFetch) {
                 try {
@@ -178,7 +205,11 @@ function SortableLinkItem({
                         if (!fresh.title || fresh.title === t('links.newLink') || fresh.title === t('links.noTitle')) {
                             updates.title = info.name;
                         }
-                        if (!fresh.subtitle) updates.subtitle = info.subscribers;
+                        const isGenericSubtitle = !fresh.subtitle || 
+                            /^canal do youtube$/i.test(fresh.subtitle.trim()) || 
+                            /^youtube channel$/i.test(fresh.subtitle.trim()) ||
+                            /^youtube$/i.test(fresh.subtitle.trim());
+                        if (isGenericSubtitle && info.subscribers) updates.subtitle = info.subscribers;
 
                         // Internalize image to prevent expiration
                         if (!fresh.image && info.avatarUrl) {
@@ -204,65 +235,67 @@ function SortableLinkItem({
                 return;
             }
 
-            if ((isSpotify || isDeezer || isTiktok || isYoutubeVideo || isSocialProfile || isDiscord) && needsAutoFetch) {
-                let type: 'spotify' | 'deezer' | 'tiktok' | 'youtube' | 'none' = 'none';
+
+
+            if ((isSpotify || isDeezer || isTiktok || isInstagram || isYoutubeVideo || isSocialProfile || isDiscord) && needsAutoFetch) {
+                let type: 'spotify' | 'deezer' | 'tiktok' | 'instagram' | 'youtube' | 'none' = 'none';
                 if (isSpotify) type = 'spotify';
                 else if (isDeezer) type = 'deezer';
                 else if (isTiktok) type = 'tiktok';
+                else if (isInstagram) type = 'instagram';
                 else if (isYoutubeVideo) type = 'youtube';
 
                 try {
                     let metadata;
-                    if (isSocialProfile) {
-                        const freshInitial = linkRef.current;
-                        const updates: Partial<LinkItem> = {};
-
-                        // 1. Detect platform from URL since backend might be slow/blocked
-                        const platformName = isInstagram ? 'Instagram' : isYoutubeChannel ? 'YouTube' : 'TikTok';
-                        const actionLabel = platformName;
-
-                        // 2. FORCE embedType to none and Title update
-                        if (freshInitial.embedType !== 'none') updates.embedType = 'none';
-
-                        const isGenericOrOld = !freshInitial.title ||
-                            freshInitial.title.includes('Creator Profile') ||
-                            freshInitial.title === t('links.newLink');
-
-                        if (isGenericOrOld) {
-                            updates.title = actionLabel;
-                        }
-
-                        // Apply immediate UI fixes if needed
-                        if (Object.keys(updates).length > 0) {
-                            updateLinkFields(link.id, updates);
-                        }
-
-                        // 3. Now try to get followers and real username from backend
+                    if (isSocialProfile || isInstagram || isTiktok) {
                         const meta = await fetchSocialMetadata(url);
                         if (meta) {
                             const fresh = linkRef.current;
-                            const finalUpdates: Partial<LinkItem> = {};
+                            const updates: Partial<LinkItem> = {};
 
-                            const followerLabel = meta.platform === 'youtube' ? 'Inscritos' : 'Seguidores';
-                            let subtitleParts = [];
-                            if (meta.username) subtitleParts.push(`@${meta.username.replace('@', '')}`);
-                            if (meta.followers) subtitleParts.push(`${meta.followers} ${followerLabel}`);
-
-                            // Cleanup any existing music icon if found in the new or old subtitle
-                            let newSubtitle = subtitleParts.length > 0 ? subtitleParts.join(' • ') : fresh.subtitle || '';
-                            newSubtitle = newSubtitle.replace(/^♫\s?/, '');
-
-                            if (newSubtitle !== fresh.subtitle) {
-                                finalUpdates.subtitle = newSubtitle;
+                            // Update Title if generic
+                            const platformName = isInstagram ? 'Instagram' : isYoutubeChannel ? 'YouTube' : 'TikTok';
+                            if (!fresh.title || fresh.title === t('links.newLink') || ['Instagram', 'TikTok', 'Tiktok', 'YouTube'].includes(fresh.title) || fresh.title.toLowerCase().includes('on tiktok')) {
+                                if (isTiktok && meta.username) {
+                                    updates.title = `@${meta.username.replace('@', '')}`;
+                                } else {
+                                    updates.title = meta.name || meta.username || platformName;
+                                }
+                            }
+                            
+                            // Update Subtitle with followers
+                            const currentSub = (fresh.subtitle || '').trim();
+                            const isGenericSub = !currentSub || 
+                                /^perfil do/i.test(currentSub) || 
+                                /profile$/i.test(currentSub) ||
+                                /^@[\w\.]+$/i.test(currentSub) ||
+                                currentSub.toLowerCase() === platformName.toLowerCase() ||
+                                currentSub.toLowerCase().includes('seguidores') ||
+                                currentSub.toLowerCase().includes('subscribers');
+                                
+                            if (isGenericSub && (meta.followers || meta.subscribers)) {
+                                updates.subtitle = meta.followers || meta.subscribers;
+                            } else if (isGenericSub && !meta.followers && !meta.subscribers) {
+                                updates.subtitle = ''; // Never leave @username or generic text if fetching fails
                             }
 
-                            if (meta.avatarUrl && !fresh.image) {
-                                finalUpdates.image = meta.avatarUrl;
+                            // Force platform for labels
+                            if (meta.platform) {
+                                updates.platform = meta.platform as any;
                             }
-                            if (meta.platform) finalUpdates.platform = meta.platform as any;
 
-                            if (Object.keys(finalUpdates).length > 0) {
-                                updateLinkFields(link.id, finalUpdates);
+                            // Update Image if missing
+                            if (!fresh.image && meta.avatarUrl) {
+                                try {
+                                    const proxyRes = await apiClient.proxyUploadAsset(meta.avatarUrl);
+                                    updates.image = (proxyRes.success && proxyRes.file?.url) ? proxyRes.file.url : meta.avatarUrl;
+                                } catch (e) {
+                                    updates.image = meta.avatarUrl;
+                                }
+                            }
+
+                            if (Object.keys(updates).length > 0) {
+                                updateLinkFields(link.id, updates);
                             }
                         }
                         return;
@@ -396,6 +429,14 @@ function SortableLinkItem({
                         }
 
                         updateLinkFields(link.id, updates);
+                        // Filter out generic IG logo from og:image
+                        const ogImage = $('meta[property="og:image"]').attr('content') || '';
+                        const isGenericLogo = ogImage.includes('static.cdninstagram.com') || ogImage.includes('instagram.com/static') || ogImage.includes('rsrc.php');
+                        if (!avatarUrl && ogImage && !isGenericLogo) {
+                            avatarUrl = ogImage;
+                        }
+                        
+                        if (!name) name = ogTitle.split(' (@')[0].replace('Instagram', '').trim();
                     }
                 } catch (error) {
                     console.error('[SortableLinkItem] Error fetching metadata:', error);

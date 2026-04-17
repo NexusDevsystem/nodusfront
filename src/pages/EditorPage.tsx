@@ -364,44 +364,35 @@ export default function EditorPage() {
 
         const saveProducts = async () => {
             setIsSavingProducts(true);
-            const productsSnapshot = products;
+            const productsSnapshot = [...products];
             try {
                 const savedProducts = await apiClient.replaceAllProducts(productsSnapshot);
 
-
-                // Sync backend-generated IDs back to state
+                // Sync backend-generated IDs back into state (DB always generates new UUIDs)
                 setProducts(currentProducts => {
-                    if (savedProducts.length !== productsSnapshot.length) return currentProducts;
+                    // Build a map: old frontend ID (by position) -> new db ID
                     const idMap = new Map<string, string>();
-                    for (let i = 0; i < productsSnapshot.length; i++) {
+                    for (let i = 0; i < productsSnapshot.length && i < savedProducts.length; i++) {
                         if (productsSnapshot[i].id !== savedProducts[i].id) {
                             idMap.set(productsSnapshot[i].id, savedProducts[i].id);
                         }
                     }
 
-                    if (idMap.size === 0) {
-                        lastSavedProducts.current = JSON.stringify(currentProducts);
-                        return currentProducts;
-                    }
-
-                    const updatedProducts = currentProducts.map(p => ({
-                        ...p,
-                        id: idMap.get(p.id) || p.id
-                    }));
-
+                    const updatedProducts = idMap.size > 0
+                        ? currentProducts.map(p => ({ ...p, id: idMap.get(p.id) || p.id }))
+                        : currentProducts;
 
                     lastSavedProducts.current = JSON.stringify(updatedProducts);
                     return updatedProducts;
                 });
             } catch (error) {
                 console.error('❌ Failed to auto-save products:', error);
-                // Silently handle product auto-save failure
             } finally {
                 setIsSavingProducts(false);
             }
         };
 
-        const timeoutId = setTimeout(saveProducts, 1000); // Shortened from 2500ms
+        const timeoutId = setTimeout(saveProducts, 1000);
         return () => clearTimeout(timeoutId);
     }, [products, hasLoadedOnce]);
 

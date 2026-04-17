@@ -3,28 +3,154 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { UserProfile } from '../../types';
-import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle, Loader2, Check, Lock, Zap, Clock, X, RefreshCw } from 'lucide-react';
+import { Camera, Trash2, Layout, User, Scaling, UserCircle, Upload, Image as ImageIcon, Info, AlertCircle, Loader2, Check, Lock, Zap, Clock, X, RefreshCw, XCircle } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
 import { compressImage } from '../../utils/imageUtils';
 import { THEMES } from '../../constants';
 import ImageCropperModal from '../tools/ImageCropperModal';
-import { blobToDataURL } from '../../utils/imageUtils';
 import VerificationRequestModal from '../VerificationRequestModal';
 
-// Add this utility to imageUtils later or here if not there
-const fileToDataURL = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(file);
-    });
-};
 
 interface HeaderEditorProps {
     profile: UserProfile;
     onChange: (profile: UserProfile) => void;
     updateProfile?: (updates: Partial<UserProfile>) => void;
 }
+
+const BrutalistColorPicker: React.FC<{
+    value: string;
+    onChange: (val: string) => void;
+    label: string;
+    placeholder?: string;
+    onClear?: () => void;
+}> = ({ value, onChange, label, placeholder, onClear }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [localColor, setLocalColor] = useState(value);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const BRAND_COLORS = [
+        '#1a1a1a', '#ffffff', '#97cd7a', '#ffdf00', '#fdfcf0', 
+        '#ff6b6b', '#4ecdc4', '#45b7d1', '#0f172a', '#3b82f6',
+        '#8b5cf6', '#ec4899', '#f97316', '#10b981', '#64748b'
+    ];
+
+    useEffect(() => {
+        setLocalColor(value);
+    }, [value]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isOpen]);
+
+    const handleUpdate = (newColor: string) => {
+        setLocalColor(newColor);
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+            onChange(newColor);
+        }, 100);
+    };
+
+    return (
+        <div className="flex items-center gap-3 relative" ref={containerRef}>
+            {/* Color Preview Button */}
+            <button 
+                onClick={() => setIsOpen(!isOpen)}
+                className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[0_3px_0_0_#1a1a1a] transition-all hover:-translate-y-[1px] hover:shadow-[0_4px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none rounded-md cursor-pointer" 
+                style={{ backgroundColor: localColor }}
+            >
+                <div className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition-opacity" />
+            </button>
+
+            {/* Custom Picker Dropdown */}
+            {isOpen && (
+                <div className="absolute top-14 left-0 z-[100] w-64 bg-white border-2 border-black shadow-[6px_6px_0_0_#000] p-4 rounded-xl animate-in fade-in zoom-in duration-200">
+                    <div className="mb-3">
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-black/40">Cores Sugeridas</span>
+                        <div className="grid grid-cols-5 gap-2 mt-2">
+                            {BRAND_COLORS.map(color => (
+                                <button
+                                    key={color}
+                                    onClick={() => handleUpdate(color)}
+                                    className={`w-full aspect-square rounded-md border-2 border-black transition-transform hover:scale-110 active:scale-95 ${localColor.toLowerCase() === color.toLowerCase() ? 'ring-2 ring-offset-1 ring-black shadow-[2px_2px_0_0_#000]' : ''}`}
+                                    style={{ backgroundColor: color }}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="pt-3 border-t-2 border-black/5">
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-black/40">Personalizado</span>
+                        <div className="flex gap-2 mt-2">
+                            <div className="relative flex-1">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-black/40">#</span>
+                                <input 
+                                    type="text" 
+                                    value={localColor.replace('#', '')} 
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/[^a-fA-F0-9]/g, '');
+                                        if (val.length <= 6) handleUpdate(`#${val}`);
+                                    }}
+                                    className="w-full h-10 pl-6 pr-2 bg-[#fdfcf0] border-2 border-black text-[11px] font-black uppercase tracking-widest focus:outline-none focus:bg-white rounded-lg shadow-[2px_2px_0_0_#000]"
+                                />
+                            </div>
+                            <div className="relative w-10 h-10 border-2 border-black rounded-lg overflow-hidden shadow-[2px_2px_0_0_#000]">
+                                <input 
+                                    type="color" 
+                                    value={localColor} 
+                                    onChange={(e) => handleUpdate(e.target.value)} 
+                                    className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0 opacity-0"
+                                />
+                                <div className="w-full h-full pointer-events-none" style={{ backgroundColor: localColor }} />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        onClick={() => setIsOpen(false)}
+                        className="w-full mt-4 py-2 bg-black text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-lg hover:bg-black/90 active:scale-95 transition-all"
+                    >
+                        Confirmar
+                    </button>
+                </div>
+            )}
+
+            <div className="flex-1">
+                <label className="block text-[8px] font-medium text-[#1a1a1a] uppercase tracking-[0.2em] mb-1.5">
+                    {label}
+                </label>
+                <div className="flex gap-2">
+                    <input 
+                        type="text" 
+                        value={localColor} 
+                        onChange={(e) => {
+                            const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
+                            handleUpdate(val);
+                        }} 
+                        placeholder={placeholder} 
+                        className="flex-1 h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-md" 
+                    />
+                    {onClear && (
+                        <button 
+                            onClick={onClear} 
+                            className="px-2 h-9 flex items-center justify-center text-[#1a1a1a] bg-white border border-[#1a1a1a] hover:bg-[#97cd7a] hover:text-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] text-[9px] font-bold uppercase rounded-md"
+                        >
+                            Limpar
+                        </button>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updateProfile }) => {
     const { t } = useTranslation();
@@ -389,7 +515,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                             <div className="flex-1 w-full space-y-3">
                                 <div className="flex gap-2">
-                                    <label htmlFor="banner-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#97cd7a] hover:text-[#97cd7a] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-md">
+                                    <label htmlFor="banner-upload" className="w-full py-2 bg-[#97cd7a] border-2 border-[#1a1a1a] text-[#1a1a1a] cursor-pointer hover:bg-[#86b86c] transition-all font-medium text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[1px] hover:shadow-none rounded-md">
                                         <Upload size={14} strokeWidth={3} /> {profile.customBackground ? t('common.change') : t('design.chooseBanner')}
                                     </label>
                                     {profile.customBackground && (
@@ -447,20 +573,13 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                             </div>
                                         </button>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[0_3px_0_0_#1a1a1a] transition-transform cursor-pointer rounded-md" style={{ backgroundColor: bannerColor1 }}>
-                                        <input type="color" value={bannerColor1} onChange={(e) => setBannerColor(e.target.value, bannerColor2)} className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0 opacity-0" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <label className="block text-[8px] font-medium text-[#1a1a1a] uppercase tracking-[0.2em] mb-1.5">
-                                            {isGradient ? t('design.bannerColor1') : t('design.blurColor')}
-                                        </label>
-                                        <div className="flex gap-2">
-                                            <input type="text" value={bannerColor1} onChange={(e) => { const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`; setBannerColor(val, bannerColor2); }} placeholder="#1a1a1a" className="flex-1 h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-md" />
-                                            <button onClick={() => setBannerColor('#1a1a1a', bannerColor2)} className="px-2 h-9 flex items-center justify-center text-[#1a1a1a] bg-white border border-[#1a1a1a] hover:bg-[#97cd7a] hover:text-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] text-[9px] font-bold uppercase rounded-md">{t('common.clear')}</button>
-                                        </div>
-                                    </div>
-                                </div>
+                                <BrutalistColorPicker 
+                                    value={bannerColor1}
+                                    label={isGradient ? t('design.bannerColor1') : t('design.blurColor')}
+                                    placeholder="#1a1a1a"
+                                    onChange={(val) => setBannerColor(val, bannerColor2)}
+                                    onClear={() => setBannerColor('#1a1a1a', bannerColor2)}
+                                />
                             </div>
 
                             {/* Card 2: Secondary Color — in empty column when gradient ON */}
@@ -470,15 +589,12 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                         <div className="w-4 h-4 border-2 border-[#1a1a1a] bg-[#1a1a1a] shrink-0 rounded-md" />
                                         <h3 className="text-xs font-medium uppercase tracking-widest">{t('design.bannerColor2')}</h3>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[0_3px_0_0_#1a1a1a] transition-transform cursor-pointer rounded-md" style={{ backgroundColor: bannerColor2 || '#1e3a5f' }}>
-                                            <input type="color" value={bannerColor2 || '#1e3a5f'} onChange={(e) => setBannerColor(bannerColor1, e.target.value)} className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0 opacity-0" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <label className="block text-[8px] font-medium text-[#1a1a1a] uppercase tracking-[0.2em] mb-1.5">{t('design.bannerColor2')}</label>
-                                            <input type="text" value={bannerColor2 || ''} onChange={(e) => { const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`; setBannerColor(bannerColor1, val); }} placeholder="#1e3a5f" className="w-full h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-md" />
-                                        </div>
-                                    </div>
+                                    <BrutalistColorPicker 
+                                        value={bannerColor2 || '#1e3a5f'}
+                                        label={t('design.bannerColor2')}
+                                        placeholder="#1e3a5f"
+                                        onChange={(val) => setBannerColor(bannerColor1, val)}
+                                    />
                                     <div className="mt-4 w-full h-4 border border-[#1a1a1a]/20 rounded-sm" style={{ background: `linear-gradient(135deg, ${bannerColor1}, ${bannerColor2 || '#1e3a5f'})` }} />
                                 </div>
                             )}
@@ -527,42 +643,13 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                         </button>
                                 </div>
 
-                                <div className="flex items-center gap-3">
-                                    <div
-                                        className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[0_3px_0_0_#1a1a1a] transition-transform cursor-pointer rounded-md"
-                                        style={{ backgroundColor: color1 }}
-                                    >
-                                        <input
-                                            type="color"
-                                            value={color1}
-                                            onChange={(e) => setColors(e.target.value, color2)}
-                                            className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0 opacity-0"
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <label className="block text-[8px] font-medium text-[#1a1a1a] uppercase tracking-[0.2em] mb-1.5">
-                                            {isGradient ? t('design.bannerColor1') : t('design.cardBackgroundColor')}
-                                        </label>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                value={color1}
-                                                onChange={(e) => {
-                                                    const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
-                                                    setColors(val, color2);
-                                                }}
-                                                placeholder="#0f172a"
-                                                className="flex-1 h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-md"
-                                            />
-                                            <button
-                                                onClick={() => setColors('#0f172a', color2)}
-                                                className="px-2 h-9 flex items-center justify-center text-[#1a1a1a] bg-white border border-[#1a1a1a] hover:bg-[#97cd7a] hover:text-red-400 transition-all shadow-[0_2px_0_0_#1a1a1a] text-[9px] font-bold uppercase rounded-md"
-                                            >
-                                                {t('common.clear')}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                                <BrutalistColorPicker 
+                                    value={color1}
+                                    label={isGradient ? t('design.bannerColor1') : t('design.cardBackgroundColor')}
+                                    placeholder="#0f172a"
+                                    onChange={(val) => setColors(val, color2)}
+                                    onClear={() => setColors('#0f172a', color2)}
+                                />
                             </div>
 
                             {/* Card 2: Secondary Color — appears in the empty column when gradient is ON */}
@@ -574,34 +661,12 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                         <h3 className="text-xs font-medium uppercase tracking-widest">{t('design.bannerColor2')}</h3>
                                     </div>
 
-                                    <div className="flex items-center gap-3">
-                                        <div
-                                            className="relative w-12 h-12 overflow-hidden border-2 border-[#1a1a1a] shrink-0 shadow-[0_3px_0_0_#1a1a1a] transition-transform cursor-pointer rounded-md"
-                                            style={{ backgroundColor: color2 || '#1e3a5f' }}
-                                        >
-                                            <input
-                                                type="color"
-                                                value={color2 || '#1e3a5f'}
-                                                onChange={(e) => setColors(color1, e.target.value)}
-                                                className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 cursor-pointer border-none p-0 opacity-0"
-                                            />
-                                        </div>
-                                        <div className="flex-1">
-                                            <label className="block text-[8px] font-medium text-[#1a1a1a] uppercase tracking-[0.2em] mb-1.5">
-                                                {t('design.bannerColor2')}
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={color2 || ''}
-                                                onChange={(e) => {
-                                                    const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
-                                                    setColors(color1, val);
-                                                }}
-                                                placeholder="#1e3a5f"
-                                                className="w-full h-9 px-3 border border-[#1a1a1a] bg-white focus:bg-[#f1f1f1] outline-none transition-all text-[10px] font-medium uppercase text-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] tracking-widest rounded-md"
-                                            />
-                                        </div>
-                                    </div>
+                                    <BrutalistColorPicker 
+                                        value={color2 || '#1e3a5f'}
+                                        label={t('design.bannerColor2')}
+                                        placeholder="#1e3a5f"
+                                        onChange={(val) => setColors(color1, val)}
+                                    />
 
                                     {/* Gradient preview stripe */}
                                     <div

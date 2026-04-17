@@ -272,7 +272,7 @@ function LinkEditor({
     }
   };
 
-  const addLink = async (url?: string, platformName?: string) => {
+  const addLink = async (url?: string, platformName?: string, prefetchData?: any) => {
     const newLinkId = crypto.randomUUID();
     const newLink: LinkItem = {
       id: newLinkId,
@@ -306,7 +306,8 @@ function LinkEditor({
         newLink.embedType = 'discord';
       }
 
-      const isMusic = url.includes('spotify') || url.includes('deezer') || url.includes('youtube') || url.includes('youtu.be') || url.includes('tiktok');
+      const isTiktokProfile = lowerUrl.includes('tiktok.com/@');
+      const isMusic = (url.includes('spotify') || url.includes('deezer') || url.includes('youtube') || url.includes('youtu.be') || url.includes('tiktok')) && !isTiktokProfile;
       const isSocialStats = lowerUrl.includes('instagram.com') || lowerUrl.includes('tiktok.com') || lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be');
 
       if (isMusic) {
@@ -329,22 +330,42 @@ function LinkEditor({
           console.error('Error fetching metadata in addLink:', error);
         }
       } else if (isSocialStats) {
-        // Just extract username from URL and put in subtitle
-        const urlParts = url.split('/').filter(p => p && !p.includes('?') && !p.includes('#'));
-        let username = '';
-        if (lowerUrl.includes('instagram.com') || lowerUrl.includes('instagr.am')) {
-            username = urlParts[urlParts.length - 1];
-        } else if (lowerUrl.includes('tiktok.com')) {
-            username = urlParts.find(p => p.startsWith('@')) || urlParts[urlParts.length - 1];
-        } else if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) {
-            username = urlParts.find(p => p.startsWith('@')) || urlParts[urlParts.length - 1];
-        }
-
-        if (username) {
-            updateLinkFields(newLinkId, { 
-                subtitle: `@${username.replace('@', '')}`,
-                title: lowerUrl.includes('instagram') ? 'Instagram' : (lowerUrl.includes('tiktok') ? 'TikTok' : 'YouTube')
+        try {
+          const metadata = prefetchData || await fetchSocialMetadata(url);
+          if (metadata && metadata.username) {
+            updateLinkFields(newLinkId, {
+                title: metadata.platform.charAt(0).toUpperCase() + metadata.platform.slice(1),
+                subtitle: metadata.followers ? metadata.followers : '',
+                image: metadata.avatarUrl,
+                platform: metadata.platform
             });
+          } else {
+            // Fallback specifically for TikTok/Instagram/YouTube based on URL
+            const urlParts = url.split('/').filter(p => p && !p.includes('?') && !p.includes('#'));
+            let username = '';
+            if (lowerUrl.includes('instagram.com') || lowerUrl.includes('instagr.am')) {
+                username = urlParts[urlParts.length - 1];
+            } else if (lowerUrl.includes('tiktok.com')) {
+                username = urlParts.find(p => p.startsWith('@')) || urlParts[urlParts.length - 1];
+            } else if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) {
+                username = urlParts.find(p => p.startsWith('@')) || urlParts[urlParts.length - 1];
+            }
+
+            if (username) {
+                let platformId = undefined;
+                if (lowerUrl.includes('instagram')) platformId = 'instagram';
+                else if (lowerUrl.includes('tiktok')) platformId = 'tiktok';
+                else if (lowerUrl.includes('youtube')) platformId = 'youtube';
+
+                updateLinkFields(newLinkId, { 
+                    subtitle: '',
+                    title: lowerUrl.includes('instagram') ? 'Instagram' : (lowerUrl.includes('tiktok') ? 'TikTok' : 'YouTube'),
+                    platform: platformId
+                });
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching social metadata:', error);
         }
       }
     }

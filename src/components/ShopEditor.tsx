@@ -197,16 +197,31 @@ export default function ShopEditor({
     };
 
     const handleReorderProducts = (storeId: string, colName: string, reorderedSubset: Product[]) => {
-        // Atualiza a posição modificando o objeto diretamente (in-place)
-        // Isso é CRÍTICO para o Framer Motion reorder não perder a referência do objeto (que causava o travamento/duplicação)
+        // 1. Atualiza as posições em memória para o subset que foi movido
         reorderedSubset.forEach((p, idx) => {
             if (p) p.position = idx;
         });
 
-        // Trocamos o array apenas para acionar o re-render do React.
-        // Como o ShopEditor já organiza e filtra por posição automaticamente,
-        // não precisamos mexer na ordem manual do array "prev".
-        onChange(prev => [...prev]);
+        // 2. Atualiza o estado principal ordenando o array fisicamente.
+        // Isso é CRÍTICO porque o backend (productService.replaceAllProducts) usa o INDEX do array 
+        // como a posição definitiva no banco de dados. Se não ordenarmos aqui, o F5 resetará a ordem.
+        onChange(prev => {
+            const newProducts = [...prev];
+            return newProducts.sort((a, b) => {
+                // Mesma loja e mesma coleção? Ordena pela posição que acabamos de definir
+                if (a.storeId === b.storeId && a.collection === b.collection) {
+                    return (a.position || 0) - (b.position || 0);
+                }
+                
+                // Lojas diferentes? Mantém a ordem agrupada por ID da loja
+                if (a.storeId !== b.storeId) {
+                    return (a.storeId || '').localeCompare(b.storeId || '');
+                }
+
+                // Coleções diferentes na mesma loja? Mantém agrupado por nome da coleção
+                return (a.collection || '').localeCompare(b.collection || '');
+            });
+        });
     };
 
 

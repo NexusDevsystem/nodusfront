@@ -27,6 +27,87 @@ export const fetchYoutubeChannelInfo = async (url: string): Promise<any | null> 
     }
 };
 
+// In-flight deduplication: prevents multiple simultaneous requests for the same URL
+const igInflightRequests = new Map<string, Promise<any | null>>();
+// Result cache: reuses results for 10 minutes
+const igResultCache = new Map<string, { data: any; expiresAt: number }>();
+
+export const fetchInstagramProfileInfo = async (url: string): Promise<any | null> => {
+    const cacheKey = url.toLowerCase().trim();
+    
+    // Check result cache first
+    const cached = igResultCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+        console.log('[SocialUtils] IG cache hit for', cacheKey);
+        return cached.data;
+    }
+
+    // Check if there's already an in-flight request for this URL
+    if (igInflightRequests.has(cacheKey)) {
+        console.log('[SocialUtils] IG deduplication: waiting for existing request for', cacheKey);
+        return igInflightRequests.get(cacheKey)!;
+    }
+
+    const requestPromise = (async () => {
+        try {
+            const response = await fetch(`${API_URL}/api/social/instagram?url=${encodeURIComponent(url)}`);
+            if (!response.ok) return null;
+            const data = await response.json();
+            // Cache successful non-empty results for 30 seconds
+            if (data && (data.name || data.avatarUrl || data.followers)) {
+                igResultCache.set(cacheKey, { data, expiresAt: Date.now() + 30 * 1000 });
+            }
+            return data;
+        } catch (error) {
+            console.error('Error fetching Instagram profile info:', error);
+            return null;
+        } finally {
+            igInflightRequests.delete(cacheKey);
+        }
+    })();
+
+    igInflightRequests.set(cacheKey, requestPromise);
+    return requestPromise;
+};
+
+const tiktokInflightRequests = new Map<string, Promise<any | null>>();
+const tiktokResultCache = new Map<string, { data: any; expiresAt: number }>();
+
+export const fetchTiktokProfileInfo = async (url: string): Promise<any | null> => {
+    const cacheKey = url.toLowerCase().trim();
+    
+    // Check result cache
+    const cached = tiktokResultCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+        return cached.data;
+    }
+
+    // Check in-flight
+    if (tiktokInflightRequests.has(cacheKey)) {
+        return tiktokInflightRequests.get(cacheKey)!;
+    }
+
+    const requestPromise = (async () => {
+        try {
+            const response = await fetch(`${API_URL}/api/social/tiktok?url=${encodeURIComponent(url)}`);
+            if (!response.ok) return null;
+            const data = await response.json();
+            if (data && (data.name || data.avatarUrl || data.followers)) {
+                tiktokResultCache.set(cacheKey, { data, expiresAt: Date.now() + 30 * 1000 });
+            }
+            return data;
+        } catch (error) {
+            console.error('Error fetching TikTok profile info:', error);
+            return null;
+        } finally {
+            tiktokInflightRequests.delete(cacheKey);
+        }
+    })();
+
+    tiktokInflightRequests.set(cacheKey, requestPromise);
+    return requestPromise;
+};
+
 export const fetchSocialMetadata = async (url: string): Promise<SocialMetadata | null> => {
     try {
         const response = await fetch(`${API_URL}/api/social/metadata?url=${encodeURIComponent(url)}`);

@@ -14,13 +14,13 @@ import { LinkItem, UserProfile } from '../types';
 import MonetizationView from './MonetizationView';
 import { fetchSocialMetadata, SocialMetadata, isYoutubeChannelUrl } from '../utils/socialUtils';
 import DiscordCard from './profile/DiscordCard';
-import { formatUrl } from '../utils/urlUtils';
+import { formatUrl } from '../utils/urlUtils'; // Utility for URL formatting
 import InteractiveButton from './animations/InteractiveButton';
 
 interface AddLinkModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onAddLink: (url?: string, platform?: string) => void;
+    onAddLink: (url?: string, platform?: string, prefetchData?: SocialMetadata | null) => void;
     onAddCollection: (name: string, url?: string, layout?: 'list' | 'carousel') => void;
     onAddProduct: (collectionName: string) => void;
     onAddSocial: (platform: string) => void;
@@ -99,7 +99,10 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     const [collectionName, setCollectionName] = useState('');
     const [collectionLayout, setCollectionLayout] = useState<'list' | 'carousel'>('list');
     const [showMonetizationStep, setShowMonetizationStep] = useState(false);
+    const [showUrlInput, setShowUrlInput] = useState(false);
+    const [urlInputType, setUrlInputType] = useState<string>('link');
     const [showElements, setShowElements] = useState(true);
+    const inputRef = React.useRef<HTMLInputElement>(null);
 
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
 
@@ -146,6 +149,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
             setShowCollectionStep(false);
             setShowShopCollectionStep(false);
             setShowMonetizationStep(false);
+            setShowUrlInput(false);
             setUrl('');
             setDetectedInfo(null);
         } else {
@@ -220,11 +224,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                     type: 'link',
                     metadata: { type: 'tiktok' }
                 });
-                return;
-            }
-
-            // Instagram Detection
-            if (lowerUrl.includes('instagram.com')) {
+            } else if (lowerUrl.includes('instagram.com')) {
                 setDetectedInfo({
                     platform: 'Instagram',
                     icon: <Instagram size={16} />,
@@ -298,14 +298,112 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
     const handleUrlSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (url.trim()) {
-            const platformName = (detectedInfo && detectedInfo.platform !== t('links.unknownLink')) ? detectedInfo.platform : undefined;
+            const platformName = (detectedInfo && detectedInfo.platform !== t('links.unknownLink')) ? detectedInfo.platform : (urlInputType !== 'link' ? urlInputType : undefined);
             onAddLink(url, platformName);
             onClose();
             setUrl('');
         }
     };
 
+    const handleQuickAddClick = (type: any = 'link') => {
+        setUrlInputType(type);
+        setShowUrlInput(true);
+        // Focus will happen via useEffect when showUrlInput changes
+    };
+
+    useEffect(() => {
+        if (showUrlInput && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [showUrlInput]);
+
     const renderContent = () => {
+        if (showUrlInput) {
+            const getPlaceholder = () => {
+                switch(urlInputType) {
+                    case 'youtube': return "YouTube: youtube.com/watch?v=...";
+                    case 'spotify': return "Spotify: open.spotify.com/track/...";
+                    case 'tiktok': return "TikTok: tiktok.com/@user/video/...";
+                    case 'twitch': return "Twitch: twitch.tv/channel";
+                    default: return t('links.urlPlaceholder') || "Cole seu link aqui...";
+                }
+            };
+
+            const getTitle = () => {
+                switch(urlInputType) {
+                    case 'youtube': return 'YouTube';
+                    case 'spotify': return 'Spotify';
+                    case 'tiktok': return 'TikTok';
+                    case 'twitch': return 'Twitch';
+                    default: return t('links.insertUrl') || 'Adicionar Link';
+                }
+            };
+
+            return (
+                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-400">
+                    <div className="flex items-center gap-4 mb-2">
+                        <button
+                            onClick={() => setShowUrlInput(false)}
+                            className="p-2 text-black hover:bg-[#ffdf00] hover:text-black border-2 border-black transition-all rounded-sm shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-0.5"
+                        >
+                            <ChevronRight size={16} strokeWidth={3} className="rotate-180" />
+                        </button>
+                        <h4 className="text-lg font-black text-black uppercase tracking-tighter">{getTitle()}</h4>
+                    </div>
+
+                    <div className="space-y-6 bg-slate-50 p-6 border-2 border-black rounded-sm">
+                        <p className="text-[10px] font-bold text-black/40 uppercase tracking-[0.2em] leading-relaxed">
+                            {t('links.insertUrlDesc') || 'Cole o link abaixo e nós faremos a mágica para deixá-lo incrível automaticamente.'}
+                        </p>
+                        
+                        <form onSubmit={handleUrlSubmit} className="relative">
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                placeholder={getPlaceholder()}
+                                value={url}
+                                onChange={(e) => setUrl(e.target.value)}
+                                className="w-full bg-white border-4 border-black rounded-sm py-4 px-5 text-sm font-bold text-black focus:outline-none focus:shadow-[0_4px_0_0_#1a1a1a] transition-all"
+                            />
+                        </form>
+
+                        <AnimatePresence>
+                            {url.trim() && detectedInfo && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="flex items-center gap-2 p-3 bg-white border-2 border-black rounded-sm shadow-[0_2px_0_0_#1a1a1a]"
+                                >
+                                    <div className="w-8 h-8 flex items-center justify-center bg-[#ffdf00] border-2 border-black rounded-sm shrink-0">
+                                        {detectedInfo.icon}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-[10px] font-black uppercase text-black leading-none mb-1">{detectedInfo.platform}</div>
+                                        <div className="text-[8px] font-bold text-black/40 uppercase tracking-widest truncate">Link identificado</div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        <button
+                            disabled={!url.trim()}
+                            onClick={() => {
+                                if (url.trim()) {
+                                    const platformName = (detectedInfo && detectedInfo.platform !== t('links.unknownLink')) ? detectedInfo.platform : (urlInputType !== 'link' ? urlInputType : undefined);
+                                    onAddLink(url, platformName, socialData);
+                                    onClose();
+                                }
+                            }}
+                            className="w-full py-4 bg-[#ffdf00] text-black border-2 border-black rounded-md text-xs font-black uppercase tracking-[0.2em] shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] active:translate-y-[2px] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-y-0"
+                        >
+                            <Plus size={18} strokeWidth={4} />
+                            <span>{t('common.add') || 'Adicionar'}</span>
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
         if (showCollectionStep) {
             return (
                 <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-400">
@@ -481,6 +579,53 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
 
         return (
             <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {/* Section: Quick URL Add */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="w-1.5 h-6 bg-black border-2 border-black shadow-[0_2px_0_0_#1a1a1a] rounded-full mr-1"></div>
+                        <h4 className="text-sm font-black text-black uppercase tracking-widest">{t('links.insertUrl')}</h4>
+                        <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
+                    </div>
+                    
+                    <form onSubmit={handleUrlSubmit} className="relative group">
+                        <input
+                            type="text"
+                            placeholder={t('links.urlPlaceholder') || "Cole um link do YouTube, Spotify, TikTok..."}
+                            value={url}
+                            onChange={(e) => setUrl(e.target.value)}
+                            className="w-full bg-slate-50 border-4 border-black rounded-xl py-5 px-6 pr-32 text-sm font-bold text-black focus:outline-none focus:bg-white focus:shadow-[0_6px_0_0_#1a1a1a] transition-all"
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                            {url.trim() && (
+                                <button
+                                    type="submit"
+                                    className="bg-[#ffdf00] text-black border-2 border-black py-2 px-5 rounded-md text-[10px] font-black uppercase tracking-widest shadow-[0_3px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[3px] transition-all flex items-center gap-2"
+                                >
+                                    <span>{t('common.add') || 'Adicionar'}</span>
+                                    <ChevronRight size={14} strokeWidth={4} />
+                                </button>
+                            )}
+                        </div>
+                        
+                        {/* Auto-detection Badge */}
+                        <AnimatePresence>
+                            {url.trim() && detectedInfo && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -10 }}
+                                    className="absolute -bottom-10 left-2 flex items-center gap-2 px-3 py-1 bg-black text-white rounded-full text-[9px] font-black uppercase tracking-widest"
+                                >
+                                    <div className="w-4 h-4 flex items-center justify-center bg-white/10 rounded-full">
+                                        {detectedInfo.icon}
+                                    </div>
+                                    <span>Detetado: {detectedInfo.platform}</span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </form>
+                </div>
+
                 {/* Section: Essentials */}
                 {initialView !== 'social' && (
                     <div className="space-y-6">
@@ -491,7 +636,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                             {[
-                                { id: 'link', icon: <LinkIcon size={isMobile ? 20 : 24} strokeWidth={3} />, label: 'Link', desc: t('links.insertAnyUrl'), color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddLink(); onClose(); } },
+                                { id: 'link', icon: <LinkIcon size={isMobile ? 20 : 24} strokeWidth={3} />, label: 'Link', desc: t('links.insertAnyUrl'), color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => handleQuickAddClick('link') },
                                 { id: 'collection', icon: <Layout size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { setShowCollectionStep(true); } },
                                 { id: 'product', icon: <ShoppingBag size={isMobile ? 20 : 24} strokeWidth={3} />, label: isMobile ? t('links.productLabel') : t('links.newProduct'), desc: t('links.productDescShort'), color: 'bg-white', accent: 'bg-cyan-400', action: () => { setShowShopCollectionStep(true); } },
                                 { id: 'agenda', icon: <Calendar size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('agenda.title') || 'Agenda', desc: t('agenda.descShort') || 'Liste seus eventos e shows', color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddAgenda(); onClose(); } },
@@ -582,7 +727,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             ].map((item) => (
                                 <button
                                     key={item.id}
-                                    onClick={() => { onAddLink(); onClose(); }}
+                                    onClick={() => handleQuickAddClick(item.id as any)}
                                     className="group flex items-center gap-5 p-5 bg-white border-2 border-black hover:bg-slate-50 transition-all shadow-[0_5px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[5px] rounded-md text-left"
                                 >
                                     <div className={`w-12 h-12 flex items-center justify-center border-2 border-black shrink-0 ${item.accent} shadow-[0_3px_0_0_#1a1a1a] rounded-md  transition-transform`}>
@@ -645,7 +790,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         <div className={`grid ${initialView === 'social' ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'} gap-4`}>
                             {initialView === 'social' && (
                                 <button
-                                    onClick={() => { onAddLink(); onClose(); }}
+                                    onClick={() => handleQuickAddClick('link')}
                                     className="group flex flex-col items-center justify-center gap-3 p-6 bg-white border-2 border-black hover:bg-[#ffdf00] transition-all shadow-[0_6px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none rounded-xl"
                                 >
                                     <div className="w-12 h-12 flex items-center justify-center border-2 border-black bg-white shadow-[0_3px_0_0_#1a1a1a] rounded-md">
@@ -697,14 +842,15 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 {/* Header Section - Refined Design */}
                 <div className="flex items-center justify-between px-6 pt-10 pb-6 md:px-10 md:pt-10 md:pb-8 shrink-0">
                         <div className="flex items-center gap-3">
-                        {(initialView === 'social' || !showElements) && (
+                        {(initialView === 'social' || showUrlInput || showCollectionStep || showShopCollectionStep || showMonetizationStep || !showElements) && (
                             <button
                                 onClick={() => {
-                                    if (!showElements) {
-                                        setShowElements(true);
-                                    } else {
-                                        onClose();
-                                    }
+                                    if (showUrlInput) setShowUrlInput(false);
+                                    else if (showCollectionStep) setShowCollectionStep(false);
+                                    else if (showShopCollectionStep) setShowShopCollectionStep(false);
+                                    else if (showMonetizationStep) setShowMonetizationStep(false);
+                                    else if (!showElements) setShowElements(true);
+                                    else onClose();
                                 }}
                                 className="w-10 h-10 flex items-center justify-center bg-white border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-y-[1px] active:shadow-none transition-all rounded-md group mr-1"
                             >
@@ -730,7 +876,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         <div className="max-w-4xl mx-auto w-full pb-10">
                             <AnimatePresence mode="wait">
                                 <motion.div
-                                    key={showCollectionStep ? 'collection' : showShopCollectionStep ? 'shop' : showMonetizationStep ? 'monetization' : 'main'}
+                                    key={showUrlInput ? 'url' : showCollectionStep ? 'collection' : showShopCollectionStep ? 'shop' : showMonetizationStep ? 'monetization' : 'main'}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}

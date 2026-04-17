@@ -6,7 +6,7 @@ import { AnimatePresence } from 'framer-motion';
 interface YouTubeCardProps {
     username: string;
     title: string;
-    subscribers: number;
+    subscribers: number | string;
     avatarUrl: string;
     videoCount?: number;
     viewCount?: number;
@@ -53,7 +53,8 @@ export const YouTubeCard: React.FC<YouTubeCardProps> = ({
         setIsMuted(!isMuted);
     };
 
-    const formatCount = (count: number) => {
+    const formatCount = (count: number | string) => {
+        if (typeof count === 'string') return count;
         if (count >= 1000000) return (count / 1000000).toFixed(1).replace('.0', '') + 'M';
         if (count >= 1000) return (count / 1000).toFixed(1).replace('.0', '') + 'K';
         return count.toLocaleString();
