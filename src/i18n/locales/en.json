@@ -1020,5 +1020,12 @@
         "packageSubtitlePlaceholder": "What's included? Ex: 1 Reel + 3 Stories",
         "packagePricePlaceholder": "$ 0.00",
         "addPackage": "Add Package"
+    },
+    "icons": {
+        "title": "Choose Icon",
+        "desc": "Personalize your button",
+        "searchPlaceholder": "Search icon...",
+        "popular": "Popular Suggestions",
+        "noResults": "No icons found"
     }
 }

@@ -71,14 +71,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userProfile,
       ]
     },
     {
-      id: 'connections',
-      label: t('sidebar.connections'),
-      groupIcon: Globe,
-      items: [
-        { id: 'integrations', label: t('sidebar.integrations'), icon: Globe, disabled: false },
-      ]
-    },
-    {
       id: 'insights',
       label: t('sidebar.insights'),
       groupIcon: BarChart2,

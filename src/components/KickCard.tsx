@@ -44,10 +44,10 @@ export const KickCard: React.FC<KickCardProps> = ({
     };
 
     return (
-        <motion.div 
+        <motion.div
             layout
             initial={false}
-            animate={{ 
+            animate={{
                 height: isLive ? 'auto' : 72
             }}
             transition={{
@@ -91,8 +91,8 @@ export const KickCard: React.FC<KickCardProps> = ({
                         </span>
                     </div>
 
-                    <h4 className="text-[14px] sm:text-[16px] font-bold truncate tracking-tight uppercase leading-none my-1" style={{ color: themeTextHex }}>
-                        {displayName || username}
+                    <h4 className="text-[14px] sm:text-[16px] font-bold whitespace-normal break-words tracking-tight uppercase leading-none my-1" style={{ color: themeTextHex }}>
+                        @{displayName || username}
                     </h4>
 
                     <div className="flex items-center gap-2.5 overflow-hidden">
@@ -102,13 +102,13 @@ export const KickCard: React.FC<KickCardProps> = ({
                                 <span className="text-[10px] sm:text-[11px] font-bold leading-none shrink-0" style={{ color: themeTextHex }}>
                                     {formatFollowers(followers)}
                                 </span>
-                                <span className="text-[9px] uppercase tracking-wider opacity-50 font-medium leading-none truncate" style={{ color: themeTextHex }}>
+                                <span className="text-[9px] uppercase tracking-wider opacity-50 font-medium leading-none whitespace-nowrap" style={{ color: themeTextHex }}>
                                     seguidores
                                 </span>
                             </div>
                         ) : (
                             <div className="flex items-center gap-1 opacity-50 min-w-0" style={{ color: themeTextHex }}>
-                                <span className="text-[9px] uppercase tracking-wider font-medium leading-none truncate">
+                                <span className="text-[9px] uppercase tracking-wider font-medium leading-none whitespace-normal break-words">
                                     Canal Oficial
                                 </span>
                             </div>
@@ -125,7 +125,7 @@ export const KickCard: React.FC<KickCardProps> = ({
             {/* Live Embed Area */}
             <AnimatePresence>
                 {isLive && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, height: 0, scale: 0.95 }}
                         animate={{ opacity: 1, height: 'auto', scale: 1 }}
                         exit={{ opacity: 0, height: 0, scale: 0.95 }}
@@ -145,8 +145,8 @@ export const KickCard: React.FC<KickCardProps> = ({
                         </div>
 
                         <div className="absolute inset-x-4 sm:inset-x-5 inset-y-0 z-20 pointer-events-none flex items-end justify-center pb-4">
-                            <motion.button 
-                                whileHover={{ }}
+                            <motion.button
+                                whileHover={{}}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={(e) => {
                                     e.stopPropagation();

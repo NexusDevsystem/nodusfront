@@ -710,7 +710,31 @@ class ApiClient {
     async getDiscordInfo(inviteUrl: string): Promise<{ name: string; online: number; total: number; icon: string | null }> {
         return this.request(`/api/social/discord?url=${encodeURIComponent(inviteUrl)}`);
     }
-}
 
+    async getInstagramProfileInfo(url: string, linkId?: string): Promise<any> {
+        const query = `url=${encodeURIComponent(url)}${linkId ? `&linkId=${linkId}` : ''}`;
+        return this.request(`/api/social/instagram?${query}`);
+    }
+
+    async getTiktokProfileInfo(url: string, linkId?: string): Promise<any> {
+        const query = `url=${encodeURIComponent(url)}${linkId ? `&linkId=${linkId}` : ''}`;
+        return this.request(`/api/social/tiktok?${query}`);
+    }
+
+    async getTwitchProfileInfo(url: string, linkId?: string): Promise<any> {
+        const query = `url=${encodeURIComponent(url)}${linkId ? `&linkId=${linkId}` : ''}`;
+        return this.request(`/api/social/twitch?${query}`);
+    }
+
+    async getYoutubeChannelInfo(url: string, linkId?: string): Promise<any> {
+        const query = `url=${encodeURIComponent(url)}${linkId ? `&linkId=${linkId}` : ''}`;
+        return this.request(`/api/social/youtube?${query}`);
+    }
+
+    async getKickProfileInfo(url: string, linkId?: string): Promise<any> {
+        const query = `url=${encodeURIComponent(url)}${linkId ? `&linkId=${linkId}` : ''}`;
+        return this.request(`/api/social/kick?${query}`);
+    }
+}
 
 export const apiClient = new ApiClient();

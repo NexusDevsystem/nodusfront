@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as LucideIcons from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
@@ -13,6 +14,7 @@ import MapEditor from '../MapEditor';
 import MonetizationView from '../MonetizationView';
 import { SOCIAL_NETWORKS } from '../../constants';
 import DeezerIcon from '../icons/DeezerIcon';
+import { IconPicker } from '../IconPicker';
 import {
     Trash2, GripVertical, Plus, Image as ImageIcon, BarChart2, Pencil, Archive,
     LayoutGrid, LayoutTemplate, MessageCircle, FolderHeart, Zap, ChevronRight,
@@ -23,8 +25,8 @@ import {
     Activity, Sun, Waves, PartyPopper, Box as Package,
     Heart, RotateCw, Disc, RefreshCw,
     Move, Target, Lightbulb, Rainbow, ZapOff, Radio, Vibrate, Bolt, Instagram,
-    AlertCircle
-} from 'lucide-react';
+    AlertCircle, Link as LinkIcon, Layout, Grid
+} from 'lucide-react'; // Standardized imports
 
 // Lazy-imported to break circular dep (LinkEditor uses SortableLinkItem uses LinkEditor)
 const LinkEditor = React.lazy(() => import('../LinkEditor'));
@@ -81,6 +83,7 @@ function SortableLinkItem({
         return 'special';
     });
     const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [showIconPicker, setShowIconPicker] = useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     // Handle File Selection and Upload
@@ -148,9 +151,10 @@ function SortableLinkItem({
             const isDeezer = url.includes('deezer.com') || url.includes('deezer.page.link') || url.includes('link.deezer.com');
             const isTiktok = url.includes('tiktok.com');
             const isInstagram = url.includes('instagram.com');
+            const isTwitch = url.includes('twitch.tv');
             const isYoutubeChannel = isYoutubeChannelUrl(url);
             const isYoutubeVideo = (url.includes('youtube.com') || url.includes('youtu.be')) && !isYoutubeChannel;
-            const isSocialProfile = (isTiktok && url.includes('@')) || isYoutubeChannel || isInstagram;
+            const isSocialProfile = (isTiktok && url.includes('@')) || isYoutubeChannel || isInstagram || isTwitch;
 
 
             const isSpotifyAlbum = isSpotify && (url.includes('/album/') || url.includes('/playlist/') || url.includes('spotify.link/'));
@@ -184,16 +188,24 @@ function SortableLinkItem({
                 !/seguidores|followers/i.test(currentLink.subtitle || '') ||
                 !currentLink.image
             );
+            const hasGenericTwitchData = isTwitch && (
+                currentLink.title === 'Twitch' ||
+                !currentLink.title ||
+                !currentLink.subtitle ||
+                !/seguidores|followers/i.test(currentLink.subtitle || '') ||
+                !currentLink.image
+            );
             const needsAutoFetch = !currentLink.title ||
                 currentLink.title === t('links.newLink') ||
                 currentLink.title === t('links.noTitle') ||
                 currentLink.title === t('links.unknownLink') ||
-                (isSocialProfile && (['Instagram', 'TikTok', 'YouTube'].includes(currentLink.title || '') || currentLink.embedType !== 'none')) ||
+                (isSocialProfile && (['Instagram', 'TikTok', 'YouTube', 'Twitch'].includes(currentLink.title || '') || currentLink.embedType !== 'none')) ||
                 isMissingAlbumTracks ||
                 (isDiscord && (!currentLink.subtitle || !currentLink.subtitle.includes('○'))) ||
                 hasGenericYtSubtitle ||
                 hasGenericIgData ||
-                hasGenericTiktokData;
+                hasGenericTiktokData ||
+                hasGenericTwitchData;
 
 
             if (isYoutubeChannel && needsAutoFetch) {
@@ -254,8 +266,8 @@ function SortableLinkItem({
                             const updates: Partial<LinkItem> = {};
 
                             // Update Title if generic
-                            const platformName = isInstagram ? 'Instagram' : isYoutubeChannel ? 'YouTube' : 'TikTok';
-                            if (!fresh.title || fresh.title === t('links.newLink') || ['Instagram', 'TikTok', 'Tiktok', 'YouTube'].includes(fresh.title) || fresh.title.toLowerCase().includes('on tiktok')) {
+                            const platformName = isInstagram ? 'Instagram' : isYoutubeChannel ? 'YouTube' : isTwitch ? 'Twitch' : 'TikTok';
+                            if (!fresh.title || fresh.title === t('links.newLink') || ['Instagram', 'TikTok', 'Tiktok', 'YouTube', 'Twitch'].includes(fresh.title) || fresh.title.toLowerCase().includes('on tiktok')) {
                                 if (isTiktok && meta.username) {
                                     updates.title = `@${meta.username.replace('@', '')}`;
                                 } else {
@@ -915,297 +927,321 @@ function SortableLinkItem({
                                                 </div>
                                             ) : (
                                                 <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 pb-6">
-                                                    {link.type === 'map' ? (
-                                                        <div className="flex-[1.5] w-full">
-                                                            <MapEditor link={link} updateLink={updateLink} />
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex-[1.5] flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 w-full">
-                                                            {link.type !== 'collection' && link.type !== 'mediakit' && (
-                                                                <div className="relative shrink-0">
-                                                                    {link.image ? (
-                                                                        <div className="w-14 h-14 md:w-16 md:h-16 overflow-hidden border-2 border-black bg-white relative group/img shadow-[0_2.5px_0_0_#000]">
-                                                                            <img
-                                                                                src={link.image}
-                                                                                alt="Thumbnail"
-                                                                                className="w-full h-full object-cover"
-                                                                                loading="lazy"
-                                                                                decoding="async"
-                                                                            />
-                                                                            <div className="absolute inset-0 bg-white/90 opacity-100 md:opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                                                <button onClick={() => fileInputRef.current?.click()} className="p-1.5 bg-[#fdfcf0] 
- border-2 border-black shadow-[0_2.5px_0_0_#000] transition-colors">
-                                                                                    {isUploadingImage ? <Loader2 size={14} className="animate-spin" /> : <Pencil size={14} strokeWidth={2} />}
-                                                                                </button>
-                                                                                <button onClick={() => updateLink(link.id, 'image', undefined)} className="p-1.5 bg-white text-black hover:bg-red-500 hover:text-white border-2 border-black shadow-[0_2.5px_0_0_#000] transition-colors"><Trash2 size={14} strokeWidth={2} /></button>
-                                                                            </div>
-                                                                        </div>
-                                                                    ) : (
-                                                                        <button
-                                                                            onClick={() => fileInputRef.current?.click()}
-                                                                            disabled={isUploadingImage}
-                                                                            className="w-14 h-14 md:w-16 md:h-16 bg-white border-2 border-dashed border-black flex flex-col items-center justify-center text-black hover:bg-[#ffdf00] transition-all group/btn shadow-[0_2.5px_0_0_#000] disabled:opacity-50"
-                                                                        >
-                                                                            {isUploadingImage ? <Loader2 size={18} className="animate-spin mb-0.5" /> : <ImageIcon size={18} className="mb-0.5" strokeWidth={2} />}
-                                                                            <span className="text-[8px] font-medium uppercase tracking-widest">{isUploadingImage ? '...' : t('links.imageLabel')}</span>
-                                                                        </button>
-                                                                    )}
-                                                                </div>
-                                                            )}
-
-                                                            <div className="flex-1 min-w-0 space-y-4">
-                                                                <div className="space-y-1">
-                                                                    <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.titleLabel')}</label>
-                                                                    <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full font-medium text-base text-black bg-white border-2 border-black px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[0_2.5px_0_0_#000]" placeholder={link.type === 'header' ? t('links.sectionPlaceholder') : link.type === 'mediakit' ? t('mediakit.titlePlaceholder') || 'Título da Chamada' : t('links.titlePlaceholder')} />
-                                                                </div>
-                                                                {link.type !== 'header' && (
-                                                                    <div className="space-y-1">
-                                                                        <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{link.type === 'mediakit' ? t('mediakit.contactUrlLabel') || 'URL de Contato (Ex: WhatsApp, Email)' : t('links.urlLabel')}</label>
-                                                                        <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className={`w-full text-xs font-medium uppercase tracking-widest text-black bg-white border-2 px-3 py-2.5 focus:bg-white outline-none transition-all placeholder:text-black/30 select-text shadow-[0_2.5px_0_0_#000] ${isIncomplete ? 'border-red-500 bg-red-50/30' : 'border-black'}`} placeholder={link.type === 'mediakit' ? t('mediakit.contactPlaceholder') || "https://wa.me/5511999999999" : "https://exemplo.com"} />
-                                                                        {isIncomplete && link.type === 'link' && (
-                                                                            <motion.div
-                                                                                initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}
-                                                                                className="px-1 flex items-center gap-1.5 text-red-500 font-bold text-[9px] uppercase tracking-wider"
-                                                                            >
-                                                                                <AlertCircle size={12} strokeWidth={3} />
-                                                                                {t('social.incompleteLinkHint') || 'Insira o seu usuário ou número para completar o link'}
-                                                                            </motion.div>
-                                                                        )}
-                                                                    </div>
-                                                                )}
-                                                                <div className="space-y-1">
-                                                                    <div className="flex items-center justify-between px-1">
-                                                                        <label className="text-[10px] font-medium text-black uppercase tracking-[0.2em]">{t('links.subtitleLabel')}</label>
-                                                                        {isDiscord && (
-                                                                            <span className="text-[8px] font-black text-black/40 uppercase tracking-widest flex items-center gap-1">
-                                                                                <div className="w-1 h-1 rounded-full bg-black/20" />
-                                                                                Sincronizado
-                                                                            </span>
-                                                                        )}
-                                                                    </div>
-                                                                    <input 
-                                                                        type="text" 
-                                                                        value={link.subtitle || ''} 
-                                                                        onChange={(e) => !isDiscord && updateLink(link.id, 'subtitle', e.target.value)} 
-                                                                        readOnly={!!isDiscord}
-                                                                        className={`w-full text-xs font-normal uppercase tracking-wider text-black border-2 border-black px-3 py-2.5 outline-none transition-all placeholder:text-black/30 shadow-[0_2.5px_0_0_#000] ${isDiscord ? 'bg-black/[0.03] cursor-not-allowed select-none' : 'bg-white focus:bg-white'}`} 
-                                                                        placeholder={link.type === 'mediakit' ? t('mediakit.subtitlePlaceholder') || 'Chamada para ação extra' : t('links.subtitlePlaceholder')} 
-                                                                    />
-                                                                </div>
-
-                                                                {(link.platform === 'instagram' || link.url?.includes('instagram.com')) && (
-                                                                    <div className="pt-2 pb-2">
-                                                                        <label className="text-[9px] font-bold text-black uppercase tracking-[0.2em] px-1 mb-3 block">Estilo de Exibição</label>
-                                                                        <div className="grid grid-cols-2 gap-3 max-w-[340px]">
-                                                                            {[
-                                                                                { id: 'classic', label: 'LISTA SIMPLES' },
-                                                                                { id: 'card', label: 'FEED DE POSTS' },
-                                                                            ].map((opt) => {
-                                                                                const isActive = opt.id === 'card' ? link.layout === 'card' : link.layout !== 'card';
-                                                                                return (
+                                                    <>
+                                                        {link.type === 'map' ? (
+                                                            <div className="flex-[1.5] w-full">
+                                                                <MapEditor link={link} updateLink={updateLink} />
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex-[1.5] flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 w-full">
+                                                                {link.type !== 'collection' && link.type !== 'mediakit' && (
+                                                                    <div className="relative shrink-0 flex flex-col items-center gap-4">
+                                                                        <label className="text-[9px] font-black text-black/30 uppercase tracking-[0.2em]">{t('links.visuals') || 'Visual'}</label>
+                                                                        
+                                                                        <div className="flex flex-col gap-4">
+                                                                            {/* 🖼️ Image Thumbnail */}
+                                                                            <div className="relative group/thumb">
+                                                                                {link.image ? (
+                                                                                    <div className="w-20 h-20 md:w-24 md:h-24 overflow-hidden border-2 border-black bg-white relative shadow-[0_4px_0_0_#1a1a1a] rounded-xl transition-transform hover:scale-[1.02]">
+                                                                                        <img src={link.image} alt={link.title} className="w-full h-full object-cover" />
+                                                                                        <div className="absolute inset-0 bg-white/95 opacity-0 group-hover/thumb:opacity-100 transition-all duration-300 flex items-center justify-center gap-2 px-2">
+                                                                                            <button 
+                                                                                                onClick={() => fileInputRef.current?.click()} 
+                                                                                                className="p-2 bg-white border-2 border-black hover:bg-[#ffdf00] shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none transition-all rounded-xl"
+                                                                                                title={t('links.changeImage')}
+                                                                                            >
+                                                                                                {isUploadingImage ? <Loader2 size={16} className="animate-spin text-black" /> : <Pencil size={16} strokeWidth={3} className="text-black" />}
+                                                                                            </button>
+                                                                                            <button 
+                                                                                                onClick={() => updateLink(link.id, 'image', undefined)} 
+                                                                                                className="p-2 bg-white border-2 border-black text-black hover:bg-red-500 hover:text-white shadow-[0_2px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none transition-all rounded-xl"
+                                                                                                title={t('links.remove')}
+                                                                                            >
+                                                                                                <Trash2 size={16} strokeWidth={3} />
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                ) : (
                                                                                     <button
-                                                                                        key={opt.id}
-                                                                                        onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                                        className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-black rounded-xl transition-all ${isActive ? 'bg-[#ffdf00] shadow-[0_2.5px_0_0_#000] -translate-y-0.5' : 'bg-white hover:bg-[#f8f8f8] shadow-[0_2.5px_0_0_#000]'}`}
+                                                                                        onClick={() => fileInputRef.current?.click()}
+                                                                                        disabled={isUploadingImage}
+                                                                                        className="w-20 h-20 md:w-24 md:h-24 bg-white border-2 border-dashed border-black/20 flex flex-col items-center justify-center text-black/30 hover:text-black hover:bg-[#ffdf00]/10 hover:border-black transition-all group/btn shadow-[0_4px_0_0_rgba(0,0,0,0.05)] hover:shadow-[0_4px_0_0_#1a1a1a] disabled:opacity-50 rounded-xl"
                                                                                     >
-                                                                                        {isActive && (
-                                                                                            <div className="absolute top-1.5 right-1.5 w-4 h-4 bg-black flex items-center justify-center border-2 border-black rounded-full z-10">
-                                                                                                <Check size={10} strokeWidth={4} className="text-[#ffdf00]" />
+                                                                                        {isUploadingImage ? (
+                                                                                            <Loader2 size={24} className="animate-spin mb-1 text-black" />
+                                                                                        ) : (
+                                                                                            <div className="flex flex-col items-center gap-1.5">
+                                                                                                <ImageIcon size={20} strokeWidth={2.5} />
+                                                                                                <span className="text-[8px] font-black uppercase tracking-widest">{t('links.imageLabel')}</span>
                                                                                             </div>
                                                                                         )}
-
-                                                                                        <div className="flex-1 flex items-center justify-center w-full mb-1 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
-                                                                                            {opt.id === 'classic' ? (
-                                                                                                <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
-                                                                                                    <rect x="5" y="25" width="90" height="30" fill="white" stroke="black" strokeWidth="6" rx="4" />
-                                                                                                    <rect x="15" y="32" width="16" height="16" fill="black" rx="2" />
-                                                                                                    <rect x="40" y="35" width="45" height="4" fill="black" rx="1" />
-                                                                                                    <rect x="40" y="44" width="25" height="4" fill="black" opacity="0.3" rx="1" />
-                                                                                                </svg>
-                                                                                            ) : (
-                                                                                                <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
-                                                                                                    <rect x="10" y="10" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
-                                                                                                    <rect x="38" y="10" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
-                                                                                                    <rect x="66" y="10" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
-                                                                                                    <rect x="10" y="38" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
-                                                                                                    <rect x="38" y="38" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
-                                                                                                    <rect x="66" y="38" width="24" height="24" fill="white" stroke="black" strokeWidth="4" rx="2" />
-                                                                                                </svg>
-                                                                                            )}
-                                                                                        </div>
-
-                                                                                        <span className="text-[9px] font-bold uppercase tracking-tight text-black text-center leading-none mt-auto">
-                                                                                            {opt.label}
-                                                                                        </span>
                                                                                     </button>
-                                                                                );
-                                                                            })}
+                                                                                )}
+                                                                                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+                                                                            </div>
+
+                                                                            {/* 🎨 Icon Picker Trigger */}
+                                                                            <button
+                                                                                onClick={() => setShowIconPicker(true)}
+                                                                                className={`group relative w-20 h-10 md:w-24 md:h-12 border-2 border-black rounded-xl flex items-center justify-center transition-all ${link.icon ? 'bg-[#ffdf00] shadow-[0_3px_0_0_#1a1a1a] -translate-y-0.5' : 'bg-white hover:bg-slate-50 shadow-[0_3px_0_0_#1a1a1a] active:translate-y-[1px] active:shadow-none'}`}
+                                                                            >
+                                                                                {link.icon ? (
+                                                                                    <div className="text-black flex items-center gap-1">
+                                                                                        {React.createElement((LucideIcons as any)[link.icon] || Grid, { size: 18, strokeWidth: 2.5 })}
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <div className="flex items-center gap-1.5 text-black/20 group-hover:text-black/40 transition-colors">
+                                                                                        <Grid size={16} strokeWidth={2.5} />
+                                                                                        <span className="text-[8px] font-black uppercase tracking-widest">Ícone</span>
+                                                                                    </div>
+                                                                                )}
+                                                                                {link.icon && (
+                                                                                    <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-black rounded-full flex items-center justify-center border border-white">
+                                                                                        <Check size={8} className="text-white" strokeWidth={4} />
+                                                                                    </div>
+                                                                                )}
+                                                                            </button>
                                                                         </div>
                                                                     </div>
                                                                 )}
-                                                            </div>
-                                                        </div>
-                                                    )}
 
-                                                    {level === 0 && link.type !== 'mediakit' && (
-                                                        <div className="flex-1 space-y-2">
-                                                            <label className="text-[9px] font-medium text-black uppercase tracking-[0.2em] px-1">{t('links.layoutLabel')}</label>
-                                                            <div className="grid grid-cols-2 gap-3 max-w-[340px]">
-                                                                {[
-                                                                    { id: 'classic', label: t('links.layoutClassic') || 'Botão' },
-                                                                    { id: 'card', label: (link.platform === 'instagram' || link.url?.includes('instagram.com')) ? 'Feed de Posts' : (t('links.layoutCard') || 'Card') },
-                                                                    { id: 'social', label: t('links.layoutSocial') || 'Ícones' },
-                                                                    { id: 'carousel', label: t('links.layoutCarousel') || 'Carousel' },
-                                                                ].filter(opt => {
-                                                                    if (link.type === 'map') return opt.id === 'classic' || opt.id === 'card';
-                                                                    if (link.platform === 'instagram' || link.url?.includes('instagram.com')) return false;
-                                                                    return true;
-                                                                }).map((opt) => {
-                                                                    const isActive = link.layout === opt.id;
-
-                                                                    return (
-                                                                        <button
-                                                                            key={opt.id}
-                                                                            onClick={() => updateLink(link.id, 'layout', opt.id)}
-                                                                            className={`group relative flex flex-col items-center justify-between p-3 aspect-square border-2 border-[#1a1a1a] rounded-xl transition-all ${isActive ? 'bg-[#97cd7a] shadow-[0_6px_0_0_#1a1a1a] -translate-y-1' : 'bg-white hover:bg-[#f8f8f8] hover:-translate-y-0.5 shadow-[0_4px_0_0_#1a1a1a]'}`}
-                                                                        >
-                                                                            {isActive && (
-                                                                                <div className="absolute top-1 right-1 w-4 h-4 bg-[#97cd7a] flex items-center justify-center border border-[#1a1a1a] z-10 shadow-[0_1px_0_0_rgba(255,255,255,1)]">
-                                                                                    <Check size={10} strokeWidth={3} className="text-black" />
-                                                                                </div>
-                                                                            )}
-
-                                                                            <div className="flex-1 flex items-center justify-center w-full mb-1 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
-                                                                                {opt.id === 'classic' && (
-                                                                                    <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
-                                                                                        <rect x="5" y="25" width="90" height="30" fill="white" stroke="black" strokeWidth="6" rx="4" />
-                                                                                        <rect x="15" y="32" width="16" height="16" fill="black" rx="2" />
-                                                                                        <rect x="40" y="35" width="45" height="4" fill="black" rx="1" />
-                                                                                        <rect x="40" y="44" width="25" height="4" fill="black" opacity="0.3" rx="1" />
-                                                                                    </svg>
-                                                                                )}
-                                                                                {opt.id === 'card' && (link.platform === 'instagram' || link.url?.includes('instagram.com')) ? (
-                                                                                    <div className="flex items-center justify-center w-full h-full">
-                                                                                        <Instagram size={32} className="text-black/20" strokeWidth={1.5} />
-                                                                                    </div>
-                                                                                ) : opt.id === 'card' && (
-                                                                                    <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
-                                                                                        <rect x="30" y="5" width="40" height="70" fill="white" stroke="black" strokeWidth="6" rx="4" />
-                                                                                        <rect x="30" y="5" width="40" height="35" fill="black" stroke="black" strokeWidth="6" rx="4" />
-                                                                                        <rect x="38" y="52" width="24" height="4" fill="black" rx="1" />
-                                                                                        <rect x="38" y="62" width="12" height="4" fill="black" opacity="0.3" rx="1" />
-                                                                                    </svg>
-                                                                                )}
-                                                                                {opt.id === 'social' && (
-                                                                                    <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
-                                                                                        <rect x="30" y="10" width="40" height="4" fill="black" opacity="0.1" rx="1" />
-                                                                                        <rect x="20" y="18" width="60" height="3" fill="black" opacity="0.1" rx="1" />
-                                                                                        <rect x="40" y="30" width="20" height="20" fill="white" stroke="black" strokeWidth="5" rx="4" />
-                                                                                        <rect x="47" y="37" width="6" height="6" fill="black" opacity="0.2" rx="1" />
-                                                                                        <rect x="10" y="60" width="80" height="6" fill="black" opacity="0.05" rx="1" />
-                                                                                    </svg>
-                                                                                )}
-                                                                                {opt.id === 'carousel' && (
-                                                                                    <svg viewBox="0 0 100 80" className="w-[85%] h-auto max-h-full drop-shadow-[2px_2px_0px_rgba(26,26,26,0.15)]">
-                                                                                        <rect x="12" y="15" width="46" height="50" fill="white" stroke="black" strokeWidth="6" strokeLinejoin="round" rx="4" />
-                                                                                        <rect x="12" y="15" width="46" height="30" fill="black" stroke="black" strokeWidth="6" strokeLinejoin="round" rx="4" />
-                                                                                        <rect x="22" y="53" width="26" height="4" fill="black" rx="1" />
-                                                                                        <rect x="68" y="15" width="46" height="50" fill="white" stroke="black" strokeWidth="6" strokeLinejoin="round" rx="4" />
-                                                                                        <rect x="68" y="15" width="46" height="30" fill="black" opacity="0.3" stroke="black" strokeWidth="6" strokeLinejoin="round" rx="4" />
-                                                                                    </svg>
-                                                                                )}
-                                                                            </div>
-
-                                                                            <span className="text-[9px] font-bold uppercase tracking-tight text-black text-center leading-none mt-auto">
-                                                                                {opt.label}
-                                                                            </span>
-                                                                        </button>
-                                                                    );
-                                                                })}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                    {level === 0 && link.type === 'mediakit' && (
-                                                        <div className="flex-1 space-y-4 pt-4 mt-2 border-t border-[#1a1a1a] border-dashed">
-                                                            {!(profile.plan_type === 'monthly' || profile.plan_type === 'annual') ? (
-                                                                <div className="bg-slate-50 border-2 border-[#1a1a1a] p-8 text-center space-y-4 shadow-[0_3px_0_0_#1a1a1a]">
-                                                                    <div className="w-16 h-16 bg-white border-2 border-[#1a1a1a] flex items-center justify-center mx-auto shadow-[0_2px_0_0_#1a1a1a]">
-                                                                        <Lock size={32} className="text-black" strokeWidth={2} />
-                                                                    </div>
-                                                                    <div>
-                                                                        <h3 className="text-[11px] font-bold uppercase tracking-widest text-black mb-2">{t('mediakit.locked')}</h3>
-                                                                        <p className="text-[9px] text-black/50 font-semibold uppercase tracking-widest">{t('links.limitReachedDesc')}</p>
-                                                                    </div>
-                                                                    <button
-                                                                        onClick={(e) => { e.stopPropagation(); /* logic to open billing */ }}
-                                                                        className="mt-2 text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] px-4 py-2 shadow-[0_2px_0_0_#1a1a1a] hover:bg-[#ffdf00] transition-all active:translate-y-[0.5px] active:shadow-none"
-                                                                    >
-                                                                        {t('links.seePlans')}
-                                                                    </button>
-                                                                </div>
-                                                            ) : (
-                                                                <>
-                                                                    <div className="flex items-center justify-between px-1">
-                                                                        <div className="flex items-end gap-3">
-                                                                            <div>
-                                                                                <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] flex items-center gap-1.5"><DollarSign size={14} strokeWidth={2} /> {t('mediakit.myPackages')}</label>
-                                                                                <p className="text-[8px] font-medium text-black/50 uppercase tracking-widest mt-0.5">{t('mediakit.myPackagesDesc')}</p>
-                                                                            </div>
-                                                                            <div className="flex bg-black/[0.05] rounded-sm p-0.5 mb-0.5 border border-[#1a1a1a]/5">
-                                                                                <button
-                                                                                    onClick={() => updateLink(link.id, 'currency', 'BRL')}
-                                                                                    className={`px-1.5 py-0.5 text-[8px] font-bold rounded-sm transition-all ${(!link.currency || link.currency === 'BRL') ? 'bg-white text-black shadow-[0_5px_0_0_#1a1a1a]' : 'text-black/30 hover:text-black'}`}
-                                                                                >BRL</button>
-                                                                                <button
-                                                                                    onClick={() => updateLink(link.id, 'currency', 'USD')}
-                                                                                    className={`px-1.5 py-0.5 text-[8px] font-bold rounded-sm transition-all ${link.currency === 'USD' ? 'bg-white text-black shadow-[0_5px_0_0_#1a1a1a]' : 'text-black/30 hover:text-black'}`}
-                                                                                >USD</button>
-                                                                            </div>
+                                                                <div className="flex-1 min-w-0 flex flex-col gap-8">
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                        <div className="space-y-2">
+                                                                            <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                                                                                <Type size={12} strokeWidth={3} className="text-black/30" />
+                                                                                {t('links.titleLabel')}
+                                                                            </label>
+                                                                            <input 
+                                                                                type="text" 
+                                                                                value={link.title} 
+                                                                                onChange={(e) => updateLink(link.id, 'title', e.target.value)} 
+                                                                                className="w-full font-bold text-sm md:text-base text-black bg-white border-2 border-black px-5 py-4 md:py-4.5 focus:bg-white focus:ring-4 focus:ring-[#ffdf00]/10 outline-none transition-all placeholder:text-black/20 select-text shadow-[0_4px_0_0_#1a1a1a] rounded-xl" 
+                                                                                placeholder={link.type === 'header' ? t('links.sectionPlaceholder') : link.type === 'mediakit' ? t('mediakit.titlePlaceholder') || 'Título da Chamada' : t('links.titlePlaceholder')} 
+                                                                            />
                                                                         </div>
-                                                                        <button onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            const defaultPrice = link.currency === 'USD' ? '$ 0.00' : 'R$ 0,00';
-                                                                            const newPackage = { id: crypto.randomUUID(), clientId: crypto.randomUUID(), title: 'Publi Completa', subtitle: 'Ex: 1 Reel + 2 Stories', url: defaultPrice, isActive: true, layout: 'list' as const, type: 'link' as const };
-                                                                            updateLink(link.id, 'children', [...(link.children || []), newPackage]);
-                                                                        }} className="px-2 py-1.5 text-[9px] bg-white border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] text-black hover:bg-[#97cd7a] uppercase font-bold tracking-widest active:translate-y-[1px] active:shadow-none">+ {t('mediakit.addPackage') || t('common.add')}</button>
-                                                                    </div>
-                                                                    <div className="space-y-3">
-                                                                        {(link.children || []).map((pkg, i) => (
-                                                                            <div key={pkg.id} className="flex gap-3 p-3 bg-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] items-center group/pkg">
-                                                                                <div className="flex-1 space-y-2">
-                                                                                    <input type="text" value={pkg.title} onChange={(e) => {
-                                                                                        const newChildren = [...(link.children || [])];
-                                                                                        newChildren[i].title = e.target.value;
-                                                                                        updateLink(link.id, 'children', newChildren);
-                                                                                    }} className="w-full text-[11px] font-bold uppercase tracking-widest text-black border-b border-dashed border-[#1a1a1a]/20 pb-1 focus:border-[#1a1a1a] outline-none bg-transparent" placeholder={t('mediakit.packageTitlePlaceholder')} />
-                                                                                    <input type="text" value={pkg.subtitle || ''} onChange={(e) => {
-                                                                                        const newChildren = [...(link.children || [])];
-                                                                                        newChildren[i].subtitle = e.target.value;
-                                                                                        updateLink(link.id, 'children', newChildren);
-                                                                                    }} className="w-full text-[9px] font-medium uppercase tracking-[0.1em] text-black/60 border-b border-dashed border-[#1a1a1a]/20 pb-1 focus:border-[#1a1a1a] outline-none bg-transparent" placeholder={t('mediakit.packageSubtitlePlaceholder')} />
-                                                                                </div>
-                                                                                <div className="w-[120px] shrink-0 flex flex-col items-end gap-1 px-1">
-                                                                                    <input type="text" value={pkg.url} onChange={(e) => {
-                                                                                        const newChildren = [...(link.children || [])];
-                                                                                        newChildren[i].url = e.target.value;
-                                                                                        updateLink(link.id, 'children', newChildren);
-                                                                                    }} className="w-full text-base font-bold text-right border-b-2 border-[#1a1a1a] focus:border-[#1a1a1a] px-1 py-1 outline-none bg-transparent" placeholder={link.currency === 'USD' ? '$ 0.00' : 'R$ 0,00'} />
-                                                                                    <button onClick={() => {
-                                                                                        const newChildren = [...(link.children || [])];
-                                                                                        newChildren.splice(i, 1);
-                                                                                        updateLink(link.id, 'children', newChildren);
-                                                                                    }} className="text-black/20 hover:text-red-500 transition-colors p-1"><Trash2 size={12} /></button>
-                                                                                </div>
+                                                                        
+                                                                        {link.type !== 'header' && (
+                                                                            <div className="space-y-2">
+                                                                                <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                                                                                    <LinkIcon size={12} strokeWidth={3} className="text-black/30" />
+                                                                                    {link.type === 'mediakit' ? t('mediakit.contactUrlLabel') || 'URL de Contato' : t('links.urlLabel')}
+                                                                                </label>
+                                                                                <input 
+                                                                                    type="text" 
+                                                                                    value={link.url} 
+                                                                                    onChange={(e) => updateLink(link.id, 'url', e.target.value)} 
+                                                                                    className={`w-full text-[11px] md:text-xs font-bold uppercase tracking-widest text-black bg-white border-2 px-5 py-4 md:py-4.5 focus:bg-white focus:ring-4 focus:ring-[#ffdf00]/10 outline-none transition-all placeholder:text-black/20 select-text shadow-[0_4px_0_0_#1a1a1a] rounded-xl ${isIncomplete ? 'border-red-500 bg-red-50/10' : 'border-black'}`} 
+                                                                                    placeholder={link.type === 'mediakit' ? t('mediakit.contactPlaceholder') || "https://wa.me/..." : "https://exemplo.com"} 
+                                                                                />
+                                                                                {isIncomplete && link.type === 'link' && (
+                                                                                    <motion.div
+                                                                                        initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }}
+                                                                                        className="px-1 flex items-center gap-1.5 text-red-500 font-black text-[8px] uppercase tracking-wider mt-1.5"
+                                                                                    >
+                                                                                        <AlertCircle size={10} strokeWidth={3} />
+                                                                                        {t('social.incompleteLinkHint')}
+                                                                                    </motion.div>
+                                                                                )}
                                                                             </div>
-                                                                        ))}
-                                                                        {(link.children?.length === 0 || !link.children) && (
-                                                                            <div className="text-[9px] text-center p-6 border-2 border-dashed border-[#1a1a1a]/10 bg-black/5 text-black/40 uppercase tracking-[0.2em] font-bold">{t('mediakit.noPackages')}</div>
                                                                         )}
                                                                     </div>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    )}
+
+                                                                    <div className="space-y-1.5">
+                                                                        <div className="flex items-center justify-between px-1">
+                                                                            <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] flex items-center gap-1.5">
+                                                                                <Pencil size={12} strokeWidth={3} className="text-black/30" />
+                                                                                {t('links.subtitleLabel')}
+                                                                            </label>
+                                                                            {isDiscord && (
+                                                                                <span className="text-[9px] font-black text-white uppercase tracking-widest flex items-center gap-2 bg-[#5865F2] border-2 border-black px-3 py-1 shadow-[0_2px_0_0_#1a1a1a] rounded-lg">
+                                                                                    <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                                                                                    {t('social.discordSynced') || 'Sincronizado'}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="relative group">
+                                                                            <input 
+                                                                                type="text" 
+                                                                                value={link.subtitle || ''} 
+                                                                                onChange={(e) => !isDiscord && updateLink(link.id, 'subtitle', e.target.value)} 
+                                                                                readOnly={!!isDiscord}
+                                                                                className={`w-full text-xs font-bold uppercase tracking-wider text-black border-2 border-black px-4 py-4 md:py-4.5 outline-none transition-all placeholder:text-black/20 shadow-[0_4px_0_0_#1a1a1a] rounded-xl ${isDiscord ? 'bg-white cursor-not-allowed select-none' : 'bg-white focus:bg-white focus:ring-4 focus:ring-[#ffdf00]/10'}`} 
+                                                                                placeholder={link.type === 'mediakit' ? t('mediakit.subtitlePlaceholder') || 'Chamada para ação extra' : t('links.subtitlePlaceholder')} 
+                                                                            />
+                                                                            {isDiscord && (
+                                                                                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-black/10">
+                                                                                    <Lock size={16} strokeWidth={3} />
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {(link.platform === 'instagram' || link.url?.includes('instagram.com')) && (
+                                                                        <div className="pt-4 border-t border-[#1a1a1a]/5 mt-4">
+                                                                            <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1 mb-4 flex items-center gap-2">
+                                                                                <Instagram size={14} strokeWidth={3} className="text-black/30" />
+                                                                                {t('links.instagramLayout') || 'Estilo de Exibição'}
+                                                                            </label>
+                                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-[500px]">
+                                                                                {[
+                                                                                    { id: 'classic', label: 'LISTA SIMPLES', desc: 'Apenas link e seguidores', icon: 'list' },
+                                                                                    { id: 'card', label: 'FEED DE POSTS', desc: 'Visual premium com posts', icon: 'grid' },
+                                                                                ].map((opt) => {
+                                                                                    const isActive = opt.id === 'card' ? link.layout === 'card' : link.layout !== 'card';
+                                                                                    return (
+                                                                                        <button
+                                                                                            key={opt.id}
+                                                                                            onClick={() => updateLink(link.id, 'layout', opt.id)}
+                                                                                            className={`group relative flex items-center gap-4 p-4 border-2 border-black rounded-xl transition-all ${isActive ? 'bg-[#ffdf00] shadow-[0_4px_0_0_#1a1a1a] -translate-y-0.5' : 'bg-white hover:bg-[#f8f8f8] shadow-[0_4px_0_0_rgba(0,0,0,0.05)] hover:shadow-[0_4px_0_0_#1a1a1a] hover:-translate-y-0.5'}`}
+                                                                                        >
+                                                                                            <div className={`w-10 h-10 flex items-center justify-center rounded-xl border-2 border-black ${isActive ? 'bg-white' : 'bg-slate-50'}`}>
+                                                                                                {opt.id === 'classic' ? <LinkIcon size={18} strokeWidth={3} /> : <Grid size={18} strokeWidth={3} />}
+                                                                                            </div>
+                                                                                            <div className="flex flex-col items-start text-left">
+                                                                                                <span className="text-[10px] font-black uppercase tracking-tight text-black leading-none">{opt.label}</span>
+                                                                                                <span className="text-[8px] font-bold uppercase tracking-widest text-black/40 mt-1">{opt.desc}</span>
+                                                                                            </div>
+                                                                                            {isActive && (
+                                                                                                <div className="absolute -top-2 -right-2 w-5 h-5 bg-black flex items-center justify-center border-2 border-white rounded-full z-10">
+                                                                                                    <Check size={12} strokeWidth={4} className="text-[#ffdf00]" />
+                                                                                                </div>
+                                                                                            )}
+                                                                                        </button>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {level === 0 && link.type !== 'mediakit' && (
+                                                            <div className="flex-1 space-y-4 pt-4 mt-4 border-t border-[#1a1a1a]/5 lg:border-t-0 lg:mt-0 lg:pt-0">
+                                                                <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                                                                    <Layout size={14} strokeWidth={3} className="text-black/30" />
+                                                                    {t('links.layoutLabel')}
+                                                                </label>
+                                                                <div className="grid grid-cols-2 gap-4 max-w-[400px]">
+                                                                    {[
+                                                                        { id: 'classic', label: t('links.layoutClassic') || 'Botão', icon: <Smartphone size={16} /> },
+                                                                        { id: 'card', label: (link.platform === 'instagram' || link.url?.includes('instagram.com')) ? 'Feed' : (t('links.layoutCard') || 'Card'), icon: <Grid size={16} /> },
+                                                                        { id: 'social', label: t('links.layoutSocial') || 'Ícones', icon: <Share2 size={16} /> },
+                                                                        { id: 'carousel', label: t('links.layoutCarousel') || 'Carrossel', icon: <Layout size={16} /> },
+                                                                    ].filter(opt => {
+                                                                        if (link.type === 'map') return opt.id === 'classic' || opt.id === 'card';
+                                                                        if (link.platform === 'instagram' || link.url?.includes('instagram.com')) return false;
+                                                                        return true;
+                                                                    }).map((opt) => {
+                                                                        const isActive = link.layout === opt.id;
+
+                                                                        return (
+                                                                            <button
+                                                                                key={opt.id}
+                                                                                onClick={() => updateLink(link.id, 'layout', opt.id)}
+                                                                                className={`group relative flex items-center gap-3 p-3 border-2 border-black rounded-xl transition-all ${isActive ? 'bg-[#97cd7a] shadow-[0_4px_0_0_#1a1a1a] -translate-y-0.5' : 'bg-white hover:bg-[#f8f8f8] shadow-[0_4px_0_0_rgba(0,0,0,0.05)] hover:shadow-[0_4px_0_0_#1a1a1a] hover:-translate-y-0.5'}`}
+                                                                            >
+                                                                                <div className={`w-8 h-8 flex items-center justify-center rounded-lg border-2 border-black ${isActive ? 'bg-white' : 'bg-slate-50'}`}>
+                                                                                    {opt.icon}
+                                                                                </div>
+                                                                                <span className="text-[9px] font-black uppercase tracking-tight text-black leading-none">
+                                                                                    {opt.label}
+                                                                                </span>
+                                                                                {isActive && (
+                                                                                    <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-black flex items-center justify-center border-2 border-white rounded-full z-10">
+                                                                                        <Check size={10} strokeWidth={4} className="text-[#97cd7a]" />
+                                                                                    </div>
+                                                                                )}
+                                                                            </button>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {level === 0 && link.type === 'mediakit' && (
+                                                            <div className="flex-1 space-y-4 pt-4 mt-2 border-t border-[#1a1a1a] border-dashed">
+                                                                {!(profile.plan_type === 'monthly' || profile.plan_type === 'annual') ? (
+                                                                    <div className="bg-slate-50 border-2 border-[#1a1a1a] p-8 text-center space-y-4 shadow-[0_3px_0_0_#1a1a1a]">
+                                                                        <div className="w-16 h-16 bg-white border-2 border-[#1a1a1a] flex items-center justify-center mx-auto shadow-[0_2px_0_0_#1a1a1a]">
+                                                                            <Lock size={32} className="text-black" strokeWidth={2} />
+                                                                        </div>
+                                                                        <div>
+                                                                            <h3 className="text-[11px] font-bold uppercase tracking-widest text-black mb-2">{t('mediakit.locked')}</h3>
+                                                                            <p className="text-[9px] text-black/50 font-semibold uppercase tracking-widest">{t('links.limitReachedDesc')}</p>
+                                                                        </div>
+                                                                        <button
+                                                                            onClick={(e) => { e.stopPropagation(); /* logic to open billing */ }}
+                                                                            className="mt-2 text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-[#1a1a1a] px-4 py-2 shadow-[0_2px_0_0_#1a1a1a] hover:bg-[#ffdf00] transition-all active:translate-y-[0.5px] active:shadow-none"
+                                                                        >
+                                                                            {t('links.seePlans')}
+                                                                        </button>
+                                                                    </div>
+                                                                ) : (
+                                                                    <>
+                                                                        <div className="flex items-center justify-between px-1">
+                                                                            <div className="flex items-end gap-3">
+                                                                                <div>
+                                                                                    <label className="text-[10px] font-bold text-black uppercase tracking-[0.2em] flex items-center gap-1.5"><DollarSign size={14} strokeWidth={2} /> {t('mediakit.myPackages')}</label>
+                                                                                    <p className="text-[8px] font-medium text-black/50 uppercase tracking-widest mt-0.5">{t('mediakit.myPackagesDesc')}</p>
+                                                                                </div>
+                                                                                <div className="flex bg-black/[0.05] rounded-sm p-0.5 mb-0.5 border border-[#1a1a1a]/5">
+                                                                                    <button
+                                                                                        onClick={() => updateLink(link.id, 'currency', 'BRL')}
+                                                                                        className={`px-1.5 py-0.5 text-[8px] font-bold rounded-sm transition-all ${(!link.currency || link.currency === 'BRL') ? 'bg-white text-black shadow-[0_5px_0_0_#1a1a1a]' : 'text-black/30 hover:text-black'}`}
+                                                                                    >BRL</button>
+                                                                                    <button
+                                                                                        onClick={() => updateLink(link.id, 'currency', 'USD')}
+                                                                                        className={`px-1.5 py-0.5 text-[8px] font-bold rounded-sm transition-all ${link.currency === 'USD' ? 'bg-white text-black shadow-[0_5px_0_0_#1a1a1a]' : 'text-black/30 hover:text-black'}`}
+                                                                                    >USD</button>
+                                                                                </div>
+                                                                            </div>
+                                                                            <button onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                const defaultPrice = link.currency === 'USD' ? '$ 0.00' : 'R$ 0,00';
+                                                                                const newPackage = { id: crypto.randomUUID(), clientId: crypto.randomUUID(), title: 'Publi Completa', subtitle: 'Ex: 1 Reel + 2 Stories', url: defaultPrice, isActive: true, layout: 'list' as const, type: 'link' as const };
+                                                                                updateLink(link.id, 'children', [...(link.children || []), newPackage]);
+                                                                            }} className="px-2 py-1.5 text-[9px] bg-white border-2 border-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] text-black hover:bg-[#97cd7a] uppercase font-bold tracking-widest active:translate-y-[1px] active:shadow-none">+ {t('mediakit.addPackage') || t('common.add')}</button>
+                                                                        </div>
+                                                                        <div className="space-y-3">
+                                                                            {(link.children || []).map((pkg, i) => (
+                                                                                <div key={pkg.id} className="flex gap-3 p-3 bg-white border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] items-center group/pkg">
+                                                                                    <div className="flex-1 space-y-2">
+                                                                                        <input type="text" value={pkg.title} onChange={(e) => {
+                                                                                            const newChildren = [...(link.children || [])];
+                                                                                            newChildren[i].title = e.target.value;
+                                                                                            updateLink(link.id, 'children', newChildren);
+                                                                                        }} className="w-full text-[11px] font-bold uppercase tracking-widest text-black border-b border-dashed border-[#1a1a1a]/20 pb-1 focus:border-[#1a1a1a] outline-none bg-transparent" placeholder={t('mediakit.packageTitlePlaceholder')} />
+                                                                                        <input type="text" value={pkg.subtitle || ''} onChange={(e) => {
+                                                                                            const newChildren = [...(link.children || [])];
+                                                                                            newChildren[i].subtitle = e.target.value;
+                                                                                            updateLink(link.id, 'children', newChildren);
+                                                                                        }} className="w-full text-[9px] font-medium uppercase tracking-[0.1em] text-black/60 border-b border-dashed border-[#1a1a1a]/20 pb-1 focus:border-[#1a1a1a] outline-none bg-transparent" placeholder={t('mediakit.packageSubtitlePlaceholder')} />
+                                                                                    </div>
+                                                                                    <div className="w-[120px] shrink-0 flex flex-col items-end gap-1 px-1">
+                                                                                        <input type="text" value={pkg.url} onChange={(e) => {
+                                                                                            const newChildren = [...(link.children || [])];
+                                                                                            newChildren[i].url = e.target.value;
+                                                                                            updateLink(link.id, 'children', newChildren);
+                                                                                        }} className="w-full text-base font-bold text-right border-b-2 border-[#1a1a1a] focus:border-[#1a1a1a] px-1 py-1 outline-none bg-transparent" placeholder={link.currency === 'USD' ? '$ 0.00' : 'R$ 0,00'} />
+                                                                                        <button onClick={() => {
+                                                                                            const newChildren = [...(link.children || [])];
+                                                                                            newChildren.splice(i, 1);
+                                                                                            updateLink(link.id, 'children', newChildren);
+                                                                                        }} className="text-black/20 hover:text-red-500 transition-colors p-1"><Trash2 size={12} /></button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            ))}
+                                                                            {(link.children?.length === 0 || !link.children) && (
+                                                                                <div className="text-[9px] text-center p-6 border-2 border-dashed border-[#1a1a1a]/10 bg-black/5 text-black/40 uppercase tracking-[0.2em] font-bold">{t('mediakit.noPackages')}</div>
+                                                                            )}
+                                                                        </div>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </>
                                                 </div>
                                             )}
 
@@ -1489,6 +1525,34 @@ function SortableLinkItem({
                                     </div>
                                 </div>
                             </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
+
+            {/* 🎨 Icon Picker Modal */}
+            {createPortal(
+                <AnimatePresence>
+                    {showIconPicker && (
+                        <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setShowIconPicker(false)}
+                                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                            />
+                            <div className="relative w-full max-w-lg z-10">
+                                <IconPicker 
+                                    currentIcon={link.icon}
+                                    onSelect={(iconName) => {
+                                        updateLink(link.id, 'icon', iconName);
+                                        setShowIconPicker(false);
+                                    }}
+                                    onClose={() => setShowIconPicker(false)}
+                                />
+                            </div>
                         </div>
                     )}
                 </AnimatePresence>,

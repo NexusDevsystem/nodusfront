@@ -2,12 +2,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    X, Search, Link as LinkIcon, Layout, ShoppingBag,
+    X, Search, Link as LinkIcon, Layout as LayoutIcon, ShoppingBag,
     MessageSquare, Instagram, Youtube, MessageCircle,
     ChevronRight, ChevronLeft, Plus, DollarSign, Store, Share2,
     Smartphone, Mail, Type, Hash, Send as SendIcon, Zap, CreditCard,
-    Tag, Grid, Calendar, BarChart3, Lock, Video, Phone, RefreshCw, Loader2, AlertTriangle
-} from 'lucide-react';
+    Tag, Grid, Calendar, BarChart3, Lock, Video, Phone, RefreshCw, Loader2, AlertTriangle, List, Check
+} from 'lucide-react'; // Standardized imports
 import { SiSpotify, SiTiktok, SiPaypal, SiWhatsapp, SiDiscord, SiThreads } from 'react-icons/si';
 import { SOCIAL_NETWORKS, THEMES } from '../constants';
 import { LinkItem, UserProfile } from '../types';
@@ -363,14 +363,14 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             {t('links.insertUrlDesc') || 'Cole o link abaixo e nós faremos a mágica para deixá-lo incrível automaticamente.'}
                         </p>
                         
-                        <form onSubmit={handleUrlSubmit} className="relative">
+                        <form onSubmit={handleUrlSubmit} className="relative group">
                             <input
                                 ref={inputRef}
                                 type="text"
                                 placeholder={getPlaceholder()}
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
-                                className="w-full bg-white border-4 border-black rounded-xl py-4 px-5 text-sm font-bold text-black focus:outline-none focus:shadow-[0_4px_0_0_#1a1a1a] transition-all"
+                                className="w-full bg-white border-4 border-black rounded-xl py-4 px-6 text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#ffdf00]/10 focus:shadow-[0_6px_0_0_#1a1a1a] transition-all placeholder:text-black/20 shadow-[0_4px_0_0_#1a1a1a]"
                             />
                         </form>
 
@@ -450,13 +450,16 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             {t('links.collectionDesc', { extra: url.trim() ? t('links.collectionUrlHint') : "" })}
                         </p>
 
-                        <div className="space-y-2.5">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 px-1">{t('links.collectionNameLabel')}</label>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 px-1 flex items-center gap-2">
+                                <Type size={12} strokeWidth={3} />
+                                {t('links.collectionNameLabel')}
+                            </label>
                             <input
                                 autoFocus
                                 type="text"
                                 placeholder={t('links.collectionNamePlaceholder')}
-                                className="w-full bg-white border-2 border-black rounded-xl py-3 px-4 text-sm font-bold text-black focus:outline-none focus:ring-0 focus:shadow-[0_4px_0_0_#1a1a1a] transition-all uppercase tracking-widest"
+                                className="w-full bg-white border-2 border-black rounded-xl py-3.5 px-5 text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#ffdf00]/10 focus:shadow-[0_4px_0_0_#1a1a1a] transition-all uppercase tracking-widest shadow-[0_2px_0_0_rgba(0,0,0,0.05)]"
                                 value={collectionName}
                                 onChange={(e) => setCollectionName(e.target.value)}
                                 onKeyDown={(e) => {
@@ -468,43 +471,38 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             />
                         </div>
 
-                        <div className="space-y-6">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 px-1">{t('links.layoutLabel')}</label>
-                            <div className="grid grid-cols-2 gap-5">
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 px-1 flex items-center gap-2">
+                                <LayoutIcon size={12} strokeWidth={3} />
+                                {t('links.layoutLabel')}
+                            </label>
+                            <div className="grid grid-cols-2 gap-4">
                                 {[
                                     {
                                         id: 'list',
                                         label: t('links.layoutList') || 'Lista',
-                                        icon: (
-                                            <svg viewBox="0 0 100 80" className="w-14 h-auto">
-                                                <rect x="10" y="10" width="80" height="24" fill="white" stroke="black" strokeWidth="6" rx="6" />
-                                                <rect x="23" y="19.5" width="30" height="5" fill="black" rx="1.5" />
-                                                <rect x="10" y="44" width="80" height="24" fill="white" stroke="black" strokeWidth="6" rx="6" />
-                                                <rect x="23" y="53.5" width="30" height="5" fill="black" rx="1.5" />
-                                            </svg>
-                                        )
+                                        icon: <List size={20} strokeWidth={3} />
                                     },
                                     {
                                         id: 'carousel',
                                         label: t('links.layoutCarousel') || 'Carrossel',
-                                        icon: (
-                                            <svg viewBox="0 0 100 80" className="w-14 h-auto overflow-visible">
-                                                <rect x="0" y="10" width="40" height="60" fill="white" stroke="black" strokeWidth="8" rx="6" />
-                                                <rect x="55" y="10" width="40" height="60" fill="white" stroke="black" strokeWidth="8" opacity="0.6" rx="6" />
-                                                <rect x="110" y="10" width="40" height="60" fill="white" stroke="black" strokeWidth="8" opacity="0.3" rx="6" />
-                                            </svg>
-                                        )
+                                        icon: <Share2 size={20} strokeWidth={3} className="rotate-90" />
                                     },
                                 ].map((opt) => (
                                     <button
                                         key={opt.id}
                                         onClick={() => setCollectionLayout(opt.id as any)}
-                                        className={`group relative flex flex-col items-center gap-3 p-4 border-2 rounded-xl transition-all duration-300 ${collectionLayout === opt.id ? 'border-black bg-[#ffdf00] shadow-none translate-y-[3px]' : 'border-black/5 bg-white hover:border-black hover:translate-y-[1px] hover:shadow-[0_1px_0_0_#1a1a1a] shadow-[0_2px_0_0_#1a1a1a]'}`}
+                                        className={`group relative flex items-center gap-4 p-4 border-2 rounded-xl transition-all duration-300 ${collectionLayout === opt.id ? 'border-black bg-[#97cd7a] shadow-[0_4px_0_0_#1a1a1a] -translate-y-0.5' : 'border-black/5 bg-white hover:border-black hover:-translate-y-0.5 shadow-[0_2px_0_0_rgba(0,0,0,0.05)] hover:shadow-[0_4px_0_0_#1a1a1a]'}`}
                                     >
-                                        <div className="flex items-center justify-center p-2  transition-transform">
+                                        <div className={`w-10 h-10 flex items-center justify-center rounded-xl border-2 border-black ${collectionLayout === opt.id ? 'bg-white' : 'bg-slate-50'}`}>
                                             {opt.icon}
                                         </div>
                                         <span className={`text-[10px] font-black uppercase tracking-widest ${collectionLayout === opt.id ? 'text-black' : 'text-black/40'}`}>{opt.label}</span>
+                                        {collectionLayout === opt.id && (
+                                            <div className="absolute -top-2 -right-2 w-5 h-5 bg-black flex items-center justify-center border-2 border-white rounded-full z-10">
+                                                <Check size={12} strokeWidth={4} className="text-[#97cd7a]" />
+                                            </div>
+                                        )}
                                     </button>
                                 ))}
                             </div>
@@ -665,7 +663,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                             {[
                                 { id: 'link', icon: <LinkIcon size={isMobile ? 20 : 24} strokeWidth={3} />, label: 'Link', desc: t('links.insertAnyUrl'), color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => handleQuickAddClick('link') },
-                                { id: 'collection', icon: <Layout size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { setShowCollectionStep(true); } },
+                                { id: 'collection', icon: <LayoutIcon size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.collectionLabel'), desc: t('links.collectionDescShort'), color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { setShowCollectionStep(true); } },
                                 { id: 'product', icon: <ShoppingBag size={isMobile ? 20 : 24} strokeWidth={3} />, label: isMobile ? t('links.productLabel') : t('links.newProduct'), desc: t('links.productDescShort'), color: 'bg-white', accent: 'bg-cyan-400', action: () => { setShowShopCollectionStep(true); } },
                                 { id: 'agenda', icon: <Calendar size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('agenda.title') || 'Agenda', desc: t('agenda.descShort') || 'Liste seus eventos e shows', color: 'bg-white', accent: 'bg-[#ffdf00]', action: () => { onAddAgenda(); onClose(); } },
                                 { id: 'map', icon: <Store size={isMobile ? 20 : 24} strokeWidth={3} />, label: t('links.mapLabel') || 'Endereço', desc: t('links.mapDesc') || 'Destaque a localização do seu negócio', color: 'bg-white', accent: 'bg-[#97cd7a]', action: () => { onAddMap(); onClose(); } },
@@ -677,22 +675,22 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                                     onClick={item.action}
                                     className={`
                                         group relative flex flex-col items-start p-4 md:p-5 border-2 border-black text-left transition-all duration-300
-                                        ${item.color} rounded-xl md:rounded-xl shadow-[0_4px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[4px] overflow-hidden
+                                        ${item.color} rounded-xl md:rounded-xl shadow-[0_6px_0_0_#1a1a1a] hover:shadow-none hover:translate-y-[6px] overflow-hidden active:translate-y-[4px]
                                     `}
                                 >
                                     <div className={`
-                                        mb-3 md:mb-4 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center border-2 border-black ${item.accent} 
-                                        shadow-[0_3px_0_0_#1a1a1a] rounded-xl md:rounded-xl transition-transform
+                                        mb-3 md:mb-4 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center border-2 border-black ${item.accent} 
+                                        shadow-[0_4px_0_0_#1a1a1a] rounded-xl transition-transform group-hover:scale-105
                                     `}>
-                                        <div className="text-black transition-transform">
+                                        <div className="text-black">
                                             {item.icon}
                                         </div>
                                     </div>
-                                    <h5 className="text-[10px] md:text-[11px] font-black text-black uppercase tracking-wider mb-1 leading-none">{item.label}</h5>
-                                    {!isMobile && <p className="text-[9px] font-bold text-black/40 uppercase tracking-widest leading-none truncate w-full">{item.desc}</p>}
+                                    <h5 className="text-[10px] md:text-[11px] font-black text-black uppercase tracking-[0.15em] mb-1.5 leading-none">{item.label}</h5>
+                                    {!isMobile && <p className="text-[9px] font-bold text-black/30 uppercase tracking-widest leading-none truncate w-full group-hover:text-black/50 transition-colors">{item.desc}</p>}
 
-                                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-20 transition-opacity">
-                                        <Plus size={12} strokeWidth={4} />
+                                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                                        <Plus size={14} strokeWidth={4} className="text-black" />
                                     </div>
                                 </button>
                             ))}

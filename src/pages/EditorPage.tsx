@@ -34,7 +34,7 @@ import MobileBottomSheet from '../components/MobileBottomSheet';
 import MobileBottomNav from '../components/MobileBottomNav';
 import MobileExtrasMenu from '../components/MobileExtrasMenu';
 import FileManager from '../components/tools/FileManager';
-import { IntegrationsView } from '../views/IntegrationsView';
+
 import { useTranslation } from 'react-i18next';
 import { hasProFeatures, reconcileSubscription } from '../utils/planUtils';
 import { AlertCircle } from 'lucide-react';
@@ -572,9 +572,7 @@ export default function EditorPage() {
                 <FileManager userProfile={profile} />
             )}
 
-            {activeTab === 'integrations' && (
-                <IntegrationsView profile={profile} onChange={setProfile} links={links} onLinksChange={setLinks} />
-            )}
+
 
             {activeTab === 'admin' && (profile.username === 'nodus' || authProfile?.email === 'jaoomarcos75@gmail.com') && (
                 <AdminView />
@@ -637,7 +635,7 @@ export default function EditorPage() {
                 </div>
             )}
 
-            {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'integrations' && activeTab !== 'admin' && activeTab !== 'roadmap' && activeTab !== 'extras' && (
+            {activeTab !== 'links' && activeTab !== 'appearance' && activeTab !== 'shop' && activeTab !== 'analytics' && activeTab !== 'settings' && activeTab !== 'earn' && activeTab !== 'billing' && activeTab !== 'support' && activeTab !== 'files' && activeTab !== 'admin' && activeTab !== 'roadmap' && activeTab !== 'extras' && (
                 <div className="bg-transparent p-12 rounded-[20px] border border-dashed border-[#1a1a1a]/20 text-center">
                     <div className="text-4xl mb-4 text-slate-300 flex justify-center"><Construction size={48} /></div>
                     <h3 className="text-lg font-medium text-slate-700">{t('editor.inDevelopment')}</h3>

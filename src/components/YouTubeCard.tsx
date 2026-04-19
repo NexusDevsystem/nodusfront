@@ -100,7 +100,7 @@ export const YouTubeCard: React.FC<YouTubeCardProps> = ({
                         </span>
                     </div>
 
-                    <h4 className="text-[14px] sm:text-[16px] font-bold truncate tracking-tight uppercase leading-none my-1" style={{ color: themeTextHex }}>
+                    <h4 className="text-[14px] sm:text-[16px] font-bold whitespace-normal break-words tracking-tight uppercase leading-none my-1" style={{ color: themeTextHex }}>
                         {title}
                     </h4>
 
@@ -110,7 +110,7 @@ export const YouTubeCard: React.FC<YouTubeCardProps> = ({
                             <span className="text-[10px] sm:text-[11px] font-bold leading-none shrink-0" style={{ color: themeTextHex }}>
                                 {formatCount(subscribers)}
                             </span>
-                            <span className="text-[9px] uppercase tracking-wider opacity-50 font-medium leading-none truncate" style={{ color: themeTextHex }}>
+                            <span className="text-[9px] uppercase tracking-wider opacity-50 font-medium leading-none whitespace-nowrap" style={{ color: themeTextHex }}>
                                 inscritos
                             </span>
                         </div>

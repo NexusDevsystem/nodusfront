@@ -56,12 +56,12 @@ const DiscordCard: React.FC<DiscordCardProps> = ({
 
     return (
         <div
-            className="flex items-center gap-3.5 w-full h-full"
+            className="flex items-center gap-3 w-full h-full"
         >
             {/* Server Icon vs System Icon */}
-            <div className="relative shrink-0 z-10 w-14 h-14 flex items-center justify-center border-r bg-black/[0.03]" style={{ borderColor: `${smartText}0A` }}>
+            <div className="relative shrink-0 z-10">
                 {stats?.icon || link.image ? (
-                    <div className="w-10 h-10 rounded-sm overflow-hidden border border-black/5 shadow-sm transition-transform duration-300 group-hover:scale-105">
+                    <div className="w-12 h-12 rounded-full overflow-hidden border border-black/5 shadow-sm transition-transform duration-300 group-hover:scale-105">
                         <img 
                             src={stats?.icon || link.image} 
                             className="w-full h-full object-cover" 
@@ -69,42 +69,34 @@ const DiscordCard: React.FC<DiscordCardProps> = ({
                         />
                     </div>
                 ) : (
-                    <div className="transition-transform duration-300 group-hover:scale-110">
-                        <SystemIcon size={26} style={{ color: smartText }} />
+                    <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform duration-300 group-hover:scale-110">
+                        <SystemIcon size={28} style={{ color: smartText }} />
                     </div>
                 )}
             </div>
 
             {/* Content Column */}
-            <div className="flex-1 min-w-0 flex flex-col items-center justify-center text-center z-10 pr-4">
-                <div className="flex items-center justify-center gap-1.5 opacity-50 mb-0.5">
+            <div className="flex-1 min-w-0 flex flex-col items-center justify-center text-center z-10">
+                <div className="flex items-center justify-center gap-1.5 mb-1 opacity-60">
                     <SiDiscord size={10} style={{ color: smartText }} className="shrink-0" />
-                    <span className="text-[8px] uppercase tracking-[0.25em] font-black" style={{ color: smartText }}>
-                        DISCORD
+                    <span className="text-[7px] font-bold uppercase tracking-[0.25em] leading-none" style={{ color: smartText }}>
+                        Discord
                     </span>
                 </div>
 
-                <h4 className="text-[15px] font-bold truncate tracking-tight uppercase leading-none mb-1 w-full text-center" style={{ color: smartText }}>
+                <h4 className="text-[14px] font-bold truncate tracking-tight uppercase leading-none mb-1.5 w-full text-center" style={{ color: smartText }}>
                     {stats?.name || link.title || "Discord Server"}
                 </h4>
 
                 <div className="flex items-center justify-center w-full">
-                    {loading ? (
-                        <div className="h-2 w-16 bg-black/10 animate-pulse rounded" />
-                    ) : (
-                        <div className="flex items-center justify-center gap-3 text-[10px] font-bold uppercase tracking-widest opacity-70 whitespace-nowrap" style={{ color: smartText }}>
-                             <div className="flex items-center gap-1.5 whitespace-nowrap">
-                                <div className="w-2 h-2 rounded-full bg-[#23A559] shrink-0 shadow-[0_0_8px_rgba(35,165,89,0.4)]" />
-                                <span className="whitespace-nowrap">{stats?.online.toLocaleString()} ONLINE</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 whitespace-nowrap">
-                                <div className="w-2 h-2 rounded-full border-2 border-current opacity-40 shrink-0" />
-                                <span className="whitespace-nowrap">{stats?.total.toLocaleString()}</span>
-                            </div>
-                        </div>
-                    )}
+                    <span className="text-[8px] opacity-60 font-bold leading-none flex items-center justify-center gap-1.5 w-full whitespace-nowrap uppercase tracking-[0.15em]" style={{ color: smartText }}>
+                        Discord Server • Joined
+                    </span>
                 </div>
             </div>
+
+            {/* Balancing space for centering */}
+            <div className="w-12 shrink-0" />
 
             {/* Shine Effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />

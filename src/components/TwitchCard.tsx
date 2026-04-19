@@ -43,13 +43,13 @@ export const TwitchCard: React.FC<TwitchCardProps> = ({
     const toggleMute = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        
+
         // Twitch PostMessage API attempt
         iframeRef.current?.contentWindow?.postMessage({
             method: 'setMuted',
             args: [!isMuted]
         }, '*');
-        
+
         setIsMuted(!isMuted);
     };
 
@@ -60,10 +60,10 @@ export const TwitchCard: React.FC<TwitchCardProps> = ({
     };
 
     return (
-        <motion.div 
+        <motion.div
             layout
             initial={false}
-            animate={{ 
+            animate={{
                 height: isLive ? 'auto' : 72
             }}
             transition={{
@@ -99,8 +99,8 @@ export const TwitchCard: React.FC<TwitchCardProps> = ({
                         </span>
                     </div>
 
-                    <h4 className="text-[14px] sm:text-[16px] font-bold truncate tracking-tight uppercase leading-none my-1" style={{ color: themeTextHex }}>
-                        {displayName || username}
+                    <h4 className="text-[14px] sm:text-[16px] font-bold whitespace-normal break-words tracking-tight uppercase leading-none my-1" style={{ color: themeTextHex }}>
+                        @{displayName || username}
                     </h4>
 
                     <div className="flex items-center gap-2.5 overflow-hidden">
@@ -109,7 +109,7 @@ export const TwitchCard: React.FC<TwitchCardProps> = ({
                             <span className="text-[10px] sm:text-[11px] font-bold leading-none shrink-0" style={{ color: themeTextHex }}>
                                 {formatFollowers(followers)}
                             </span>
-                            <span className="text-[9px] uppercase tracking-wider opacity-50 font-medium leading-none truncate" style={{ color: themeTextHex }}>
+                            <span className="text-[9px] uppercase tracking-wider opacity-50 font-medium leading-none whitespace-nowrap" style={{ color: themeTextHex }}>
                                 seguidores
                             </span>
                         </div>
@@ -125,7 +125,7 @@ export const TwitchCard: React.FC<TwitchCardProps> = ({
             {/* Live Embed Area */}
             <AnimatePresence>
                 {isLive && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, height: 0, scale: 0.95 }}
                         animate={{ opacity: 1, height: 'auto', scale: 1 }}
                         exit={{ opacity: 0, height: 0, scale: 0.95 }}
@@ -144,11 +144,11 @@ export const TwitchCard: React.FC<TwitchCardProps> = ({
                                 allowFullScreen
                             ></iframe>
                         </div>
-                        
+
                         {/* Remote Control Overlay */}
                         <div className="absolute inset-x-4 sm:inset-x-5 inset-y-0 z-20 pointer-events-none flex items-end justify-center pb-4">
-                            <motion.button 
-                                whileHover={{ }}
+                            <motion.button
+                                whileHover={{}}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={toggleMute}
                                 className="pointer-events-auto bg-black/60 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-md flex items-center gap-2 text-xs font-bold shadow-2xl hover:bg-black/80 transition-colors uppercase tracking-wider"

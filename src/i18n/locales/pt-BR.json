@@ -1036,5 +1036,12 @@
         "packageSubtitlePlaceholder": "O que inclui? Ex: 1 Reel + 3 Stories integrados",
         "packagePricePlaceholder": "R$ 0,00",
         "addPackage": "Adicionar Pacote"
+    },
+    "icons": {
+        "title": "Escolher Ícone",
+        "desc": "Personalize seu botão",
+        "searchPlaceholder": "Buscar ícone (em inglês)...",
+        "popular": "Sugestões Populares",
+        "noResults": "Nenhum ícone encontrado"
     }
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import * as LucideIcons from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserProfile, LinkItem, Product, Store } from '../types';
 import { THEMES, SOCIAL_NETWORKS } from '../constants';
@@ -125,7 +126,7 @@ const LinkCountdown: React.FC<{
 
     return (
         <div className="flex flex-col items-center justify-center p-2 w-full" style={{ ...style, fontFamily }}>
-            <span className="text-[10px] uppercase tracking-[0.2em] opacity-40 mb-2 font-black text-center w-full truncate px-4">{title}</span>
+            <span className="text-[10px] uppercase tracking-[0.2em] opacity-40 mb-2 font-black text-center w-full whitespace-normal break-words px-4">{title}</span>
             <div className="flex gap-3 justify-center">
                 {[
                     { val: timeLeft.d, label: 'D' },
@@ -180,6 +181,60 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         }, 4000);
         return () => clearInterval(timer);
     }, []);
+
+    // 🕵️ AUTO-METADATA DETECTION: Automatically fetch and save followers for manual social links
+    React.useEffect(() => {
+        if (isPreview) return; // Don't scrape during editing previews to save resources
+
+        const detectAndSave = async () => {
+            const now = Date.now();
+            const lastCheck = localStorage.getItem(`last_social_check_${profile.id}`);
+            
+            // Limit checks to once every 2 hours per profile per visitor to avoid rate limits
+            if (lastCheck && now - parseInt(lastCheck) < 2 * 60 * 60 * 1000) return;
+            
+            localStorage.setItem(`last_social_check_${profile.id}`, now.toString());
+
+            // Process links to find social ones needing updates
+            // Filter links that need metadata
+            const socialLinks = links.filter(l => {
+                if (l.type !== 'link' || !l.isActive || !l.url) return false;
+                
+                // Only trigger for known social platforms that look empty or have placeholders
+                const isSocial = l.platform && !['custom', 'site', 'telefone', 'email'].includes(l.platform);
+                const hasPlaceholder = !l.subtitle || 
+                                     l.subtitle.toLowerCase().includes('ver perfil') || 
+                                     l.subtitle.toLowerCase().includes('view profile') ||
+                                     l.subtitle.toLowerCase().includes('ver canal') ||
+                                     l.subtitle.toLowerCase() === l.platform?.toLowerCase();
+                
+                return isSocial && hasPlaceholder;
+            });
+
+            for (const link of socialLinks) {
+                const url = link.url.toLowerCase();
+                try {
+                    if (url.includes('instagram.com/')) {
+                        await apiClient.getInstagramProfileInfo(link.url, link.id);
+                    } else if (url.includes('tiktok.com/@')) {
+                        await apiClient.getTiktokProfileInfo(link.url, link.id);
+                    } else if (url.includes('twitch.tv/')) {
+                        await apiClient.getTwitchProfileInfo(link.url, link.id);
+                    } else if (url.includes('youtube.com/') || url.includes('youtu.be/')) {
+                        await apiClient.getYoutubeChannelInfo(link.url, link.id);
+                    } else if (url.includes('kick.com/')) {
+                        await apiClient.getKickProfileInfo(link.url, link.id);
+                    }
+                } catch (err) {
+                    console.warn(`[AutoMetadata] Failed for ${link.url}:`, err);
+                }
+            }
+        };
+
+        // Delay start by 3 seconds to prioritize main content load
+        const delay = setTimeout(detectAndSave, 3000);
+        return () => clearTimeout(delay);
+    }, [links, profile.id, isPreview]);
 
     // CSS keyframes memoized — inserted ONCE, never recreated on re-render
     const profileGlobalStyles = React.useMemo(() => (
@@ -647,44 +702,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
             return domainMatches.some(domain => lowerUrl.includes(domain));
         };
 
-        const hasLinkDeep = (list: LinkItem[], provider: string): boolean => {
-            return list.some(l => {
-                if (isPlatformMatch(l, provider)) return true;
-                if (l.children && l.children.length > 0) return hasLinkDeep(l.children, provider);
-                return false;
-            });
-        };
-
-        const providersToInject = order.filter(p =>
-            integrations.some(i => i.provider === p) &&
-            !hasLinkDeep(links, p)
-        );
-
-        [...providersToInject].reverse().forEach(provider => {
-            const integration = integrations.find(i => i.provider === provider);
-            const username = integration?.profile_data?.username;
-            if (username) {
-                let url = '';
-                if (provider === 'instagram') url = `https://instagram.com/${username}`;
-                else if (provider === 'youtube') url = `https://youtube.com/@${username}`;
-                else if (provider === 'twitch') url = `https://twitch.tv/${username}`;
-                else if (provider === 'kick') url = `https://kick.com/${username}`;
-
-                if (url) {
-                    result.unshift({
-                        id: `btn-integration-${provider}`,
-                        title: provider === 'instagram' ? 'Instagram' : (provider === 'youtube' ? 'YouTube' : (provider === 'twitch' ? 'Twitch Live' : 'Kick Live')),
-                        url: url,
-                        isActive: true,
-                        layout: 'classic',
-                        type: 'link',
-                        platform: provider
-                    } as any);
-                }
-            }
-        });
         return result;
-    }, [activeLinks, profile.integrations]);
+    }, [activeLinks]);
 
     const getLuminance = (hex: string) => {
         const rgb = hex.replace('#', '').match(/.{1,2}/g)?.map(x => parseInt(x, 16)) || [255, 255, 255];
@@ -1192,7 +1211,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     whileHover={{ width: 200 }}
                                     whileTap={{ scale: 0.95 }}
                                     transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                                    className="h-10 flex items-center bg-white/50 rounded-full shadow-md overflow-hidden cursor-pointer group whitespace-nowrap border border-white/20 pointer-events-auto z-[50] cursor-target relative isolate"
+                                    className="h-10 flex items-center bg-white/50 rounded-full shadow-md overflow-hidden cursor-pointer group whitespace-normal border border-white/20 pointer-events-auto z-[50] cursor-target relative isolate"
                                     style={{ display: 'flex', position: 'relative', fontFamily: "'Inter', sans-serif" }}
                                 >
                                     <div className="w-10 h-10 flex items-center justify-center shrink-0 p-[6px]">
@@ -1646,7 +1665,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             <div key={colName} className="space-y-4">
                                                                                 <div className="px-2 flex items-center gap-3">
                                                                                     <div className="h-[2px] flex-1 bg-black/5" />
-                                                                                    <h4 className="text-[10px] uppercase tracking-[0.2em] opacity-30 whitespace-nowrap" style={{ color: getSmartTextColor(), fontWeight: profile.fontWeight || '900' }}>{colName}</h4>
+                                                                                    <h4 className="text-[10px] uppercase tracking-[0.2em] opacity-30 whitespace-normal" style={{ color: getSmartTextColor(), fontWeight: profile.fontWeight || '900' }}>{colName}</h4>
                                                                                     <div className="h-[2px] flex-1 bg-black/5" />
                                                                                 </div>
                                                                                 <div className="grid grid-cols-2 gap-2">
@@ -1817,7 +1836,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             </div>
                                                                                         )}
                                                                                         <span
-                                                                                            className="text-[15px] leading-tight truncate w-full uppercase tracking-tight"
+                                                                                            className="text-[15px] leading-tight whitespace-normal break-words w-full uppercase tracking-tight"
                                                                                             style={{
                                                                                                 color: smartText,
                                                                                                 fontWeight: (profile.fontWeight || '700'),
@@ -1827,7 +1846,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         >{cardLink.title}</span>
                                                                                         {cardLink.subtitle && (
                                                                                             <span
-                                                                                                className="text-[11px] leading-tight truncate w-full mt-1"
+                                                                                                className="text-[11px] leading-tight whitespace-normal break-words w-full mt-1"
                                                                                                 style={{
                                                                                                     color: smartText,
                                                                                                     opacity: 0.6,
@@ -1939,7 +1958,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 if (handlePasswordProtectedLink(link, e)) return;
                                                                                 handleLinkClick(link.id);
                                                                             }}
-                                                                            className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                            className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                                             style={{
                                                                                 ...mainButtonStyle, clipPath: themeClipPath,
                                                                                 fontFamily: profile.fontFamily,
@@ -1963,16 +1982,16 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
                                                                                 <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
                                                                                     {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
-                                                                                    <span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                    <span className="text-[7px] font-bold uppercase tracking-[0.25em] leading-none" style={{ color: getSmartTextColor() }}>
                                                                                         Instagram
                                                                                     </span>
                                                                                 </div>
                                                                                 <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
-                                                                                    <span className="block w-full whitespace-nowrap">{`@${link.url.match(/instagram\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil'}`}</span>
+                                                                                    <span className="block w-full whitespace-normal">{`@${link.url.match(/instagram\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil'}`}</span>
                                                                                 </div>
-                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-nowrap" style={{ color: getSmartTextColor() }}>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
                                                                                     <Users size={12} className="shrink-0" />
-                                                                                    <span>{link.subtitle || 'Ver Perfil'}</span>
+                                                                                    <span>{link.subtitle || (link.platform ? (link.platform.charAt(0).toUpperCase() + link.platform.slice(1)) : 'Instagram')}</span>
                                                                                 </span>
                                                                             </div>
                                                                             <div className="w-12" />
@@ -2071,14 +2090,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
                                                                                 <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
                                                                                     {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
-                                                                                    <span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                    <span className="text-[7px] font-bold uppercase tracking-[0.25em] leading-none" style={{ color: getSmartTextColor() }}>
                                                                                         YouTube
                                                                                     </span>
                                                                                 </div>
                                                                                 <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
-                                                                                    <span className="block w-full whitespace-nowrap">{ytDisplayUsername}</span>
+                                                                                    <span className="block w-full whitespace-normal">{ytDisplayUsername}</span>
                                                                                 </div>
-                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-nowrap" style={{ color: getSmartTextColor() }}>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
                                                                                     <Users size={12} className="shrink-0" />
                                                                                     <span>{link.subtitle || (ytSubsFormatted ? `${ytSubsFormatted} Inscritos` : 'Ver Canal')}</span>
                                                                                 </span>
@@ -2120,7 +2139,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 if (handlePasswordProtectedLink(link, e)) return;
                                                                                 handleLinkClick(link.id);
                                                                             }}
-                                                                            className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                            className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                                             style={{
                                                                                 ...mainButtonStyle, clipPath: themeClipPath,
                                                                                 fontFamily: profile.fontFamily,
@@ -2131,9 +2150,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             }}
                                                                         >
                                                                             <div className="relative shrink-0 z-10">
-                                                                                {link.image ? (
+                                                                                {link.image || twitchAvatar ? (
                                                                                     <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
-                                                                                        <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                                                                        <img src={link.image || twitchAvatar} alt="" className="w-full h-full object-cover" />
                                                                                     </div>
                                                                                 ) : Icon ? (
                                                                                     <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
@@ -2142,15 +2161,19 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 ) : <div className="w-12" />}
                                                                             </div>
                                                                             <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
-                                                                                <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full" style={{ color: getSmartTextColor() }}>
-                                                                                    <span className="truncate block w-full">{link.title}</span>
-                                                                                </div>
-                                                                                {link.subtitle && (
-                                                                                    <span className="text-[13px] opacity-70 leading-tight truncate flex items-center justify-center gap-1.5" style={{ color: getSmartTextColor() }}>
-                                                                                        {Icon && <Icon size={12} className="shrink-0" />}
-                                                                                        {link.subtitle}
+                                                                                <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
+                                                                                    {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
+                                                                                    <span className="text-[7px] font-bold uppercase tracking-[0.25em] leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                        Twitch
                                                                                     </span>
-                                                                                )}
+                                                                                </div>
+                                                                                <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
+                                                                                    <span className="block w-full whitespace-normal">{`@${link.url.match(/twitch\.tv\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || link.title || 'perfil'}`}</span>
+                                                                                </div>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
+                                                                                    <Users size={12} className="shrink-0" />
+                                                                                    <span>{link.subtitle || (twitchFollowers ? `${twitchFollowers.toLocaleString()} Seguidores` : 'Ver Canal')}</span>
+                                                                                </span>
                                                                             </div>
                                                                             <div className="w-12" />
                                                                         </motion.a>
@@ -2207,7 +2230,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 if (handlePasswordProtectedLink(link, e)) return;
                                                                                 handleLinkClick(link.id);
                                                                             }}
-                                                                            className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                            className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                                             style={{
                                                                                 ...mainButtonStyle, clipPath: themeClipPath,
                                                                                 fontFamily: profile.fontFamily,
@@ -2231,16 +2254,15 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
                                                                                 <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
                                                                                     {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
-                                                                                    <span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                    <span className="text-[7px] font-bold uppercase tracking-[0.25em] leading-none" style={{ color: getSmartTextColor() }}>
                                                                                         TikTok
                                                                                     </span>
                                                                                 </div>
                                                                                 <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full" style={{ color: getSmartTextColor() }}>
-                                                                                    <span className="truncate block w-full">{link.title}</span>
+                                                                                    <span className="whitespace-normal break-words block w-full">{link.title}</span>
                                                                                 </div>
-                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-nowrap" style={{ color: getSmartTextColor() }}>
-                                                                                    <Users size={12} className="shrink-0" />
-                                                                                    <span>{link.subtitle || 'Ver Perfil'}</span>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
+                                                                                    <span>{link.subtitle || (link.platform ? (link.platform.charAt(0).toUpperCase() + link.platform.slice(1)) : 'TikTok')}</span>
                                                                                 </span>
                                                                             </div>
                                                                             <div className="w-12" />
@@ -2280,7 +2302,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 if (handlePasswordProtectedLink(link, e)) return;
                                                                                 handleLinkClick(link.id);
                                                                             }}
-                                                                            className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                            className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                                             style={{
                                                                                 ...mainButtonStyle, clipPath: themeClipPath,
                                                                                 fontFamily: profile.fontFamily,
@@ -2291,9 +2313,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             }}
                                                                         >
                                                                             <div className="relative shrink-0 z-10">
-                                                                                {link.image ? (
+                                                                                {link.image || kickAvatar ? (
                                                                                     <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
-                                                                                        <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                                                                        <img src={link.image || kickAvatar} alt="" className="w-full h-full object-cover" />
                                                                                     </div>
                                                                                 ) : Icon ? (
                                                                                     <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
@@ -2302,15 +2324,19 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 ) : <div className="w-12" />}
                                                                             </div>
                                                                             <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
-                                                                                <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full" style={{ color: getSmartTextColor() }}>
-                                                                                    <span className="truncate block w-full">{link.title}</span>
-                                                                                </div>
-                                                                                {link.subtitle && (
-                                                                                    <span className="text-[13px] opacity-70 leading-tight truncate flex items-center justify-center gap-1.5" style={{ color: getSmartTextColor() }}>
-                                                                                        {Icon && <Icon size={12} className="shrink-0" />}
-                                                                                        {link.subtitle}
+                                                                                <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
+                                                                                    {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
+                                                                                    <span className="text-[7px] font-bold uppercase tracking-[0.25em] leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                        Kick
                                                                                     </span>
-                                                                                )}
+                                                                                </div>
+                                                                                <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
+                                                                                    <span className="block w-full whitespace-normal">{`@${link.url.match(/kick\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || link.title || 'perfil'}`}</span>
+                                                                                </div>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
+                                                                                    <Users size={12} className="shrink-0" />
+                                                                                    <span>{link.subtitle || (kickFollowers ? `${kickFollowers.toLocaleString()} Seguidores` : 'Kick')}</span>
+                                                                                </span>
                                                                             </div>
                                                                             <div className="w-12" />
                                                                         </motion.a>
@@ -2522,7 +2548,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                 /> : <div className="w-full h-full flex items-center justify-center bg-slate-200/20 text-slate-400"><ShoppingBag size={20} /></div>}
                                                                                             </div>
                                                                                             <div className="p-2 flex flex-col justify-center items-center text-center h-12 relative">
-                                                                                                <span className="text-[0.7em] leading-tight truncate w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
+                                                                                                <span className="text-[0.7em] leading-tight whitespace-normal break-words w-full" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>{child.title}</span>
                                                                                             </div>
                                                                                         </div>
                                                                                     </motion.a>
@@ -2637,10 +2663,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
                                                                                             const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
                                                                                             const effectProps = { className: "w-full", clipPath: themeClipPath };
-                                                                                            
+
                                                                                             const ytUsername = youtubeUsername || child.subtitle?.match(/@([^\s\•]+)/)?.[1] || child.url?.match(/youtube\.com\/@([^\/\?]+)/)?.[1] || child.url?.match(/youtube\.com\/(?:c|user)\/([^\/\?]+)/)?.[1] || child.url;
                                                                                             const ytDisplayUsername = typeof ytUsername === 'string' && ytUsername.length > 0 && !ytUsername.includes('youtube.com') ? `@${ytUsername.replace('@', '').split('/')[0].split('?')[0]}` : (child.title || 'YouTube');
-                                                                                            
+
                                                                                             const formatSubs = (n: string | number | null | undefined): string => {
                                                                                                 if (!n) return '';
                                                                                                 const num = typeof n === 'string' ? parseFloat(n.replace(/[KMB]/i, (m) => m === 'K' || m === 'k' ? '000' : m === 'M' || m === 'm' ? '000000' : '000000000')) : n;
@@ -2650,7 +2676,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                 if (num >= 1_000) return `${(num / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
                                                                                                 return String(num);
                                                                                             };
-                                                                                            
+
                                                                                             const ytSubscribersRaw = youtubeSubscribers ?? (child.subtitle?.match(/([\d\.]+[KMB]?)\s*Inscritos/i)?.[1]);
                                                                                             const ytSubsFormatted = formatSubs(ytSubscribersRaw);
 
@@ -2666,7 +2692,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                                 if (handlePasswordProtectedLink(child, e)) return;
                                                                                                                 handleLinkClick(child.id);
                                                                                                             }}
-                                                                                                            className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`}
+                                                                                                            className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`}
                                                                                                             style={{
                                                                                                                 ...mainButtonStyle, clipPath: themeClipPath,
                                                                                                                 fontFamily: profile.fontFamily,
@@ -2680,6 +2706,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                                 {child.image ? (
                                                                                                                     <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
                                                                                                                         <img src={child.image} alt="" className="w-full h-full object-cover" />
+                                                                                                                    </div>
+                                                                                                                ) : child.icon ? (
+                                                                                                                    <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                                                        {React.createElement((LucideIcons as any)[child.icon] || LucideIcons.Grid, { size: 28 })}
+                                                                                                                    </div>
+                                                                                                                ) : child.icon ? (
+                                                                                                                    <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                                                        {React.createElement((LucideIcons as any)[child.icon] || LucideIcons.Grid, { size: 28 })}
                                                                                                                     </div>
                                                                                                                 ) : Icon ? (
                                                                                                                     <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
@@ -2695,11 +2729,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                                     </span>
                                                                                                                 </div>
                                                                                                                 <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
-                                                                                                                    <span className="block w-full whitespace-nowrap">{ytDisplayUsername}</span>
+                                                                                                                    <span className="block w-full whitespace-normal">{ytDisplayUsername}</span>
                                                                                                                 </div>
-                                                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-nowrap" style={{ color: getSmartTextColor() }}>
+                                                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
                                                                                                                     <Users size={12} className="shrink-0" />
-                                                                                                                    <span>{child.subtitle || (ytSubsFormatted ? `${ytSubsFormatted} Inscritos` : 'Ver Canal')}</span>
+                                                                                                                    <span>{child.subtitle || (ytSubsFormatted ? `${ytSubsFormatted} Inscritos` : 'YouTube')}</span>
                                                                                                                 </span>
                                                                                                             </div>
                                                                                                             <div className="w-12 shrink-0" />
@@ -2710,7 +2744,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             renderedSpecial = true;
                                                                                         }
                                                                                     }
-                                                                                    
+
                                                                                     if (!renderedSpecial && (child.platform === 'instagram' || child.url?.includes('instagram.com'))) {
                                                                                         const network = SOCIAL_NETWORKS.find(n => n.id === 'instagram');
                                                                                         const Icon = network?.icon;
@@ -2730,7 +2764,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                             if (handlePasswordProtectedLink(child, e)) return;
                                                                                                             handleLinkClick(child.id);
                                                                                                         }}
-                                                                                                        className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`}
+                                                                                                        className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`}
                                                                                                         style={{
                                                                                                             ...mainButtonStyle, clipPath: themeClipPath,
                                                                                                             fontFamily: profile.fontFamily,
@@ -2747,7 +2781,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                                 </div>
                                                                                                             ) : Icon ? (
                                                                                                                 <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
-                                                                                                                        <Icon size={28} />
+                                                                                                                    <Icon size={28} />
                                                                                                                 </div>
                                                                                                             ) : <div className="w-12" />}
                                                                                                         </div>
@@ -2759,11 +2793,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                                 </span>
                                                                                                             </div>
                                                                                                             <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
-                                                                                                                <span className="block w-full whitespace-nowrap">{`@${child.url?.match(/instagram\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil'}`}</span>
+                                                                                                                <span className="block w-full whitespace-normal">{`@${child.url?.match(/instagram\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil'}`}</span>
                                                                                                             </div>
-                                                                                                            <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-nowrap" style={{ color: getSmartTextColor() }}>
+                                                                                                            <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
                                                                                                                 <Users size={12} className="shrink-0" />
-                                                                                                                <span>{child.subtitle || 'Ver Perfil'}</span>
+                                                                                                                <span>{child.subtitle || (child.platform ? (child.platform.charAt(0).toUpperCase() + child.platform.slice(1)) : 'Instagram')}</span>
                                                                                                             </span>
                                                                                                         </div>
                                                                                                         <div className="w-12 shrink-0" />
@@ -2792,7 +2826,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                             if (handlePasswordProtectedLink(child, e)) return;
                                                                                                             handleLinkClick(child.id);
                                                                                                         }}
-                                                                                                        className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`}
+                                                                                                        className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`}
                                                                                                         style={{
                                                                                                             ...mainButtonStyle, clipPath: themeClipPath,
                                                                                                             fontFamily: profile.fontFamily,
@@ -2809,7 +2843,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                                 </div>
                                                                                                             ) : Icon ? (
                                                                                                                 <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
-                                                                                                                        <Icon size={28} />
+                                                                                                                    <Icon size={28} />
                                                                                                                 </div>
                                                                                                             ) : <div className="w-12" />}
                                                                                                         </div>
@@ -2821,11 +2855,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                                 </span>
                                                                                                             </div>
                                                                                                             <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
-                                                                                                                <span className="block w-full whitespace-nowrap">{child.title}</span>
+                                                                                                                <span className="block w-full whitespace-normal">{child.title}</span>
                                                                                                             </div>
-                                                                                                            <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-nowrap" style={{ color: getSmartTextColor() }}>
+                                                                                                            <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
                                                                                                                 <Users size={12} className="shrink-0" />
-                                                                                                                <span>{child.subtitle || 'Ver Perfil'}</span>
+                                                                                                                <span>{child.subtitle || (child.platform ? (child.platform.charAt(0).toUpperCase() + child.platform.slice(1)) : 'TikTok')}</span>
                                                                                                             </span>
                                                                                                         </div>
                                                                                                         <div className="w-12 shrink-0" />
@@ -2835,25 +2869,62 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         );
                                                                                         renderedSpecial = true;
                                                                                     }
-                                                                                    if (!renderedSpecial && (child.platform === 'twitch' || child.title.toLowerCase().includes('twitch'))) {
-                                                                                        if (twitchIntegration) {
+                                                                                    if (!renderedSpecial && (child.platform === 'twitch' || child.url?.includes('twitch.tv') || child.title?.toLowerCase().includes('twitch'))) {
+                                                                                        const twUsername = twitchUsername || child.url.match(/twitch\.tv\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil';
+                                                                                        const twDisplayName = twitchDisplayName || (child.title && !['Twitch', 'perfil'].includes(child.title) ? child.title : twUsername);
+                                                                                        const parseFollowers = (n: any): number => {
+                                                                                            if (!n) return 0;
+                                                                                            if (typeof n === 'number') return n;
+                                                                                            const str = String(n).toLowerCase();
+                                                                                            const numMatch = str.match(/([\d\.]+)/);
+                                                                                            if (!numMatch) return 0;
+                                                                                            let val = parseFloat(numMatch[1]);
+                                                                                            if (str.includes('m')) val *= 1000000;
+                                                                                            else if (str.includes('k')) val *= 1000;
+                                                                                            return val;
+                                                                                        };
+                                                                                        const twFollowersRaw = twitchFollowers ?? parseFollowers(child.subtitle);
+                                                                                        const twAvatar = twitchAvatar || child.image || '';
+                                                                                        if (false) {
+                                                                                            // integration removed
+                                                                                        } else {
+                                                                                            const network = SOCIAL_NETWORKS.find(n => n.id === 'twitch');
+                                                                                            const Icon = network?.icon;
+                                                                                            const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
+                                                                                            const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
+                                                                                            const effectProps = { className: "w-full", clipPath: themeClipPath };
                                                                                             nestedItems.push(
-                                                                                                <InteractiveButton key={child.id} className="w-full">
-                                                                                                    <div className={getHighlightClass(child.highlight)}>
-                                                                                                        <TwitchCard username={twitchUsername || 'twitch_user'} displayName={twitchDisplayName || 'Twitch User'} followers={twitchFollowers || 0} avatarUrl={twitchAvatar || ''} isLive={twitchIsLive} streamTitle={twitchStreamTitle} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                                                    </div>
+                                                                                                <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
+                                                                                                    <EffectWrapper {...effectProps}>
+                                                                                                        <motion.a transition={{ duration: 0.2 }} href={child.isPasswordProtected ? undefined : formatUrl(child.url)} target={child.isPasswordProtected ? undefined : "_blank"} rel="noreferrer" onClick={(e) => { if (handlePasswordProtectedLink(child, e)) return; handleLinkClick(child.id); }} className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`} style={{ ...mainButtonStyle, clipPath: themeClipPath, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal', ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }), borderRadius: borderRadiusValue }}>
+                                                                                                            <div className="relative shrink-0 z-10"><div className={`w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform ${child.isLive ? 'bg-red-500 animate-pulse p-[2px]' : ''}`}><div className="w-full h-full rounded-full overflow-hidden bg-white">{child.image || twAvatar ? (<img src={child.image || twAvatar} alt="" className="w-full h-full object-cover" />) : child.icon ? (<div className="w-full h-full flex items-center justify-center opacity-80">{React.createElement((LucideIcons as any)[child.icon] || LucideIcons.Grid, { size: 24 })}</div>) : Icon ? (<div className="w-full h-full flex items-center justify-center opacity-80"><Icon size={24} /></div>) : null}</div></div></div>
+                                                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative"><div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">{Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}<span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>Twitch</span></div><div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full"><span className="block w-full whitespace-normal">{child.title || twDisplayName}</span></div><span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}><Users size={12} className="shrink-0" /><span>{child.subtitle || (twFollowersRaw ? `${twFollowersRaw.toLocaleString()} Seguidores` : 'Ver Stream')}</span></span></div><div className="w-12 shrink-0" />
+                                                                                                        </motion.a>
+                                                                                                    </EffectWrapper>
                                                                                                 </InteractiveButton>
                                                                                             );
-                                                                                            renderedSpecial = true;
                                                                                         }
+                                                                                        renderedSpecial = true;
                                                                                     }
-                                                                                    if (!renderedSpecial && (child.platform === 'kick' || child.title.toLowerCase().includes('kick'))) {
-                                                                                        if (kickIntegration) {
+                                                                                    if (!renderedSpecial && (child.platform === 'kick' || child.url?.includes('kick.com') || child.title?.toLowerCase().includes('kick'))) {
+                                                                                        if (false) {
+                                                                                            // integration removed
+                                                                                        } else {
+                                                                                            // Kick Fallback with Header
+                                                                                            const network = SOCIAL_NETWORKS.find(n => n.id === 'kick');
+                                                                                            const Icon = network?.icon;
+                                                                                            const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
+                                                                                            const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
+                                                                                            const effectProps = { className: "w-full", clipPath: themeClipPath };
+
                                                                                             nestedItems.push(
-                                                                                                <InteractiveButton key={child.id} className="w-full">
-                                                                                                    <div className={getHighlightClass(child.highlight)}>
-                                                                                                        <KickCard username={kickUsername || 'kick_user'} displayName={kickDisplayName || 'Kick User'} followers={kickFollowers || 0} avatarUrl={kickAvatar || ''} isLive={kickIsLive} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} themeTextHex={getSmartTextColor()} buttonRoundness={roundedClass || undefined} isDark={isDarkTheme} fontFamily={profile.fontFamily} fontWeight={profile.fontWeight || undefined} fontItalic={profile.fontItalic} />
-                                                                                                    </div>
+                                                                                                <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
+                                                                                                    <EffectWrapper {...effectProps}>
+                                                                                                        <motion.a transition={{ duration: 0.2 }} href={child.isPasswordProtected ? undefined : formatUrl(child.url)} target={child.isPasswordProtected ? undefined : "_blank"} rel="noreferrer" onClick={(e) => { if (handlePasswordProtectedLink(child, e)) return; handleLinkClick(child.id); }} className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`} style={{ ...mainButtonStyle, clipPath: themeClipPath, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal', ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }), borderRadius: borderRadiusValue }}>
+                                                                                                            <div className="relative shrink-0 z-10"><div className={`w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform ${child.isLive ? 'bg-[#53FC18] animate-pulse p-[2px]' : ''}`}><div className="w-full h-full rounded-full overflow-hidden bg-white">{child.image ? (<img src={child.image} alt="" className="w-full h-full object-cover" />) : Icon ? (<div className="w-full h-full flex items-center justify-center bg-[#0B0E0F]"><Icon size={24} style={{ color: '#53FC18' }} /></div>) : null}</div></div></div>
+                                                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative"><div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">{Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}<span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>Kick</span></div><div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full"><span className="block w-full whitespace-normal">{child.title || `@${child.url.match(/kick\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0] || 'perfil'}`}</span></div><span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}><Users size={12} className="shrink-0" /><span>{child.subtitle || 'Ver Canal'}</span></span></div><div className="w-12 shrink-0" />
+                                                                                                        </motion.a>
+                                                                                                    </EffectWrapper>
                                                                                                 </InteractiveButton>
                                                                                             );
                                                                                             renderedSpecial = true;
@@ -2901,7 +2972,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                         }}
                                                                                                     >
                                                                                                         {/* Icon/Image Container */}
-                                                                                <div className="relative shrink-0 z-10">
+                                                                                                        <div className="relative shrink-0 z-10">
                                                                                                             {child.image ? (
                                                                                                                 <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
                                                                                                                     <img
@@ -2928,12 +2999,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                                                                         <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
                                                                                                             <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full" style={{ color: getSmartTextColor() }}>
-                                                                                                                <span className="truncate block w-full">{child.title}</span>
+                                                                                                                <span className="whitespace-normal break-words block w-full">{child.title}</span>
                                                                                                             </div>
                                                                                                             {child.subtitle && (
                                                                                                                 <span className="text-[13px] opacity-80 font-medium leading-tight flex items-center justify-center gap-1.5 mt-1 min-w-0" style={{ color: getSmartTextColor() }}>
                                                                                                                     {Icon && <Icon size={14} className="shrink-0" />}
-                                                                                                                    <span className="truncate">{child.subtitle}</span>
+                                                                                                                    <span className="whitespace-normal break-words">{child.subtitle}</span>
                                                                                                                 </span>
                                                                                                             )}
                                                                                                         </div>
@@ -3019,8 +3090,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             </div>
                                                                                         </div>
                                                                                         <div className={`px-3 py-2.5 border-t border-black/5 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
-                                                                                            <h4 className="text-[11px] font-black uppercase truncate tracking-tight mb-0.5 leading-none" style={{ color: smartText }}>{track.title}</h4>
-                                                                                            <p className="text-[9px] font-bold uppercase opacity-50 truncate tracking-widest leading-none" style={{ color: smartText }}>{track.subtitle}</p>
+                                                                                            <h4 className="text-[11px] font-black uppercase whitespace-normal break-words tracking-tight mb-0.5 leading-none" style={{ color: smartText }}>{track.title}</h4>
+                                                                                            <p className="text-[9px] font-bold uppercase opacity-50 whitespace-normal break-words tracking-widest leading-none" style={{ color: smartText }}>{track.subtitle}</p>
                                                                                         </div>
                                                                                     </motion.a>
                                                                                 </InteractiveButton>
@@ -3064,7 +3135,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             if (handlePasswordProtectedLink(link, e)) return;
                                                                             handleLinkClick(link.id);
                                                                         }}
-                                                                        className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} cursor-pointer`}
+                                                                        className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} cursor-pointer`}
                                                                         style={{
                                                                             ...mainButtonStyle, clipPath: themeClipPath,
                                                                             fontFamily: profile.fontFamily,
@@ -3136,7 +3207,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         </div>
                                                                         <div className="flex-1 min-w-0 flex flex-col items-center justify-center px-6 text-center">
                                                                             <span
-                                                                                className="uppercase tracking-[0.15em] truncate w-full flex items-center justify-center gap-2 text-center"
+                                                                                className="uppercase tracking-[0.15em] whitespace-normal break-words w-full flex items-center justify-center gap-2 text-center"
                                                                                 style={{
                                                                                     color: getSmartTextColor(),
                                                                                     fontSize: `${profile.fontSize || 15}px`,
@@ -3149,7 +3220,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             </span>
                                                                             {link.subtitle && (
                                                                                 <span
-                                                                                    className="opacity-50 uppercase tracking-[0.05em] truncate w-full mt-0.5 text-center"
+                                                                                    className="opacity-50 uppercase tracking-[0.05em] whitespace-normal break-words w-full mt-0.5 text-center"
                                                                                     style={{
                                                                                         color: getSmartTextColor(),
                                                                                         fontSize: `${Math.max((profile.fontSize || 15) - 4, 10)}px`,
@@ -3193,7 +3264,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             if (handlePasswordProtectedLink(link, e)) return;
                                                                             handleLinkClick(link.id);
                                                                         }}
-                                                                        className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                        className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                                         style={{
                                                                             ...mainButtonStyle, clipPath: themeClipPath,
                                                                             fontFamily: profile.fontFamily,
@@ -3220,6 +3291,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         }}
                                                                                     />
                                                                                 </div>
+                                                                            ) : link.icon ? (
+                                                                                <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform duration-300">
+                                                                                    {React.createElement((LucideIcons as any)[link.icon] || LucideIcons.Grid, { size: 30 })}
+                                                                                </div>
                                                                             ) : Icon ? (
                                                                                 <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform duration-300">
                                                                                     <Icon size={30} />
@@ -3236,12 +3311,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     color: getSmartTextColor(),
                                                                                     fontWeight: profile.fontWeight || '700'
                                                                                 }}>
-                                                                                <span className="truncate block w-full">{link.title}</span>
+                                                                                <span className="whitespace-normal break-words block w-full">{link.title}</span>
                                                                             </div>
                                                                             {link.subtitle && (
                                                                                 <span className="text-[14px] opacity-80 font-medium leading-tight flex items-center justify-center gap-1.5 mt-1 min-w-0" style={{ color: getSmartTextColor() }}>
                                                                                     {Icon ? <Icon size={14} className="shrink-0" /> : (link.url.includes('youtube.com') || link.url.includes('instagram.com') || link.url.includes('instagr.am') || link.url.includes('tiktok.com')) && <ExternalLink size={12} className="shrink-0" />}
-                                                                                    <span className="truncate">{link.subtitle.replace(/^♫\s?/, '')}</span>
+                                                                                    <span className="whitespace-normal break-words">{link.subtitle.replace(/^♫\s?/, '')}</span>
                                                                                 </span>
                                                                             )}
                                                                         </div>
@@ -3392,7 +3467,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         ) : (
                                             <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" loading="lazy" decoding="async" />
                                         )}
-                                        <span className="truncate flex-1 px-3 text-lg" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || '900'), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Apoiar</span>
+                                        <span className="whitespace-normal break-words flex-1 px-3 text-lg" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || '900'), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Apoiar</span>
                                         <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={24} /></span>
                                     </div>
                                 </motion.a>
