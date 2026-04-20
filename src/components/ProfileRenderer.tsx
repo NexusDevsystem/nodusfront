@@ -1278,7 +1278,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 className="absolute top-[198px] left-0 w-full bottom-0 z-[16] overflow-hidden"
                                 style={{
                                     background: headerContentBg !== 'transparent' ? headerContentBg : (isDarkTheme ? '#0f172a' : '#ffffff'),
-                                    borderRadius: '100% 100% 0 0 / 50px 50px 0 0',
+                                    borderRadius: '100% 100% 0 0 / 24px 24px 0 0',
                                     transform: 'scaleX(1.15)'
                                 }}
                             />
@@ -1292,18 +1292,20 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         >
                             {/* Avatar */}
                             {profile.avatarUrl && (
-                                <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? '-mt-[56px] mb-4 z-20' : 'mb-4'}`}>
+                                <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? '-mt-[56px] mb-0 z-20' : 'mb-0'}`}>
                                     <div className={`overflow-hidden rounded-full ${profile.headerLayout === 'compact'
-                                        ? 'w-[110px] h-[110px] border-[6px]'
-                                        : `shadow-xl ${currentTheme.avatarBorder.replace(/\brounded-[^\s]+\b/g, '')} ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
-                                            profile.avatarSize === 'lg' ? 'w-32 h-32' :
-                                                'w-24 h-24'
-                                        }`
+                                            ? 'w-[110px] h-[110px]'
+                                            : `shadow-xl ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
+                                                profile.avatarSize === 'lg' ? 'w-32 h-32' :
+                                                    'w-24 h-24'
+                                            }`
                                         }`}
-                                        style={profile.headerLayout === 'compact' ? {
-                                            borderColor: headerContentBg !== 'transparent' ? headerContentBg : (isDarkTheme ? '#0f172a' : '#ffffff'),
-                                            backgroundColor: headerContentBg !== 'transparent' ? headerContentBg : (isDarkTheme ? '#0f172a' : '#ffffff')
-                                        } : undefined}
+                                        style={{
+                                            borderColor: profile.customButtonColor || currentTheme.buttonHex || (isDarkTheme ? '#ffffff' : '#0f172a'),
+                                            borderWidth: profile.headerLayout === 'compact' ? '4px' : '2px',
+                                            borderStyle: 'solid',
+                                            backgroundColor: profile.customButtonColor || currentTheme.buttonHex || (isDarkTheme ? '#0f172a' : '#ffffff')
+                                        }}
                                     >
                                         <img
                                             src={profile.avatarUrl}
@@ -1324,13 +1326,28 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             <div className={`flex flex-col items-center flex-1 min-w-0 ${headerTextColorClass}`}>
                                 <div className="flex items-center gap-2 justify-center w-full">
                                     {profile.headerStyle === 'logo' && profile.logoUrl ? (
-                                        <img
-                                            src={profile.logoUrl}
-                                            alt={profile.name}
-                                            loading="eager"
-                                            decoding="async"
-                                            className="mb-2 object-contain h-12"
-                                        />
+                                        <div className="flex items-center justify-center">
+                                            {profile.isVerified && (
+                                                <div className="w-6 h-6 shrink-0 mr-1 invisible" />
+                                            )}
+                                            <img
+                                                src={profile.logoUrl}
+                                                alt={profile.name}
+                                                loading="eager"
+                                                decoding="async"
+                                                className="object-contain h-20 w-auto"
+                                            />
+                                            {profile.isVerified && (
+                                                <img
+                                                    src={verifiedBadge}
+                                                    alt="Verificado"
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                    className="w-6 h-6 object-contain shrink-0 ml-1"
+                                                    title="Conta Verificada"
+                                                />
+                                            )}
+                                        </div>
                                     ) : (
                                         <h3
                                             className="mb-0 tracking-tight flex items-center gap-2 text-wrap break-words text-[1.3em]"
@@ -1896,6 +1913,50 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         return;
                                                     }
 
+                                                    const cleanFollowers = (subtitle: string) => {
+                                                        if (!subtitle) return subtitle;
+                                                        // 1. Try to find a number with a suffix (k, M, B) - this is most likely the real follower count
+                                                        const suffixMatch = subtitle.match(/(\d+[.,]?\d*[kMK]\b)/i);
+                                                        if (suffixMatch) return suffixMatch[1];
+                                                        
+                                                        // 2. If no suffix, look for the largest number in the string (skips artifacts like "01")
+                                                        const numbers = subtitle.match(/\d+[.,]?\d*/g);
+                                                        if (numbers && numbers.length > 0) {
+                                                            const sorted = [...numbers].sort((a, b) => b.length - a.length);
+                                                            return sorted[0];
+                                                        }
+                                                        
+                                                        return subtitle;
+                                                    };
+
+                                                    // 0. Video Embeds (Priority)
+                                                    const isYouTubeVideo = link.url.includes('youtube.com/watch?v=') || link.url.includes('youtu.be/') || link.url.includes('youtube.com/shorts/') || link.url.includes('youtube.com/live/');
+                                                    const isTikTokVideo = link.url.includes('tiktok.com/') && (link.url.includes('/video/') || link.url.includes('/v/'));
+
+                                                    if (isYouTubeVideo) {
+                                                        flushIcons();
+                                                        flushCards();
+                                                        renderedItems.push(
+                                                            <InteractiveButton key={link.id} className="w-full">
+                                                                <div className={getHighlightClass(link.highlight)}>
+                                                                    <YouTubeEmbed url={link.url} title={link.title} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} />
+                                                                </div>
+                                                            </InteractiveButton>
+                                                        );
+                                                        return;
+                                                    } else if (isTikTokVideo) {
+                                                        flushIcons();
+                                                        flushCards();
+                                                        renderedItems.push(
+                                                            <InteractiveButton key={link.id} className="w-full">
+                                                                <div className={getHighlightClass(link.highlight)}>
+                                                                    <TikTokEmbed url={link.url} title={link.title} videoUrl={link.videoUrl} themeButtonClass={baseCardClass} themeButtonStyle={mainButtonStyle} />
+                                                                </div>
+                                                            </InteractiveButton>
+                                                        );
+                                                        return;
+                                                    }
+
                                                     // 1. Specialized Integrated Components (Instagram, YouTube, Twitch)
                                                     if (link.platform === 'instagram' || (link.url.includes('instagram.com') && !link.url.includes('/reels/') && !link.url.includes('/p/'))) {
                                                         flushIcons();
@@ -2000,7 +2061,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                 </InteractiveButton>
                                                             );
                                                         }
-                                                    } else if (link.platform === 'youtube' || (link.url.includes('youtube.com') && !link.url.includes('watch?v=') && !link.url.includes('/shorts/')) || link.url.includes('youtu.be/')) {
+                                                    } else if ((link.platform === 'youtube' || (link.url.includes('youtube.com') && !link.url.includes('watch?v=') && !link.url.includes('/shorts/') && !link.url.includes('/live/'))) && !link.url.includes('youtu.be/')) {
                                                         flushIcons();
                                                         flushCards();
 
@@ -2188,7 +2249,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         if (link.layout !== 'classic') {
                                                             const tkUsername = tiktokUsername || link.subtitle?.match(/@([^\s\•]+)/)?.[1] || link.url.match(/tiktok\.com\/@([^\/\?]+)/)?.[1] || 'tiktok_user';
                                                             const tkDisplayName = tiktokIntegration?.profile_data?.display_name || link.title || tkUsername;
-                                                            const tkFollowers = tiktokFollowers || (link.subtitle?.match(/([\d\.]+[KMB]?)\s*Seguidores/i)?.[1]) || 0;
+                                                            // Clean followers string to remove any prefix like "01 "
+                                                            const rawFollowers = tiktokFollowers || (link.subtitle?.match(/([\d\.]+[KMB]?)\s*Seguidores/i)?.[1]) || 0;
+                                                            const tkFollowers = typeof rawFollowers === 'string' ? rawFollowers.split(/\s+/).pop() : rawFollowers;
                                                             const tkAvatar = link.image || '';
 
                                                             renderedItems.push(
@@ -2262,7 +2325,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     <span className="whitespace-normal break-words block w-full">{link.title}</span>
                                                                                 </div>
                                                                                 <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
-                                                                                    <span>{link.subtitle || (link.platform ? (link.platform.charAt(0).toUpperCase() + link.platform.slice(1)) : 'TikTok')}</span>
+                                                                                    <span>
+                                                                                        {(() => {
+                                                                                            if (!link.subtitle) return link.platform ? (link.platform.charAt(0).toUpperCase() + link.platform.slice(1)) : 'TikTok';
+                                                                                            const cleaned = cleanFollowers(link.subtitle);
+                                                                                            return cleaned.toLowerCase().includes('seguidores') ? cleaned : `${cleaned} Seguidores`;
+                                                                                        })()}
+                                                                                    </span>
                                                                                 </span>
                                                                             </div>
                                                                             <div className="w-12" />
@@ -2594,7 +2663,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             </div>
                                                                                         </InteractiveButton>
                                                                                     );
-                                                                                } else if (child.embedType === 'youtube' && (child.url?.includes('watch?v=') || child.url?.includes('/shorts/') || child.url?.includes('/live/'))) {
+                                                                                } else if (child.url?.includes('youtube.com/watch?v=') || child.url?.includes('youtu.be/') || child.url?.includes('youtube.com/shorts/') || child.url?.includes('youtube.com/live/')) {
                                                                                     nestedItems.push(
                                                                                         <InteractiveButton key={child.id} className="w-full">
                                                                                             <div className={getHighlightClass(child.highlight)}>
@@ -2646,7 +2715,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         );
                                                                                         renderedSpecial = true;
                                                                                     }
-                                                                                    if (!renderedSpecial && (child.platform === 'youtube' || (child.url?.includes('youtube.com') && !child.url?.includes('watch?v=') && !child.url?.includes('/shorts/')) || child.url?.includes('youtu.be/'))) {
+                                                                                    if (!renderedSpecial && (child.platform === 'youtube' || (child.url?.includes('youtube.com') && !child.url?.includes('watch?v=') && !child.url?.includes('/shorts/') && !child.url?.includes('/live/'))) && !child.url?.includes('youtu.be/')) {
                                                                                         if (youtubeIntegration && child.layout !== 'classic') {
                                                                                             nestedItems.push(
                                                                                                 <InteractiveButton key={child.id} className="w-full">

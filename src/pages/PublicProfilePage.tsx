@@ -202,7 +202,7 @@ export default function PublicProfilePage() {
             </div>
 
             <div
-                className="w-full h-auto min-h-screen relative z-10 overflow-hidden md:max-w-[500px] md:shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.5)] md:rounded-t-[3rem]"
+                className="w-full h-auto min-h-screen relative z-10 overflow-hidden md:max-w-[620px] md:shadow-[0_-20px_80px_-15px_rgba(0,0,0,0.6)] md:rounded-t-[1.5rem]"
                 style={{ backgroundColor: isProfileMode ? themeBgColor : (profile.headerLayout === 'banner' ? (profile.bannerBlurColor || '#000000') : (profile.customSolidColor || currentTheme.solidColor || '#000')) }}
             >
                 <ProfileRenderer
