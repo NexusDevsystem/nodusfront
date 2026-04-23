@@ -239,7 +239,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
     const activeConfigPlatform = SOCIAL_NETWORKS.find(p => p.id === configuringPlatform);
 
     return (
-        <div className="bg-[#fdfcf0] border-2 border-[#97cd7a] mb-4 group transition-all overflow-hidden shadow-[0_6px_0_0_#76a45f] rounded-xl">
+        <div className="bg-[#fdfcf0] border-2 border-[#97cd7a] mb-4 group transition-all overflow-hidden shadow-[6px_6px_0_0_#76a45f] rounded-xl">
             <div className="p-4 md:p-5">
                 <div className="flex items-center justify-between gap-4 mb-4">
                     <div>
@@ -248,7 +248,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                     </div>
                     <button
                         onClick={handleOpenModal}
-                        className="w-10 h-10 md:w-11 md:h-11 flex items-center justify-center text-black bg-[#fdfcf0] border-2 border-[#1a1a1a] hover:bg-[#ffdf00] transition-all shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none shrink-0 rounded-xl"
+                        className="w-10 h-10 md:w-11 md:h-11 flex items-center justify-center text-black bg-[#fdfcf0] border-2 border-[#000] hover:bg-[#ffdf00] transition-all shadow-[4px_4px_0_0_#000] hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-none shrink-0 rounded-xl"
                     >
                         <Plus size={22} strokeWidth={4} />
                     </button>
@@ -303,15 +303,15 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                             />
                             <div
                                 className={`
-                                        relative bg-white flex flex-col overflow-hidden border-2 border-[#1a1a1a]
-                                        ${isMobile ? 'w-full h-[92vh] rounded-t-3xl shadow-none translate-y-1' : 'w-full max-w-sm max-h-[70vh] shadow-[0_8px_0_0_#1a1a1a] rounded-[2rem]'}
+                                        relative bg-white flex flex-col overflow-hidden border-2 border-[#000]
+                                        ${isMobile ? 'w-full h-[92vh] rounded-t-3xl shadow-none translate-y-1' : 'w-full max-w-sm max-h-[70vh] shadow-[8px_8px_0_0_#000] rounded-3xl'}
                                     `}
                             >
 
-                                <div className="p-4 flex items-center justify-between shrink-0 relative border-b-2 border-[#1a1a1a]">
+                                <div className="p-4 flex items-center justify-between shrink-0 relative border-b-2 border-[#000]">
                                     <button
                                         onClick={() => configuringPlatform ? setConfiguringPlatform(null) : handleCloseModal()}
-                                        className="p-1.5 text-black border-2 border-transparent hover:border-[#1a1a1a] hover:bg-[#ffdf00] transition-colors"
+                                        className="p-1.5 text-black border-2 border-transparent hover:border-[#000] hover:bg-[#ffdf00] transition-colors"
                                     >
                                         <ChevronLeft size={20} strokeWidth={3} />
                                     </button>
@@ -326,7 +326,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
                                     <button
                                         onClick={handleCloseModal}
-                                        className="w-10 h-10 flex items-center justify-center text-black bg-white border-2 border-[#1a1a1a] transition-all active:translate-y-[2px] active:shadow-none shadow-[0_4px_0_0_#1a1a1a] rounded-lg"
+                                        className="w-10 h-10 flex items-center justify-center text-black bg-white border-2 border-[#000] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none shadow-[4px_4px_0_0_#000] rounded-lg"
                                     >
                                         <X size={20} strokeWidth={4} />
                                     </button>
@@ -342,7 +342,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                     value={searchTerm}
                                                     onChange={(e) => setSearchTerm(e.target.value)}
                                                     placeholder={t('common.searchPlaceholder')}
-                                                    className="w-full bg-white border-2 border-[#1a1a1a] py-2 pl-9 pr-4 text-[10px] font-medium uppercase tracking-widest text-black outline-none focus:bg-[#ffdf00] placeholder:text-black/30 transition-colors shadow-[0_4px_0_0_#1a1a1a] rounded-xl"
+                                                    className="w-full bg-white border-2 border-[#000] py-2 pl-9 pr-4 text-[10px] font-medium uppercase tracking-widest text-black outline-none focus:bg-[#ffdf00] placeholder:text-black/30 transition-colors shadow-[4px_4px_0_0_#000] rounded-xl"
                                                 />
                                             </div>
                                         </div>
@@ -368,7 +368,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             onClick={() => toggleSocialLink(platform.id)}
                                                             className={`
                                                                 relative flex flex-col items-center justify-center p-5 group cursor-pointer transition-all rounded-xl
-                                                                ${isSelected ? 'bg-[#97cd7a] border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a]' : 'bg-white border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] hover:translate-y-[2px] hover:shadow-none hover:bg-[#ffdf00]'}
+                                                                ${isSelected ? 'bg-[#97cd7a] border-2 border-[#000] shadow-[4px_4px_0_0_#000]' : 'bg-white border-2 border-[#000] shadow-[4px_4px_0_0_#000] hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-none hover:bg-[#ffdf00]'}
                                                             `}
                                                             role="button"
                                                             tabIndex={0}
@@ -387,7 +387,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                             </span>
 
                                                             {isConnected && (
-                                                                <div className="absolute top-1 left-1 px-1 py-0.5 bg-[#1a1a1a] text-[#97cd7a] text-[6px] font-medium uppercase tracking-widest border border-[#1a1a1a] shadow-[0_1px_0_0_#1a1a1a] flex items-center gap-0.5">
+                                                                <div className="absolute top-1 left-1 px-1 py-0.5 bg-[#000] text-[#97cd7a] text-[6px] font-medium uppercase tracking-widest border border-[#000] shadow-[0_1px_0_0_#000] flex items-center gap-0.5">
                                                                     <div className="w-1.5 h-1.5 bg-[#97cd7a] rounded-full animate-pulse"></div>
                                                                     {t('integrations.sync')}
                                                                 </div>
@@ -400,7 +400,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                         e.stopPropagation();
                                                                         onChange(links.filter(l => !(l.layout === 'social' && (l.platform === platform.id || (platform.id !== 'site' && platform.id !== 'custom' && l.url.includes(platform.id))))));
                                                                     }}
-                                                                    className="absolute top-1.5 right-1.5 p-1 text-black border-2 border-transparent hover:border-[#1a1a1a] hover:bg-red-500 hover:text-white transition-colors"
+                                                                    className="absolute top-1.5 right-1.5 p-1 text-black border-2 border-transparent hover:border-[#000] hover:bg-red-500 hover:text-white transition-colors"
                                                                     title={t('common.delete')}
                                                                 >
                                                                     <Trash2 size={14} strokeWidth={3} />
@@ -436,7 +436,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 ? t('social.linkInputPlaceholder')
                                                                 : t('social.userInputPlaceholder')}
                                                             onKeyDown={(e) => e.key === 'Enter' && confirmPlatform()}
-                                                            className={`w-full bg-white border-2 px-4 py-3 text-black text-[10px] font-medium uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/30 shadow-[0_4px_0_0_#1a1a1a] transition-colors rounded-xl ${isLinkIncomplete(tempUrl.startsWith('http') ? tempUrl : (activeConfigPlatform?.baseUrl || '') + tempUrl.replace('@', ''), activeConfigPlatform?.id) ? 'border-red-500 bg-red-50/10' : 'border-[#1a1a1a]'}`}
+                                                            className={`w-full bg-white border-2 px-4 py-3 text-black text-[10px] font-medium uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/30 shadow-[4px_4px_0_0_#000] transition-colors rounded-xl ${isLinkIncomplete(tempUrl.startsWith('http') ? tempUrl : (activeConfigPlatform?.baseUrl || '') + tempUrl.replace('@', ''), activeConfigPlatform?.id) ? 'border-red-500 bg-red-50/10' : 'border-[#000]'}`}
                                                         />
                                                         <div className="flex flex-col gap-1.5 px-1">
                                                             <p className="text-[8px] font-normal text-black uppercase tracking-widest opacity-50 italic">
@@ -454,9 +454,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
                                             {/* YouTube Rich Profile Card */}
                                             {configuringPlatform === 'youtube' && isYoutubeConnected && (
-                                                <div className="bg-white p-6 border-2 border-[#1a1a1a] flex flex-col items-center text-center shadow-[0_6px_0_0_#1a1a1a] rounded-xl animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                                <div className="bg-white p-6 border-2 border-[#000] flex flex-col items-center text-center shadow-[6px_6px_0_0_#000] rounded-xl animate-in fade-in slide-in-from-bottom-2 duration-500">
                                                     <div className="relative mb-4">
-                                                        <div className="w-20 h-20 overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] bg-white rounded-xl">
+                                                        <div className="w-20 h-20 overflow-hidden border-2 border-[#000] shadow-[4px_4px_0_0_#000] bg-white rounded-xl">
                                                             <img src={youtubeIntegration.profile_data?.avatar_url || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'}
                                                                 alt={youtubeIntegration.profile_data?.title}
                                                                 className="w-full h-full object-cover"
@@ -465,7 +465,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 }}
                                                             />
                                                         </div>
-                                                        <div className="absolute -bottom-1 -right-1 bg-[#ff0000] p-1.5 border-2 border-[#1a1a1a] text-white">
+                                                        <div className="absolute -bottom-1 -right-1 bg-[#ff0000] p-1.5 border-2 border-[#000] text-white">
                                                             <Youtube size={12} strokeWidth={4} />
                                                         </div>
                                                     </div>
@@ -474,7 +474,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                         {youtubeIntegration.profile_data?.title}
                                                     </h4>
                                                     <div className="flex flex-col items-center gap-1.5 mt-2">
-                                                        <span className="text-[10px] font-medium text-black/50 uppercase tracking-widest flex items-center justify-center gap-1 bg-[#1a1a1a]/5 px-2 py-0.5">
+                                                        <span className="text-[10px] font-medium text-black/50 uppercase tracking-widest flex items-center justify-center gap-1 bg-[#000]/5 px-2 py-0.5">
                                                             <Youtube size={10} className="text-[#ff0000]" />
                                                             {t('social.youtubeChannel')}
                                                         </span>
@@ -483,21 +483,21 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                         </span>
                                                     </div>
 
-                                                    <div className="mt-6 p-4 bg-yellow-50 border-2 border-[#1a1a1a]/10 flex items-start gap-3 w-full animate-in fade-in slide-in-from-top-1 rounded-xl">
+                                                    <div className="mt-6 p-4 bg-yellow-50 border-2 border-[#000]/10 flex items-start gap-3 w-full animate-in fade-in slide-in-from-top-1 rounded-xl">
                                                         <AlertCircle size={16} className="text-yellow-600 shrink-0 mt-0.5" strokeWidth={3} />
                                                         <p className="text-[10px] font-normal text-yellow-800 uppercase tracking-widest leading-relaxed text-left">
                                                             {t('social.youtubeBetaNotice')}
                                                         </p>
                                                     </div>
 
-                                                    <div className="w-full h-0.5 bg-[#1a1a1a]/10 my-6" />
+                                                    <div className="w-full h-0.5 bg-[#000]/10 my-6" />
 
                                                     <button
                                                         onClick={() => setShowDisconnectConfirm(!showDisconnectConfirm)}
                                                         disabled={isConnectingYoutube}
-                                                        className={`w-full py-4 px-6 border-2 border-[#1a1a1a] transition-all font-medium text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:translate-y-[2px] active:shadow-none ${showDisconnectConfirm
-                                                            ? 'bg-[#1a1a1a] text-white'
-                                                            : 'bg-white text-red-600 shadow-[0_4px_0_0_rgba(0,0,0,0.15)] hover:bg-[#fff0f0] rounded-xl'
+                                                        className={`w-full py-4 px-6 border-2 border-[#000] transition-all font-medium text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:translate-y-[2px] active:shadow-none ${showDisconnectConfirm
+                                                            ? 'bg-[#000] text-white'
+                                                            : 'bg-white text-red-600 shadow-[4px_4px_0_0_rgba(0,0,0,0.15)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none rounded-xl'
                                                             }`}
                                                     >
                                                         {isConnectingYoutube ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} strokeWidth={3} />}
@@ -521,7 +521,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                         setIsConnectingYoutube(false);
                                                                     }
                                                                 }}
-                                                                className="w-full py-3 bg-red-600 text-white font-medium text-[10px] uppercase tracking-widest border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a]"
+                                                                className="w-full py-3 bg-red-600 text-white font-medium text-[10px] uppercase tracking-widest border-2 border-[#000] shadow-[0_2px_0_0_#000]"
                                                             >
                                                                 {t('social.confirmDisconnect')}
                                                             </button>
@@ -532,9 +532,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
                                             {/* Instagram Rich Profile Card */}
                                             {configuringPlatform === 'instagram' && isInstagramConnected && (
-                                                <div className="bg-white p-6 border-2 border-[#1a1a1a] flex flex-col items-center text-center shadow-[0_6px_0_0_#1a1a1a] rounded-xl animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                                <div className="bg-white p-6 border-2 border-[#000] flex flex-col items-center text-center shadow-[6px_6px_0_0_#000] rounded-xl animate-in fade-in slide-in-from-bottom-2 duration-500">
                                                     <div className="relative mb-4">
-                                                        <div className="w-20 h-20 overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] bg-white rounded-xl">
+                                                        <div className="w-20 h-20 overflow-hidden border-2 border-[#000] shadow-[4px_4px_0_0_#000] bg-white rounded-xl">
                                                             <img src={instagramIntegration.profile_data?.avatar_url || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'}
                                                                 alt={instagramIntegration.profile_data?.username}
                                                                 className="w-full h-full object-cover"
@@ -543,7 +543,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 }}
                                                             />
                                                         </div>
-                                                        <div className="absolute -bottom-1 -right-1 bg-[#97cd7a] p-1.5 border-2 border-[#1a1a1a] text-black">
+                                                        <div className="absolute -bottom-1 -right-1 bg-[#97cd7a] p-1.5 border-2 border-[#000] text-black">
                                                             <Check size={12} strokeWidth={4} />
                                                         </div>
                                                     </div>
@@ -552,7 +552,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                         @{instagramIntegration.profile_data?.username}
                                                     </h4>
                                                     <div className="flex flex-col items-center gap-1.5 mt-2">
-                                                        <span className="text-[10px] font-medium text-black/50 uppercase tracking-widest flex items-center justify-center gap-1 bg-[#1a1a1a]/5 px-2 py-0.5">
+                                                        <span className="text-[10px] font-medium text-black/50 uppercase tracking-widest flex items-center justify-center gap-1 bg-[#000]/5 px-2 py-0.5">
                                                             <Instagram size={10} className="text-black" />
                                                             {t('social.instagramBusiness')}
                                                         </span>
@@ -561,15 +561,15 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                         </span>
                                                     </div>
 
-                                                    <div className="w-full h-0.5 bg-[#1a1a1a]/10 my-6" />
+                                                    <div className="w-full h-0.5 bg-[#000]/10 my-6" />
 
                                                     <div className="w-full space-y-4">
                                                         <button
                                                             onClick={() => setShowDisconnectConfirm(!showDisconnectConfirm)}
                                                             disabled={isConnectingInstagram}
-                                                            className={`w-full py-4 px-6 border-2 border-[#1a1a1a] transition-all font-medium text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:translate-y-[2px] active:shadow-none ${showDisconnectConfirm
-                                                                ? 'bg-[#1a1a1a] text-white'
-                                                                : 'bg-white text-red-600 shadow-[0_4px_0_0_#1a1a1a] hover:bg-[#fff0f0] rounded-xl'
+                                                            className={`w-full py-4 px-6 border-2 border-[#000] transition-all font-medium text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:translate-y-[2px] active:shadow-none ${showDisconnectConfirm
+                                                                ? 'bg-[#000] text-white'
+                                                                : 'bg-white text-red-600 shadow-[4px_4px_0_0_#000] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none rounded-xl'
                                                                 }`}
                                                         >
                                                             {isConnectingInstagram ? (
@@ -586,7 +586,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                     initial={{ height: 0, opacity: 0 }}
                                                                     animate={{ height: 'auto', opacity: 1 }}
                                                                     exit={{ height: 0, opacity: 0 }}
-                                                                    className="overflow-hidden bg-[#fff0f0] border-2 border-[#1a1a1a]"
+                                                                    className="overflow-hidden bg-[#fff0f0] border-2 border-[#000]"
                                                                 >
                                                                     <div className="p-4 space-y-4">
                                                                         <div className="text-left">
@@ -634,9 +634,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
                                             {/* Kick Rich Profile Card */}
                                             {configuringPlatform === 'kick' && isKickConnected && kickIntegration && (
-                                                <div className="bg-white p-6 border-2 border-[#1a1a1a] flex flex-col items-center text-center shadow-[0_6px_0_0_#1a1a1a] rounded-xl animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                                <div className="bg-white p-6 border-2 border-[#000] flex flex-col items-center text-center shadow-[6px_6px_0_0_#000] rounded-xl animate-in fade-in slide-in-from-bottom-2 duration-500">
                                                     <div className="relative mb-4">
-                                                        <div className="w-20 h-20 overflow-hidden border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] bg-white rounded-xl">
+                                                        <div className="w-20 h-20 overflow-hidden border-2 border-[#000] shadow-[4px_4px_0_0_#000] bg-white rounded-xl">
                                                             <img src={kickIntegration.profile_data?.avatar_url}
                                                                 alt={kickIntegration.profile_data?.username}
                                                                 className="w-full h-full object-cover"
@@ -645,7 +645,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 }}
                                                             />
                                                         </div>
-                                                        <div className="absolute -bottom-1 -right-1 bg-[#53FC18] p-1.5 border-2 border-[#1a1a1a] text-black">
+                                                        <div className="absolute -bottom-1 -right-1 bg-[#53FC18] p-1.5 border-2 border-[#000] text-black">
                                                             <KickIcon size={12} strokeWidth={4} />
                                                         </div>
                                                     </div>
@@ -657,14 +657,14 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                         {t('integrations.kickProfile')}
                                                     </p>
 
-                                                    <div className="w-full h-0.5 bg-[#1a1a1a]/10 my-4" />
+                                                    <div className="w-full h-0.5 bg-[#000]/10 my-4" />
 
                                                     <button
                                                         onClick={() => setShowDisconnectConfirm(!showDisconnectConfirm)}
                                                         disabled={isConnectingKick}
-                                                        className={`w-full py-4 px-6 border-2 border-[#1a1a1a] transition-all font-medium text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:translate-y-[2px] active:shadow-none ${showDisconnectConfirm
-                                                            ? 'bg-[#1a1a1a] text-white'
-                                                            : 'bg-white text-red-600 shadow-[0_4px_0_0_rgba(0,0,0,0.15)] hover:bg-[#fff0f0] rounded-lg'
+                                                        className={`w-full py-4 px-6 border-2 border-[#000] transition-all font-medium text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:translate-y-[2px] active:shadow-none ${showDisconnectConfirm
+                                                            ? 'bg-[#000] text-white'
+                                                            : 'bg-white text-red-600 shadow-[4px_4px_0_0_rgba(0,0,0,0.15)] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-none rounded-lg'
                                                             }`}
                                                     >
                                                         {isConnectingKick ? (
@@ -681,7 +681,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 initial={{ height: 0, opacity: 0 }}
                                                                 animate={{ height: 'auto', opacity: 1 }}
                                                                 exit={{ height: 0, opacity: 0 }}
-                                                                className="overflow-hidden bg-[#fff0f0] border-2 border-[#1a1a1a] w-full"
+                                                                className="overflow-hidden bg-[#fff0f0] border-2 border-[#000] w-full"
                                                             >
                                                                 <div className="p-4 space-y-4 text-left">
                                                                     <div className="text-left">
@@ -716,7 +716,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                             }
                                                                         }}
                                                                         disabled={isConnectingKick}
-                                                                        className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-medium text-[10px] uppercase tracking-widest border border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] transition-colors rounded-xl"
+                                                                        className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-medium text-[10px] uppercase tracking-widest border border-[#000] shadow-[0_4px_0_0_#000] transition-colors rounded-xl"
                                                                     >
                                                                         {isConnectingKick ? t('social.disconnecting') : t('social.confirmDisconnectButton')}
                                                                     </button>
@@ -743,10 +743,10 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                         onClick={confirmPlatform}
                                                         disabled={!tempUrl}
                                                         className={`
-                                                        w-full mt-2 py-3 font-medium text-[10px] uppercase tracking-widest transition-all border border-[#1a1a1a] rounded-xl
+                                                        w-full mt-2 py-3 font-medium text-[10px] uppercase tracking-widest transition-all border border-[#000] rounded-xl
                                                         ${tempUrl
-                                                                ? 'bg-[#97cd7a] text-black shadow-[0_2px_0_0_rgba(26,26,26,1)] hover:translate-y-[1px] hover:shadow-none'
-                                                                : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-[0_2px_0_0_rgba(26,26,26,1)]'
+                                                                ? 'bg-[#97cd7a] text-black shadow-[2px_2px_0_0_rgba(26,26,26,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none'
+                                                                : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-[2px_2px_0_0_rgba(26,26,26,1)]'
                                                             }
                                                     `}
                                                     >

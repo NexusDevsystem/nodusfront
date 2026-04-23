@@ -130,7 +130,12 @@ export const optimizeImageUrl = (
     url: string | undefined | null,
     options: OptimizeImageOptions = {}
 ): string => {
+    if (!url) return '';
     if (import.meta.env.VITE_DISABLE_IMAGE_OPTIMIZATION === 'true') {
+        return url;
+    }
+
+    if (!isSupabaseUrl(url)) {
         return url;
     }
 

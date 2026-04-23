@@ -65,16 +65,16 @@ export const YouTubeCard: React.FC<YouTubeCardProps> = ({
             layout
             initial={false}
             animate={{ 
-                height: isLive ? 'auto' : 72
+                height: 'auto'
             }}
             transition={{
                 height: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
                 layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
             }}
             className={`w-full overflow-hidden isolate relative group flex flex-col ${themeButtonClass} p-0`}
-            style={{ ...themeButtonStyle }}>
+            style={{ ...themeButtonStyle, minHeight: 72 }}>
             
-            <div className="flex h-[72px] items-center px-4 sm:px-5 gap-3.5 w-full shrink-0">
+            <div className="flex min-h-[72px] h-auto py-3 items-center px-4 sm:px-5 gap-3.5 w-full shrink-0">
                 {/* Avatar with Status */}
                 <div className="relative shrink-0 flex items-center justify-center">
                     <div className={`w-12 h-12 rounded-full p-[2px] transition-transform duration-500 group-hover:scale-105 ${isLive ? 'bg-[#ff0000] animate-pulse' : 'bg-[#ff0000]/20'}`}>
@@ -92,8 +92,8 @@ export const YouTubeCard: React.FC<YouTubeCardProps> = ({
                 </div>
 
                 {/* Info Column - Balanced Vertical Centering */}
-                <div className="flex-1 min-w-0 flex flex-col justify-center text-left" style={{ fontFamily, fontWeight: (fontWeight || undefined), fontStyle: fontItalic ? 'italic' : 'normal' }}>
-                    <div className="flex items-center gap-1.5 opacity-50">
+                <div className="flex-1 min-w-0 flex flex-col justify-center items-center text-center" style={{ fontFamily, fontWeight: (fontWeight || undefined), fontStyle: fontItalic ? 'italic' : 'normal' }}>
+                    <div className="flex items-center justify-center gap-1.5 opacity-50">
                         <Youtube size={8} className="shrink-0 text-[#ff0000]" />
                         <span className="text-[7px] uppercase tracking-[0.25em] leading-none font-bold" style={{ color: themeTextHex }}>
                             YouTube
@@ -104,8 +104,8 @@ export const YouTubeCard: React.FC<YouTubeCardProps> = ({
                         {title}
                     </h4>
 
-                    <div className="flex items-center gap-2.5 overflow-hidden">
-                        <div className="flex items-center gap-1 opacity-60 min-w-0">
+                    <div className="flex items-center justify-center gap-2.5 overflow-hidden">
+                        <div className="flex items-center justify-center gap-1 opacity-60 min-w-0">
                             <Users size={10} style={{ color: themeTextHex }} className="opacity-50 shrink-0" />
                             <span className="text-[10px] sm:text-[11px] font-bold leading-none shrink-0" style={{ color: themeTextHex }}>
                                 {formatCount(subscribers)}
@@ -117,8 +117,8 @@ export const YouTubeCard: React.FC<YouTubeCardProps> = ({
                     </div>
                 </div>
 
-                {/* Action Area */}
-                <div className="shrink-0 h-full flex items-center pr-4">
+                {/* Action Area - Balanced Spacer to match Avatar width */}
+                <div className="shrink-0 w-[48px] sm:w-[56px] flex items-center justify-center">
                     <ExternalLink size={16} style={{ color: themeTextHex }} className="opacity-40 group-hover:opacity-100 transition-opacity" />
                 </div>
             </div>

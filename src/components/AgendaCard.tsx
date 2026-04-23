@@ -228,7 +228,7 @@ export const AgendaCard: React.FC<AgendaCardProps> = ({
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.1 }}
                                 onClick={() => setSelectedEvent(event)}
-                                className={`relative group flex shrink-0 transition-all duration-300 overflow-hidden cursor-pointer snap-center ${themeButtonClass} h-[90px] p-0 active:scale-[0.98]`}
+                                className={`relative group flex shrink-0 transition-all duration-300 overflow-hidden cursor-pointer snap-center ${themeButtonClass} min-h-[90px] h-auto py-2 active:scale-[0.98]`}
                                 style={{
                                     ...themeButtonStyle,
                                     width: isMultiColumn ? '250px' : '100%',

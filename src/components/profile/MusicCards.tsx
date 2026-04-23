@@ -36,7 +36,7 @@ export const MusicRichCard: React.FC<MusicRichCardProps> = ({
 
     return (
         <div
-            className={`w-full overflow-visible isolate relative group flex transition-all duration-300 ${baseCardClass} h-[72px] p-0 px-3 items-center justify-between mb-1 ${getHighlightClass(link.highlight)}`}
+            className={`w-full overflow-visible isolate relative group flex transition-all duration-300 ${baseCardClass} min-h-[72px] h-auto py-3 px-3 items-center justify-between mb-1 ${getHighlightClass(link.highlight)}`}
             style={mainButtonStyle}
         >
             {/* Album Art */}
@@ -47,7 +47,7 @@ export const MusicRichCard: React.FC<MusicRichCardProps> = ({
             </div>
 
             {/* Info Column */}
-            <div className="flex-1 min-w-0 flex flex-col justify-center h-full text-center px-2" style={{ fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
+            <div className="flex-1 min-w-0 flex flex-col justify-center text-center px-2" style={{ fontFamily: effectiveFontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>
                 {/* Header Label */}
                 <div className="flex items-center justify-center gap-1.5 mb-1 opacity-50">
                     {isDeezer ? <Music size={10} color={getSmartTextColor()} /> : <SiSpotify size={10} color="#1DB954" />}
@@ -57,7 +57,7 @@ export const MusicRichCard: React.FC<MusicRichCardProps> = ({
                 </div>
 
                 {/* Song Title */}
-                <h4 className="text-[14px] font-bold truncate tracking-tight uppercase leading-none mb-1.5" style={{ color: contrastColor }}>
+                <h4 className="text-[14px] font-bold whitespace-normal break-words tracking-tight uppercase leading-none mb-1.5" style={{ color: contrastColor }}>
                     {musicTitle}
                 </h4>
 
@@ -65,7 +65,7 @@ export const MusicRichCard: React.FC<MusicRichCardProps> = ({
                 <div className="flex items-center justify-center gap-2 overflow-hidden">
                     <div className="flex items-center gap-1 opacity-80 min-w-0">
                         <Music size={10} style={{ color: contrastColor }} className="opacity-50 shrink-0" />
-                        <span className="text-[10px] font-bold uppercase leading-none truncate" style={{ color: contrastColor }}>
+                        <span className="text-[10px] font-bold uppercase leading-none whitespace-pre-line" style={{ color: contrastColor }}>
                             {musicArtist}
                         </span>
                         {(hasTracks || !isDeezer) && (
@@ -195,7 +195,7 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                                 <h3 className="text-xl font-black truncate leading-none uppercase tracking-tight mb-1">
                                     {openPlaylist?.title}
                                 </h3>
-                                <p className="text-sm opacity-60 font-medium truncate italic" style={{ color: contrastColor }}>
+                                <p className="text-sm opacity-60 font-medium italic whitespace-pre-line" style={{ color: contrastColor }}>
                                     {openPlaylist?.subtitle || 'Várias faixas'}
                                 </p>
                             </div>
@@ -243,7 +243,7 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                                                     {track.title}
                                                 </h4>
                                                 {track.subtitle && (
-                                                    <p className="text-xs font-bold opacity-60 truncate uppercase tracking-widest" style={{ color: contrastColor }}>
+                                                    <p className="text-xs font-bold opacity-60 uppercase tracking-widest whitespace-pre-line" style={{ color: contrastColor }}>
                                                         {track.subtitle}
                                                     </p>
                                                 )}
@@ -279,7 +279,7 @@ export const MusicPlaylistDrawer: React.FC<MusicPlaylistDrawerProps> = ({
                                                         {track.title}
                                                     </h4>
                                                     {track.subtitle && (
-                                                        <p className="text-[10px] opacity-40 font-bold tracking-wider truncate uppercase mt-0.5" style={{ color: contrastColor }}>
+                                                        <p className="text-[10px] opacity-40 font-bold tracking-wider uppercase mt-0.5 whitespace-pre-line" style={{ color: contrastColor }}>
                                                             {track.subtitle}
                                                         </p>
                                                     )}

@@ -30,7 +30,7 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
         // 1. Manually set background (customSolidColor/Background) takes Priority if themeId is 'custom' or layout is special
         // 2. Adaptive Blurred Background is the default fallback for these modes
         // 3. Theme Visualizers are NEVER used here.
-        if (profile.headerLayout === 'banner' || profile.headerLayout === 'compact') {
+        if (profile.headerLayout === 'banner' || profile.headerLayout === 'perfil') {
             // Priority 1: User-set Manual Background (Wallpaper)
             if (profile.customSolidColor) {
                 return (
@@ -48,7 +48,7 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
             // Priority 2: Adaptive Blurred Background
             const hasAvatar = !!profile.avatarUrl;
             // Parse bannerBlurColor: supports "#color1" or "#color1|#color2"
-            const rawBanner = profile.bannerBlurColor || (profile.headerLayout === 'banner' ? '#000000' : '#ffffff');
+            const rawBanner = profile.bannerBlurColor || (profile.headerLayout === 'perfil' ? '#000000' : '#ffffff');
             const bannerParts = rawBanner.split('|');
             const color1 = bannerParts[0] || '#000000';
             const color2 = bannerParts[1] || null;

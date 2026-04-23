@@ -77,7 +77,7 @@ export default function OnboardingPage() {
     const [name, setName] = useState('');
     const [bio, setBio] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
-    const [headerLayout, setHeaderLayout] = useState<'classic' | 'compact' | 'banner'>('classic');
+    const [headerLayout, setHeaderLayout] = useState<'classico' | 'banner' | 'perfil'>('classico');
     const [themeId, setThemeId] = useState('brutalist-bauhaus');
     const [quickLinks, setQuickLinks] = useState<LinkItem[]>([]);
 

@@ -44,7 +44,7 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
 
     if (variant === 'profile') {
         return (
-            <div className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${themeButtonClass} h-[72px] p-0 items-center justify-between`}
+            <div className={`w-full overflow-hidden isolate relative group flex transition-all duration-300 ${themeButtonClass} min-h-[72px] h-auto py-3 px-0 items-center justify-between`}
                 style={themeButtonStyle}>
 
                 <div className="flex h-full items-center px-4 sm:px-5 gap-3.5 flex-1 min-w-0">
@@ -60,9 +60,9 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                     </div>
 
                     {/* Info Column - Balanced Vertical Centering */}
-                    <div className="flex-1 min-w-0 flex flex-col justify-center text-left" style={{ fontFamily, fontWeight: (fontWeight || undefined), fontStyle: fontItalic ? 'italic' : 'normal' }}>
+                    <div className="flex-1 min-w-0 flex flex-col justify-center items-center text-center" style={{ fontFamily, fontWeight: (fontWeight || undefined), fontStyle: fontItalic ? 'italic' : 'normal' }}>
                         {/* Header Label */}
-                        <div className="flex items-center gap-1.5 opacity-50">
+                        <div className="flex items-center justify-center gap-1.5 opacity-50">
                             <Instagram size={8} className="shrink-0" style={{ color: themeTextHex }} />
                             <span className="text-[7px] uppercase tracking-[0.25em] leading-none font-bold" style={{ color: themeTextHex }}>
                                 Instagram
@@ -75,8 +75,8 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                         </h4>
 
                         {/* Stats Row */}
-                        <div className="flex items-center gap-2.5 overflow-hidden">
-                            <div className="flex items-center gap-1 opacity-60 min-w-0">
+                        <div className="flex items-center justify-center gap-2.5 overflow-hidden">
+                            <div className="flex items-center justify-center gap-1 opacity-60 min-w-0">
                                 <Users size={10} style={{ color: themeTextHex }} className="opacity-50 shrink-0" />
                                 <span className="text-[10px] sm:text-[11px] font-bold leading-none shrink-0" style={{ color: themeTextHex }}>
                                     {formatFollowers(followers)}
@@ -89,8 +89,8 @@ export const InstagramCard: React.FC<InstagramCardProps> = ({
                     </div>
                 </div>
 
-                {/* Action Area */}
-                <div className="shrink-0 h-full flex items-center pr-4 sm:pr-5">
+                {/* Action Area - Balanced Spacer to match Avatar width (approx 48px + gap) */}
+                <div className="shrink-0 w-[48px] sm:w-[56px] flex items-center justify-center">
                     <ExternalLink size={16} style={{ color: themeTextHex }} className="opacity-40 group-hover:opacity-100 transition-opacity" />
                 </div>
 

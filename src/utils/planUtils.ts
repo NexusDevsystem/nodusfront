@@ -26,7 +26,7 @@ export const hasProFeatures = (profile: UserProfile): boolean => {
     if (isProFont(profile.fontFamily)) return true;
     if (profile.headerStyle === 'logo') return true;
     if (profile.customButtonColor || profile.customTextColor || profile.customCollectionTextColor || profile.customButtonTextColor) return true;
-    if (profile.headerLayout === 'compact' || profile.headerLayout === 'banner') return true;
+    if ((profile.headerLayout as any) === 'compact' || profile.headerLayout === 'banner') return true;
     return false;
 };
 
@@ -60,7 +60,7 @@ export const reconcileSubscription = (
         }
 
         // 3. Reset Layouts
-        if (profile.headerLayout === 'compact' || profile.headerLayout === 'banner') {
+        if ((profile.headerLayout as any) === 'compact' || profile.headerLayout === 'banner') {
             newProfile.headerLayout = 'standard' as any;
         }
 

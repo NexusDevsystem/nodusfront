@@ -265,7 +265,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
 
                 <div className="flex flex-col gap-4">
                     {[
-                        { id: 'instagram', name: 'Instagram', icon: Instagram, description: t('integrations.instagramDesc'), isAvailable: isAuthorized, color: '#E4405F', statusLabel: t('common.inTests') },
+                        { id: 'instagram', name: 'Instagram', icon: Instagram, description: t('integrations.instagramDesc'), isAvailable: true, color: '#E4405F' },
                         { id: 'twitch', name: 'Twitch', icon: Twitch, description: t('integrations.twitchDesc'), isAvailable: true, color: '#9146FF' },
                         { id: 'kick', name: 'Kick', icon: KickIcon, description: t('integrations.kickDesc'), isAvailable: true, color: '#53FC18' },
                         { id: 'tiktok', name: 'TikTok', icon: SiTiktok, description: t('integrations.tiktokDesc'), isAvailable: isAuthorized, color: '#000000', statusLabel: t('common.inTests') },

@@ -203,27 +203,18 @@ export default function ShopEditor({
         });
 
         // 2. Atualiza o estado principal ordenando o array fisicamente.
-        // Isso é CRÍTICO porque o backend (productService.replaceAllProducts) usa o INDEX do array 
-        // como a posição definitiva no banco de dados. Se não ordenarmos aqui, o F5 resetará a ordem.
-        onChange(prev => {
-            const newProducts = [...prev];
-            return newProducts.sort((a, b) => {
-                // Mesma loja e mesma coleção? Ordena pela posição que acabamos de definir
-                if (a.storeId === b.storeId && a.collection === b.collection) {
-                    return (a.position || 0) - (b.position || 0);
-                }
-                
-                // Lojas diferentes? Mantém a ordem agrupada por ID da loja
-                if (a.storeId !== b.storeId) {
-                    return (a.storeId || '').localeCompare(b.storeId || '');
-                }
-
-                // Coleções diferentes na mesma loja? Mantém agrupado por nome da coleção
-                return (a.collection || '').localeCompare(b.collection || '');
-            });
+        const sortedProducts = [...products].sort((a, b) => {
+            if (a.storeId === b.storeId && a.collection === b.collection) {
+                return (a.position || 0) - (b.position || 0);
+            }
+            if (a.storeId !== b.storeId) {
+                return (a.storeId || '').localeCompare(b.storeId || '');
+            }
+            return (a.collection || '').localeCompare(b.collection || '');
         });
+        
+        onChange(sortedProducts);
     };
-
 
     const handleRenameCollection = (storeId: string, oldName: string, newName: string) => {
         if (!newName.trim() || oldName === newName) {
@@ -1003,7 +994,7 @@ interface StoreItemProps {
     handleFileUpload: (file: File, target: string) => Promise<void>;
     uploadingTarget: string | null;
     renderAddForm: (storeId: string, collectionName: string, existingProduct?: Product) => React.ReactNode;
-    renderProduct: (product: Product) => React.ReactNode;
+    renderProduct: (product: Product, sortable?: boolean, idx?: number) => React.ReactNode;
     setIsAddingCollection: (id: string | null) => void;
     isAddingCollection: string | null;
     newCollectionName: string;
@@ -1280,7 +1271,7 @@ interface CollectionItemProps {
     setDeletingCollection: (val: { storeId: string, name: string } | null) => void;
     renderAddForm: (storeId: string, collectionName: string, existingProduct?: Product) => React.ReactNode;
     handleReorderProducts: (storeId: string, colName: string, reorderedSubset: Product[]) => void;
-    renderProduct: (product: Product) => React.ReactNode;
+    renderProduct: (product: Product, sortable?: boolean, idx?: number) => React.ReactNode;
     isPT: boolean;
 }
 
@@ -1390,4 +1381,3 @@ const CollectionItem: React.FC<CollectionItemProps> = ({
         </Reorder.Item>
     );
 };
-

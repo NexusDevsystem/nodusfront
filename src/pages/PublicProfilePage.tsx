@@ -103,8 +103,8 @@ export default function PublicProfilePage() {
     }
 
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
-    const isProfileMode = profile.headerLayout === 'compact';
-    
+    const isProfileMode = (profile.headerLayout as any) === 'compact';
+
     // Helper to darken a color for the background
     const getDarkenedThemeColor = () => {
         const base = profile.customSecondaryColor || profile.customSolidColor || currentTheme.solidColor || currentTheme.buttonHex || '#111827';
@@ -252,3 +252,4 @@ export default function PublicProfilePage() {
         </div>
     );
 }
+

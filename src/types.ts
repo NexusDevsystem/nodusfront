@@ -30,7 +30,7 @@ export interface LinkItem {
   subtitle?: string;
   image?: string;
   highlight?: 'none' | 'pulse' | 'bounce' | 'shake' | 'glow' | 'wobble' | 'tada' | 'jello' | 'rubberBand' | 'blink' | 'flash' | 'pendulum' | 'aura' | 'spin' | 'heartbeat' | 'float' | 'neon' | 'spotlight' | 'rainbow' | 'glitch' | 'ping' | 'vibrate';
-  embedType?: 'none' | 'youtube' | 'spotify' | 'twitch' | 'deezer' | 'tiktok' | 'discord';
+  embedType?: 'none' | 'youtube' | 'spotify' | 'twitch' | 'deezer' | 'tiktok' | 'discord' | 'instagram';
   videoUrl?: string; // For native video players
   clicks?: number;
   isArchived?: boolean;
@@ -62,7 +62,7 @@ export interface UserProfile {
   themeId: string;
   fontFamily: string;
   buttonRoundness?: 'square' | 'round' | 'rounder' | 'full' | null;
-  headerLayout?: 'classic' | 'compact' | 'banner';
+  headerLayout?: 'classico' | 'banner' | 'perfil';
   headerStyle?: 'text' | 'logo';
   logoUrl?: string;
   avatarSize?: 'sm' | 'md' | 'lg';

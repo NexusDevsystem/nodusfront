@@ -173,60 +173,95 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const [currentTime, setCurrentTime] = useState(new Date());
     const [brandingIndex, setBrandingIndex] = React.useState(0);
     const portalTargetRef = React.useRef<HTMLDivElement>(null);
+    // Local state for instant metadata updates (avoiding wait for server refresh)
+    const [liveMetadata, setLiveMetadata] = useState<Record<string, { subtitle?: string, image?: string }>>({});
 
     // Toggle branding text between PT and EN every 4 seconds for a dynamic feel
     React.useEffect(() => {
         const timer = setInterval(() => {
             setBrandingIndex(prev => (prev === 0 ? 1 : 0));
         }, 4000);
-        return () => clearInterval(timer);
+        return () => clearTimeout(timer);
     }, []);
 
     // 🕵️ AUTO-METADATA DETECTION: Automatically fetch and save followers for manual social links
     React.useEffect(() => {
-        if (isPreview) return; // Don't scrape during editing previews to save resources
+        // if (isPreview) return; // Uncommented to allow testing in dashboard preview
 
         const detectAndSave = async () => {
+            console.log(`[AutoMetadata] Starting check for profile ${profile.id}... (Preview: ${isPreview})`);
             const now = Date.now();
-            const lastCheck = localStorage.getItem(`last_social_check_${profile.id}`);
             
             // Limit checks to once every 2 hours per profile per visitor to avoid rate limits
-            if (lastCheck && now - parseInt(lastCheck) < 2 * 60 * 60 * 1000) return;
+            const lastCheck = localStorage.getItem(`last_social_check_${profile.id}`);
+            if (lastCheck && now - parseInt(lastCheck) < 2 * 60 * 60 * 1000) {
+                console.log(`[AutoMetadata] Skipping: checked recently (${Math.round((now - parseInt(lastCheck))/1000/60)}m ago)`);
+                return;
+            }
             
             localStorage.setItem(`last_social_check_${profile.id}`, now.toString());
 
             // Process links to find social ones needing updates
-            // Filter links that need metadata
             const socialLinks = links.filter(l => {
                 if (l.type !== 'link' || !l.isActive || !l.url) return false;
                 
-                // Only trigger for known social platforms that look empty or have placeholders
-                const isSocial = l.platform && !['custom', 'site', 'telefone', 'email'].includes(l.platform);
-                const hasPlaceholder = !l.subtitle || 
-                                     l.subtitle.toLowerCase().includes('ver perfil') || 
-                                     l.subtitle.toLowerCase().includes('view profile') ||
-                                     l.subtitle.toLowerCase().includes('ver canal') ||
-                                     l.subtitle.toLowerCase() === l.platform?.toLowerCase();
+                // Detect platform if missing
+                let platform = l.platform;
+                if (!platform) {
+                    const detected = SOCIAL_NETWORKS.find(n => l.url.toLowerCase().includes(n.id))?.id;
+                    if (detected) platform = detected;
+                }
+
+                // Only trigger for known social platforms
+                const isSocial = !!(platform && !['custom', 'site', 'telefone', 'email'].includes(platform));
                 
-                return isSocial && hasPlaceholder;
+                // Skip if already has valid data (avatar + followers) — avoid re-scraping
+                const hasAvatar = !!(l.image && l.image.length > 5 && l.image !== 'false');
+                const hasSubtitle = !!(l.subtitle && l.subtitle !== 'null' && l.subtitle.trim().length > 0);
+                const alreadyHasData = hasAvatar && hasSubtitle;
+
+                console.log(`[AutoMetadata] Evaluating ${l.url}: isSocial=${isSocial}, platform=${platform}, subtitle="${l.subtitle}"`);
+                
+                return isSocial && !alreadyHasData;
             });
+
+
+            if (socialLinks.length === 0) {
+                console.log(`[AutoMetadata] No eligible social links found for scraping.`);
+                return;
+            }
+
+            console.log(`[AutoMetadata] Found ${socialLinks.length} links to update:`, socialLinks.map(l => l.url));
 
             for (const link of socialLinks) {
                 const url = link.url.toLowerCase();
                 try {
+                    console.log(`[AutoMetadata] 🔍 Fetching metadata for ${url}... (Link ID: ${link.id})`);
+                    let result;
                     if (url.includes('instagram.com/')) {
-                        await apiClient.getInstagramProfileInfo(link.url, link.id);
+                        result = await apiClient.getInstagramProfileInfo(link.url, link.id);
                     } else if (url.includes('tiktok.com/@')) {
-                        await apiClient.getTiktokProfileInfo(link.url, link.id);
+                        result = await apiClient.getTiktokProfileInfo(link.url, link.id);
                     } else if (url.includes('twitch.tv/')) {
-                        await apiClient.getTwitchProfileInfo(link.url, link.id);
+                        result = await apiClient.getTwitchProfileInfo(link.url, link.id);
                     } else if (url.includes('youtube.com/') || url.includes('youtu.be/')) {
-                        await apiClient.getYoutubeChannelInfo(link.url, link.id);
+                        result = await apiClient.getYoutubeChannelInfo(link.url, link.id);
                     } else if (url.includes('kick.com/')) {
-                        await apiClient.getKickProfileInfo(link.url, link.id);
+                        result = await apiClient.getKickProfileInfo(link.url, link.id);
+                    }
+                    console.log(`[AutoMetadata] ✅ Success for ${url}:`, result);
+                    
+                    if (result && (result.followers || result.avatarUrl)) {
+                        setLiveMetadata(prev => ({
+                            ...prev,
+                            [link.id]: {
+                                subtitle: result.followers,
+                                image: result.avatarUrl
+                            }
+                        }));
                     }
                 } catch (err) {
-                    console.warn(`[AutoMetadata] Failed for ${link.url}:`, err);
+                    console.error(`[AutoMetadata] ❌ Failed for ${link.url}:`, err);
                 }
             }
         };
@@ -711,8 +746,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     };
 
     const isDarkTheme =
-        profile.headerLayout === 'banner' || profile.headerLayout === 'compact'
-            ? (profile.bannerBlurColor ? getLuminance(profile.bannerBlurColor.split('|')[0]) < 0.5 : (profile.headerLayout === 'banner'))
+        profile.headerLayout === 'banner' || profile.headerLayout === 'perfil'
+            ? (profile.headerLayout === 'perfil' 
+                ? (profile.bannerBlurColor ? getLuminance(profile.bannerBlurColor.split('|')[0]) < 0.5 : true)
+                : (profile.customSecondaryColor ? getLuminance(profile.customSecondaryColor.split('|')[0]) < 0.5 : true))
             : (profile.themeId === 'custom' && profile.customSolidColor)
                 ? getLuminance(profile.customSolidColor) < 0.5
                 : currentTheme.id.includes('dark') ||
@@ -892,7 +929,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     if (profile.customButtonColor) overrideTypes.push('bg');
     if (profile.customButtonTextColor) overrideTypes.push('text');
 
-    const isProfileMode = profile.headerLayout === 'compact';
+    const isProfileMode = profile.headerLayout === 'perfil' || profile.headerLayout === 'banner';
 
     // 1. Button Class - Start with theme base and apply surgical overrides
     let buttonClass = cleanClass(currentTheme.buttonClass, overrideTypes) + ' noise-bg';
@@ -1037,16 +1074,13 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     50% { opacity: .5; }
                 }
             `}</style>
-            {/* Background Layer - Hidden in Perfil Mode */}
-            {profile.headerLayout !== 'compact' && (
-                <BackgroundLayer profile={profile} currentTheme={currentTheme} isStatic={isStatic} />
-            )}
-            {!isStatic && currentTheme.id.startsWith('brutalist-') && profile.headerLayout !== 'banner' && profile.headerLayout !== 'compact' && (
+            <BackgroundLayer profile={profile} currentTheme={currentTheme} isStatic={isStatic} />
+            {!isStatic && currentTheme.id.startsWith('brutalist-') && profile.headerLayout !== 'banner' && profile.headerLayout !== 'perfil' && (
                 <BrutalistVisualizer profile={profile} currentTheme={currentTheme} />
             )}
 
             {/* GLOBAL BLUR FADE OVERLAY — Performance: reduced blur radius + contain to isolate repaint */}
-            {(profile.enableBlur && profile.headerLayout !== 'banner' && profile.headerLayout !== 'compact') && (
+            {(profile.enableBlur && profile.headerLayout !== 'banner' && profile.headerLayout !== 'perfil') && (
                 <div
                     className="absolute inset-0 z-10 pointer-events-none md:backdrop-blur-[20px] bg-gradient-to-b from-transparent via-black/10 to-black/90 md:bg-none"
                     style={{
@@ -1062,13 +1096,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 className={`w-full ${isPreview ? 'flex-1 min-h-0 overflow-y-auto scrollbar-hide' : 'flex-1'} flex flex-col relative z-20 ${currentTheme.id === 'glass' ? 'text-white' : currentTheme.textClass}`}
                 style={{
                     ...containerStyle,
-                    fontSize: `${(profile.fontSize || undefined) || 16}px`,
                     fontWeight: ((profile.fontWeight || undefined) || undefined),
                     fontStyle: (profile.fontItalic) ? 'italic' : 'normal'
                 }}
             >
 
-                {profile.headerLayout === 'banner' && (
+                {profile.headerLayout === 'perfil' && (
                     <div className="relative w-full h-[62vh] min-h-[380px] shrink-0 overflow-visible">
                         {/* Image wrapper with mask to reveal BackgroundLayer blur */}
                         <div
@@ -1101,7 +1134,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <div className="absolute bottom-0 left-0 w-full px-8 pt-6 pb-0 z-[100] flex flex-col items-center text-center">
 
                             {/* 1. Name or Logo */}
-                            <div className="flex items-center gap-2 mb-0 drop-shadow-xl justify-center w-full text-center">
+                            <div className="flex items-center gap-2 mb-0 drop-shadow-xl justify-center w-full text-center" style={{ fontSize: `${profile.fontSize || 16}px` }}>
                                 {profile.headerStyle === 'logo' && profile.logoUrl ? (
                                     <div className="flex items-center justify-center relative">
                                         <img
@@ -1109,7 +1142,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             alt={profile.name}
                                             loading="eager"
                                             decoding="async"
-                                            className={`${isPreview ? 'h-16 md:h-[84px] min-h-12' : 'min-h-16 h-20 md:h-[110px]'} w-auto max-w-[90vw] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]`}
+                                            className="w-auto max-w-[90vw] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
+                                            style={{ height: '3.5em' }}
                                         />
                                         {profile.isVerified && (
                                             <img src={verifiedBadge} alt="Verified" className={`${isPreview ? 'w-[1em] h-[1em]' : 'w-[1.1em] h-[1.1em]'} shrink-0 drop-shadow-sm ml-0.5 mb-2 z-10`} loading="lazy" decoding="async" />
@@ -1117,11 +1151,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     </div>
                                 ) : (
                                     <h3
-                                        className="text-[2.2em] mb-0 tracking-tight flex items-center gap-2"
+                                        className="mb-0 tracking-tight flex items-center gap-2"
                                         style={{
                                             fontFamily: effectiveFontFamily,
                                             color: '#FFFFFF',
-                                            fontWeight: profile.fontWeight || '500'
+                                            fontWeight: profile.fontWeight || '500',
+                                            fontSize: `${(profile.fontSize || 35) / 16}em`
                                         }}
                                     >
                                         {profile.name}
@@ -1138,7 +1173,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 <p
                                     className="text-white max-w-[340px] leading-relaxed drop-shadow-lg mb-1 opacity-90"
                                     style={{
-                                        fontSize: profile.bioFontSize ? `${profile.bioFontSize}px` : undefined,
+                                        fontSize: profile.bioFontSize ? `${profile.bioFontSize}px` : '16px',
                                         color: '#FFFFFF',
                                         fontWeight: profile.fontWeight || '400'
                                     }}
@@ -1252,14 +1287,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
                 <div
-                    className={`${activeTab === 'shop' ? 'px-2' : 'px-6'} flex flex-col relative flex-1 ${profile.headerLayout === 'banner' ? 'pt-12 pb-2' : (profile.headerLayout === 'compact' ? 'pt-0 pb-4' : (isPreview ? 'pt-16 pb-0' : 'pt-[72px] pb-0'))}`}
+                    className={`${activeTab === 'shop' ? 'px-2' : 'px-6'} flex flex-col relative flex-1 ${profile.headerLayout === 'perfil' ? 'pt-12 pb-2' : (profile.headerLayout === 'banner' ? 'pt-0 pb-4' : (isPreview ? 'pt-16 pb-0' : 'pt-[72px] pb-0'))}`}
                     style={profile.headerLayout === 'banner' ? {
                         minHeight: '250px'
                     } : {}}
                 >
 
                     {/* Compact/Social Header Banner - Full Width & Clean */}
-                    {profile.headerLayout === 'compact' && (
+                    {profile.headerLayout === 'banner' && (
                         <>
                             <div
                                 className="absolute top-0 -left-6 w-[calc(100%+3rem)] h-[230px] z-[15] overflow-hidden"
@@ -1286,25 +1321,25 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     )}
 
                     {/* Profile Section - Shared for other layouts */}
-                    {profile.headerLayout !== 'banner' && (
+                    {profile.headerLayout !== 'perfil' && (
                         <motion.div
-                            className={`w-full mb-1 flex flex-col items-center text-center relative z-[30] ${profile.headerLayout === 'compact' ? 'mt-[198px] pt-0 pb-1 px-4' : ''}`}
+                            className={`w-full mb-1 flex flex-col items-center text-center relative z-[30] ${profile.headerLayout === 'banner' ? 'mt-[198px] pt-0 pb-1 px-4' : ''}`}
                         >
                             {/* Avatar */}
                             {profile.avatarUrl && (
-                                <div className={`relative group shrink-0 ${profile.headerLayout === 'compact' ? '-mt-[56px] mb-0 z-20' : 'mb-0'}`}>
-                                    <div className={`overflow-hidden rounded-full ${profile.headerLayout === 'compact'
-                                            ? 'w-[110px] h-[110px]'
-                                            : `shadow-xl ${profile.avatarSize === 'sm' ? 'w-20 h-20' :
-                                                profile.avatarSize === 'lg' ? 'w-32 h-32' :
-                                                    'w-24 h-24'
-                                            }`
-                                        }`}
+                                <div className={`relative group shrink-0 ${profile.headerLayout === 'banner' ? '-mt-[56px] mb-0 z-20' : 'mb-0'}`} style={{ fontSize: profile.headerLayout === 'classico' ? `${profile.fontSize || 16}px` : '16px' }}>
+                                    <div className={`overflow-hidden rounded-full ${profile.headerLayout === 'banner' ? '' : 'shadow-xl'}`}
                                         style={{
                                             borderColor: profile.customButtonColor || currentTheme.buttonHex || (isDarkTheme ? '#ffffff' : '#0f172a'),
-                                            borderWidth: profile.headerLayout === 'compact' ? '4px' : '2px',
+                                            borderWidth: profile.headerLayout === 'banner' ? '4px' : '2px',
                                             borderStyle: 'solid',
-                                            backgroundColor: profile.customButtonColor || currentTheme.buttonHex || (isDarkTheme ? '#0f172a' : '#ffffff')
+                                            backgroundColor: profile.customButtonColor || currentTheme.buttonHex || (isDarkTheme ? '#0f172a' : '#ffffff'),
+                                            width: profile.headerLayout === 'banner' 
+                                                ? '110px' 
+                                                : (profile.avatarSize === 'sm' ? '5em' : profile.avatarSize === 'lg' ? '8em' : '6em'),
+                                            height: profile.headerLayout === 'banner' 
+                                                ? '110px' 
+                                                : (profile.avatarSize === 'sm' ? '5em' : profile.avatarSize === 'lg' ? '8em' : '6em')
                                         }}
                                     >
                                         <img
@@ -1324,7 +1359,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                             {/* Name/Logo & Bio */}
                             <div className={`flex flex-col items-center flex-1 min-w-0 ${headerTextColorClass}`}>
-                                <div className="flex items-center gap-2 justify-center w-full">
+                                <div className="flex items-center gap-2 justify-center w-full" style={{ fontSize: `${profile.fontSize || 16}px` }}>
                                     {profile.headerStyle === 'logo' && profile.logoUrl ? (
                                         <div className="flex items-center justify-center">
                                             {profile.isVerified && (
@@ -1335,7 +1370,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 alt={profile.name}
                                                 loading="eager"
                                                 decoding="async"
-                                                className="object-contain h-20 w-auto"
+                                                className="object-contain w-auto"
+                                                style={{ height: '5em' }}
                                             />
                                             {profile.isVerified && (
                                                 <img
@@ -1343,15 +1379,20 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                     alt="Verificado"
                                                     loading="lazy"
                                                     decoding="async"
-                                                    className="w-6 h-6 object-contain shrink-0 ml-1"
+                                                    className="w-[1.2em] h-[1.2em] object-contain shrink-0 ml-1"
                                                     title="Conta Verificada"
                                                 />
                                             )}
                                         </div>
                                     ) : (
                                         <h3
-                                            className="mb-0 tracking-tight flex items-center gap-2 text-wrap break-words text-[1.3em]"
-                                            style={{ ...collectionTextColorStyle, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}
+                                            className="mb-0 tracking-tight flex items-center gap-2 text-wrap break-words"
+                                            style={{ 
+                                                ...collectionTextColorStyle, 
+                                                fontWeight: (profile.fontWeight || undefined), 
+                                                fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                fontSize: profile.headerLayout === 'classico' ? '1.3em' : `${(profile.fontSize || 21) / 16}em` 
+                                            }}
                                         >
                                             {profile.name}
                                             {profile.isVerified && (
@@ -1371,11 +1412,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
                                 {profile.bio && (
-                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line text-center ${profile.headerLayout === 'compact' ? '' : 'max-w-[300px]'}`}
+                                    <p className={`text-[1em] opacity-90 leading-relaxed whitespace-pre-line text-center ${profile.headerLayout === 'banner' ? '' : 'max-w-[300px]'}`}
                                         style={{
                                             ...collectionTextColorStyle,
                                             fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                            fontSize: profile.bioFontSize ? `${profile.bioFontSize}px` : undefined,
+                                            fontSize: profile.bioFontSize ? `${profile.bioFontSize}px` : '16px',
                                             fontWeight: profile.fontWeight || '400'
                                         }}
                                     >
@@ -1507,7 +1548,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                 </div>
                                             </div>
 
-                                            <div className="p-2 flex flex-col items-start text-left w-full gap-1.5 flex-1 min-h-[64px]">
+                                            <div className="p-2 flex flex-col items-center text-center w-full gap-1.5 flex-1 min-h-[64px]">
                                                 <h4 className="text-[13px] font-black uppercase tracking-tight line-clamp-2 leading-tight w-full" style={{ color: getSmartTextColor() }}>
                                                     {product.name}
                                                 </h4>
@@ -1863,7 +1904,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         >{cardLink.title}</span>
                                                                                         {cardLink.subtitle && (
                                                                                             <span
-                                                                                                className="text-[11px] leading-tight whitespace-normal break-words w-full mt-1"
+                                                                                                className="text-[11px] leading-tight whitespace-pre-line break-words w-full mt-1"
                                                                                                 style={{
                                                                                                     color: smartText,
                                                                                                     opacity: 0.6,
@@ -2019,7 +2060,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 if (handlePasswordProtectedLink(link, e)) return;
                                                                                 handleLinkClick(link.id);
                                                                             }}
-                                                                            className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                            className={`block w-full min-h-[72px] h-auto py-3.5 transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                                             style={{
                                                                                 ...mainButtonStyle, clipPath: themeClipPath,
                                                                                 fontFamily: profile.fontFamily,
@@ -2050,7 +2091,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
                                                                                     <span className="block w-full whitespace-normal">{`@${link.url.match(/instagram\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil'}`}</span>
                                                                                 </div>
-                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
                                                                                     <Users size={12} className="shrink-0" />
                                                                                     <span>{link.subtitle || (link.platform ? (link.platform.charAt(0).toUpperCase() + link.platform.slice(1)) : 'Instagram')}</span>
                                                                                 </span>
@@ -2158,7 +2199,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
                                                                                     <span className="block w-full whitespace-normal">{ytDisplayUsername}</span>
                                                                                 </div>
-                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
                                                                                     <Users size={12} className="shrink-0" />
                                                                                     <span>{link.subtitle || (ytSubsFormatted ? `${ytSubsFormatted} Inscritos` : 'Ver Canal')}</span>
                                                                                 </span>
@@ -2231,7 +2272,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
                                                                                     <span className="block w-full whitespace-normal">{`@${link.url.match(/twitch\.tv\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || link.title || 'perfil'}`}</span>
                                                                                 </div>
-                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
                                                                                     <Users size={12} className="shrink-0" />
                                                                                     <span>{link.subtitle || (twitchFollowers ? `${twitchFollowers.toLocaleString()} Seguidores` : 'Ver Canal')}</span>
                                                                                 </span>
@@ -2324,7 +2365,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full" style={{ color: getSmartTextColor() }}>
                                                                                     <span className="whitespace-normal break-words block w-full">{link.title}</span>
                                                                                 </div>
-                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
                                                                                     <span>
                                                                                         {(() => {
                                                                                             if (!link.subtitle) return link.platform ? (link.platform.charAt(0).toUpperCase() + link.platform.slice(1)) : 'TikTok';
@@ -2382,9 +2423,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             }}
                                                                         >
                                                                             <div className="relative shrink-0 z-10">
-                                                                                {link.image || kickAvatar ? (
+                                                                                {link.image || liveMetadata[link.id]?.image || kickAvatar ? (
                                                                                     <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
-                                                                                        <img src={link.image || kickAvatar} alt="" className="w-full h-full object-cover" />
+                                                                                        <img src={link.image || liveMetadata[link.id]?.image || kickAvatar} alt="" className="w-full h-full object-cover" />
                                                                                     </div>
                                                                                 ) : Icon ? (
                                                                                     <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
@@ -2402,9 +2443,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
                                                                                     <span className="block w-full whitespace-normal">{`@${link.url.match(/kick\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || link.title || 'perfil'}`}</span>
                                                                                 </div>
-                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
+                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
                                                                                     <Users size={12} className="shrink-0" />
-                                                                                    <span>{link.subtitle || (kickFollowers ? `${kickFollowers.toLocaleString()} Seguidores` : 'Kick')}</span>
+                                                                                    <span>{liveMetadata[link.id]?.subtitle || link.subtitle || (kickFollowers ? `${kickFollowers.toLocaleString()} Seguidores` : 'Kick')}</span>
                                                                                 </span>
                                                                             </div>
                                                                             <div className="w-12" />
@@ -2800,7 +2841,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                                 <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
                                                                                                                     <span className="block w-full whitespace-normal">{ytDisplayUsername}</span>
                                                                                                                 </div>
-                                                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
+                                                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
                                                                                                                     <Users size={12} className="shrink-0" />
                                                                                                                     <span>{child.subtitle || (ytSubsFormatted ? `${ytSubsFormatted} Inscritos` : 'YouTube')}</span>
                                                                                                                 </span>
@@ -2864,7 +2905,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                             <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
                                                                                                                 <span className="block w-full whitespace-normal">{`@${child.url?.match(/instagram\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil'}`}</span>
                                                                                                             </div>
-                                                                                                            <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
+                                                                                                            <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
                                                                                                                 <Users size={12} className="shrink-0" />
                                                                                                                 <span>{child.subtitle || (child.platform ? (child.platform.charAt(0).toUpperCase() + child.platform.slice(1)) : 'Instagram')}</span>
                                                                                                             </span>
@@ -2926,7 +2967,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                             <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
                                                                                                                 <span className="block w-full whitespace-normal">{child.title}</span>
                                                                                                             </div>
-                                                                                                            <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}>
+                                                                                                            <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
                                                                                                                 <Users size={12} className="shrink-0" />
                                                                                                                 <span>{child.subtitle || (child.platform ? (child.platform.charAt(0).toUpperCase() + child.platform.slice(1)) : 'TikTok')}</span>
                                                                                                             </span>
@@ -2967,7 +3008,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                     <EffectWrapper {...effectProps}>
                                                                                                         <motion.a transition={{ duration: 0.2 }} href={child.isPasswordProtected ? undefined : formatUrl(child.url)} target={child.isPasswordProtected ? undefined : "_blank"} rel="noreferrer" onClick={(e) => { if (handlePasswordProtectedLink(child, e)) return; handleLinkClick(child.id); }} className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`} style={{ ...mainButtonStyle, clipPath: themeClipPath, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal', ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }), borderRadius: borderRadiusValue }}>
                                                                                                             <div className="relative shrink-0 z-10"><div className={`w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform ${child.isLive ? 'bg-red-500 animate-pulse p-[2px]' : ''}`}><div className="w-full h-full rounded-full overflow-hidden bg-white">{child.image || twAvatar ? (<img src={child.image || twAvatar} alt="" className="w-full h-full object-cover" />) : child.icon ? (<div className="w-full h-full flex items-center justify-center opacity-80">{React.createElement((LucideIcons as any)[child.icon] || LucideIcons.Grid, { size: 24 })}</div>) : Icon ? (<div className="w-full h-full flex items-center justify-center opacity-80"><Icon size={24} /></div>) : null}</div></div></div>
-                                                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative"><div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">{Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}<span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>Twitch</span></div><div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full"><span className="block w-full whitespace-normal">{child.title || twDisplayName}</span></div><span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}><Users size={12} className="shrink-0" /><span>{child.subtitle || (twFollowersRaw ? `${twFollowersRaw.toLocaleString()} Seguidores` : 'Ver Stream')}</span></span></div><div className="w-12 shrink-0" />
+                                                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative"><div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">{Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}<span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>Twitch</span></div><div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full"><span className="block w-full whitespace-normal">{child.title || twDisplayName}</span></div><span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}><Users size={12} className="shrink-0" /><span>{child.subtitle || (twFollowersRaw ? `${twFollowersRaw.toLocaleString()} Seguidores` : 'Ver Stream')}</span></span></div><div className="w-12 shrink-0" />
                                                                                                         </motion.a>
                                                                                                     </EffectWrapper>
                                                                                                 </InteractiveButton>
@@ -2991,7 +3032,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                     <EffectWrapper {...effectProps}>
                                                                                                         <motion.a transition={{ duration: 0.2 }} href={child.isPasswordProtected ? undefined : formatUrl(child.url)} target={child.isPasswordProtected ? undefined : "_blank"} rel="noreferrer" onClick={(e) => { if (handlePasswordProtectedLink(child, e)) return; handleLinkClick(child.id); }} className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`} style={{ ...mainButtonStyle, clipPath: themeClipPath, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal', ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }), borderRadius: borderRadiusValue }}>
                                                                                                             <div className="relative shrink-0 z-10"><div className={`w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform ${child.isLive ? 'bg-[#53FC18] animate-pulse p-[2px]' : ''}`}><div className="w-full h-full rounded-full overflow-hidden bg-white">{child.image ? (<img src={child.image} alt="" className="w-full h-full object-cover" />) : Icon ? (<div className="w-full h-full flex items-center justify-center bg-[#0B0E0F]"><Icon size={24} style={{ color: '#53FC18' }} /></div>) : null}</div></div></div>
-                                                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative"><div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">{Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}<span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>Kick</span></div><div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full"><span className="block w-full whitespace-normal">{child.title || `@${child.url.match(/kick\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0] || 'perfil'}`}</span></div><span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-normal" style={{ color: getSmartTextColor() }}><Users size={12} className="shrink-0" /><span>{child.subtitle || 'Ver Canal'}</span></span></div><div className="w-12 shrink-0" />
+                                                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative"><div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">{Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}<span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>Kick</span></div><div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full"><span className="block w-full whitespace-normal">{child.title || `@${child.url.match(/kick\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0] || 'perfil'}`}</span></div><span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}><Users size={12} className="shrink-0" /><span>{child.subtitle || 'Ver Canal'}</span></span></div><div className="w-12 shrink-0" />
                                                                                                         </motion.a>
                                                                                                     </EffectWrapper>
                                                                                                 </InteractiveButton>
@@ -3073,7 +3114,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                             {child.subtitle && (
                                                                                                                 <span className="text-[13px] opacity-80 font-medium leading-tight flex items-center justify-center gap-1.5 mt-1 min-w-0" style={{ color: getSmartTextColor() }}>
                                                                                                                     {Icon && <Icon size={14} className="shrink-0" />}
-                                                                                                                    <span className="whitespace-normal break-words">{child.subtitle}</span>
+                                                                                                                    <span className="whitespace-pre-line break-words">{child.subtitle}</span>
                                                                                                                 </span>
                                                                                                             )}
                                                                                                         </div>
@@ -3160,7 +3201,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         </div>
                                                                                         <div className={`px-3 py-2.5 border-t border-black/5 ${isDarkTheme ? 'bg-white/5' : 'bg-black/5'}`}>
                                                                                             <h4 className="text-[11px] font-black uppercase whitespace-normal break-words tracking-tight mb-0.5 leading-none" style={{ color: smartText }}>{track.title}</h4>
-                                                                                            <p className="text-[9px] font-bold uppercase opacity-50 whitespace-normal break-words tracking-widest leading-none" style={{ color: smartText }}>{track.subtitle}</p>
+                                                                                            <p className="text-[9px] font-bold uppercase opacity-50 whitespace-pre-line break-words tracking-widest leading-none" style={{ color: smartText }}>{track.subtitle}</p>
                                                                                         </div>
                                                                                     </motion.a>
                                                                                 </InteractiveButton>
@@ -3289,7 +3330,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             </span>
                                                                             {link.subtitle && (
                                                                                 <span
-                                                                                    className="opacity-50 uppercase tracking-[0.05em] whitespace-normal break-words w-full mt-0.5 text-center"
+                                                                                    className="opacity-50 uppercase tracking-[0.05em] whitespace-pre-line break-words w-full mt-0.5 text-center"
                                                                                     style={{
                                                                                         color: getSmartTextColor(),
                                                                                         fontSize: `${Math.max((profile.fontSize || 15) - 4, 10)}px`,
@@ -3333,7 +3374,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             if (handlePasswordProtectedLink(link, e)) return;
                                                                             handleLinkClick(link.id);
                                                                         }}
-                                                                        className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                        className={`block w-full min-h-[72px] h-auto py-3.5 transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                                         style={{
                                                                             ...mainButtonStyle, clipPath: themeClipPath,
                                                                             fontFamily: profile.fontFamily,
@@ -3374,8 +3415,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         </div>
 
                                                                         {/* Text Content */}
-                                                                        <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
-                                                                            <div className="text-[15px] leading-tight uppercase tracking-[0.05em] w-full"
+                                                                        <div className={`flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative`}>
+                                                                            <div className="text-[16px] leading-tight uppercase tracking-[0.02em] w-full"
                                                                                 style={{
                                                                                     color: getSmartTextColor(),
                                                                                     fontWeight: profile.fontWeight || '700'
@@ -3383,9 +3424,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 <span className="whitespace-normal break-words block w-full">{link.title}</span>
                                                                             </div>
                                                                             {link.subtitle && (
-                                                                                <span className="text-[14px] opacity-80 font-medium leading-tight flex items-center justify-center gap-1.5 mt-1 min-w-0" style={{ color: getSmartTextColor() }}>
+                                                                                <span className={`text-[13px] opacity-70 font-medium leading-snug flex items-center justify-center gap-1.5 mt-1 min-w-0 whitespace-pre-line`} style={{ color: getSmartTextColor() }}>
                                                                                     {Icon ? <Icon size={14} className="shrink-0" /> : (link.url.includes('youtube.com') || link.url.includes('instagram.com') || link.url.includes('instagr.am') || link.url.includes('tiktok.com')) && <ExternalLink size={12} className="shrink-0" />}
-                                                                                    <span className="whitespace-normal break-words">{link.subtitle.replace(/^♫\s?/, '')}</span>
+                                                                                    <span className="whitespace-pre-line break-words">{link.subtitle.replace(/^♫\s?/, '')}</span>
                                                                                 </span>
                                                                             )}
                                                                         </div>
@@ -3398,7 +3439,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 </div>
                                                                             </div>
                                                                         ) : (
-                                                                            /* Empty spacer that matches the left icon width to keep title centered */
+                                                                            /* Empty spacer only if no left icon to maintain centering */
                                                                             <div className="w-12 shrink-0" />
                                                                         )}
 
@@ -3536,7 +3577,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         ) : (
                                             <img src="https://img.icons8.com/?size=100&id=34525&format=png&color=000000" alt="PayPal" className="w-8 h-8 rounded-full object-contain bg-white border border-white/20 shrink-0 p-1" loading="lazy" decoding="async" />
                                         )}
-                                        <span className="whitespace-normal break-words flex-1 px-3 text-lg" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || '900'), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Apoiar</span>
+                                        <span className="whitespace-normal break-words flex-1 px-3 text-lg text-center" style={{ color: getSmartTextColor(), fontWeight: (profile.fontWeight || '900'), fontStyle: profile.fontItalic ? 'italic' : 'normal' }}>Apoiar</span>
                                         <span className="w-8 opacity-50 flex justify-end" style={{ color: getSmartTextColor() }}><Coffee size={24} /></span>
                                     </div>
                                 </motion.a>

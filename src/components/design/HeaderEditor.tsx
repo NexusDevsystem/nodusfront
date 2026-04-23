@@ -358,9 +358,9 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                     <div className="flex bg-[#fdfcf0] p-1.5 border-2 border-[#1a1a1a] shadow-[0_2px_0_0_#1a1a1a] rounded-md">
                         {[
-                            { id: 'classic', label: t('design.classic'), icon: <Layout className="w-4 h-4" /> },
-                            { id: 'compact', label: t('design.banner'), icon: <ImageIcon className="w-4 h-4" />, premium: true },
-                            { id: 'banner', label: t('design.profile'), icon: <User className="w-4 h-4" />, premium: true },
+                            { id: 'classico', label: t('design.classic'), icon: <Layout className="w-4 h-4" /> },
+                            { id: 'banner', label: t('design.banner'), icon: <ImageIcon className="w-4 h-4" />, premium: true },
+                            { id: 'perfil', label: t('design.profile'), icon: <User className="w-4 h-4" />, premium: true },
                         ].map((option) => {
                             const isFree = !profile.plan_type || profile.plan_type === 'free';
                             const isLocked = option.premium && isFree;
@@ -370,7 +370,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                                     key={option.id}
                                     onClick={() => handleLayoutChange(option.id)}
                                     className={`flex flex-col items-center justify-center gap-2 p-4 border-2 transition-all flex-1 rounded-lg cursor-target relative overflow-hidden
-                                        ${(profile.headerLayout || 'classic') === option.id
+                                        ${(profile.headerLayout || 'classico') === option.id
                                             ? `border-[#1a1a1a] bg-white text-[#1a1a1a] shadow-[0_3px_0_0_#1a1a1a] -translate-y-[1px]`
                                             : 'border-transparent bg-transparent text-[#1a1a1a]/20 hover:text-[#1a1a1a] hover:border-[#1a1a1a]/5'
                                         }`}
@@ -388,7 +388,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                     </div>
 
                     {/* Compatibility Warning */}
-                    {(profile.headerLayout === 'compact' || profile.headerLayout === 'banner') && (
+                    {(profile.headerLayout === 'banner' || profile.headerLayout === 'perfil') && (
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -460,7 +460,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                             </div>
 
                             {/* Size Selector */}
-                            {!['compact', 'banner'].includes(profile.headerLayout || 'classic') && (
+                            {!['banner', 'perfil'].includes(profile.headerLayout || 'classico') && (
                                 <div className="flex flex-col gap-3">
                                     <h4 className="text-[9px] font-black text-[#1a1a1a]/30 uppercase tracking-[0.2em] mb-1">{t('common.size')}</h4>
                                     <div className="grid grid-cols-3 gap-2">
@@ -488,10 +488,10 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                 </div>
             </div>
 
-            <div className={`grid grid-cols-1 ${['compact', 'banner'].includes(profile.headerLayout || 'classic') ? 'lg:grid-cols-2' : ''} gap-4 items-start mt-4`}>
+            <div className={`grid grid-cols-1 ${['banner', 'perfil'].includes(profile.headerLayout || 'classico') ? 'lg:grid-cols-2' : ''} gap-4 items-start mt-4`}>
 
                 {/* Banner Upload for Profile Layout */}
-                {profile.headerLayout === 'compact' && (
+                {profile.headerLayout === 'banner' && (
                     <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] h-full order-2 rounded-md">
                         <div className="flex items-center gap-2 mb-4 border-b border-[#1a1a1a]/10 pb-2 text-[#1a1a1a]">
                             <ImageIcon size={16} strokeWidth={3} />
@@ -535,14 +535,13 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                     </div>
                 )}
 
-                {/* Banner Color Settings — card 1 + optional gradient card 2 */}
-                {profile.headerLayout === 'banner' && (() => {
+                {/* Banner Color Settings (PERFIL ONLY) */}
+                {profile.headerLayout === 'perfil' && (() => {
                     const rawBanner = profile.bannerBlurColor || '#1a1a1a';
                     const bannerParts = rawBanner.split('|');
                     const bannerColor1 = bannerParts[0] || '#1a1a1a';
                     const bannerColor2 = bannerParts[1] || null;
                     const isGradient = !!bannerColor2;
-
                     const setBannerColor = (c1: string, c2: string | null) => {
                         const newVal = c2 ? `${c1}|${c2}` : c1;
                         if (updateProfile) updateProfile({ bannerBlurColor: newVal });
@@ -551,66 +550,41 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                     return (
                         <>
-                            {/* Card 1: Primary Color */}
                             <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] animate-slide-up h-full order-3 rounded-md">
                                 <div className="flex items-center justify-between mb-4 border-b border-[#1a1a1a]/10 pb-2">
                                     <div className="flex items-center gap-2 text-[#1a1a1a]">
                                         <div className="w-4 h-4 border-2 border-[#1a1a1a] bg-[#1a1a1a] shrink-0 rounded-md" />
                                         <h3 className="text-xs font-medium uppercase tracking-widest">{t('design.bannerSettings')}</h3>
                                     </div>
-                                        <button
-                                            onClick={() => isGradient
-                                                ? setBannerColor(bannerColor1, null)
-                                                : setBannerColor(bannerColor1, bannerColor2 || '#1e3a5f')
-                                            }
-                                            className="flex items-center gap-2 group"
-                                        >
-                                            <span className="text-[8px] font-black uppercase tracking-widest text-[#1a1a1a]/40 group-hover:text-[#1a1a1a] transition-colors">
-                                                {t('design.blurColorGradient')}
-                                            </span>
-                                            <div className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md ${isGradient ? 'bg-[#1a1a1a]' : 'bg-white'}`}>
-                                                <div className={`absolute top-[2px] w-3 h-3 border border-[#1a1a1a] transition-all rounded-sm ${isGradient ? 'right-[2px] bg-[#97cd7a]' : 'left-[2px] bg-[#1a1a1a]'}`} />
-                                            </div>
-                                        </button>
+                                    <button onClick={() => isGradient ? setBannerColor(bannerColor1, null) : setBannerColor(bannerColor1, bannerColor2 || '#1e3a5f')} className="flex items-center gap-2 group">
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-[#1a1a1a]/40 group-hover:text-[#1a1a1a]">{t('design.blurColorGradient')}</span>
+                                        <div className={`relative w-10 h-5 border-2 border-[#1a1a1a] rounded-md ${isGradient ? 'bg-[#1a1a1a]' : 'bg-white'}`}>
+                                            <div className={`absolute top-[2px] w-3 h-3 border border-[#1a1a1a] transition-all rounded-sm ${isGradient ? 'right-[2px] bg-[#97cd7a]' : 'left-[2px] bg-[#1a1a1a]'}`} />
+                                        </div>
+                                    </button>
                                 </div>
-                                <BrutalistColorPicker 
-                                    value={bannerColor1}
-                                    label={isGradient ? t('design.bannerColor1') : t('design.blurColor')}
-                                    placeholder="#1a1a1a"
-                                    onChange={(val) => setBannerColor(val, bannerColor2)}
-                                    onClear={() => setBannerColor('#1a1a1a', bannerColor2)}
-                                />
+                                <BrutalistColorPicker value={bannerColor1} label={isGradient ? t('design.bannerColor1') : t('design.blurColor')} onChange={(val) => setBannerColor(val, bannerColor2)} onClear={() => setBannerColor('#1a1a1a', bannerColor2)} />
                             </div>
-
-                            {/* Card 2: Secondary Color — in empty column when gradient ON */}
                             {isGradient && (
                                 <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] animate-slide-up h-full order-4 rounded-md">
                                     <div className="flex items-center gap-2 mb-4 border-b border-[#1a1a1a]/10 pb-2 text-[#1a1a1a]">
                                         <div className="w-4 h-4 border-2 border-[#1a1a1a] bg-[#1a1a1a] shrink-0 rounded-md" />
                                         <h3 className="text-xs font-medium uppercase tracking-widest">{t('design.bannerColor2')}</h3>
                                     </div>
-                                    <BrutalistColorPicker 
-                                        value={bannerColor2 || '#1e3a5f'}
-                                        label={t('design.bannerColor2')}
-                                        placeholder="#1e3a5f"
-                                        onChange={(val) => setBannerColor(bannerColor1, val)}
-                                    />
-                                    <div className="mt-4 w-full h-4 border border-[#1a1a1a]/20 rounded-sm" style={{ background: `linear-gradient(135deg, ${bannerColor1}, ${bannerColor2 || '#1e3a5f'})` }} />
+                                    <BrutalistColorPicker value={bannerColor2 || '#1e3a5f'} label={t('design.bannerColor2')} onChange={(val) => setBannerColor(bannerColor1, val)} />
                                 </div>
                             )}
                         </>
                     );
                 })()}
 
-                {/* Layout Customization Section - Only for Perfil (compact) */}
-                {profile.headerLayout === 'compact' && (() => {
-                    // Parse customSecondaryColor: "#c1" or "#c1|#c2"
+                {/* Layout Customization Section (BANNER ONLY) */}
+                {profile.headerLayout === 'banner' && (() => {
                     const raw = profile.customSecondaryColor || '#0f172a';
                     const parts = raw.split('|');
                     const color1 = parts[0] || '#0f172a';
                     const color2 = parts[1] || null;
                     const isGradient = !!color2;
-
                     const setColors = (c1: string, c2: string | null) => {
                         const newVal = c2 ? `${c1}|${c2}` : c1;
                         if (updateProfile) updateProfile({ customSecondaryColor: newVal });
@@ -619,60 +593,28 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
                     return (
                         <>
-                            {/* Card 1: Primary Color (always visible) */}
                             <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] animate-slide-up h-full order-3 rounded-md">
                                 <div className="flex items-center justify-between mb-4 border-b border-[#1a1a1a]/10 pb-2">
                                     <div className="flex items-center gap-2 text-[#1a1a1a]">
                                         <Scaling size={16} strokeWidth={3} />
                                         <h3 className="text-xs font-medium uppercase tracking-widest">{t('design.layoutSettings')}</h3>
                                     </div>
-                                    {/* Gradient Toggle Switch */}
-                                        <button
-                                            onClick={() => isGradient
-                                                ? setColors(color1, null)
-                                                : setColors(color1, color2 || '#1e3a5f')
-                                            }
-                                            className="flex items-center gap-2 group"
-                                        >
-                                            <span className="text-[8px] font-black uppercase tracking-widest text-[#1a1a1a]/40 group-hover:text-[#1a1a1a] transition-colors">
-                                                {t('design.blurColorGradient')}
-                                            </span>
-                                            <div className={`relative w-10 h-5 border-2 border-[#1a1a1a] transition-all shadow-[0_2px_0_0_#1a1a1a] rounded-md ${isGradient ? 'bg-[#1a1a1a]' : 'bg-white'}`}>
-                                                <div className={`absolute top-[2px] w-3 h-3 border border-[#1a1a1a] transition-all rounded-sm ${isGradient ? 'right-[2px] bg-[#97cd7a]' : 'left-[2px] bg-[#1a1a1a]'}`} />
-                                            </div>
-                                        </button>
+                                    <button onClick={() => isGradient ? setColors(color1, null) : setColors(color1, color2 || '#1e3a5f')} className="flex items-center gap-2 group">
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-[#1a1a1a]/40 group-hover:text-[#1a1a1a]">{t('design.blurColorGradient')}</span>
+                                        <div className={`relative w-10 h-5 border-2 border-[#1a1a1a] rounded-md ${isGradient ? 'bg-[#1a1a1a]' : 'bg-white'}`}>
+                                            <div className={`absolute top-[2px] w-3 h-3 border border-[#1a1a1a] transition-all rounded-sm ${isGradient ? 'right-[2px] bg-[#97cd7a]' : 'left-[2px] bg-[#1a1a1a]'}`} />
+                                        </div>
+                                    </button>
                                 </div>
-
-                                <BrutalistColorPicker 
-                                    value={color1}
-                                    label={isGradient ? t('design.bannerColor1') : t('design.cardBackgroundColor')}
-                                    placeholder="#0f172a"
-                                    onChange={(val) => setColors(val, color2)}
-                                    onClear={() => setColors('#0f172a', color2)}
-                                />
+                                <BrutalistColorPicker value={color1} label={isGradient ? t('design.bannerColor1') : t('design.cardBackgroundColor')} onChange={(val) => setColors(val, color2)} onClear={() => setColors('#0f172a', color2)} />
                             </div>
-
-                            {/* Card 2: Secondary Color — appears in the empty column when gradient is ON */}
-                            {/* Card 2: Secondary Color — appears in the empty column when gradient is ON */}
                             {isGradient && (
                                 <div className="bg-white p-4 border-2 border-[#1a1a1a] shadow-[0_4px_0_0_#1a1a1a] animate-slide-up h-full order-4 rounded-md">
                                     <div className="flex items-center gap-2 mb-4 border-b border-[#1a1a1a]/10 pb-2 text-[#1a1a1a]">
                                         <div className="w-4 h-4 border-2 border-[#1a1a1a] bg-[#1a1a1a] shrink-0 rounded-md" />
                                         <h3 className="text-xs font-medium uppercase tracking-widest">{t('design.bannerColor2')}</h3>
                                     </div>
-
-                                    <BrutalistColorPicker 
-                                        value={color2 || '#1e3a5f'}
-                                        label={t('design.bannerColor2')}
-                                        placeholder="#1e3a5f"
-                                        onChange={(val) => setColors(color1, val)}
-                                    />
-
-                                    {/* Gradient preview stripe */}
-                                    <div
-                                        className="mt-4 w-full h-4 border border-[#1a1a1a]/20 shadow-[0_2px_0_0_rgba(26,26,26,0.3)] rounded-sm"
-                                        style={{ background: `linear-gradient(135deg, ${color1}, ${color2 || '#1e3a5f'})` }}
-                                    />
+                                    <BrutalistColorPicker value={color2 || '#1e3a5f'} label={t('design.bannerColor2')} onChange={(val) => setColors(color1, val)} />
                                 </div>
                             )}
                         </>
@@ -683,7 +625,7 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
 
 
                 {/* Title / Identity Section */}
-                <div className={`bg-white p-6 border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] rounded-md ${['compact', 'banner'].includes(profile.headerLayout || 'classic') ? 'lg:col-span-2 order-last' : ''}`}>
+                <div className={`bg-white p-6 border-2 border-[#1a1a1a] shadow-[0_6px_0_0_#1a1a1a] rounded-md ${['banner', 'perfil'].includes(profile.headerLayout || 'classico') ? 'lg:col-span-2 order-last' : ''}`}>
                     <div className="flex items-center gap-2 mb-6 border-b border-[#1a1a1a]/10 pb-2 text-[#1a1a1a] relative">
                         <UserCircle size={18} strokeWidth={2.5} />
                         <h3 className="text-xs font-black uppercase tracking-[0.2em]">{t('design.identity')}</h3>

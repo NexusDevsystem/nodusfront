@@ -71,7 +71,7 @@ const ProductDrawer: React.FC<ProductDrawerProps> = ({
                         }}
                     >
                         <BackgroundLayer
-                            profile={{ ...profile, headerLayout: 'classic' }}
+                            profile={{ ...profile, headerLayout: 'classico' }}
                             currentTheme={currentTheme}
                             isStatic={isStatic}
                         />

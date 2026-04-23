@@ -5,6 +5,8 @@ export interface SocialMetadata {
     followers: string | null;
     platform: string;
     username?: string;
+    name?: string;
+    subscribers?: string | null;
     avatarUrl?: string;
     url: string;
 }
