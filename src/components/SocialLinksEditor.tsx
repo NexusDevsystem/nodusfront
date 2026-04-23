@@ -192,6 +192,45 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
         setIsModalOpen(true);
     };
 
+    const handleConnect = async (provider: string) => {
+        try {
+            setConnectionError(null);
+            if (!profile?.id) {
+                throw new Error(t('integrations.userIdNotFound'));
+            }
+
+            if (provider === 'instagram') setIsConnectingInstagram(true);
+            else if (provider === 'tiktok') setIsConnectingTikTok(true);
+            else if (provider === 'twitch') setIsConnectingTwitch(true);
+            else if (provider === 'youtube') setIsConnectingYoutube(true);
+
+            let urlResponse;
+            if (provider === 'instagram') {
+                urlResponse = await apiClient.getInstagramAuthUrl(profile.id, window.location.origin);
+            } else if (provider === 'tiktok') {
+                urlResponse = await apiClient.getTikTokAuthUrl(profile.id, window.location.origin);
+            } else if (provider === 'twitch') {
+                urlResponse = await apiClient.getTwitchAuthUrl(profile.id, window.location.origin);
+            } else if (provider === 'youtube') {
+                urlResponse = await apiClient.getYoutubeAuthUrl(profile.id, window.location.origin);
+            }
+
+            if (urlResponse?.url) {
+                window.location.href = urlResponse.url;
+            } else {
+                throw new Error(t('integrations.failedToGetAuthUrl'));
+            }
+        } catch (err: any) {
+            console.error(`Failed to connect ${provider}:`, err);
+            setConnectionError(err.message || `Erro ao conectar ao ${provider}`);
+        } finally {
+            if (provider === 'instagram') setIsConnectingInstagram(false);
+            else if (provider === 'tiktok') setIsConnectingTikTok(false);
+            else if (provider === 'twitch') setIsConnectingTwitch(false);
+            else if (provider === 'youtube') setIsConnectingYoutube(false);
+        }
+    };
+
     const confirmPlatform = () => {
         if (!configuringPlatform) return;
 
@@ -420,6 +459,59 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                 ) : (
                                     <div className="flex flex-col flex-1 px-8 pb-10">
                                         <div className="mt-4 space-y-6">
+                                            {connectionError && (
+                                                <div className="p-4 bg-red-50 border-2 border-red-500/20 text-red-600 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
+                                                    <AlertCircle size={18} strokeWidth={3} />
+                                                    <span className="text-[10px] font-bold uppercase tracking-widest">{connectionError}</span>
+                                                </div>
+                                            )}
+
+                                            {configuringPlatform === 'instagram' && !isInstagramConnected && (
+                                                <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                                    <button
+                                                        onClick={() => handleConnect('instagram')}
+                                                        disabled={isConnectingInstagram}
+                                                        className="w-full py-4 bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white font-black text-[11px] uppercase tracking-[0.2em] border-2 border-black shadow-[4px_4px_0_0_#000] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all flex items-center justify-center gap-3 rounded-xl mb-6 relative overflow-hidden group"
+                                                    >
+                                                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                                        {isConnectingInstagram ? (
+                                                            <Loader2 size={20} className="animate-spin" strokeWidth={4} />
+                                                        ) : (
+                                                            <Instagram size={20} strokeWidth={3} />
+                                                        )}
+                                                        <span className="relative z-10">{isConnectingInstagram ? 'Redirecionando...' : 'Conectar Instagram Oficial'}</span>
+                                                    </button>
+                                                    <div className="flex items-center gap-4 mb-6">
+                                                        <div className="h-[2px] flex-1 bg-black/5" />
+                                                        <span className="text-[9px] font-black text-black/20 uppercase tracking-[0.2em] shrink-0">Ou use o link manual</span>
+                                                        <div className="h-[2px] flex-1 bg-black/5" />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {configuringPlatform === 'youtube' && !isYoutubeConnected && (
+                                                <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                                    <button
+                                                        onClick={() => handleConnect('youtube')}
+                                                        disabled={isConnectingYoutube}
+                                                        className="w-full py-4 bg-[#FF0000] text-white font-black text-[11px] uppercase tracking-[0.2em] border-2 border-black shadow-[4px_4px_0_0_#000] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all flex items-center justify-center gap-3 rounded-xl mb-6 relative overflow-hidden group"
+                                                    >
+                                                        <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                                        {isConnectingYoutube ? (
+                                                            <Loader2 size={20} className="animate-spin" strokeWidth={4} />
+                                                        ) : (
+                                                            <Youtube size={20} strokeWidth={3} />
+                                                        )}
+                                                        <span className="relative z-10">{isConnectingYoutube ? 'Redirecionando...' : 'Conectar Canal Oficial'}</span>
+                                                    </button>
+                                                    <div className="flex items-center gap-4 mb-6">
+                                                        <div className="h-[2px] flex-1 bg-black/5" />
+                                                        <span className="text-[9px] font-black text-black/20 uppercase tracking-[0.2em] shrink-0">Ou use o link manual</span>
+                                                        <div className="h-[2px] flex-1 bg-black/5" />
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             {!(
                                                 (configuringPlatform === 'instagram' && isInstagramConnected) ||
                                                 (configuringPlatform === 'twitch' && isTwitchConnected) ||
