@@ -137,6 +137,8 @@ function SortableLinkItem({
     });
 
     const isDiscord = link.url?.toLowerCase().includes('discord.gg') || link.url?.toLowerCase().includes('discord.com/invite');
+    const isInstagramLink = link.platform === 'instagram' || link.url?.toLowerCase().includes('instagram.com');
+
 
     // Auto-detect music metadata when URL changes
     React.useEffect(() => {
@@ -998,6 +1000,7 @@ function SortableLinkItem({
                                                                 )}
 
                                                                 <div className="flex-1 min-w-0 flex flex-col gap-8">
+                                                                    {!isInstagramLink && (
                                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                                         <div className="space-y-2">
                                                                             <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1 flex items-center gap-2">
@@ -1038,7 +1041,9 @@ function SortableLinkItem({
                                                                             </div>
                                                                         )}
                                                                     </div>
+                                                                    )}
 
+                                                                    {!isInstagramLink && (
                                                                     <div className="space-y-1.5">
                                                                         <div className="flex items-center justify-between px-1">
                                                                             <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] flex items-center gap-1.5">
@@ -1069,6 +1074,7 @@ function SortableLinkItem({
                                                                             )}
                                                                         </div>
                                                                     </div>
+                                                                    )}
 
                                                                     {(link.platform === 'instagram' || link.url?.includes('instagram.com')) && (
                                                                         <div className="pt-4 border-t border-[#000]/5 mt-4">

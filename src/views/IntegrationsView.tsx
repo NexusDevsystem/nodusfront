@@ -17,6 +17,7 @@ import { SiTiktok, SiSpotify } from 'react-icons/si';
 import { KickIcon } from '../constants';
 import { apiClient } from '../services/apiClient';
 import { UserProfile } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 
 interface IntegrationsViewProps {
@@ -174,8 +175,10 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
     const [kickUsername, setKickUsername] = useState('');
     const { t } = useTranslation();
 
+    const { user } = useAuth();
     const integrations = profile.integrations || [];
     const isAuthorized = profile?.username === 'nodus' || profile?.username === 'nexus' || profile?.username === 'nyill';
+    const isInstagramAuthorized = profile?.username === 'nodus' || user?.email === 'jaoomarcos75@gmail.com';
 
     const handleConnect = async (provider: string) => {
         try {
@@ -265,7 +268,7 @@ export const IntegrationsView: React.FC<IntegrationsViewProps> = ({ profile, onC
 
                 <div className="flex flex-col gap-4">
                     {[
-                        { id: 'instagram', name: 'Instagram', icon: Instagram, description: t('integrations.instagramDesc'), isAvailable: true, color: '#E4405F' },
+                        { id: 'instagram', name: 'Instagram', icon: Instagram, description: t('integrations.instagramDesc'), isAvailable: isInstagramAuthorized, color: '#E4405F' },
                         { id: 'twitch', name: 'Twitch', icon: Twitch, description: t('integrations.twitchDesc'), isAvailable: true, color: '#9146FF' },
                         { id: 'kick', name: 'Kick', icon: KickIcon, description: t('integrations.kickDesc'), isAvailable: true, color: '#53FC18' },
                         { id: 'tiktok', name: 'TikTok', icon: SiTiktok, description: t('integrations.tiktokDesc'), isAvailable: isAuthorized, color: '#000000', statusLabel: t('common.inTests') },

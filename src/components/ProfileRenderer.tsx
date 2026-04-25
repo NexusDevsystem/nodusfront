@@ -773,31 +773,32 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     const tiktokUsername = tiktokIntegration?.profile_data?.username;
 
     const instagramIntegration = profile.integrations?.find(i => i.provider === 'instagram');
-    const instagramFollowers = instagramIntegration?.profile_data?.follower_count;
-    const instagramUsername = instagramIntegration?.profile_data?.username;
-    const instagramAvatar = instagramIntegration?.profile_data?.avatar_url;
-    const instagramMedia = (instagramIntegration?.profile_data as any)?.media || [];
+    const igData = instagramIntegration ? (typeof instagramIntegration.profile_data === 'string' ? JSON.parse(instagramIntegration.profile_data) : instagramIntegration.profile_data) : null;
+    const instagramFollowers = igData?.follower_count ?? igData?.followers_count;
+    const instagramUsername = igData?.username;
+    const instagramAvatar = igData?.avatar_url || igData?.profile_picture_url || igData?.picture;
+    const instagramMedia = igData?.media || [];
 
     const kickIntegration = profile.integrations?.find(i => i.provider === 'kick');
-    const kickFollowers = kickIntegration?.profile_data?.follower_count;
+    const kickFollowers = kickIntegration?.profile_data?.follower_count ?? kickIntegration?.profile_data?.followers_count;
     const kickUsername = kickIntegration?.profile_data?.username;
     const kickDisplayName = (kickIntegration?.profile_data as any)?.display_name || kickUsername;
-    const kickAvatar = kickIntegration?.profile_data?.avatar_url;
+    const kickAvatar = kickIntegration?.profile_data?.avatar_url || (kickIntegration?.profile_data as any)?.profile_picture_url;
     const kickIsLive = (kickIntegration?.profile_data as any)?.is_live;
 
     const twitchIntegration = profile.integrations?.find(i => i.provider === 'twitch');
-    const twitchFollowers = twitchIntegration?.profile_data?.follower_count;
+    const twitchFollowers = twitchIntegration?.profile_data?.follower_count ?? twitchIntegration?.profile_data?.followers_count;
     const twitchUsername = twitchIntegration?.profile_data?.username;
     const twitchDisplayName = (twitchIntegration?.profile_data as any)?.display_name || twitchUsername;
-    const twitchAvatar = twitchIntegration?.profile_data?.avatar_url;
+    const twitchAvatar = twitchIntegration?.profile_data?.avatar_url || (twitchIntegration?.profile_data as any)?.profile_picture_url;
     const twitchIsLive = (twitchIntegration?.profile_data as any)?.is_live;
     const twitchStreamTitle = (twitchIntegration?.profile_data as any)?.stream_title;
 
     const youtubeIntegration = profile.integrations?.find(i => i.provider === 'youtube');
-    const youtubeSubscribers = youtubeIntegration?.profile_data?.subscriber_count;
+    const youtubeSubscribers = youtubeIntegration?.profile_data?.subscriber_count ?? youtubeIntegration?.profile_data?.subscribers_count;
     const youtubeTitle = youtubeIntegration?.profile_data?.title;
     const youtubeUsername = youtubeIntegration?.profile_data?.username;
-    const youtubeAvatar = youtubeIntegration?.profile_data?.avatar_url;
+    const youtubeAvatar = youtubeIntegration?.profile_data?.avatar_url || youtubeIntegration?.profile_data?.profile_picture_url;
     const youtubeIsLive = (youtubeIntegration?.profile_data as any)?.is_live;
     const youtubeChannelId = (youtubeIntegration?.profile_data as any)?.channelId;
 
@@ -2048,6 +2049,12 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             const EffectWrapper: any = isHighlighted ? GlitchButton : ({ children }: any) => <>{children}</>;
                                                             const effectProps = isHighlighted ? { className: "w-full", clipPath: themeClipPath } : {};
 
+                                                            const igDisplayUsername = instagramUsername || link.url?.match(/instagram\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil';
+                                                            const igFollowersFormatted = (typeof instagramFollowers === 'number') ? (instagramFollowers >= 1000000 ? (instagramFollowers / 1000000).toFixed(1).replace('.0', '') + 'M' : instagramFollowers >= 1000 ? (instagramFollowers / 1000).toFixed(1).replace('.0', '') + 'K' : instagramFollowers.toLocaleString()) : null;
+                                                            
+                                                            // Priority: Official Avatar > Custom Image > Initials Fallback (if connected)
+                                                            const igAvatar = instagramAvatar || link.image || (instagramIntegration ? `https://api.dicebear.com/7.x/initials/svg?seed=${igDisplayUsername}&backgroundColor=ffdf00&textColor=000000` : '');
+
                                                             renderedItems.push(
                                                                 <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
                                                                     <EffectWrapper {...effectProps}>
@@ -2060,7 +2067,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 if (handlePasswordProtectedLink(link, e)) return;
                                                                                 handleLinkClick(link.id);
                                                                             }}
-                                                                            className={`block w-full min-h-[72px] h-auto py-3.5 transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                            className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                                             style={{
                                                                                 ...mainButtonStyle, clipPath: themeClipPath,
                                                                                 fontFamily: profile.fontFamily,
@@ -2071,9 +2078,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             }}
                                                                         >
                                                                             <div className="relative shrink-0 z-10">
-                                                                                {link.image ? (
+                                                                                {igAvatar ? (
                                                                                     <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
-                                                                                        <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                                                                        <img src={igAvatar} alt="" className="w-full h-full object-cover" />
                                                                                     </div>
                                                                                 ) : Icon ? (
                                                                                     <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
@@ -2089,11 +2096,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                     </span>
                                                                                 </div>
                                                                                 <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
-                                                                                    <span className="block w-full whitespace-normal">{`@${link.url.match(/instagram\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil'}`}</span>
+                                                                                    <span className="block w-full whitespace-normal">{`@${igDisplayUsername}`}</span>
                                                                                 </div>
                                                                                 <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
                                                                                     <Users size={12} className="shrink-0" />
-                                                                                    <span>{link.subtitle || (link.platform ? (link.platform.charAt(0).toUpperCase() + link.platform.slice(1)) : 'Instagram')}</span>
+                                                                                    <span>{link.subtitle || (igFollowersFormatted !== null ? `${igFollowersFormatted} Seguidores` : 'Instagram')}</span>
                                                                                 </span>
                                                                             </div>
                                                                             <div className="w-12" />
@@ -2862,67 +2869,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                         const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
                                                                                         const effectProps = { className: "w-full", clipPath: themeClipPath };
 
-                                                                                        nestedItems.push(
-                                                                                            <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
-                                                                                                <EffectWrapper {...effectProps}>
-                                                                                                    <motion.a
-                                                                                                        transition={{ duration: 0.2 }}
-                                                                                                        href={child.isPasswordProtected ? undefined : formatUrl(child.url)}
-                                                                                                        target={child.isPasswordProtected ? undefined : "_blank"}
-                                                                                                        rel="noreferrer"
-                                                                                                        onClick={(e) => {
-                                                                                                            if (handlePasswordProtectedLink(child, e)) return;
-                                                                                                            handleLinkClick(child.id);
-                                                                                                        }}
-                                                                                                        className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`}
-                                                                                                        style={{
-                                                                                                            ...mainButtonStyle, clipPath: themeClipPath,
-                                                                                                            fontFamily: profile.fontFamily,
-                                                                                                            fontWeight: (profile.fontWeight || undefined),
-                                                                                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                                                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
-                                                                                                            borderRadius: borderRadiusValue
-                                                                                                        }}
-                                                                                                    >
-                                                                                                        <div className="relative shrink-0 z-10">
-                                                                                                            {child.image ? (
-                                                                                                                <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
-                                                                                                                    <img src={child.image} alt="" className="w-full h-full object-cover" />
-                                                                                                                </div>
-                                                                                                            ) : Icon ? (
-                                                                                                                <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
-                                                                                                                    <Icon size={28} />
-                                                                                                                </div>
-                                                                                                            ) : <div className="w-12" />}
-                                                                                                        </div>
-                                                                                                        <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
-                                                                                                            <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
-                                                                                                                {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
-                                                                                                                <span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>
-                                                                                                                    Instagram
-                                                                                                                </span>
-                                                                                                            </div>
-                                                                                                            <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
-                                                                                                                <span className="block w-full whitespace-normal">{`@${child.url?.match(/instagram\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil'}`}</span>
-                                                                                                            </div>
-                                                                                                            <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
-                                                                                                                <Users size={12} className="shrink-0" />
-                                                                                                                <span>{child.subtitle || (child.platform ? (child.platform.charAt(0).toUpperCase() + child.platform.slice(1)) : 'Instagram')}</span>
-                                                                                                            </span>
-                                                                                                        </div>
-                                                                                                        <div className="w-12 shrink-0" />
-                                                                                                    </motion.a>
-                                                                                                </EffectWrapper>
-                                                                                            </InteractiveButton>
-                                                                                        );
-                                                                                        renderedSpecial = true;
-                                                                                    }
-                                                                                    if (!renderedSpecial && (child.platform === 'tiktok' || child.url?.includes('tiktok.com'))) {
-                                                                                        const network = SOCIAL_NETWORKS.find(n => n.id === 'tiktok');
-                                                                                        const Icon = network?.icon;
-                                                                                        const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
-                                                                                        const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
-                                                                                        const effectProps = { className: "w-full", clipPath: themeClipPath };
+                                                                                        const igDisplayUsername = instagramUsername || child.url?.match(/instagram\.com\/([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0]?.replace('@', '') || 'perfil';
+                                                                                        const igFollowersFormatted = (typeof instagramFollowers === 'number') ? (instagramFollowers >= 1000000 ? (instagramFollowers / 1000000).toFixed(1).replace('.0', '') + 'M' : instagramFollowers >= 1000 ? (instagramFollowers / 1000).toFixed(1).replace('.0', '') + 'K' : instagramFollowers.toLocaleString()) : null;
+                                                                                        
+                                                                                        // Priority: Official Avatar > Custom Image > Initials Fallback (if connected)
+                                                                                        const igAvatar = instagramAvatar || child.image || (instagramIntegration ? `https://api.dicebear.com/7.x/initials/svg?seed=${igDisplayUsername}&backgroundColor=ffdf00&textColor=000000` : '');
 
                                                                                         nestedItems.push(
                                                                                             <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
@@ -2947,9 +2898,75 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                         }}
                                                                                                     >
                                                                                                         <div className="relative shrink-0 z-10">
-                                                                                                            {child.image ? (
+                                                                                                            {igAvatar ? (
                                                                                                                 <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
-                                                                                                                    <img src={child.image} alt="" className="w-full h-full object-cover" />
+                                                                                                                    <img src={igAvatar} alt="" className="w-full h-full object-cover" />
+                                                                                                                </div>
+                                                                                                            ) : Icon ? (
+                                                                                                                <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                                                    <Icon size={28} />
+                                                                                                                </div>
+                                                                                                            ) : <div className="w-12" />}
+                                                                                                        </div>
+                                                                                                        <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                                            <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
+                                                                                                                {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
+                                                                                                                <span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                                                    Instagram
+                                                                                                                </span>
+                                                                                                            </div>
+                                                                                                            <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
+                                                                                                                <span className="block w-full whitespace-normal">{`@${igDisplayUsername}`}</span>
+                                                                                                            </div>
+                                                                                                            <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
+                                                                                                                <Users size={12} className="shrink-0" />
+                                                                                                                <span>{child.subtitle || (igFollowersFormatted !== null ? `${igFollowersFormatted} Seguidores` : 'Instagram')}</span>
+                                                                                                            </span>
+                                                                                                        </div>
+                                                                                                        <div className="w-12 shrink-0" />
+                                                                                                    </motion.a>
+                                                                                                </EffectWrapper>
+                                                                                            </InteractiveButton>
+                                                                                        );
+                                                                                        renderedSpecial = true;
+                                                                                    }
+                                                                                    if (!renderedSpecial && (child.platform === 'tiktok' || child.url?.includes('tiktok.com'))) {
+                                                                                        const network = SOCIAL_NETWORKS.find(n => n.id === 'tiktok');
+                                                                                        const Icon = network?.icon;
+                                                                                        const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
+                                                                                        const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
+                                                                                        const effectProps = { className: "w-full", clipPath: themeClipPath };
+
+                                                                                        const ttDisplayUsername = tiktokUsername || child.title || child.url?.match(/tiktok\.com\/@([^\/\?]+)/)?.[1]?.split('/')[0]?.split('?')[0] || 'perfil';
+                                                                                        const ttFollowersFormatted = (typeof tiktokFollowers === 'number') ? (tiktokFollowers >= 1000000 ? (tiktokFollowers / 1000000).toFixed(1).replace('.0', '') + 'M' : tiktokFollowers >= 1000 ? (tiktokFollowers / 1000).toFixed(1).replace('.0', '') + 'K' : tiktokFollowers.toLocaleString()) : null;
+                                                                                        const ttAvatar = tiktokIntegration?.profile_data?.avatar_url || child.image || '';
+
+                                                                                        nestedItems.push(
+                                                                                            <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
+                                                                                                <EffectWrapper {...effectProps}>
+                                                                                                    <motion.a
+                                                                                                        transition={{ duration: 0.2 }}
+                                                                                                        href={child.isPasswordProtected ? undefined : formatUrl(child.url)}
+                                                                                                        target={child.isPasswordProtected ? undefined : "_blank"}
+                                                                                                        rel="noreferrer"
+                                                                                                        onClick={(e) => {
+                                                                                                            if (handlePasswordProtectedLink(child, e)) return;
+                                                                                                            handleLinkClick(child.id);
+                                                                                                        }}
+                                                                                                        className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`}
+                                                                                                        style={{
+                                                                                                            ...mainButtonStyle, clipPath: themeClipPath,
+                                                                                                            fontFamily: profile.fontFamily,
+                                                                                                            fontWeight: (profile.fontWeight || undefined),
+                                                                                                            fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                                            ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                                                            borderRadius: borderRadiusValue
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <div className="relative shrink-0 z-10">
+                                                                                                            {ttAvatar ? (
+                                                                                                                <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
+                                                                                                                    <img src={ttAvatar} alt="" className="w-full h-full object-cover" />
                                                                                                                 </div>
                                                                                                             ) : Icon ? (
                                                                                                                 <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
@@ -2965,11 +2982,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                                 </span>
                                                                                                             </div>
                                                                                                             <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
-                                                                                                                <span className="block w-full whitespace-normal">{child.title}</span>
+                                                                                                                <span className="block w-full whitespace-normal">{ttDisplayUsername.startsWith('@') ? ttDisplayUsername : `@${ttDisplayUsername}`}</span>
                                                                                                             </div>
                                                                                                             <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
                                                                                                                 <Users size={12} className="shrink-0" />
-                                                                                                                <span>{child.subtitle || (child.platform ? (child.platform.charAt(0).toUpperCase() + child.platform.slice(1)) : 'TikTok')}</span>
+                                                                                                                <span>{child.subtitle || (ttFollowersFormatted ? `${ttFollowersFormatted} seguidores` : 'TikTok')}</span>
                                                                                                             </span>
                                                                                                         </div>
                                                                                                         <div className="w-12 shrink-0" />
@@ -3374,7 +3391,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                             if (handlePasswordProtectedLink(link, e)) return;
                                                                             handleLinkClick(link.id);
                                                                         }}
-                                                                        className={`block w-full min-h-[72px] h-auto py-3.5 transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                        className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
                                                                         style={{
                                                                             ...mainButtonStyle, clipPath: themeClipPath,
                                                                             fontFamily: profile.fontFamily,

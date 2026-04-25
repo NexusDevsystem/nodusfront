@@ -65,7 +65,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
     const [isConnectingKick, setIsConnectingKick] = useState(false);
     const [connectionError, setConnectionError] = useState<string | null>(null);
     const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
-    const isAuthorized = profile?.username === 'nodus' || profile?.username === 'nexus' || profile?.username === 'nyill' || profile?.username === 'jaoom' || authProfile?.email === 'jaoomarcos75@gmail.com';
+    const isInstagramAuthorized = profile?.username === 'nodus' || authProfile?.email === 'jaoomarcos75@gmail.com';
 
     useEffect(() => {
         setMounted(true);
@@ -466,7 +466,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                 </div>
                                             )}
 
-                                            {configuringPlatform === 'instagram' && !isInstagramConnected && (
+                                            {configuringPlatform === 'instagram' && !isInstagramConnected && isInstagramAuthorized && (
                                                 <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
                                                     <button
                                                         onClick={() => handleConnect('instagram')}
