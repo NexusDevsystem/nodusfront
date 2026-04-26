@@ -34,7 +34,8 @@ import {
     Loader2,
     Check,
     AlertCircle,
-    Globe
+    Globe,
+    Play
 } from 'lucide-react';
 import { SiSpotify, SiTiktok } from 'react-icons/si';
 import { SOCIAL_NETWORKS, KickIcon } from '../constants';
@@ -54,6 +55,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
     const [searchTerm, setSearchTerm] = useState('');
     const [configuringPlatform, setConfiguringPlatform] = useState<string | null>(null);
     const [tempUrl, setTempUrl] = useState('');
+    const [youtubeDisplayMode, setYoutubeDisplayMode] = useState<'classic' | 'latest'>('classic');
     const { profile: authProfile, setProfile: authSetProfile } = useAuth();
     const profile = propProfile || authProfile;
     const setProfile = propSetProfile || authSetProfile;
@@ -180,6 +182,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
         if (existing) {
             setConfiguringPlatform(platformId);
+            setYoutubeDisplayMode(existing.youtubeDisplayMode || 'classic');
             if (existing.url.startsWith(platform.baseUrl)) {
                 setTempUrl(existing.url.replace(platform.baseUrl, ''));
             } else {
@@ -187,6 +190,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
             }
         } else {
             setConfiguringPlatform(platformId);
+            setYoutubeDisplayMode('classic');
             setTempUrl('');
         }
         setIsModalOpen(true);
@@ -251,7 +255,13 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
         )?.id;
 
         if (existingId) {
-            onChange(links.map(l => l.id === existingId ? { ...l, url: finalUrl, platform: configuringPlatform, layout: 'social' } : l));
+            onChange(links.map(l => l.id === existingId ? { 
+                ...l, 
+                url: finalUrl, 
+                platform: configuringPlatform, 
+                layout: 'social',
+                youtubeDisplayMode: configuringPlatform === 'youtube' ? youtubeDisplayMode : l.youtubeDisplayMode 
+            } : l));
         } else {
             const now = Date.now();
             const newSocialLink: LinkItem = {
@@ -262,7 +272,8 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                 url: finalUrl,
                 isActive: true,
                 clicks: 0,
-                layout: 'social'
+                layout: 'social',
+                youtubeDisplayMode: configuringPlatform === 'youtube' ? youtubeDisplayMode : undefined
             };
 
             onChange([...links, newSocialLink]);
@@ -343,19 +354,19 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                             <div
                                 className={`
                                         relative bg-white flex flex-col overflow-hidden border-2 border-[#000]
-                                        ${isMobile ? 'w-full h-[92vh] rounded-t-3xl shadow-none translate-y-1' : 'w-full max-w-sm max-h-[70vh] shadow-[8px_8px_0_0_#000] rounded-3xl'}
+                                        ${isMobile ? 'w-full h-[92vh] rounded-t-3xl shadow-none translate-y-1' : 'w-[1000px] h-[800px] shadow-[12px_12px_0_0_#000] rounded-[40px]'}
                                     `}
                             >
 
-                                <div className="p-4 flex items-center justify-between shrink-0 relative border-b-2 border-[#000]">
+                                <div className="p-4 md:p-8 flex items-center justify-between shrink-0 relative border-b-2 border-[#000]">
                                     <button
                                         onClick={() => configuringPlatform ? setConfiguringPlatform(null) : handleCloseModal()}
-                                        className="p-1.5 text-black border-2 border-transparent hover:border-[#000] hover:bg-[#ffdf00] transition-colors"
+                                        className="p-2 text-black border-2 border-transparent hover:border-[#000] hover:bg-[#ffdf00] transition-colors rounded-xl"
                                     >
-                                        <ChevronLeft size={20} strokeWidth={3} />
+                                        <ChevronLeft size={24} strokeWidth={3} />
                                     </button>
 
-                                    <h3 className={`absolute left-1/2 -translate-x-1/2 font-medium uppercase tracking-widest text-black truncate max-w-[200px] ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
+                                    <h3 className={`absolute left-1/2 -translate-x-1/2 font-black uppercase tracking-widest text-black truncate max-w-[500px] ${isMobile ? 'text-[10px]' : 'text-xl'}`}>
                                         {configuringPlatform
                                             ? (links.some(l => l.layout === 'social' && (l.platform === configuringPlatform || (configuringPlatform !== 'site' && configuringPlatform !== 'custom' && l.url.includes(configuringPlatform))))
                                                 ? t('social.editPlatform', { platform: activeConfigPlatform?.name })
@@ -365,9 +376,9 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
                                     <button
                                         onClick={handleCloseModal}
-                                        className="w-10 h-10 flex items-center justify-center text-black bg-white border-2 border-[#000] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none shadow-[4px_4px_0_0_#000] rounded-lg"
+                                        className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-black bg-white border-2 border-[#000] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none shadow-[4px_4px_0_0_#000] rounded-xl"
                                     >
-                                        <X size={20} strokeWidth={4} />
+                                        <X size={24} strokeWidth={4} />
                                     </button>
                                 </div>
 
@@ -393,7 +404,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                 scrollbarWidth: 'none'
                                             } : {}}
                                         >
-                                            <div className="grid grid-cols-2 gap-3 px-1">
+                                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 px-1">
                                                 {SOCIAL_NETWORKS.filter(p =>
                                                     p.name.toLowerCase().includes(searchTerm.toLowerCase())
                                                 ).map(platform => {
@@ -457,8 +468,8 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col flex-1 px-8 pb-10">
-                                        <div className="mt-4 space-y-6">
+                                    <div className="flex flex-col flex-1 px-8 md:px-20 pb-10">
+                                        <div className="mt-8 space-y-10 max-w-2xl mx-auto w-full">
                                             {connectionError && (
                                                 <div className="p-4 bg-red-50 border-2 border-red-500/20 text-red-600 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
                                                     <AlertCircle size={18} strokeWidth={3} />
@@ -471,19 +482,19 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                     <button
                                                         onClick={() => handleConnect('instagram')}
                                                         disabled={isConnectingInstagram}
-                                                        className="w-full py-4 bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white font-black text-[11px] uppercase tracking-[0.2em] border-2 border-black shadow-[4px_4px_0_0_#000] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all flex items-center justify-center gap-3 rounded-xl mb-6 relative overflow-hidden group"
+                                                        className="w-full py-5 bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white font-black text-sm uppercase tracking-[0.2em] border-4 border-black shadow-[8px_8px_0_0_#000] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all flex items-center justify-center gap-3 rounded-2xl mb-10 relative overflow-hidden group"
                                                     >
                                                         <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                                                         {isConnectingInstagram ? (
-                                                            <Loader2 size={20} className="animate-spin" strokeWidth={4} />
+                                                            <Loader2 size={24} className="animate-spin" strokeWidth={4} />
                                                         ) : (
-                                                            <Instagram size={20} strokeWidth={3} />
+                                                            <Instagram size={24} strokeWidth={3} />
                                                         )}
                                                         <span className="relative z-10">{isConnectingInstagram ? 'Redirecionando...' : 'Conectar Instagram Oficial'}</span>
                                                     </button>
-                                                    <div className="flex items-center gap-4 mb-6">
+                                                    <div className="flex items-center gap-4 mb-10">
                                                         <div className="h-[2px] flex-1 bg-black/5" />
-                                                        <span className="text-[9px] font-black text-black/20 uppercase tracking-[0.2em] shrink-0">Ou use o link manual</span>
+                                                        <span className="text-[10px] font-black text-black/20 uppercase tracking-[0.2em] shrink-0">Ou use o link manual</span>
                                                         <div className="h-[2px] flex-1 bg-black/5" />
                                                     </div>
                                                 </div>
@@ -494,19 +505,19 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                     <button
                                                         onClick={() => handleConnect('youtube')}
                                                         disabled={isConnectingYoutube}
-                                                        className="w-full py-4 bg-[#FF0000] text-white font-black text-[11px] uppercase tracking-[0.2em] border-2 border-black shadow-[4px_4px_0_0_#000] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all flex items-center justify-center gap-3 rounded-xl mb-6 relative overflow-hidden group"
+                                                        className="w-full py-5 bg-[#FF0000] text-white font-black text-sm uppercase tracking-[0.2em] border-4 border-black shadow-[8px_8px_0_0_#000] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all flex items-center justify-center gap-3 rounded-2xl mb-10 relative overflow-hidden group"
                                                     >
                                                         <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                                                         {isConnectingYoutube ? (
-                                                            <Loader2 size={20} className="animate-spin" strokeWidth={4} />
+                                                            <Loader2 size={24} className="animate-spin" strokeWidth={4} />
                                                         ) : (
-                                                            <Youtube size={20} strokeWidth={3} />
+                                                            <Youtube size={24} strokeWidth={3} />
                                                         )}
                                                         <span className="relative z-10">{isConnectingYoutube ? 'Redirecionando...' : 'Conectar Canal Oficial'}</span>
                                                     </button>
-                                                    <div className="flex items-center gap-4 mb-6">
+                                                    <div className="flex items-center gap-4 mb-10">
                                                         <div className="h-[2px] flex-1 bg-black/5" />
-                                                        <span className="text-[9px] font-black text-black/20 uppercase tracking-[0.2em] shrink-0">Ou use o link manual</span>
+                                                        <span className="text-[10px] font-black text-black/20 uppercase tracking-[0.2em] shrink-0">Ou use o link manual</span>
                                                         <div className="h-[2px] flex-1 bg-black/5" />
                                                     </div>
                                                 </div>
@@ -518,7 +529,7 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                 (configuringPlatform === 'youtube' && isYoutubeConnected) ||
                                                 (configuringPlatform === 'kick' && isKickConnected)
                                             ) && (
-                                                    <div className="space-y-2">
+                                                    <div className="space-y-4">
                                                         <input
                                                             autoFocus
                                                             type="text"
@@ -528,15 +539,15 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
                                                                 ? t('social.linkInputPlaceholder')
                                                                 : t('social.userInputPlaceholder')}
                                                             onKeyDown={(e) => e.key === 'Enter' && confirmPlatform()}
-                                                            className={`w-full bg-white border-2 px-4 py-3 text-black text-[10px] font-medium uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/30 shadow-[4px_4px_0_0_#000] transition-colors rounded-xl ${isLinkIncomplete(tempUrl.startsWith('http') ? tempUrl : (activeConfigPlatform?.baseUrl || '') + tempUrl.replace('@', ''), activeConfigPlatform?.id) ? 'border-red-500 bg-red-50/10' : 'border-[#000]'}`}
+                                                            className={`w-full bg-white border-2 md:border-4 px-6 py-5 text-black text-xs md:text-lg font-bold uppercase tracking-widest outline-none focus:bg-[#ffdf00] placeholder:text-black/10 shadow-[6px_6px_0_0_#000] transition-colors rounded-2xl ${isLinkIncomplete(tempUrl.startsWith('http') ? tempUrl : (activeConfigPlatform?.baseUrl || '') + tempUrl.replace('@', ''), activeConfigPlatform?.id) ? 'border-red-500 bg-red-50/10' : 'border-[#000]'}`}
                                                         />
-                                                        <div className="flex flex-col gap-1.5 px-1">
-                                                            <p className="text-[8px] font-normal text-black uppercase tracking-widest opacity-50 italic">
+                                                        <div className="flex flex-col gap-2 px-2">
+                                                            <p className="text-[10px] md:text-xs font-bold text-black uppercase tracking-widest opacity-40">
                                                                 {t('social.userHint', { username: activeConfigPlatform?.placeholder || 'USUARIO' })}
                                                             </p>
                                                             {isLinkIncomplete(tempUrl.startsWith('http') ? tempUrl : (activeConfigPlatform?.baseUrl || '') + tempUrl.replace('@', ''), activeConfigPlatform?.id) && (
-                                                                <p className="text-[8px] font-bold text-red-500 uppercase tracking-widest flex items-center gap-1">
-                                                                    <AlertCircle size={10} strokeWidth={3} />
+                                                                <p className="text-[10px] md:text-xs font-black text-red-500 uppercase tracking-widest flex items-center gap-2">
+                                                                    <AlertCircle size={14} strokeWidth={4} />
                                                                     {t('social.incompleteLinkHint') || 'Insira o seu usuário ou número para completar o link'}
                                                                 </p>
                                                             )}
@@ -829,6 +840,55 @@ export default function SocialLinksEditor({ links, onChange, profile: propProfil
 
 
 
+                                            {/* YouTube Display Mode Settings */}
+                                            {configuringPlatform === 'youtube' && (
+                                                <div className="mt-8 space-y-4">
+                                                    <div className="flex items-center justify-between p-4 md:p-6 bg-white border-2 md:border-4 border-[#000] shadow-[6px_6px_0_0_#000] rounded-2xl">
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-black">Modo de Exibição</span>
+                                                            <span className="text-[9px] md:text-[10px] font-medium uppercase tracking-tighter text-black/40">Como seu canal aparece</span>
+                                                        </div>
+                                                        <div className="flex bg-[#f3f4f6] p-1 rounded-xl border-2 border-[#000]/10">
+                                                            <button 
+                                                                onClick={() => setYoutubeDisplayMode('classic')}
+                                                                className={`px-3 md:px-5 py-2 md:py-2.5 text-[9px] md:text-[11px] font-black uppercase tracking-widest rounded-lg transition-all ${youtubeDisplayMode === 'classic' ? 'bg-[#ffdf00] text-black shadow-[2px_2px_0_0_#000] border-2 border-[#000]' : 'text-black/40 hover:text-black'}`}
+                                                            >
+                                                                Clássico
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => setYoutubeDisplayMode('latest')}
+                                                                className={`px-3 md:px-5 py-2 md:py-2.5 text-[9px] md:text-[11px] font-black uppercase tracking-widest rounded-lg transition-all ${youtubeDisplayMode === 'latest' ? 'bg-[#ff0000] text-white shadow-[2px_2px_0_0_#000] border-2 border-[#000]' : 'text-black/40 hover:text-black'}`}
+                                                            >
+                                                                Último Vídeo
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Latest Video Preview if available */}
+                                                    {youtubeDisplayMode === 'latest' && links.find(l => l.platform === 'youtube')?.metadata?.latestVideo && (
+                                                        <motion.div 
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="p-4 bg-[#fff9c4]/30 border-2 border-dashed border-[#ff0000]/30 rounded-2xl flex items-center gap-4"
+                                                        >
+                                                            <div className="w-20 h-12 bg-black rounded-lg overflow-hidden shrink-0 relative">
+                                                                <img 
+                                                                    src={`https://img.youtube.com/vi/${links.find(l => l.platform === 'youtube')?.metadata?.latestVideo.id}/mqdefault.jpg`} 
+                                                                    className="w-full h-full object-cover opacity-80"
+                                                                />
+                                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                                    <Play size={12} className="text-white fill-white" />
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex flex-col min-w-0">
+                                                                <span className="text-[8px] font-black text-[#ff0000] uppercase tracking-widest">Preview do Vídeo</span>
+                                                                <span className="text-[10px] font-bold text-black truncate">{links.find(l => l.platform === 'youtube')?.metadata?.latestVideo.title}</span>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </div>
+                                            )}
+                                            
                                             {/* Action Button - Hidden for IG/Twitch/YT/Kick if connected */}
                                             {true && (
                                                     <button

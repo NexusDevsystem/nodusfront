@@ -18,9 +18,12 @@ export const isYoutubeChannelUrl = (url: string): boolean => {
     return !lowerUrl.includes('/watch') && !lowerUrl.includes('/shorts/') && !lowerUrl.includes('/live/') && !lowerUrl.includes('youtu.be/');
 };
 
-export const fetchYoutubeChannelInfo = async (url: string): Promise<any | null> => {
+export const fetchYoutubeChannelInfo = async (url: string, linkId?: string): Promise<any | null> => {
     try {
-        const response = await fetch(`${API_URL}/api/social/youtube?url=${encodeURIComponent(url)}`);
+        const queryParams = new URLSearchParams({ url });
+        if (linkId) queryParams.append('linkId', linkId);
+        
+        const response = await fetch(`${API_URL}/api/social/youtube?${queryParams.toString()}`);
         if (!response.ok) return null;
         return await response.json();
     } catch (error) {

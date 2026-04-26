@@ -53,6 +53,7 @@ import { TwitchCard } from './TwitchCard';
 import { formatUrl } from '../utils/urlUtils';
 import { KickCard } from './KickCard';
 import { YouTubeCard } from './YouTubeCard';
+import { YouTubeLatestVideoCard } from './YouTubeLatestVideoCard';
 import TikTokCard from './profile/TikTokCard';
 // @ts-ignore
 import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
@@ -159,11 +160,12 @@ interface ProfileRendererProps {
     stores?: Store[];
     isPreview?: boolean; // If true, shows mock status bar (9:41, wifi etc)
     isStatic?: boolean; // If true, disables animated backgrounds for performance (e.g. in ThemeSelector)
-    onShare?: () => void;
     forcedTab?: 'links' | 'shop';
+    onShare?: () => void;
+    onLike?: () => void;
 }
 
-const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], stores = [], isPreview = false, isStatic = false, onShare, forcedTab }) => {
+const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, products = [], stores = [], isPreview = false, isStatic = false, onShare, forcedTab, onLike }) => {
     const { t, i18n } = useTranslation();
     const isPT = i18n.language?.startsWith('pt');
     const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
@@ -617,21 +619,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
     // Track view on mount (only if not in preview/editor mode)
     // @ts-ignore
-    React.useEffect(() => {
-        if (!isPreview && profile.id && apiClient) {
-            try {
-                // Determine or generate visitor fingerprint for unique visitor tracking
-                let fp = localStorage.getItem('nodus_blog_fingerprint'); // Reuse blog fingerprint if exists
-                if (!fp) {
-                    fp = Math.random().toString(36).substring(2) + Date.now().toString(36);
-                    localStorage.setItem('nodus_blog_fingerprint', fp);
-                }
-
-                console.log(`📊 [ProfileRenderer] Tracking page view for profile: ${profile.id} (isPreview=${isPreview}, fingerprint=${fp})`);
-                apiClient.trackPageView(profile.id, fp);
-            } catch (e) { console.error('❌ [ProfileRenderer] trackPageView error:', e); }
-        }
-    }, [profile.id, isPreview]);
+    // View tracking removed from Renderer - now handled exclusively by PublicProfilePage 
+    // to ensure only live public views are counted and uniqueness is enforced.
 
     // Top level social links - Now strictly matching the editor's "Social Networks" list
     const socialLinks = React.useMemo(() => {
@@ -945,6 +934,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     // 2. Button Color Logic - Rely completely on theme classes
     const buttonHex = currentTheme.buttonHex;
     const mainButtonStyle: React.CSSProperties = {};
+    if (profile.customButtonTextColor) mainButtonStyle.color = profile.customButtonTextColor;
 
     // 2.5 Font Logic - Always prioritize profile settings if available
     const effectiveFontFamily = profile.fontFamily || currentTheme.fontFamily || "'Inter', sans-serif";
@@ -1014,6 +1004,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
     // Universal Helper for Button/Card Text Contrast
     const getSmartTextColor = React.useCallback((): string => {
+        // 0. User override (High priority)
+        if (profile.customButtonTextColor) return profile.customButtonTextColor;
+
         // 1. If currently in a DARK card/theme context and button is NOT light, use white
         if (!isButtonLight && (isDarkTheme)) return '#ffffff';
 
@@ -1025,7 +1018,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
         // 4. Default to dark for standard light backgrounds
         return '#0f172a';
-    }, [isButtonLight, isDarkTheme, profile.customBackground]);
+    }, [isButtonLight, isDarkTheme, profile.customBackground, profile.customButtonTextColor]);
 
     const smartTextColor = React.useMemo(() => getSmartTextColor(), [getSmartTextColor]);
 
@@ -1094,7 +1087,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
             {/* Content Container */}
             <div
-                className={`w-full ${isPreview ? 'flex-1 min-h-0 overflow-y-auto scrollbar-hide' : 'flex-1'} flex flex-col relative z-20 ${currentTheme.id === 'glass' ? 'text-white' : currentTheme.textClass}`}
+                className={`w-full max-w-[680px] mx-auto ${isPreview ? 'flex-1 min-h-0 overflow-y-auto scrollbar-hide' : 'flex-1'} flex flex-col relative z-20 ${currentTheme.id === 'glass' ? 'text-white' : currentTheme.textClass}`}
                 style={{
                     ...containerStyle,
                     fontWeight: ((profile.fontWeight || undefined) || undefined),
@@ -1182,6 +1175,26 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                     {profile.bio}
                                 </p>
                             )}
+
+                            {/* Likes and Views Stats */}
+                            <div className="flex items-center gap-2 mt-1 mb-4">
+                                <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000] rounded-full">
+                                    <LucideIcons.Eye size={13} className="text-black" />
+                                    <span className="text-[13px] font-black text-black tracking-tight">{profile.viewsCount || 0}</span>
+                                </div>
+                                <InteractiveButton strength={10}>
+                                    <button 
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            onLike?.();
+                                        }}
+                                        className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000] hover:shadow-[5px_5px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 active:shadow-none rounded-full transition-all group"
+                                    >
+                                        <LucideIcons.Heart size={13} className="text-[#FF2D55] fill-[#FF2D55] group-hover:scale-110 transition-transform" />
+                                        <span className="text-[13px] font-black text-black tracking-tight">{profile.likesCount || 0}</span>
+                                    </button>
+                                </InteractiveButton>
+                            </div>
 
                             {/* Social Icons (NOW BELOW BIO) */}
                             {socialLinks.length > 0 && (
@@ -1424,6 +1437,25 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         {profile.bio}
                                     </p>
                                 )}
+
+                                                    <div className="flex items-center gap-2 mt-2 mb-3">
+                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000] rounded-full">
+                                        <LucideIcons.Eye size={13} className="text-black" />
+                                        <span className="text-[13px] font-extrabold text-black tracking-tight">{profile.viewsCount || 0}</span>
+                                    </div>
+                                    <InteractiveButton strength={10}>
+                                        <button 
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                onLike?.();
+                                            }}
+                                            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_0px_#000] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all rounded-full group"
+                                        >
+                                            <LucideIcons.Heart size={13} className="text-[#FF2D55] fill-[#FF2D55] group-hover:scale-110 transition-transform" />
+                                            <span className="text-[13px] font-black text-black tracking-tight">{profile.likesCount || 0}</span>
+                                        </button>
+                                    </InteractiveButton>
+                                </div>
                             </div>
 
                             {/* Social Icons (BELOW BIO) */}
@@ -2117,15 +2149,17 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                         const ytDisplayUsername = typeof ytUsername === 'string' && ytUsername.length > 0 && !ytUsername.includes('youtube.com') ? `@${ytUsername.replace('@', '').split('/')[0].split('?')[0]}` : 'YouTube';
                                                         const formatSubs = (n: string | number | null | undefined): string => {
                                                             if (!n) return '';
-                                                            const num = typeof n === 'string' ? parseFloat(n.replace(/[KMB]/i, (m) => m === 'K' || m === 'k' ? '000' : m === 'M' || m === 'm' ? '000000' : '000000000')) : n;
+                                                            if (typeof n === 'string' && /mil|mi/i.test(n)) return n.replace(/inscritos/i, '').trim();
+                                                            const numStr = typeof n === 'string' ? n.replace(',', '.') : n;
+                                                            const num = typeof numStr === 'string' ? parseFloat(numStr.replace(/[KMB]/i, (m) => m === 'K' || m === 'k' ? '000' : m === 'M' || m === 'm' ? '000000' : '000000000')) : numStr;
                                                             if (isNaN(num) || num <= 0) return '';
                                                             if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(1).replace(/\.0$/, '')}B`;
                                                             if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
                                                             if (num >= 1_000) return `${(num / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
                                                             return String(num);
                                                         };
-                                                        const ytSubscribersRaw = youtubeSubscribers ?? (link.subtitle?.match(/([\d\.]+[KMB]?)\s*Inscritos/i)?.[1]);
-                                                        const ytSubsFormatted = formatSubs(ytSubscribersRaw);
+                                                        const ytSubscribersRaw = youtubeSubscribers ?? (link.subtitle?.match(/([\d\.,\s]+(?:K|M|B|MIL|MI)?)\s*Inscritos/i)?.[1]);
+                                                        const ytSubsFormatted = formatSubs(ytSubscribersRaw) || (typeof ytSubscribersRaw === 'string' ? ytSubscribersRaw.trim() : '');
                                                         const ytSubscribersValue = ytSubsFormatted ? ` • ${ytSubsFormatted} Inscritos` : '';
 
                                                         if (link.layout !== 'classic') {
@@ -2159,63 +2193,100 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             // Fallback to classic button (Elastic by default for YouTube)
                                                             const network = SOCIAL_NETWORKS.find(n => n.id === 'youtube');
                                                             const Icon = network?.icon;
+                                                            
+                                                            // YouTube Latest Video Mode check
+                                                            const isLatestMode = link.youtubeDisplayMode === 'latest' && link.metadata?.latestVideo;
+                                                            const videoInfo = link.metadata?.latestVideo;
+                                                            
                                                             const isHighlighted = link.highlight === 'blink' || link.highlight === 'glow' || link.highlight === 'flash' || link.highlight === 'rainbow' || link.highlight === 'glitch';
                                                             const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
                                                             const effectProps = { className: "w-full", clipPath: themeClipPath };
 
-                                                            renderedItems.push(
-                                                                <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
-                                                                    <EffectWrapper {...effectProps}>
-                                                                        <motion.a
-                                                                            transition={{ duration: 0.2 }}
-                                                                            href={link.isPasswordProtected ? undefined : formatUrl(link.url)}
-                                                                            target={link.isPasswordProtected ? undefined : "_blank"}
-                                                                            rel="noreferrer"
-                                                                            onClick={(e) => {
-                                                                                if (handlePasswordProtectedLink(link, e)) return;
-                                                                                handleLinkClick(link.id);
-                                                                            }}
-                                                                            className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
-                                                                            style={{
-                                                                                ...mainButtonStyle, clipPath: themeClipPath,
-                                                                                fontFamily: profile.fontFamily,
-                                                                                fontWeight: (profile.fontWeight || undefined),
-                                                                                fontStyle: profile.fontItalic ? 'italic' : 'normal',
-                                                                                ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
-                                                                                borderRadius: borderRadiusValue
-                                                                            }}
-                                                                        >
-                                                                            <div className="relative shrink-0 z-10">
-                                                                                {link.image ? (
-                                                                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
-                                                                                        <img src={link.image} alt="" className="w-full h-full object-cover" />
+                                                            if (isLatestMode && videoInfo) {
+                                                                renderedItems.push(
+                                                                    <YouTubeLatestVideoCard
+                                                                        key={link.id}
+                                                                        video={videoInfo}
+                                                                        channelName={ytDisplayUsername}
+                                                                        avatarUrl={link.image || liveMetadata[link.id]?.image}
+                                                                        subscribers={ytSubsFormatted ? `${ytSubsFormatted} Inscritos` : undefined}
+                                                                        themeButtonClass={baseCardClass}
+                                                                        themeButtonStyle={mainButtonStyle}
+                                                                        themeTextHex={getSmartTextColor()}
+                                                                        fontFamily={profile.fontFamily}
+                                                                        fontWeight={profile.fontWeight || undefined}
+                                                                        fontItalic={profile.fontItalic}
+                                                                    />
+                                                                );
+                                                            } else {
+                                                                // Fallback to classic button (Elastic by default for YouTube)
+                                                                const network = SOCIAL_NETWORKS.find(n => n.id === 'youtube');
+                                                                const Icon = network?.icon;
+                                                                
+                                                                const isHighlighted = link.highlight === 'blink' || link.highlight === 'glow' || link.highlight === 'flash' || link.highlight === 'rainbow' || link.highlight === 'glitch';
+                                                                const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
+                                                                const effectProps = { className: "w-full", clipPath: themeClipPath };
+
+                                                                renderedItems.push(
+                                                                    <InteractiveButton key={link.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
+                                                                        <EffectWrapper {...effectProps}>
+                                                                            <motion.a
+                                                                                transition={{ duration: 0.2 }}
+                                                                                href={link.isPasswordProtected ? undefined : formatUrl(link.url)}
+                                                                                target={link.isPasswordProtected ? undefined : "_blank"}
+                                                                                rel="noreferrer"
+                                                                                onClick={(e) => {
+                                                                                    if (handlePasswordProtectedLink(link, e)) return;
+                                                                                    handleLinkClick(link.id);
+                                                                                }}
+                                                                                className={`block w-full h-[72px] transform group relative px-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(link.highlight)} cursor-pointer`}
+                                                                                style={{
+                                                                                    ...mainButtonStyle, clipPath: themeClipPath,
+                                                                                    fontFamily: profile.fontFamily,
+                                                                                    fontWeight: (profile.fontWeight || undefined),
+                                                                                    fontStyle: profile.fontItalic ? 'italic' : 'normal',
+                                                                                    ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }),
+                                                                                    borderRadius: borderRadiusValue
+                                                                                }}
+                                                                            >
+                                                                                <div className="relative shrink-0 z-10">
+                                                                                    {(link.image || liveMetadata[link.id]?.image) ? (
+                                                                                        <div className="w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform">
+                                                                                            <img src={link.image || liveMetadata[link.id]?.image} alt="" className="w-full h-full object-cover" />
+                                                                                        </div>
+                                                                                    ) : Icon ? (
+                                                                                        <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
+                                                                                            <Icon size={28} />
+                                                                                        </div>
+                                                                                    ) : <div className="w-12" />}
+                                                                                </div>
+                                                                                <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
+                                                                                    <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
+                                                                                        {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
+                                                                                        <span className="text-[7px] font-bold uppercase tracking-[0.25em] leading-none" style={{ color: getSmartTextColor() }}>
+                                                                                            YouTube
+                                                                                        </span>
                                                                                     </div>
-                                                                                ) : Icon ? (
-                                                                                    <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
-                                                                                        <Icon size={28} />
+                                                                                    <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
+                                                                                        <span className="block w-full whitespace-normal line-clamp-1">
+                                                                                            {ytDisplayUsername}
+                                                                                        </span>
                                                                                     </div>
-                                                                                ) : <div className="w-12" />}
-                                                                            </div>
-                                                                            <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative">
-                                                                                <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">
-                                                                                    {Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}
-                                                                                    <span className="text-[7px] font-bold uppercase tracking-[0.25em] leading-none" style={{ color: getSmartTextColor() }}>
-                                                                                        YouTube
+                                                                                    <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
+                                                                                        <>
+                                                                                            <Users size={12} className="shrink-0" />
+                                                                                            <span>{liveMetadata[link.id]?.subtitle || link.subtitle || (ytSubsFormatted ? `${ytSubsFormatted} Inscritos` : 'Ver Canal')}</span>
+                                                                                        </>
                                                                                     </span>
                                                                                 </div>
-                                                                                <div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full">
-                                                                                    <span className="block w-full whitespace-normal">{ytDisplayUsername}</span>
+                                                                                <div className="w-12 shrink-0 flex items-center justify-center">
+                                                                                    {/* Spacer */}
                                                                                 </div>
-                                                                                <span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}>
-                                                                                    <Users size={12} className="shrink-0" />
-                                                                                    <span>{link.subtitle || (ytSubsFormatted ? `${ytSubsFormatted} Inscritos` : 'Ver Canal')}</span>
-                                                                                </span>
-                                                                            </div>
-                                                                            <div className="w-12" />
-                                                                        </motion.a>
-                                                                    </EffectWrapper>
-                                                                </InteractiveButton>
-                                                            );
+                                                                            </motion.a>
+                                                                        </EffectWrapper>
+                                                                    </InteractiveButton>
+                                                                );
+                                                            }
                                                         }
                                                     } else if (link.platform === 'twitch' || (link.url.includes('twitch.tv') && !link.url.includes('/videos/') && !link.url.includes('/clips/'))) {
                                                         flushIcons();
@@ -2774,19 +2845,17 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             );
                                                                                             renderedSpecial = true;
                                                                                         } else {
-                                                                                            // Special Classic Layout for YouTube in Collections
-                                                                                            const network = SOCIAL_NETWORKS.find(n => n.id === 'youtube');
-                                                                                            const Icon = network?.icon;
-                                                                                            const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
-                                                                                            const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
-                                                                                            const effectProps = { className: "w-full", clipPath: themeClipPath };
-
+                                                                                            const isLatestMode = child.youtubeDisplayMode === 'latest' && child.metadata?.latestVideo;
+                                                                                            const videoInfo = child.metadata?.latestVideo;
+                                                                                            
                                                                                             const ytUsername = youtubeUsername || child.subtitle?.match(/@([^\s\•]+)/)?.[1] || child.url?.match(/youtube\.com\/@([^\/\?]+)/)?.[1] || child.url?.match(/youtube\.com\/(?:c|user)\/([^\/\?]+)/)?.[1] || child.url;
                                                                                             const ytDisplayUsername = typeof ytUsername === 'string' && ytUsername.length > 0 && !ytUsername.includes('youtube.com') ? `@${ytUsername.replace('@', '').split('/')[0].split('?')[0]}` : (child.title || 'YouTube');
 
                                                                                             const formatSubs = (n: string | number | null | undefined): string => {
                                                                                                 if (!n) return '';
-                                                                                                const num = typeof n === 'string' ? parseFloat(n.replace(/[KMB]/i, (m) => m === 'K' || m === 'k' ? '000' : m === 'M' || m === 'm' ? '000000' : '000000000')) : n;
+                                                                                                if (typeof n === 'string' && /mil|mi/i.test(n)) return n.replace(/inscritos/i, '').trim();
+                                                                                                const numStr = typeof n === 'string' ? n.replace(',', '.') : n;
+                                                                                                const num = typeof numStr === 'string' ? parseFloat(numStr.replace(/[KMB]/i, (m) => m === 'K' || m === 'k' ? '000' : m === 'M' || m === 'm' ? '000000' : '000000000')) : numStr;
                                                                                                 if (isNaN(num) || num <= 0) return '';
                                                                                                 if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(1).replace(/\.0$/, '')}B`;
                                                                                                 if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
@@ -2794,8 +2863,33 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                 return String(num);
                                                                                             };
 
-                                                                                            const ytSubscribersRaw = youtubeSubscribers ?? (child.subtitle?.match(/([\d\.]+[KMB]?)\s*Inscritos/i)?.[1]);
-                                                                                            const ytSubsFormatted = formatSubs(ytSubscribersRaw);
+                                                                                            const ytSubscribersRaw = youtubeSubscribers ?? (child.subtitle?.match(/([\d\.,\s]+(?:K|M|B|MIL|MI)?)\s*Inscritos/i)?.[1]);
+                                                                                            const ytSubsFormatted = formatSubs(ytSubscribersRaw) || (typeof ytSubscribersRaw === 'string' ? ytSubscribersRaw.trim() : '');
+
+                                                                                            if (isLatestMode && videoInfo) {
+                                                                                                nestedItems.push(
+                                                                                                    <YouTubeLatestVideoCard
+                                                                                                        key={child.id}
+                                                                                                        video={videoInfo}
+                                                                                                        channelName={ytDisplayUsername}
+                                                                                                        avatarUrl={child.image || liveMetadata[child.id]?.image}
+                                                                                                        subscribers={ytSubsFormatted ? `${ytSubsFormatted} Inscritos` : undefined}
+                                                                                                        themeButtonClass={baseCardClass}
+                                                                                                        themeButtonStyle={mainButtonStyle}
+                                                                                                        themeTextHex={getSmartTextColor()}
+                                                                                                        fontFamily={profile.fontFamily}
+                                                                                                        fontWeight={profile.fontWeight || undefined}
+                                                                                                        fontItalic={profile.fontItalic}
+                                                                                                    />
+                                                                                                );
+                                                                                                renderedSpecial = true;
+                                                                                            } else {
+                                                                                                // Special Classic Layout for YouTube in Collections
+                                                                                                const network = SOCIAL_NETWORKS.find(n => n.id === 'youtube');
+                                                                                                const Icon = network?.icon;
+                                                                                                const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';
+                                                                                                const EffectWrapper: any = isHighlighted ? GlitchButton : ElasticButton;
+                                                                                                const effectProps = { className: "w-full", clipPath: themeClipPath };
 
                                                                                             nestedItems.push(
                                                                                                 <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
@@ -2861,8 +2955,9 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                             renderedSpecial = true;
                                                                                         }
                                                                                     }
+                                                                                }
 
-                                                                                    if (!renderedSpecial && (child.platform === 'instagram' || child.url?.includes('instagram.com'))) {
+                                                                                if (!renderedSpecial && (child.platform === 'instagram' || child.url?.includes('instagram.com'))) {
                                                                                         const network = SOCIAL_NETWORKS.find(n => n.id === 'instagram');
                                                                                         const Icon = network?.icon;
                                                                                         const isHighlighted = child.highlight === 'blink' || child.highlight === 'glow' || child.highlight === 'flash' || child.highlight === 'rainbow' || child.highlight === 'glitch';

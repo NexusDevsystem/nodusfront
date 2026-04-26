@@ -1,6 +1,6 @@
 import { UserProfile, LinkItem, Product, SocialIntegration, Store } from '../types';
 
-const rawUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : 'https://nodusback-production.up.railway.app');
+const rawUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
 // Ensure URL has protocol (prevent relative path issues)
 export const API_URL = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
@@ -133,6 +133,10 @@ class ApiClient {
 
     async checkUsername(username: string): Promise<{ available: boolean }> {
         return this.request(`/api/profile/check-username/${username}`);
+    }
+
+    async likeProfile(username: string): Promise<{ success: boolean; likesCount: number }> {
+        return this.request(`/api/profile/public/like/${username}`, { method: 'POST' });
     }
 
     // Links

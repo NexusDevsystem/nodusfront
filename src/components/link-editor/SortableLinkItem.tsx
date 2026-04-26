@@ -138,6 +138,9 @@ function SortableLinkItem({
 
     const isDiscord = link.url?.toLowerCase().includes('discord.gg') || link.url?.toLowerCase().includes('discord.com/invite');
     const isInstagramLink = link.platform === 'instagram' || link.url?.toLowerCase().includes('instagram.com');
+    const isYoutubeChannel = isYoutubeChannelUrl(link.url || '');
+    const isYoutubeVideo = (link.url?.includes('youtube.com') || link.url?.includes('youtu.be')) && !isYoutubeChannel;
+    const isYoutubeLink = isYoutubeChannel || isYoutubeVideo;
 
 
     // Auto-detect music metadata when URL changes
@@ -207,12 +210,13 @@ function SortableLinkItem({
                 hasGenericYtSubtitle ||
                 hasGenericIgData ||
                 hasGenericTiktokData ||
-                hasGenericTwitchData;
+                hasGenericTwitchData ||
+                (isYoutubeChannel && currentLink.youtubeDisplayMode === 'latest' && !currentLink.metadata?.latestVideo);
 
 
             if (isYoutubeChannel && needsAutoFetch) {
                 try {
-                    const info = await fetchYoutubeChannelInfo(url);
+                    const info = await fetchYoutubeChannelInfo(url, link.id);
                     if (info) {
                         const fresh = linkRef.current; // re-read after await
                         const updates: Partial<LinkItem> = {};
@@ -237,6 +241,10 @@ function SortableLinkItem({
                             } catch (e) {
                                 updates.image = info.avatarUrl;
                             }
+                        }
+
+                        if (info.latestVideo) {
+                            updates.metadata = { ...(fresh.metadata || {}), latestVideo: info.latestVideo };
                         }
 
                         if (Object.keys(updates).length > 0) {
@@ -453,7 +461,7 @@ function SortableLinkItem({
         return () => clearTimeout(timeoutId);
         // NOTE: link.image intentionally NOT in deps — it's read via ref inside the callback
         // to avoid re-triggering the effect every time an image is uploaded
-    }, [link.url, link.id, link.title, t]);
+    }, [link.url, link.id, link.title, link.youtubeDisplayMode, t]);
 
     const isCollection = link.type === 'collection';
     const itemSize = level > 0 ? 'min-h-[64px]' : 'min-h-[82px]';
@@ -1104,6 +1112,43 @@ function SortableLinkItem({
                                                                                             {isActive && (
                                                                                                 <div className="absolute -top-2 -right-2 w-5 h-5 bg-black flex items-center justify-center border-2 border-white rounded-full z-10">
                                                                                                     <Check size={12} strokeWidth={4} className="text-[#ffdf00]" />
+                                                                                                </div>
+                                                                                            )}
+                                                                                        </button>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                    {isYoutubeLink && (
+                                                                        <div className="pt-4 border-t border-[#000]/5 mt-4">
+                                                                            <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] px-1 mb-4 flex items-center gap-2">
+                                                                                <Youtube size={14} strokeWidth={3} className="text-[#ff0000]" />
+                                                                                {isPT ? 'MODO DE EXIBIÇÃO YOUTUBE' : 'YOUTUBE DISPLAY MODE'}
+                                                                            </label>
+                                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-[500px]">
+                                                                                {[
+                                                                                    { id: 'classic', label: 'CLÁSSICO', desc: isPT ? 'Canal e inscritos' : 'Channel & subs', icon: User },
+                                                                                    { id: 'latest', label: 'ÚLTIMO VÍDEO', desc: isPT ? 'Mostra o vídeo novo' : 'Show latest video', icon: LucideIcons.Play },
+                                                                                ].map((opt) => {
+                                                                                    const isActive = (link.youtubeDisplayMode || 'classic') === opt.id;
+                                                                                    const Icon = opt.icon;
+                                                                                    return (
+                                                                                        <button
+                                                                                            key={opt.id}
+                                                                                            onClick={() => updateLink(link.id, 'youtubeDisplayMode', opt.id as any)}
+                                                                                            className={`group relative flex items-center gap-4 p-4 border-2 border-black rounded-xl transition-all ${isActive ? 'bg-[#ff0000] text-white shadow-[0_4px_0_0_#000] -translate-y-0.5' : 'bg-white text-black hover:bg-[#f8f8f8] shadow-[0_4px_0_0_rgba(0,0,0,0.05)] hover:shadow-[0_4px_0_0_#000] hover:-translate-y-0.5'}`}
+                                                                                        >
+                                                                                            <div className={`w-10 h-10 flex items-center justify-center rounded-xl border-2 border-black ${isActive ? 'bg-white text-black' : 'bg-slate-50'}`}>
+                                                                                                <Icon size={18} strokeWidth={3} />
+                                                                                            </div>
+                                                                                            <div className="flex flex-col items-start text-left">
+                                                                                                <span className="text-[10px] font-black uppercase tracking-tight leading-none">{opt.label}</span>
+                                                                                                <span className={`text-[8px] font-bold uppercase tracking-widest mt-1 ${isActive ? 'text-white/70' : 'text-black/40'}`}>{opt.desc}</span>
+                                                                                            </div>
+                                                                                            {isActive && (
+                                                                                                <div className="absolute -top-2 -right-2 w-5 h-5 bg-black flex items-center justify-center border-2 border-white rounded-full z-10">
+                                                                                                    <Check size={12} strokeWidth={4} className="text-white" />
                                                                                                 </div>
                                                                                             )}
                                                                                         </button>

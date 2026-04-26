@@ -42,6 +42,8 @@ export interface LinkItem {
   linkPassword?: string; // only in memory during editing, never persisted as plaintext
   currency?: 'BRL' | 'USD' | string;
   isLive?: boolean;
+  metadata?: any;
+  youtubeDisplayMode?: 'classic' | 'latest';
 }
 
 export interface PaymentMethod {
@@ -62,7 +64,7 @@ export interface UserProfile {
   themeId: string;
   fontFamily: string;
   buttonRoundness?: 'square' | 'round' | 'rounder' | 'full' | null;
-  headerLayout?: 'classico' | 'banner' | 'perfil';
+  headerLayout?: 'classico' | 'banner' | 'perfil' | 'classic' | 'compact' | 'hero';
   headerStyle?: 'text' | 'logo';
   logoUrl?: string;
   avatarSize?: 'sm' | 'md' | 'lg';
@@ -107,6 +109,8 @@ export interface UserProfile {
   onboardingDismissed?: boolean;
   lastProThemeId?: string | null;
   lastProFontFamily?: string | null;
+  likesCount?: number;
+  viewsCount?: number;
 }
 
 export interface Theme {

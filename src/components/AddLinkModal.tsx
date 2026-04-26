@@ -813,7 +813,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                             </h4>
                             <div className="h-0.5 flex-1 bg-black/5 rounded-full"></div>
                         </div>
-                        <div className={`grid ${initialView === 'social' ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'} gap-4`}>
+                        <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4`}>
                             {initialView === 'social' && (
                                 <button
                                     onClick={() => handleQuickAddClick('link')}
@@ -862,7 +862,7 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: "100%", opacity: 0 }}
                 transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
-                className="relative bg-white flex flex-col border-t-4 border-x-4 md:border-4 border-black md:rounded-3xl shadow-none md:shadow-[8px_8px_0_0_#000] w-full md:max-w-[800px] h-[92vh] md:h-auto md:max-h-[85vh] rounded-t-3xl md:rounded-3xl overflow-hidden"
+                className="relative bg-white flex flex-col border-t-4 border-x-4 md:border-4 border-black md:rounded-[40px] shadow-none md:shadow-[12px_12px_0_0_#000] w-full md:w-[1000px] h-[92vh] md:h-[800px] rounded-t-3xl md:rounded-[40px] overflow-hidden"
             >
 
                 {/* Header Section - Refined Design */}

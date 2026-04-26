@@ -55,7 +55,32 @@ export default function PublicProfilePage() {
     }, [username]);
 
     useEffect(() => {
-        if (!username || loading) return;
+        if (!username || loading || !profile?.id) return;
+
+        // 🛡️ Client-side fingerprinting for "Unique Visitors"
+        let fp = localStorage.getItem('nodus_fp');
+        if (!fp) {
+            fp = crypto.randomUUID();
+            localStorage.setItem('nodus_fp', fp);
+        }
+
+        // Track page view with fingerprint (Unique per visitor)
+        const viewTrackedKey = `view_tracked_${profile.id}`;
+        const hasTrackedView = localStorage.getItem(viewTrackedKey);
+
+        if (!hasTrackedView) {
+            apiClient.trackPageView(profile.id, fp);
+            localStorage.setItem(viewTrackedKey, 'true');
+            
+            // Increment locally for immediate feedback
+            setProfile(prev => {
+                if (!prev) return null;
+                return {
+                    ...prev,
+                    viewsCount: (prev.viewsCount || 0) + 1
+                };
+            });
+        }
 
         const unsubscribe = apiClient.subscribeToProfileUpdates(username, () => {
             apiClient.getPublicBootstrap(username)
@@ -69,7 +94,7 @@ export default function PublicProfilePage() {
         });
 
         return () => unsubscribe();
-    }, [username, loading]);
+    }, [username, loading, profile?.id]);
 
     useEffect(() => {
         if (profile) {
@@ -187,6 +212,32 @@ export default function PublicProfilePage() {
         }
     };
 
+    const handleLike = async () => {
+        if (!profile || !username) return;
+        
+        // Anti-spam: check local storage if already liked recently
+        const lastLiked = localStorage.getItem(`liked_${profile.id || 'unknown'}`);
+        if (lastLiked && Date.now() - parseInt(lastLiked || '0') < 1000 * 60 * 60) { // 1 hour cooldown
+            return;
+        }
+
+        try {
+            const response = await apiClient.likeProfile(username);
+            if (response.success) {
+                setProfile(prev => {
+                    if (!prev) return null;
+                    return {
+                        ...prev,
+                        likesCount: response.likesCount
+                    };
+                });
+                localStorage.setItem(`liked_${profile.id || 'unknown'}`, Date.now().toString());
+            }
+        } catch (error) {
+            console.error('Failed to like profile:', error);
+        }
+    };
+
     return (
         <div className="w-full min-h-screen relative flex justify-center overflow-y-auto scrollbar-hide md:pt-8" style={{ backgroundColor: themeBgColor }}>
             <div className="fixed inset-0 z-0 overflow-hidden scale-110">
@@ -212,6 +263,7 @@ export default function PublicProfilePage() {
                     stores={stores}
                     isPreview={false}
                     onShare={() => setIsShareModalOpen(true)}
+                    onLike={handleLike}
                 />
             </div>
 
