@@ -959,8 +959,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     // Parse customSecondaryColor
     // FIX: Always use profile.customSecondaryColor if in Profile Mode (Compact).
     // The default is now STABLE (white for light, slate-900 for dark) based ONLY on profile/layout settings.
-    const rawSecondary = isProfileMode ? (profile.customSecondaryColor || (profile.bannerBlurColor && getLuminance(profile.bannerBlurColor.split('|')[0]) < 0.5 ? '#0f172a' : '#ffffff')) : null;
-    const secColor1 = rawSecondary ? rawSecondary.split('|')[0] : null;
+    const rawSecondary = profile.headerLayout === 'perfil' 
+        ? profile.bannerBlurColor 
+        : (profile.headerLayout === 'banner' ? profile.customSecondaryColor : null);
+    
+    const secColor1 = rawSecondary ? rawSecondary.split('|')[0] : (isProfileMode ? (isDarkTheme ? '#0f172a' : '#ffffff') : null);
 
     const headerContentBg = isProfileMode && secColor1
         ? secColor1
@@ -1094,7 +1097,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 className={`w-full max-w-[680px] mx-auto ${isPreview ? 'flex-1 min-h-0 overflow-y-auto scrollbar-hide' : 'flex-1'} flex flex-col relative z-20 ${currentTheme.id === 'glass' ? 'text-white' : currentTheme.textClass}`}
                 style={{
                     ...containerStyle,
-                    background: isPreview ? fallbackBg : undefined,
+                    background: (isPreview || profile.headerLayout === 'perfil') ? fallbackBg : undefined,
                     fontWeight: ((profile.fontWeight || undefined) || undefined),
                     fontStyle: (profile.fontItalic) ? 'italic' : 'normal'
                 }}
@@ -1106,8 +1109,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         <div
                             className="absolute inset-0"
                             style={{
-                                maskImage: 'radial-gradient(170% 100% at 50% 0%, black 0%, black 25%, transparent 100%)',
-                                WebkitMaskImage: 'radial-gradient(170% 100% at 50% 0%, black 0%, black 25%, transparent 100%)'
+                                maskImage: 'linear-gradient(to bottom, black 0%, black 30%, transparent 100%)',
+                                WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 30%, transparent 100%)'
                             }}
                         >
 
@@ -1128,6 +1131,14 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 }}
                             />
                         </div>
+
+                        {/* Additional Gradient Overlay for extra smoothness (The "Blur" effect) */}
+                        <div 
+                            className="absolute bottom-0 left-0 w-full h-40 z-[20] pointer-events-none"
+                            style={{
+                                background: `linear-gradient(to bottom, transparent, ${headerContentBg !== 'transparent' ? headerContentBg : (isDarkTheme ? '#0f172a' : '#ffffff')})`
+                            }}
+                        />
 
                         {/* Content Overlaid at Bottom (Fixed Visibility) */}
                         <div className="absolute bottom-0 left-0 w-full px-8 pt-6 pb-0 z-[100] flex flex-col items-center text-center">
