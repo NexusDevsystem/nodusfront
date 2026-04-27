@@ -1050,7 +1050,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
     return (
         <div
             ref={portalTargetRef}
-            className={`relative w-full ${isPreview ? 'h-full flex-1' : 'min-h-[100dvh]'} flex flex-col isolate`}
+            className={`relative w-full overflow-x-hidden ${isPreview ? 'h-full flex-1' : 'min-h-[100dvh]'} flex flex-col isolate`}
             style={{ 
                 fontFamily: profile.fontFamily
             }}
@@ -1329,7 +1329,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                     {profile.headerLayout === 'banner' && (
                         <>
                             <div
-                                className="absolute top-0 -left-6 w-[calc(100%+3rem)] h-[230px] z-[15] overflow-hidden"
+                                className="absolute top-0 left-0 w-full h-[230px] z-[15] overflow-hidden"
                                 style={{
                                     background: headerContentBg !== 'transparent' ? headerContentBg : (isDarkTheme ? '#0f172a' : '#ffffff')
                                 }}

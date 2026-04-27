@@ -280,6 +280,14 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                 const uploadRes = await apiClient.uploadInternalAsset(uploadFile);
                 if (uploadRes.success && uploadRes.file?.url) {
                     const imageUrl = uploadRes.file.url;
+                    
+                    // Força um salvamento direto e imediato no backend (evita perder no auto-save debounce)
+                    try {
+                        await apiClient.updateProfile({ avatarUrl: imageUrl });
+                    } catch (e) {
+                        console.error('Falha ao forçar salvamento da foto:', e);
+                    }
+
                     if (updateProfile) updateProfile({ avatarUrl: imageUrl });
                     else onChange({ ...profile, avatarUrl: imageUrl });
                 }
@@ -333,6 +341,13 @@ const HeaderEditor: React.FC<HeaderEditorProps> = ({ profile, onChange, updatePr
                 const uploadRes = await apiClient.uploadInternalAsset(uploadFile);
                 if (uploadRes.success && uploadRes.file?.url) {
                     const imageUrl = uploadRes.file.url;
+                    
+                    try {
+                        await apiClient.updateProfile({ logoUrl: imageUrl });
+                    } catch (e) {
+                        console.error('Falha ao forçar salvamento do logo:', e);
+                    }
+
                     if (updateProfile) updateProfile({ logoUrl: imageUrl });
                     else onChange({ ...profile, logoUrl: imageUrl });
                 }

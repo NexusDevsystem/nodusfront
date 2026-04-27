@@ -235,10 +235,11 @@ export default function EditorPage() {
         const isFree = !profile.plan_type || profile.plan_type === 'free';
         if (isFree && hasProFeatures(profile)) {
             setIsPreviewMode(true);
-            return;
+            // REMOVED 'return;' here to allow allowed fields (like avatar, bio) to save.
+            // The backend's PlanGuard will automatically strip the Pro features.
+        } else {
+            setIsPreviewMode(false);
         }
-
-        setIsPreviewMode(false);
 
         const saveProfile = async () => {
             setIsSavingProfile(true);
@@ -646,7 +647,17 @@ export default function EditorPage() {
     );
 
     return (
-        <div className="h-screen w-full bg-transparent font-sans text-black selection:bg-black selection:text-[#ffdf00] flex flex-col overflow-hidden">
+        <div className="h-[100dvh] w-full max-w-[100vw] bg-transparent font-sans text-black selection:bg-black selection:text-[#ffdf00] flex flex-col overflow-hidden touch-pan-y">
+            <style>{`
+                html, body, #root {
+                    overflow-x: hidden !important;
+                    position: relative;
+                    width: 100%;
+                    max-width: 100vw;
+                    height: 100%;
+                    overscroll-behavior-x: none;
+                }
+            `}</style>
             {/* Quests Checklist moved to Sidebar component */}
             {/* Top Banner for Free Users - Desktop Only */}
             {(!profile.plan_type || profile.plan_type === 'free') && (
