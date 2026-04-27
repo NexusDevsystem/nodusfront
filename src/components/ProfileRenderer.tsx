@@ -956,22 +956,18 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
         return (yiq >= 128) ? 'text-slate-900' : 'text-white';
     };
 
-    // Parse customSecondaryColor: supports "#color1" or "#color1|#color2" (gradient)
+    // Parse customSecondaryColor
     // FIX: Always use profile.customSecondaryColor if in Profile Mode (Compact).
     // The default is now STABLE (white for light, slate-900 for dark) based ONLY on profile/layout settings.
     const rawSecondary = isProfileMode ? (profile.customSecondaryColor || (profile.bannerBlurColor && getLuminance(profile.bannerBlurColor.split('|')[0]) < 0.5 ? '#0f172a' : '#ffffff')) : null;
-    const secParts = rawSecondary ? rawSecondary.split('|') : [];
-    const secColor1 = secParts[0];
-    const secColor2 = secParts[1] || null;
+    const secColor1 = rawSecondary ? rawSecondary.split('|')[0] : null;
 
-    const headerContentBg = isProfileMode
-        ? (secColor2
-            ? `linear-gradient(135deg, ${secColor1}, ${secColor2})`
-            : secColor1)
+    const headerContentBg = isProfileMode && secColor1
+        ? secColor1
         : 'transparent';
 
     // For getContrastColor, use the primary color only
-    const headerTextColorClass = isProfileMode
+    const headerTextColorClass = isProfileMode && secColor1
         ? getContrastColor(secColor1)
         : '';
 
@@ -1042,11 +1038,19 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
 
 
+    const themeBgColor = isProfileMode 
+        ? (profile.customSecondaryColor || profile.customSolidColor || currentTheme.solidColor || '#ffffff') 
+        : (profile.customSolidColor || currentTheme.solidColor || 'transparent');
+
+    const fallbackBg = headerContentBg !== 'transparent' ? headerContentBg : themeBgColor;
+
     return (
         <div
             ref={portalTargetRef}
             className={`relative w-full ${isPreview ? 'h-full flex-1' : 'min-h-[100dvh]'} flex flex-col isolate`}
-            style={{ fontFamily: profile.fontFamily }}
+            style={{ 
+                fontFamily: profile.fontFamily
+            }}
         >
             {/* Performance: CSS global inserted ONCE via a memoized tag — avoids re-creating style rules on every render */}
             {profileGlobalStyles}
@@ -1090,6 +1094,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                 className={`w-full max-w-[680px] mx-auto ${isPreview ? 'flex-1 min-h-0 overflow-y-auto scrollbar-hide' : 'flex-1'} flex flex-col relative z-20 ${currentTheme.id === 'glass' ? 'text-white' : currentTheme.textClass}`}
                 style={{
                     ...containerStyle,
+                    background: isPreview ? fallbackBg : undefined,
                     fontWeight: ((profile.fontWeight || undefined) || undefined),
                     fontStyle: (profile.fontItalic) ? 'italic' : 'normal'
                 }}
@@ -1302,9 +1307,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                 <div
                     className={`${activeTab === 'shop' ? 'px-2' : 'px-6'} flex flex-col relative flex-1 ${profile.headerLayout === 'perfil' ? 'pt-12 pb-2' : (profile.headerLayout === 'banner' ? 'pt-0 pb-4' : (isPreview ? 'pt-16 pb-0' : 'pt-[72px] pb-0'))}`}
-                    style={profile.headerLayout === 'banner' ? {
-                        minHeight: '250px'
-                    } : {}}
+                    style={{
+                        ...(profile.headerLayout === 'banner' ? { minHeight: '250px' } : {}),
+                        background: profile.headerLayout === 'perfil' ? (headerContentBg !== 'transparent' ? headerContentBg : undefined) : undefined,
+                        backgroundAttachment: 'local'
+                    }}
                 >
 
                     {/* Compact/Social Header Banner - Full Width & Clean */}
@@ -1324,11 +1331,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             </div>
                             {/* Curved Intelligent Backdrop for Social Layout */}
                             <div
-                                className="absolute top-[198px] left-0 w-full bottom-0 z-[16] overflow-hidden"
+                                className="absolute top-[198px] left-0 w-full bottom-0 z-[16] pointer-events-none"
                                 style={{
                                     background: headerContentBg !== 'transparent' ? headerContentBg : (isDarkTheme ? '#0f172a' : '#ffffff'),
-                                    borderRadius: '100% 100% 0 0 / 24px 24px 0 0',
-                                    transform: 'scaleX(1.15)'
+                                    borderRadius: '50% 50% 0 0 / 20px 20px 0 0',
+                                    boxShadow: '0 -20px 40px rgba(0,0,0,0.1)'
                                 }}
                             />
                         </>
@@ -1344,10 +1351,10 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                 <div className={`relative group shrink-0 ${profile.headerLayout === 'banner' ? '-mt-[56px] mb-0 z-20' : 'mb-0'}`} style={{ fontSize: profile.headerLayout === 'classico' ? `${profile.fontSize || 16}px` : '16px' }}>
                                     <div className={`overflow-hidden rounded-full ${profile.headerLayout === 'banner' ? '' : 'shadow-xl'}`}
                                         style={{
-                                            borderColor: profile.customButtonColor || currentTheme.buttonHex || (isDarkTheme ? '#ffffff' : '#0f172a'),
-                                            borderWidth: profile.headerLayout === 'banner' ? '4px' : '2px',
+                                            borderColor: isProfileMode ? (secColor1 || '#ffffff') : (profile.customButtonColor || currentTheme.buttonHex || (isDarkTheme ? '#ffffff' : '#0f172a')),
+                                            borderWidth: profile.headerLayout === 'banner' ? '8px' : '2px',
                                             borderStyle: 'solid',
-                                            backgroundColor: profile.customButtonColor || currentTheme.buttonHex || (isDarkTheme ? '#0f172a' : '#ffffff'),
+                                            backgroundColor: isProfileMode ? (secColor1 || '#ffffff') : (profile.customButtonColor || currentTheme.buttonHex || (isDarkTheme ? '#0f172a' : '#ffffff')),
                                             width: profile.headerLayout === 'banner' 
                                                 ? '110px' 
                                                 : (profile.avatarSize === 'sm' ? '5em' : profile.avatarSize === 'lg' ? '8em' : '6em'),
@@ -2210,6 +2217,15 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                         channelName={ytDisplayUsername}
                                                                         avatarUrl={link.image || liveMetadata[link.id]?.image}
                                                                         subscribers={ytSubsFormatted ? `${ytSubsFormatted} Inscritos` : undefined}
+                                                                        isLive={
+                                                                            link.metadata?.isLive || 
+                                                                            (youtubeChannelId && (link.url.includes(youtubeChannelId) || (youtubeUsername && link.url.includes(youtubeUsername))) ? youtubeIsLive : false) || 
+                                                                            videoInfo?.title?.toLowerCase().includes('live') || 
+                                                                            videoInfo?.title?.includes('🔴') || 
+                                                                            videoInfo?.title?.includes('⭕') || 
+                                                                            videoInfo?.title?.includes('🛑')
+                                                                        }
+                                                                        channelId={link.metadata?.channelId || youtubeChannelId}
                                                                         themeButtonClass={baseCardClass}
                                                                         themeButtonStyle={mainButtonStyle}
                                                                         themeTextHex={getSmartTextColor()}

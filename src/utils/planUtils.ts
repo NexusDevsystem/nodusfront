@@ -25,8 +25,8 @@ export const hasProFeatures = (profile: UserProfile): boolean => {
     if (isProTheme(profile.themeId)) return true;
     if (isProFont(profile.fontFamily)) return true;
     if (profile.headerStyle === 'logo') return true;
-    if (profile.customButtonColor || profile.customTextColor || profile.customCollectionTextColor || profile.customButtonTextColor) return true;
-    if ((profile.headerLayout as any) === 'compact' || profile.headerLayout === 'banner') return true;
+    if (profile.customButtonColor || profile.customTextColor || profile.customCollectionTextColor || profile.customButtonTextColor || profile.customSecondaryColor || profile.bannerBlurColor) return true;
+    if ((profile.headerLayout as any) === 'compact' || profile.headerLayout === 'banner' || profile.headerLayout === 'perfil') return true;
     return false;
 };
 
@@ -60,9 +60,17 @@ export const reconcileSubscription = (
         }
 
         // 3. Reset Layouts
-        if ((profile.headerLayout as any) === 'compact' || profile.headerLayout === 'banner') {
-            newProfile.headerLayout = 'standard' as any;
+        if ((profile.headerLayout as any) === 'compact' || profile.headerLayout === 'banner' || profile.headerLayout === 'perfil') {
+            newProfile.headerLayout = 'classic' as any;
         }
+
+        // 4. Reset Custom Colors (PRO Features)
+        newProfile.customButtonColor = null;
+        newProfile.customTextColor = null;
+        newProfile.customCollectionTextColor = null;
+        newProfile.customButtonTextColor = null;
+        newProfile.customSecondaryColor = null;
+        newProfile.bannerBlurColor = null;
 
         // 4. Deactivate extra stores (Max 2 allowed)
         newStores = stores.map((store, index) => {

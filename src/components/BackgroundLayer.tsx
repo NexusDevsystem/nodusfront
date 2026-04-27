@@ -47,19 +47,15 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
 
             // Priority 2: Adaptive Blurred Background
             const hasAvatar = !!profile.avatarUrl;
-            // Parse bannerBlurColor: supports "#color1" or "#color1|#color2"
+            // Parse bannerBlurColor
             const rawBanner = profile.bannerBlurColor || (profile.headerLayout === 'perfil' ? '#000000' : '#ffffff');
-            const bannerParts = rawBanner.split('|');
-            const color1 = bannerParts[0] || '#000000';
-            const color2 = bannerParts[1] || null;
-            const bgStyle = color2
-                ? { background: `linear-gradient(135deg, ${color1}, ${color2})` }
-                : { backgroundColor: color1 };
-            const fadeColor = color2 || color1;
+            const color1 = rawBanner.split('|')[0] || '#000000';
+            const bgStyle = { backgroundColor: color1 };
+            const fadeColor = color1;
 
             return (
                 <div className="absolute inset-0 overflow-hidden" style={bgStyle}>
-                    {/* 1. Base Gradient/Color */}
+                    {/* 1. Base Color */}
                     <div className="absolute inset-0" style={bgStyle} />
                     
                     {/* Noise/Grain Overlay for "Premium" look */}
@@ -73,10 +69,7 @@ const BackgroundLayer: React.FC<BackgroundLayerProps> = ({ profile, currentTheme
                     {/* 2. Color Tint Layer */}
                     <div
                         className="absolute inset-0 z-10"
-                        style={color2
-                            ? { background: `linear-gradient(135deg, ${color1}55, ${color2}55)` }
-                            : { backgroundColor: `${color1}55` }
-                        }
+                        style={{ backgroundColor: `${color1}55` }}
                     ></div>
 
                     {/* 3. Global Top/Bottom shadow overlay for visibility and depth */}

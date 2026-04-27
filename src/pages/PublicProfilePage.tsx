@@ -96,9 +96,27 @@ export default function PublicProfilePage() {
         return () => unsubscribe();
     }, [username, loading, profile?.id]);
 
+    const currentTheme = THEMES.find(t => t.id === profile?.themeId) || THEMES[0];
+    const isProfileMode = (profile?.headerLayout as any) === 'compact';
+
+    // Helper to darken a color for the background
+    const getDarkenedThemeColor = () => {
+        const base = profile?.customSecondaryColor || profile?.customSolidColor || currentTheme.solidColor || currentTheme.buttonHex || '#111827';
+        return base;
+    };
+
+    const themeBgColor = profile?.headerLayout === 'banner' 
+        ? (profile?.bannerBlurColor || '#000000') 
+        : isProfileMode 
+            ? getDarkenedThemeColor() 
+            : (profile?.customSolidColor || currentTheme.solidColor || currentTheme.buttonHex || '#000000');
+
     useEffect(() => {
         if (profile) {
             document.title = profile.seoTitle || `${profile.name} | Nodus`;
+
+            // Fix background cut-off bug by applying theme color to body
+            document.body.style.backgroundColor = themeBgColor;
 
             let metaDescription = document.querySelector('meta[name="description"]');
             if (!metaDescription) {
@@ -108,7 +126,10 @@ export default function PublicProfilePage() {
             }
             metaDescription.setAttribute('content', profile.seoDescription || t('profile.checkOutLinks', { name: profile.name }));
         }
-    }, [profile, t]);
+        return () => {
+            document.body.style.backgroundColor = '';
+        };
+    }, [profile, t, themeBgColor]);
 
     if (loading) {
         return (
@@ -126,21 +147,6 @@ export default function PublicProfilePage() {
             </div>
         );
     }
-
-    const currentTheme = THEMES.find(t => t.id === profile.themeId) || THEMES[0];
-    const isProfileMode = (profile.headerLayout as any) === 'compact';
-
-    // Helper to darken a color for the background
-    const getDarkenedThemeColor = () => {
-        const base = profile.customSecondaryColor || profile.customSolidColor || currentTheme.solidColor || currentTheme.buttonHex || '#111827';
-        return base;
-    };
-
-    const themeBgColor = profile.headerLayout === 'banner' 
-        ? (profile.bannerBlurColor || '#000000') 
-        : isProfileMode 
-            ? getDarkenedThemeColor() 
-            : (profile.customSolidColor || currentTheme.solidColor || currentTheme.buttonHex || '#000000');
 
     const generateShareImage = async () => {
         if (!shareCardRef.current || !profile) return;
@@ -239,7 +245,7 @@ export default function PublicProfilePage() {
     };
 
     return (
-        <div className="w-full min-h-screen relative flex justify-center overflow-y-auto scrollbar-hide md:pt-8" style={{ backgroundColor: themeBgColor }}>
+        <div className="w-full min-h-[100dvh] relative flex justify-center overflow-y-auto scrollbar-hide md:pt-8" style={{ backgroundColor: themeBgColor }}>
             <div className="fixed inset-0 z-0 overflow-hidden scale-110">
                 <div className="absolute inset-0">
                     <BackgroundLayer profile={profile} currentTheme={currentTheme} />
@@ -253,7 +259,7 @@ export default function PublicProfilePage() {
             </div>
 
             <div
-                className="w-full h-auto min-h-screen relative z-10 overflow-hidden md:max-w-[620px] md:shadow-[0_-20px_80px_-15px_rgba(0,0,0,0.6)] md:rounded-t-[1.5rem]"
+                className="w-full h-auto min-h-[100dvh] relative z-10 overflow-hidden md:max-w-[620px] md:shadow-[0_-20px_80px_-15px_rgba(0,0,0,0.6)] md:rounded-t-[1.5rem]"
                 style={{ backgroundColor: isProfileMode ? themeBgColor : (profile.headerLayout === 'banner' ? (profile.bannerBlurColor || '#000000') : (profile.customSolidColor || currentTheme.solidColor || '#000')) }}
             >
                 <ProfileRenderer
