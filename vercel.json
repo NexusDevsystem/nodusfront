@@ -1,6 +1,14 @@
 {
     "rewrites": [
         {
+            "source": "/api/:path*",
+            "destination": "http://n9f550sluxfpkvlgxvizddwt.200.141.22.21.sslip.io/api/:path*"
+        },
+        {
+            "source": "/uploads/:path*",
+            "destination": "http://n9f550sluxfpkvlgxvizddwt.200.141.22.21.sslip.io/uploads/:path*"
+        },
+        {
             "source": "/blog/:slug",
             "has": [
                 {
