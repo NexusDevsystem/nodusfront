@@ -1,8 +1,7 @@
 import { UserProfile, LinkItem, Product, SocialIntegration, Store } from '../types';
 
 const configuredApiUrl = (import.meta.env.VITE_API_URL || '').trim();
-const rawUrl = configuredApiUrl
-    || (import.meta.env.DEV ? 'http://localhost:3001' : (typeof window !== 'undefined' ? window.location.origin : ''));
+const rawUrl = import.meta.env.DEV ? (configuredApiUrl || 'http://localhost:3001') : (typeof window !== 'undefined' ? window.location.origin : '');
 
 // Ensure URL has protocol (prevent relative path issues)
 export const API_URL = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
