@@ -1,6 +1,8 @@
 import { UserProfile, LinkItem, Product, SocialIntegration, Store } from '../types';
 
-const rawUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+const configuredApiUrl = (import.meta.env.VITE_API_URL || '').trim();
+const rawUrl = configuredApiUrl
+    || (import.meta.env.DEV ? 'http://localhost:3001' : (typeof window !== 'undefined' ? window.location.origin : ''));
 
 // Ensure URL has protocol (prevent relative path issues)
 export const API_URL = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
@@ -35,6 +37,8 @@ class ApiClient {
 
     private async request(path: string, options: RequestInit = {}, retries = 2): Promise<any> {
         const isFormData = options.body instanceof FormData;
+        const method = (options.method || 'GET').toUpperCase();
+        const canRetry = ['GET', 'HEAD', 'OPTIONS'].includes(method);
         const token = localStorage.getItem('nodus_access_token');
         const baseHeaders: Record<string, string> = {};
 
@@ -62,7 +66,7 @@ class ApiClient {
 
             if (!response.ok) {
                 // If it's a server error (5xx) and we have retries left, try again
-                if (response.status >= 500 && retries > 0) {
+                if (response.status >= 500 && canRetry && retries > 0) {
                     await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
                     return this.request(path, options, retries - 1);
                 }
@@ -90,14 +94,14 @@ class ApiClient {
             clearTimeout(timeoutId);
 
             if (error.name === 'AbortError') {
-                if (retries > 0) {
+                if (canRetry && retries > 0) {
                     return this.request(path, options, retries - 1);
                 }
                 throw new Error('Timeout de conexão - O servidor demorou muito para responder.');
             }
 
             // Network error (not a fetch error response)
-            if (retries > 0 && !(error.message?.includes('40'))) {
+            if (canRetry && retries > 0 && !(error.message?.includes('40'))) {
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 return this.request(path, options, retries - 1);
             }
@@ -452,24 +456,24 @@ class ApiClient {
     }
 
 
-    async getTikTokAuthUrl(userId: string, origin?: string): Promise<{ url: string }> {
-        return this.request(`/api/integrations/tiktok/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);
+    async getTikTokAuthUrl(_userId: string, origin?: string): Promise<{ url: string }> {
+        return this.request(`/api/integrations/tiktok/auth-url${origin ? `?origin=${encodeURIComponent(origin)}` : ''}`);
     }
 
-    async getInstagramAuthUrl(userId: string, origin?: string): Promise<{ url: string }> {
-        return this.request(`/api/integrations/instagram/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);
+    async getInstagramAuthUrl(_userId: string, origin?: string): Promise<{ url: string }> {
+        return this.request(`/api/integrations/instagram/auth-url${origin ? `?origin=${encodeURIComponent(origin)}` : ''}`);
     }
 
-    async getTwitchAuthUrl(userId: string, origin?: string): Promise<{ url: string }> {
-        return this.request(`/api/integrations/twitch/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);
+    async getTwitchAuthUrl(_userId: string, origin?: string): Promise<{ url: string }> {
+        return this.request(`/api/integrations/twitch/auth-url${origin ? `?origin=${encodeURIComponent(origin)}` : ''}`);
     }
 
-    async getYoutubeAuthUrl(userId: string, origin?: string): Promise<{ url: string }> {
-        return this.request(`/api/integrations/youtube/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);
+    async getYoutubeAuthUrl(_userId: string, origin?: string): Promise<{ url: string }> {
+        return this.request(`/api/integrations/youtube/auth-url${origin ? `?origin=${encodeURIComponent(origin)}` : ''}`);
     }
 
-    async getKickAuthUrl(userId: string, origin?: string): Promise<{ url: string }> {
-        return this.request(`/api/integrations/kick/auth-url?userId=${userId}${origin ? `&origin=${encodeURIComponent(origin)}` : ''}`);
+    async getKickAuthUrl(_userId: string, origin?: string): Promise<{ url: string }> {
+        return this.request(`/api/integrations/kick/auth-url${origin ? `?origin=${encodeURIComponent(origin)}` : ''}`);
     }
 
     async connectKickAccount(username: string): Promise<any> {
@@ -738,6 +742,11 @@ class ApiClient {
     async getKickProfileInfo(url: string, linkId?: string): Promise<any> {
         const query = `url=${encodeURIComponent(url)}${linkId ? `&linkId=${linkId}` : ''}`;
         return this.request(`/api/social/kick?${query}`);
+    }
+
+    async getXProfileInfo(url: string, linkId?: string): Promise<any> {
+        const query = `url=${encodeURIComponent(url)}${linkId ? `&linkId=${linkId}` : ''}`;
+        return this.request(`/api/social/x?${query}`);
     }
 }
 

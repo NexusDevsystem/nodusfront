@@ -22,7 +22,7 @@ export const fetchYoutubeChannelInfo = async (url: string, linkId?: string): Pro
     try {
         const queryParams = new URLSearchParams({ url });
         if (linkId) queryParams.append('linkId', linkId);
-        
+
         const response = await fetch(`${API_URL}/api/social/youtube?${queryParams.toString()}`);
         if (!response.ok) return null;
         return await response.json();
@@ -39,7 +39,7 @@ const igResultCache = new Map<string, { data: any; expiresAt: number }>();
 
 export const fetchInstagramProfileInfo = async (url: string): Promise<any | null> => {
     const cacheKey = url.toLowerCase().trim();
-    
+
     // Check result cache first
     const cached = igResultCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) {
@@ -80,7 +80,7 @@ const tiktokResultCache = new Map<string, { data: any; expiresAt: number }>();
 
 export const fetchTiktokProfileInfo = async (url: string): Promise<any | null> => {
     const cacheKey = url.toLowerCase().trim();
-    
+
     // Check result cache
     const cached = tiktokResultCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) {
@@ -135,7 +135,7 @@ export const fetchSocialMetadata = async (url: string): Promise<SocialMetadata |
             const response = await fetch(`${API_URL}/api/social/metadata?url=${encodeURIComponent(url)}`);
             if (!response.ok) return null;
             const data = await response.json();
-            
+
             // Cache for 30 seconds if it has useful data
             if (data && (data.followers || data.avatarUrl || data.username)) {
                 socialResultCache.set(cacheKey, { data, expiresAt: Date.now() + 30 * 1000 });
@@ -194,7 +194,7 @@ export const isLinkIncomplete = (url: string, platformId?: string): boolean => {
     ];
 
     const trimmedUrl = url.trim().toLowerCase();
-    
+
     // Exact match with any base path means no content added
     if (basePaths.some(path => trimmedUrl === path)) return true;
 

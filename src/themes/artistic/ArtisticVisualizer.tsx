@@ -1,5 +1,6 @@
-import React from 'react';
-import Grainient from '../../components/Grainient';
+import React, { lazy, Suspense } from 'react';
+
+const Grainient = lazy(() => import('../../components/Grainient'));
 
 interface ArtisticVisualizerProps {
     variant: 'sketchbook' | 'line-art' | 'pop-art' | 'abstract' | 'bauhaus';
@@ -66,15 +67,17 @@ const ArtisticVisualizer: React.FC<ArtisticVisualizerProps> = ({ variant }) => {
 
         case 'abstract':
             return (
-                <Grainient
-                    color1="#ff9a9e"
-                    color2="#fad0c4"
-                    color3="#a18cd1"
-                    className="absolute inset-0"
-                    grainAmount={0.05}
-                    warpStrength={2.0}
-                    warpSpeed={0.5}
-                />
+                <Suspense fallback={<div className="absolute inset-0 bg-[#a18cd1]" />}>
+                    <Grainient
+                        color1="#ff9a9e"
+                        color2="#fad0c4"
+                        color3="#a18cd1"
+                        className="absolute inset-0"
+                        grainAmount={0.05}
+                        warpStrength={2.0}
+                        warpSpeed={0.5}
+                    />
+                </Suspense>
             );
 
         case 'bauhaus':

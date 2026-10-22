@@ -9,7 +9,7 @@
                     "value": ".*(Twitterbot|facebookexternalhit|WhatsApp|LinkedInBot|TelegramBot).*"
                 }
             ],
-            "destination": "https://nodusback-production.up.railway.app/api/social/blog/:slug"
+            "destination": "http://n9f550sluxfpkvlgxvizddwt.200.141.22.21.sslip.io/api/social/blog/:slug"
         },
         {
             "source": "/:username",
@@ -20,7 +20,7 @@
                     "value": ".*(Twitterbot|facebookexternalhit|WhatsApp|LinkedInBot|TelegramBot).*"
                 }
             ],
-            "destination": "https://nodusback-production.up.railway.app/api/social/share/:username"
+            "destination": "http://n9f550sluxfpkvlgxvizddwt.200.141.22.21.sslip.io/api/social/share/:username"
         },
         {
             "source": "/(.*)",

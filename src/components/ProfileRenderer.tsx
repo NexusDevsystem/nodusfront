@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as LucideIcons from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DynamicIcon, iconNames } from 'lucide-react/dynamic';
 import { UserProfile, LinkItem, Product, Store } from '../types';
 import { THEMES, SOCIAL_NETWORKS } from '../constants';
 import {
@@ -39,37 +39,62 @@ import {
     Tag as TagIcon,
     X,
     DollarSign,
-    Users
+    Users,
+    Eye,
+    Heart,
+    Grid
 } from 'lucide-react';
-import YouTubeEmbed from './YouTubeEmbed';
-import TikTokEmbed from './TikTokEmbed';
 import verifiedBadge from '../assets/verified-badge.png';
 
-import BackgroundLayer from './BackgroundLayer';
 import { apiClient } from '../services/apiClient';
 import { SiSpotify, SiPaypal } from 'react-icons/si';
-import { InstagramCard } from './InstagramCard';
-import { TwitchCard } from './TwitchCard';
 import { formatUrl } from '../utils/urlUtils';
-import { KickCard } from './KickCard';
-import { YouTubeCard } from './YouTubeCard';
-import { YouTubeLatestVideoCard } from './YouTubeLatestVideoCard';
-import TikTokCard from './profile/TikTokCard';
 // @ts-ignore
 import { Background as KawaiiSakuraForeground } from '../themes/kawaii-sakura';
-import BrutalistVisualizer from './themes/BrutalistVisualizer';
-import { AgendaCard } from './AgendaCard';
-import { MapBlock } from './MapBlock';
-import PasswordLinkModal from './PasswordLinkModal';
-import MediaKitModal from './MediaKitModal';
 import InteractiveButton from './animations/InteractiveButton';
-import DiscordCard from './profile/DiscordCard';
 import { MarqueeText } from './animations/MarqueeText';
 import ElasticButton from './animations/ElasticButton';
 import GlitchButton from './animations/GlitchButton';
-import { MusicRichCard, MusicPlaylistDrawer } from './profile/MusicCards';
-import ProductDrawer from './profile/ProductDrawer';
 import { imgOptimized } from '../utils/imageUtils';
+import { RiTwitterXFill } from 'react-icons/ri';
+
+const YouTubeEmbed = React.lazy(() => import('./YouTubeEmbed'));
+const TikTokEmbed = React.lazy(() => import('./TikTokEmbed'));
+const BackgroundLayer = React.lazy(() => import('./BackgroundLayer'));
+const InstagramCard = React.lazy(() => import('./InstagramCard').then(({ InstagramCard }) => ({ default: InstagramCard })));
+const TwitchCard = React.lazy(() => import('./TwitchCard').then(({ TwitchCard }) => ({ default: TwitchCard })));
+const KickCard = React.lazy(() => import('./KickCard').then(({ KickCard }) => ({ default: KickCard })));
+const YouTubeCard = React.lazy(() => import('./YouTubeCard').then(({ YouTubeCard }) => ({ default: YouTubeCard })));
+const YouTubeLatestVideoCard = React.lazy(() => import('./YouTubeLatestVideoCard').then(({ YouTubeLatestVideoCard }) => ({ default: YouTubeLatestVideoCard })));
+const TikTokCard = React.lazy(() => import('./profile/TikTokCard'));
+const BrutalistVisualizer = React.lazy(() => import('./themes/BrutalistVisualizer'));
+const AgendaCard = React.lazy(() => import('./AgendaCard').then(({ AgendaCard }) => ({ default: AgendaCard })));
+const MapBlock = React.lazy(() => import('./MapBlock').then(({ MapBlock }) => ({ default: MapBlock })));
+const PasswordLinkModal = React.lazy(() => import('./PasswordLinkModal'));
+const MediaKitModal = React.lazy(() => import('./MediaKitModal'));
+const DiscordCard = React.lazy(() => import('./profile/DiscordCard'));
+const MusicRichCard = React.lazy(() => import('./profile/MusicCards').then(({ MusicRichCard }) => ({ default: MusicRichCard })));
+const MusicPlaylistDrawer = React.lazy(() => import('./profile/MusicCards').then(({ MusicPlaylistDrawer }) => ({ default: MusicPlaylistDrawer })));
+const ProductDrawer = React.lazy(() => import('./profile/ProductDrawer'));
+const XCard = React.lazy(() => import('./profile/XCard'));
+
+const availableLucideIcons = new Set<string>(iconNames);
+
+const toLucideIconName = (name?: string) => {
+    if (!name) return null;
+    const normalized = name
+        .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+        .replace(/\s+/g, '-')
+        .toLowerCase();
+    return availableLucideIcons.has(normalized) ? normalized : null;
+};
+
+const RenderLucideIcon: React.FC<{ name?: string; size: number }> = ({ name, size }) => {
+    const iconName = toLucideIconName(name);
+    return iconName
+        ? <DynamicIcon name={iconName as any} size={size} />
+        : <Grid size={size} />;
+};
 
 /**
  * Ensures URLs start with a protocol (http/https/mailto/tel/whatsapp)
@@ -250,6 +275,8 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                         result = await apiClient.getYoutubeChannelInfo(link.url, link.id);
                     } else if (url.includes('kick.com/')) {
                         result = await apiClient.getKickProfileInfo(link.url, link.id);
+                    } else if (url.includes('x.com/') || url.includes('twitter.com/')) {
+                        result = await apiClient.getXProfileInfo(link.url, link.id);
                     }
                     console.log(`[AutoMetadata] ✅ Success for ${url}:`, result);
                     
@@ -1195,7 +1222,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                             {/* Likes and Views Stats */}
                             <div className="flex items-center gap-2 mt-1 mb-4">
                                 <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000] rounded-full">
-                                    <LucideIcons.Eye size={13} className="text-black" />
+                                    <Eye size={13} className="text-black" />
                                     <span className="text-[13px] font-black text-black tracking-tight">{profile.viewsCount || 0}</span>
                                 </div>
                                 <InteractiveButton strength={10}>
@@ -1206,7 +1233,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                         }}
                                         className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000] hover:shadow-[5px_5px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 active:shadow-none rounded-full transition-all group"
                                     >
-                                        <LucideIcons.Heart size={13} className="text-[#FF2D55] fill-[#FF2D55] group-hover:scale-110 transition-transform" />
+                                        <Heart size={13} className="text-[#FF2D55] fill-[#FF2D55] group-hover:scale-110 transition-transform" />
                                         <span className="text-[13px] font-black text-black tracking-tight">{profile.likesCount || 0}</span>
                                     </button>
                                 </InteractiveButton>
@@ -1458,7 +1485,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
 
                                                     <div className="flex items-center gap-2 mt-2 mb-3">
                                     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000] rounded-full">
-                                        <LucideIcons.Eye size={13} className="text-black" />
+                                        <Eye size={13} className="text-black" />
                                         <span className="text-[13px] font-extrabold text-black tracking-tight">{profile.viewsCount || 0}</span>
                                     </div>
                                     <InteractiveButton strength={10}>
@@ -1469,7 +1496,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                             }}
                                             className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_0px_#000] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all rounded-full group"
                                         >
-                                            <LucideIcons.Heart size={13} className="text-[#FF2D55] fill-[#FF2D55] group-hover:scale-110 transition-transform" />
+                                            <Heart size={13} className="text-[#FF2D55] fill-[#FF2D55] group-hover:scale-110 transition-transform" />
                                             <span className="text-[13px] font-black text-black tracking-tight">{profile.likesCount || 0}</span>
                                         </button>
                                     </InteractiveButton>
@@ -2560,6 +2587,36 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                             );
                                                         }
 
+                                                    } else if (link.platform === 'x' || link.url.includes('x.com') || link.url.includes('twitter.com')) {
+                                                        flushIcons();
+                                                        flushCards();
+
+                                                        const xUsername = link.url.match(/(?:x|twitter)\.com\/([^/?#\s]+)/i)?.[1]?.replace('@', '') || link.title || 'perfil';
+                                                        const xAvatar = liveMetadata[link.id]?.image || link.image || '';
+                                                        const xFollowers = liveMetadata[link.id]?.subtitle || link.subtitle || '';
+
+                                                        renderedItems.push(
+                                                            <InteractiveButton key={`x-card-${link.id}`} className="w-full">
+                                                                <motion.div transition={{ duration: 0 }} className={`w-full ${renderedItems.length === 0 ? 'mt-1' : 'mt-0'} ${getHighlightClass(link.highlight)}`}>
+                                                                    <XCard
+                                                                        username={xUsername}
+                                                                        displayName={link.title || xUsername}
+                                                                        followers={xFollowers}
+                                                                        avatarUrl={xAvatar}
+                                                                        themeButtonClass={baseCardClass}
+                                                                        themeButtonStyle={mainButtonStyle}
+                                                                        themeTextHex={getSmartTextColor()}
+                                                                        buttonRoundness={roundedClass || undefined}
+                                                                        isDark={isDarkTheme}
+                                                                        fontFamily={profile.fontFamily}
+                                                                        fontWeight={profile.fontWeight || undefined}
+                                                                        fontItalic={profile.fontItalic}
+                                                                        profileUrl={link.url}
+                                                                    />
+                                                                </motion.div>
+                                                            </InteractiveButton>
+                                                        );
+
                                                     } else if (link.type === 'agenda') {
                                                         flushIcons();
                                                         flushCards();
@@ -2947,11 +3004,11 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                                     </div>
                                                                                                                 ) : child.icon ? (
                                                                                                                     <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
-                                                                                                                        {React.createElement((LucideIcons as any)[child.icon] || LucideIcons.Grid, { size: 28 })}
+                                                                                                                        <RenderLucideIcon name={child.icon} size={28} />
                                                                                                                     </div>
                                                                                                                 ) : child.icon ? (
                                                                                                                     <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
-                                                                                                                        {React.createElement((LucideIcons as any)[child.icon] || LucideIcons.Grid, { size: 28 })}
+                                                                                                                        <RenderLucideIcon name={child.icon} size={28} />
                                                                                                                     </div>
                                                                                                                 ) : Icon ? (
                                                                                                                     <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform">
@@ -3146,7 +3203,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                                 <InteractiveButton key={child.id} className="w-full" glowColor={`${getSmartTextColor()}33`} clipPath={themeClipPath}>
                                                                                                     <EffectWrapper {...effectProps}>
                                                                                                         <motion.a transition={{ duration: 0.2 }} href={child.isPasswordProtected ? undefined : formatUrl(child.url)} target={child.isPasswordProtected ? undefined : "_blank"} rel="noreferrer" onClick={(e) => { if (handlePasswordProtectedLink(child, e)) return; handleLinkClick(child.id); }} className={`block w-full h-[72px] transform group relative pl-2.5 pr-4 flex items-center gap-3 ${buttonClass} ${getHighlightClass(child.highlight)} cursor-pointer`} style={{ ...mainButtonStyle, clipPath: themeClipPath, fontFamily: profile.fontFamily, fontWeight: (profile.fontWeight || undefined), fontStyle: profile.fontItalic ? 'italic' : 'normal', ...((currentTheme.id.startsWith('brutalist-') || currentTheme.id === 'artistic-pop-art') ? { overflow: 'visible' } : { overflow: 'hidden' }), borderRadius: borderRadiusValue }}>
-                                                                                                            <div className="relative shrink-0 z-10"><div className={`w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform ${child.isLive ? 'bg-red-500 animate-pulse p-[2px]' : ''}`}><div className="w-full h-full rounded-full overflow-hidden bg-white">{child.image || twAvatar ? (<img src={child.image || twAvatar} alt="" className="w-full h-full object-cover" />) : child.icon ? (<div className="w-full h-full flex items-center justify-center opacity-80">{React.createElement((LucideIcons as any)[child.icon] || LucideIcons.Grid, { size: 24 })}</div>) : Icon ? (<div className="w-full h-full flex items-center justify-center opacity-80"><Icon size={24} /></div>) : null}</div></div></div>
+                                                                                                            <div className="relative shrink-0 z-10"><div className={`w-12 h-12 rounded-full overflow-hidden border border-[#1a1a1a]/5 transition-transform ${child.isLive ? 'bg-red-500 animate-pulse p-[2px]' : ''}`}><div className="w-full h-full rounded-full overflow-hidden bg-white">{child.image || twAvatar ? (<img src={child.image || twAvatar} alt="" className="w-full h-full object-cover" />) : child.icon ? (<div className="w-full h-full flex items-center justify-center opacity-80"><RenderLucideIcon name={child.icon} size={24} /></div>) : Icon ? (<div className="w-full h-full flex items-center justify-center opacity-80"><Icon size={24} /></div>) : null}</div></div></div>
                                                                                                             <div className="flex-1 flex flex-col justify-center text-center min-w-0 z-10 relative"><div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-60">{Icon && <Icon size={10} className="shrink-0" style={{ color: getSmartTextColor() }} />}<span className="text-[10px] font-bold uppercase tracking-wider leading-none" style={{ color: getSmartTextColor() }}>Twitch</span></div><div className="text-[14px] font-bold leading-tight uppercase tracking-[0.05em] w-full"><span className="block w-full whitespace-normal">{child.title || twDisplayName}</span></div><span className="text-[12px] opacity-70 leading-tight flex items-center justify-center gap-1.5 w-full whitespace-pre-line" style={{ color: getSmartTextColor() }}><Users size={12} className="shrink-0" /><span>{child.subtitle || (twFollowersRaw ? `${twFollowersRaw.toLocaleString()} Seguidores` : 'Ver Stream')}</span></span></div><div className="w-12 shrink-0" />
                                                                                                         </motion.a>
                                                                                                     </EffectWrapper>
@@ -3542,7 +3599,7 @@ const ProfileRenderer: React.FC<ProfileRendererProps> = ({ profile, links, produ
                                                                                 </div>
                                                                             ) : link.icon ? (
                                                                                 <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform duration-300">
-                                                                                    {React.createElement((LucideIcons as any)[link.icon] || LucideIcons.Grid, { size: 30 })}
+                                                                                    <RenderLucideIcon name={link.icon} size={30} />
                                                                                 </div>
                                                                             ) : Icon ? (
                                                                                 <div className="w-12 h-12 flex items-center justify-center opacity-80 transition-transform duration-300">

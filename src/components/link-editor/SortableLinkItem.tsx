@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import * as LucideIcons from 'lucide-react';
+import { DynamicIcon, iconNames } from 'lucide-react/dynamic';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
@@ -25,29 +25,46 @@ import {
     Activity, Sun, Waves, PartyPopper, Box as Package,
     Heart, RotateCw, Disc, RefreshCw,
     Move, Target, Lightbulb, Rainbow, ZapOff, Radio, Vibrate, Bolt, Instagram,
-    AlertCircle, Link as LinkIcon, Layout, Grid
+    AlertCircle, Link as LinkIcon, Layout, Grid, Play
 } from 'lucide-react'; // Standardized imports
 
 // Lazy-imported to break circular dep (LinkEditor uses SortableLinkItem uses LinkEditor)
 const LinkEditor = React.lazy(() => import('../LinkEditor'));
 
+const availableLucideIcons = new Set<string>(iconNames);
+const toDynamicIconName = (name?: string) => {
+  if (!name) return null;
+  const normalized = name
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .replace(/\s+/g, '-')
+    .toLowerCase();
+  return availableLucideIcons.has(normalized) ? normalized : null;
+};
+
+const RenderLucideIcon: React.FC<{ name?: string; size: number }> = ({ name, size }) => {
+  const iconName = toDynamicIconName(name);
+  return iconName
+    ? <DynamicIcon name={iconName as any} size={size} strokeWidth={2.5} />
+    : <Grid size={size} strokeWidth={2.5} />;
+};
+
 export interface SortableLinkItemProps {
     link: LinkItem;
     updateLink: (id: string, field: keyof LinkItem, value: any) => void;
-    updateLinkFields: (id: string, updates: Partial<LinkItem>) => void;
+    updateLinkFields?: (id: string, updates: Partial<LinkItem>) => void;
     removeLink: (id: string) => void;
     toggleLink: (id: string) => void;
     isExpanded: boolean;
-    toggleCollection: (id: string) => void;
-    isCollectionExpanded: boolean;
+    toggleCollection?: (id: string) => void;
+    isCollectionExpanded?: boolean;
     profile: UserProfile;
-    level: number;
+    level?: number;
     expandedLinks: Record<string, boolean>;
     setExpandedLinks: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
     expandedCollections: Record<string, boolean>;
     setExpandedCollections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-    isAnyExpanded: boolean;
-    isMobile: boolean;
+    isAnyExpanded?: boolean;
+    isMobile?: boolean;
     setProfile?: React.Dispatch<React.SetStateAction<UserProfile>>;
     isOnboarding?: boolean;
 }
@@ -60,19 +77,28 @@ function SortableLinkItem({
     toggleLink,
     isExpanded,
     toggleCollection,
-    isCollectionExpanded,
+    isCollectionExpanded = false,
     profile,
-    level,
+    level = 0,
     expandedLinks,
     setExpandedLinks,
     expandedCollections,
     setExpandedCollections,
-    isAnyExpanded,
-    isMobile,
+    isAnyExpanded = false,
+    isMobile = false,
     setProfile,
     isOnboarding
 }: SortableLinkItemProps) {
     const { t, i18n } = useTranslation();
+    const applyLinkFields = (id: string, updates: Partial<LinkItem>) => {
+        if (updateLinkFields) {
+            updateLinkFields(id, updates);
+            return;
+        }
+        Object.entries(updates).forEach(([field, value]) => {
+            updateLink(id, field as keyof LinkItem, value);
+        });
+    };
     const isPT = i18n.language?.startsWith('pt');
     const dragControls = useDragControls();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -248,7 +274,7 @@ function SortableLinkItem({
                         }
 
                         if (Object.keys(updates).length > 0) {
-                            updateLinkFields(link.id, updates);
+                            applyLinkFields(link.id, updates);
                         }
                     }
                 } catch (err) {
@@ -314,7 +340,7 @@ function SortableLinkItem({
                             }
 
                             if (Object.keys(updates).length > 0) {
-                                updateLinkFields(link.id, updates);
+                                applyLinkFields(link.id, updates);
                             }
                         }
                         return;
@@ -347,7 +373,7 @@ function SortableLinkItem({
                             }
 
                             if (Object.keys(updates).length > 0) {
-                                updateLinkFields(link.id, updates);
+                                applyLinkFields(link.id, updates);
                             }
                             return;
                         }
@@ -391,7 +417,7 @@ function SortableLinkItem({
 
                             if (Object.keys(updates).length > 0) {
                                 console.log('[DiscordFetch] Applying updates:', updates);
-                                updateLinkFields(link.id, updates);
+                                applyLinkFields(link.id, updates);
                             }
                         } catch (e) {
                             console.error('[SortableLinkItem] Discord fetch error:', e);
@@ -400,7 +426,7 @@ function SortableLinkItem({
                     }
 
                     if (linkRef.current.embedType !== type) {
-                        updateLinkFields(link.id, { embedType: type });
+                        applyLinkFields(link.id, { embedType: type });
                     }
 
                     metadata = await fetchMusicMetadata(url);
@@ -448,7 +474,7 @@ function SortableLinkItem({
                         }
 
                         if (Object.keys(updates).length > 0) {
-                            updateLinkFields(link.id, updates);
+                            applyLinkFields(link.id, updates);
                         }
                     }
                 } catch (error) {
@@ -602,7 +628,7 @@ function SortableLinkItem({
                                 <div className="flex-1 flex flex-col min-w-0 bg-[#fdfcf0]">
                                     {/* Top Row: Title & Toggle */}
                                     <div
-                                        onClick={() => toggleCollection(link.id)}
+                                        onClick={() => toggleCollection?.(link.id)}
                                         className="flex items-start justify-between p-2 pb-1 md:p-4 md:pb-2 cursor-pointer group"
                                     >
                                         <div className="flex-1 flex flex-col min-w-0 space-y-0.5">
@@ -989,7 +1015,7 @@ function SortableLinkItem({
                                                                             >
                                                                                 {link.icon ? (
                                                                                     <div className="text-black flex items-center gap-1">
-                                                                                        {React.createElement((LucideIcons as any)[link.icon] || Grid, { size: 18, strokeWidth: 2.5 })}
+                                                                                        {<RenderLucideIcon name={link.icon} size={18} />}
                                                                                     </div>
                                                                                 ) : (
                                                                                     <div className="flex items-center gap-1.5 text-black/20 group-hover:text-black/40 transition-colors">
@@ -1129,7 +1155,7 @@ function SortableLinkItem({
                                                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-[500px]">
                                                                                 {[
                                                                                     { id: 'classic', label: 'CLÁSSICO', desc: isPT ? 'Canal e inscritos' : 'Channel & subs', icon: User },
-                                                                                    { id: 'latest', label: 'ÚLTIMO VÍDEO', desc: isPT ? 'Mostra o vídeo novo' : 'Show latest video', icon: LucideIcons.Play },
+                                                                                    { id: 'latest', label: 'ÚLTIMO VÍDEO', desc: isPT ? 'Mostra o vídeo novo' : 'Show latest video', icon: Play },
                                                                                 ].map((opt) => {
                                                                                     const isActive = (link.youtubeDisplayMode || 'classic') === opt.id;
                                                                                     const Icon = opt.icon;
@@ -1589,4 +1615,3 @@ function SortableLinkItem({
 }
 
 export default React.memo(SortableLinkItem);
-

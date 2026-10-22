@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import * as LucideIcons from 'lucide-react';
 import { Search, X, Grid, Sparkles } from 'lucide-react';
+import { DynamicIcon, iconNames } from 'lucide-react/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
@@ -24,16 +24,23 @@ const POPULAR_ICONS = [
     'Sun', 'Moon', 'Cloud', 'Umbrella', 'Wind', 'Thermometer', 'Droplets', 'ZapOff'
 ];
 
+const toDynamicIconName = (name: string) => name
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .replace(/\s+/g, '-')
+    .toLowerCase();
+
+const toDisplayIconName = (name: string) => name
+    .split('-')
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
+
 export const IconPicker: React.FC<IconPickerProps> = ({ onSelect, onClose, currentIcon }) => {
     const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
 
-    // All lucide icons as a list of names
+    // Keep the full picker searchable without bundling every icon component.
     const allIconNames = useMemo(() => {
-        return Object.keys(LucideIcons).filter(name => 
-            name !== 'createLucideIcon' && 
-            typeof (LucideIcons as any)[name] === 'function' || typeof (LucideIcons as any)[name] === 'object'
-        );
+        return iconNames.map(toDisplayIconName);
     }, []);
 
     const filteredIcons = useMemo(() => {
@@ -46,9 +53,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ onSelect, onClose, curre
     }, [searchTerm, allIconNames]);
 
     const renderIcon = (name: string, size = 20) => {
-        const IconComponent = (LucideIcons as any)[name];
-        if (!IconComponent) return null;
-        return <IconComponent size={size} strokeWidth={2.5} />;
+        return <DynamicIcon name={toDynamicIconName(name) as any} size={size} strokeWidth={2.5} />;
     };
 
     return (

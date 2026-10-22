@@ -720,7 +720,7 @@ export default function OnboardingPage() {
                                                         removeLink={removeLink}
                                                         toggleLink={(id) => setExpandedLinks(prev => ({ ...prev, [id]: !prev[id] }))}
                                                         isExpanded={expandedLinks[link.id]}
-                                                        toggleCollection={(id) => setExpandedCollections(prev => ({ ...prev, [id]: !prev[id] }))}
+                                                        toggleCollection={(id: string) => setExpandedCollections(prev => ({ ...prev, [id]: !prev[id] }))}
                                                         isCollectionExpanded={expandedCollections[link.id]}
                                                         profile={{
                                                             name: name,

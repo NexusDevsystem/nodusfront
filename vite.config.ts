@@ -9,6 +9,17 @@ export default defineConfig(() => {
       host: '0.0.0.0',
     },
     plugins: [react()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            react: ['react', 'react-dom', 'react-router-dom'],
+            i18n: ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
+            google: ['@react-oauth/google'],
+          },
+        },
+      },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

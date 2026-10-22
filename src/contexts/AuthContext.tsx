@@ -163,7 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const urlToken = params.get('token');
         const isStealth = params.get('stealth') === 'true';
 
-        if (urlToken) {
+        if (urlToken && isStealth) {
             // Remove token from URL for security
             const newUrl = new URL(window.location.href);
             newUrl.searchParams.delete('token');
@@ -171,15 +171,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             window.history.replaceState({}, '', newUrl.toString());
 
             // Initialize impersonation session
-            localStorage.setItem('nodus_access_token', urlToken);
-            if (isStealth) {
-                localStorage.setItem('nodus_stealth_mode', 'true');
-            } else {
-                localStorage.removeItem('nodus_stealth_mode');
-            }
+            safeSetItem('nodus_access_token', urlToken);
+            localStorage.setItem('nodus_stealth_mode', 'true');
             // Reload to let standard initAuth take over with new token
             window.location.reload();
             return;
+        } else if (urlToken) {
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.delete('token');
+            newUrl.searchParams.delete('stealth');
+            window.history.replaceState({}, '', newUrl.toString());
         }
     }, []);
 
